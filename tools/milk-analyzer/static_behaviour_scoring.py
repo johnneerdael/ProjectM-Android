@@ -91,6 +91,15 @@ def score_static_behaviour(evidence,*,preferences=None):
                          'reason':'source transfer proves no displayed contribution'})
             continue
         contrast=record.get('periodic_contrast_range') or record.get('brightness_delta_range')
+        if (identity=='shader_composite' and evidence.get('output_model_complete') and
+                record.get('uniform_rgb_over_viewport') and
+                record.get('periodic_attainment',{}).get('complete_cycle_in_declared_interval') and
+                record.get('periodic_contrast_range') is not None and
+                not output.get('raw_ranges_changed')):
+            # A complete, uniform, unclipped final RGB cycle reaches every
+            # display pixel: its support/identity cannot have a zero lower
+            # weight. This remains a declared nominal full-cycle contrast.
+            extent=(1.,1.)
         if contrast is not None and output.get('raw_ranges_changed') and output.get('maximum_rgb_difference') is not None:
             contrast=[0.,min(_span(contrast)[1],output['maximum_rgb_difference'])] if _span(contrast)[1] is not None else [0.,output['maximum_rgb_difference']]
         frequency=record.get('cycle_rate_hz'); events=record.get('event_rate_hz')
@@ -147,7 +156,7 @@ def score_static_behaviour(evidence,*,preferences=None):
             flash_possible=True
 
     for record in evidence.get('motion', {}).get('contributions', []):
-        if record['kind'] in DIAGNOSTIC_MOTION:
+        if record['kind'] in DIAGNOSTIC_MOTION or not record.get('included_in_total_motion',True):
             continue
         identity=record['component_id']; extent=support(identity)
         speed=_span(record['speed_interval_vp_per_second'])

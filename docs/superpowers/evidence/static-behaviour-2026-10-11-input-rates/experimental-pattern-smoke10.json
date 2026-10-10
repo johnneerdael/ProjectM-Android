@@ -1,0 +1,1232 @@
+{
+  "selection": "first 10 unchanged source_inventory records in saved v6 manifest; no reroll",
+  "reader_sha256": "754e4f4129db585cb4f7d5bee915d6bb24ac10ab25901ee7ef0832ce50744afc",
+  "manifest_sha256": "7370b98646598d8ec6973c2562a70fc226cc20f0053578fa3a6333f426225005",
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "uses_shader_execution": false,
+  "rows": [
+    {
+      "preset": {
+        "relative_path": "Goody + Suksma - Goodbye my enemy ['not really, just want to hack you off' mix].milk",
+        "sha256": "d3e037306cca766a088ede469df11a33382e42e028d786d01319f6671fa80ab8"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "907248c6047120596757a4b1461b0ec80589cb82761fd251fda8c9728a41d663",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "d3e037306cca766a088ede469df11a33382e42e028d786d01319f6671fa80ab8",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "dynamic typed conversion excludes continuous coordinate identity"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 0,
+              "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "conditional_on_native_profile": false,
+              "source_contains_clip": false,
+              "kind": "fixed_warp",
+              "reason": "file-level shader version disabled"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "d3e037306cca766a088ede469df11a33382e42e028d786d01319f6671fa80ab8",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "selected custom shader required"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "xtramartin (54).milk",
+        "sha256": "15a39b34e3c2204d2ddc57f65a91c58143e45c2da5f5c1fea1246e746443cbac"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "7d521bf7114e142b8fe7cd5d96460ec53a78322ad739cc7d4b61ddaee2ae045b",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "15a39b34e3c2204d2ddc57f65a91c58143e45c2da5f5c1fea1246e746443cbac",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "dynamic typed conversion excludes continuous coordinate identity"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "fbb321540afffeb0fb66cea1b8f6b1b2e82b627d9e4ca71cc9ea9b0526103018",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "15a39b34e3c2204d2ddc57f65a91c58143e45c2da5f5c1fea1246e746443cbac",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "pattern original graph budget exceeded"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "27_super_goats-orbus_maximus poown.milk",
+        "sha256": "eff4fa6abaccd2e2245e5bfc96bacc122091eabe003dd68d179371221630c166"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "12e20aea729739df79315f99038792e0d0b30e7fe32c282f8fe27d472ef2096a",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "eff4fa6abaccd2e2245e5bfc96bacc122091eabe003dd68d179371221630c166",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "55eb0fd17d2b6a08a72ecd9b95e2a72e7cc4c360c0d424fe2cc409d64fdf7645",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "eff4fa6abaccd2e2245e5bfc96bacc122091eabe003dd68d179371221630c166",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Jc - Orbital System.milk",
+        "sha256": "ae5bbfa5914f2703c8c827b7356ce3174a6f9a23218293f26ad846eb46b9c96e"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "c8e6134631154e10defab9370b414144768bcadadcb2eafb2b5e599a97a27f47",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "ae5bbfa5914f2703c8c827b7356ce3174a6f9a23218293f26ad846eb46b9c96e",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "2e32e4578b93aef5e5cddcc401cf8e415c52f361fe69ed1e3dfa674a8856ed71",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "ae5bbfa5914f2703c8c827b7356ce3174a6f9a23218293f26ad846eb46b9c96e",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Geiss - Game of Life 4.milk",
+        "sha256": "f2e2f0ec64092124090821144535625577381e19495ab5f2b92f03f74aedffaf"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "46fc4f98e98414f71d037b00817d2b18cd37051ca58d98c7755b029c4775d8b0",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "f2e2f0ec64092124090821144535625577381e19495ab5f2b92f03f74aedffaf",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "deb53db9ac7734f692aec46e3af05444fa46017a565cb54f2b8f222eec5ba98d",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "f2e2f0ec64092124090821144535625577381e19495ab5f2b92f03f74aedffaf",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "dynamic typed conversion excludes continuous coordinate identity"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Fumbling_Foo & Flexi, Martin, Orb, Unchained - Acid Mandala v4d.milk",
+        "sha256": "1e9f8826a646f760460d5cc5a2d74aee55fb1a0e861f9225ba2bf3cb36002081"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "c7c2a74e1957f7c9ded6a753a715450866021b886a4e887e15bd81ba850014e6",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "1e9f8826a646f760460d5cc5a2d74aee55fb1a0e861f9225ba2bf3cb36002081",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "original shader lowering/domain effects unresolved"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "583a6bb53a986174c975f453127fe21a5bcf29fb4e4a0c36fc2ea0734a6adb76",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "1e9f8826a646f760460d5cc5a2d74aee55fb1a0e861f9225ba2bf3cb36002081",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "original shader lowering/domain effects unresolved"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "skipper skipper kiss me hard - if it weren't for you wonderful role playing 'people' parts of my solipsistic overmind.milk",
+        "sha256": "b3477c4b7f0d9e4cea124a272b8476b4a796ca939714b3825d4c82466401cf8f"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "3c224221c9f07ccafd66b66715485a08bba0dfa1c71ba348b5d0ca3caebf1b80",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "b3477c4b7f0d9e4cea124a272b8476b4a796ca939714b3825d4c82466401cf8f",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "dynamic typed conversion excludes continuous coordinate identity"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "9477b05b2442c92708e3bf1f46f29253f7340c2d2f3ad2dfee4aa27b4f3e7d14",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "b3477c4b7f0d9e4cea124a272b8476b4a796ca939714b3825d4c82466401cf8f",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "flexi - grind my glitch up [231].milk",
+        "sha256": "3a6e50e87b46df7ce4fd910c756be5f7520348b2d97fc1f67cc93ef1272c227a"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "efe24e3d0e1b52d0b54edd9d7c447d30ea5bb91dfc55766e5f0375d78b0e6375",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "3a6e50e87b46df7ce4fd910c756be5f7520348b2d97fc1f67cc93ef1272c227a",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "pattern original graph budget exceeded"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [
+            "partial colour traversal budget exceeded"
+          ],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "18430b26cd7cf11173d885f6a693be5b60f347cd93db4fc5234faa044db807f4",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "3a6e50e87b46df7ce4fd910c756be5f7520348b2d97fc1f67cc93ef1272c227a",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "TonyMilkdrop - This Is A Painting [Flexi - let go + alien complex] --- Isosceles edit.milk",
+        "sha256": "00c23ac4e1717f39b46d3430121148b128a0039a1ffcca8e2a57b8a1f9eb7bad"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 3,
+              "source_sha256": "7bbc5270dee4dfe9345420c57deefaa911efda564f0a8c227845056698a23624",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_composite",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "00c23ac4e1717f39b46d3430121148b128a0039a1ffcca8e2a57b8a1f9eb7bad",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 2,
+              "source_sha256": "8a4cf7eb9a01cf7d28d21df02f1b387e3ea2c6c691d9a57f6a3f724580fed026",
+              "conditional_on_native_profile": true,
+              "source_contains_clip": false,
+              "kind": "custom_warp",
+              "reason": "offline target accepted"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "00c23ac4e1717f39b46d3430121148b128a0039a1ffcca8e2a57b8a1f9eb7bad",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "sample/history/control effect excludes pure generated pattern: sample"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "ORB - Windmill.milk",
+        "sha256": "756c85c16c7a9d55b1478eb0c5849c54190a45835297558bd87c00114be3fd49"
+      },
+      "reports": [
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "composite",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "composite",
+            "component_id": "shader_composite",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 0,
+              "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "conditional_on_native_profile": false,
+              "source_contains_clip": false,
+              "kind": "legacy_composite",
+              "reason": "file-level shader version disabled"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "756c85c16c7a9d55b1478eb0c5849c54190a45835297558bd87c00114be3fd49",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "selected custom shader required"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        },
+        {
+          "policy": "source-pure-shader-rigid-translation-v1",
+          "stage": "warp",
+          "full_pattern": null,
+          "full_pattern_report": {
+            "policy": "source-pure-shader-rigid-translation-v1",
+            "status": "unresolved",
+            "stage": "warp",
+            "component_id": "shader_warp",
+            "coordinate_basis": "normalized_viewport_uv",
+            "signed_velocity_vp_per_second": null,
+            "maximum_pattern_speed_vp_per_second": null,
+            "constraint_rank": null,
+            "velocity_unique": null,
+            "phase_constraints": [],
+            "native_coordinate_recipe": null,
+            "clock_kinds": [],
+            "shader_time_wrap_seconds": null,
+            "shader_selection": {
+              "shader_version": 0,
+              "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "conditional_on_native_profile": false,
+              "source_contains_clip": false,
+              "kind": "fixed_warp",
+              "reason": "file-level shader version disabled"
+            },
+            "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+            "source_sha256": "756c85c16c7a9d55b1478eb0c5849c54190a45835297558bd87c00114be3fd49",
+            "model_sha256": "75ebb63061a0e545c704900cc797a86ea2ba318a0fb963a8a58920396ac22e04",
+            "unknown_reasons": [
+              "selected custom shader required"
+            ],
+            "domain_guards": [],
+            "native_numeric_certified": false,
+            "nominal_translation_identity_proved": false,
+            "all_rgb_factors_accounted_for": false,
+            "complete_content_transport_proved": false,
+            "visible_motion_speed_vp_per_second": null,
+            "uses_shader_execution": false,
+            "uses_equation_execution": false,
+            "uses_rendered_images": false,
+            "conditions": [
+              "Nominal RGB identity G(u,t)=F(u-v*t), at points where the original graph is defined and finite",
+              "Exact rational coefficients use original typed literals; arithmetic/GPU rounding and interpolation are excluded",
+              "Clock continuity excludes wrap/reset events; no feedback-FPS multiplier is applied",
+              "All generated RGB factors share one velocity; this is sufficient and may miss other moving patterns",
+              "Rank-one velocity is the minimum-norm representative; tangential transport is unidentifiable",
+              "Clipping, storage, later passes, contrast, coverage and dominant or perceived screen motion remain separate"
+            ]
+          },
+          "partial_patterns": [],
+          "unknown_reasons": [],
+          "included_in_total_motion": false,
+          "uses_shader_execution": false,
+          "uses_equation_execution": false,
+          "uses_rendered_images": false
+        }
+      ]
+    }
+  ]
+}

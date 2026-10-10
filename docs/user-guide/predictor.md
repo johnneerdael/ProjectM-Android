@@ -46,6 +46,13 @@ Legacy gamma and echo use the patched engine's actual redraw and blending rules.
 These conditional bounds help quantify possible effect strength; they do not
 by themselves establish a preset's mood.
 
+Callers can also declare maximum changes per second for exact scalar input names.
+This lets the predictor combine time, bass, mids and other supported input responses
+into conditional shape movement bounds. An amplitude range alone does not supply
+a change rate, and those declared rates are not measurements of a song or its BPM.
+Uniform final-color cycles have integrated calm/moderate/intense source controls;
+feedback presets still retain their unresolved movement and flashing contributions.
+
 ## What the static JSON can describe
 
 The static producer is `effect_family_export.py`. Its `analysis.visual_description`

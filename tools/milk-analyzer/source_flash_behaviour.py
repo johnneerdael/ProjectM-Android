@@ -219,6 +219,20 @@ def _shader_record(analysis, description, stage, field, domains, rejected):
     if other:
         row['unknown_reasons'].append('audio/state/input time trajectories unresolved: '+', '.join(sorted(other)))
     samples = any(n.op=='sample' for c in channels for n,path in _walk(c))
+    from effect_families import _deps
+    dependencies=set().union(*(_deps(c) for c in channels))
+    row['uniform_rgb_over_viewport']=dependencies<=TIME_NAMES and not samples
+    clocks=dependencies&TIME_NAMES
+    row['periodic_attainment']={'scope':'nominal complete-cycle contrast within a declared clock interval',
+        'clock_input':next(iter(clocks)) if len(clocks)==1 else None,
+        'complete_cycle_in_declared_interval':False,
+        'actual_clock_trajectory_verified':False}
+    if row['uniform_rgb_over_viewport'] and len(clocks)==1 and row['cycle_rate_hz'] not in (None,0):
+        interval=domains.get(next(iter(clocks)))
+        period=1/row['cycle_rate_hz']
+        row['periodic_attainment'].update(period_seconds=period,declared_clock_interval=interval)
+        if interval is not None:
+            row['periodic_attainment']['complete_cycle_in_declared_interval']=interval[1]-interval[0]>=period
     if samples:
         row['unknown_reasons'].append('sampled texture/history changes and lookup transport are separate from direct colour response')
         # Reuse the qualified original sample replacement/domain calculus. Never

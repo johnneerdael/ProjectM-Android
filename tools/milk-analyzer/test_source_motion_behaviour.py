@@ -130,6 +130,135 @@ def test_audio_response_is_partial_not_speed_without_declared_audio_slopes():
     assert result['unresolved_contributors']
 
 
+def test_declared_independent_audio_rates_compose_geometry_speed_without_execution():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2],'mid':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':3,'mid':4}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.5+.1*bass;y=.5+.2*mid;rad=.2;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second']==pytest.approx(math.hypot(.3,.8))
+    assert row['declared_input_rates_per_second']=={'bass':3,'mid':4}
+    assert not any(r['component_id']=='shape_0' for r in result['unresolved_contributors'])
+    assert result['uses_equation_execution'] is False
+
+
+def test_independent_audio_changes_do_not_cancel_for_opposite_coefficients():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2],'mid':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':3,'mid':3}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=bass-mid;y=.5;rad=.2;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second']==pytest.approx(6)
+
+
+def test_positive_response_rate_product_cannot_underflow_to_stationary():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':5e-324}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.5+.1*bass;y=.5;rad=.2;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second'] is None or row['maximum_speed_vp_per_second']>0
+
+
+def test_positive_radius_times_angular_rate_cannot_underflow_to_stationary():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':5e-324}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.5;y=.5;rad=1e-10;ang=bass;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second'] is None or row['maximum_speed_vp_per_second']>0
+
+
+def test_missing_one_audio_rate_keeps_combined_geometry_unknown():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2],'mid':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':3}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.5+.1*bass;y=.5+.2*mid;rad=.2;ang=0;sides=4;\n'),context)
+    assert not any(r['kind']=='geometry_declared_input_transport' for r in result['contributions'])
+    assert any(r['component_id']=='shape_0' for r in result['unresolved_contributors'])
+
+
+def test_rate_without_amplitude_domain_is_not_complete_geometry_transport():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_maximum_rates_per_second':{'bass':3}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.5+.1*bass;y=.5;rad=.2;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second'] is None
+    assert any('amplitude' in reason for reason in row['unknown_reasons'])
+
+
+def test_zero_rate_does_not_remove_discontinuous_source_seam():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':0}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=above(bass,1);y=.5;rad=.2;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second'] is None
+
+
+def test_finite_audio_domain_can_still_overflow_native_position_conversion():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2e38]},
+        'scalar_input_maximum_rates_per_second':{'bass':3}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=bass;y=.5;rad=.2;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second'] is None
+    assert any('float32' in reason for reason in row['unknown_reasons'])
+
+
+def test_individually_finite_controls_do_not_prove_finite_perimeter_addition():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,1e38]},
+        'scalar_input_maximum_rates_per_second':{'bass':0}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=bass;y=.5;rad=3e38;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second'] is None
+    assert any('perimeter' in reason for reason in row['unknown_reasons'])
+
+
+@pytest.mark.parametrize('factor,finite',[('1e308',False),('10',True)])
+def test_original_zero_product_arguments_retain_their_domain_obligations(factor,finite):
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':3}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.5+.1*bass+0*('+factor+'*bass);y=.5;rad=.2;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert (row['maximum_speed_vp_per_second'] is not None)==finite
+    if finite:assert row['maximum_speed_vp_per_second']==pytest.approx(.3)
+    else:
+        assert any('original' in reason for reason in row['unknown_reasons'])
+        assert any(r['component_id']=='shape_0' for r in result['unresolved_contributors'])
+
+
+def test_declared_rate_does_not_remove_native_invalid_geometry_guard():
+    context={'viewport':[1000,1000],'feedback_fps':30,
+        'scalar_input_domains':{'bass':[0,2]},
+        'scalar_input_maximum_rates_per_second':{'bass':3}}
+    result=evidence(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.1*bass;y=.5;rad=1e100;ang=0;sides=4;\n'),context)
+    row=contribution(result,'geometry_declared_input_transport','shape_0')
+    assert row['maximum_speed_vp_per_second'] is None
+    assert result['unresolved_contributors']
+
+
+@pytest.mark.parametrize('rates',[{'bass':-1},{'bass':float('nan')},{'bass':True},{'time':0},[]])
+def test_invalid_or_redefined_clock_rate_rejected(rates):
+    from source_motion_behaviour import motion_evidence
+    with pytest.raises(ValueError):
+        motion_evidence(None,{}, {'viewport':[1000,1000],'feedback_fps':30,
+            'scalar_input_maximum_rates_per_second':rates})
+
+
 def test_sympy_correlated_shape_time_derivative_reduces_real_rate_bound():
     import os
     from pathlib import Path

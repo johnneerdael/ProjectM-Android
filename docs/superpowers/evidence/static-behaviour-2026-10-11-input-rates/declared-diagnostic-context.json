@@ -1,0 +1,64 @@
+{
+  "viewport": [
+    1920,
+    1080
+  ],
+  "feedback_fps": 30,
+  "reference_profile": "declared-shape-input-rate-diagnostic-not-observed-music",
+  "scalar_input_domains": {
+    "bass": [
+      0,
+      2
+    ],
+    "mid": [
+      0,
+      2
+    ],
+    "treb": [
+      0,
+      2
+    ],
+    "bass_att": [
+      0,
+      2
+    ],
+    "mid_att": [
+      0,
+      2
+    ],
+    "treb_att": [
+      0,
+      2
+    ],
+    "time": [
+      0,
+      4
+    ],
+    ":native-render-time-f32": [
+      0,
+      4
+    ],
+    "_c2.x": [
+      0,
+      4
+    ],
+    "fps": [
+      30,
+      30
+    ],
+    "frame": [
+      0,
+      120
+    ]
+  },
+  "scalar_input_maximum_rates_per_second": {
+    "bass": 4,
+    "mid": 4,
+    "treb": 4,
+    "bass_att": 4,
+    "mid_att": 4,
+    "treb_att": 4,
+    "fps": 0,
+    "frame": 30
+  }
+}

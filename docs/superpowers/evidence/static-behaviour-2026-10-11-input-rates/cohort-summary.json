@@ -1,0 +1,51 @@
+{
+  "presets": 772,
+  "terminal_status_counts": {
+    "computed": 772
+  },
+  "behaviour_reports": 772,
+  "presets_with_useful_hue_description": 739,
+  "presets_with_conditional_activity_index": 217,
+  "eligible_bands": {},
+  "provisional_source_potential_bands": {
+    "Normal": 29,
+    "Intense": 136
+  },
+  "unknown_reasons_by_presets": [
+    [
+      "complete displayed source activity model not established",
+      772
+    ],
+    [
+      "source movement or displayed contribution unresolved",
+      772
+    ],
+    [
+      "total brightness trajectory or transition extent unresolved",
+      767
+    ],
+    [
+      "fixed-texture material response excludes texture/history trajectories",
+      525
+    ],
+    [
+      "contributing source flash mechanism is not exhaustively quantified",
+      181
+    ],
+    [
+      "displayed contribution has no source bound",
+      21
+    ],
+    [
+      "known invalid native source domain",
+      1
+    ]
+  ],
+  "uses_rendered_images": false,
+  "appearance_accuracy_verified": false,
+  "scope": "Source evidence and uncalibrated preference mapping; counts are not visual accuracy",
+  "wall_seconds": 98.90756454199436,
+  "worker_seconds": 363.9738572817587,
+  "manifest_sha256": "d10b1773f7e080777430d2cbf1876918485b83e8bc0f05c7789261def242c9ae",
+  "rows_sha256": "1a44d2493feae077c65c9fa6cff0bf913627386de8795e38b7ca9722119f7537"
+}

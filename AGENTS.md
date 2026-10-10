@@ -1527,3 +1527,21 @@ schema/model-valid source exports and2000 computed source rows. Conditional
 potential indices change367→378; useful hue descriptions stay1552 and automatic
 eligible bands remain empty. See the transfer-v6 evidence folder; these are
 conditional source-coverage counts, not mood or appearance accuracy.
+
+Input-rate/blur follow-up (2026-10-11): optional
+`scalar_input_maximum_rates_per_second` context declares exact scalar input change
+ceilings; it defaults empty and cannot redefine source/native clocks. Combined
+shape transport needs finite amplitude/original argument domains and all relevant
+rates. Preserve unknown state/topology, native projected/perimeter overflow,
+positive-product underflow and constituents' partial records. The reusable
+`original_scalar_domain_evidence` owns a bounded private cache. Blur operator gains
+are exported separately from current drawing because previous-feedback timing,
+RGB/alpha, encoded/GetBlur decode and native pair-error obligations remain distinct.
+Uniform final RGB cycle screen lower weight requires a complete unclipped source
+model and declared full-cycle clock interval. Source decisions do not certify
+native frame sampling or mood accuracy.3633prepared tests plus92subtests and100
+schema/model-valid exports pass. The declared772-case diagnostic obtains229finite
+combined geometry records across120presets; same-context scorer ablation204→217
+potential indices, with no whole-preset eligibility. Experimental rational shader
+translation is not integrated (zero first-ten source gains). See
+`docs/superpowers/evidence/static-behaviour-2026-10-11-input-rates/README.md`.

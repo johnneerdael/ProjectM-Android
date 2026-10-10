@@ -1,0 +1,19 @@
+{
+  "inputs": {
+    "build/preset-corpus/static-shape-audio-772-2026-10-11-v7/manifest.json": "d10b1773f7e080777430d2cbf1876918485b83e8bc0f05c7789261def242c9ae",
+    "build/preset-corpus/static-shape-audio-772-2026-10-11-v7/rows.jsonl.gz": "1a44d2493feae077c65c9fa6cff0bf913627386de8795e38b7ca9722119f7537",
+    "build/preset-corpus/static-behaviour-final100-2026-10-11-input-rates-v7/run-manifest.json": "325b837aae1ce061dc593db8ead964737858c2ff1409bf45eec39c86128cab06",
+    "build/preset-corpus/static-behaviour-final100-2026-10-11-input-rates-v7/batch-000001.zip": "daf7cde29ddce552512f949de889206364f44ccf710fe3a2360939e54ceb5f7a",
+    "build/preset-corpus/static-input-rates-suite-2026-10-11.log": "8b23ca07654d92294694d5b4e96b9d32bb864a199aa5034d9cc719eaef5bf05a"
+  },
+  "prepared_tests": 3633,
+  "subtests": 92,
+  "test_seconds": 211.58,
+  "warnings": "five intentional nonfinite-conversion controls",
+  "strict_mkdocs": true,
+  "no_images": true,
+  "no_equation_or_shader_sequences": true,
+  "native_appearance_certified": false,
+  "target_release": "v2.3.34/35/36-equivalent frozen source34 engine",
+  "live_latest_release_refresh": "GitHub API connection failed and web fetch unavailable; no new latest-release claim"
+}

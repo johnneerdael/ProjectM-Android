@@ -428,6 +428,8 @@ def prominence_evidence(analysis,description,context):
         if name in domains and list(domains[name])!=list(span):
             raise ValueError('conflicting scenario/context scalar input domain: '+name)
         domains[name]=list(span)
+    from source_blur_propagation import blur_propagation_evidence
+    blur_propagation=blur_propagation_evidence(getattr(analysis,'main',{}),input_domains=domains)
     elements={e['id']:e for e in description.get('elements',[])}
     controls=_shape_controls(analysis);identities=sorted(set(elements)|set(controls))
     final=_final_transfer(analysis,description,domains,viewport);components=[]
@@ -534,6 +536,7 @@ def prominence_evidence(analysis,description,context):
                     'Instantaneous contribution excludes unknown accumulated feedback/history; a tiny injection need not remain tiny']}
         components.append(record)
     return {'policy':POLICY,'context':context,'provenance':provenance,'components':components,
+            'blur_propagation':blur_propagation,
             'by_component':{r['component_id']:r for r in components},
             'unknown_reasons':sorted(set(reason for r in components for reason in r['unknown_reasons'])),
             'units':{'support':'continuous viewport area fraction','contribution':'normalized integrated encoded RGB difference ceiling',

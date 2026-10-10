@@ -1,0 +1,2619 @@
+{
+  "counts": {
+    "presets_with_combined_records": 369,
+    "presets_with_finite_combined_transport": 120,
+    "combined_records": 708,
+    "finite_combined_records": 229
+  },
+  "blur_operator_status": {
+    "bounded": 772
+  },
+  "unresolved_combined_reasons": [
+    [
+      "unsupported input, discontinuous operation or unproved denominator domain",
+      270
+    ],
+    [
+      "x finite geometry value domain remains unresolved",
+      262
+    ],
+    [
+      "x original argument domain unresolved: original control argument lacks a finite declared-domain envelope",
+      262
+    ],
+    [
+      "y original argument domain unresolved: original control argument lacks a finite declared-domain envelope",
+      260
+    ],
+    [
+      "y finite geometry value domain remains unresolved",
+      260
+    ],
+    [
+      "rad original argument domain unresolved: original control argument lacks a finite declared-domain envelope",
+      198
+    ],
+    [
+      "rad finite geometry value domain remains unresolved",
+      198
+    ],
+    [
+      "ang finite geometry value domain remains unresolved",
+      9
+    ],
+    [
+      "ang original argument domain unresolved: original control argument lacks a finite declared-domain envelope",
+      9
+    ],
+    [
+      "effective side count is not a proved lifetime constant",
+      4
+    ]
+  ],
+  "bounded_presets": [
+    {
+      "preset": {
+        "relative_path": "blood red raw holy - gildead milk chocolate diamond treats.milk",
+        "sha256": "71bb0020936917a24a8ebf81bf31a6e9d27e735fe1dbeb56b0a1bbb4271884ea"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "vashon island - fresh ground coffee and a free energy talk.milk",
+        "sha256": "2e970517f2f3dd1d4b71edc5eb1cff8eb786fff6fcda543a4c93d31d61a3beb9"
+      },
+      "components": [
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.408588355737709
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - chernobyl pie for dessert - swami back bite jadedolojyst.milk",
+        "sha256": "ac37f9184bff24774a1d2cc9bf57b63107e752373642d8a6cc49cdfe97db4a9b"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuX - Spiral of Light (Minimal Mix).milk",
+        "sha256": "ca7ca20f5f7a01116bb57f47ef58be448c1027e09b5d525f56fb7704a8aab1b6"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "NeW Adam Master Mashup FX 2 Geiss and Zylot - Reaction Diffusion 3 (Overload Mix 2) AMAZING MASUP  - orb sth go 4-ret tork.milk",
+        "sha256": "4f8fd8e1e657dc0d87ed4d8bc2a3ee4e15efa5310223d53a125434582ecb47d1"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - complex inharmonic distortion.milk",
+        "sha256": "4e44555018465b811437d12b801ef20b62a31b35964914b5112fd6ca7f0455f0"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "equidistant from vomit (out of totality).milk",
+        "sha256": "00eb40c016311b66500d05d5c01557cb4bb30be03dbe235a4b5a8a2953d607bc"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "blood red raw holy - cousmologic stint.milk",
+        "sha256": "77268d697c1cf550603e388f0211e583fa9e94d21911f1cde47d409e71af1afc"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "blood red raw holy - an evaporative dip in the frost of mind hibernation.milk",
+        "sha256": "9f04e14651db9e3d4dc38370d0537acb5aa93c2bc687cfc39452c8647f9d4173"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "blood red raw holy - sth absolutely blazed lying naked hidden in the savannah roam.milk",
+        "sha256": "bf0f4de35e39972b051b03a811f7f3665df0ad733f2fe369d9991699ca091301"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Stahlregen + Geiss - Old school, baby! (Flower V2)_1 - lack-of-torture torture mess.milk",
+        "sha256": "53753691006809b61f09725f5d896999d62a513f0fd72fb3eaad7fa033814641"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6959770111145918
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Stahlregen - Eckshack's Eyeball (floater mix) - qlean luchre nz+ olde.milk",
+        "sha256": "12a0cdd493ce3c002eaa3da4f477a99f89d4574d809554909718aa82e54c2d85"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Tripgnosis - Psychotropic Overload.milk",
+        "sha256": "686d1f7a476e3944738eb769de2af8dd3e2e9883c01bf9220f4235229513f069"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.5012843164426695
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.258001662695422
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the hive i have ideas scattered disparate paradigms.milk",
+        "sha256": "f9f433eb0dde6e0a5c141b95810e6120745f80ae1511b14d99e0f3041073893c"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the neon grafitti hive nz+ agony lovesickle` invalid swizzle ormus muffin correlate.milk",
+        "sha256": "1b4b771c17287fa4e5b031ffc9246b95167bdfd6a2f261a66ea641315c69f18a"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the other kids toys hive nz.milk",
+        "sha256": "95c956bd92b942754575ae94296f9b62f1641c3e248d00e0af1501ef2133bfb2"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - FearThisStorm.milk",
+        "sha256": "3c398624e110f4e9064c79824034f361588a9fd505122e91464fa4ee7c989169"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "EVET - Hexcollie - Prismashells.milk",
+        "sha256": "76fb12dbb40e05ba26c6c5528565d93ad78dca1b35da138130b1795b0ed9b6c2"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Hexcollie - 2nd Gen Personal Mashup.milk",
+        "sha256": "b12ec19881c6545fcdcbffb652c5cc94cb736fe3b20f9ce78d7c77cc5dca0718"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the waxen hive.milk",
+        "sha256": "998ff8c555e726c0db2f4a960ce863464192323ed8c5133dbcd76179312ab34d"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Roosta - Galactic Introspection - Solar flare mix.milk",
+        "sha256": "d4798cbaedeacb1cc2a4234848ed91010005b4a56f890f8d31bf887340cc4bf1"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "blastofftek - Aether generator.milk",
+        "sha256": "ccfa8adaab63b78edfd49b83ea894e7eecd66005dc0340bf048b028339960e20"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.10000000000000002
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.10000000000000002
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "A Tribute to Martin - bombyx mori - Ft Flexi - AdamFX - StahlRegen - Krash - Rovastar -  Hd in Milk T.milk",
+        "sha256": "3b137e6640797628149c13ff48f1d0da7763ec68249523d560b67c04f3b4c03d"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.4100000000000003
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "GreatWho - Addicted log10.milk",
+        "sha256": "1156c1913a740d661abf8dc7751bc1471c1a923952795ed7ca30f13135c466b4"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.20250000000000007
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Martin N AdamFX Infusion = Phat+Yin+EoS_Mandala Chaser Ft AdamFX n Martin - The Beast Mandala Chaser FX H.milk",
+        "sha256": "920ebcc3864e455ec4520900b49f1693cf76fa2dc3eaeece707209b442aeb982"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.4100000000000003
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - hugs for the evil - altars of sadness.milk",
+        "sha256": "a723f0a667ddc89ba2b167e3d20b17caf0f9a785cd511227e67fc2140df0e989"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            3.2767373032421863
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.012461179749811
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5523975065412818
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "$$$ Royal - Mashup (279).milk",
+        "sha256": "179f531294aeb5109b1c733bb4913fd82315a3dfc49b924f6b9e4bca5a394649"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - fiShbRaiN - brainstem activation - mash0000 - altar of metatronic chaos - j4-.milk",
+        "sha256": "757464fef7ffd5cad49da759d3cc85d878c9e350501d20a239e109abc9226b34"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.8550511949967367
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.8866463884213308
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - Chemlock - Spot (Zylot & Aderrasi equations) martin stahlregen - dremp - meds.milk",
+        "sha256": "05aafd62d2dd8e4bcef2b4a8c858fbb265f3d2a5fdd2c9714c045a270575d1e1"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.37585103432078
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "fishbrain and flexi - box of tricks 06 - anti-gravity machinationalist.milk",
+        "sha256": "0340599f69b6a0b1b51e4a2cdfad885754fbac900113463f65b4d37e8d89c63d"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            3.2767373032421863
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.012461179749811
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5523975065412818
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Sick of God.milk",
+        "sha256": "77eeca7aa3a3bb68910f93d4439915ef8c34cda06fce486c540eb63738f5b76d"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - kun weit - chumps.milk",
+        "sha256": "0f7f27ece7afdb80b55b8d743e63787a755a9b5f731ce9a34ca966780894c7ae"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - glam orbital nag.milk",
+        "sha256": "4f2e75efcd133d260ee67c88fdad828800294a266d549abd05ec7c3f675f5d65"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.6817943007100369
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - ed geining hateops - flx if it is selfish to have your focus, then i am an ever unsatisfied hedonist - 1000 zeroes roam3.milk",
+        "sha256": "eeb5b4013fa3a92eb270c9ee887f4cffdebd75ed2f01af86badfa2457368b20a"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - god might as well2 - rst korpse behind.milk",
+        "sha256": "30aa19aff81c27a90b37da31e6fc7be73f2386d86460288b732b14c224ca12c7"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - god might as well2 - rst jaw complex.milk",
+        "sha256": "18d7053380b76187908c79f90a39b3a9f8dfd7945ca9f5520788b1fd1cda116c"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - god might as well2 - rst as the krowsely roam.milk",
+        "sha256": "44efa6394c981df566108c1d52fdb03a162adce229adda508987c4940e6b27af"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "ShadowHarlequin - Fitting Butterfly - v4 - [Loadus & Geiss - FractalDrop 22] v2v2v2v2newcolorsv2.milk",
+        "sha256": "2460c38e017584c7244995f08405c9acb9963f8b8f3fe309cb2e50fe6dbc00ad"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.39686476719974006
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - chernobyl pie for dessert - as a man thinketh, so he aint so far.milk",
+        "sha256": "5bb2849138b163a592cdd204d740b445f4d834b710649360ba8a8f62a9758fc3"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "beta106i - The One Eyed Fool cyclopeaen dungeon.milk",
+        "sha256": "3f98ca7c618053573ce307c67a12836b401ba3406e45910030a6b4d6f532b69f"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.52650110406515
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.053591628745986
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Be Afraid ii.milk",
+        "sha256": "36c47b2e25d6f53cfa9e40e4054cb68cc3c44ec5f68777d3788a4654d589e19b"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shut down all survival paradigms.milk",
+        "sha256": "e151a928461c6af99e678b01018b853547ebbced8019052d6e24fea3cf0c8619"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "blood red raw holy - spaceghost head.milk",
+        "sha256": "40d1e4a22aa0a01ff88f6a858a7353203dcab74f1173eb45916f98dd1b6370f5"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Serge + martin - crystal palace star006.milk",
+        "sha256": "a7683fc72ffaa0de6735619df1725a768f87797ec2e1c58f63f28511f7810be9"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6749380492592223
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.4385372088375314
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.14000000000000004
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the hive nz+ phuqre phiqa sqor vit mbaepl septagrams fed ashes.milk",
+        "sha256": "43885af67cb020cbd361db6b8e497e1eb40bc6103c0375627052a1c26914680b"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - chernobyl pie for dessert - blobulloydal camoflagellum.milk",
+        "sha256": "3dac386213dd098d3a444ae3bdb556993058c886c14ec185ea785419f1271130"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "sone' ovaembiasche' instantaneousle' cliche' novelte' nz+2.milk",
+        "sha256": "88674ebd5f2681dbed3d95525fcef3b83a8b127439f9eeea5aa2910b3dde37c7"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6749380492592223
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.4385372088375314
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.14000000000000004
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Ne0n BrainFade I.milk",
+        "sha256": "5efc3166aa928b254f6f1e2026cb2ac670edda1cf744395d18d1e76ee6649229"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - from the evil that brought you existence comes this new feature-length beheading.milk",
+        "sha256": "14eaf40e652c4a75ee80243a6ced641bf4ca7ed68c5aea3761ef7926187b4dae"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "$$$ Royal - Mashup (387).milk",
+        "sha256": "8fbb93385736852e960fc33165dcd41588809718801d639eae575d70a59ab27c"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "$$$ Royal - Mashup (460).milk",
+        "sha256": "9372f17d49a99a07eeff49e45deb1145290185c8399816b53ed56a0b52392fd4"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "fiShbRaiN - betelguese nz+.milk",
+        "sha256": "ce2c9c12318e63526d634b2ad59c3932587628886316e0a72f6f52cae5d80831"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - fear and loathing in provo orem - slam dants.milk",
+        "sha256": "dacc72a11edb0dd124e39466ac07072e79376b188d408ca706835e557a652429"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Hakan + Flexi - Dark Tiles (shadow influence + injection theory).milk",
+        "sha256": "700e1c459b5a7009af1e8a9327ad10fd246069229aea97fc666aba41b645cc94"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.477439880371097
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.05656854249492381
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - nothing to remember you by - logsmeltitdealtit2.milk",
+        "sha256": "fd7d0635178fce7fb8f57a1594ec36ff1ac8ae803baccf4c80e190facd387fa0"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Aurora Industrialis +  Shifter  + Nil .milk",
+        "sha256": "95a3a279a9eb99c3a727085a4c7949b53ac53838cb00ed236226a1c333d07f33"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "fiShbRaiN - quark matrix.milk",
+        "sha256": "265baecf89d304634d38504e24932e0fe921e68dca6037330d11d03c51ba9173"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.0000000000000004
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "316.milk",
+        "sha256": "11c362e0a7840ad61bbb9c5064142c85f6a01eaab97703baca9ce42979384c5f"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.400000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Tripgnosis - Big Bang.milk",
+        "sha256": "79de095b79f522f32897842c749898005bcad4a269b80723e39024941f54c79e"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.5012843164426695
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.258001662695422
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "EVET + martin - Psi- Ganzswirl.milk",
+        "sha256": "4ab12a2fce94b54b45581c93372e0027f28098c6643e041ae54e28406f738cdf"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - god might as well2 - rst blew roam3 binging on death, hate.milk",
+        "sha256": "b18679896b4514d5dc4ae3c1e42981c2bbf0f602a1da23fde97eb18400e324c2"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - god might as well2 - rst blew nz+ flacc no artistic merit (me saying that doesn't make it not true) oqulth.milk",
+        "sha256": "dbc197dcf156c38c379d6105e6e67b7332ede5559ed2adae30c5a267a682fe94"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - chernobyl pie for dessert.milk",
+        "sha256": "8140451e1073d3a64e04a845862ef43763dc66a438f2b3dce11360cbbc6182bb"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - psychology pseudo science pay, shaman free.milk",
+        "sha256": "eec4ba459b8d975762826560d7bcf2a4b14443a1fdb89c42cb83abc609f07070"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.2360679774997902
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.828427124746191
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - god might as well2 - rst jaw complex ap3+ nz star trek may be real, but keylontics is more real.milk",
+        "sha256": "b90483763e9cf51cedbd7cbab10da893b8b060730f1e79c0ac4ce437cfa9b77f"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Rarian Rakista - Queen of Phoenicians.milk",
+        "sha256": "0cd4e6594e248452aeb9d535994c0a36465fed447de08f09bcb6e14cab1781f6"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.19798989873223338
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.0000000000000002
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - god might as well2 - rst baby blew nz+.milk",
+        "sha256": "b373599c359551e50b061cc19ab6f3224171aa7872cb08b448d68a50e66af91a"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "mbud tongu.milk",
+        "sha256": "fb8494f5dfa2bab3649dcd91bbfd9ea108c2f87f1611a703b027286f3b9b21af"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.000000000000001
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.000000000000001
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1836.1424348414075
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - water + god roam3.milk",
+        "sha256": "fe77f903e21fd5eb9a4e7a3bbffd1dc9c7e9b91af5b9a89b63f8dbf86908bd05"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + flexi - liquid circuitry from the fractalism hive --- Isosceles edit4.milk",
+        "sha256": "10ccb21f5396b93dd2ca2b3fcbc4201ea1134cf79015d62a7f2d8836bd0a3c1d"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "waste.milk",
+        "sha256": "92fdd5ad74a577d501837fa367db035e130ac7937f96c3e53ec8bbeca7126c1d"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "BEST OF ADAMFX 2 Flexi + Geiss - Bipolar vs reaction diffusion + Deamon Lord + EOS 23.milk",
+        "sha256": "a37097d687406a3f87969539614df81fa3466c7c808f1a939bf70b1a91e65c4b"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.5012843164426695
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.258001662695422
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "fiShbRaiN - betelguese3 aa.milk",
+        "sha256": "6a3f541d0af201836c132419d55901771d90dddf9b421f213ff1727c4b662443"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - jim class --- Isosceles edit.milk",
+        "sha256": "604eb9126ea83309ee12320cf3ebf45e8cba9faaf08ba707b1350de1f2703282"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.0376807643234582
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "beta106i - The One Eyed Fool cyclopeaen dungeon --- Isosceles edit.milk",
+        "sha256": "97b0c137ecff61036686334f93f9dcfc7d408ec1885decf929f0e799a19e73ac"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.52650110406515
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.053591628745986
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Geiss and Zylot + Aurora Industrialis +  Shifter  Liquid circutitry.milk",
+        "sha256": "047d68493093e724358edf17fdae4b9ef89eaecbd40f63552d2c9e3a1f1d9c40"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "EVET - Dreamy Days.milk",
+        "sha256": "627e2da4269f4c9abf83a3d4744d09f85308b92d8731af0d889314ac3b371fd2"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.11267076159811
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Halfbreak - Entertaining Eminence .milk",
+        "sha256": "0f88617eec7bec3eaa0d3804ab79833a3e36b635ca7f1f914fab015e254e8e12"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "fiShbRaiN - betelguese (hyperdrive remix) - hebba.milk",
+        "sha256": "c8b07eb827f7ab7b3cd27fdf7c4a6c1ad4ad3dc6af2920e30d467557200e85f2"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "fiShbRaiN - crystal glasses.milk",
+        "sha256": "abe056dece754a155cadc2d2e35737372fb006be4be3bd3e3b000b7cdc34c641"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6000000000000001
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "NiGHtHawK - Eye of Gawd_Phat_Spiral_edit_v2.milk",
+        "sha256": "3db9b4096d0649fc69b35c313803a8cd1054a795d6303c542bb0a3bdf80ead95"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.12907055912746304
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "drugsincombat - liquidfire flow mix.milk",
+        "sha256": "4d81ac75f8f5f8b4d6247138cc1c2e1af90cfc0804c5d21358de43c3383735db"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Hexcollie - Abyssal Dreamscape Nightshade Twist.milk",
+        "sha256": "14076b3460c7278a5d4239cb55d2e272bf3182930e781c4090a3408eb1a8b138"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.5012843164426695
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.258001662695422
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "monger.milk",
+        "sha256": "92d02b759f4e4ea8e62e4f19675bf87c86385db0361a1707033e223c2cb3eb04"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.000000000000001
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.000000000000001
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1836.1424348414075
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the hive i have ideas average people bawl out their associates bog is thick here.milk",
+        "sha256": "46ec04c50162138cf25c3754090fc31a065536d787531d9ffbe643620cbc1604"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Add-em Crossfire b.milk",
+        "sha256": "b2372a15e4df3bcac93b7971bf4e8fb6febc31c13b5cb04976b4510983e5f93d"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "TonyMilkdrop - Magellan's Nebula [Flexi - fancy + $this shall not retain] --- Isosceles edit.milk",
+        "sha256": "cf7f23ffd6991b71658dfb79460c02f9f2c7275481dcc49ab78483dbf402475d"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            7.500000000000066
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - centeroftheuniverse (bleedingbrain) Shifted C.milk",
+        "sha256": "4c039b710a0987530eda18d9f897511e701d3d5ed3b59c335a6feab452121ebb"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss an38.milk",
+        "sha256": "d283d6ff05e9085fc75bc64e8bf7599d684f4fccbcd98ea402a5c38cb92aae17"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuX - Heavy Acid Trip (mezmerize).milk",
+        "sha256": "877173c5a6eea6513c55e34d4d33875d671a063d05e96704529a00e3bc7f2ded"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "f wen blew my wallet - how to beat nothingness into omninmi-submission-potence.milk",
+        "sha256": "27897fe51b511941ee6a8636461033ab18884967fd28644fe7416370d8f68bfc"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Angel Eating My Soul For Its' Own Amusement Series i.milk",
+        "sha256": "44586f19370532982c970faede16672cd56bcf379b372a297493680c77e601c6"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss an58.milk",
+        "sha256": "81e28e6f34f7eff9aac9a9a34e61ff282f91bcbe8463ccbb6d9e654c02ae08e9"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss and Zylot.milk",
+        "sha256": "d91cb76217a0ba2bbea44f479251c73ff9dcf943a79de9842e91ba5561873094"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - jerry kludging the dimswitch.milk",
+        "sha256": "1b8069d4279a8c5f6165d97501a6094a9720caee4e08dae8fde0ee36d5ccf919"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.4100000000000003
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "EoS + Phat - chasers 11 sentinel C_poltergeist_Blue_mix_2 hog rot.milk",
+        "sha256": "5d68d48074decb9c8b7cc19f33da2f57161e8c7c4a775ce418f2893db42c4fa9"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.000000000000001
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "$$$ Royal - Mashup (377).milk",
+        "sha256": "91d5b37a54d070815e77191cf02ab31760da9ddc0a0d114e0f7385d59dfdae23"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6000000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuX - Digital LifeWheel Shifted A.milk",
+        "sha256": "580a0e84ac42c09ebf27673d5b1c721ee352863fb138c704237ab3b2642b1cf5"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Roosta - Diaspora - Central Fire Mix - j4+.milk",
+        "sha256": "d23f43097b18eab1261dc7d2bdbbcdf630e75620a092edd61d2827aec98bfcfb"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - chernobyl pie for dessert - grafted minkgle phraezes.milk",
+        "sha256": "3c7cf8e9d64c50dae82befdb82eeb0c19a81b81acfd67d9fa97d29b8340fff59"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Molton Bouncybugs.milk",
+        "sha256": "e3bff0f1508b8f6b1b1990f49e1c6b04c7e5f0e42f253553960f91124d889602"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "370.milk",
+        "sha256": "0f7a668b9e52609946a5ebf036ca520f71bbbbdedd6b7b2de67853aa1fdbf0fe"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            4.400000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - illuminati superior gene poolboy --- Isosceles edit.milk",
+        "sha256": "07f142cff6d4b67c30b5bcdff2c2ced8596974118770735a11af0ca024b97c42"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.5211102550927986
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.334312308315553
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "f wen blew my wallet - hooray for fed.milk",
+        "sha256": "2fcf8670f6950450bc0d90242ebfbc0d2dde56103d0868b1c43fc28155a2bcdc"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuxXx - Circling the Drain 1a.milk",
+        "sha256": "e7aaba1b8487c13ccdd6abfd7db829a5081921e012aabdd05f51cc61737973da"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the pataoblivion everything for eternity, god damn it, i did it again.milk",
+        "sha256": "69dd1b47aa426b376eb0016b671fcda51730ea54998f64389e0abd3d64d14870"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "suksma - wait for it - 1-ret.milk",
+        "sha256": "01955deaa577573593fbabee4edd0b27920c6143af862c05e6ed5b255f2715e6"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            3.2767373032421863
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.012461179749811
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5523975065412818
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the zeropoint derivation hive.milk",
+        "sha256": "0242ddfeff09afd236c0125681b070a5a75a3025b5e2d6547b860a232622f007"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "LuX - Sick II.milk",
+        "sha256": "fa569eca71a21fa6305361be0319d857aba99778a603425be68cd884c4908841"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + flexi - liquid circuitry from the fractalism hive --- Isosceles edit3.milk",
+        "sha256": "2306598d9210ce1dd86de798c6a646dd5338ac707979a20434e9c282fea0b069"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "ShadowHarlequin-DreamingOfFluorescentThings.milk",
+        "sha256": "216f702494b661ff9abc13f30011543ed28a8ebdfcb23b9c20130be4fae9cd1b"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.0376807643234582
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the hive nz+ darq kngettes.milk",
+        "sha256": "492efb82c12fcab0e4a40f86c82f214634652f8edd47963d1d548b57e82920a8"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "flexi +  suksma + goody + fed + other artists - blarfff (throwing up cubes).milk",
+        "sha256": "47c6b608afe16a5a435fdbf081e6450f24e0caaa1ff3daf15341fdcaba2e158b"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "Roosta - Shine, Spiral, Shine! - sth.milk",
+        "sha256": "8d19a423fc17595ac7ba355f78c5978b6f66be3faf7253b0630a2464f6821b92"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3385164807134509
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the strange paradigms hive.milk",
+        "sha256": "cf54c1b1c55f713eeb5b20ccfc8d5f7c297b57544f2242704def639b2839eafc"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "drugsincombat - liquidfire flow mix ii.milk",
+        "sha256": "5611f309ad6dad0a4da4e15ffc5ea5b5d0f68e9f3f8414e8afc590de39c0db20"
+      },
+      "components": [
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        },
+        {
+          "id": "shape_3",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.5750000029802325
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "$$$ Royal - Mashup (341) --- Isosceles edit.milk",
+        "sha256": "d1f8811cd3e937bb01bf7156e8131e816e58e6ab2cc46cfc29773b128f2ccb1c"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.634059977108183
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "cammy told me about yeast infected loaves nz+.milk",
+        "sha256": "a66ad6e2d1c1543d80c60557b537536d16f67c0cb71fd81e4bd493974c4a8814"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            0.6965791860944458
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "shifter + Flexi - liquid circuitry from the hive nz+ absolute module deqay holiday psychedell laptop subrandom vegetable deservatio.milk",
+        "sha256": "1945a3823d34b82a0ce7289bf895754c3e6a3833854b78041643ed677c506da0"
+      },
+      "components": [
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            2.4695189027078683
+          ]
+        }
+      ]
+    },
+    {
+      "preset": {
+        "relative_path": "drugsincombat - reactive molecule v-05c.milk",
+        "sha256": "17ab6b29a616956efe49e205895595726b6e6f633d72c68f9000af928e9359c4"
+      },
+      "components": [
+        {
+          "id": "shape_0",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.007307985001746
+          ]
+        },
+        {
+          "id": "shape_1",
+          "speed_interval_vp_per_second": [
+            0.0,
+            8.035641539331339
+          ]
+        },
+        {
+          "id": "shape_2",
+          "speed_interval_vp_per_second": [
+            0.0,
+            1.3596237788447232
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "declared input-rate/amplitude diagnostic, not observed music or whole-preset mood accuracy"
+}

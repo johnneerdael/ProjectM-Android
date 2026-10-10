@@ -95,6 +95,70 @@ as prominence. Declared amplitude intervals still supply no audio change rate.
 The effective domain map and its hash are exported separately from caller context
 and scenario identity.
 
+## Declared input change rates
+
+`context.scalar_input_maximum_rates_per_second` optionally maps exact scalar
+input names to finite nonnegative change ceilings in engine-input units/second.
+It defaults to an empty object. Rates for source/native shader clocks cannot
+override their existing seconds basis. An audio input rate is not music BPM,
+sample frequency or a value measured by this static analyzer.
+
+For supported shape formulas, `geometry_declared_input_transport` combines the
+source-time derivative with independent scalar sensitivities times these rates.
+For example, `x=.5+.1*bass; y=.5+.2*mid` with bass rate3 and mid rate4 has centre
+speed ceiling `hypot(.3,.8)` viewport units/second. Simultaneous independent
+inputs do not cancel each other's bounds. Radius and rotation add the existing
+orthogonal perimeter contribution.
+
+The corresponding finite amplitude domains and all contributing rates must be
+declared. Unknown state, missing rates, changing topology, source seams, invalid
+native conversions and potentially overflowing perimeter additions retain unknown
+transport. Qualified combined records exclude their constituent partial records
+from total-motion aggregation, while preserving those records for inspection.
+The rate map participates in context/cache identity. It does not establish
+texture history, dominant screen movement or a whole-preset mood.
+
+## Blur propagation
+
+`prominence.blur_propagation` describes conditional RGB image-supnorm difference
+gains from the image supplied to the pinned blur producer, with controls held
+fixed. It reuses the existing patched safe-range producer. Each level exports
+`encoded_rgb_supnorm_gain_upper`, progressive scale/bias and the separate
+`getblur_rgb_supnorm_gain_upper`. An already-expanded `GetBlur` source expression
+contains its decode scale; applying the decoded gain again would double-count it.
+
+Nonnegative normalized filtering and clipping are nominally nonexpansive; range
+normalization and signed edge-darkening may amplify differences. Native pair-error
+bounds remain null, with separate per-pass error coefficients. No frame or image
+is generated. RGB-only blur does not carry a changing main alpha lane.
+
+This operator report does not say that current shape/wave injection has reached
+the blur bank. The pinned engine updates blur from previous feedback before the
+current drawing. Callers must preserve source-age/pass-timing and native storage
+obligations; a finite blur operator gain alone does not close the preset's feedback
+trajectory or authorize using a shader-site gain as a current drawing gain.
+
+## Uniform final-color cycles
+
+The flash producer identifies `uniform_rgb_over_viewport` separately from a
+local color response. `periodic_attainment` states whether a declared single-clock
+interval spans at least one complete nominal cycle. For a complete, unclipped,
+uniform final RGB program, that attained full-cycle contrast reaches the whole
+viewport; its screen weight cannot have an arbitrary zero lower endpoint.
+
+The scorer uses this fact only with a complete source model and qualified final
+storage. Spatial patterns, sampled images, clipping, unknown native domains and
+short/absent clock intervals cannot use it to qualify strong activity. The result
+remains a source preference decision over a nominal cycle, not verified frame
+sampling, native precision or a human-calibrated mood. Integrated source controls
+now cover Chill, Normal and Intense rather than testing only fabricated input
+evidence or constant-color calm output.
+
+`SOURCE_SHADER_PATTERN_TRANSPORT.md` describes a separate experimental exact
+phase-translation proof. Its 34 controls pass, but a pinned first-ten corpus
+check recovered zero full or partial patterns. It is not integrated into the
+primary motion/scoring path and must not be counted as recovered corpus motion.
+
 ## Final-output storage and finite shader domains
 
 The default declared home-TV reference uses `output_storage: normalized-unorm`,

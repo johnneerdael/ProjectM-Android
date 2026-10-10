@@ -1,0 +1,19 @@
+{
+  "source_rows": "build/preset-corpus/static-behaviour-2000-2026-10-10-transfer-v6/rows.jsonl.gz",
+  "source_rows_sha256": "adb5e62ef541f08f3e8e51b7e798b43bb75a6b028398a98706bc0d9d265d5b12",
+  "counts": {
+    "saved_rows": 2000,
+    "all_constant_triplets": 1698,
+    "main_to_blur_veto_rows": 589,
+    "veto_rows_constant_triplet": 589,
+    "veto_rows_with_finite_sample_site_gain": 226,
+    "veto_rows_constant_triplet_and_finite_site_gain": 226,
+    "veto_rows_bounded_sample_modulus": 35
+  },
+  "conditions": [
+    "Read-only stream of saved transfer-v6 evidence; no reanalysis, images, shaders or EEL execution",
+    "Constant six-range binding is only a prerequisite, not a complete new-producer applicability count",
+    "Edge source controls and domains are not separately exported here; no default edge value is invented",
+    "Finite sample-site gain still needs encoded level gains, alpha/source-age guards and native numeric obligations"
+  ]
+}

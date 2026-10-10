@@ -14,7 +14,7 @@ def _digest(value):
 
 def validate_context(request=None):
     request=dict(DEFAULT_CONTEXT if request is None else request)
-    if set(request)-{'viewport','feedback_fps','reference_profile','scalar_input_domains','output_storage','activity_preferences'}:
+    if set(request)-{'viewport','feedback_fps','reference_profile','scalar_input_domains','scalar_input_maximum_rates_per_second','output_storage','activity_preferences'}:
         raise ValueError('unsupported static behaviour context field')
     viewport=request.get('viewport');fps=request.get('feedback_fps')
     if not isinstance(viewport,(list,tuple)) or len(viewport)!=2 or any(type(v) is not int or not 0<v<2**31 for v in viewport):
@@ -31,9 +31,11 @@ def validate_context(request=None):
     if storage not in {'normalized-unorm','unknown'}:
         raise ValueError('supported declared output storage required')
     from static_behaviour_scoring import validate_preferences
+    from source_motion_behaviour import validate_input_rates
     preferences=validate_preferences(request.get('activity_preferences'))
     result={'activity_preferences':preferences,'output_storage':storage,'viewport':list(viewport),'feedback_fps':float(fps),
             'reference_profile':request.get('reference_profile','caller-declared-reference'),
+            'scalar_input_maximum_rates_per_second':validate_input_rates(request.get('scalar_input_maximum_rates_per_second')),
             'scalar_input_domains':{name:list(span) for name,span in sorted(domains.items())}}
     if not isinstance(result['reference_profile'],str) or not result['reference_profile']:
         raise ValueError('named declared reference profile required')
@@ -178,7 +180,8 @@ def static_behaviour(analysis,description,context=None):
                 'engine':analysis.source.get('parser_inputs',{}).get('engine'),
                 'model_sources':{name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
                                 for name in ['source_static_behaviour.py','source_flash_behaviour.py',
-                                             'source_motion_behaviour.py','source_prominence.py','source_colour_character.py','static_behaviour_scoring.py']},
+                                             'source_motion_behaviour.py','source_prominence.py','source_colour_character.py','static_behaviour_scoring.py',
+                                             'source_blur_propagation.py','source_colour_modulus.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}

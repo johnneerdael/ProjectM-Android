@@ -34,7 +34,7 @@ optional compiler IR; unchanged Android/AAR.
 ## 3. Consumer and preference mapping
 - [x] Add `static_behaviour` to source description; preserve existing fields and
   include context/policy identities in export/cache identity.
-- [ ] Implement `score_static_behaviour(evidence, preferences=None)` with activity
+- [x] Implement `score_static_behaviour(evidence, preferences=None)` with activity
   range, bands/reasons and missing contributions. Never fill p95 fields from
   deterministic upper bounds or promote estimates into native certification.
 - [x] Test calm/mid/intense controls and transparency/disconnection/unknown
@@ -68,8 +68,9 @@ qualification JSON under build/preset-corpus; revalidate before full-suite use.
   neighboring controls pass. Mathematical prominence gaps remain.
 - Candidate index/outer-fold port is being integrated separately after16new and
   12existing controls; original grind231 recovers structural captures only.
-- Unfinished: editable preference argument, full final100 export, integration
-  qualification, broad flash/movement domain gains and useful validated grouping.
+- Editable preference argument, final100 exports and successive integration
+  qualification checkpoints are now implemented/verified. Broad flash/movement
+  gains and useful validated whole-preset grouping remain unfinished.
 - Ruling: do not turn known zero-valued partial components into calm suggestions
   when remaining activity is unresolved. Historical results are preserved.
 - Ruling: producer-local bounded caches and partial failure records retain
@@ -83,3 +84,16 @@ qualification JSON under build/preset-corpus; revalidate before full-suite use.
 - Fresh review findings repaired: instance resampling multiplicity, context-domain
   propagation, optional traversal-budget isolation, output clamp and native finite
   domain guards. Native finite ranges are modeled assumptions, not driver evidence.
+- `e773a0ae`: legacy/Holder final-response evidence,3552tests+92subtests,
+  100source exports and fixed2000 checkpoint; source indices367→378.
+- 2026-10-11 input-rate checkpoint: declared772-case profile obtains229finite
+  combined geometry records across120presets; same-context scoring ablation204→217
+  indices.3633tests+92subtests and100exports pass. Whole-preset eligibility remains
+  empty. Uniform final-color source controls now qualify all3bands; experimental
+  phase proof remains unintegrated with0first-ten corpus gains.
+- Ruling: blur operator bounds remain separate from current drawing because their
+  input is previous feedback; no source-age shortcut is used to fabricate scores.
+- Next frequent gap to investigate: persistent/instance helper geometry state
+  (ma/mx/my occurs in249 saved-v6 presets), plus wave and nonlinear shader motion.
+  Review native per-instance reset/order and existing equation-domain proof support
+  before implementing any new state inference. Do not fill unknown state values.

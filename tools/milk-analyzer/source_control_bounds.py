@@ -393,3 +393,34 @@ def scalar_value_envelope(field,*,input_domains=None):
     refinement=scalar_value_evidence(field,input_domains=input_domains,candidate_bounds=report['nominal_value_range'],original_report=report)
     if refinement is not None:result['solver_refinement']=refinement
     return result
+
+
+def original_scalar_domain_evidence(field,*,input_domains=None,max_nodes=512):
+    """Retain finite original arguments before zero/cancel/clamp simplification.
+
+    This optional proof owns its traversal cache: failure must not exhaust a
+    caller's ordinary analysis or erase independent partial evidence.
+    """
+    from effect_families import _CACHE,_walk,_SemanticBudget
+    result={'policy':'source-original-scalar-domain-envelope-v1','status':'unresolved',
+        'checked_nodes':0,'unknown_reasons':[],'failure_evidence':None,
+        'native_numeric_certified':False,'uses_equation_execution':False,'uses_rendered_images':False,
+        'conditions':['Original scalar arguments retain finite declared-domain envelopes before algebraic pruning',
+            'This is nominal domain evidence, not target rounding/evaluator optimizer or native conversion certification']}
+    token=_CACHE.set({})
+    try:
+        for node,path in _walk(field,preserve_zero_products=True):
+            result['checked_nodes']+=1
+            if result['checked_nodes']>max_nodes:raise ValueError('original control domain traversal budget exceeded')
+            if node.op in {'unknown','uninitialized','unresolved','sequence'} or node.op.startswith('loop_'):
+                raise ValueError('original control has unsupported state/execution arguments')
+            report=scalar_value_envelope(node,input_domains=input_domains)
+            span=report['nominal_value_range']
+            if span is None or not all(math.isfinite(v) for v in span):
+                result['failure_evidence']={'source_graph_path':path,'operation':node.op,'value_envelope':report}
+                raise ValueError('original control argument lacks a finite declared-domain envelope')
+        result['status']='bounded'
+    except (_SemanticBudget,ValueError,RecursionError,OverflowError,IndexError) as error:
+        result['unknown_reasons']=[str(error)]
+    finally:_CACHE.reset(token)
+    return result

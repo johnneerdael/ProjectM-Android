@@ -1,0 +1,8 @@
+{
+  "records": 100,
+  "behaviour_reports": 100,
+  "schema_errors": [],
+  "model_hash_mismatches": [],
+  "unknown_activity_chill_violations": 0,
+  "uses_rendered_reference": false
+}

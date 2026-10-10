@@ -16,6 +16,17 @@ POLICY = 'source-static-motion-behaviour-v1'
 TIME_NAMES = {'time', ':native-render-time-f32', '_c2.x'}
 
 
+def validate_input_rates(request=None):
+    rates={} if request is None else request
+    if not isinstance(rates,dict):raise ValueError('declared scalar input rates must be an object')
+    for name,value in rates.items():
+        if not isinstance(name,str) or not name or name in TIME_NAMES or name=='_c2':
+            raise ValueError('named non-clock scalar rate required')
+        if type(value) not in {int,float} or not math.isfinite(value) or value<0:
+            raise ValueError('finite nonnegative input rate per second required')
+    return {name:float(value) for name,value in sorted(rates.items())}
+
+
 def _digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()).hexdigest()
 
@@ -40,7 +51,8 @@ def _context(context):
                 type(v) not in {int,float} or not math.isfinite(v) for v in span) or span[0]>span[1]:
             raise ValueError('finite ordered static input domain required')
     result={'viewport':list(viewport),'feedback_fps':values[-1],'aspect_x':ax,'aspect_y':ay,
-            'scalar_input_domains':{name:list(span) for name,span in sorted(domains.items())}}
+            'scalar_input_domains':{name:list(span) for name,span in sorted(domains.items())},
+            'scalar_input_maximum_rates_per_second':validate_input_rates(context.get('scalar_input_maximum_rates_per_second'))}
     if 'reference_profile' in context:result['reference_profile']=context['reference_profile']
     return result
 
@@ -363,6 +375,68 @@ def _geometry_motion(analysis, element, context):
                                 'An amplitude domain supplies no temporal audio trajectory or per-second rate'])
         if scenario is not None: part['input_scenario_sha256'] = scenario['record_sha256']
         rows.append(part)
+    declared=context['scalar_input_maximum_rates_per_second']
+    varying=dependencies-TIME_NAMES-{'instance'}
+    if varying and varying<=set(declared):
+        from fractions import Fraction
+        from source_sampling_motion import _finite_round
+        input_reports={name:_response(controls,{name},domains) for name in sorted(varying)}
+        combined={}
+        for control in ('x','y','rad','ang'):
+            terms=[rates[control]]
+            for name,parts in input_reports.items():
+                derivative=parts[control]['maximum_absolute_control_change_per_audio_unit']
+                terms.append(None if derivative is None else _finite_round(Fraction(derivative)*Fraction(declared[name]),upper=True))
+            combined[control]=None if any(v is None or not math.isfinite(v) for v in terms) else _finite_round(sum((Fraction(v) for v in terms),Fraction()),upper=True)
+        def norm_upper(*values):
+            result=math.hypot(*values)
+            return math.nextafter(result,math.inf) if result else 0.
+        centre_total=None if any(combined[n] is None for n in ('x','y')) else norm_upper(combined['x'],combined['y'])
+        angular_total=0. if combined['ang']==0 or radius==0 else None if combined['ang'] is None or radius is None else _finite_round(Fraction(radius)*Fraction(combined['ang']),upper=True)
+        local_norm=None if combined['rad'] is None or angular_total is None else norm_upper(combined['rad'],angular_total)
+        local_total=None if local_norm is None or not math.isfinite(local_norm) else _finite_round(Fraction(.5)*Fraction(local_norm),upper=True)
+        total=None if centre_total is None or not math.isfinite(centre_total) or local_total is None else _finite_round(Fraction(centre_total)+Fraction(local_total),upper=True)
+        total_reasons=list(reasons)
+        from source_control_bounds import original_scalar_domain_evidence
+        original_domains={name:original_scalar_domain_evidence(controls[name],input_domains=domains)
+            for name in ('x','y','rad','ang')}
+        for name,proof in original_domains.items():
+            if proof['status']!='bounded':total_reasons.append(name+' original argument domain unresolved: '+'; '.join(proof['unknown_reasons']))
+        if not varying<=set(domains or {}):
+            total_reasons.append('declared input rates require finite amplitude domains for combined geometry transport')
+        native_ranges={}
+        for name in ('x','y','rad','ang'):
+            span=scalar_value_envelope(controls[name],input_domains=domains)['nominal_value_range']
+            if span is None:
+                total_reasons.append(name+' finite geometry value domain remains unresolved');continue
+            projected=[2*v-1 for v in span] if name=='x' else sorted(1-2*v for v in span) if name=='y' else span
+            with np.errstate(over='ignore',invalid='ignore'):
+                converted=[float(np.float32(v)) for v in projected]
+            if not all(math.isfinite(v) for v in converted):
+                total_reasons.append(name+' input domain exceeds finite native float32 projection/conversion');continue
+            native_ranges[name]=converted
+        if all(name in native_ranges for name in ('x','y','rad')):
+            radius_upper=max(map(abs,native_ranges['rad']))
+            for axis,factor in (('x',context['aspect_y']),('y',1.)):
+                upper=max(map(abs,native_ranges[axis]))+radius_upper*factor
+                if upper>float(np.finfo(np.float32).max):
+                    total_reasons.append(axis+' perimeter addition may exceed finite native float32 domain')
+        if total_reasons or total is not None and not math.isfinite(total):total=None
+        combined_row=_row('geometry_declared_input_transport',component,'declared_input_change_per_second',total,
+            total_reasons or ([] if total is not None else ['declared input rates do not close the geometry formula/domain']))
+        combined_row.update(maximum_speed_vp_per_second=total,
+            declared_input_rates_per_second={name:declared[name] for name in sorted(varying)},
+            native_projected_control_ranges=native_ranges,
+            original_argument_domain_evidence=original_domains,
+            combined_control_rates_per_second=combined,input_response_reports=input_reports,
+            source_time_response_reports=reports,
+            conditions=['Sum of independent scalar sensitivities times caller-declared input change ceilings, plus source-time response',
+                'Finite declared input domains and supported continuous/piecewise-Lipschitz formulas hold between compared states',
+                'Rates are assumptions about engine input values, not music BPM or measured audio; no recurrent-state evolution is inferred',
+                'Native float upload, rasterization, feedback, visibility and output quantization remain separate'])
+        rows.append(combined_row)
+        if total is not None:
+            for partial in rows[:-1]:partial['included_in_total_motion']=False
     return rows
 
 
@@ -445,9 +519,9 @@ def motion_evidence(analysis, description, context):
         for curve in elements.get('mesh_warp', {}).get('motion_controls', [])]
     unknown = [{'component_id': row['component_id'], 'kind': row['kind'],
                 'unknown_reasons': row['unknown_reasons'] or ['no maximum potential speed bound']}
-               for row in rows if row['speed_interval_vp_per_second'][1] is None]
+               for row in rows if row.get('included_in_total_motion',True) and row['speed_interval_vp_per_second'][1] is None]
     maxima = [row['speed_interval_vp_per_second'][1] for row in rows
-              if row['kind'] not in {'backward_sampling_displacement', 'native_affine_component_transport', 'sampled_content_displacement_relation'}]
+              if row.get('included_in_total_motion',True) and row['kind'] not in {'backward_sampling_displacement', 'native_affine_component_transport', 'sampled_content_displacement_relation'}]
     upper = None if any(v is None for v in maxima) else max(maxima, default=0.)
     result = {'policy': POLICY, 'unit': 'viewport units/second', 'coordinate_basis': 'normalized viewport UV',
               'context': normalized, 'context_sha256': _digest(normalized),

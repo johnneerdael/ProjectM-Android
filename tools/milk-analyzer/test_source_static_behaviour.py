@@ -39,6 +39,44 @@ def test_constant_qualified_composite_can_have_complete_calm_model():
     assert 'Chill' in result['classification']['eligible_bands']
 
 
+@pytest.mark.parametrize('formula,band',[
+    ('.5+.025*sin(.2*time)','Chill'),
+    ('.5+.075*sin(6.283185307*time)','Normal'),
+    ('.5+.4*sin(25.13274123*time)','Intense'),
+])
+def test_real_source_uniform_temporal_program_can_qualify_activity_band(formula,band):
+    from source_appearance import appearance_from_analysis
+    from source_static_behaviour import static_behaviour
+    a=analysis('PSVERSION_COMP=2\nfWaveAlpha=0\ncomp_1=`shader_body {ret='+formula+';}\n')
+    result=static_behaviour(a,appearance_from_analysis(a),{'viewport':[1000,1000],
+        'feedback_fps':30,'scalar_input_domains':{'_c2.x':[0,100]}})
+    assert result['output_model_complete']
+    assert band in result['classification']['eligible_bands']
+
+
+def test_short_clock_domain_does_not_prove_full_period_contrast_attainment():
+    from source_appearance import appearance_from_analysis
+    from source_static_behaviour import static_behaviour
+    a=analysis('PSVERSION_COMP=2\nfWaveAlpha=0\ncomp_1=`shader_body {ret=.5+.4*sin(25*time);}\n')
+    result=static_behaviour(a,appearance_from_analysis(a),{'viewport':[1000,1000],
+        'feedback_fps':30,'scalar_input_domains':{'_c2.x':[0,.001]}})
+    assert 'Intense' not in result['classification']['eligible_bands']
+
+
+@pytest.mark.parametrize('formula',[
+    '.5+.4*sin(25*time+uv.x)',
+    'GetPixel(uv)*(.5+.4*sin(25*time))',
+    '1+.4*sin(25*time)',
+])
+def test_uniform_full_cycle_weight_does_not_apply_to_spatial_sampled_or_clipped_rgb(formula):
+    from source_appearance import appearance_from_analysis
+    from source_static_behaviour import static_behaviour
+    a=analysis('PSVERSION_COMP=2\nfWaveAlpha=0\ncomp_1=`shader_body {ret='+formula+';}\n')
+    result=static_behaviour(a,appearance_from_analysis(a),{'viewport':[1000,1000],
+        'feedback_fps':30,'scalar_input_domains':{'_c2.x':[0,100]}})
+    assert 'Intense' not in result['classification']['eligible_bands']
+
+
 def test_unqualified_composite_cannot_certify_chill():
     from source_appearance import appearance_from_analysis
     from source_static_behaviour import static_behaviour
@@ -56,6 +94,29 @@ def test_activity_domain_changes_context_identity():
     first=static_behaviour(a,desc,{'viewport':[1920,1080],'feedback_fps':15})
     second=static_behaviour(a,desc,{'viewport':[1920,1080],'feedback_fps':30})
     assert first['context_sha256']!=second['context_sha256']
+
+
+def test_declared_input_rate_changes_context_and_reaches_motion_producer():
+    from source_appearance import appearance_from_analysis
+    from source_static_behaviour import static_behaviour
+    a=analysis('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=x=.5+.1*bass;y=.5;rad=.2;ang=0;sides=4;\n')
+    desc=appearance_from_analysis(a)
+    base={'viewport':[1000,1000],'feedback_fps':30,'scalar_input_domains':{'bass':[0,2]}}
+    one=static_behaviour(a,desc,{**base,'scalar_input_maximum_rates_per_second':{'bass':1}})
+    two=static_behaviour(a,desc,{**base,'scalar_input_maximum_rates_per_second':{'bass':2}})
+    assert one['context_sha256']!=two['context_sha256']
+    rows=[[r for r in report['motion']['contributions'] if r['kind']=='geometry_declared_input_transport'][0] for report in (one,two)]
+    assert rows[1]['maximum_speed_vp_per_second']==pytest.approx(2*rows[0]['maximum_speed_vp_per_second'])
+    assert one['classification']['eligible_bands']==two['classification']['eligible_bands']==[]
+
+
+def test_declared_rates_normalize_and_reject_invalid_inputs():
+    from source_static_behaviour import validate_context
+    base={'viewport':[1000,1000],'feedback_fps':30}
+    assert validate_context(base)['scalar_input_maximum_rates_per_second']=={}
+    assert validate_context({**base,'scalar_input_maximum_rates_per_second':{'bass':0}})['scalar_input_maximum_rates_per_second']=={'bass':0.}
+    with pytest.raises(ValueError):validate_context({**base,'scalar_input_maximum_rates_per_second':{'bass':-1}})
 
 
 def test_normal_static_export_includes_behaviour_without_execution(tmp_path):
