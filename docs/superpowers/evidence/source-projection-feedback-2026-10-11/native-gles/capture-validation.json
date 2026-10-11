@@ -1,0 +1,19 @@
+{
+  "frames": 300,
+  "bytes": 116640000,
+  "mean_RGB8": 61.0679,
+  "all_black_frames": 0,
+  "white_frames": 0,
+  "mean_RGB8_temporal_range": [
+    7.224737654320988,
+    62.56096450617284
+  ],
+  "duration_seconds": 10,
+  "scope": "Capture sanity checks; never source-classification inputs",
+  "files": {
+    "spiral.rgb.u8": "d6270c5d61e481523c41694bdf5ed03c54173604f347fd1a5fccef3865005b8a",
+    "spiral-10s.mp4": "ac21aafb74628c66f0383efdc130cfcc4af707a546da3ffba18df4789008943c",
+    "spiral.json": "3294c342425a604575f9a7339d7389c8a06e1b6c3765c8e4f41afeb91aeb387d",
+    "spiral.bands.jsonl": "3cc72e993f04c18d27df0d15720e4f778ff7699d422861e63ce9ee669084beed"
+  }
+}

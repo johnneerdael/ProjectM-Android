@@ -1574,7 +1574,8 @@ coefficients/outward bounds and early term/factor budgets. Stochastic brightness
 partials preserve unresolved total activity. Checkpoint captures require an
 isolated emulator only, frozen description plus generated illustration before
 native screenshot/10-second declared-audio clip, and separate comparison outcomes.
-Current capture infrastructure is unresolved; no native screenshot/clip exists.
+At that source-only checkpoint, capture infrastructure was unresolved and no
+native screenshot/clip existed; the later native GLES checkpoint is recorded below.
 See `docs/superpowers/evidence/source-understanding-2026-10-11/README.md` for
 3,784tests+92subtests,100 source exports and full9,606 primitive-census scope.
 
@@ -1592,3 +1593,15 @@ before pushing or launching; no physical-device fallback. CPU feature queries
 are denied in the current managed session; their relationship to emulator
 startup failures remains unproved. See the projection-feedback evidence folder
 for current qualification rather than extrapolating earlier counts.
+
+Native capture alternative (user steering2026-10-11): native patched engine-code
+execution is authorized alongside the emulator path; physical devices remain
+excluded. Android ARM64 ELF libraries cannot load directly on macOS ARM64.
+The pinned source34 engine builds for native macOS GLES and successfully captures
+the same selected preset through installed SwiftShader GLES3 without WindowServer.
+Record macOS ABI/driver/C++ binding separately from Android AAR/JNI qualification.
+Use public SetFrameTime, explicit Native-trails disable, declared line reference
+and recorded U8 audio conversion; never use the renderer frames as classification
+inputs. The frozen v5 prediction identified spiral/clipping but underestimated
+dense feedback layers. Continue general curve/feedback math on this preset.
+See `docs/superpowers/evidence/source-projection-feedback-2026-10-11/native-gles/README.md`.

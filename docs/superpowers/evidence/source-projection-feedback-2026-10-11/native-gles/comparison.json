@@ -1,0 +1,50 @@
+{
+  "preset": "Zylot - Spiral.milk",
+  "source_prediction_commit": "2aabf283",
+  "comparison_scope": "Qualitative source-understanding checkpoint against native macOS patched-source GLES; not Android AAR certification or calibrated similarity score",
+  "before_observation": {
+    "description_sha256": "99709da09bb69a201329924dff162d8026709a8a2ade25a705250002d85d2d4e",
+    "illustration_sha256": "cd011ba54b8eb52ca95cadb8e2e2d1628b8095fc4cf312f103ba83c7d638c327"
+  },
+  "observed_frames": [
+    0,
+    29,
+    59,
+    149,
+    224,
+    299
+  ],
+  "supported": [
+    "Centred densely wound spiral",
+    "Multicoloured spatial line/band ingredients",
+    "Outer coils clipped at top and bottom",
+    "Time-driven evolving pattern with retained feedback"
+  ],
+  "misses": [
+    {
+      "prediction": "Thin fresh spiral with a few dim expanded copies and broad black gaps",
+      "observation": "Feedback produces substantially broader, denser, overlapping coloured bands",
+      "cause_hypothesis": "Opposing fresh-locus and retained-feature drift plus repeated retained layers; must be quantified from source, not inferred as a new AAR defect"
+    }
+  ],
+  "motion_review": "Frames across the 10-second clip retain the spiral layout with shifting local colour/band details. Exact direction/rate not certified by these selected stills.",
+  "audio_review": "The MP4 includes the frozen synthetic bass/pad/noise WAV. Source custom-wave geometry has no audio input route; these frames do not independently certify band-isolated response.",
+  "not_proven": [
+    "Android JNI/GPU appearance parity",
+    "Exact on-screen trajectory speed",
+    "Visible flash timing",
+    "Calibrated similarity percentage",
+    "Automatic mood certification"
+  ],
+  "next_source_math": "Link same-angle spiral pitch, fresh radial drift and qualified one-step inverse radial feedback at matching viewport/cadence; no filename-specific rules or frame-derived export values",
+  "capture": {
+    "video": "build/preset-corpus/native-macos-checkpoint-2026-10-11/spiral-10s.mp4",
+    "screenshot": "build/preset-corpus/native-macos-checkpoint-2026-10-11/frame-149.png",
+    "width": 480,
+    "height": 270,
+    "frames": 300,
+    "fps": 30,
+    "seconds": 10,
+    "published_AAR_execution": false
+  }
+}

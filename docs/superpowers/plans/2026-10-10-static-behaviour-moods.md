@@ -22,6 +22,14 @@ source, audio, device and output identities; never call a generated illustration
 native screenshot. Requested delivery is Downloads; the current restricted session
 can write only inside the repository/tmp, so local artifacts and links are retained
 while that delivery constraint remains unresolved.
+
+**Later steering2026-10-11:** retain the selected preset through iterative general
+repairs before another random selection. The user authorizes native execution of
+the library code as an alternative to the blocked emulator. Preserve the patched
+engine/source provenance and record macOS GLES comparison separately from Android
+AAR/JNI/GPU qualification; physical devices remain excluded. A native software
+GLES checkpoint now captures the same Spiral preset. Its feedback-density miss
+becomes the next source-math task, not a frame-derived classification feature.
 **Architecture:** Extend typed source analysis, export three evidence groups and
 join them into a versioned behaviour scorer. Reuse optional proof/symbolic/compiler
 facilities selectively, with no display simulation.

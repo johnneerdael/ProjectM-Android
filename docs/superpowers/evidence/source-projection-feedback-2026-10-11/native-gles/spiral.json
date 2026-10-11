@@ -1,0 +1,20 @@
+{
+  "audio": "synthetic float32 quantized to U8 as CoreBackendRunner",
+  "backend": "native-macOS-patched-source-GLES-SwiftShader",
+  "clock": "public SetFrameTime",
+  "direct_output": true,
+  "fps": 30,
+  "frames": 300,
+  "height": 270,
+  "line_reference_size": [
+    480,
+    270
+  ],
+  "native_trails": false,
+  "published_AAR_execution": false,
+  "renderer": "Google SwiftShader",
+  "scope": "Source-matched comparison render, not Android AAR/device certification",
+  "status": "captured",
+  "version": "OpenGL ES 3.0 SwiftShader 4.6.6.6",
+  "width": 480
+}
