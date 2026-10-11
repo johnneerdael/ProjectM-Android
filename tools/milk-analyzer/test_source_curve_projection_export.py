@@ -39,7 +39,7 @@ def test_spiral_exports_turn_spacing_and_reference_layer_relation_without_densit
     assert relation['status']=='conditional_local_curve_feedback_relation'
     assert relation['reference_selection']['source_sample']==.5
     assert relation['reference_selection']['is_typical_or_observed'] is False
-    assert [r['declared_steps'] for r in relation['nominal_n_step_relations']]==[1,4,16]
+    assert [r['declared_steps'] for r in relation['nominal_n_step_relations']]==[1,4,9,16,43]
     assert relation['nominal_n_step_relations'][-1]['status']=='conditional_closed_form_radial_relation'
     low,high=relation['interturn_pitch_pixels_interval']
     assert low<15.07965 and high>15.07964
@@ -128,3 +128,33 @@ def test_marker_uses_declared_time_domain_when_projection_is_absent(monkeypatch)
         {'curve_projection':{'by_component':{}}})
     assert captured['projection'] is None
     assert captured['context']['source_time_domain']==[0,4]
+
+
+def test_spiral_exports_quantized_persistence_and_layer_sweep_without_density_credit():
+    value=report(read(PRESETS/'Zylot - Spiral.milk'),{'viewport':[480,270],'feedback_fps':30})
+    persistence=value['feedback_persistence']
+    assert persistence['status']=='conditional_quantized_decay_orbit'
+    assert persistence['floor_level_from_full']==6
+    assert persistence['steps_to_floor_from_full']==43
+    relation=value['curve_feedback_relation']['by_component']['wave_0']
+    assert {9,43}<={row['declared_steps'] for row in relation['nominal_n_step_relations']}
+    sweep=relation['persistence_layer_sweep']
+    assert sweep['interturn_gap_crossed_by_retained_layers_above_floor'] is True
+    assert sweep['horizons'][0]['separation_exceeds_pitch'] is False
+    assert sweep['final_visible_density'] is None
+    assert 'source_feedback_persistence.py' in value['model_sources']
+    assert value['classification']['eligible_bands']==[]
+    json.dumps(value,allow_nan=False)
+
+
+def test_spiral_exports_radius_locked_colour_and_diffusion_bound():
+    value=report(read(PRESETS/'Zylot - Spiral.milk'),{'viewport':[480,270],'feedback_fps':30})
+    colour=value['radial_colour_field']['by_component']['wave_0']
+    assert colour['status']=='conditional_radius_locked_colour'
+    assert colour['concentric_ring_pattern']=='static_at_fixed_radius'
+    assert 9.6<colour['channels']['r']['radial_modulo_period_pixels']<9.7
+    spread=value['curve_feedback_relation']['by_component']['wave_0']['bilinear_diffusion_spread']
+    assert spread['status']=='conditional_bilinear_spread_bound'
+    assert spread['adjacent_layer_merge_possible'] is True
+    assert 'source_radial_colour_field.py' in value['model_sources']
+    assert value['classification']['eligible_bands']==[]

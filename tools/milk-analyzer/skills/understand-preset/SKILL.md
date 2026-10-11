@@ -73,6 +73,19 @@ required. Use a native file-read tool to inspect JSON and the summary.
    incompatible labels give no marker speed and do not prove quietness.
    Native colour modulo, clamps and feedback can hide labels; never call a
    marker ceiling visible speed.
+   Read `static_behaviour.feedback_persistence` for the conditional RGBA8
+   stored-level decay orbit: half-level and floor steps, and the largest level
+   that never decays. A nonzero floor means faint content can persist instead
+   of returning to black. With a curve relation, `persistence_layer_sweep`
+   says whether retained layers cross whole inter-turn gaps before the floor:
+   expect filled, banded gaps rather than black space between turns, but keep
+   density and brightness unverified.
+   Read `static_behaviour.radial_colour_field`: radius-locked raw colour paints
+   concentric rings with the exported radial periods. Combined with a gap
+   sweep and possible bilinear layer merging, describe the look as smooth
+   concentric colour rings rather than a thin-line spiral; the winding can stay
+   legible only where retained layers have not filled the gaps. Keep visible
+   ring count, contrast and the extent of any legible winding unverified.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

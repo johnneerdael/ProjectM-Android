@@ -126,6 +126,10 @@ def summarize_preset(record):
         radial=_object(static['affine_radial_feedback'],STATIC+'/affine_radial_feedback')
         fact('feedback',STATIC+'/affine_radial_feedback',radial,
              'Nominal radial backward sampler and inverse fixed-feature map; no executed history or visible trajectory')
+    if 'feedback_persistence' in static:
+        persistence=_object(static['feedback_persistence'],STATIC+'/feedback_persistence')
+        fact('feedback',STATIC+'/feedback_persistence',persistence,
+             'Conditional RGBA8 stored-level decay orbit for a fixed uniform decay; not visible trail length')
     if 'radial_uv_envelope' in static:
         uv=_object(static['radial_uv_envelope'],STATIC+'/radial_uv_envelope')
         fact('feedback',STATIC+'/radial_uv_envelope',uv,
@@ -183,6 +187,7 @@ def summarize_preset(record):
                                 ("curve_projection", "geometry", "components"),
                                 ("curve_feedback_relation", "feedback", "components"),
                                 ("material_marker_motion", "motion", "components"),
+                                ("radial_colour_field", "colour", "components"),
                                 ("motion", "motion", "contributions"), ("flashing", "flashing", "records")):
         section = _object(static.get(key, {}), STATIC + "/" + key)
         for index, row in enumerate(_rows(section.get(rows_key, []), STATIC + "/" + key + "/" + rows_key)):
@@ -279,8 +284,39 @@ def _description(summary):
                 'nominal filter-footprint edge crossing possible' if edge is True else 'filter-footprint edge crossing unresolved')
             sentences.append(text+'; conditional source envelopes, not observed native texture taps.')
             continue
+        if item['path'].endswith('/feedback_persistence'):
+            if row.get('status')!='conditional_quantized_decay_orbit':continue
+            text=('Stored RGBA8 decay '+format(row.get('decay_gain'),'.6g')+': a full-white level ')
+            half=row.get('steps_to_half_from_full')
+            text+=('halves within '+str(half)+' steps and ' if type(half) is int else 'never halves and ')
+            text+=('stalls at stored level '+str(row.get('floor_level_from_full'))+'/255 after '+
+                   str(row.get('steps_to_floor_from_full'))+' steps')
+            stuck=row.get('largest_stuck_level')
+            if type(stuck) is int and stuck>0:
+                text+='; stored levels up to '+str(stuck)+'/255 never decay further'
+            sentences.append(text+' (uniform-neighbourhood storage arithmetic; filtering, drawing and visible trail length unverified).')
+            continue
         if '/curve_feedback_relation/components/' in item['path']:
             if row.get('status')!='conditional_local_curve_feedback_relation':continue
+            spread=row.get('bilinear_diffusion_spread')
+            if isinstance(spread,dict) and spread.get('status')=='conditional_bilinear_spread_bound':
+                if spread.get('adjacent_layer_merge_possible') is True:
+                    sentences.append(str(row.get('component_id'))+' bilinear feedback resampling can spread retained '
+                        'layers enough that adjacent copies can merge into continuous bands (spread ceiling only; '
+                        'whole-texel offsets add none).')
+                elif spread.get('adjacent_layer_merge_possible') is False:
+                    sentences.append(str(row.get('component_id'))+' retained layers are spaced beyond the bilinear '
+                        'spread ceiling; distinct echo strokes stay possible.')
+            sweep=row.get('persistence_layer_sweep')
+            if isinstance(sweep,dict) and sweep.get('status')=='conditional_persistence_layer_sweep':
+                floor=next((h for h in sweep.get('horizons',[]) if isinstance(h,dict) and h.get('horizon')=='floor_level'),None)
+                if floor is not None and floor.get('separation_exceeds_pitch') is True:
+                    sentences.append(str(row.get('component_id'))+' retained layers drift past fresh ones and '
+                        'cross at least '+str(floor.get('gap_crossings_lower_bound'))+' inter-turn gaps before their '
+                        'stored level reaches the floor: a conditional gap-filling hypothesis (density unverified).')
+                elif floor is not None and floor.get('separation_exceeds_pitch') is False:
+                    sentences.append(str(row.get('component_id'))+' retained layers stay within one inter-turn gap '
+                        'before reaching the stored floor; distinct echo layers are possible (density unverified).')
             reference=_object(row.get('reference_selection',{}),item['path']+'/reference_selection')
             sentences.append(str(row.get('component_id'))+' local relation at reference sample '+
                 str(reference.get('source_sample'))+': nominal inter-turn pitch '+
@@ -441,6 +477,24 @@ def _description(summary):
                          "; source sample-index colour formulas, not temporal flashing or verified displayed colour bands.")
     if locus_colours:
         sentences.append("Interior source colour relation: " + "; ".join(locus_colours[:3]) + ".")
+    rings=[]
+    for item in summary['facts']['colour']:
+        row=item['value']
+        if '/radial_colour_field/components/' not in item['path'] or not isinstance(row,dict):continue
+        if row.get('status')!='conditional_radius_locked_colour':continue
+        periods=[]
+        for name,channel in (row.get('channels') or {}).items():
+            period=channel.get('radial_modulo_period_pixels') if isinstance(channel,dict) else None
+            if type(period) in (int,float):periods.append(name+' every '+format(period,'.4g')+' px')
+        pattern=row.get('concentric_ring_pattern')
+        text=str(row.get('component_id'))+' raw colour is radius-locked, painting concentric raw-colour rings'
+        if periods:text+=' (radial modulo period '+', '.join(periods)+')'
+        if pattern=='static_at_fixed_radius':text+='; colour is static at a fixed radius in the fresh drawing'
+        elif pattern=='drifting_or_cycling':text+='; ring colours drift or cycle over time'
+        rings.append(text)
+    if rings:
+        sentences.append('Ring colour structure: '+'; '.join(rings[:3])+'. This holds for the continuous source curve; '
+            'layering, smoothing and modulo/clamps can break it, and visible ring count is unverified.')
     markers=[]
     for item in summary['facts']['motion']:
         row=item['value']

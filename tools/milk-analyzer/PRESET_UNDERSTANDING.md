@@ -167,6 +167,44 @@ sampling, feedback and composition can hide labels; no visible speed, unique
 particle or mood credit follows. A producer failure is isolated in
 `producer_failures` without erasing projection evidence.
 
+`static_behaviour.feedback_persistence` (policy
+`source-unorm8-decay-persistence-v1`) applies only to the fixed main-decay warp
+model with zero offset and image-independent sampling. The pinned source34 warp
+writes `decay*texture(main)` into an RGBA8 main image, so a locally uniform stored
+level `k` becomes `round(k*d)`. Levels with `k*(1-d)<1/2` are fixed points, so a
+full-white level halves, then stalls at a nonzero floor (for `d=0.92`: halves in
+9 steps and stalls at 6/255 after 43). If `d>1-1/510`, full white never decays.
+Exact half-level ties are reported as ambiguous because GLES leaves the tie
+direction open. Mediump/fp16 arithmetic, filtering at edges, drawing, blending
+and display are not modelled; these are stored levels, not trail length.
+
+The half-level and floor horizons are added to the curve/feedback step counts
+when at most 128. `persistence_layer_sweep` compares the closed-form
+retained/fresh separation at each horizon with the turn pitch. Crossing at least
+one pitch before the floor supports a conditional gap-filling hypothesis:
+fading retained copies sweep across whole inter-turn gaps. It is not achieved
+density, overlap or thickness.
+
+`curve_feedback_relation` components also carry `bilinear_diffusion_spread`:
+each `GL_LINEAR` warp read at sub-texel offset `f` spreads a texel with variance
+`f(1-f)<=1/4` per axis, so after `n` steps the spread is at most `sqrt(n/4)`
+pixels (the engine's uniform-offset reference is `sqrt(n/6)`). Whole-texel
+offsets add nothing, so the record says only whether adjacent retained layers
+*can* merge into continuous bands. The engine's extra diffusion pass above its
+line-reference scale is excluded only when a scale at most 1 is declared.
+
+`static_behaviour.radial_colour_field.components` (policy
+`source-radial-colour-field-v1`): for an affine polar recipe with `Rs!=0`, each
+affine raw label equals `C0+(Cs/Rs)*(R-Rc-Rt*t)+Ct*t`, a function of radius and
+time but not angle. When the radius keeps one sign (proved at time zero, or over
+a declared time domain), the continuous curve paints concentric raw-colour rings.
+Per channel it exports radial gradient `Cs/Rs`, radial modulo period
+`|Rs/Cs|*period` (pixels only with a matching isotropic projection), fixed-radius
+rate `Ct-Cs*Rt/Rs` and iso-label ring drift `Rt-Ct*Rs/Cs`. A spiral whose colour
+is radius-locked can therefore read as rings once feedback fills its gaps.
+Layering age, smoothing, modulo/clamps and composition remain separate; visible
+ring count and contrast are not certified.
+
 `static_behaviour.radial_uv_envelope` needs explicit `texel_offset_pixels`; optional
 `main_texture_size` independently supplies sampled texture dimensions. Neither
 is silently inferred by the static context. It distinguishes coordinates within

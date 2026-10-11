@@ -250,6 +250,25 @@ def _material_marker_motions(analysis,description,context,evidence):
             'native_numeric_certified':False,'whole_preset_activity_credit':False}
 
 
+def _radial_colour_fields(analysis,description,context,evidence):
+    import source_radial_colour_field
+    from source_motion_behaviour import _effective_domains
+    declared_time=_effective_domains(analysis,context).get('time')
+    components=[]
+    for element in description.get('elements',[]):
+        recipe=element.get('parameters',{}).get('source_curve_recipe')
+        if recipe is None:continue
+        identity=element['id']
+        projection=evidence['curve_projection']['by_component'].get(identity)
+        field_context={} if declared_time is None else {'source_time_domain':declared_time}
+        row=source_radial_colour_field.radial_colour_field(recipe,projection,field_context)
+        components.append({**row,'component_id':identity})
+    return {'policy':'source-radial-colour-field-export-v1','components':components,
+            'by_component':{row['component_id']:row for row in components},
+            'uses_equation_execution':False,'uses_rendered_images':False,
+            'native_numeric_certified':False,'whole_preset_activity_credit':False}
+
+
 def _affine_radial_feedback(analysis,description,context):
     from source_affine_radial_feedback import affine_radial_feedback
     from engine_profiles import CORE_2334_ENGINE
@@ -265,6 +284,11 @@ def _affine_radial_feedback(analysis,description,context):
     return affine_radial_feedback(analysis,context,consumed=consumed)
 
 
+def _feedback_persistence(analysis,description,context):
+    from source_feedback_persistence import unorm8_decay_persistence
+    return unorm8_decay_persistence(description.get('feedback_transfer'),context)
+
+
 def _curve_feedback_relations(analysis,description,context,evidence):
     from fractions import Fraction
     from source_curve_feedback_relation import curve_feedback_relation
@@ -275,8 +299,12 @@ def _curve_feedback_relations(analysis,description,context,evidence):
         if recipe is None:continue
         identity=element['id']
         projection=evidence['curve_projection']['by_component'].get(identity,{})
+        from source_feedback_persistence import persistence_horizon_steps,persistence_layer_sweep
+        horizons=[count for _,count in persistence_horizon_steps(evidence.get('feedback_persistence'))]
+        counts=sorted({1,4,16,*(count for count in horizons if count<=128)})
         selection={'policy':'source-sample-midpoint-diagnostic-v1','source_sample':.5,
-                   'declared_feedback_step_counts':[1,4,16],
+                   'declared_feedback_step_counts':counts,
+                   'persistence_horizon_step_counts':horizons,
                    'is_typical_or_observed':False,'native_vertex_attainment_verified':False,
                    'scope':'declared continuous source-sample reference, not displayed dominance or a whole-curve trajectory'}
         try:
@@ -293,6 +321,9 @@ def _curve_feedback_relations(analysis,description,context,evidence):
             if time is not None:relation_context['local_source_time_domain']=_enclosure((time,time))
             row=curve_feedback_relation(recipe,projection,evidence['affine_radial_feedback'],
                 description.get('feedback_envelope',{}),context=relation_context)
+            row['persistence_layer_sweep']=persistence_layer_sweep(row,evidence.get('feedback_persistence'))
+            from source_feedback_persistence import bilinear_diffusion_spread
+            row['bilinear_diffusion_spread']=bilinear_diffusion_spread(row,evidence.get('feedback_persistence'))
         except (ValueError,KeyError,OverflowError,ZeroDivisionError) as error:
             row={'policy':'source-curve-feedback-relation-v1','status':'unknown',
                  'unknown_reasons':[str(error)],'actual_trail_thickness_pixels':None,
@@ -333,7 +364,8 @@ def static_behaviour(analysis,description,context=None):
                                              'source_stochastic_brightness.py','source_parametric_wave.py',
                                              'source_curve_projection.py','source_affine_radial_feedback.py',
                                              'source_curve_feedback_relation.py','source_radial_uv_envelope.py',
-                                             'source_material_marker_motion.py']},
+                                             'source_material_marker_motion.py','source_feedback_persistence.py',
+                                             'source_radial_colour_field.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}
@@ -353,8 +385,12 @@ def static_behaviour(analysis,description,context=None):
         result['curve_projection']=produce('curve_projection',_curve_projections,arguments,{'by_component':{},'components':[]})
         result['material_marker_motion']=produce('material_marker_motion',_material_marker_motions,
             (*arguments,result),{'by_component':{},'components':[]})
+        result['radial_colour_field']=produce('radial_colour_field',_radial_colour_fields,
+            (*arguments,result),{'by_component':{},'components':[]})
         result['affine_radial_feedback']=produce('affine_radial_feedback',_affine_radial_feedback,arguments,
             {'native_numeric_certified':False,'visible_motion_speed':None,'whole_preset_activity_credit':False})
+        result['feedback_persistence']=produce('feedback_persistence',_feedback_persistence,arguments,
+            {'largest_stuck_level':None,'visible_trail_length':None})
         result['curve_feedback_relation']=produce('curve_feedback_relation',_curve_feedback_relations,
             (*arguments,result),{'by_component':{},'components':[]})
         result['radial_uv_envelope']=produce('radial_uv_envelope',_radial_uv_envelope,(result,normalized),

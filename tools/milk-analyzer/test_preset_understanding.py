@@ -438,6 +438,58 @@ def test_mode3_waveform_alpha_dependency_is_reported():
     assert 'bass →' not in text
 
 
+def test_quantized_persistence_and_layer_sweep_prose_stays_conditional():
+    record=control_record()
+    static=record['analysis']['visual_description']['static_behaviour']
+    static['feedback_persistence']={'policy':'source-unorm8-decay-persistence-v1',
+        'status':'conditional_quantized_decay_orbit','decay_gain':.92,'largest_stuck_level':6,
+        'floor_level_from_full':6,'steps_to_floor_from_full':43,'steps_to_half_from_full':9,
+        'seconds_to_floor_from_full':43/30,'seconds_to_half_from_full':.3,'visible_trail_length':None}
+    static['curve_feedback_relation']={'components':[{'component_id':'wave_0',
+        'status':'conditional_local_curve_feedback_relation','reference_selection':{'source_sample':.5},
+        'persistence_layer_sweep':{'status':'conditional_persistence_layer_sweep',
+            'interturn_gap_crossed_by_retained_layers_above_floor':True,
+            'horizons':[{'horizon':'half_level','steps':9,'separation_exceeds_pitch':False,'gap_crossings_lower_bound':0},
+                        {'horizon':'floor_level','steps':43,'separation_exceeds_pitch':True,'gap_crossings_lower_bound':3}]}}]}
+    result=summarize_preset(record)
+    fact=next(f for f in result['facts']['feedback'] if f['path'].endswith('/feedback_persistence'))
+    assert resolve(record,fact['path'])==fact['value']
+    text=result['description']
+    assert 'stalls at stored level 6/255 after 43 steps' in text
+    assert 'never decay' in text
+    assert 'cross at least 3 inter-turn gaps' in text
+    assert 'density unverified' in text
+
+
+def test_unknown_persistence_has_no_floor_prose():
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['feedback_persistence']={
+        'status':'unknown','largest_stuck_level':None}
+    assert 'stored level' not in summarize_preset(record)['description']
+
+
+def test_radius_locked_colour_and_spread_prose():
+    record=control_record()
+    static=record['analysis']['visual_description']['static_behaviour']
+    static['radial_colour_field']={'components':[{'component_id':'wave_0','status':'conditional_radius_locked_colour',
+        'concentric_ring_pattern':'static_at_fixed_radius','continuous_curve_colour_angle_independent':True,
+        'channels':{'r':{'status':'radius_locked_channel','radial_modulo_period_pixels':9.6},
+                    'g':{'status':'radius_locked_channel','radial_modulo_period_pixels':16.06},
+                    'b':{'status':'uniform_channel','radial_modulo_period_pixels':None}}}]}
+    static['curve_feedback_relation']={'components':[{'component_id':'wave_0',
+        'status':'conditional_local_curve_feedback_relation','reference_selection':{'source_sample':.5},
+        'bilinear_diffusion_spread':{'status':'conditional_bilinear_spread_bound','adjacent_layer_merge_possible':True,
+            'horizons':[{'horizon':'half_level','steps':9,'sigma_upper_pixels':1.5}]}}]}
+    result=summarize_preset(record)
+    fact=next(f for f in result['facts']['colour'] if '/radial_colour_field/components/' in f['path'])
+    assert resolve(record,fact['path'])==fact['value']
+    text=result['description']
+    assert 'concentric raw-colour rings' in text
+    assert 'r every 9.6 px' in text and 'g every 16.06 px' in text
+    assert 'static at a fixed radius' in text
+    assert 'can merge into continuous bands' in text
+
+
 def test_unsupported_recipe_or_preset_name_does_not_supply_spiral_claim():
     record = control_record()
     record["preset"]["name"] = "Spiral Circle Tunnel.milk"
