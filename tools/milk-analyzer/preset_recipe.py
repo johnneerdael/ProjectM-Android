@@ -108,6 +108,17 @@ def _layer(facts,index):
                          'blend':material.get('blend_mode')}
     elif isinstance(facts.get(path+'/colour'),dict):
         layer['colour']=copy.deepcopy(facts[path+'/colour'])
+    for colour_path,colour_row in facts.items():
+        if not colour_path.startswith(STATIC+'/colour/components/') or not isinstance(colour_row,dict):continue
+        if colour_row.get('component_id')!=identity:continue
+        points=(colour_row.get('source_palette') or {}).get('point_colour_distribution') or {}
+        if points.get('status')=='closed_form_point_colours':
+            layer['point_cloud']={'points_per_frame':points.get('sample_count'),'sample_grid':'sample=j/(N-1)',
+                **{k:copy.deepcopy(points.get(k)) for k in ('hue_family_shares','mean_rgb','mean_alpha','mean_saturation',
+                   'held_inputs','positions_closed_form','position_bounds','programs')},
+                'coordinates':'MilkDrop source x right, y down, nominal [0,1]; colours native modulo 256/255 then clamp',
+                'evidence':colour_path}
+        break
     routes=[{'input_code':v.get('input_code'),'target':v.get('control'),'linear_gain':v.get('linear_gain'),
              'threshold_or_clamp':v.get('has_threshold_or_clamp'),'expression':copy.deepcopy(v.get('expression'))}
             for p,v in sorted(facts.items()) if p.startswith(path+'/audio_routes/') and isinstance(v,dict)]
@@ -157,7 +168,9 @@ def _render(facts):
                        'length_scale':vectors.get('length_scale'),'evidence':[STATIC+'/motion_vectors']})
     bindings=[{'layer':layer['id'],'input':AUDIO_NAMES.get(route['input_code'],route['input_code']),'target':route['target'],
                'linear_gain':route['linear_gain']} for layer in layers for route in layer.get('audio',[])]
-    return {'feedback':feedback,'layers':layers,'composite':composite,'mechanisms':mechanisms,'audio_bindings':bindings}
+    from mirror_symmetry import mirror_operators
+    return {'feedback':feedback,'layers':layers,'composite':composite,'mechanisms':mechanisms,'audio_bindings':bindings,
+            'mirrors':mirror_operators(facts)}
 
 
 def _program(source):
@@ -198,9 +211,6 @@ def main(argv=None):
     else:print(text)
 
 
-if __name__=='__main__':
-    main()
-
 
 SHADER_EFFECTS={
     'angular_mirror_fold':('kaleidoscope',{'sectors':'sector_count'}),
@@ -222,16 +232,16 @@ SHADER_EFFECTS={
     'spatial_oscillatory_bands':('stripes',{}),
     'angular_periodic_warp':('angular_warp',{}),
 }
-BRIGHTNESS_TARGETS=('colour','opacity','alpha','brightness','border','gamma','decay')
 
 
 def _reactivity(render):
     """Band -> effect parameter map; strengths are relative classes, not calibrated gains."""
+    from approximate_mood import is_brightness_control
     rows={}
     for binding in render['audio_bindings']:
         band=str(binding['input']);smoothed=band.endswith('_att');base=band.replace('_att','')
         target=str(binding['target'])
-        kind='brightness' if target.startswith(BRIGHTNESS_TARGETS) else 'motion'
+        kind='brightness' if is_brightness_control(target) else 'motion'
         key=(base,binding['layer'],target)
         row=rows.setdefault(key,{'band':base,'layer':binding['layer'],'target':target,'kind':kind,
                                  'smoothed':smoothed,'linear_gain':binding.get('linear_gain'),'response':'continuous'})
@@ -296,10 +306,19 @@ def intent(recipe):
             effects.append({'effect':'shapes','sides':geometry.get('effective_sides') or layer['constants'].get('sides'),
                             'instances':geometry.get('configured_instances') or layer['constants'].get('instances'),
                             'radius':geometry.get('radius_ndc'),'moving':bool(layer.get('controls') or layer.get('centre_axes'))})
-        elif str(layer['id']).startswith('wave_'):effects.append({'effect':'custom_waveform','layer':layer['id']})
+        elif str(layer['id']).startswith('wave_'):
+            cloud=layer.get('point_cloud') or {}
+            effects.append({'effect':'custom_waveform','layer':layer['id'],
+                **({'points_per_frame':cloud.get('points_per_frame'),'hue_family_shares':cloud.get('hue_family_shares'),
+                    'mean_alpha':cloud.get('mean_alpha'),'closed_form_positions':cloud.get('positions_closed_form'),
+                    'position_bounds':cloud.get('position_bounds')} if cloud else {})})
     composite=render['composite']
     if composite.get('echo',{}).get('active'):effects.append({'effect':'echo_double','alpha':composite['echo'].get('alpha'),'zoom':composite['echo'].get('zoom')})
     if composite.get('scalar_palette'):effects.append({'effect':'palette_map','ramp':composite['scalar_palette']['ramp'][::4]})
+    mirrors=render.get('mirrors') or {}
+    if mirrors.get('operators'):
+        effects.append({'effect':'mirror_symmetry','fold':mirrors.get('fold'),'flips':mirrors.get('flip_directions'),
+                        'score_upper':mirrors.get('symmetry_score'),'operators':[r['operator']+':'+r['flip'] for r in mirrors['operators']]})
     palette={'warm_cool':features.get('palette.warm_cool',{}).get('value'),'saturation':features.get('palette.mean_saturation',{}).get('value'),
              'hue_variety_bins':features.get('palette.effective_hue_bins',{}).get('value'),
              'hue_cycle_per_s':features.get('palette.hue_rate_p95_cycles_s',{}).get('value'),
@@ -308,3 +327,7 @@ def intent(recipe):
             'energy':{'intensity':mood['scores']['intensity']['value'],'smoothness':mood['scores']['smoothness']['value'],
                       'tags':[t['tag'] for t in mood['tags']]},
             'guidance':'Rebuild the listed effects at any resolution and frame rate in a modern engine; keep the reactivity map (which band drives which parameter, continuous or thresholded, smoothed or raw) and the palette/energy character. Exact pixels are not a goal.'}
+
+
+if __name__=='__main__':
+    main()

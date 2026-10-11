@@ -375,6 +375,9 @@ def _legacy_transfer(analysis,domains,result,viewport=None):
             'echo_selection':selection,'gamma_redraw_weights':weights,
             'gamma_absolute_weight_sum_upper':gamma_gain,'echo_absolute_blend_weight_sum_upper':blend_gain,
             'tint_absolute_gain_upper':tint_gain,'ordered_filter_gain_upper':filter_gain,
+            'tint_amount':float(tint),'tint_corner_formula':'shade=.6+.3*sin(time*30*rate+phase+corner*mult+random_offset), '
+                'normalized by the corner maximum, .5+.5*shade, then mixed with 1 by tint_amount when it exceeds 0.001',
+            'tint_random_offsets_known':False,
             'application_order':['hue_and_gamma_echo_draws','brighten','darken','solarize','invert'],
             'sample_textures':['main'],'source_role':'current warped main with drawing',
             'includes_scalar_control_response':False,'native_numeric_certified':False,

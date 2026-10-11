@@ -97,7 +97,11 @@ def test_zylot_radius_affine_zoom_is_spatially_varying():
     assert zoom['dependencies']['coordinates']==['rad']
     term=[t for t in zoom['terms'] if t['kind']=='coordinate_affine'][0]
     assert term['coefficients']=={'rad':pytest.approx(.01)}
-    assert pattern(value,'spatially_varying_zoom','zoom')
+    # Constant+uniform+rad-affine zoom with uniform zoomexp resolves into a sampled radial profile.
+    (row,)=pattern(value,'radial_zoom_profile','zoom')
+    assert row['zoom_varies_with']=='rad'
+    low,high=row['effective_zoom_range']
+    assert low<=1+row['screen_mean_percent_per_step']/100<=high
 
 
 def test_constant_translation_reports_pixels_per_second():

@@ -494,3 +494,63 @@ Held-out check (2026-10-11, 34 presets never used for tuning): rank correlation
 of intensity with observed emulator activity 0.33 (0.28 for the older scorer);
 2 of 8 strongly flashing presets were tagged Flashing. Automatic activity is
 therefore only a rough prior; preference feedback is the intended correction.
+
+## Point clouds, mirrors, borders and radial zoom (2026-10-12)
+
+These general facts came from the r4 checkpoint (`Phat+fiShbRaiN_Mandala`),
+where the frozen v1 prediction was black and grey although the native picture
+is a bright, four-fold mirrored blue/purple particle fountain.
+
+- `source_point_colour.py` (`source-custom-point-colour-distribution-v1`) runs
+  inside the custom-wave colour model. A custom wave evaluates its per-point
+  code at `sample=j/(N-1)` (MilkDrop2 and projectM agree). When r, g, b and a
+  depend only on `sample`, `time` and declared scalar inputs, the module
+  enumerates that finite grid at declared times (audio held at band
+  midpoints) and reports mean colour, hue-family shares, saturation and
+  alpha. Hashed formulas such as `((sample*5454)%100)*.01` become a measured
+  spread. `time_expression.evaluate_inputs` implements projectm-eval `%`
+  (C remainder of truncated integers, divisor 0 gives 0) and EEL equal.
+  When x/y are also closed-form, the record keeps the serialised programs and
+  source position bounds. Persistent per-point state, `rand` and waveform
+  inputs stay unresolved and are listed.
+- `mirror_symmetry.py` (`source-mirror-symmetry-v1`) turns a uniform negative
+  stretch (`sx<0` or `sy<0`, a per-step reflection) and a mirrored composite
+  echo into flip directions, a fold count and a symmetric-energy score
+  `2AB/(A^2+B^2)`. Feedback uses `(1, decay)` and the echo uses `(1-a, a)`.
+  The score is an upper estimate that feeds `structure.symmetry`.
+- `source_borders.py` (`source-border-feedback-operators-v1`) models MilkDrop2
+  `DrawSprites`, drawn after shapes and waves into the feedback canvas. Each
+  border is a square annulus covering `out^2-in^2` of the viewport, blended
+  "over" with its colour, so retained content there keeps `decay*(1-a)` per
+  frame. The record adds the RGBA8 orbit, floor and half-life. The darken-centre
+  diamond (alpha 3/32 at the centre) is also included. A border band covering
+  most of the screen sets the approximate `feedback.half_life_s`.
+- A `rad`-affine zoom (constant + uniform + `k*rad` terms) with a uniform
+  zoomexp is sampled over the viewport as a `radial_zoom_profile`, with
+  `screen_mean_percent_per_step`. Closed-form point clouds add a motion driver
+  (median on-screen point speed, one-frame differences).
+- Brightness controls are classified by word (`outline_opacity`, `border_a`),
+  not by prefix.
+
+Controlled emulator variants of the r4 preset, under the checkpoint's
+`decay-experiment/` folder, established three engine facts used by the
+illustrator:
+
+1. The capture is upright (the frame writer reverses GL rows), and a shape at
+   `y=.2` renders 80% of the way down the screen. Wave vertices follow the
+   curve-projection fact: row = `H/2-(y-.5)*long`.
+2. With decay 0 and only one dot wave enabled, every authored point lands on a
+   lit pixel, while projectM's 4-tap smoothed midpoints hit only at chance
+   level. Published-AAR dot waves therefore draw the N authored points; line
+   waves keep 2N-1.
+3. A header-only decay of .999 matches the original brightness, so the
+   per-frame `decay` assignment is effective. Native frame `k` is rendered at
+   source time `(k+1)/30`.
+
+The legacy composite also exports `tint_amount`. The illustrator applies the
+fShader corner tint with zero random hue offsets, so hue placement is not a
+prediction. Textured shapes redraw the previous frame through their polygon
+with the exact affine fan mapping. On r4, frame 149, the final frozen
+illustration has mean luma 0.256 against 0.231 native, and saturation 0.49
+against 0.47. The dark central hexagram (a textured triangle plus the vertical
+flip) is still a miss.

@@ -1,0 +1,81 @@
+{
+ "policy": "controlled-emulator-engine-facts-v1",
+ "emulator": "emulator-5610 (ro.kernel.qemu=1), published 2.3.34 AAR JNI, 480x270",
+ "variants": {
+  "Mandala-decay-0.milk": {
+   "preset_sha256": "73f5b94fd4560053908f296d1955ba0f1eb56ffeb193139c321d835463241cee"
+  },
+  "Mandala-header-decay-0965-no-perframe.milk": {
+   "preset_sha256": "b4e6a84748ef2d435d68c60372729edcb2ea0b11506bdfb46a965f53dff1306d"
+  },
+  "Mandala-header-decay-0999.milk": {
+   "preset_sha256": "0dca2591729c169425a7f3364f307d9aa087ae41a3055e7a74e61df1e3e5975b"
+  },
+  "Mandala-wave2-only.milk": {
+   "preset_sha256": "2094cc5a85ad88e99783bdb23f633ad6e09d15c60a4b23b620ead178b52f1b21"
+  },
+  "capture-Mandala-decay-0": {
+   "capture_result_sha256": "49651d8dc01d7dc641deb50cddf75d46c770414156d6c056579a0f6a9bd348c2"
+  },
+  "capture-Mandala-header-decay-0965-no-perframe": {
+   "capture_result_sha256": "846c299e148f5dc28674ea89ba9f68d4e4352352b4f096e753a3de9b9c5cba53"
+  },
+  "capture-Mandala-header-decay-0999": {
+   "capture_result_sha256": "9cb4751d286a2ad7bdb334ac52d902b258d5bf56646c62f7c99fd867bc4b404c"
+  },
+  "capture-orientation-control": {
+   "capture_result_sha256": "6aeb4832b72499ceb9c56f8c29c2fc417e931a21c2cea1e5db1448389f93f17f"
+  },
+  "capture-wave2-only": {
+   "capture_result_sha256": "8585ca7c05a355c783c46b4c03c4acd90b77e9fcceed94395435b3cefb781ded"
+  },
+  "orientation-control.milk": {
+   "preset_sha256": "2a6ca84e682810a3d01f61bc023f4bc5552ae118582222e96a9f157be0b0fa37"
+  },
+  "Mandala-decay0-triangle.milk": {
+   "preset_sha256": "06d6efe97c5c56b8a3c18e59f8e769be8ce728f81032f593e524e68f7c0c3c42"
+  },
+  "Mandala-no-darken-centre.milk": {
+   "preset_sha256": "f00f5bb8a79d796eafe0d5fc6816a94653a0d6ee3230258655b4ef7c5690d62b"
+  },
+  "Mandala-no-triangle.milk": {
+   "preset_sha256": "3759d73ced5ac2ad3798a844ca8e354727a47307cb8b66bcb31380dc6b7981bc"
+  },
+  "Mandala-triangle-always-on.milk": {
+   "preset_sha256": "701ea7a02619667fac57fe4016f04d64d938282b87df47dec4757b877749fbae"
+  },
+  "Mandala-triangle-untextured.milk": {
+   "preset_sha256": "f503978c14cfa6fb01a77cc8e12f374933fac7897acd4a0730c16ac365ef0889"
+  },
+  "capture-Mandala-no-darken-centre": {
+   "capture_result_sha256": "7d673b91997ba890ce6ccc0c77a674a7e678cea5948b7559ac8f9bbbc5612603"
+  },
+  "capture-Mandala-no-triangle": {
+   "capture_result_sha256": "48175adbfc28b16cd88fff788429b9d5179c3200418b923ab03d160d5b5da3da"
+  },
+  "capture-Mandala-triangle-always-on": {
+   "capture_result_sha256": "0580dff5ddc90043dbb27354f132eeb657951fe9a749d33400a24696aeb683dd"
+  },
+  "capture-Mandala-triangle-untextured": {
+   "capture_result_sha256": "46f5a4c0c72b55dc544480ceea5d41788d9dd2e0e36e83018b6ec640fbd2777a"
+  },
+  "capture-decay0-triangle": {
+   "capture_result_sha256": "1728fda6d88f327b44e0bda50912c71a4a469a0bfc99862ede5c2a764025bbce"
+  },
+  "capture-textured-copy-control": {
+   "capture_result_sha256": "38a7e1c53ae98592101dd257bab7b315a8500792360a08ca42ac6fbd9de534de"
+  },
+  "textured-copy-control.milk": {
+   "preset_sha256": "3b8193cca19cea371b0873bb3c510f831899ddf45d21c8f0e2429ed9c861f1b2"
+  }
+ },
+ "findings": {
+  "per_frame_decay_effective": "header fDecay=.999 without per-frame line: luma 0.222 at frame 149 vs original 0.192; header .965 without per-frame: 0.085",
+  "orientation": "shape y=.2 renders rows 207-225 of 270 (80% down); x=.2 renders columns 87-105; capture writer reverses GL rows",
+  "dot_waves_draw_authored_points": "wave_2-only, decay 0: authored points hit lit pixels 98.5-100% at time (k+1)/30; 4-tap smoothed midpoints 22-25% (chance)",
+  "frame_time": "native frame k corresponds to source time (k+1)/30",
+  "textured_triangle_dark_star": "Native centre luma (frame 149, 120x80 box): original 0.366; triangle forced on 0.371; triangle disabled 0.559; darken-centre off 0.332; triangle untextured 0.493 (white). The dark hexagram comes from the textured copy itself, not from audio gating or darken-centre.",
+  "textured_copy_alpha": "Control (white untextured square, then a textured square copying the previous frame): centre is white already at frame 0, when the previous frame is black. The copy is therefore weighted by texture alpha (src.a = vertex.a * texture.a; the canvas alpha starts at 0). The canvas alpha channel is a separate state: decay scales RGB only, and blending updates alpha by src.a^2 + dst.a*(1-src.a) or src.a^2 + dst.a. Not yet modelled by the illustrator."
+ },
+ "scope": "review/diagnostic evidence for illustrator conventions; never a classification input"
+}

@@ -133,6 +133,9 @@ def summarize_preset(record):
     if 'motion_vectors' in static:
         fact('construction',STATIC+'/motion_vectors',_object(static['motion_vectors'],STATIC+'/motion_vectors'),
              'Native motion-vector drawing element: grid, colour and activation; visible contrast unverified')
+    if 'borders' in static:
+        fact('feedback',STATIC+'/borders',_object(static['borders'],STATIC+'/borders'),
+             'Native borders and darken-centre: bands, per-frame retained gain and RGBA8 orbits; stored levels, not displayed brightness')
     if 'mesh_field' in static:
         fact('motion',STATIC+'/mesh_field',_object(static['mesh_field'],STATIC+'/mesh_field'),
              'Per-pixel warp control field structure: regions, affine terms and oscillators; not visible motion')
@@ -764,6 +767,37 @@ def _description(summary):
         if item['path'].endswith('/legacy_response') and isinstance(item['value'],dict):
             text=_composite_sentence(item['value'])
             if text:sentences.append(text)
+    for item in summary['facts']['feedback']:
+        row=item['value']
+        if not item['path'].endswith('/borders') or not isinstance(row,dict) or row.get('status')!='described':continue
+        parts=[]
+        for border in row.get('borders') or []:
+            if not border.get('active'):continue
+            text=(border['border']+' border'+(' covering '+format(100*border['screen_area_fraction'],'.1f')+'% of the screen'
+                  if type(border.get('screen_area_fraction')) in (int,float) else ''))
+            alpha=border.get('alpha_range');rgb=[c[0] if c and c[0]==c[1] else None for c in border.get('rgb_ranges') or []]
+            if alpha and alpha[0]==alpha[1]:text+=' blends '+('black' if rgb==[0,0,0] else str([round(c,2) if c is not None else None for c in rgb]))+' at alpha '+_fmt(alpha[0])+' every frame'
+            if type(border.get('combined_gain_with_decay')) in (int,float):
+                text+=', so retained content there keeps '+_fmt(border['combined_gain_with_decay'])+' per frame'
+                if type(border.get('seconds_to_half_from_full')) in (int,float):
+                    text+=' (stored white halves in '+_fmt(border['seconds_to_half_from_full'])+' s, floor level '+str(border.get('floor_level_from_full'))+'/255)'
+            parts.append(text)
+        darken=row.get('darken_centre') or {}
+        if darken.get('active'):parts.append('darken-centre diamond dims the screen centre by up to 3/32 per frame')
+        if parts:sentences.append('Borders: '+'; '.join(parts)+'. Feedback-canvas operators; content moving through the band fades accordingly.')
+    from mirror_symmetry import mirror_operators,sentence as mirror_sentence
+    text=mirror_sentence(mirror_operators({item['path']:item['value'] for rows in summary['facts'].values() for item in rows}))
+    if text:sentences.append(text)
+    for item in summary['facts']['colour']:
+        row=(item['value'].get('source_palette') or {}).get('point_colour_distribution') if isinstance(item['value'],dict) else None
+        if not isinstance(row,dict) or row.get('status')!='closed_form_point_colours':continue
+        component=item['value'].get('component_id') or item['path'].rsplit('/',1)[-1]
+        shares=', '.join(name+' '+format(100*share,'.0f')+'%' for name,share in list((row.get('hue_family_shares') or {}).items())[:4])
+        text=(str(component)+' points ('+str(row.get('sample_count'))+' per frame) are coloured '+shares+
+              ', mean saturation '+_fmt(row.get('mean_saturation'))+', mean alpha '+_fmt(row.get('mean_alpha')))
+        bounds=row.get('position_bounds') if row.get('positions_closed_form') else None
+        if bounds:text+='; positions are closed-form in sample/time within x '+_fmt(bounds['x'][0])+'-'+_fmt(bounds['x'][1])+', y '+_fmt(bounds['y'][0])+'-'+_fmt(bounds['y'][1])
+        sentences.append(text+' (authored sample grid at declared times; audio held at midpoints; displayed coverage unresolved).')
     mechanisms=[]
     for item in summary['facts']['construction']:
         if item['path'].startswith('/analysis/families/') and isinstance(item['value'],dict):

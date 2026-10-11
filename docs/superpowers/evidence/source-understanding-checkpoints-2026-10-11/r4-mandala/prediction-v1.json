@@ -1,0 +1,24 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "f913374b111d2ac4155e7e3f422f248c54f9be78d56a706e8ce47874ddbd22c2",
+  "illustrator_sha256": "dcca59d6aa51d0a01ca4e37fbcb635f7887e15e6fa95c25dd5a9ba26839a8e49",
+  "image_sha256": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "declared_time_seconds": 5.0,
+  "history_steps": 90,
+  "drawn_components": [
+    "/analysis/visual_description/elements/1/waveform_recipe",
+    "/analysis/visual_description/elements/1/waveform_recipe"
+  ],
+  "limitations": [
+    "/analysis/visual_description/elements/1/waveform_recipe: constant",
+    "field illustration stopped: radius/angle/time affine term not illustrated",
+    "legacy procedural warp (amplitude 0.0035*warp per step) omitted",
+    "composite echo and gamma redraw weight applied",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false
+}

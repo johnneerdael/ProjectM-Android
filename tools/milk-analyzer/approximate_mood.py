@@ -22,6 +22,7 @@ for preference grouping, not calibrated perception, and every rule is editable.
 import copy
 import json
 import math
+import re
 
 POLICY='approximate-activity-mood-v1'
 BANDS=(('Chill',1.,30.),('Normal',25.,75.),('Intense',70.,100.))
@@ -59,7 +60,14 @@ def _mid(span):
 
 AUDIO_CODES={1:'bass',2:'mid',3:'treb',4:'bass',5:'mid',6:'treb'}
 MOTION_CAP=10.0
-BRIGHTNESS_CONTROLS=('colour','opacity','alpha','brightness','border','gamma','decay')
+BRIGHTNESS_CONTROLS=('colour','color','opacity','alpha','brightness','border','gamma','decay')
+CHANNEL_CONTROLS={'r','g','b','a','r2','g2','b2','a2'}
+
+
+def is_brightness_control(name):
+    """Colour/opacity controls by word (``outline_opacity``, ``border_a``, ``wave_r``), not by prefix."""
+    words=[w for w in re.split(r'[^a-z0-9]+',str(name).lower()) if w]
+    return any(w in BRIGHTNESS_CONTROLS or w in CHANNEL_CONTROLS for w in words)
 KNOWN_PATTERNS={'uniform_zoom','radial_zoom_profile','uniform_rotation','spatially_varying_rotation',
     'uniform_translation','translation_component','planar_travelling_wave','planar_standing_pattern',
     'radial_ring_wave','radial_standing_rings','angular_lobes','angular_modulation_with_seam'}
@@ -104,6 +112,37 @@ def brightness_coverage(summary,elements):
     return min(2.,sum(stages.values()))
 
 
+def point_cloud_speeds(record,fps,*,points=64,times=(1.,3.,5.,8.,13.,21.)):
+    """Median and 95th-percentile on-screen point speed (viewport widths/s) of a closed-form point cloud.
+
+    Positions are MilkDrop source units (x spans the width; y the same scale);
+    one-frame finite differences at declared times, audio held at the record's
+    midpoints. Branch switches in the formulas produce jumps; the median is
+    robust to them, the p95 keeps them as an upper estimate.
+    """
+    from time_expression import evaluate_inputs
+    programs=record.get('programs') or {};count=int(record.get('sample_count') or 0)
+    if count<1 or programs.get('x') is None or programs.get('y') is None:return None
+    held=record.get('held_inputs') or {};step=1/fps;speeds=[]
+    indices=sorted({round(i*(count-1)/max(1,points-1)) for i in range(points)})
+    try:
+        for time in times:
+            for j in indices:
+                sample=j/(count-1) if count>1 else 0.
+                a={**held,'time':time,'sample':sample};b={**held,'time':time+step,'sample':sample}
+                x0,y0=evaluate_inputs(programs['x'],a),evaluate_inputs(programs['y'],a)
+                if not (0<=x0<=1 and .5-.5*VISIBLE_Y<=y0<=.5+.5*VISIBLE_Y):continue
+                x1,y1=evaluate_inputs(programs['x'],b),evaluate_inputs(programs['y'],b)
+                speeds.append(math.hypot(x1-x0,y1-y0)/step)
+    except ValueError:return None
+    if not speeds:return None
+    speeds.sort()
+    return speeds[len(speeds)//2],speeds[min(len(speeds)-1,int(.95*len(speeds)))]
+
+
+VISIBLE_Y=270/480  # visible source-y span for the declared 16:9 viewport (long-side units)
+
+
 def _drivers(summary,rules,fps,scale,radius=.5):
     drivers=[];priors=set();components_with_evidence={};brightness_elements=set()
     def add(dimension,kind,value,path,reason,upper=None,component=None):
@@ -136,7 +175,10 @@ def _drivers(summary,rules,fps,scale,radius=.5):
                 if kind in ('uniform_zoom','radial_zoom_profile'):
                     low,high=(abs(v)/100 for v in row['percent_per_step_range'])
                     speeds=sorted([low*radius*fps,high*radius*fps])
-                    add('motion','source',(speeds[0]+speeds[1])/2,path,'uniform zoom mean flow',speeds[1])
+                    mean=row.get('screen_mean_percent_per_step')
+                    if type(mean) in (int,float):
+                        add('motion','source',abs(mean)/100*radius*fps,path,'radial zoom screen-mean flow',speeds[1])
+                    else:add('motion','source',(speeds[0]+speeds[1])/2,path,'uniform zoom mean flow',speeds[1])
                     for band in {_band(name) for name in row.get('audio_inputs') or []}-{None}:add('audio','source',1.0,path,band)
                 elif kind in ('uniform_rotation','spatially_varying_rotation'):
                     span=row.get('value_range_radians_per_step')
@@ -171,6 +213,11 @@ def _drivers(summary,rules,fps,scale,radius=.5):
             speed=math.hypot(*rates)
             stage=path.split('/sampling_geometry/stages/')[1].split('/')[0]
             add('motion','source',speed*.5,path,'time-driven lookup motion (half of ceiling)',speed,component='shader_'+stage)
+        elif '/colour/components/' in path and ((value.get('source_palette') or {}).get('point_colour_distribution') or {}).get('positions_closed_form'):
+            speeds=point_cloud_speeds(value['source_palette']['point_colour_distribution'],fps)
+            if speeds:
+                component=value.get('component_id')
+                add('motion','source',speeds[0],path,'closed-form point cloud motion (median visible point speed)',speeds[1],component=component)
         elif '/radial_colour_field/components/' in path:
             sweep=value.get('sweep_front') or {}
             if sweep.get('status')=='conditional_rotating_refresh_front':
@@ -219,7 +266,7 @@ def _drivers(summary,rules,fps,scale,radius=.5):
             band=AUDIO_CODES.get(value.get('input_code'))
             if band:add('audio','source',1.0,path,band)
             control=str(value.get('control') or '')
-            if band and control.startswith(BRIGHTNESS_CONTROLS):
+            if band and is_brightness_control(control):
                 # Audio steering brightness/colour pulses with the music (beat-driven flashing);
                 # its displayed contrast is unresolved, so the magnitude is an editable prior.
                 brightness_elements.add(path.split('/audio_routes/')[0])

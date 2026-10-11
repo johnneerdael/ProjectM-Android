@@ -1,0 +1,32 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "078f034b478fc23d4d5c8046710392de0991888fe191b2950d649cd27843622c",
+  "illustrator_sha256": "80d96ed59058441e26ce583591b8d7119fe4c4bfba36dbdede5108a57bbfe228",
+  "image_sha256": "ba7a926ddde986532a5bd4a0e56a566bd0401ea0854162668b88159cb6af2db6",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [
+    "/analysis/visual_description/elements/1/waveform_recipe",
+    "/analysis/visual_description/elements/1/waveform_recipe",
+    "wave_0",
+    "wave_2",
+    "wave_3"
+  ],
+  "limitations": [
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "borders and darken-centre blended into the feedback canvas every frame",
+    "closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)",
+    "/analysis/visual_description/elements/1/waveform_recipe: constant",
+    "/analysis/visual_description/elements/1/waveform_recipe: final alpha below the native draw gate; not drawn",
+    "/analysis/visual_description/elements/1/waveform_recipe: final alpha below the native draw gate; not drawn",
+    "legacy procedural warp (amplitude 0.0035*warp per step) omitted",
+    "legacy fShader corner tint applied with zero random hue offsets (tint strength known; hue placement illustrative)",
+    "composite echo and gamma redraw weight applied",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false
+}

@@ -1,0 +1,78 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r4-v1",
+ "preset": "Phat+fiShbRaiN_Mandala_Bare_No_Border_mix.milk",
+ "fresh_prediction": true,
+ "note": "Seeded random pick 2026101104; v1 frozen before any capture",
+ "frozen_before_capture": {
+  "description-v1-before-capture.json": "f913374b111d2ac4155e7e3f422f248c54f9be78d56a706e8ce47874ddbd22c2",
+  "recipe-v1-before-capture.json": "28a66528a99fb9f02b3eecf52addf4d334b3e76489933f0e51dcf924da903d40",
+  "prediction-v1.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction-v1.json": "78dc10504205bd61953b6167898d820abdf2a3e403ffbfbc007d175bdb5cb011"
+ },
+ "capture_result_sha256": "463c765b9f453b3a6a1a58d2f1d3e4ae9d6c40fe33b2685e673939241f975539",
+ "calibrated_score": null,
+ "review_measurements": {
+  "capture_mean_luma_by_frame": {
+   "30": 0.019,
+   "90": 0.115,
+   "149": 0.192,
+   "240": 0.29,
+   "299": 0.341
+  },
+  "capture_mean_saturation_frame149": 0.527,
+  "capture_mean_rgb_frame149": [
+   0.18,
+   0.181,
+   0.336
+  ],
+  "prediction_v1": "all black (only the alpha-0.001 built-in wave was drawn)",
+  "scope": "review evidence only"
+ },
+ "agreements": [
+  "Text: echo 1.01x mirrored horizontally at 50%; real image is left-right symmetric",
+  "Text: bass drives zoom; points/point-cloud mechanism; real shows particle fountains streaming outward"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Prediction image black; real shows bright blue/purple/cyan particle fountains with radial streaks",
+   "cause": "custom-wave per-point colours/positions written with sample-hash formulas ((sample*K)%M) were unresolved boxes; illustrator drew only the built-in wave",
+   "general_fix": "source_point_colour: closed-form enumeration of per-point r,g,b,a,x,y over sample=j/(N-1) (projectm-eval remainder semantics); illustrator draws closed-form point clouds with projectM 2N-1 smoothing and 2px thick dots"
+  },
+  {
+   "size": "large",
+   "observed": "Palette saturation 0 / no hue; real is saturated blue/purple",
+   "cause": "palette features only read constant anchors and the grey built-in wave",
+   "general_fix": "approximate_features reads point_colour_distribution representative points"
+  },
+  {
+   "size": "large",
+   "observed": "Four-fold mirror symmetry (mandala) not described",
+   "cause": "negative per-pixel sy (per-step flip) and mirrored echo were not turned into a symmetry fact",
+   "general_fix": "mirror_symmetry: feedback mirror score 2d/(1+d^2), echo 2a(1-a)/((1-a)^2+a^2); fold count; feeds structure.symmetry"
+  },
+  {
+   "size": "medium",
+   "observed": "Prediction said trails never fade (decay .999); real outer area fades within ~1 s",
+   "cause": "inner border (ib_size .5, black, alpha .02) and darken-centre were not modelled",
+   "general_fix": "source_borders: MilkDrop DrawSprites bands, screen area out^2-in^2, per-frame gain d(1-a), RGBA8 orbit and floor; illustrator blends them per frame"
+  },
+  {
+   "size": "medium",
+   "observed": "Intensity 10 (Chill-ish); real is a busy, moving particle field",
+   "cause": "point-cloud motion and rad-dependent zoom were unscored",
+   "general_fix": "point_cloud_speeds driver (median visible point speed) and radial zoom screen-mean flow for rad-affine zoom"
+  },
+  {
+   "size": "small",
+   "observed": "outline/perimeter opacity routes classified as motion",
+   "general_fix": "is_brightness_control word-based classification"
+  }
+ ],
+ "remaining_after_fixes": [
+  "v2 illustration ~2x brighter than native (haze and white centre); textured shapes alpha held at band midpoints so beat toggles absent",
+  "wave_1 positions depend on persistent per-point state and rand: unresolved"
+ ],
+ "uses_rendered_images_for_classification": false
+}

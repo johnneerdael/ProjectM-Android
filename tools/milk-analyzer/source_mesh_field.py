@@ -482,6 +482,39 @@ def scale_domains_rad(controls):
     return controls.get('_rad_max',math.sqrt(2))
 
 
+def _radial_zoom_samples(zoom,exponent,rad_max,grid=48):
+    """Effective zoom z(rad)^(e^(2rad-1)) when z is constant+uniform+affine-in-rad terms and e is uniform.
+
+    Uniform terms take both endpoints of their declared ranges; the screen
+    mean averages a uniform grid over the viewport (rad=1 is half the long
+    side, so rad_max fixes the aspect). Returns (min, max, mean) or None.
+    """
+    if not exponent.get('uniform_across_mesh') or not isinstance(exponent.get('value_range'),list) or None in exponent['value_range']:return None
+    constant=0.;slope=0.;uniform=[0.,0.]
+    for term in zoom.get('terms') or []:
+        kind=term.get('kind')
+        if kind=='constant':constant+=term['value']
+        elif kind=='uniform' and isinstance(term.get('value_range'),list) and None not in term['value_range']:
+            uniform[0]+=term['value_range'][0];uniform[1]+=term['value_range'][1]
+        elif kind=='coordinate_affine' and set(term.get('coefficients') or {})<={'rad'}:
+            constant+=term.get('constant',0.);slope+=term['coefficients'].get('rad',0.)
+        else:return None
+    aspect=math.sqrt(max(0.,rad_max*rad_max-1))
+    values=[];means=[]
+    for e in exponent['value_range']:
+        if e<=0:return None
+        for u in uniform:
+            total=0.;count=0
+            for i in range(grid):
+                for j in range(max(1,round(grid*aspect))):
+                    x=(i+.5)/grid*2-1;y=((j+.5)/max(1,round(grid*aspect))*2-1)*aspect
+                    r=math.hypot(x,y);z=constant+slope*r+u
+                    if z<=0:return None
+                    value=z**(e**(2*r-1));values.append(value);total+=value;count+=1
+            means.append(total/count)
+    return min(values),max(values),sum(means)/len(means)
+
+
 def _patterns(controls,scale,fps):
     """Readable pattern records derived from the per-control decomposition."""
     rows=[]
@@ -502,8 +535,18 @@ def _patterns(controls,scale,fps):
                 'thin_line_integrated_fraction_per_step_range':[min(1.0,lo),min(1.0,hi)],
                 'audio_inputs':zoom['dependencies'].get('audio',[])})
     elif zoom.get('status')=='described' and not zoom.get('uniform_across_mesh'):
-        rows.append({'pattern':'spatially_varying_zoom','control':'zoom','coordinates':zoom['dependencies'].get('coordinates',[]),
-                     'value_range':zoom.get('value_range')})
+        profile=_radial_zoom_samples(zoom,exponent,scale_domains_rad(controls))
+        if profile is not None:
+            lo,hi,mean=profile
+            rows.append({'pattern':'radial_zoom_profile','control':'zoom','value_range':zoom.get('value_range'),
+                'zoomexp_range':exponent.get('value_range'),'effective_zoom_range':[lo,hi],'zoom_varies_with':'rad',
+                'content_motion':'contracts toward the screen centre' if hi<1 else 'expands from the screen centre' if lo>1 else 'contracts or expands',
+                'percent_per_step_range':[(lo-1)*100,(hi-1)*100],'screen_mean_percent_per_step':(mean-1)*100,
+                'thin_line_integrated_fraction_per_step_range':[min(1.0,lo),min(1.0,hi)],
+                'audio_inputs':zoom['dependencies'].get('audio',[])})
+        else:
+            rows.append({'pattern':'spatially_varying_zoom','control':'zoom','coordinates':zoom['dependencies'].get('coordinates',[]),
+                         'value_range':zoom.get('value_range')})
     rot=controls.get('rot',{})
     if rot.get('status')=='described' and rot.get('value_range') and rot['value_range']!=[0.0,0.0]:
         rows.append({'pattern':'uniform_rotation' if rot.get('uniform_across_mesh') else 'spatially_varying_rotation',

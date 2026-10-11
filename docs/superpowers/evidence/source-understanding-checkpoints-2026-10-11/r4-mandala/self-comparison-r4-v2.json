@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Phat+fiShbRaiN_Mandala_Bare_No_Border_mix.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r4-v2",
+ "fresh_prediction": false,
+ "note": "Same preset after v1 capture review; general fixes only (point colours/positions, mirrors, borders, radial zoom, point speed)",
+ "frozen_before_capture": {
+  "description-v2-before-capture.json": "69a2048a9f331c0c7596c6aa645a1e2cbc9b002f0ded2754c31de3ce80fb0132",
+  "recipe-v2-before-capture.json": "17da40173958950ff1906d6e5b0810f28880e1f1ae148a3f80d08e63a778c538",
+  "prediction-v2.png": "c9a12cdd6489877149769f1f886511711bb26d03da35c2fb4c26190d9c60d33d",
+  "prediction-v2.json": "f46724a5c722a41add1305610bae6f641550efa0a1e19ccf29553948c0f6f50e"
+ },
+ "capture_result_sha256": "262f4391ac09385d67ecdaf6e66b7282f82a1761fd95c61cb7468e9fd4c66316",
+ "review_measurements": {
+  "prediction_mean_luma": 0.452,
+  "capture_frame149_mean_luma": 0.199,
+  "prediction_saturation": 0.402,
+  "capture_saturation": 0.488
+ },
+ "agreements": [
+  "Four-fold mirror structure, top/bottom fountains and radial streaks match",
+  "Palette blue/cyan/purple matches",
+  "Approximate intensity 32 medium (was 10)"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Prediction ~2.3x brighter",
+   "cause": "(a) illustrator projected wave y with the wrong sign; (b) projectM 2N-1 smoothing assumed for dot waves; (c) legacy fShader tint not applied",
+   "evidence": "Controlled emulator variants in decay-experiment/: orientation control (shape y=.2 renders at 80% down), decay-0 and wave_2-only captures (authored points hit 98-100%, smoothed midpoints 22-25%), header-decay controls (per-frame decay .999 is effective)",
+   "general_fix": "to_pixels uses row=H/2-(y-.5)*long (curve-projection fact); dot waves draw N authored points; legacy tint amount exported and applied"
+  },
+  {
+   "size": "medium",
+   "observed": "Centre: native dark hexagram with bright rim; illustration bright",
+   "cause": "unresolved: textured-shape interior (shape_3 triangle copying the previous centre rotated, alpha gated by bass_att>0.7 held on in the illustration)"
+  }
+ ]
+}

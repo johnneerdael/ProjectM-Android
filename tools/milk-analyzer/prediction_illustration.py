@@ -198,12 +198,14 @@ def _terms_field(terms,x,y,time):
             total+=value
         elif kind=='coordinate_affine':
             coefficients=term['coefficients']
-            if set(coefficients)-{'x','y'}:raise ValueError('radius/angle/time affine term not illustrated')
-            total+=term['constant']+coefficients.get('x',0)*x+coefficients.get('y',0)*y
+            if set(coefficients)-{'x','y','rad'}:raise ValueError('angle/time affine term not illustrated')
+            # Mesh-field convention: x/y measure the long side; rad=1 is half the long side.
+            total+=term['constant']+coefficients.get('x',0)*x+coefficients.get('y',0)*y+coefficients.get('rad',0)*2*np.hypot(x-.5,y-.5)
         elif kind=='spatial_oscillator':
             osc=term['oscillator'];amplitude=_mid(term.get('amplitude_range'))
-            if amplitude is None or set(osc['coordinate_coefficients'])-{'x','y'}:raise ValueError('oscillator not illustrated')
+            if amplitude is None or set(osc['coordinate_coefficients'])-{'x','y','rad'}:raise ValueError('oscillator not illustrated')
             argument=(osc['coordinate_coefficients'].get('x',0)*x+osc['coordinate_coefficients'].get('y',0)*y+
+                      osc['coordinate_coefficients'].get('rad',0)*2*np.hypot(x-.5,y-.5)+
                       osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
             total+=amplitude*(np.sin(argument) if osc['function']=='sin' else np.cos(argument))
         elif kind=='coordinate_gated':
@@ -273,6 +275,20 @@ def _wave_colour(facts,path):
     return tuple(mids),'time-varying colour drawn at envelope midpoints'
 
 
+def _wave_alpha(facts,path,limitations):
+    """(alpha, additive) from the wave material alpha recipe; None when the native draw gate skips it."""
+    material=facts.get(path.rsplit('/',1)[0]+'/wave_material')
+    if not isinstance(material,dict):return 1.0,False
+    envelope=(material.get('alpha_recipe') or {}).get('final_alpha_envelope')
+    gate=(material.get('native_draw_gate') or {}).get('threshold')
+    additive='additive' in str(material.get('blend_mode'))
+    if not isinstance(envelope,list) or len(envelope)!=2 or None in envelope:
+        limitations.append(path+': alpha unresolved; drawn at alpha 1');return 1.0,additive
+    if type(gate) in (int,float) and envelope[1]<gate:
+        limitations.append(path+': final alpha below the native draw gate; not drawn');return None,additive
+    return min(1.,max(0.,(envelope[0]+envelope[1])/2)),additive
+
+
 def _wave_colour_at(facts,path,time):
     from time_expression import wave_colour
     material=facts.get(path.rsplit('/',1)[0]+'/wave_material')
@@ -311,6 +327,15 @@ def _composite(image,facts):
         ranges=value.get('native_control_ranges') or {}
         alpha=_mid(ranges.get('echo_alpha'));zoom=_mid(ranges.get('echo_zoom'));orient=_mid(ranges.get('echo_orient'))
         weight=value.get('gamma_absolute_weight_sum_upper')
+        tint=value.get('tint_amount')
+        if type(tint) in (int,float) and tint>.001 and value.get('_illustration_time') is not None:
+            from legacy_composite import corner_shades
+            # Random per-preset hue offsets are unknown: illustrate with zero offsets (hue placement is not a prediction).
+            shades=corner_shades(value['_illustration_time'],[0.,0.,0.,0.],shader_amount=tint)
+            height,width=image.shape[:2]
+            fx=np.linspace(0,1,width)[None,:,None];fy=np.linspace(0,1,height)[:,None,None]
+            top=shades[0]*(1-fx)+shades[1]*fx;bottom=shades[2]*(1-fx)+shades[3]*fx
+            image=image*(top*(1-fy)+bottom*fy).astype(np.float32)
         if value.get('echo_selection')=='active or possible native echo' and alpha and zoom:
             height,width=image.shape[:2]
             matrix=np.array([[zoom,0,(1-zoom)*width/2],[0,zoom,(1-zoom)*height/2]],np.float32)
@@ -343,6 +368,184 @@ def _motion_vector_marks(facts,sample,time,width,height):
     return marks
 
 
+_UNARY_NP={'sin':np.sin,'cos':np.cos,'tan':np.tan,'abs':np.abs,'negate':np.negative,'sqr':np.square,'floor':np.floor,
+           'ceil':np.ceil,'int':np.floor,'sign':np.sign,'exp':np.exp,'atan':np.arctan}
+
+
+def _evaluate_np(expression,inputs):
+    """Vectorised twin of time_expression.evaluate_inputs (same projectm-eval semantics)."""
+    from time_expression import input_names
+    names=input_names(expression)
+    if names is None or names-set(inputs):raise ValueError('point program not evaluable')
+    nodes=expression['nodes'];memo={}
+    def value(index):
+        if index in memo:return memo[index]
+        node=nodes[index];op=node['op'];args=[value(a) for a in node['args']]
+        with np.errstate(all='ignore'):
+            if op=='constant':result=np.float64(node['detail']['value'])
+            elif op=='input':result=np.asarray(inputs[node['detail']['name']],np.float64)
+            elif op=='add':result=args[0]+args[1]
+            elif op=='subtract':result=args[0]-args[1]
+            elif op=='multiply':result=args[0]*args[1]
+            elif op=='eel_divide':result=np.where(np.abs(args[1])<1e-5,0.,args[0]/np.where(np.abs(args[1])<1e-5,1.,args[1]))
+            elif op=='divide':result=np.where(args[1]==0,0.,args[0]/np.where(args[1]==0,1.,args[1]))
+            elif op=='remainder':
+                divisor=np.trunc(args[1]);result=np.where(divisor==0,0.,np.fmod(np.trunc(args[0]),np.where(divisor==0,1.,divisor)))
+            elif op=='eel_equal':result=(np.abs(args[0]-args[1])<1e-5).astype(np.float64)
+            elif op=='min':result=np.minimum(args[0],args[1])
+            elif op=='max':result=np.maximum(args[0],args[1])
+            elif op=='pow':
+                result=np.where((np.abs(args[0])<1e-5)&(args[1]<0),0.,np.power(args[0],args[1]))
+                result=np.where(np.isnan(result),0.,result)
+            elif op=='sqrt':result=np.sqrt(np.abs(args[0]))
+            elif op=='less':result=(args[0]<args[1]).astype(np.float64)
+            elif op=='greater':result=(args[0]>args[1]).astype(np.float64)
+            elif op=='less_equal':result=(args[0]<=args[1]).astype(np.float64)
+            elif op=='greater_equal':result=(args[0]>=args[1]).astype(np.float64)
+            elif op=='select':result=np.where(args[0]!=0,args[1],args[2])
+            else:result=_UNARY_NP[op](args[0])
+        memo[index]=result
+        return result
+    return value(expression['root'])
+
+
+def _point_clouds(facts):
+    """Closed-form custom-wave point clouds from colour component facts."""
+    clouds=[]
+    for path,value in facts.items():
+        if '/colour/components/' not in path or not isinstance(value,dict):continue
+        record=(value.get('source_palette') or {}).get('point_colour_distribution') or {}
+        if record.get('status')=='closed_form_point_colours' and record.get('positions_closed_form') and record.get('programs'):
+            clouds.append((value.get('component_id') or path,record))
+    return clouds
+
+
+def _draw_points(image,record,time,to_pixels):
+    count=int(record['sample_count']);programs=record['programs']
+    inputs={**record.get('held_inputs',{}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
+    values={name:np.broadcast_to(_evaluate_np(programs[name],inputs),(count,)) for name in 'rgbaxy'}
+    period=256/255
+    rgba=[np.clip(np.fmod(np.fmod(values[c],period)+period,period),0,1) for c in 'rgba']
+    flags=record.get('draw_flags') or {}
+    height,width=image.shape[:2]
+    x,y=values['x'],values['y']
+    if count>1 and not flags.get('dots'):
+        # projectM CustomWaveform::SmoothWave inserts a 4-tap (-.15,1.15,1.15,-.15)/2 point after
+        # every point (2N-1 vertices) for line waves. A controlled published-AAR emulator capture
+        # (dots-only wave, decay 0) lit every authored point but the inserted points only at chance
+        # level, so dot waves draw the N authored points.
+        below=np.concatenate([[0],np.arange(count-2)]);above=np.arange(1,count);above2=np.minimum(count-1,np.arange(2,count+1))
+        index=np.arange(count-1)
+        mid=lambda v:(-.15*v[below]+1.15*v[index]+1.15*v[above]-.15*v[above2])/2
+        x=np.insert(x,np.arange(1,count),mid(x));y=np.insert(y,np.arange(1,count),mid(y))
+        rgba=[np.insert(c,np.arange(1,count),c[:-1]) for c in rgba]
+    px,py=to_pixels((x,y))
+    finite=np.isfinite(px)&np.isfinite(py)
+    xs=np.rint(px[finite]).astype(int);ys=np.rint(py[finite]).astype(int)
+    colour=np.stack(rgba[:3],axis=-1)[finite];alpha=rgba[3][finite]
+    layer=np.zeros_like(image);cover=np.zeros(image.shape[:2],np.float32)
+    # vertex_point_size 2 for thick waves (2x2 pixels), otherwise 1.
+    offsets=range(2) if flags.get('thick') else range(1)
+    for dx in offsets:
+        for dy in offsets:
+            keep=(xs+dx>=0)&(xs+dx<width)&(ys+dy>=0)&(ys+dy<height)
+            np.add.at(layer,(ys[keep]+dy,xs[keep]+dx),colour[keep]*alpha[keep,None])
+            np.maximum.at(cover,(ys[keep]+dy,xs[keep]+dx),alpha[keep])
+    if flags.get('additive',True):return np.clip(image+layer,0,1)
+    return np.clip(image*(1-cover[...,None])+layer,0,1)
+
+
+def _sprite_operators(facts,width,height):
+    """Per-frame border/darken-centre blends as (alpha map, colour) pairs from the borders fact."""
+    record=facts.get('/analysis/visual_description/static_behaviour/borders') or {}
+    if record.get('status')!='described':return []
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width*2-1,(np.arange(height)+.5)/height*2-1)
+    extent=np.maximum(np.abs(columns),np.abs(rows))
+    operators=[]
+    darken=record.get('darken_centre') or {}
+    if darken.get('active') and None not in (darken.get('half_size_ndc') or [None]):
+        hx,hy=darken['half_size_ndc']
+        # Linear fan from alpha 3/32 at the centre to 0 at the diamond rim.
+        weight=np.clip(1-(np.abs(columns)/hx+np.abs(rows)/hy),0,1)
+        operators.append((weight*darken['centre_alpha'],np.zeros(3,np.float32)))
+    for row in record.get('borders') or []:
+        band=row.get('ndc_band');alpha=row.get('alpha_range');rgb=row.get('rgb_ranges')
+        if not row.get('active') or band is None or row.get('inverted_inner_radius'):continue
+        if alpha is None or alpha[0]!=alpha[1] or any(c is None or c[0]!=c[1] for c in rgb):continue
+        mask=((extent>=band[0])&(extent<=band[1])).astype(np.float32)
+        operators.append((mask*min(1.,alpha[0]),np.array([c[0] for c in rgb],np.float32)))
+    return operators
+
+
+def _value_at(record,key,expression_key,held,time):
+    """Constant or closed-form value of a control/texture field at a declared time."""
+    if record is None:return None
+    constant=record.get(key)
+    if type(constant) in (int,float):return float(constant)
+    expression=record.get(expression_key)
+    try:return float(np.asarray(_evaluate_np(expression,{**held,'time':time})).reshape(-1)[0])
+    except (ValueError,TypeError,KeyError,AttributeError):return None
+
+
+def _textured_shapes(facts,held):
+    """Shapes that redraw the previous frame through a regular polygon (texture role previous_main)."""
+    base='/analysis/visual_description/elements/'
+    shapes=[]
+    for path,material in facts.items():
+        if not path.startswith(base) or not path.endswith('/material') or not isinstance(material,dict):continue
+        texture=material.get('texture') or {}
+        if texture.get('role')!='previous_main':continue
+        element=path[:-len('/material')]
+        controls={(v or {}).get('control'):v for p,v in facts.items() if p.startswith(element+'/motion_controls/') and isinstance(v,dict)}
+        geometry=facts.get(element+'/geometry') or {}
+        sides=geometry.get('effective_sides')
+        if type(sides) not in (int,float):continue
+        shapes.append({'id':facts.get(element+'/id'),'controls':controls,'texture':texture,'sides':int(sides),
+                       'channels':material.get('channel_expressions') or {},'blend':material.get('blend_mode'),
+                       'rgb':(material.get('centre_vertex_rgba') or [1,1,1,None])[:3],'held':held})
+    return shapes
+
+
+def _draw_textured_shape(image,shape,time,wrap,source=None):
+    """Exact affine fan mapping of a textured shape onto the previous frame.
+
+    projectM CustomShape: vertex NDC = (2x-1 + rad*cos(t)*aspectY, 1-2y + rad*sin(t)) and the
+    orthographic projection reverses Y, so in bottom-origin screen fractions the centre is (x, y)
+    and a vertex lies at (x + rad*aspY/2*cos(t), y - rad/2*sin(t)). Texture coordinates are
+    (0.5 + 0.5*aspY*cos(t')/zoom, 0.5 + 0.5*sin(t')/zoom) with t' = t - ang + tex_ang, in GL
+    bottom-origin texture space: the copy is mirrored vertically relative to the polygon (verified
+    position convention: a y=.2 shape renders 80% down the captured frame).
+    """
+    height,width=image.shape[:2];aspect=min(1.,height/width);held=shape['held']
+    def control(name,default=None):
+        record=shape['controls'].get(name)
+        if record is None:return default
+        return _value_at(record,'constant_value','expression',held,time)
+    x=control('position_x');y=control('position_y');radius=control('radius');angle=control('rotation',0.)
+    zoom=_value_at(shape['texture'],'tex_zoom_source','tex_zoom_expression',held,time)
+    tex_angle=_value_at(shape['texture'],'tex_angle_source_rad','tex_angle_expression',held,time)
+    alphas=[]
+    for group,name in (('centre','a'),('perimeter','a2')):
+        value=_value_at({'expression':(shape['channels'].get(group) or {}).get(name)},'none','expression',held,time)
+        alphas.append(None if value is None else min(1.,max(0.,value)))
+    if None in (x,y,radius,angle,zoom,tex_angle) or None in alphas or zoom==0 or radius<=0:return image,False
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,1-(np.arange(height)+.5)/height)
+    ux=(columns-x)/(radius*aspect*.5);uy=-(rows-y)/(radius*.5)
+    delta=tex_angle-angle;cos,sin=math.cos(delta),math.sin(delta)
+    u=.5+.5/zoom*(cos*ux-sin*uy)*aspect;v=.5+.5/zoom*(sin*ux+cos*uy)
+    phi=np.mod(np.arctan2(uy,ux)-(angle+math.pi/4),2*math.pi/shape['sides'])
+    edge=math.cos(math.pi/shape['sides'])/np.cos(phi-math.pi/shape['sides'])
+    fraction=np.hypot(ux,uy)/edge
+    inside=fraction<=1
+    if not inside.any():return image,True
+    map_x=(u*width-.5).astype(np.float32);map_y=((1-v)*height-.5).astype(np.float32)
+    border=cv2.BORDER_WRAP if wrap else cv2.BORDER_REPLICATE
+    sampled=cv2.remap(image if source is None else source,map_x,map_y,cv2.INTER_LINEAR,borderMode=border)*np.array(shape['rgb'],np.float32)
+    alpha=np.where(inside,alphas[0]+(alphas[1]-alphas[0])*np.clip(fraction,0,1),0.)[...,None].astype(np.float32)
+    if shape['blend']=='additive':return np.clip(image+sampled*alpha,0,1),True
+    return image*(1-alpha)+sampled*alpha,True
+
+
 def illustrate_field(summary,*,time,fps,history_steps):
     """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite."""
     facts=_facts(summary)
@@ -361,21 +564,44 @@ def illustrate_field(summary,*,time,fps,history_steps):
         limitations.append('per-pixel field or decay not fully described: only the fresh drawing is shown');history_steps=0
     paths,wave_limits=_builtin_wave_paths(facts,aspect);limitations+=wave_limits
     long=max(width,height)
-    def to_pixels(point):return ((point[0]-.5)*long+width/2,(point[1]-.5)*long+height/2)
+    # Wave vertices: x=(2x-1)*invAspectX, y=(1-2y)*invAspectY, then the orthographic projection
+    # reverses Y, so the top-left row is height/2-(y-.5)*long (source y grows upward on screen).
+    def to_pixels(point):return ((point[0]-.5)*long+width/2,height/2-(point[1]-.5)*long)
     colours={path:_wave_colour(facts,path) for path,_ in paths}
+    clouds=_point_clouds(facts)
+    sprites=_sprite_operators(facts,width,height)
+    held={name:(span[0]+span[1])/2 for name,span in (context.get('scalar_input_domains') or {}).items()
+          if isinstance(span,list) and len(span)==2}
+    for name in ('bass','mid','treb','bass_att','mid_att','treb_att'):held.setdefault(name,1.0)
+    textured=_textured_shapes(facts,held)
+    wrap=True
+    if textured:limitations.append('textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)')
+    if sprites:limitations.append('borders and darken-centre blended into the feedback canvas every frame')
+    if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)')
     for path,(colour,note) in colours.items():limitations.append(path+': '+note)
+    wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths}
     try:
         for frame in range(history_steps,-1,-1):
             frame_time=time-frame/fps
+            previous=image
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
                 image=cv2.remap(image,map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)*decay
                 image=np.round(np.clip(image,0,1)*255)/255
             for path,points in paths:
+                alpha,additive=wave_alpha[path]
+                if alpha is None:continue
                 pixels=[to_pixels(point) for point in points]
                 colour=_wave_colour_at(facts,path,frame_time) or colours[path][0]
+                layer=np.zeros_like(image)
                 for a,b in zip(pixels,pixels[1:]):
-                    cv2.line(image,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),tuple(colour),1,cv2.LINE_AA)
+                    cv2.line(layer,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),tuple(colour),1,cv2.LINE_AA)
+                coverage=layer.max(axis=-1,keepdims=True)
+                image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
+            # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
+            for shape in textured:image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous)
+            for _,record in clouds:image=_draw_points(image,record,frame_time,to_pixels)
+            for alpha,colour in sprites:image=image*(1-alpha[...,None])+alpha[...,None]*colour
             for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):
                 cv2.line(image,tuple(int(round(v)) for v in start),tuple(int(round(v)) for v in end),shade,1,cv2.LINE_AA)
         if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
@@ -388,10 +614,15 @@ def illustrate_field(summary,*,time,fps,history_steps):
     palette_image=_palette_display(image,facts,limitations)
     if palette_image is not None:image=palette_image
     else:
+        for path,value in facts.items():
+            if path.endswith('/legacy_response') and isinstance(value,dict):value['_illustration_time']=time
         image,note=_composite(image,facts)
+        if any(type(v.get('tint_amount')) in (int,float) and v['tint_amount']>.001 for p,v in facts.items()
+               if p.endswith('/legacy_response') and isinstance(v,dict)):
+            limitations.append('legacy fShader corner tint applied with zero random hue offsets (tint strength known; hue placement illustrative)')
         if note:limitations.append(note)
     limitations.append('closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted')
-    return image,[path for path,_ in paths],limitations
+    return image,[path for path,_ in paths]+[str(identity) for identity,_ in clouds],limitations
 
 
 def main(argv=None):

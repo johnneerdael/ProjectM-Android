@@ -5,8 +5,10 @@ source time alone (constants and ``time``), it is a closed-form function that
 can be sampled at declared times without executing preset frames. Arithmetic is
 nominal binary64 with projectm-eval semantics for EEL graphs: int is floor,
 division by |d|<1e-5 is 0, sqrt takes |x|, pow returns 0 for NaN results and for
-a near-zero base with a negative exponent. Native float32 rounding is not
-reproduced. Hue bands mirror source_colour_character.HUE_BANDS.
+a near-zero base with a negative exponent, ``%`` (remainder) is the C remainder
+of truncated integers with divisor 0 giving 0, and EEL equal is |a-b|<1e-5.
+``evaluate_inputs`` evaluates graphs over other declared inputs (for example
+per-point ``sample``). Native float32 rounding is not reproduced. Hue bands mirror source_colour_character.HUE_BANDS.
 """
 import colorsys
 import math
@@ -21,30 +23,53 @@ UNARY={'sin':math.sin,'cos':math.cos,'tan':math.tan,'abs':abs,'negate':lambda v:
        'sign':lambda v:(v>0)-(v<0),'exp':math.exp,'atan':math.atan}
 
 
+SUPPORTED={'constant','input','add','subtract','multiply','divide','eel_divide','min','max','pow','sqrt',
+           'less','greater','less_equal','greater_equal','select','remainder','eel_equal',*UNARY}
+
+
+def input_names(expression):
+    """Input names of a supported serialised graph, or None when an operation is unsupported."""
+    if not isinstance(expression,dict) or not isinstance(expression.get('nodes'),list):return None
+    names=set()
+    for node in expression['nodes']:
+        if node.get('op') not in SUPPORTED:return None
+        if node.get('op')=='input':names.add(node.get('detail',{}).get('name'))
+    return names
+
+
 def time_only(expression):
     """True when every input of the serialised graph is ``time``."""
-    if not isinstance(expression,dict) or not isinstance(expression.get('nodes'),list):return False
-    for node in expression['nodes']:
-        if node.get('op')=='input' and node.get('detail',{}).get('name')!='time':return False
-        if node.get('op') not in {'constant','input','add','subtract','multiply','divide','eel_divide','min','max',
-                                  'pow','sqrt','less','greater','less_equal','greater_equal','select',*UNARY}:return False
-    return True
+    names=input_names(expression)
+    return names is not None and names<={'time'}
 
 
-def evaluate(expression,time):
-    """Evaluate a time-only serialised graph at one declared source time."""
-    if not time_only(expression):raise ValueError('expression is not a supported time-only graph')
+def _remainder(a,b):
+    # projectm-eval _mod: C remainder of truncated integers; divisor 0 gives 0.
+    divisor=math.trunc(b)
+    if divisor==0:return 0.0
+    dividend=math.trunc(a)
+    return float(int(math.fmod(dividend,divisor)))
+
+
+def evaluate_inputs(expression,inputs):
+    """Evaluate a supported serialised graph with every input named in ``inputs``."""
+    names=input_names(expression)
+    if names is None:raise ValueError('expression contains an unsupported operation')
+    missing=names-set(inputs)
+    if missing:raise ValueError('expression inputs not supplied: '+', '.join(sorted(map(str,missing))))
     nodes=expression['nodes'];memo={}
     def value(index):
         if index in memo:return memo[index]
         node=nodes[index];op=node['op'];args=[value(a) for a in node['args']]
         if op=='constant':result=float(node['detail']['value'])
-        elif op=='input':result=float(time)
+        elif op=='input':result=float(inputs[node['detail']['name']])
         elif op=='add':result=args[0]+args[1]
         elif op=='subtract':result=args[0]-args[1]
         elif op=='multiply':result=args[0]*args[1]
         elif op=='eel_divide':result=0.0 if abs(args[1])<1e-5 else args[0]/args[1]
         elif op=='divide':result=0.0 if args[1]==0 else args[0]/args[1]
+        elif op=='remainder':result=_remainder(args[0],args[1])
+        elif op=='eel_equal':result=float(abs(args[0]-args[1])<1e-5)
         elif op=='min':result=min(args)
         elif op=='max':result=max(args)
         elif op=='pow':
@@ -58,11 +83,18 @@ def evaluate(expression,time):
                           'less_equal':args[0]<=args[1],'greater_equal':args[0]>=args[1]}[op])
         elif op=='select':result=args[1] if args[0]!=0 else args[2]
         else:result=float(UNARY[op](args[0]))
-        if not math.isfinite(result):raise ValueError('nonfinite time-expression value')
+        if not math.isfinite(result):raise ValueError('nonfinite expression value')
         memo[index]=result
         return result
     try:return value(expression['root'])
-    except (OverflowError,ZeroDivisionError) as error:raise ValueError('time expression outside finite domain: '+str(error)) from error
+    except (OverflowError,ZeroDivisionError) as error:raise ValueError('expression outside finite domain: '+str(error)) from error
+
+
+def evaluate(expression,time):
+    """Evaluate a time-only serialised graph at one declared source time."""
+    if not time_only(expression):raise ValueError('expression is not a supported time-only graph')
+    try:return evaluate_inputs(expression,{'time':time})
+    except ValueError as error:raise ValueError(str(error).replace('expression','time-expression',1)) from error
 
 
 def hue_family(rgb):

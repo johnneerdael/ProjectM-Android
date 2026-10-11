@@ -1,0 +1,49 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Phat+fiShbRaiN_Mandala_Bare_No_Border_mix.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r4-v3",
+ "fresh_prediction": false,
+ "note": "After controlled-experiment fixes (wave Y orientation, dot rule, tint)",
+ "frozen_before_capture": {
+  "description-v3-before-capture.json": "078f034b478fc23d4d5c8046710392de0991888fe191b2950d649cd27843622c",
+  "recipe-v3-before-capture.json": "17da40173958950ff1906d6e5b0810f28880e1f1ae148a3f80d08e63a778c538",
+  "prediction-v3.png": "ba7a926ddde986532a5bd4a0e56a566bd0401ea0854162668b88159cb6af2db6",
+  "prediction-v3.json": "e350b7b3c01ea13fb5d56ac7937937d31416dc6cfc7c0820c4eee426894b5d0e"
+ },
+ "capture_result_sha256": "9cd52459e4d51ba43a5bb553d16faec8b3671fea225f54cc15601ca101d99987",
+ "review_measurements": {
+  "prediction_mean_luma": 0.256,
+  "capture_frame149_mean_luma": 0.231,
+  "prediction_saturation": 0.492,
+  "capture_saturation": 0.473,
+  "prediction_mean_rgb": [
+   0.203,
+   0.259,
+   0.377
+  ],
+  "capture_mean_rgb": [
+   0.165,
+   0.243,
+   0.3
+  ],
+  "native_frame_time": "native frame k is rendered at source time (k+1)/30"
+ },
+ "agreements": [
+  "Mean luma within 11%, saturation within 4%",
+  "Four-fold mirror fountains, radial streaks, teal/blue/purple palette"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Central dark hexagram (triangle + vertical flip) missing; illustration centre bright",
+   "next": "Model the canvas alpha channel: textured shapes blend with vertex alpha times texture alpha, the warp keeps alpha undecayed, and additive/over blending updates alpha. Controlled variants show the dark star is caused by the textured copy."
+  },
+  {
+   "size": "small",
+   "observed": "wave_1 ring of dots (random spout, persistent state) not drawn",
+   "next": "state/rand positions stay unresolved"
+  }
+ ]
+}

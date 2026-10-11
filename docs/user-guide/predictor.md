@@ -79,6 +79,15 @@ strict physical model's eligibility result.
 Uniform final-color cycles have integrated calm/moderate/intense source controls;
 feedback presets still retain their unresolved movement and flashing contributions.
 
+Recent general additions (2026-10-12): custom waves whose per-point colour
+and position formulas depend only on the sample index, time and audio are now
+evaluated over their authored points. This turns hashed "random-looking"
+formulas into colour shares, a point cloud and a point speed. A negative
+feedback stretch and a mirrored echo are reported as mirror symmetry, with a
+fold count. Inner and outer borders and the darken-centre spot are treated as
+per-frame fades of the picture. A screen-wide inner border, for example, can
+make trails fade in about a second even when the decay is 0.999.
+
 ## What the static JSON can describe
 
 The static producer is `effect_family_export.py`. Its `analysis.visual_description`

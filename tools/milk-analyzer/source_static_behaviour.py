@@ -301,6 +301,11 @@ def _feedback_persistence(analysis,description,context):
     return unorm8_decay_persistence(description.get('feedback_transfer'),context)
 
 
+def _borders(analysis,persistence,context):
+    from source_borders import border_operators
+    return border_operators(analysis,context,persistence)
+
+
 def _curve_feedback_relations(analysis,description,context,evidence):
     from fractions import Fraction
     from source_curve_feedback_relation import curve_feedback_relation
@@ -379,7 +384,8 @@ def static_behaviour(analysis,description,context=None):
                                              'source_curve_feedback_relation.py','source_radial_uv_envelope.py',
                                              'source_material_marker_motion.py','source_feedback_persistence.py',
                                              'source_radial_colour_field.py','source_mesh_field.py',
-                                             'source_motion_vector_element.py']},
+                                             'source_motion_vector_element.py','source_borders.py',
+                                             'source_point_colour.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}
@@ -405,6 +411,8 @@ def static_behaviour(analysis,description,context=None):
             {'native_numeric_certified':False,'visible_motion_speed':None,'whole_preset_activity_credit':False})
         result['feedback_persistence']=produce('feedback_persistence',_feedback_persistence,arguments,
             {'largest_stuck_level':None,'visible_trail_length':None})
+        result['borders']=produce('borders',_borders,(analysis,result['feedback_persistence'],normalized),
+            {'borders':[],'darken_centre':None})
         result['radial_colour_field']=produce('radial_colour_field',_radial_colour_fields,
             (*arguments,result),{'by_component':{},'components':[]})
         result['curve_feedback_relation']=produce('curve_feedback_relation',_curve_feedback_relations,

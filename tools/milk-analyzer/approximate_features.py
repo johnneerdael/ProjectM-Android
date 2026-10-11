@@ -110,6 +110,12 @@ def _colour_samples(summary):
                     samples.append((rgb,1/33))
                 paths.append(path)
         elif '/colour/components/' in path:
+            points=(value.get('source_palette') or {}).get('point_colour_distribution') or {}
+            if points.get('status')=='closed_form_point_colours' and points.get('representative_points'):
+                # Many additive points: one unit of weight per wave, kept even for faint alpha.
+                rows=points['representative_points'];weight=max(.25,min(1.,4*(points.get('mean_alpha') or 0)))
+                for rgba in rows:samples.append((rgba[:3],weight/len(rows)))
+                paths.append(path);continue
             for anchor in (value.get('source_palette') or {}).get('anchors',[]) or []:
                 rgb=anchor.get('rgb') if isinstance(anchor,dict) else None
                 if isinstance(rgb,list) and len(rgb)==3 and all(type(v) in (int,float) for v in rgb):
@@ -168,12 +174,13 @@ def feature_vector(summary,rules=None):
     vector['motion.acceleration_p95_vp_s2']=_feature(acceleration,evidence='assumed',paths=paths,
         note='speed times assumed angular rate: beat-coupled %.1f Hz, other %.1f Hz'%(BEAT_HZ,SLOW_HZ))
     vector['motion.jerk_p95_vp_s3']=_feature(jerk,evidence='assumed',paths=paths,note='speed times squared assumed angular rate')
+    from approximate_mood import is_brightness_control
     switches=[];brightness_elements=0;brightness_paths=[]
     for _,path,value in _facts(summary):
         if not isinstance(value,dict):continue
         if '/audio_routes/' in path:
             if value.get('switch_triggers'):switches.append(path)
-            if str(value.get('control') or '').startswith(('colour','opacity','alpha','brightness','border','gamma','decay')):
+            if is_brightness_control(value.get('control') or ''):
                 brightness_paths.append(path)
     brightness_elements=len({p.split('/audio_routes/')[0] for p in brightness_paths})
     vector['motion.discontinuities_hz']=(_feature(BEAT_HZ,evidence='assumed',paths=switches,note='audio-triggered switches at an assumed beat rate')
@@ -211,7 +218,18 @@ def feature_vector(summary,rules=None):
         if path.endswith('/feedback_persistence') and isinstance(value,dict):
             span=value.get('steps_to_half_interval')
             if isinstance(span,list) and len(span)==2:half=([v/fps for v in span],path)
-    vector['feedback.half_life_s']=_feature(sum(half[0])/2,half[0],'source-estimate',[half[1]]) if half else _feature()
+    borders=next((v for _,p,v in _facts(summary) if p.endswith('/static_behaviour/borders') and isinstance(v,dict)),None)
+    band=None
+    for row in (borders or {}).get('borders') or []:
+        if row.get('active') and type(row.get('screen_area_fraction')) in (int,float) and type(row.get('steps_to_half_from_full')) in (int,float):
+            if band is None or row['screen_area_fraction']>band[0]:band=(row['screen_area_fraction'],row['steps_to_half_from_full']/fps)
+    if band and band[0]>=.5:
+        # A border band covering most of the screen sets the typical trail half-life there.
+        other=sum(half[0])/2 if half else band[1]
+        vector['feedback.half_life_s']=_feature(band[1],[min(band[1],other),max(band[1],other)],'source-estimate',
+            ([half[1]] if half else [])+[STATIC+'/borders'],note='border band covers %.0f%% of the screen'%(100*band[0]))
+    else:
+        vector['feedback.half_life_s']=_feature(sum(half[0])/2,half[0],'source-estimate',[half[1]]) if half else _feature()
     mechanisms={}
     for _,path,value in _facts(summary):
         if path.startswith('/analysis/families/') and isinstance(value,dict):
@@ -226,6 +244,12 @@ def feature_vector(summary,rules=None):
             vector['structure.'+name]=_feature(score,evidence='mechanism-estimate',paths=[p for _,p in hits])
         else:vector['structure.'+name]=_feature(DEFAULT_STRUCTURE[name],[0.,DEFAULT_STRUCTURE[name]*2 if DEFAULT_STRUCTURE[name] else .3],'assumed',
                                                note='no supporting mechanism found')
+    from mirror_symmetry import mirror_operators
+    mirrors=mirror_operators({path:value for _,path,value in _facts(summary)})
+    current=vector['structure.symmetry']
+    if mirrors['symmetry_score']>0 and (current['evidence']=='assumed' or mirrors['symmetry_score']>current['value']):
+        vector['structure.symmetry']=_feature(round(mirrors['symmetry_score'],4),evidence='source-estimate',
+            paths=[r['evidence'] for r in mirrors['operators']],note='%d-fold mirror operators (upper estimate)'%mirrors['fold'])
     return vector
 
 

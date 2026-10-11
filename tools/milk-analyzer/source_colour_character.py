@@ -212,10 +212,32 @@ def _custom_wave_palette(analysis,identity):
     if not invalid and _colour(Field('components',tuple(controls[name] for name in 'rgb'),'float3')).get('mode_code')==1:
         palette.update(hue_families_possible=['grayscale'],temperature_candidates=['neutral'],model='correlated_native_shared_scalar_rgb')
     palette['channel_domain_evidence']=reports
+    palette['point_colour_distribution']=_point_distribution(analysis,prefix,frame,controls,domains)
     palette['known_invalid_native_domain']=invalid
     palette['provably_inactive']=not invalid and alpha is not None and alpha[1]==0
     status='known_source_colour' if all(v is not None for v in values) else 'dynamic_source_colour'
     return palette,status,reasons
+
+
+def _point_distribution(analysis,prefix,frame,controls,domains):
+    """Closed-form per-point colour distribution over the authored sample grid."""
+    from effect_families import Field
+    from scene_equations import _scalar
+    from source_appearance import _expression,_phase_literal
+    from source_point_colour import point_colour_distribution
+    samples=frame.environment.get('samples')
+    count=_phase_literal(samples) if samples is not None else _scalar(analysis.values,prefix+'samples',512,'float')
+    if count is not None:count=min(512,math.trunc(count))
+    programs={name:_expression(controls.get(name,Field('unknown'))) for name in 'rgba'}
+    held={name:span for name,span in domains.items() if name!='sample'}
+    positions={name:_expression(controls.get(name,Field('unknown'))) for name in 'xy'}
+    record=point_colour_distribution(programs,count,held,positions=positions)
+    flags={}
+    for name,key in (('dots','bUseDots'),('thick','bDrawThick'),('additive','bAdditive'),('spectrum','bSpectrum')):
+        value=_scalar(analysis.values,prefix+key,0,'float')
+        flags[name]=None if value is None else bool(value)
+    record['draw_flags']=flags
+    return record
 
 
 def _random_vertex_palette(controls):
