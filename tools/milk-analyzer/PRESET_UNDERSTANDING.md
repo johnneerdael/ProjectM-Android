@@ -452,3 +452,31 @@ rendering or frame simulation), SDK summary and approximate mood per preset,
 with a process pool, per-preset timeout, frozen model identity and resumable
 compact results. `report.json` counts statuses, bands, confidence and the
 activity histogram; `collections.json` lists presets per band by activity.
+
+## Multi-axis features and user-preference selection
+
+`approximate_features.py` (policy `approximate-feature-vector-v1`) implements the
+research feature contract over SDK facts: motion speed/acceleration/jerk and
+discontinuities, flash transitions and contrast, brightness jumps, bass
+effect, palette saturation/hue variety/warm-cool/hue rate, mean display luma,
+feedback half-life and structure scores (symmetry, nonlinear warp, feedback
+complexity, organic, geometric, fractal) from proven mechanisms, with
+composite-stage constructions weighted 0.7. Each feature carries an evidence
+label (`source-estimate`, `mechanism-estimate`, `assumed`, `unknown`). The
+research equations give intensity, smoothness, psychedelic, warm and cold
+scores with intervals; activity confidence depends on the intensity interval
+only. Style tags whose inputs are all assumed are reported as `possible_tags`.
+Profile suitability uses `mood_profiles.PROFILES` (genres, viewing contexts,
+the owner-chosen 70+ gentle default) and the research fit formula.
+
+`corpus_understanding.py` stores this record per preset and writes
+`preference-index.json`. `preference_select.py` (standard library only)
+ranks presets for an editable preference file: profiles, activity window,
+comfort rules (`no_flashing` excludes unknown or assumed flash evidence,
+`min_smoothness`, `max_speed_vp_s`), palette warm/cold, preferred and avoided
+tags (avoided possible tags also count), minimum confidence and limit. Every
+selected preset lists its reasons. These are assumption-based preferences, not
+calibrated taste; explicit user feedback should replace defaults.
+
+`preset_recipe.py` wraps the mood record with an engine-neutral render/intent
+description in one versioned JSON, so later consumers need no contract change.

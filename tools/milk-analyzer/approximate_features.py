@@ -35,11 +35,12 @@ MECHANISM_STRUCTURE={
     'feedback_complexity':{'nonlinear_feedback_map':.9,'multi_copy_feedback_recursion':.8,'gradient_driven_advection':.75,
                            'image_driven_advection':.7,'radial_feedback_transform':.3},
     'organic':{'gradient_driven_advection':.8,'image_driven_advection':.7,'noise_driven_advection':.6,'uv_advection':.5},
-    'geometric':{'polygon_shape_primitive':.6,'procedural_shape_instances':.75,'angular_mirror_fold':.6,
+    'geometric':{'polygon_shape_primitive':.45,'procedural_shape_instances':.75,'angular_mirror_fold':.6,
                  'cartesian_mirror_fold':.5,'spatial_oscillatory_bands':.5},
     'fractal':{'complex_quadratic_recurrence':.95,'mandelbox_recurrence':.95,'nonlinear_feedback_map':.85,
                'multi_copy_feedback_recursion':.6},
 }
+COMPOSITE_FACTOR=.7
 DEFAULT_STRUCTURE={'symmetry':.2,'nonlinear_warp':.1,'feedback_complexity':.2,'organic':.15,'geometric':.15,'fractal':0.}
 
 
@@ -210,9 +211,13 @@ def feature_vector(summary,rules=None):
     vector['feedback.half_life_s']=_feature(sum(half[0])/2,half[0],'source-estimate',[half[1]]) if half else _feature()
     mechanisms={}
     for _,path,value in _facts(summary):
-        if path.startswith('/analysis/families/') and isinstance(value,dict):mechanisms.setdefault(value.get('mechanism'),path)
+        if path.startswith('/analysis/families/') and isinstance(value,dict):
+            # Composite-stage constructions do not accumulate through feedback: weaker evidence.
+            factor=COMPOSITE_FACTOR if value.get('stage')=='composite' else 1.
+            name=value.get('mechanism')
+            if name not in mechanisms or mechanisms[name][0]<factor:mechanisms[name]=(factor,path)
     for name,table in MECHANISM_STRUCTURE.items():
-        hits=[(table[m],p) for m,p in mechanisms.items() if m in table]
+        hits=[(table[m]*factor,p) for m,(factor,p) in mechanisms.items() if m in table]
         if hits:
             score=max(h[0] for h in hits);score=min(1.,score+.05*(len(hits)-1))
             vector['structure.'+name]=_feature(score,evidence='mechanism-estimate',paths=[p for _,p in hits])
@@ -276,7 +281,13 @@ def tags(vector,score):
     v=lambda name:(vector.get(name) or {}).get('value')
     rows=[]
     def tag(name,condition,used):
-        if condition:rows.append({'tag':name,'features':used})
+        if not condition:return
+        basis={(vector.get(f) or {}).get('evidence','') for f in used if not f.startswith('score.') and not f.endswith('*')}
+        if any(f.endswith('*') for f in used):
+            prefix=used[[f.endswith('*') for f in used].index(True)][:-1]
+            basis|={v.get('evidence','') for k,v in vector.items() if k.startswith(prefix)}
+        assumed=bool(basis) and all(b.startswith('assumed') or b=='unknown' for b in basis)
+        rows.append({'tag':name,'features':used,'basis':'assumed' if assumed else 'estimated'})
     tag('Smooth',score['smoothness']['value']>=80,['score.smoothness'])
     wc=v('palette.warm_cool');support=v('palette.coloured_support') or 0
     tag('Warm',wc is not None and wc>=.4 and support>=.2,['palette.warm_cool','palette.coloured_support'])
@@ -340,12 +351,15 @@ def describe(summary,rules=None,profiles=None):
     possible=[name for name,a,b in BANDS if interval[0]<=b and interval[1]>=a]
     unknown=[n for n,f in vector.items() if f['evidence']=='unknown']
     assumed=[n for n,f in vector.items() if f['evidence'].startswith('assumed') or f['evidence'].endswith('assumed')]
+    # Activity confidence depends on the intensity interval only; missing palette
+    # evidence limits palette preferences, not the activity band.
     width=interval[1]-interval[0]
-    confidence='medium' if width<=40 and len(unknown)<=3 else 'low'
-    if width<=15 and not unknown:confidence='high'
+    activity_unknown='motion.speed_p95_vp_s' in unknown
+    confidence='high' if width<=15 and not activity_unknown else 'medium' if width<=50 and not activity_unknown else 'low'
     return {'policy':POLICY,'features':vector,'scores':score,'activity_bands':bands if confidence!='low' else [],
         'possible_activity_bands':possible,'confidence':confidence,'unknown_features':unknown,'assumed_features':assumed,
-        'tags':tags(vector,score),'profiles':suitability(vector,score,profiles),'calibrated':False,'uses_rendered_images':False,
+        'tags':[t for t in tags(vector,score) if t['basis']=='estimated'],
+        'possible_tags':[t for t in tags(vector,score) if t['basis']=='assumed'],'profiles':suitability(vector,score,profiles),'calibrated':False,'uses_rendered_images':False,
         'limitations':['Initial research equations and editable assumptions over SDK facts; not calibrated against viewers',
                        'Acceleration/jerk use assumed angular rates; structure scores come from proven mechanisms, not measured appearance',
                        'Strict source eligibility (mood_scoring.py) is separate and unchanged']}

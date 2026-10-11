@@ -56,6 +56,7 @@ def work(path,options,expected_models):
         mood=approximate_mood(summary,options.get('rules'))
         # Compressed SDK summary allows offline rescoring without re-export.
         packed=base64.b64encode(gzip.compress(json.dumps(summary,separators=(',',':')).encode(),compresslevel=6)).decode()
+        row['preference']=_preference_row(summary,options.get('rules'))
         row.update(status='computed',description=summary['description'],summary_gzip_base64=packed,
             approximate_mood=_mood_row(mood),
             drivers=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']],
@@ -74,6 +75,19 @@ def _star_work(arguments):
     return work(*arguments)
 
 
+def _preference_row(summary,rules=None):
+    """Compact multi-axis record for preference selection (approximate_features)."""
+    from approximate_features import describe
+    record=describe(summary,rules)
+    return {'scores':{k:v['value'] for k,v in record['scores'].items()},
+            'score_intervals':{k:v['interval'] for k,v in record['scores'].items()},
+            'features':{k:{'value':v['value'],'interval':v['interval'],'evidence':v['evidence']} for k,v in record['features'].items()},
+            'tags':[t['tag'] for t in record['tags']],'possible_tags':[t['tag'] for t in record['possible_tags']],
+            'activity_bands':record['activity_bands'],
+            'possible_activity_bands':record['possible_activity_bands'],'confidence':record['confidence'],
+            'profiles':record['profiles']}
+
+
 def _mood_row(mood):
     return {k:mood[k] for k in ('activity_estimate','activity_interval','bands','possible_bands','confidence',
                                 'prior_driver_share','components','strict_eligible_bands','abstained','unresolved_driver_count')}
@@ -89,6 +103,7 @@ def rescore(output,rules=None):
         summary=json.loads(gzip.decompress(base64.b64decode(row['summary_gzip_base64'])))
         mood=approximate_mood(summary,rules)
         row['approximate_mood']=_mood_row(mood)
+        row['preference']=_preference_row(summary,rules)
         row['drivers']=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']]
         temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(row)+'\n');temporary.replace(path)
     return report(output)
@@ -113,6 +128,14 @@ def report(output):
         'calibrated':False,'uses_rendered_images':False,
         'notes':['Approximate bands are editable assumption-based preference groups, not calibrated moods',
                  'Confidence reflects the share of prior-only drivers; low-confidence presets need more source mathematics']}
+    index={'policy':'preset-preference-index-v1','presets':[
+        {'name':r['name'],'sha256':r['sha256'],**{k:r['preference'].get(k) for k in ('scores','tags','possible_tags','activity_bands','confidence','profiles')},
+         'features':{k:v['value'] for k,v in r['preference']['features'].items()},
+         'evidence':{k:v['evidence'] for k,v in r['preference']['features'].items()}}
+        for r in computed if 'preference' in r],'calibrated':False}
+    (output/'preference-index.json').write_text(json.dumps(index,separators=(',',':'))+'\n')
+    tags=collections.Counter(t for r in computed for t in (r.get('preference') or {}).get('tags',[]))
+    summary['tag_counts']=dict(tags.most_common())
     (output/'report.json').write_text(json.dumps(summary,indent=2)+'\n')
     (output/'collections.json').write_text(json.dumps(collections_by_band,indent=1)+'\n')
     return summary
