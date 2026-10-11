@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -57,20 +58,25 @@
     </LinearLayout>
 
     <!-- Settings panel: compact card inside the overscan-safe area -->
-    <LinearLayout
+    <ScrollView
         android:id="@+id/overlay_menu"
         android:layout_width="@dimen/panel_width"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
+        android:layout_marginBottom="@dimen/safe_vertical"
         android:layout_marginTop="@dimen/safe_vertical"
         android:layout_marginEnd="@dimen/safe_horizontal"
         android:background="@drawable/bg_overlay_panel"
-        android:orientation="vertical"
-        android:paddingStart="12dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp"
         android:visibility="gone">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:paddingStart="12dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
 
         <!-- Current preset -->
         <TextView
@@ -175,6 +181,12 @@
             android:visibility="gone" />
 
         <com.example.projectm.visualizer.OptionRow
+            android:id="@+id/row_audio_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <com.example.projectm.visualizer.OptionRow
             android:id="@+id/row_auto_change"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -230,6 +242,7 @@
             android:text="" />
 
         <TextView
+            android:id="@+id/menu_close"
             style="@style/Overlay.Meta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -237,7 +250,8 @@
             android:layout_marginEnd="12dp"
             android:layout_marginTop="8dp"
             android:text="↑↓ select   ‹ › change   BACK close" />
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Advanced panel: slides over the main panel; BACK returns -->
     <ScrollView
@@ -255,6 +269,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:clickable="true"
             android:paddingStart="12dp"
             android:paddingTop="16dp"
             android:paddingEnd="12dp"
@@ -365,6 +380,7 @@
                 android:background="@drawable/divider" />
 
             <TextView
+            android:id="@+id/advanced_back"
                 style="@style/Overlay.Meta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -376,20 +392,25 @@
     </ScrollView>
 
     <!-- Track display panel: slides over the main panel like the advanced one; BACK returns -->
-    <LinearLayout
+    <ScrollView
         android:id="@+id/track_menu"
         android:layout_width="@dimen/panel_width"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
+        android:layout_marginBottom="@dimen/safe_vertical"
         android:layout_marginTop="@dimen/safe_vertical"
         android:layout_marginEnd="@dimen/safe_horizontal"
         android:background="@drawable/bg_overlay_panel"
-        android:orientation="vertical"
-        android:paddingStart="12dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp"
         android:visibility="gone">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:paddingStart="12dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
 
         <TextView
             style="@style/Overlay.Caption"
@@ -435,6 +456,7 @@
             android:background="@drawable/divider" />
 
         <TextView
+            android:id="@+id/track_back"
             style="@style/Overlay.Meta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -442,7 +464,8 @@
             android:layout_marginEnd="12dp"
             android:layout_marginTop="10dp"
             android:text="↑↓ select   ‹ › change   BACK return" />
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Diagnostics: next to the advanced panel (the main panel is hidden then), so every line fits;
          below the track corner, which stays on screen -->

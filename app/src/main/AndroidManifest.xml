@@ -10,10 +10,10 @@
     <!-- TV features -->
     <uses-feature
         android:name="android.software.leanback"
-        android:required="true" />
+        android:required="${leanbackRequired}" />
     <uses-feature
         android:name="android.hardware.touchscreen"
-        android:required="false" />
+        android:required="${touchscreenRequired}" />
     <uses-feature
         android:name="android.hardware.gamepad"
         android:required="false" />
@@ -39,7 +39,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:hardwareAccelerated="true"
-        android:theme="@style/Theme.Leanback">
+        android:theme="${appTheme}">
         
         <activity
             android:name="com.example.projectm.visualizer.MainActivity"

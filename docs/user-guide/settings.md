@@ -1,6 +1,6 @@
 # Settings reference
 
-Open the panel with **Center**, **Enter** or **Menu**. **Up / Down** selects a row and **Left / Right** changes it. Every setting is saved on the TV.
+Open the panel with **Center**, **Enter** or **Menu**. **Up / Down** selects a row and **Left / Right** changes it. On touchscreen Android, tap the visuals to open the panel, tap rows and scroll vertically. Every setting is saved on the device.
 
 ## Main panel
 
@@ -13,6 +13,12 @@ Open the panel with **Center**, **Enter** or **Menu**. **Up / Down** selects a r
 | Preset duration | 10, 15, 20, 30, 45, 60, 90 s | 30 s | How long each preset plays with Auto change on |
 | Track display › | | | Opens the track panel |
 | Advanced › | | | Opens performance and quality settings |
+
+## Phone audio input
+
+ProjectM Android adds **Audio input** to the main panel. **Microphone** is the default; grant Record audio permission to visualize nearby sound. **Phone playback** uses Android 10+'s audio playback capture for music/games played on the same device. Select it and approve Android's capture prompt. Protected audio and players that opt out cannot be captured. The input row shows capture status; the Audio meter shows whether samples contain sound.
+
+Capture stops on pause, leaving no background microphone or playback recording. Phone playback requires new consent after returning; select it again to restart. Audio samples stay in memory and are converted to the same unsigned mono waveform format used by the TV engine. TV audio capture is unchanged. The separate Advanced diagnostics card is TV-only.
 
 ## Track display
 

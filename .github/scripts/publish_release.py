@@ -43,7 +43,7 @@ def tag_commit(repo, tag, api):
     return obj["sha"]
 
 
-def publish(repo, version, sha, notes, assets_dir, api=github_api, command=run):
+def publish(repo, version, sha, notes, assets_dir, api=github_api, command=run, with_touchscreen=False):
     version_tuple(version)
     if not re.fullmatch(r"[\w.-]+/[\w.-]+", repo) or not re.fullmatch(r"[0-9a-f]{40}", sha):
         raise ValueError("invalid repository or source commit")
@@ -55,7 +55,11 @@ def publish(repo, version, sha, notes, assets_dir, api=github_api, command=run):
              (f"projectM-TV-core-{version}.aar", "projectM-TV-core.aar")]
     historical_native_pair = (f"projectM-TV-core-native-{version}.aar", "projectM-TV-core-native.aar")
     mapping = f"projectM-TV-{version}-mapping.txt"
+    if with_touchscreen:
+        pairs.append((f"projectM-Android-{version}.apk", "projectM-Android.apk"))
     names = [name for pair in pairs for name in pair] + [mapping]
+    if with_touchscreen:
+        names.append(f"projectM-Android-{version}-mapping.txt")
     digests = {name: hashlib.sha256((assets_dir / name).read_bytes()).hexdigest() for name in names}
     for versioned, alias in pairs:
         if versioned in digests and alias in digests and digests[versioned] != digests[alias]:
@@ -120,11 +124,13 @@ def main():
     publish_parser.add_argument("--notes", type=Path, required=True)
     publish_parser.add_argument("--assets-dir", type=Path, required=True)
     publish_parser.add_argument("--output", type=Path)
+    publish_parser.add_argument("--with-touchscreen", action="store_true",
+                                help="Require both TV and touchscreen APKs and mappings")
     milkbeat_parser = subcommands.add_parser("milkbeat")
     milkbeat_parser.add_argument("--version", required=True)
     args = parser.parse_args()
     if args.action == "publish":
-        result = publish(args.repo, args.version, args.sha, args.notes, args.assets_dir)
+        result = publish(args.repo, args.version, args.sha, args.notes, args.assets_dir, with_touchscreen=args.with_touchscreen)
         if args.output:
             with args.output.open("a", encoding="utf-8") as stream:
                 stream.write(f"url={result['url']}\n")

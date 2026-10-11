@@ -27,6 +27,8 @@ on:
         value: ${{ jobs.apk.outputs.release }}
       apk_name:
         value: ${{ jobs.apk.outputs.apk_name }}
+      android_apk_name:
+        value: ${{ jobs.apk.outputs.android_apk_name }}
       aar_name:
         value: ${{ jobs.apk.outputs.aar_name }}
       previous_tag:
@@ -74,6 +76,7 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
       release: ${{ steps.version.outputs.release }}
       apk_name: ${{ steps.apk.outputs.name }}
+      android_apk_name: ${{ steps.android_apk.outputs.name }}
       aar_name: ${{ steps.aar.outputs.name }}
       previous_tag: ${{ steps.version.outputs.previous_tag }}
     steps:
@@ -166,6 +169,29 @@ jobs:
           cp core/build/outputs/aar/core-release.aar "dist-aar/${NAME}"
           echo "name=${NAME}" >> "$GITHUB_OUTPUT"
           ls -lh dist-aar
+
+      - name: JVM unit tests for touchscreen build
+        run: ./gradlew :app:testReleaseUnitTest -PandroidTouchscreen=true --no-daemon
+
+      - name: Build release APK for touchscreen Android
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease -PandroidTouchscreen=true --no-daemon --stacktrace
+
+      - name: Name Android APK
+        id: android_apk
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          if [ "${{ steps.version.outputs.release }}" = "true" ]; then
+            NAME="projectM-Android-${{ steps.version.outputs.version }}.apk"
+          else
+            NAME="projectM-Android-${{ steps.version.outputs.version }}-ci.${GITHUB_RUN_NUMBER}-${SHORT_SHA}.apk"
+          fi
+          cp app/build/outputs/apk/release/app-release.apk "dist/${NAME}"
+          cp app/build/outputs/mapping/release/mapping.txt "dist-mapping/${NAME%.apk}-mapping.txt"
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:

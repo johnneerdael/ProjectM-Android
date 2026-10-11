@@ -16,6 +16,23 @@ cd ProjectM-TV
 
 In an existing clone, run `git submodule update --init --recursive`. Never commit edits inside `third_party/projectm`: engine changes are new patch files in `tools/projectm-patches/`.
 
+## Touchscreen build
+
+The default build remains Android TV. Add `-PandroidTouchscreen=true` to build the phone/tablet APK with app ID `nl.neerdael.projectm`, regular Launcher entry, optional Leanback and required touchscreen. Both use the same source and core; build outputs occupy the same paths, so copy each APK and mapping before building the other platform. CI does this for both reviewed PR validation and releases, publishing `projectM-TV-<version>.apk` and `projectM-Android-<version>.apk` plus one Native core AAR.
+
+```sh
+./gradlew :app:assembleRelease :app:testReleaseUnitTest -PandroidTouchscreen=true
+./gradlew :app:assembleDebug :app:assembleDebugAndroidTest -PandroidTouchscreen=true -PsetupScreenshotTest
+adb -s SERIAL install -r app/build/outputs/apk/debug/app-debug.apk
+adb -s SERIAL install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+adb -s SERIAL shell pm grant nl.neerdael.projectm.setuptest android.permission.RECORD_AUDIO
+adb -s SERIAL shell am instrument -w -e setup_case touchscreen nl.neerdael.projectm.setuptest.test/com.example.projectm.visualizer.MusicCategoryInstrumentation
+```
+
+For phone audio, run the same instrumentation with `-e setup_case phone_audio` on Android 10+. It checks microphone recorder reads, denied/granted playback consent, synthetic local playback reaching the engine, and pause cleanup. Dismiss Android's first-launch fullscreen tutorial before pointer tests.
+
+Use a task-owned phone emulator/device. The framework instrumentation checks actual tap/swipe input, preset history, scroll isolation, persisted settings, touch navigation and retained D-pad controls. It writes `touch-menu.png` to the target's external cache. Profile and test suffixes also apply to the touchscreen app ID.
+
 ## Run the tests
 
 | Command | Covers |
@@ -46,7 +63,7 @@ adb -s SERIAL shell am instrument --user USER -w -e setup_case resolution \
   nl.neerdael.projectmtv.setuptest.test/com.example.projectm.visualizer.MusicCategoryInstrumentation
 ```
 
-Other cases: `native_trails`, `custom_pack` followed by a cold `custom_pack_restart`, and `custom_pack_qr`. Find `USER` with `adb shell am get-current-user`. These check settings, navigation, uploads and completed frames, not preset appearance or performance.
+Other cases: `tv_menu` checks D-pad focus/scrolling across all shared panels and Home/resume; `native_trails`, `custom_pack` followed by a cold `custom_pack_restart`, and `custom_pack_qr`. Find `USER` with `adb shell am get-current-user`. These check settings, navigation, uploads and completed frames, not preset appearance or performance.
 
 ### Profiling and diagnostics
 

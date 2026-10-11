@@ -1,0 +1,21 @@
+{
+  "base_commit": "90b5bf9d9f60a13e9e271cc021a7d1133aa8fb3d",
+  "sources": {
+    "app/build.gradle": "20273f89a61a20ed9133c7c69ea6d87ae448a62347c289bee3525773f49c8183",
+    "app/src/main/java/com/example/projectm/visualizer/MainActivity.java": "46b49c8f8fe60bbca798b9d7f80f6c2d5f26246e491568de103768e189a57e3a",
+    "app/src/main/java/com/example/projectm/visualizer/PhoneAudioInput.java": "fc9a2ba2b7b29c237f8d6700cea19bceea9f5336e61ccaf17163eb475acfe0ff",
+    "app/src/main/java/com/example/projectm/visualizer/PhonePcmCapture.java": "54ccd5abdc319d91a2728747d803d9abc19e4182cbdbfda6637f21df79af8678",
+    "app/src/main/java/com/example/projectm/visualizer/PhonePlaybackService.java": "b173a84bd844dad4318b710ad7be2b268a670238dda4d32d4ff5a99878b56e35",
+    "app/src/main/java/com/example/projectm/visualizer/PcmWaveform.java": "b6c54d47b5bab5cd5f2441817fd9e13947fad087d9255a602f01b7b64acf26cb",
+    "app/src/main/res/layout/activity_main.xml": "1bb998b65f7e3c8b026b2ac558fe9a8a31536ecfcc13f82aafdbc4b4c6bdd093"
+  },
+  "artifacts": {
+    "phone-debug.apk": "e993f99ba26853108027382c37bd4662811e864c4bf402960ca26a750c2a846f",
+    "tv-debug.apk": "f61bcbc16c4464c3bb6907720435e44ceb6b43823c58d66df74da8a67e73644a",
+    "projectM-TV.apk": "969d8eb0b814008c2c0709c03f6c8aa45a36fd139d29426f25fc62b858c320f0",
+    "projectM-Android.apk": "fcd069fb582181648066b064b20cbf986b53fe5f8cffcc420f17ca6ce6c30abe",
+    "projectM-TV-mapping.txt": "018a620f9932df97393eab09b05d92914c64d85311340e83d24c635ab6b31efe",
+    "projectM-Android-mapping.txt": "d939fbdee44cf42e435a259dd906d78a2efdfa17b9a497535fad680a1f3372fb",
+    "core-release.aar": "1e7af0bda4f1e10107124dbd956f9c13f8e0fbc3db57561168f2471d8496cfc6"
+  }
+}

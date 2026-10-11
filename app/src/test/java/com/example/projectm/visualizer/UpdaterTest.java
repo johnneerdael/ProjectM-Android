@@ -8,6 +8,12 @@ import org.junit.Test;
 
 public class UpdaterTest {
     @Test
+    public void updatesStayOnTheInstalledPlatform() {
+        assertEquals(BuildConfig.TOUCHSCREEN ? "projectM-Android-2.3.40.apk" : "projectM-TV-2.3.40.apk",
+                Updater.apkName("2.3.40"));
+    }
+
+    @Test
     public void versionFromTheLatestReleaseRedirect() {
         assertEquals("1.9.18", Updater.versionFromTagUrl("https://github.com/johnneerdael/ProjectM-TV/releases/tag/v1.9.18"));
         assertEquals("2.0", Updater.versionFromTagUrl("https://github.com/johnneerdael/ProjectM-TV/releases/tag/v2.0/"));

@@ -2,7 +2,7 @@
 
 [![Android CI](https://github.com/johnneerdael/ProjectM-TV/actions/workflows/android.yml/badge.svg)](https://github.com/johnneerdael/ProjectM-TV/actions/workflows/android.yml)
 
-ProjectM TV is a music visualizer for Android TV. It turns the music another app plays on the TV into MilkDrop visuals, at up to 4K, with 9,606 presets from Jason Fletcher's *Cream of the Crop* collection. It is not a music player itself.
+ProjectM TV is a music visualizer for Android TV, with a separate **ProjectM Android** touchscreen build for phones and tablets. It turns the music another app plays on the TV into MilkDrop visuals, at up to 4K, with 9,606 presets from Jason Fletcher's *Cream of the Crop* collection. It is not a music player itself. ProjectM Android can visualize its microphone or capture music played locally by another app.
 
 It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualizer/projectm), the open-source reimplementation of Winamp's MilkDrop, based on unreleased projectM 4.2 master (commit `6f6480746`) plus 34 ordered patches. The patches restore MilkDrop 2's behaviour where projectM differs, keep presets at their authored scale on 4K screens, and make preset changes smooth on TV hardware.
 
@@ -38,7 +38,7 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 - **Track titles:** cover, artist and title of the playing track, from the music app's media session.
 - **Custom preset packs:** upload up to 50,000 presets and textures from a phone by scanning a QR code.
 - **Private:** audio is analysed in memory only. Network use is the opt-in auto-update and the temporary local upload page.
-- **Remote-only control** with a settings panel and live diagnostics.
+- **Remote and touchscreen controls** with a settings panel and live status.
 
 ## Remote control
 
@@ -52,6 +52,10 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 
 In the panel, Up and Down move between rows, Left and Right change a value, and Center cycles a value or runs an action. Back closes the panel (from *Advanced* or *Track display* it returns to the main panel), Menu closes it, and it hides itself after 10 seconds without input.
 
+## Touchscreen controls
+
+In ProjectM Android, swipe right for a random preset and left for the previous preset, matching the remote's Right/Left actions. Switches are instant cuts. Tap the visuals to open the menu; tap a row to cycle its value or run its action. Scroll vertically to reach every setting, including Advanced and Track display. Use **Back to menu**, **Close menu**, or tap outside the panel. Touch input restarts the 10-second menu timeout.
+
 ## Settings
 
 <p align="center">
@@ -62,6 +66,7 @@ In the panel, Up and Down move between rows, Left and Right change a value, and 
 
 | Setting | Values | Default |
 |---|---|---|
+| Audio input (Android only) | Microphone; Phone playback (Android 10+, consent required) | Microphone |
 | Auto change | Off, On | On |
 | Preset mood | All, Chill, Normal, Intense, Custom (after upload) | All; Custom after an upload |
 | Preset duration | 10, 15, 20, 30, 45, 60, 90 s | 30 s |
@@ -94,13 +99,13 @@ In the panel, Up and Down move between rows, Left and Right change a value, and 
 | Shader binary cache | Reuses compiled shaders as driver binaries; *Off* always compiles from source. Troubleshooting only | On |
 | Last exit | Why the app last closed while on screen (Android 11+); select for recent exits and what the engine was doing | – |
 
-Opening *Advanced* also shows a **Diagnostics** card: render size, memory status, panel and UI size, frame rate, Native trails state, blend, audio source and level, track display, update status, device tier and GPU. The [settings reference](https://johnneerdael.github.io/ProjectM-TV/settings/) explains every value.
+On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory status, panel and UI size, frame rate, Native trails state, blend, audio source and level, track display, update status, device tier and GPU. The [settings reference](https://johnneerdael.github.io/ProjectM-TV/settings/) explains every value.
 
 ## Requirements and limits
 
-- Android TV or Google TV, Android 5.0 (API 21) or later, OpenGL ES 3.0. No touch or phone support.
+- Android TV or Google TV for the TV APK; a touchscreen phone or tablet for the Android APK. Both require Android 5.0 (API 21) or later and OpenGL ES 3.0; visuals stay in landscape.
 - At least 2 GB of RAM is highly recommended.
-- A music app playing **on the same device**. Verified: Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat). The app has no microphone or line-in input, and audio that reaches the TV already Dolby-encoded cannot be visualized. The visualizer receives 8-bit mono audio.
+- A music app playing **on the same device**. Verified: Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat). The TV build has no microphone or line-in input, and audio that reaches the TV already Dolby-encoded cannot be visualized. The visualizer receives 8-bit mono audio.
 - Preset moods are a beta prediction from one short measurement per preset; they will be improved. Chill is not a guarantee of no flashing.
 - Some presets still look different from MilkDrop on Windows: random textures change per load, chaotic presets diverge, and GPU drivers differ in undefined arithmetic. Negative warp zoom follows MilkDrop 2’s CPU power calculation for valid integer nested exponents; fractional negative powers still have nonfinite coordinates with no portable appearance guarantee.
 - 189 of the 9,795 *Cream of the Crop* presets are not included: 116 cannot react to music, 73 use images with text, logos or people (one is in both groups), and 1 has a missing texture.
@@ -109,12 +114,12 @@ Opening *Advanced* also shows a **Diagnostics** card: render size, memory status
 
 | Permission | Why | When |
 |---|---|---|
-| Record audio | Android's audio visualizer counts as recording. The app attaches only to the music app's audio session; the microphone is never used | First launch |
+| Record audio | TV: the player's audio session. Android: microphone input or approved phone playback capture | First launch |
 | Internet | Auto-update (off by default) and the local custom-pack upload page while its dialog is open | Granted at install |
 | Install apps | Only for auto-update: hands a downloaded update to Android's installer | The first time you install an update |
 | Notification access | Only to read the music app's media session for track titles; no notifications are read | Optional, via *Track display › Track info* |
 
-Nothing the app hears or reads leaves the TV.
+Nothing the app hears or reads leaves the device.
 
 ## Install
 
@@ -125,6 +130,10 @@ Nothing the app hears or reads leaves the TV.
 
 The code links to https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk. Every version is under [Releases](https://github.com/johnneerdael/ProjectM-TV/releases).
 
+**On a phone or tablet**
+
+Download the [touchscreen Android APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk) and open it to install. Android may ask you to allow installation from your browser. The two APKs have separate app IDs and settings; auto-update selects the matching APK.
+
 **From a computer**
 
 ```bash
@@ -132,7 +141,7 @@ curl -LO https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/pr
 adb install -r projectM-TV.apk
 ```
 
-Start music on the TV, open ProjectM TV and allow audio recording. The [getting-started guide](https://johnneerdael.github.io/ProjectM-TV/getting-started/) walks through permissions and track titles with screenshots. Releases are signed with one permanent key; a build signed with your own debug key must be uninstalled before installing a release.
+Start music on the TV, open ProjectM TV and allow audio recording. On phones, choose **Audio input** in the menu: **Microphone** (default) or **Phone playback**. Playback capture requires Android 10+, Android's capture consent each session, and a player that permits capture; protected or opted-out audio is silent. Capture stops when the visualizer leaves the foreground. The [getting-started guide](https://johnneerdael.github.io/ProjectM-TV/getting-started/) walks through permissions and track titles with screenshots. Releases are signed with one permanent key; a build signed with your own debug key must be uninstalled before installing a release.
 
 <a id="track-titles"></a>For troubleshooting audio, track titles, stutter and black presets, see the [troubleshooting guide](https://johnneerdael.github.io/ProjectM-TV/troubleshooting/).
 
@@ -141,6 +150,7 @@ Start music on the TV, open ProjectM TV and allow audio recording. The [getting-
 ```bash
 git clone --recurse-submodules https://github.com/johnneerdael/ProjectM-TV.git
 ./gradlew assembleRelease                    # APK + core AAR (signed with your local debug key)
+./gradlew :app:assembleRelease -PandroidTouchscreen=true # touchscreen APK (same output path)
 ./gradlew testDebugUnitTest                  # JVM tests
 core/src/test/native/run_native_tests.sh     # native engine and projectM regression controls
 ```

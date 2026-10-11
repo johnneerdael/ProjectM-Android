@@ -76,12 +76,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.build.outputs.version }}
           APK_NAME: ${{ needs.build.outputs.apk_name }}
+          ANDROID_APK_NAME: ${{ needs.build.outputs.android_apk_name }}
           AAR_NAME: ${{ needs.build.outputs.aar_name }}
         run: |
           cp "dist/$APK_NAME" dist/projectM-TV.apk
+          cp "dist/$ANDROID_APK_NAME" dist/projectM-Android.apk
           cp "dist/$AAR_NAME" dist/projectM-TV-core.aar
           python3 .github/scripts/publish_release.py publish --repo "$GITHUB_REPOSITORY" \
-            --version "$VERSION" --sha "$GITHUB_SHA" --notes notes.md --assets-dir dist
+            --version "$VERSION" --sha "$GITHUB_SHA" --notes notes.md --assets-dir dist --with-touchscreen
 
   milkbeat:
     name: Rebuild Milkbeat with this core
