@@ -8,6 +8,7 @@
 #include <deque>
 #include <functional>
 #include <mutex>
+#include <memory>
 #include <string>
 #include <thread>
 #include <vector>
@@ -17,6 +18,8 @@ public:
     struct Preset {
         std::string data;
         std::vector<std::string> texturePaths;
+        // Retain every immutable disk generation until this projectM instance is destroyed.
+        std::vector<std::shared_ptr<const void>> leases;
     };
     using Reader = std::function<Preset(const std::string& name)>;
 
@@ -33,6 +36,7 @@ public:
 
     bool Running() const { return thread_.joinable(); }
     bool UsesPresetPrefix(const std::string& prefix);
+    bool UsesPresetDirectory(const std::string& directory);
 
 private:
     void Run();
@@ -43,6 +47,7 @@ private:
     std::deque<std::string> pending_;
     std::deque<std::string> recent_;  // compiled lately, most recent last
     std::string active_; // Published before reading files; retained until the GL instance is gone.
+    std::vector<std::string> activeTexturePaths_;
     bool stop_ = false;
     Reader reader_;
 };

@@ -82,11 +82,17 @@ void PresetPrewarmer::Stop() {
     pending_.clear();
     recent_.clear();
     active_.clear();
+    activeTexturePaths_.clear();
 }
 
 bool PresetPrewarmer::UsesPresetPrefix(const std::string& prefix) {
     std::lock_guard<std::mutex> lock(mutex_);
     return !active_.empty() && active_.compare(0, prefix.size(), prefix) == 0;
+}
+
+bool PresetPrewarmer::UsesPresetDirectory(const std::string& directory) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return std::find(activeTexturePaths_.begin(), activeTexturePaths_.end(), directory + "/textures") != activeTexturePaths_.end();
 }
 
 void PresetPrewarmer::Request(const std::vector<std::string>& names) {
@@ -132,10 +138,15 @@ void PresetPrewarmer::Run() {
         }
         projectmtv::WriteTrail(projectmtv::kTrailPrewarm, "compiling '%s'", name.c_str());
         auto preset = reader_(name);
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            activeTexturePaths_ = preset.texturePaths;
+        }
         if (preset.data.empty()) {
             projectmtv::WriteTrail(projectmtv::kTrailPrewarm, "idle: could not read '%s'", name.c_str());
             std::lock_guard<std::mutex> lock(mutex_);
             active_.clear();
+            activeTexturePaths_.clear();
             continue;
         }
         // A fresh instance per preset, destroyed right after: between switches the prewarmer holds
@@ -148,6 +159,7 @@ void PresetPrewarmer::Run() {
             projectmtv::WriteTrail(projectmtv::kTrailPrewarm, "stopped: projectm_create failed");
             std::lock_guard<std::mutex> lock(mutex_);
             active_.clear();
+            activeTexturePaths_.clear();
             break;
         }
         std::vector<const char*> paths;
@@ -159,6 +171,7 @@ void PresetPrewarmer::Run() {
         {
             std::lock_guard<std::mutex> lock(mutex_);
             active_.clear();
+            activeTexturePaths_.clear();
         }
         uint32_t hits = 0, misses = 0;
         projectm_opengl_program_cache_stats(&hits, &misses);

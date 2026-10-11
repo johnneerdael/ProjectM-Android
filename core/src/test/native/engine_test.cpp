@@ -15,6 +15,7 @@
 #include <chrono>
 #include <fstream>
 #include <sstream>
+#include <type_traits>
 #include <unistd.h>
 #include <sys/types.h>
 #include "android/asset_manager.h"
@@ -194,6 +195,97 @@ void projectm_free_string(const char* s) { free((void*)s); }
 #include "native-lib.cpp"
 
 #define CHECK(c) do { if (!(c)) { fprintf(stderr, "FAIL %s:%d %s\n", __FILE__, __LINE__, #c); exit(1); } else printf("  ok: %s\n", #c); } while (0)
+
+template<class T, class = void> struct HasOfficialPack : std::false_type {};
+template<class T> struct HasOfficialPack<T, std::void_t<decltype(&T::RequestOfficialPack)>> : std::true_type {};
+
+template<class T> void CheckOfficialPack(T& library, const std::string& root, const std::string& custom) {
+  CHECK(HasOfficialPack<T>::value);
+  if constexpr (HasOfficialPack<T>::value) {
+    std::string directory = root + "/official-one";
+    mkdir(directory.c_str(), 0700); mkdir((directory + "/0").c_str(), 0700);
+    mkdir((directory + "/preset-genres").c_str(), 0700);
+    mkdir((directory + "/preset-genres/genres").c_str(), 0700);
+    auto write = [](const std::string& path, const char* text) { std::ofstream(path) << text; };
+    write(directory + "/0/0.milk", "official first");
+    write(directory + "/0/1.milk", "official second");
+    write(directory + "/official-presets.idx", "0/0.milk\tgood 1.milk\t17\n0/1.milk\tofficial unique.milk\t3\n");
+    write(directory + "/preset-genres/genres/chill.idx", "official unique.milk\t3\n");
+    write(directory + "/preset-genres/genres/normal.idx", "good 1.milk\t17\n");
+    write(directory + "/preset-genres/genres/intense.idx", "good 1.milk\t17\n");
+    auto await = [&library](uint64_t request) {
+      for (int i = 0; i < 1000 && library.OfficialPackStatus(request) == 0; ++i)
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    };
+    auto customRequest = library.RequestCustomPack(custom);
+    for (int i = 0; i < 1000 && library.CustomPackPending(); ++i)
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    CHECK(library.CustomPackStatus(customRequest) == 2);
+    int customCount = library.CategoryCount("custom");
+    auto request = library.RequestOfficialPack(directory, false); await(request);
+    CHECK(library.OfficialPackStatus(request) == 1);
+    CHECK(library.CommitOfficialPack(request));
+    CHECK(library.OfficialPackStatus(request) == 2);
+    CHECK(library.CategoryCount("all") == 2 + customCount);
+    CHECK(library.CategoryCount("custom") == customCount);
+    CHECK(library.CategoryCount("chill") == 1 && library.Weight("good 1.milk") == 17);
+    auto captured = library.ResolvePreset("good 1.milk");
+    auto warmCaptured = g_prewarmReader("good 1.milk");
+    CHECK(captured.data == "official first");
+    CHECK(captured.texturePaths.size() == 1 && captured.texturePaths[0] == directory + "/textures");
+    CHECK(library.OfficialPackInUse(directory));
+    CHECK(LoadPreset("good 1.milk", false));
+    CHECK(library.SetCategory("custom"));
+    auto customCaptured = library.ResolvePreset(library.Next());
+    CHECK(customCaptured.texturePaths.size() == 2 && customCaptured.texturePaths[1] == directory + "/textures");
+    // An explicit prepare must not overwrite a category/skip mutation.
+    auto stale = library.RequestOfficialPack("", false); await(stale);
+    library.MarkSkipped("good 1.milk", "official stale snapshot control");
+    CHECK(!library.CommitOfficialPack(stale)); library.DiscardOfficialPack(stale);
+    auto rejected = library.RequestOfficialPack(root + "/missing-official", false); await(rejected);
+    CHECK(library.OfficialPackStatus(rejected) == -1 && library.CategoryCount("custom") == customCount);
+    // A custom publication between official prepare and commit must not be lost.
+    auto old = library.RequestOfficialPack("", false); await(old);
+    auto removeCustom = library.RequestCustomPack("");
+    for (int i = 0; i < 1000 && library.CustomPackPending(); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    CHECK(library.CustomPackStatus(removeCustom) == 2);
+    CHECK(!library.CommitOfficialPack(old)); library.DiscardOfficialPack(old);
+    auto remove = library.RequestOfficialPack("", false); await(remove);
+    CHECK(library.CommitOfficialPack(remove));
+    CHECK(library.CategoryCount("all") == 12); // retained two skipped names in bundled inventory
+    CHECK(library.OfficialPackInUse(directory)); // captured render/custom fallback generations pin it
+    captured = {}; customCaptured = {};
+    CHECK(library.OfficialPackInUse(directory)); // actual renderer must also pin its source
+    CHECK(LoadPreset("good 2.milk", true));
+    warmCaptured = {};
+    CHECK(library.OfficialPackInUse(directory)); // outgoing instance still owns its images
+    CHECK(LoadPreset("good 2.milk", false));
+    for (int i = 0; i < 1000 && library.OfficialPackInUse(directory); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    CHECK(!library.OfficialPackInUse(directory));
+    // Reject corrupt authored/storage identities and index weights without changing live state.
+    for (const char* index : {"../evil.milk\tname.milk\t0\n", "0/0.milk\tname.milk\t-1\n", "0/0.milk\tname.milk\t3\n0/1.milk\tname.milk\t3\n"}) {
+      write(directory + "/official-presets.idx", index);
+      auto invalid = library.RequestOfficialPack(directory, false); await(invalid);
+      CHECK(library.OfficialPackStatus(invalid) == -1 && library.CategoryCount("custom") == 0);
+    }
+    write(directory + "/official-presets.idx", "0/0.milk\tgood 1.milk\t17\n0/1.milk\tofficial unique.milk\t3\n");
+    // The two independent cold-restore requests converge on a coherent joined catalog.
+    auto restoreOfficial = library.RequestOfficialPack(directory);
+    auto restoreCustom = library.RequestCustomPack(custom);
+    for (int i = 0; i < 1000 && (library.OfficialPackPending() || library.CustomPackPending()); ++i)
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    CHECK(library.OfficialPackStatus(restoreOfficial) == 2 && library.CustomPackStatus(restoreCustom) == 2);
+    CHECK(library.CategoryCount("all") == 3 && library.CategoryCount("custom") == 2);
+    auto superseded = library.RequestOfficialPack(directory, false);
+    auto currentRequest = library.RequestOfficialPack("", false); await(currentRequest);
+    CHECK(library.OfficialPackStatus(superseded) == -1);
+    CHECK(library.CommitOfficialPack(currentRequest));
+    auto clearCustom = library.RequestCustomPack("");
+    for (int i = 0; i < 1000 && library.CustomPackPending(); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    CHECK(library.CustomPackStatus(clearCustom) == 2);
+    library.ResetSkipped(); library.MarkSkipped("preskipped.milk", "restore fixture");
+  }
+}
 static void frame() { Java_nl_neerdael_projectm_core_ProjectMJNI_onDrawFrame(nullptr, nullptr); }
 // A switch (remote-control command, or a switch request made between frames) after a direct
 // frame waits for one stored frame (patch 0016).
@@ -442,6 +534,7 @@ int main(int argc, char** argv) {
   CHECK(g_textureSearchPaths.back() == std::vector<std::string>({texdir}));
   g_library.ResetSkipped();
   g_library.MarkSkipped("preskipped.milk", "fixture initial skip");
+  CheckOfficialPack(g_library, root, pack);
   // Later lifecycle checks count the initial path application plus one context recreation.
   g_texturePathCalls.assign(1, texdir);
   if (argc == 4 && std::string(argv[3]) == "--texture-routing") {
