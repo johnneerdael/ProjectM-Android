@@ -58,7 +58,7 @@ final class Updater {
     private static final String[] FDROID_CLIENTS = {
             "org.fdroid.fdroid", "org.fdroid.basic", "org.fdroid.fdroid.privileged",
             "com.looker.droidify", "com.machiav3lli.fdroid"};
-    private static final Pattern APK_NAME = Pattern.compile("projectM-TV-([0-9][0-9.]*)\\.apk");
+    private static final Pattern APK_NAME = Pattern.compile(Pattern.quote(BuildConfig.APK_PREFIX) + "([0-9][0-9.]*)\\.apk");
 
     private static Updater instance;
 
@@ -414,7 +414,7 @@ final class Updater {
                 ? new File(new File(context.getNoBackupFilesDir(), "updates"), name) : null;
     }
 
-    private static String apkName(String version) { return "projectM-TV-" + version + ".apk"; }
+    static String apkName(String version) { return BuildConfig.APK_PREFIX + version + ".apk"; }
 
     private static void deleteAll(File dir) {
         File[] files = dir.listFiles();

@@ -6,6 +6,10 @@ def baseVersionName = "2.3.0"
 def baseVersionCode = 49
 def baseVersionCommit = "8b70620339018cfaf5ac05acdb4ea8104dc2eb59"
 
+// Keep the default TV tasks and artifact paths stable for F-Droid and device tooling.
+def touchscreen = providers.gradleProperty("androidTouchscreen").map { it.toBoolean() }.getOrElse(false)
+def appLabel = touchscreen ? "ProjectM Android" : "ProjectM TV"
+
 android {
     // Java package of the code; the installed app ID (applicationId below) is separate since 1.9.7.
     namespace "com.example.projectm.visualizer"
@@ -14,7 +18,12 @@ android {
     // the app strips the engine's native library with it.
     ndkVersion "27.3.13750724"
     defaultConfig {
-        applicationId "nl.neerdael.projectmtv"
+        applicationId touchscreen ? "nl.neerdael.projectm" : "nl.neerdael.projectmtv"
+        buildConfigField "boolean", "TOUCHSCREEN", touchscreen.toString()
+        buildConfigField "String", "APK_PREFIX", touchscreen ? '"projectM-Android-"' : '"projectM-TV-"'
+        manifestPlaceholders = [leanbackRequired: !touchscreen, touchscreenRequired: touchscreen,
+                                appTheme: touchscreen ? "@style/Theme.Touchscreen" : "@style/Theme.Leanback"]
+        resValue "string", "app_name", appLabel
         minSdkVersion 21
         targetSdkVersion 34
         testInstrumentationRunner "com.example.projectm.visualizer.MusicCategoryInstrumentation"
@@ -39,7 +48,7 @@ android {
                 def setupTest = project.hasProperty('setupScreenshotTest')
                 applicationIdSuffix setupTest ? ".setuptest" : ".presettest"
                 versionNameSuffix setupTest ? "-setuptest" : "-presettest"
-                resValue "string", "app_name", setupTest ? "ProjectM TV · Setup test" : "ProjectM TV · Preset test"
+                resValue "string", "app_name", setupTest ? "${appLabel} · Setup test" : "${appLabel} · Preset test"
             }
         }
         release {
@@ -59,6 +68,16 @@ android {
             applicationIdSuffix ".profile"
             matchingFallbacks = ['release']
         }
+    }
+    buildFeatures {
+        buildConfig true
+    }
+    if (touchscreen) {
+        [sourceSets.debug, sourceSets.release, sourceSets.profile].each { it.res.srcDir "src/touch/res" }
+        sourceSets.debug.manifest.srcFile "src/touch/AndroidManifest.xml"
+        sourceSets.release.manifest.srcFile "src/touch/AndroidManifest.xml"
+        // Profile keeps its profileable overlay and receives the touch overlay too.
+        sourceSets.profile.manifest.srcFile "src/touchProfile/AndroidManifest.xml"
     }
     testOptions {
         // android.util.Log etc. return defaults in JVM unit tests

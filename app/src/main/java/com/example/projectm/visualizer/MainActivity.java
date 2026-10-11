@@ -20,6 +20,8 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -116,6 +118,8 @@ public class MainActivity extends Activity {
     private volatile Visualizer audioVisualizer;
     // The session of the music player we found (see PlayerSessionFinder), 0 while none is known.
     // Only touched on audioThread.
+    private PhoneAudioInput phoneAudio;
+    private OptionRow audioInputRow;
     private volatile int audioSession;
     private int lastPlayerSession;
     private volatile long lastSignalAt;
@@ -203,6 +207,7 @@ public class MainActivity extends Activity {
         getWindow().setBackgroundDrawable(null);  // the GL surface covers the screen
 
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        if (BuildConfig.TOUCHSCREEN) phoneAudio = new PhoneAudioInput(this, prefs);
         lastPlayerSession = prefs.getInt(PREF_LAST_PLAYER_SESSION, 0);
         profile = DeviceProfile.detect(this);
         display = DisplayInfo.detect(this);
@@ -258,6 +263,7 @@ public class MainActivity extends Activity {
         applyFrameRateCap(prefs.getInt(PREF_FRAME_RATE_CAP, profile.defaultFrameRateCap()));
 
         initMenus();
+        if (BuildConfig.TOUCHSCREEN) initTouchControls();
 
         audioThread = new HandlerThread("AudioCapture", android.os.Process.THREAD_PRIORITY_AUDIO);
         audioThread.start();
@@ -438,6 +444,12 @@ public class MainActivity extends Activity {
             }
         });
 
+        audioInputRow = findViewById(R.id.row_audio_input);
+        if (BuildConfig.TOUCHSCREEN) {
+            audioInputRow.setVisibility(View.VISIBLE);
+            audioInputRow.setupAction("Audio input", phoneAudio.label(), phoneAudio::choose);
+        }
+
         OptionRow autoChange = findViewById(R.id.row_auto_change);
         autoChange.setup("Auto change", new String[]{"Off", "On"},
                 prefs.getBoolean(PREF_AUTO_CHANGE, true) ? 1 : 0, true, index -> {
@@ -616,6 +628,102 @@ public class MainActivity extends Activity {
         diagnosticsPanel.setVisibility(View.GONE);
     }
 
+    /** Framework gesture detection stays on the surface; panels keep native click/scroll handling. */
+    private void initTouchControls() {
+        View root = findViewById(R.id.root_view);
+        root.setOnApplyWindowInsetsListener((view, insets) -> {
+            // The visualizer can fill the window; menus stay clear of transient phone system bars.
+            int end = view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
+                    ? insets.getStableInsetLeft() : insets.getStableInsetRight();
+            for (View panel : new View[]{mainMenu, advancedMenu, trackMenu}) {
+                android.view.ViewGroup.MarginLayoutParams params =
+                        (android.view.ViewGroup.MarginLayoutParams) panel.getLayoutParams();
+                int top = dp(12) + insets.getStableInsetTop();
+                int bottom = dp(12) + insets.getStableInsetBottom();
+                if (params.getMarginEnd() != dp(12) + end || params.topMargin != top || params.bottomMargin != bottom) {
+                    params.setMarginEnd(dp(12) + end);
+                    params.topMargin = top;
+                    params.bottomMargin = bottom;
+                    panel.setLayoutParams(params);
+                }
+            }
+            return insets;
+        });
+        root.requestApplyInsets();
+        visualizerView.setOnClickListener(v -> showMenu(menu == Menu.NONE ? Menu.MAIN : Menu.NONE));
+        int[] swipeDirection = {0};
+        GestureDetector detector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override public boolean onDown(MotionEvent event) {
+                swipeDirection[0] = 0;
+                return true;
+            }
+            @Override public boolean onSingleTapUp(MotionEvent event) {
+                visualizerView.performClick();
+                return true;
+            }
+            @Override public boolean onScroll(MotionEvent start, MotionEvent current, float dx, float dy) {
+                if (start == null || menu != Menu.NONE) return true;
+                float x = current.getX() - start.getX();
+                float y = current.getY() - start.getY();
+                if (Math.abs(x) >= dp(64) && Math.abs(x) > Math.abs(y) * 1.5f) {
+                    swipeDirection[0] = x > 0 ? 1 : -1;
+                } else {
+                    swipeDirection[0] = 0;
+                }
+                return true;
+            }
+        });
+        detector.setIsLongpressEnabled(false);
+        boolean[] cancelled = {false};
+        visualizerView.setOnTouchListener((view, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) cancelled[0] = false;
+            // Cancel recognition when a second finger joins; a multi-touch release is no tap.
+            if (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+                cancelled[0] = true;
+                swipeDirection[0] = 0;
+                MotionEvent cancel = MotionEvent.obtain(event);
+                cancel.setAction(MotionEvent.ACTION_CANCEL);
+                detector.onTouchEvent(cancel);
+                cancel.recycle();
+                return true;
+            }
+            if (cancelled[0]) return true;
+            detector.onTouchEvent(event);
+            if (event.getActionMasked() == MotionEvent.ACTION_UP && menu == Menu.NONE) {
+                if (swipeDirection[0] > 0) ProjectMJNI.randomPreset(true);
+                else if (swipeDirection[0] < 0) ProjectMJNI.previousPreset(true);
+                swipeDirection[0] = 0;
+            }
+            if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) swipeDirection[0] = 0;
+            return true;
+        });
+        touchNavigation(R.id.menu_close, "Close menu", Menu.NONE);
+        touchNavigation(R.id.advanced_back, "Back to menu", Menu.MAIN);
+        touchNavigation(R.id.track_back, "Back to menu", Menu.MAIN);
+    }
+
+    private void touchNavigation(int id, String text, Menu target) {
+        TextView view = findViewById(id);
+        view.setText(text);
+        view.setGravity(Gravity.CENTER);
+        view.setMinHeight(dp(48));
+        view.setBackgroundResource(R.drawable.bg_option_row);
+        view.setFocusable(true);
+        view.setOnClickListener(v -> showMenu(target));
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (BuildConfig.TOUCHSCREEN && menu != Menu.NONE) {
+            handler.removeCallbacks(hideMenu);
+            if (event.getActionMasked() == MotionEvent.ACTION_UP
+                    || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                handler.postDelayed(hideMenu, MENU_AUTO_HIDE_MS);
+            }
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
     private static int nearestIndex(int[] values, int target) {
         int best = 0;
         for (int i = 1; i < values.length; i++) {
@@ -667,7 +775,7 @@ public class MainActivity extends Activity {
             fade(mainMenu, false);
             slide(panel(target), true);
             if (target == Menu.ADVANCED) {
-                fade(diagnosticsPanel, true);
+                if (!BuildConfig.TOUCHSCREEN) fade(diagnosticsPanel, true);
                 findViewById(R.id.row_resolution).requestFocus();
             } else {
                 trackInfoRow.requestFocus();
@@ -678,15 +786,22 @@ public class MainActivity extends Activity {
 
     private void slide(View view, boolean in) {
         float offset = dp(24);
-        if (in) view.setTranslationX(offset);
-        view.animate().translationX(in ? 0 : offset).setDuration(FADE_MS).start();
-        fade(view, in);
+        view.animate().cancel();
+        if (in) {
+            view.setTranslationX(offset);
+            view.setVisibility(View.VISIBLE);
+            view.animate().translationX(0).alpha(1f).setDuration(FADE_MS).withLayer().start();
+        } else if (view.getVisibility() == View.VISIBLE) {
+            view.animate().translationX(offset).alpha(0f).setDuration(FADE_MS).withLayer()
+                    .withEndAction(() -> view.setVisibility(View.GONE)).start();
+        }
     }
 
     /** Alpha fade that ends with GONE, so hidden views cost nothing to compose. */
     private static void fade(View view, boolean in) {
         view.animate().cancel();  // a cancelled animation does not run its end action
         if (in) {
+            view.setTranslationX(0); // a panel returning from a submenu may have been mid-slide
             view.setVisibility(View.VISIBLE);
             view.animate().alpha(1f).setDuration(FADE_MS).withLayer().start();
         } else if (view.getVisibility() == View.VISIBLE) {
@@ -855,6 +970,7 @@ public class MainActivity extends Activity {
                 presetName.setSelected(true);  // start marquee for long names
             }
         }
+        if (BuildConfig.TOUCHSCREEN) audioInputRow.setActionValue(phoneAudio.label());
         if (menu == Menu.NONE) return;
 
         int skipped = ProjectMJNI.getSkippedCount();
@@ -893,13 +1009,14 @@ public class MainActivity extends Activity {
     /** Short status next to the level bar in the main panel. */
     private String audioStatus(float level) {
         if (!hasAudioPermission()) return "No access";
-        if (audioVisualizer == null || level <= 0f) return "No sound";
+        if ((!BuildConfig.TOUCHSCREEN && audioVisualizer == null) || level <= 0f) return "No sound";
         return level < 0.02f ? "Very quiet" : "Listening";
     }
 
     /** Audio input as seen by the engine: tells whether the TV actually delivers sound to us. */
     private String audioLabel() {
         if (!hasAudioPermission()) return "no capture (permission?)";
+        if (BuildConfig.TOUCHSCREEN) return phoneAudio.label();
         if (audioVisualizer == null) return "no player session found yet";
         String source = sourceName();
         float level = ProjectMJNI.getAudioLevel();
@@ -1131,10 +1248,20 @@ public class MainActivity extends Activity {
     }
 
     private void onAudioPermissionGranted() {
-        audioHandler.post(this::startAudio);
+        if (BuildConfig.TOUCHSCREEN) phoneAudio.permissionGranted();
+        else audioHandler.post(this::startAudio);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (BuildConfig.TOUCHSCREEN && requestCode == PhoneAudioInput.CONSENT_REQUEST) {
+            phoneAudio.result(resultCode, data);
+        }
     }
 
     private String sourceName() {
+        if (BuildConfig.TOUCHSCREEN) return phoneAudio.label();
         int session = audioSession;
         return session != 0 ? "player session " + session : "none";
     }
@@ -1156,7 +1283,7 @@ public class MainActivity extends Activity {
     }
 
     private void startAudio() {
-        if (audioVisualizer != null || audioSession == 0) return;
+        if (BuildConfig.TOUCHSCREEN || audioVisualizer != null || audioSession == 0) return;
         Visualizer visualizer = null;
         try {
             // The player's session found by PlayerSessionFinder. The waveform is 8-bit unsigned mono PCM, passed to projectM
@@ -1300,7 +1427,8 @@ public class MainActivity extends Activity {
             nextSearchAt = 0;
         });
         audioHandler.removeCallbacks(audioWatch);
-        audioHandler.postDelayed(audioWatch, FIRST_WATCH_MS);
+        if (BuildConfig.TOUCHSCREEN) phoneAudio.resume();
+        else audioHandler.postDelayed(audioWatch, FIRST_WATCH_MS);
         handler.post(uiRefresh);
         if (menu == Menu.MAIN) handler.post(audioMeterRefresh);
         updater.onResume();
@@ -1367,6 +1495,7 @@ public class MainActivity extends Activity {
         handler.removeCallbacks(uiRefresh);
         handler.removeCallbacks(audioMeterRefresh);
         resumed = false;
+        if (BuildConfig.TOUCHSCREEN) phoneAudio.pause();
         updater.onPause();
         audioHandler.removeCallbacks(audioWatch);
         setAudioEnabled(false);
@@ -1390,6 +1519,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         handler.removeCallbacksAndMessages(null);
+        if (BuildConfig.TOUCHSCREEN) phoneAudio.pause();
         audioHandler.removeCallbacks(audioWatch);
         audioHandler.post(this::stopAudio);
         audioThread.quitSafely();

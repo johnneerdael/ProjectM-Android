@@ -1,4 +1,19 @@
-# Remote controls
+# Remote and touchscreen controls
+
+## Touchscreen Android
+
+Install **ProjectM Android** on a phone or tablet. It uses the same landscape visualizer and settings:
+
+| Gesture | Action |
+|---|---|
+| Swipe right | Random preset, instant cut (same as remote Right) |
+| Swipe left | Previous preset, instant cut (same as remote Left) |
+| Single tap on the visuals | Open the menu; close it if already open |
+| Tap a setting row | Cycle its value or run its action |
+| Vertical swipe in a panel | Scroll to more settings |
+| Back to menu / Close menu | Return from a submenu / close the panel |
+
+A slow horizontal swipe works too. Vertical drags and cancelled gestures do not change presets. Scrolling a menu stays within that menu. Touch input restarts the 10-second inactivity timer; the menu stays open while a finger is down. The TV build retains its remote controls.
 
 ## While visuals are showing
 

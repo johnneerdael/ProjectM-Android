@@ -1,0 +1,22 @@
+INSTRUMENTATION_RESULT: failure=java.lang.AssertionError: UI assertion
+	at com.example.projectm.visualizer.TouchscreenSetupTest.onUi(TouchscreenSetupTest.java:27)
+	at com.example.projectm.visualizer.TouchscreenSetupTest.run(TouchscreenSetupTest.java:147)
+	at com.example.projectm.visualizer.MusicCategoryInstrumentation.onStart(MusicCategoryInstrumentation.java:50)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2402)
+Caused by: java.lang.AssertionError: main panel clipped horizontally: visible=Rect(1302, 33 - 2204, 1047) width=935 translation=66.0
+	at com.example.projectm.visualizer.TouchscreenSetupTest.check(TouchscreenSetupTest.java:20)
+	at com.example.projectm.visualizer.TouchscreenSetupTest.lambda$run$5(TouchscreenSetupTest.java:151)
+	at com.example.projectm.visualizer.TouchscreenSetupTest$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+	at com.example.projectm.visualizer.TouchscreenSetupTest.lambda$onUi$0(TouchscreenSetupTest.java:25)
+	at com.example.projectm.visualizer.TouchscreenSetupTest$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2420)
+	at android.os.Handler.handleCallback(Handler.java:958)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:205)
+	at android.os.Looper.loop(Looper.java:294)
+	at android.app.ActivityThread.main(ActivityThread.java:8177)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+
+INSTRUMENTATION_CODE: 0

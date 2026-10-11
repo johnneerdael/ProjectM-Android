@@ -73,7 +73,7 @@ MilkDrop visuals for the music on your Android TV, up to 4K, with 9,606 presets 
 
 </div>
 
-ProjectM TV listens to the music app's own audio session. It never uses the microphone, stores no audio, and only goes online if you turn on auto-update.
+ProjectM TV listens to the music app's own audio session. The separate [ProjectM Android touchscreen build](getting-started.md#install-on-a-phone-or-tablet) supports microphone input and consented phone playback capture. Neither stores audio, and only goes online if you turn on auto-update.
 
 ## What makes it different
 

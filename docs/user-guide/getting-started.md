@@ -2,11 +2,11 @@
 
 ## Requirements
 
-- Android TV or Google TV running Android 5.0 or later, with OpenGL ES 3.0.
+- Android TV or Google TV for ProjectM TV; a touchscreen phone or tablet for ProjectM Android. Both need Android 5.0 or later and OpenGL ES 3.0.
 - At least 2 GB of RAM is highly recommended; more RAM leaves more headroom for high render sizes.
 - A music app playing **on the same device**. Verified players are Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat); other apps have not been verified.
 
-ProjectM TV visualizes another app's music. It does not play music, and it never uses the microphone.
+ProjectM TV visualizes another app's music without using the microphone. ProjectM Android can use the microphone or capture phone playback. Neither build plays music itself.
 
 ## Install on the TV
 
@@ -16,6 +16,14 @@ ProjectM TV visualizes another app's music. It does not play music, and it never
 4. Confirm installation of the downloaded APK.
 
 The code points to the [latest signed APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk). Every version is available under [Releases](https://github.com/johnneerdael/ProjectM-TV/releases).
+
+## Install on a phone or tablet
+
+Download the [touchscreen Android APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk) and open it to install. Allow installation from your browser when Android asks. It launches from the regular Android app launcher, requires no Leanback support, and renders in landscape. The TV and touchscreen apps have separate settings and can coexist.
+
+Open ProjectM Android and grant audio recording access. The default **Microphone** input reacts to sound around the device. Tap the visuals, then **Audio input** to choose **Phone playback** for music played by another app on the same phone/tablet. Android 10+ is required for playback capture; accept Android's capture consent prompt for each session. The app captures audio only and does not create a screen recording. Players can block capture, including protected playback, so a silent meter can mean the player does not allow it. Microphone and playback capture stop when the app leaves the foreground. To restart playback after returning, tap **Audio input** and select Phone playback again.
+
+The notification-access setup below is optional for track titles; screenshots show the TV version. The TV player list does not certify phone playback compatibility. See [touchscreen controls](controls.md#touchscreen-android).
 
 ## Install from a computer
 

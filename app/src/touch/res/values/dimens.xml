@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="safe_horizontal">12dp</dimen>
+    <dimen name="safe_vertical">12dp</dimen>
+    <dimen name="track_cover">48dp</dimen>
+    <dimen name="track_cover_gap">12dp</dimen>
+</resources>

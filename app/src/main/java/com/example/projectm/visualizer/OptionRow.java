@@ -31,6 +31,7 @@ public class OptionRow extends LinearLayout {
         setGravity(Gravity.CENTER_VERTICAL);
         setFocusable(true);
         setClickable(true);
+        if (BuildConfig.TOUCHSCREEN) setMinimumHeight(dp(48));
         setBackgroundResource(R.drawable.bg_option_row);
         int h = dp(12), v = dp(9);
         setPadding(h, v, h, v);

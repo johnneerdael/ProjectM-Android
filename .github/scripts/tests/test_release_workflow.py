@@ -15,7 +15,7 @@ def packaging_scripts(release):
     text = WORKFLOW.read_text().split("\n  apk:\n", 1)[1]
     for match in re.finditer(r"^      - name: ([^\n]+)\n(.*?)(?=^      - |\Z)", text, re.M | re.S):
         name, block = match.groups()
-        if not (name.startswith("Build release APK") or name == "Name APK" or "core AAR" in name):
+        if not (name.startswith("Build release APK") or name == "Name APK" or "core AAR" in name or name in ("Build release APK for touchscreen Android", "Name Android APK")):
             continue
         run = re.search(r"^        run: (.+)$", block, re.M)
         if run is None:
@@ -42,13 +42,14 @@ policy = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('-PprojectmC
 core = Path('core/build/outputs/aar/core-release.aar')
 core.parent.mkdir(parents=True, exist_ok=True)
 core.write_bytes((policy + ' engine').encode())
-if 'assembleRelease' in sys.argv:
+if any(a.endswith('assembleRelease') for a in sys.argv):
     apk = Path('app/build/outputs/apk/release/app-release.apk')
     apk.parent.mkdir(parents=True, exist_ok=True)
-    apk.write_bytes((policy + ' apk').encode())
+    touch = '-PandroidTouchscreen=true' in sys.argv
+    apk.write_bytes((policy + (' touch apk' if touch else ' apk')).encode())
     mapping = Path('app/build/outputs/mapping/release/mapping.txt')
     mapping.parent.mkdir(parents=True, exist_ok=True)
-    mapping.write_text('native mapping')
+    mapping.write_text('touch mapping' if touch else 'native mapping')
 """)
                 (root / "gradlew").chmod(0o755)
                 fake_bin = root / "bin"
@@ -64,6 +65,10 @@ if 'assembleRelease' in sys.argv:
                 core = root / f"dist-aar/projectM-TV-core-2.1.5{suffix}.aar"
                 self.assertEqual(core.read_bytes(), b"native engine")
                 self.assertEqual((root / f"dist/projectM-TV-2.1.5{suffix}.apk").read_bytes(), b"native apk")
+                self.assertEqual((root / f"dist/projectM-Android-2.1.5{suffix}.apk").read_bytes(), b"native touch apk")
+                self.assertEqual((root / f"dist-mapping/projectM-TV-2.1.5{suffix}-mapping.txt").read_text(), "native mapping")
+                self.assertEqual((root / f"dist-mapping/projectM-Android-2.1.5{suffix}-mapping.txt").read_text(), "touch mapping")
+                self.assertEqual(len(list((root / "dist").glob("*.apk"))), 2)
                 self.assertEqual(len(list((root / "dist-aar").glob("*.aar"))), 1)
 
 

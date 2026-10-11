@@ -41,12 +41,15 @@ class PublishTests(unittest.TestCase):
         self.notes.write_text("# ProjectM TV 2.1.5\n\nFixed a preset loading freeze.\n")
         for name, data in {"projectM-TV-2.1.5.apk": b"signed apk", "projectM-TV.apk": b"signed apk",
                            "projectM-TV-core-2.1.5.aar": b"native engine", "projectM-TV-core.aar": b"native engine",
-                           "projectM-TV-2.1.5-mapping.txt": b"a.b -> x:"}.items():
+                           "projectM-TV-2.1.5-mapping.txt": b"a.b -> x:",
+                           "projectM-Android-2.1.5.apk": b"signed touch apk",
+                           "projectM-Android.apk": b"signed touch apk",
+                           "projectM-Android-2.1.5-mapping.txt": b"c.d -> y:"}.items():
             (self.root / name).write_bytes(data)
         self.commands = []
 
-    def publish(self, api):
-        return module.publish("owner/repo", "2.1.5", "a" * 40, self.notes, self.root, api, self.commands.append)
+    def publish(self, api, with_touchscreen=True):
+        return module.publish("owner/repo", "2.1.5", "a" * 40, self.notes, self.root, api, self.commands.append, with_touchscreen=with_touchscreen)
 
     def test_uploads_all_artifacts_before_publishing_the_draft(self):
         api = FakeAPI(latest={"tag_name": "v2.1.4"})
@@ -54,7 +57,7 @@ class PublishTests(unittest.TestCase):
             self.commands.append(command)
             writes = [payload for _, method, payload in api.calls if method != "GET"]
             self.assertTrue(writes[-1]["draft"], "release became public before uploads")
-        module.publish("owner/repo", "2.1.5", "a" * 40, self.notes, self.root, api, upload)
+        module.publish("owner/repo", "2.1.5", "a" * 40, self.notes, self.root, api, upload, with_touchscreen=True)
         writes = [(method, payload) for _, method, payload in api.calls if method != "GET"]
         self.assertTrue(writes[0][1]["draft"])
         self.assertFalse(writes[1][1]["draft"])
@@ -65,7 +68,7 @@ class PublishTests(unittest.TestCase):
         self.assertIn(str(self.root / "checksums.txt"), command)
         self.assertIn(str(self.root / "projectM-TV-2.1.5-mapping.txt"), command)
         checksums = (self.root / "checksums.txt").read_text()
-        self.assertEqual(len(checksums.splitlines()), 5)
+        self.assertEqual(len(checksums.splitlines()), 8)
         for name in ("projectM-TV-core-2.1.5.aar", "projectM-TV-core.aar"):
             self.assertIn(str(self.root / name), command)
             self.assertIn(f"{hashlib.sha256((self.root / name).read_bytes()).hexdigest()}  {name}\n", checksums)
@@ -98,6 +101,20 @@ class PublishTests(unittest.TestCase):
 
     def test_mismatched_latest_alias_is_rejected_before_network_calls(self):
         (self.root / "projectM-TV.apk").write_bytes(b"old apk")
+        api = FakeAPI()
+        with self.assertRaisesRegex(ValueError, "alias"):
+            self.publish(api)
+        self.assertFalse(api.calls)
+
+    def test_missing_touch_apk_is_rejected_before_network_calls(self):
+        (self.root / "projectM-Android-2.1.5.apk").unlink()
+        api = FakeAPI()
+        with self.assertRaises(FileNotFoundError):
+            self.publish(api)
+        self.assertFalse(api.calls)
+
+    def test_mismatched_touch_alias_is_rejected_before_network_calls(self):
+        (self.root / "projectM-Android.apk").write_bytes(b"wrong touch apk")
         api = FakeAPI()
         with self.assertRaisesRegex(ValueError, "alias"):
             self.publish(api)
@@ -149,7 +166,8 @@ class PublishTests(unittest.TestCase):
         uploaded = {Path(arg).name for arg in self.commands[0] if arg.endswith((".aar", ".apk", ".txt"))}
         self.assertEqual(uploaded, {"projectM-TV-2.1.5.apk", "projectM-TV.apk",
                                    "projectM-TV-core-2.1.5.aar", "projectM-TV-core.aar",
-                                   "projectM-TV-2.1.5-mapping.txt", "checksums.txt"})
+                                   "projectM-TV-2.1.5-mapping.txt", "projectM-Android-2.1.5.apk",
+                                   "projectM-Android.apk", "projectM-Android-2.1.5-mapping.txt", "checksums.txt"})
         self.assertNotIn("core-native", (self.root / "checksums.txt").read_text())
 
     def test_complete_historical_dual_release_retry_requires_no_retired_local_files_or_mutations(self):
@@ -159,7 +177,7 @@ class PublishTests(unittest.TestCase):
         (self.root / "checksums.txt").write_text("historical checksum bytes\n")
         api = FakeAPI(existing={"id": 55, "draft": False, "assets": assets,
                                 "html_url": "historical release"}, tag_commit="a" * 40)
-        result = self.publish(api)
+        result = self.publish(api, with_touchscreen=False)
         self.assertEqual(result, {"url": "historical release", "created": False})
         self.assertFalse(self.commands)
         self.assertTrue(all(method == "GET" for _, method, _ in api.calls))
@@ -171,7 +189,7 @@ class PublishTests(unittest.TestCase):
                  "projectM-TV-core.aar", "projectM-TV-2.1.5-mapping.txt", "checksums.txt"]
         api = FakeAPI(existing={"id": 55, "draft": False, "assets": [{"name": n} for n in names],
                                 "html_url": "historical release"}, tag_commit="a" * 40)
-        self.publish(api)
+        self.publish(api, with_touchscreen=False)
         self.assertFalse(self.commands)
         self.assertTrue(all(method == "GET" for _, method, _ in api.calls))
         self.assertEqual((self.root / "checksums.txt").read_text(), "historical checksum bytes\n")

@@ -1,0 +1,2 @@
+INSTRUMENTATION_RESULT: phone_audio=PASS: microphone AudioRecord samples, denied/granted Android playback consent, local 440Hz playback RMS=0.34306014, Home/pause cleanup, fresh consent on resume and restart cleanup
+INSTRUMENTATION_CODE: -1

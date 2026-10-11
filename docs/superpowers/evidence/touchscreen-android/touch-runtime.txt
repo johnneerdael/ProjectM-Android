@@ -1,0 +1,5 @@
+s_glBindAttribLocation: bind attrib 0 name position
+s_glBindAttribLocation: bind attrib 1 name color
+s_glBindAttribLocation: bind attrib 2 name localCoord
+INSTRUMENTATION_RESULT: touchscreen=PASS: slow right/left, vertical/horizontal cancel, multi-touch suppression, system-bar-safe bounds, tap, persisted main/submenu settings, panel scrolling, hold/release timeout, touch navigation and D-pad
+INSTRUMENTATION_CODE: -1

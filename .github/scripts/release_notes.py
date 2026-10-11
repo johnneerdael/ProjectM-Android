@@ -176,8 +176,8 @@ def install_footer(repo: str, version: str, previous_tag: str | None, readme: st
 
 Install on your TV with the Downloader app: code `{downloader_code(readme)}`. The code downloads the newest stable APK.
 
-- Latest: [Android TV APK]({latest}/projectM-TV.apk) · [Native core AAR]({latest}/projectM-TV-core.aar)
-- Version {version}: [Android TV APK]({release}/projectM-TV-{version}.apk) · [Native core AAR]({release}/projectM-TV-core-{version}.aar)
+- Latest: [Android TV APK]({latest}/projectM-TV.apk) · [Touchscreen Android APK]({latest}/projectM-Android.apk) · [Native core AAR]({latest}/projectM-TV-core.aar)
+- Version {version}: [Android TV APK]({release}/projectM-TV-{version}.apk) · [Touchscreen Android APK]({release}/projectM-Android-{version}.apk) · [Native core AAR]({release}/projectM-TV-core-{version}.aar)
 - [SHA-256 checksums]({release}/checksums.txt)
 - [User guide](https://johnneerdael.github.io/ProjectM-TV/)
 - [Full changelog]({changelog})
