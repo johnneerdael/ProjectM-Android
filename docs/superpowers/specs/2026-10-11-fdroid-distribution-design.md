@@ -1,6 +1,6 @@
 # F-Droid TV and Android distribution
 
-Date: 2026-10-11. Status: written architecture spec awaiting user review; product implementation has not started.
+Date: 2026-10-11. Status: user-approved architecture spec; implementation planning follows. Product implementation has not started.
 
 ## Purpose and approved direction
 
@@ -100,8 +100,10 @@ Missing credentials or a GitLab error must produce a visible failed synchronizat
 - [x] Inspect current packaging, updater, custom-pack/native boundaries and release/version workflow.
 - [x] Research starter-selection sources and identify 20 corpus candidates with static checks.
 - [x] Write and self-review the architecture spec in an isolated feature worktree.
-- [ ] User reviews the written spec.
-- [ ] Write the implementation plan, implement and run the acceptance checks.
+- [x] User reviews the written spec (approved 2026-10-11).
+- [x] Write and self-review the [implementation plan](../plans/2026-10-11-fdroid-distribution.md).
+- [ ] User reviews the implementation plan and selects execution method.
+- [ ] Implement and run the acceptance checks.
 - [ ] Prepare the implementation PR with factual release notes and current-head review.
 - [ ] Configure GitLab synchronization credentials and verify the external submission path.
 
