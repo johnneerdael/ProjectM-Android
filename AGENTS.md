@@ -1605,3 +1605,12 @@ and recorded U8 audio conversion; never use the renderer frames as classificatio
 inputs. The frozen v5 prediction identified spiral/clipping but underestimated
 dense feedback layers. Continue general curve/feedback math on this preset.
 See `docs/superpowers/evidence/source-projection-feedback-2026-10-11/native-gles/README.md`.
+
+Predictor interruption recovery (2026-10-11): on every resumed task turn, read
+`docs/superpowers/evidence/source-projection-feedback-2026-10-11/RESUME.md` and its
+checkpoint. Check live goal status, actual git/source state, known tool handles
+and agents before continuing; do not infer liveness from saved logs/PIDs/locks.
+Do not blindly repeat a failed or still-running job. These checks preserve task
+continuity but cannot monitor/retry a disconnected ChatGPT stream or set a blocked
+goal active; the exposed goal tool provides no resume operation. Keep the current
+preset, source-only classification and no-physical-device constraints intact.

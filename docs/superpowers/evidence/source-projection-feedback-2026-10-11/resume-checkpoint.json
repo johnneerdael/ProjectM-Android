@@ -1,0 +1,28 @@
+{
+  "purpose": "Resume facts; not a background stream monitor or proof that a process remains live",
+  "worktree": "/Users/jneerdael/Scripts/Projectm-TV/.worktrees/predictor-memory-repair",
+  "branch": "feat/predictor-static-output-bounds",
+  "head": "bada3b012e39350784ee158b8e51eac8b9522f53",
+  "goal_status_last_observed": "blocked",
+  "platform_request_id": "4a2e1d49-9bdd-42dc-a41d-f2722ce8d622",
+  "current_preset": "Zylot - Spiral.milk",
+  "current_preset_sha256": "02481b33b1399e5a186bc12f5f4230bb00d368edfd802857e4a2dac4831f5923",
+  "last_completed_source_qualification": "3890 tests +92 subtests at2aabf283",
+  "pending_increment": "Joint RGB congruence and local/closed-form curve-feedback relations; focused126pass1optionalskip; final n-step review/full qualification pending",
+  "completed_execution_handles": {
+    "5402": "fresh single-preset v6 export finished, code0",
+    "18516": "native300framecapture finished, code0",
+    "40060": "previouspreparedsuite finished, code0"
+  },
+  "current_export": "build/preset-corpus/spiral-layer-spacing-v6-2026-10-11/results/Zylot - Spiral.json",
+  "capture_video": "build/preset-corpus/native-macos-checkpoint-2026-10-11/spiral-10s.mp4",
+  "next_actions": [
+    "Check get_goal status and live review-agent state",
+    "Inspect pending git changes; do not replace producer files or unrelated fixture",
+    "Complete n-step review and focused regression controls",
+    "Freeze/export100 and run prepared suite with fresh Zylot integration",
+    "Freeze refined prediction before any next native capture",
+    "Commit/push verified increment"
+  ],
+  "no_auto_restart": "Tool/agent handles must be checked live; saved state and lock files are not live-process evidence"
+}
