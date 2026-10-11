@@ -49,13 +49,18 @@ def mirror_operators(facts):
     for name,(direction,line,centre_name) in AXES.items():
         row=controls.get(name) or {}
         span=row.get('value_range')
-        if row.get('status')!='described' or not row.get('uniform_across_mesh') or not isinstance(span,list) or len(span)!=2:continue
+        if row.get('status')!='described' or not isinstance(span,list) or len(span)!=2:continue
         if not all(type(v) in (int,float) for v in span) or not max(span)<0:continue
+        # A stretch that is negative everywhere reflects every point; a spatially varying
+        # magnitude distorts the reflected copy but keeps the flip direction.
         centre=_constant((controls.get(centre_name) or {}).get('value_range'))
-        score=_score(1.,max(0.,min(1.,decay))) if decay is not None else None
+        # Without a uniform decay fact the mirrored copy's weight is unknown; a prior of 0.9 per step
+        # is used only for the score, and the record says so.
+        score=_score(1.,max(0.,min(1.,decay if decay is not None else .9)))
         out['operators'].append({'operator':'feedback_mirror','control':name,'flip':direction,'mirror_line':line,
             'mirror_centre':centre,'per_step_scale_range':sorted(1/abs(v) for v in span),'decay_gain':decay,
-            'symmetry_score':score,'evidence':STATIC+'/mesh_field'})
+            'uniform_stretch':bool(row.get('uniform_across_mesh')),
+            'symmetry_score':score,'decay_assumed':decay is None,'evidence':STATIC+'/mesh_field'})
     for path,value in facts.items():
         if not path.endswith('/legacy_response') or not isinstance(value,dict):continue
         if value.get('echo_selection')!='active or possible native echo':break

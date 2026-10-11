@@ -1,0 +1,31 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "bf1d6caf75e1baab0702d5192109ba7b9d1ec8ab8e038926a03d16481245a431",
+  "illustrator_sha256": "1045378ff0cb83eb4311ce73a9b48499010b229a6867b6b7b364789bd1b995f7",
+  "image_sha256": "cf55892c6a4ce6872c0812a9f5424984965b5ff54396543a5af412267f63cfa9",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [
+    "wave_0",
+    "wave_1",
+    "wave_2",
+    "wave_3"
+  ],
+  "limitations": [
+    "main feedback sample uses the exported shader coordinate expression (image-driven displacement included)",
+    "custom warp approximated as uniform gain 0.9702 plus constant offset; blur sites read the same pixel; injected spatial fields evaluated per frame (seeded rand_frame stand-in)",
+    "/analysis/visual_description/elements/0/waveform_recipe: built-in waveform form stereo_polar_rotating_trace is not illustrated",
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)",
+    "legacy procedural warp (amplitude 0.0035*warp per step) omitted",
+    "composite echo, gamma redraw weight and legacy filters applied",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio-midpoint point programs, shape controls and per-pixel warp terms; no preset frames are executed"
+}

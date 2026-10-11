@@ -218,6 +218,15 @@ def feature_vector(summary,rules=None):
         if path.endswith('/feedback_persistence') and isinstance(value,dict):
             span=value.get('steps_to_half_interval')
             if isinstance(span,list) and len(span)==2:half=([v/fps for v in span],path)
+    if half is None:
+        transfer=next((v for _,p,v in _facts(summary) if p.endswith('/visual_description/feedback_transfer') and isinstance(v,dict)),None) or {}
+        gain=transfer.get('uniform_content_gain')
+        known=transfer.get('constant_offset_rgb') or transfer.get('constant_offset_rgb_excluding_injection')
+        if type(gain) in (int,float) and 0<gain<1:
+            offset=min(known) if isinstance(known,list) and known and None not in known else 0.
+            level,steps=1.,0
+            while level>.5 and steps<10000:level=gain*level+offset;steps+=1
+            half=([steps/fps,steps/fps],'/analysis/visual_description/feedback_transfer')
     borders=next((v for _,p,v in _facts(summary) if p.endswith('/static_behaviour/borders') and isinstance(v,dict)),None)
     band=None
     for row in (borders or {}).get('borders') or []:

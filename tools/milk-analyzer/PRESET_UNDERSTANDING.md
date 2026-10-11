@@ -564,3 +564,34 @@ with the exact affine fan mapping. The frozen r4 v4 illustration at frame
 149 has mean luma 0.212 against 0.210 native, saturation 0.507 against 0.499
 and centre luma 0.337 against 0.338. The random-spout `wave_1` ring and the
 tint hue placement remain unmodelled.
+
+### Custom warp shaders as feedback operators (r5 checkpoint, `144.milk`)
+
+- `feedback_transfer` keeps an affine previous-image transfer when a custom warp
+  adds terms that never read an image directly. These include spatial/time
+  fields such as `.1/length(sin(uv*6))` and terms that read images only
+  nonlinearly or through coordinates. Main and blur sample sites both
+  contribute matrices (`affine_previous_image_samples`). `uniform_content_gain`
+  sums the diagonal gains of every site. The injected part is exported per RGB
+  lane (`image_independent_injection.lane_expressions_rgb`) and is not counted
+  as gain or as a constant offset. Image-dependent injections set
+  `coordinate_feedback_dependency`.
+- Nonlinear per-pixel mesh terms keep their bounded source graph, and a
+  stretch that is negative everywhere is reported as a mirror even when its
+  magnitude varies.
+- The illustrator rebuilds exported graphs as `shader_fields.Field` and
+  evaluates them with `grid_math.evaluate_grid`, the same numerical semantics
+  as the predictor. This covers injected warp lanes and the exported coordinate
+  expression of the main sample site (so image-driven displacement steers the
+  remap). `_uv.xy` is the mesh-warped coordinate, `_uv.zw` the pixel position,
+  and `rand_frame` is a seeded stand-in. Custom warp shaders store alpha 1
+  (projectM `MilkdropShader`: `float4(ret.xyz, 1.0)`). Thick line waves are
+  four additive half-pixel passes (projectM 4.1.7 `CustomWaveform::Draw`).
+  Legacy darken/brighten/solarize/invert filters are applied after the
+  gamma/echo draws.
+- The r5 v3 frozen illustration reproduces the magenta line arcs, the glowing
+  spots of the injected field, the central blue column and the curved smear.
+  Its mean luma is 0.006 against 0.017 native. The wide blue haze comes from a
+  shape whose opacity is cubic in the mid band (`mid_att^2*mid*0.002`), so
+  band midpoints understate it. That sensitivity is audio-dependent rather
+  than a source error.

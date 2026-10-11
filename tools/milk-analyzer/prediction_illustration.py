@@ -208,6 +208,15 @@ def _terms_field(terms,x,y,time):
                       osc['coordinate_coefficients'].get('rad',0)*2*np.hypot(x-.5,y-.5)+
                       osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
             total+=amplitude*(np.sin(argument) if osc['function']=='sin' else np.cos(argument))
+        elif kind=='nonlinear_coordinate_term':
+            expression=term.get('expression')
+            if not expression:raise ValueError('nonlinear term without expression not illustrated')
+            from time_expression import input_names
+            names=input_names(expression)
+            if names is None:raise ValueError('nonlinear term uses unsupported operations')
+            inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'time':time,**{n:1.0 for n in ('bass','mid','treb','bass_att','mid_att','treb_att')}}
+            if names-set(inputs):raise ValueError('nonlinear term inputs not illustrated: '+', '.join(sorted(map(str,names-set(inputs)))))
+            total+=term.get('sign',1)*_evaluate_np(expression,inputs)
         elif kind=='coordinate_gated':
             coordinate={'x':x,'y':y}.get(term['coordinate'])
             if coordinate is None:raise ValueError('gate on radius/angle not illustrated')
@@ -344,8 +353,18 @@ def _composite(image,facts):
             if code%2:echo=echo[:,::-1]
             if code>=2:echo=echo[::-1]
             image=(1-alpha)*image+alpha*echo
-        if type(weight) in (int,float):image=image*weight
-        return np.clip(image,0,1),'composite echo and gamma redraw weight applied'
+        gamma=ranges.get('gamma')
+        if isinstance(gamma,list) and len(gamma)==2 and None not in gamma and gamma[0]!=gamma[1]:
+            # Variable gamma: use the midpoint redraw weight rather than the upper bound.
+            weight=max(1.,(gamma[0]+gamma[1])/2)
+        if type(weight) in (int,float):image=np.clip(image*weight,0,1)
+        # Ordered legacy filters after the hue/gamma/echo draws (legacy_composite.apply_filters).
+        on=lambda name:isinstance(ranges.get(name),list) and None not in ranges[name] and min(ranges[name])!=0
+        if on('brighten'):image=1-(1-image)**2
+        if on('darken'):image=image*image
+        if on('solarize'):image=np.clip(2*image*(1-image),0,1)
+        if on('invert'):image=1-image
+        return np.clip(image,0,1),'composite echo, gamma redraw weight and legacy filters applied'
     return image,None
 
 
@@ -440,6 +459,27 @@ def _draw_points(image,record,time,to_pixels,canvas=None):
         x=np.insert(x,np.arange(1,count),mid(x));y=np.insert(y,np.arange(1,count),mid(y))
         rgba=[np.insert(c,np.arange(1,count),c[:-1]) for c in rgba]
     px,py=to_pixels((x,y))
+    if not flags.get('dots'):
+        # Line waves: a 1 px strip through the smoothed vertices, each segment in its start colour
+        # (segments drawn into one accumulation layer; overlaps within a frame are not double-counted).
+        layer=np.zeros_like(image);cover=np.zeros(image.shape[:2],np.float32)
+        colour=np.stack(rgba[:3],axis=-1)*rgba[3][:,None];alpha=rgba[3]
+        limit=4*max(width,height)
+        valid=[i for i in range(len(px)-1) if np.isfinite(px[i:i+2]).all() and np.isfinite(py[i:i+2]).all()
+               and max(abs(px[i]),abs(py[i]),abs(px[i+1]),abs(py[i+1]))<=limit]
+        # projectM 4.1.7 thick lines: four additive passes offset by +x, +y, -x of 1/viewportX in NDC
+        # (half a pixel), so the same 1 px strip is mostly lit four times.
+        for ox,oy in ([(0,0),(.5,0),(.5,.5),(0,.5)] if flags.get('thick') else [(0,0)]):
+            pass_layer=np.zeros_like(image)
+            for i in valid:
+                a=(int(round((px[i]+ox)*2)),int(round((py[i]+oy)*2)));b=(int(round((px[i+1]+ox)*2)),int(round((py[i+1]+oy)*2)))
+                cv2.line(pass_layer,a,b,tuple(float(c) for c in colour[i]),1,cv2.LINE_8,1)
+                cv2.line(cover,a,b,float(alpha[i]),1,cv2.LINE_8,1)
+            layer+=pass_layer
+        if canvas is not None:
+            canvas['alpha']=np.clip(canvas['alpha']+cover**2 if flags.get('additive',True) else cover**2+canvas['alpha']*(1-cover),0,1)
+        if flags.get('additive',True):return np.clip(image+layer,0,1)
+        return np.clip(image*(1-cover[...,None])+layer,0,1)
     finite=np.isfinite(px)&np.isfinite(py)
     xs=np.rint(px[finite]).astype(int);ys=np.rint(py[finite]).astype(int)
     colour=np.stack(rgba[:3],axis=-1)[finite];alpha=rgba[3][finite]
@@ -556,7 +596,10 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None):
     t=np.clip(fraction,0,1)[...,None]
     if shape.get('textured',True):
         sampled=cv2.remap(image if source is None else source,map_x,map_y,cv2.INTER_LINEAR,borderMode=wrap_mode)
-        sampled=sampled*np.array([c if c is not None else 1. for c in centre_rgb],np.float32)
+        # Textured fill = texture * interpolated vertex colour (centre r,g,b to perimeter r2,g2,b2).
+        tint_centre=np.array([c if c is not None else 1. for c in centre_rgb],np.float32)
+        tint_edge=np.array([c if c is not None else 1. for c in edge_rgb],np.float32)
+        sampled=sampled*(tint_centre*(1-t)+tint_edge*t)
     else:
         if None in centre_rgb or None in edge_rgb:return image,False
         sampled=(np.array(centre_rgb,np.float32)*(1-t)+np.array(edge_rgb,np.float32)*t).astype(np.float32)
@@ -586,6 +629,80 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None):
     return image,True
 
 
+def _field_from_expression(expression):
+    """Rebuild an exported {'root','nodes'} graph as shader_fields.Field objects."""
+    from shader_fields import Field
+    nodes=expression['nodes'];built={}
+    def build(index):
+        if index in built:return built[index]
+        node=nodes[index];detail=dict(node.get('detail') or {})
+        # The export keeps member fields but not the swizzle flag; xyzw/rgba fields are swizzles.
+        if node['op']=='member' and isinstance(detail.get('field'),str) and detail['field'] and set(detail['field'])<=set('xyzwrgba'):
+            detail['swizzle']=True
+        built[index]=Field(node['op'],tuple(build(a) for a in node['args']),node.get('dtype','float'),detail)
+        return built[index]
+    return build(expression['root'])
+
+
+def _injection_lanes(transfer):
+    """Per-lane image-independent warp injections, or None."""
+    lanes=((transfer.get('image_independent_injection') or {}).get('lane_expressions_rgb'))
+    if not isinstance(lanes,list) or len(lanes)!=3 or all(lane is None for lane in lanes):return None
+    try:return [None if lane is None else _field_from_expression(lane) for lane in lanes]
+    except (KeyError,TypeError,IndexError):return None
+
+
+def _main_coordinate_field(transfer):
+    """Coordinate expression of the dominant previous-main sample site, when exported."""
+    sites=[c for c in transfer.get('sample_contributions') or [] if c.get('texture','main')=='main' and c.get('coordinate_expression')]
+    if len(sites)!=1:return None
+    try:return _field_from_expression(sites[0]['coordinate_expression'])
+    except (KeyError,TypeError,IndexError):return None
+
+
+def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=None):
+    """Evaluate injected warp terms over the pixel grid with the shared grid evaluator.
+
+    _uv.xy is the per-pixel warped sample position and _uv.zw the pixel position (MilkDrop shader
+    UV, origin top-left); main/blur samples read the illustrated previous image (blur by a Gaussian);
+    rand_frame is a seeded per-frame stand-in for the engine's random vector.
+    """
+    from grid_math import evaluate_grid
+    height,width=image.shape[:2]
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+    uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,columns,rows],axis=-1).astype(np.float32)
+    aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
+    rng=np.random.default_rng(1000003+frame_index)
+    inputs={'_uv':uv,'_c0':np.array([aspect_x,aspect_y,1/aspect_x,1/aspect_y],np.float32),
+            'rand_frame':rng.random(4).astype(np.float32),':native-render-time-f32':np.float32(time)}
+    blurred={}
+    def sample(detail,coordinates):
+        texture=detail.get('canonical_texture','main')
+        source=image
+        if texture.startswith('blur'):
+            level=int(texture[4:] or 1)
+            if level not in blurred:blurred[level]=cv2.GaussianBlur(image,(0,0),2.**level)
+            source=blurred[level]
+        wrap=(detail.get('sampling_policy') or {}).get('wrap',True)
+        u=coordinates[:,0]*width-.5;v=coordinates[:,1]*height-.5
+        if wrap:u=np.mod(u,width);v=np.mod(v,height)
+        else:u=np.clip(u,0,width-1);v=np.clip(v,0,height-1)
+        x0=np.floor(u).astype(int);y0=np.floor(v).astype(int);fx=(u-x0)[:,None];fy=(v-y0)[:,None]
+        fix=(lambda i,n:np.mod(i,n)) if wrap else (lambda i,n:np.clip(i,0,n-1))
+        x1=fix(x0+1,width);y1=fix(y0+1,height);x0=fix(x0,width);y0=fix(y0,height)
+        values=((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
+        return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
+    if coordinates is not None:
+        value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=inputs,sample=sample),np.float32).reshape(height,width,-1)
+        return value[...,0]*width-.5,value[...,1]*height-.5
+    out=np.zeros((height,width,3),np.float32)
+    for index,lane in enumerate(lanes or []):
+        if lane is None:continue
+        value=evaluate_grid(lane,batch_shape=(height,width),inputs=inputs,sample=sample)
+        out[...,index]=np.asarray(value,np.float32).reshape(height,width)
+    return out
+
+
 def illustrate_field(summary,*,time,fps,history_steps):
     """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite."""
     facts=_facts(summary)
@@ -601,7 +718,20 @@ def illustrate_field(summary,*,time,fps,history_steps):
         image[:]=np.array(flat['state_rgb'],np.float32);limitations.append('feedback content starts from the flat-field steady state')
     sample=_backward_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'),width,height)
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
-    decay=persistence.get('decay_gain')
+    decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None
+    custom_warp=((facts.get('/analysis/visual_description/native_warp_recipe') or {}).get('shader_branch') not in (None,'legacy','unknown')
+                 or (facts.get('/analysis/visual_description/feedback_transfer') or {}).get('source_model','').startswith('affine_previous'))
+    transfer=facts.get('/analysis/visual_description/feedback_transfer') or {}
+    if type(decay) not in (int,float) and type(transfer.get('uniform_content_gain')) in (int,float):
+        # Custom warp: uniform-content gain of all previous-image sample sites plus the known constant
+        # offset; blur sites are approximated by the same pixel and injected fields are omitted.
+        decay=float(transfer['uniform_content_gain'])
+        known=transfer.get('constant_offset_rgb') or transfer.get('constant_offset_rgb_excluding_injection')
+        if isinstance(known,list) and len(known)==3 and None not in known:offset=np.array(known,np.float32)
+        injection=_injection_lanes(transfer);main_coordinates=_main_coordinate_field(transfer)
+        if main_coordinates is not None:limitations.append('main feedback sample uses the exported shader coordinate expression (image-driven displacement included)')
+        limitations.append('custom warp approximated as uniform gain %.4g plus constant offset; blur sites read the same pixel'%decay+
+                           ('; injected spatial fields evaluated per frame (seeded rand_frame stand-in)' if injection else '; injected spatial fields omitted'))
     if sample is None or type(decay) not in (int,float):
         limitations.append('per-pixel field or decay not fully described: only the fresh drawing is shown');history_steps=0
     paths,wave_limits=_builtin_wave_paths(facts,aspect);limitations+=wave_limits
@@ -628,10 +758,24 @@ def illustrate_field(summary,*,time,fps,history_steps):
             previous=image;canvas['previous_alpha']=canvas['alpha']
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
-                image=cv2.remap(image,map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)*decay
+                main_x,main_y=map_x,map_y
+                if main_coordinates is not None:
+                    try:main_x,main_y=_evaluate_injection(None,image,map_x,map_y,frame_time,int(round(frame_time*fps)),main_coordinates)
+                    except Exception as error:  # noqa: BLE001 - fall back to the mesh map
+                        limitations.append('shader sample coordinates not evaluated: '+str(error)[:120]);main_coordinates=None
+                warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)*decay+offset
+                if injection is not None:
+                    try:warped=warped+_evaluate_injection(injection,image,map_x,map_y,frame_time,int(round(frame_time*fps)))
+                    except Exception as error:  # noqa: BLE001 - illustration degrades to the gain model
+                        limitations.append('injected warp field not evaluated: '+str(error)[:120]);injection=None
+                image=warped
                 image=np.round(np.clip(image,0,1)*255)/255
-                # The warp multiplies by vec4(decay,decay,decay,1): stored alpha is resampled, not decayed.
-                canvas['alpha']=np.round(np.clip(cv2.remap(canvas['alpha'],map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE),0,1)*255)/255
+                if custom_warp:
+                    # MilkdropShader writes float4(ret.xyz, 1.0): a custom warp stores alpha 1 everywhere.
+                    canvas['alpha']=np.ones_like(canvas['alpha'])
+                else:
+                    # The fixed warp multiplies by vec4(decay,decay,decay,1): stored alpha is resampled, not decayed.
+                    canvas['alpha']=np.round(np.clip(cv2.remap(canvas['alpha'],map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE),0,1)*255)/255
             for path,points in paths:
                 alpha,additive=wave_alpha[path]
                 if alpha is None:continue
@@ -694,7 +838,9 @@ def main(argv=None):
         'history_steps':args.history_steps,'drawn_components':used,'limitations':limitations+[
             'Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted',
             'Content older than history_steps, including permanent floor residue, is omitted'],
-        'uses_rendered_images':False,'uses_equation_execution':False,'reads_preset_source':False}
+        'uses_rendered_images':False,'uses_equation_execution':False,'reads_preset_source':False,
+        'evaluates_exported_closed_form_graphs':True,
+        'graph_evaluation_scope':'exported sample/time/audio-midpoint point programs, shape controls and per-pixel warp terms; no preset frames are executed'}
     args.output.with_suffix('.json').write_text(json.dumps(identity,indent=2)+'\n')
     print(json.dumps(identity))
 

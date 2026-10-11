@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "144.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r5-v3",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "description-v3-before-capture.json": "bf1d6caf75e1baab0702d5192109ba7b9d1ec8ab8e038926a03d16481245a431",
+  "recipe-v3-before-capture.json": "fd0a0a31ebb3e725ae593e3a71def3a263930dd7b50d7974a5cb650783bda76f",
+  "prediction-v3.png": "cf55892c6a4ce6872c0812a9f5424984965b5ff54396543a5af412267f63cfa9",
+  "prediction-v3.json": "fa5709c35542bd9b01b0c01253ff3b301e1dad8fb63ffb3a961194c218b3dcbc"
+ },
+ "capture_result_sha256": "73105c9e204aa290fda5ab7d493c67a61a15e646c556b65822780f981d1a7c6f",
+ "review_measurements": {
+  "prediction": {
+   "mean_luma": 0.006,
+   "mean_saturation": 0.435,
+   "mean_rgb": [
+    0.007,
+    0.004,
+    0.025
+   ]
+  },
+  "capture_frame149": {
+   "mean_luma": 0.017,
+   "mean_saturation": 0.73,
+   "mean_rgb": [
+    0.011,
+    0.007,
+    0.131
+   ]
+  },
+  "centre_check": "pre-display centre B 0.42 at frame 30 maps through gamma 1.46 and darken to 0.37 vs native 0.38"
+ },
+ "agreements": [
+  "Magenta line arcs, glowing spots from the injected 0.1/length field, central blue column, curved advection smear"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Native wide blue haze (mean B 0.13 vs 0.025)",
+   "cause": "shape_2 opacity = mid_att^2*mid*0.002 is cubic in audio; band midpoints (1) understate it; blur sites approximated by the same pixel",
+   "next": "report cubic audio sensitivity as a fact; consider declared typical band levels as a separate scenario"
+  },
+  {
+   "size": "small",
+   "observed": "Blue/green colour cycling of the haze",
+   "cause": "roam_cos timing is a nominal clock formula; colour phase not compared"
+  }
+ ],
+ "note": "Emulator died during the first v3 attempt (kept as capture-v3-failed-emulator-died); restarted emulator-5610 and recaptured with the same frozen files"
+}

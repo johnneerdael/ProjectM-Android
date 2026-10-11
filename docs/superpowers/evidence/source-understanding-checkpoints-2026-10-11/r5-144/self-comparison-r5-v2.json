@@ -1,0 +1,27 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "144.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r5-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "description-v2-before-capture.json": "ee7acb65347b94d7278c57221d5a0c0e7ea5a2f2e12e6fdd82aaa7641d64e2be",
+  "recipe-v2-before-capture.json": "fd0a0a31ebb3e725ae593e3a71def3a263930dd7b50d7974a5cb650783bda76f",
+  "prediction-v2.png": "49f0fd9ec1bf16c74ae14b81f479446dabc5dda607f0c3842df0bee1ea87bf55",
+  "prediction-v2.json": "3f568d1603cfa4a209976c5470be80b99277dc013a2390bec14eac608a09cb0c"
+ },
+ "capture_result_sha256": "192c3dc99ae54ee8b3906ceeadae69d66b302bad73a168d045445b5adc8e3ab6",
+ "review_measurements": {
+  "prediction_mean_luma": 0.008,
+  "capture_frame149_mean_luma": 0.017
+ },
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Glow spots, streaks and central glow missing",
+   "cause": "injected warp fields and image-driven sample coordinates not evaluated; line waves drawn as dots; custom-warp alpha",
+   "general_fix": "exported graphs rebuilt as Field and evaluated with grid_math.evaluate_grid (shared semantics); main sample coordinate expression drives the feedback remap; thick line waves as four half-pixel passes; custom warps store alpha 1 (MilkdropShader float4(ret.xyz,1.0)); legacy darken/brighten/solarize/invert filters applied"
+  }
+ ]
+}

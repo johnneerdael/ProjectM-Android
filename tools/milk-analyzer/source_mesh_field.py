@@ -275,6 +275,10 @@ def _classify(sign,node,domains,scale,aspect,depth):
                                                      for f in factors if f is not affine[0]))))
         return row
     row['kind']='nonlinear_coordinate_term'
+    # Keep the bounded source graph so consumers can evaluate the term per mesh point;
+    # the contribution is sign * expression (inputs x, y, rad, ang and uniform inputs).
+    from source_appearance import _expression
+    row['expression']=_expression(node)
     return row
 
 

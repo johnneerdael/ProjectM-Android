@@ -83,3 +83,20 @@ def test_difference_bound_controls_independent_sample_perturbations():
     delta=.01;actual=.4*delta- .3*(-delta)
     assert actual<=b['maximum_colour_difference_gain']*delta+1e-9
     assert b['maximum_colour_difference_gain']==pytest.approx(.7,abs=1e-7)
+
+
+def test_image_free_spatial_injection_keeps_content_gain_without_full_bounds():
+    feedback=appearance(shader('shader_body{ret=GetPixel(uv)*.9+.1/length(uv-.5);}',stage='warp'))['feedback_transfer']
+    assert feedback['source_model']=='affine_previous_main_samples'
+    assert feedback['uniform_content_gain']==pytest.approx(.9,abs=1e-7)
+    assert feedback['image_independent_injection']['present'] is True
+    assert feedback['constant_offset_rgb'] is None  # the injected field is not a constant offset
+    assert all(lane is not None for lane in feedback['image_independent_injection']['lane_expressions_rgb'])
+
+
+def test_blur_sites_join_the_previous_image_transfer():
+    feedback=appearance(shader('shader_body{ret=GetPixel(uv)*.99-GetBlur2(uv)*.02;}',stage='warp'))['feedback_transfer']
+    assert feedback['source_model']=='affine_previous_image_samples'
+    assert feedback['uniform_content_gain']==pytest.approx(.97,abs=1e-6)
+    assert sorted(c['texture'] for c in feedback['sample_contributions'])==['blur2','main']
+    assert feedback['matrix_rgb'] is None and feedback['unknown_reasons']  # no strict certificate from blur sites

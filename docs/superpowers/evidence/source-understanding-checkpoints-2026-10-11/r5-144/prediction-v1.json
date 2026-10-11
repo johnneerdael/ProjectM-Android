@@ -1,0 +1,28 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "6276b2d9c025bd8e16675942676ccac00cb27bab8c47f31667f86da7b3b0aada",
+  "illustrator_sha256": "fd3de702733a20b493775dae81e2fbe0df9c6c02648784e0522acbbd78de8e5e",
+  "image_sha256": "1a163123dd537e50ba7056b59a49d263a8bc8dbb18ea2e7912ce62a4e8c6cdc6",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [
+    "wave_0",
+    "wave_1",
+    "wave_2",
+    "wave_3"
+  ],
+  "limitations": [
+    "per-pixel field or decay not fully described: only the fresh drawing is shown",
+    "/analysis/visual_description/elements/0/waveform_recipe: built-in waveform form stereo_polar_rotating_trace is not illustrated",
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)",
+    "legacy procedural warp (amplitude 0.0035*warp per step) omitted",
+    "composite echo and gamma redraw weight applied",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false
+}

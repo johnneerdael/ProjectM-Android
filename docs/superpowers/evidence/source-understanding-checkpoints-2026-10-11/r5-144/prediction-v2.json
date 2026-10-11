@@ -1,0 +1,30 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "ee7acb65347b94d7278c57221d5a0c0e7ea5a2f2e12e6fdd82aaa7641d64e2be",
+  "illustrator_sha256": "cdc21abe729d709142984878f15641571315ab0bfdc79a8bc57e8051809932da",
+  "image_sha256": "49f0fd9ec1bf16c74ae14b81f479446dabc5dda607f0c3842df0bee1ea87bf55",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [
+    "wave_0",
+    "wave_1",
+    "wave_2",
+    "wave_3"
+  ],
+  "limitations": [
+    "custom warp approximated as uniform gain 0.9702 plus constant offset; blur sites read the same pixel; injected spatial fields omitted",
+    "/analysis/visual_description/elements/0/waveform_recipe: built-in waveform form stereo_polar_rotating_trace is not illustrated",
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)",
+    "legacy procedural warp (amplitude 0.0035*warp per step) omitted",
+    "composite echo, gamma redraw weight and legacy filters applied",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio-midpoint point programs, shape controls and per-pixel warp terms; no preset frames are executed"
+}
