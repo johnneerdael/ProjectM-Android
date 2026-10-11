@@ -58,6 +58,7 @@ def _mid(span):
 
 
 AUDIO_CODES={1:'bass',2:'mid',3:'treb',4:'bass',5:'mid',6:'treb'}
+MOTION_CAP=10.0
 BRIGHTNESS_CONTROLS=('colour','opacity','alpha','brightness','border','gamma','decay')
 KNOWN_PATTERNS={'uniform_zoom','radial_zoom_profile','uniform_rotation','spatially_varying_rotation',
     'uniform_translation','translation_component','planar_travelling_wave','planar_standing_pattern',
@@ -95,6 +96,11 @@ def _drivers(summary,rules,fps,scale,radius=.5):
             key=(dimension,reason,component)
             if key in priors:return
             priors.add(key)
+        if dimension=='motion' and (value>MOTION_CAP or (upper is not None and upper>MOTION_CAP) or value!=value):
+            # Beyond ~10 screen widths/s motion is perceptually saturated; avoid overflow.
+            reason+=' (clamped at %g screen widths/s)'%MOTION_CAP
+            value=min(value,MOTION_CAP) if value==value else MOTION_CAP
+            upper=None if upper is None else min(upper,MOTION_CAP)
         drivers.append({'dimension':dimension,'kind':kind,'value':value,
                         'upper':(2*value if kind=='prior' else value) if upper is None else upper,
                         'evidence_path':path,'reason':reason})

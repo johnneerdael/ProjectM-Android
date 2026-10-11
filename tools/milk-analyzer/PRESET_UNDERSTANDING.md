@@ -480,3 +480,17 @@ calibrated taste; explicit user feedback should replace defaults.
 
 `preset_recipe.py` wraps the mood record with an engine-neutral render/intent
 description in one versioned JSON, so later consumers need no contract change.
+
+Feedback (`feedback` in the preference file) works on the feature vectors:
+`liked`/`disliked` presets add a similarity bonus/penalty from standardised
+feature distance (motion, flash, palette, luma, feedback and structure), and
+complaints tighten comfort relative to the named preset (`too_fast` caps speed
+at 0.8× its estimate, `too_flashy` enables no-flashing, `too_dark`/`too_bright`
+bound display luma). Disliked or complained-about presets are excluded.
+Motion driver magnitudes are capped at 10 screen widths/s (perceptually
+saturated) so explosive zoom formulas cannot overflow the scores.
+
+Held-out check (2026-10-11, 34 presets never used for tuning): rank correlation
+of intensity with observed emulator activity 0.33 (0.28 for the older scorer);
+2 of 8 strongly flashing presets were tagged Flashing. Automatic activity is
+therefore only a rough prior; preference feedback is the intended correction.

@@ -116,3 +116,10 @@ def test_self_advection_bound_and_lookup_speed_are_source_motion():
     assert kinds['self-advection displacement (typical fraction of bound)']['value']==pytest.approx(.02*30*.25)
     assert kinds['time-driven lookup motion (half of ceiling)']['value']==pytest.approx(.25)
     assert result['confidence'] in ('high','medium')
+
+
+def test_explosive_zoom_is_clamped_not_overflowing():
+    import math
+    result=approximate_mood(summary(zoom(-1e186,-1e180)))
+    assert all(math.isfinite(d['value']) and d['value']<=10 for d in result['drivers'])
+    assert math.isfinite(result['activity_estimate'])

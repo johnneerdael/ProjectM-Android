@@ -10,7 +10,15 @@ preference JSON, and returns ranked presets with reasons. Example preference:
      "prefer_tags": ["Psychedelic", "Hypnotic"],  # bonus per matching tag
      "avoid_tags": ["Flashing"],                  # penalty per matching tag
      "min_confidence": "medium",                  # "low", "medium" or "high"
+     "feedback": {"liked": ["A.milk"], "disliked": ["B.milk"],
+                  "too_fast": ["C.milk"], "too_flashy": [], "too_dark": [], "too_bright": []},
      "limit": 50}
+
+Feedback works directly on the feature vectors: liked/disliked presets give a
+similarity bonus/penalty (standardised feature distance, so it works even
+where activity estimates are imperfect), and complaints tighten comfort rules
+relative to the named preset (too_fast caps speed below it, too_flashy
+enables no_flashing, too_dark/too_bright bound the display luma).
 
 Comfort rules are hard filters. A preset whose evidence for a comfort rule is
 unknown or only assumed is excluded under "no_flashing"; for numeric limits an
@@ -27,7 +35,7 @@ TAG_WEIGHT=8.0
 
 def validate(preference):
     if not isinstance(preference,dict):raise ValueError('preference must be a JSON object')
-    allowed={'profiles','activity','comfort','palette','prefer_tags','avoid_tags','min_confidence','limit'}
+    allowed={'profiles','activity','comfort','palette','prefer_tags','avoid_tags','min_confidence','limit','feedback'}
     unknown=set(preference)-allowed
     if unknown:raise ValueError('unknown preference fields: '+', '.join(sorted(unknown)))
     activity=preference.get('activity')
@@ -54,20 +62,77 @@ def _comfort(entry,comfort,reasons):
         value=features.get('motion.speed_p95_vp_s')
         if value is None:reasons.append('speed unknown');return False
         if value>speed:reasons.append('speed %.2g above %g'%(value,speed));return False
+    luma=features.get('brightness.mean_encoded_luma')
+    for bound,test in (('min_luma',lambda v,b:v>=b),('max_luma',lambda v,b:v<=b)):
+        if comfort.get(bound) is not None and (luma is None or not test(luma,comfort[bound])):
+            reasons.append('brightness outside '+bound);return False
     return True
+
+
+SIMILARITY_FEATURES=('motion.speed_p95_vp_s','motion.acceleration_p95_vp_s2','flash.coherent_transitions_hz','flash.coherent_delta_peak',
+    'palette.mean_saturation','palette.effective_hue_bins','palette.warm_cool','palette.hue_rate_p95_cycles_s',
+    'brightness.mean_encoded_luma','feedback.half_life_s','structure.symmetry','structure.nonlinear_warp',
+    'structure.feedback_complexity','structure.organic','structure.geometric','structure.fractal')
+SIMILARITY_WEIGHT=20.0
+
+
+def _standardiser(index):
+    stats={}
+    for name in SIMILARITY_FEATURES:
+        values=[e['features'].get(name) for e in index['presets'] if e['features'].get(name) is not None]
+        if len(values)<2:continue
+        mean=sum(values)/len(values);spread=math.sqrt(sum((v-mean)**2 for v in values)/len(values)) or 1.
+        stats[name]=(mean,spread)
+    return stats
+
+
+def _vector(entry,stats):
+    return {name:(entry['features'][name]-mean)/spread for name,(mean,spread) in stats.items() if entry['features'].get(name) is not None}
+
+
+def _similarity(a,b):
+    shared=set(a)&set(b)
+    if len(shared)<4:return None
+    distance=math.sqrt(sum((a[k]-b[k])**2 for k in shared)/len(shared))
+    return math.exp(-distance)
+
+
+def _apply_feedback(index,preference):
+    """Turn feedback into comfort tightening and liked/disliked reference vectors."""
+    feedback=preference.get('feedback') or {}
+    by_name={e['name']:e for e in index['presets']}
+    comfort=dict(preference.get('comfort') or {});notes=[]
+    for name in feedback.get('too_fast',[]):
+        speed=(by_name.get(name) or {}).get('features',{}).get('motion.speed_p95_vp_s')
+        if speed is not None:
+            comfort['max_speed_vp_s']=min(comfort.get('max_speed_vp_s',math.inf),speed*.8);notes.append('speed capped below '+name)
+    if feedback.get('too_flashy'):comfort['no_flashing']=True;notes.append('no flashing (feedback)')
+    for key,bound in (('too_dark','min_luma'),('too_bright','max_luma')):
+        for name in feedback.get(key,[]):
+            luma=(by_name.get(name) or {}).get('features',{}).get('brightness.mean_encoded_luma')
+            if luma is not None:
+                comfort[bound]=max(comfort.get(bound,-math.inf),luma*1.2) if bound=='min_luma' else min(comfort.get(bound,math.inf),luma*.8)
+                notes.append(bound+' from '+name)
+    stats=_standardiser(index)
+    liked=[_vector(by_name[n],stats) for n in feedback.get('liked',[]) if n in by_name]
+    disliked=[_vector(by_name[n],stats) for n in feedback.get('disliked',[]) if n in by_name]
+    exclude=set(feedback.get('disliked',[]))|set(feedback.get('too_fast',[]))|set(feedback.get('too_flashy',[]))
+    return comfort,stats,liked,disliked,exclude,notes
 
 
 def select(index,preference):
     """Rank presets for one preference; returns selected and excluded counts with reasons."""
     preference=validate(preference)
     profiles=preference.get('profiles') or []
-    activity=preference.get('activity');comfort=preference.get('comfort') or {}
+    activity=preference.get('activity')
+    comfort,stats,liked,disliked,feedback_excluded,feedback_notes=_apply_feedback(index,preference)
     prefer=set(preference.get('prefer_tags') or []);avoid=set(preference.get('avoid_tags') or [])
     minimum=CONFIDENCE[preference.get('min_confidence','low')]
     palette=preference.get('palette')
     ranked=[];excluded={}
     for entry in index['presets']:
         reasons=[]
+        if entry['name'] in feedback_excluded:excluded['rejected in feedback']=excluded.get('rejected in feedback',0)+1;continue
         if CONFIDENCE.get(entry.get('confidence'),0)<minimum:excluded['confidence below '+preference['min_confidence']]=excluded.get('confidence below '+preference['min_confidence'],0)+1;continue
         if not _comfort(entry,comfort,reasons):
             key=reasons[0].split(' ')[0]+' comfort rule';excluded[key]=excluded.get(key,0)+1;continue
@@ -90,11 +155,19 @@ def select(index,preference):
         why+=['tag '+t for t in sorted(prefer & set(entry['tags']))]+['avoided tag '+t for t in sorted(avoid & set(entry['tags']))]
         why+=['possibly '+t for t in sorted(avoid & possible)]
         why+=['profile constraint '+c for c in violated]
+        if liked or disliked:
+            vector=_vector(entry,stats)
+            like=max([_similarity(vector,v) or 0. for v in liked],default=0.)
+            dislike=max([_similarity(vector,v) or 0. for v in disliked],default=0.)
+            score+=SIMILARITY_WEIGHT*(like-dislike)
+            if like>.5:why.append('similar to a liked preset (%.2f)'%like)
+            if dislike>.5:why.append('similar to a disliked preset (%.2f)'%dislike)
         ranked.append({'name':entry['name'],'score':round(score,1),'intensity':intensity,
                        'smoothness':entry['scores'].get('smoothness'),'tags':entry['tags'],'confidence':entry.get('confidence'),'reasons':why})
     ranked.sort(key=lambda r:(-r['score'],r['name']))
     limit=preference.get('limit',50)
-    return {'policy':POLICY,'preference':preference,'candidates':len(index['presets']),'matched':len(ranked),
+    return {'policy':POLICY,'preference':preference,'feedback_applied':feedback_notes,'effective_comfort':comfort,
+            'candidates':len(index['presets']),'matched':len(ranked),
             'excluded':dict(sorted(excluded.items(),key=lambda item:-item[1])),'selected':ranked[:limit],
             'calibrated':False,'note':'Approximate source-based preferences; strict certified eligibility is separate'}
 

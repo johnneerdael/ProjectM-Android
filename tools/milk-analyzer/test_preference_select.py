@@ -41,3 +41,20 @@ def test_tags_change_ranking():
 def test_invalid_preference_is_rejected():
     with pytest.raises(ValueError):validate({'mood':'chill'})
     with pytest.raises(ValueError):validate({'activity':[80,20]})
+
+
+def test_feedback_likes_dislikes_and_complaints():
+    def full(name,speed,organic,geometric,luma):
+        e=entry(name,30,85,suit=70,speed=speed)
+        e['features'].update({'structure.organic':organic,'structure.geometric':geometric,'brightness.mean_encoded_luma':luma,
+                              'palette.mean_saturation':.5,'flash.coherent_delta_peak':0.})
+        return e
+    index={'presets':[full('liquid1.milk',.1,.9,.1,.3),full('liquid2.milk',.12,.85,.15,.32),
+                      full('grid1.milk',.1,.1,.9,.3),full('fastgrid.milk',.9,.1,.9,.6)]}
+    result=select(index,{'feedback':{'liked':['liquid1.milk'],'disliked':['grid1.milk'],'too_fast':['fastgrid.milk']}})
+    names=[r['name'] for r in result['selected']]
+    assert names==['liquid1.milk','liquid2.milk']
+    assert result['effective_comfort']['max_speed_vp_s']==pytest.approx(.72)
+    assert any('similar to a liked' in reason for reason in result['selected'][0]['reasons'])
+    dark=select(index,{'feedback':{'too_dark':['liquid1.milk']}})
+    assert 'liquid1.milk' not in [r['name'] for r in dark['selected']]
