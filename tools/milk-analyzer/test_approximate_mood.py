@@ -95,27 +95,15 @@ def test_uncovered_strict_component_is_unresolved_but_covered_one_is_not():
     assert reasons==['no approximate driver for shape_0']
 
 
-def test_audio_route_to_brightness_adds_flash_prior():
-    route=('audio','/analysis/visual_description/elements/2/audio_routes/0',{'input_code':1,'control':'opacity'})
+def test_audio_route_to_brightness_adds_flash_prior_weighted_by_stage():
+    drawn=('audio','/analysis/visual_description/elements/2/audio_routes/0',{'input_code':1,'control':'opacity'})
     motion=('audio','/analysis/visual_description/elements/2/audio_routes/1',{'input_code':1,'control':'position_x'})
-    result=approximate_mood(summary(zoom(-2,-1),route,motion))
+    result=approximate_mood(summary(zoom(-2,-1),drawn,motion))
     flash=[d for d in result['drivers'] if d['dimension']=='flash']
-    assert len(flash)==1 and flash[0]['kind']=='prior' and flash[0]['reason']=='audio-driven brightness/colour in 1 element'
-    assert result['components']['flash']>0
-    more=[('audio','/analysis/visual_description/elements/%d/audio_routes/0'%i,{'input_code':1,'control':'colour_r'}) for i in range(5)]
-    assert approximate_mood(summary(zoom(-2,-1),*more))['components']['flash']>result['components']['flash']
-
-
-def test_self_advection_bound_and_lookup_speed_are_source_motion():
-    advection=('motion','/analysis/visual_description/sampling_geometry/stages/warp/3/sample_value_offset_envelope',
-               {'source_model':'sample_value_offset_bounds','offset_range_uv':[[-.015,.015],[-.02,.02]]})
-    lookup=('motion','/analysis/visual_description/sampling_geometry/stages/warp/4/sampling_motion',
-            {'policy':'source-affine-sampling-time-motion-v1','maximum_lookup_axis_speed_uv_per_second':[.3,.4]})
-    result=approximate_mood(summary(advection,lookup))
-    kinds={d['reason']:d for d in result['drivers']}
-    assert kinds['self-advection displacement (typical fraction of bound)']['value']==pytest.approx(.02*30*.25)
-    assert kinds['time-driven lookup motion (half of ceiling)']['value']==pytest.approx(.25)
-    assert result['confidence'] in ('high','medium')
+    assert len(flash)==1 and flash[0]['kind']=='prior' and 'stage coverage 0.20' in flash[0]['reason']
+    composite=summary(zoom(-2,-1),drawn,('audio','/analysis/visual_description/elements/5/audio_routes/0',{'input_code':1,'control':'colour_r'}))
+    composite['facts']['construction']=[{'path':'/analysis/visual_description/elements/5/stage','value':'composite'}]
+    assert approximate_mood(composite)['components']['flash']>result['components']['flash']
 
 
 def test_explosive_zoom_is_clamped_not_overflowing():

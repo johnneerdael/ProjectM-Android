@@ -31,7 +31,7 @@ RULES={
     'audio_route_step':0.34,'sweep_reference_hz':2.0,
     'prior_shader_motion_vp_s':0.3,'prior_geometry_motion_vp_s':0.15,'prior_audio_geometry_vp_s':0.2,
     'prior_shader_lookup_motion_vp_s':0.2,'prior_audio_brightness_hz_contrast':0.3,
-    'audio_brightness_element_reference':2.0,'audio_brightness_element_cap':6.0,
+    'audio_brightness_element_reference':1.0,'audio_brightness_element_cap':6.0,
     'advection_typical_fraction':0.25,
     'prior_flash_hz_contrast':0.15,
 }
@@ -84,6 +84,24 @@ def _mean_radius(viewport):
             x=((i+.5)/steps-.5)*width/longest;y=((j+.5)/steps-.5)*height/longest
             total+=math.hypot(x,y)
     return total/(steps*steps)
+
+
+STAGE_COVERAGE={'composite':1.0,'warp':0.7}
+
+
+def brightness_coverage(summary,elements):
+    """Screen coverage weight of audio-driven brightness: composite/warp stages act on the
+    whole image; drawn elements count by instance coverage (editable assumptions)."""
+    facts={row['path']:row['value'] for rows in summary.get('facts',{}).values() for row in rows}
+    stages={}
+    for element in elements:
+        stage=facts.get(element+'/stage')
+        if stage in STAGE_COVERAGE:weight=STAGE_COVERAGE[stage]
+        else:
+            instances=(facts.get(element+'/parameters') or {}).get('instances') or 1
+            weight=.2 if instances<8 else .4 if instances<64 else .6
+        stages[stage]=max(stages.get(stage,0.),weight)
+    return min(2.,sum(stages.values()))
 
 
 def _drivers(summary,rules,fps,scale,radius=.5):
@@ -210,12 +228,9 @@ def _drivers(summary,rules,fps,scale,radius=.5):
                 component=row.get('component_id')
                 if component and component!='preset-output':components_with_evidence.setdefault(component,False)
     if brightness_elements:
-        # More elements pulsing with the music give more and larger brightness
-        # modulation; the per-element magnitude stays an editable prior.
-        count=len(brightness_elements)
-        scale=min(rules['audio_brightness_element_cap'],count)/rules['audio_brightness_element_reference']
-        add('flash','prior',rules['prior_audio_brightness_hz_contrast']*scale,STATIC+'/classification',
-            'audio-driven brightness/colour in '+str(count)+' element'+('s' if count!=1 else ''))
+        coverage=brightness_coverage(summary,brightness_elements)
+        add('flash','prior',rules['prior_audio_brightness_hz_contrast']*coverage/rules['audio_brightness_element_reference'],
+            STATIC+'/classification','audio-driven brightness/colour, stage coverage %.2f'%coverage)
     # A component the strict model could not bound, with no approximate driver
     # (source or prior) of its own, is uncovered evidence.
     for component,covered in components_with_evidence.items():

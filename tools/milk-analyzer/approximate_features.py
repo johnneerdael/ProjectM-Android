@@ -188,14 +188,17 @@ def feature_vector(summary,rules=None):
     transitions=sum(c[0] for c in cycles);delta=max([c[1] for c in cycles if c[1] is not None],default=0.)
     evidence_flash='source-estimate' if cycles else 'unknown'
     if brightness_elements:
-        transitions+=BEAT_HZ*2;delta=max(delta,min(.3,.08*brightness_elements));evidence_flash='assumed' if not cycles else 'source-estimate+assumed'
+        from approximate_mood import brightness_coverage
+        coverage=brightness_coverage(summary,{p.split('/audio_routes/')[0] for p in brightness_paths})
+        transitions+=BEAT_HZ*2*min(1.,coverage);delta=max(delta,min(.3,.15*coverage))
+        evidence_flash='assumed' if not cycles else 'source-estimate+assumed'
     unresolved_flash=any(d['kind'] in ('unresolved','prior') for d in flash)
     vector['flash.coherent_transitions_hz']=_feature(transitions,[transitions,max(transitions,4. if unresolved_flash else transitions)],
         evidence_flash if (cycles or brightness_elements) else ('unknown' if unresolved_flash else 'source-estimate'),cycle_paths+brightness_paths)
     vector['flash.coherent_delta_peak']=_feature(delta,[delta,max(delta,.3 if unresolved_flash else delta)],
         evidence_flash if (cycles or brightness_elements) else ('unknown' if unresolved_flash else 'source-estimate'),cycle_paths+brightness_paths)
     vector['brightness.jump_p95']=_feature(delta*.5,[delta*.5,max(delta*.5,.3 if unresolved_flash else delta*.5)],'assumed',cycle_paths+brightness_paths)
-    vector['audio.bass_peak_rgb_effect']=(_feature(min(.15,.03*brightness_elements),evidence='assumed',paths=brightness_paths,
+    vector['audio.bass_peak_rgb_effect']=(_feature(min(.15,.05*coverage),evidence='assumed',paths=brightness_paths,
         note='per audio-brightness element; displayed gain unresolved') if brightness_elements else _feature(0.,evidence='assumed',note='no audio brightness route'))
     vector.update(_palette(summary))
     luma=None
