@@ -195,6 +195,41 @@ def _shape_state(analysis,description,context):
             'conditions':['Conditional nominal state/output domains do not establish motion, prominence or mood eligibility']}
 
 
+def _curve_projections(analysis,description,context):
+    from source_curve_projection import curve_projection
+    from scene_equations import _scalar
+    from source_motion_behaviour import _effective_domains
+    domains=_effective_domains(analysis,context)
+    components=[]
+    for element in description.get('elements',[]):
+        recipe=element.get('parameters',{}).get('source_curve_recipe')
+        if recipe is None:continue
+        identity=element['id']
+        index=identity.removeprefix('wave_')
+        dots=bool(_scalar(analysis.values,'wavecode_'+index+'_bUseDots',0,'bool'))
+        projected=curve_projection(recipe,{'viewport':context['viewport'],
+            'source_time_domain':domains.get('time'),'wave_use_dots':dots})
+        components.append({**projected,'component_id':identity})
+    return {'policy':'source-curve-projection-export-v1','components':components,
+            'by_component':{row['component_id']:row for row in components},
+            'uses_rendered_images':False,'native_numeric_certified':False}
+
+
+def _affine_radial_feedback(analysis,description,context):
+    from source_affine_radial_feedback import affine_radial_feedback
+    from engine_profiles import CORE_2334_ENGINE
+    recipe=description.get('native_warp_recipe',{})
+    consumed=recipe.get('contribution')=='consumed'
+    if consumed and (recipe.get('shader_branch')!='legacy' or
+                     analysis.source.get('parser_inputs',{}).get('engine')!=CORE_2334_ENGINE):
+        return {'policy':'source-affine-radial-feedback-v1','status':'unknown',
+                'unknown_reasons':['Central sampler requires pinned source34 radius lineage and a selected legacy/default warp'],
+                'visible_motion_speed':None,'actual_feedback_lifetime':None,
+                'native_numeric_certified':False,'whole_preset_activity_credit':False,
+                'uses_equation_execution':False,'uses_rendered_images':False}
+    return affine_radial_feedback(analysis,context,consumed=consumed)
+
+
 def static_behaviour(analysis,description,context=None):
     from effect_families import _CACHE,_SemanticBudget
     from source_flash_behaviour import flash_evidence
@@ -213,7 +248,8 @@ def static_behaviour(analysis,description,context=None):
                                              'source_motion_behaviour.py','source_prominence.py','source_colour_character.py','static_behaviour_scoring.py',
                                              'source_blur_propagation.py','source_colour_modulus.py',
                                              'source_shape_state_domains.py','source_proofs_worker.py',
-                                             'source_stochastic_brightness.py','source_parametric_wave.py']},
+                                             'source_stochastic_brightness.py','source_parametric_wave.py',
+                                             'source_curve_projection.py','source_affine_radial_feedback.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}
@@ -230,6 +266,9 @@ def static_behaviour(analysis,description,context=None):
                 _CACHE.reset(producer_token)
         arguments=(analysis,description,normalized)
         result['shape_state']=produce('shape_state',_shape_state,arguments,{'by_component':{},'components':[]})
+        result['curve_projection']=produce('curve_projection',_curve_projections,arguments,{'by_component':{},'components':[]})
+        result['affine_radial_feedback']=produce('affine_radial_feedback',_affine_radial_feedback,arguments,
+            {'native_numeric_certified':False,'visible_motion_speed':None,'whole_preset_activity_credit':False})
         result['flashing']=produce('flashing',flash_evidence,arguments,
             {'records':[],'source_hazards':[{'stage':'composite','reason':'flashing producer incomplete'}]})
         result['motion']=produce('motion',motion_evidence,arguments,

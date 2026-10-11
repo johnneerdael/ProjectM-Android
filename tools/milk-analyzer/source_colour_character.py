@@ -368,18 +368,34 @@ def _final_palette(analysis,description,element,source):
     if selected.get('kind')=='unknown':return {**_palette(),'transfer_model':'unresolved custom stage selection'},['final composite selection/fallback is unresolved']
     if selected.get('kind')=='legacy_composite':
         from source_appearance import _phase_literal
+        from legacy_composite import source_tint_amount,gamma_weights
+        from engine_profiles import CORE_2331_DISPLAY
         names=('gamma','echo_alpha','brighten','darken','solarize','invert')
         values={name:_phase_literal(analysis.main[name]) if name in analysis.main else None for name in names}
         box=source.get('rgb_component_intervals');gamma=values['gamma']
-        if box is not None and all(v is not None and math.isfinite(v) for v in values.values()) and gamma>=0 and values['echo_alpha']==0:
-            box=[[_clamp(span[0]*gamma*2/3),_clamp(span[1]*gamma)] for span in box]
+        tint=source_tint_amount(analysis.source)
+        if box is not None and all(v is not None and math.isfinite(v) for v in values.values()) and tint is not None and math.isfinite(tint) and values['echo_alpha']==0:
+            gamma=float(np.float32(min(8.,max(0.,gamma))))
+            gain=sum(gamma_weights(gamma,echo=False,control_policy=CORE_2331_DISPLAY))
+            untinted=tint<=float(np.float32(.001))
+            shade=[1.,1.] if untinted else [1.-tint/3.,1.]
+            # The main image supplied to legacy composition is stored UNORM,
+            # even when the generating warp's raw RGB exceeded that range.
+            box=[[_clamp(v) for v in span] for span in box]
+            box=[[_clamp(min(v*gain*s for v in span for s in shade)),
+                  _clamp(max(v*gain*s for v in span for s in shade))] for span in box]
             for name in ('brighten','darken','solarize','invert'):
                 if not values[name]:continue
-                if name=='brighten':box=[[1-(1-b)**2,1-(1-a)**2] for a,b in box]
+                if name=='brighten':box=[[1-(1-a)**2,1-(1-b)**2] for a,b in box]
                 elif name=='darken':box=[[a*a,b*b] for a,b in box]
                 elif name=='solarize':box=[[min(2*a*(1-a),2*b*(1-b)),.5 if a<=.5<=b else max(2*a*(1-a),2*b*(1-b))] for a,b in box]
                 else:box=[[1-b,1-a] for a,b in box]
-            palette=_palette((),box,model='conditional_native_legacy_hue_gamma_filter_box')
+            shared_gray=untinted and source.get('model') in {'correlated_native_shared_scalar_rgb','correlated_shared_scalar_rgb'}
+            palette=_palette((),box,model='conditional_native_legacy_hue_gamma_filter_box',
+                             forced_families=['grayscale'] if shared_gray else None)
+            palette['legacy_tint_amount']=tint
+            palette['legacy_tint_disabled']=untinted
+            palette['gamma_redraw_gain']=gain
             palette['transfer_model']='native_legacy_gamma_hue_and_ordered_filters'
             return palette,[]
     transfer=description.get('texture_colour_transfer',{}).get('stages',{}).get('composite',{})

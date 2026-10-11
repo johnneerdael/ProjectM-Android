@@ -187,6 +187,49 @@ def test_native_legacy_inversion_changes_red_candidate_into_cyan():
     assert component['final_candidate_palette']['hue_families_possible']==['cyan']
 
 
+def test_disabled_native_legacy_tint_keeps_shared_gray_and_exact_box():
+    result=source_character('fGammaAdj=1\nfShader=0\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=r=.5;g=r;b=r;r2=r;g2=r;b2=r;a=1;a2=1;border_a=0;\n')
+    component=result['by_component']['shape_0']
+    assert component['final_candidate_palette']['rgb_component_intervals']==component['source_palette']['rgb_component_intervals']
+    assert component['final_candidate_palette']['hue_families_possible']==['grayscale']
+
+
+def test_dynamic_shared_gray_stays_gray_through_untinted_identical_filters():
+    result=source_character('fGammaAdj=1\nfShader=0\nbBrighten=1\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=r=.5+.4*sin(time);g=r;b=r;r2=r;g2=r;b2=r;a=1;a2=1;border_a=0;\n')
+    assert result['by_component']['shape_0']['final_candidate_palette']['hue_families_possible']==['grayscale']
+
+
+def test_native_legacy_tint_amount_controls_the_colour_box():
+    result=source_character('fGammaAdj=1\nfShader=.3\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=r=1;g=r;b=r;r2=r;g2=r;b2=r;a=1;a2=1;border_a=0;\n')
+    box=result['by_component']['shape_0']['final_candidate_palette']['rgb_component_intervals']
+    assert all(span[0]>.89 and span[0]<.91 for span in box)
+
+
+def test_legacy_brighten_interval_is_ordered_and_encloses_both_endpoints():
+    result=source_character('fGammaAdj=1\nfShader=0\nbBrighten=1\nshapecode_0_enabled=1\n'
+        'shape_0_per_frame1=r=.2+.1*sin(time);g=r;b=r;r2=r;g2=r;b2=r;a=1;a2=1;border_a=0;\n')
+    box=result['by_component']['shape_0']['final_candidate_palette']['rgb_component_intervals']
+    assert box[0][0]<=box[0][1]
+    assert box[0]==pytest.approx([.19,.51],abs=2e-6)
+
+
+def test_legacy_palette_clamps_stored_main_before_tint_not_after():
+    from effect_families import _constant
+    from engine_profiles import CORE_2334_ENGINE
+    from source_colour_character import _final_palette,_palette
+    analysis=SimpleNamespace(source={'values':{'fShader':'1'},'parser_inputs':{'engine':CORE_2334_ENGINE}},
+        stages={'composite':{'kind':'legacy_composite'}},main={name:_constant(1 if name=='gamma' else 0)
+            for name in ('gamma','echo_alpha','brighten','darken','solarize','invert')})
+    source=_palette((),[[2.,3.]]*3,model='raw_warp_rgb_box')
+    palette,_=_final_palette(analysis,{}, {'stage':'warp'},source)
+    assert source['rgb_component_intervals']==[[2.,3.]]*3
+    assert all(span==pytest.approx([2/3,1.]) for span in palette['rgb_component_intervals'])
+    assert palette['hue_families_possible']!=['grayscale']
+
+
 def test_nonlinear_suffix_interval_keeps_interior_extremum_instead_of_only_corners():
     processing={'channels':[{'base':{'kind':'sample_channel','canonical_texture':'main','sample_channel':0},
         'steps_from_base':[{'operation':'add_constant','value':-.5},{'operation':'abs'}]},

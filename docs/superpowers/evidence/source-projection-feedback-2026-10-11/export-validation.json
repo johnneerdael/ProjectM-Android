@@ -1,0 +1,10 @@
+{
+  "exports": 100,
+  "curves": 8,
+  "radial_samplers": 2,
+  "eligible_moods": 0,
+  "fact_values": 14071,
+  "errors": [],
+  "schema_and_facts_verified": true,
+  "scope": "source exports and SDK integrity; no native appearance or mood calibration"
+}

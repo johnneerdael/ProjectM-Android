@@ -1,0 +1,13 @@
+{
+  "preset": {
+    "relative_path": "Zylot - Spiral.milk",
+    "name": "Zylot - Spiral.milk",
+    "sha256": "02481b33b1399e5a186bc12f5f4230bb00d368edfd802857e4a2dac4831f5923"
+  },
+  "export_sha256": "4798ea154e5c0736b1deb9187e6d1db62d006f2ff5ccad66de077e46417d7e64",
+  "summary_sha256": "99709da09bb69a201329924dff162d8026709a8a2ade25a705250002d85d2d4e",
+  "actual_capture_completed": false,
+  "uses_rendered_images": false,
+  "source_export": "build/preset-corpus/source-projection-feedback100-2026-10-11/results/Zylot - Spiral.json",
+  "summary": "build/preset-corpus/preset-understanding-checkpoint-2026-10-11/enriched-description-v5-before-capture.json"
+}

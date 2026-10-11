@@ -52,7 +52,7 @@ Schema1, policy `preset-understanding-v1`:
 | `preset` | Original exported source identity |
 | `input_record_sha256` | Consumer's SHA256 of the full sorted, compact UTF-8 JSON; content identity, not a signature or producer hash verification |
 | `components` | Source element IDs/paths and code-derived family labels; visible contribution remains conditional |
-| `facts` | Grouped evidence: identity, context, construction, colour, geometry, shape state, motion, flashing, audio, mood and uncertainty |
+| `facts` | Grouped evidence: identity, context, construction, colour, geometry, shape state, motion, flashing, audio, feedback, mood and uncertainty |
 | `description` | Deterministic concise approximate description derived from the retained facts |
 | `mood.provisional_source_potential_bands` | Original classification `predicted_bands`; no additional scoring |
 | `mood.eligible_bands` | Original classification `eligible_bands`; empty stays empty |
@@ -111,6 +111,30 @@ eligibility does not prevent this useful approximate explanation.
 
 Applying the consumer across9,606 exports does not establish
 whole-corpus appearance accuracy or assign every preset a verified mood.
+
+## Projection and feedback operators
+
+`static_behaviour.curve_projection.components` supplies declared-viewport geometry
+facts: nominal radius in pixels, source-to-screen scales, coordinate boxes,
+possible clipping and separate point/locus speed bounds. The native vertex Y
+conversion and orthographic Y reversal are both included. A box can include
+unreached points; clipping possibility does not prove visible clipped content.
+Negative line-smoothing weights can overshoot the original coordinate box.
+Growing radii require a finite declared time domain. Raster coverage, line widths,
+displayed motion and whole-preset mood remain separate from these operators.
+
+`facts.feedback` retains the original history-colour envelope and native sampling
+recipes. A colour difference-gain ceiling or ideal perturbation half-life counts
+warp evaluations, not observed trails or screen persistence. The additive
+`static_behaviour.affine_radial_feedback` model accepts the pinned source34 engine
+and selected default warp with central, neutral transform controls. For
+`zoom(r)=a+b*r`, it exports the backward sampler `r_source=r_output/(a+b*r_output)`
+and inverse fixed-feature map `r_output=a*r_source/(1-b*r_source)`, with domain,
+crossover and direction records. Inward sampling can move retained features
+outward; these directions must not be conflated. Custom/unknown warp paths,
+unmatched engines, singular domains and unsupported effects remain unresolved.
+These are nominal one-step operators before texel offsets, mesh interpolation,
+storage, drawings and final composition, not executed feedback histories.
 
 ## Analytic custom-wave curves
 

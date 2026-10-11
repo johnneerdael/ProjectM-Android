@@ -68,6 +68,70 @@ def test_control_facts_preserve_paths_values_and_do_not_mutate_input():
     assert result["unresolved_questions"]
 
 
+def test_feedback_colour_gain_and_half_life_keep_operator_scope():
+    record=control_record()
+    record['analysis']['visual_description']['feedback_envelope']={
+        'policy':'source-varying-affine-feedback-colour-envelope-v1',
+        'maximum_colour_difference_gain':.92,
+        'ideal_perturbation_half_life_upper_bound_evaluations':8.313,
+        'actual_feedback_persistence':None,
+        'conditions':['Colour-only operator; drawing and storage remain separate']}
+    result=summarize_preset(record)
+    assert result['facts']['feedback'][0]['path']=='/analysis/visual_description/feedback_envelope'
+    assert resolve(record,result['facts']['feedback'][0]['path'])==result['facts']['feedback'][0]['value']
+    assert '0.92' in result['description'] and '8.313' in result['description']
+    assert 'observed trail' not in result['description']
+    assert result['mood']['eligible_bands']==[]
+
+
+def test_unknown_feedback_model_is_retained_without_invented_decay():
+    record=control_record()
+    record['analysis']['visual_description']['feedback_envelope']={'source_model':'unknown',
+        'maximum_colour_difference_gain':None,'unknown_reasons':['sample-dependent history input']}
+    result=summarize_preset(record)
+    assert result['facts']['feedback']
+    assert 'half-life' not in result['description']
+
+
+def test_projection_and_feedback_facts_explain_context_without_visible_credit():
+    record=control_record()
+    static=record['analysis']['visual_description']['static_behaviour']
+    static['curve_projection']={'components':[{'component_id':'wave_0',
+        'policy':'source-curve-projection-v1','viewport':[480,270],
+        'nominal_radius_pixels_upper_bound':240.,'possible_coordinate_clipping':True,
+        'signed_final_clip_ndc_angular_orientation':-1,'visible_motion_speed':None}]}
+    static['affine_radial_feedback']={'policy':'source-affine-radial-feedback-v1',
+        'status':'conditional_affine_radial_sampler','neutral_radius_crossover':.0486,
+        'direction_regions':[{'output_radius_interval':[.0486,1.2],
+            'feature_direction':'outward','sampling_direction':'inward'}],
+        'visible_motion_speed':None,'actual_feedback_lifetime':None}
+    result=summarize_preset(record)
+    projection=next(f for f in result['facts']['geometry'] if '/curve_projection/' in f['path'])
+    radial=next(f for f in result['facts']['feedback'] if f['path'].endswith('/affine_radial_feedback'))
+    assert resolve(record,projection['path'])==projection['value']
+    assert resolve(record,radial['path'])==radial['value']
+    text=result['description']
+    assert '240' in text and '480×270' in text
+    assert 'clipping is possible' in text
+    assert 'outward' in text and 'inward' in text
+    assert 'visible' in text and result['mood']['eligible_bands']==[]
+
+
+def test_unresolved_projection_and_radial_facts_do_not_invent_extent_or_direction():
+    record=control_record()
+    static=record['analysis']['visual_description']['static_behaviour']
+    static['curve_projection']={'components':[{'component_id':'wave_0',
+        'nominal_radius_pixels_upper_bound':None,'possible_coordinate_clipping':None,
+        'unknown_reasons':['time-growing radius needs a domain']}]}
+    static['affine_radial_feedback']={'status':'unknown','direction_regions':[],
+        'unknown_reasons':['nonneutral rotation']}
+    result=summarize_preset(record)
+    assert any('/curve_projection/' in f['path'] for f in result['facts']['geometry'])
+    assert any(f['path'].endswith('/affine_radial_feedback') for f in result['facts']['feedback'])
+    assert 'radius ceiling' not in result['description']
+    assert 'feature moves outward' not in result['description']
+
+
 def test_unknown_and_rate_ceiling_never_become_calm_fast_or_observed_flashes():
     result = summarize_preset(control_record())
     text = result["description"].lower()

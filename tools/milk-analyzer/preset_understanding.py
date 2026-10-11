@@ -105,7 +105,7 @@ def summarize_preset(record):
     static = _object(appearance.get("static_behaviour", {}), STATIC)
     classification = _object(static.get("classification", {}), STATIC + "/classification")
     facts = {name: [] for name in ("identity", "context", "construction", "colour", "geometry",
-             "shape_state", "motion", "flashing", "audio", "mood", "uncertainty")}
+             "shape_state", "motion", "flashing", "audio", "feedback", "mood", "uncertainty")}
 
     def fact(group, path, value, meaning):
         facts[group].append({"path": path, "value": copy.deepcopy(value), "interpretation": meaning})
@@ -117,6 +117,15 @@ def summarize_preset(record):
     for key in ("context", "context_sha256", "policy", "record_sha256", "output_model_complete"):
         if key in static:
             fact("context", STATIC + "/" + key, static[key], "Declared source-analysis context; not a device observation")
+    for key in ('feedback_envelope','feedback_transfer','feedback_colour_sensitivity',
+                'native_warp_recipe','native_warp_transport','native_radial_zoom','native_warp_displacement'):
+        if key in appearance:
+            fact('feedback',BASE+'/'+key,appearance[key],
+                 'Conditional history-colour or sampling operator; source injection/storage/final appearance remain separate')
+    if 'affine_radial_feedback' in static:
+        radial=_object(static['affine_radial_feedback'],STATIC+'/affine_radial_feedback')
+        fact('feedback',STATIC+'/affine_radial_feedback',radial,
+             'Nominal radial backward sampler and inverse fixed-feature map; no executed history or visible trajectory')
     components = []
     for index, element in enumerate(elements):
         path = BASE + "/elements/" + str(index)
@@ -163,6 +172,7 @@ def summarize_preset(record):
                     fact(group, path + "/" + key + "/" + str(row_index), row,
                          "Causal source control or nominal rate; not a visible response measurement")
     for key, group, rows_key in (("colour", "colour", "components"), ("shape_state", "shape_state", "components"),
+                                ("curve_projection", "geometry", "components"),
                                 ("motion", "motion", "contributions"), ("flashing", "flashing", "records")):
         section = _object(static.get(key, {}), STATIC + "/" + key)
         for index, row in enumerate(_rows(section.get(rows_key, []), STATIC + "/" + key + "/" + rows_key)):
@@ -246,6 +256,30 @@ def _description(summary):
             accents.append(str(row.get("component_id")) + " source/feedback palette unresolved")
     if accents:
         sentences.append("Colour ingredients: " + "; ".join(accents[:5]) + ". Final palette/dominance remain conditional.")
+    for item in summary['facts']['feedback']:
+        row=item['value']
+        if not isinstance(row,dict):continue
+        if item['path'].endswith('/affine_radial_feedback'):
+            if row.get('status')!='conditional_affine_radial_sampler':continue
+            regions=_rows(row.get('direction_regions',[]),item['path']+'/direction_regions')
+            directions=[]
+            for region in regions:
+                feature=region.get('feature_direction')
+                sampling=region.get('sampling_direction')
+                if feature in {'inward','outward','neutral'} and sampling in {'inward','outward','neutral'}:
+                    directions.append('retained feature '+feature+' / backward sampling '+sampling+
+                                      ' within output-radius interval '+str(region.get('output_radius_interval')))
+            if directions:
+                sentences.append('Nominal radial feedback: '+'; '.join(directions)+
+                                 '; one ideal sampling step before texel offsets, mesh interpolation, storage and composition; visible trajectories unverified.')
+            continue
+        if not item['path'].endswith('/feedback_envelope'):continue
+        gain=row.get('maximum_colour_difference_gain')
+        half=row.get('ideal_perturbation_half_life_upper_bound_evaluations')
+        if type(gain) in (int,float):
+            text='History-colour operator difference-gain ceiling '+format(gain,'.4g')+' per warp evaluation'
+            if type(half) in (int,float):text+=', ideal colour-perturbation half-life ceiling '+format(half,'.4g')+' evaluations'
+            sentences.append(text+'; drawing, storage, coordinates and observed persistence remain separate.')
     routes = []
     for item in summary["facts"]["audio"]:
         row = item["value"]
@@ -256,6 +290,15 @@ def _description(summary):
     geometry = []
     for item in summary["facts"]["geometry"]:
         row = item["value"]
+        if '/curve_projection/components/' in item['path'] and isinstance(row,dict):
+            radius=row.get('nominal_radius_pixels_upper_bound')
+            viewport=row.get('viewport')
+            if type(radius) in (int,float) and isinstance(viewport,list) and len(viewport)==2:
+                text=(str(row.get('component_id'))+' nominal radius ceiling '+format(radius,'.4g')+
+                      ' pixels in declared '+str(viewport[0])+'×'+str(viewport[1])+' viewport')
+                if row.get('possible_coordinate_clipping') is True:text+='; coordinate clipping is possible'
+                sentences.append(text+'; coordinate bounds before rasterization and final displayed contribution.')
+            continue
         if not item["path"].endswith("/geometry") or not isinstance(row, dict):
             continue
         component = summary["components"][int(item["path"].split("/")[-2])]["id"]

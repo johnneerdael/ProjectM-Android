@@ -153,7 +153,7 @@ def _axis(field):
     with np.errstate(over='ignore',invalid='ignore'):
         # Reject a known impossible native coordinate at the centre itself.
         if not math.isfinite(float(np.float32(c*2-1))):return None
-    return c,oscillation
+    return c,oscillation,centre
 
 
 def _sample_domain(count):
@@ -320,13 +320,15 @@ def parametric_wave_recipe(x,y, *, sample_count,point_controls=None,source_prove
         if rate==0:
             speed=_finite_round(max(map(abs,map(Fraction,native_span)))*abs(Fraction(phase['time'])),upper=True)
         elif phase['time']==0:speed=_finite_round(abs(rate),upper=True)
-        orientation=1 if tx.op=='sin' else -1 # Native projection reverses source Y.
+        vertex_orientation=1 if tx.op=='sin' else -1
+        orientation=-vertex_orientation # orthogonalProjection reverses vertex Y again.
         deps=set().union(*(_deps(point_controls[name]) for name in 'xyrgba')) if point_controls else _deps(x)|_deps(y)
         sign='strictly_positive' if nominal_span[0]>0 else 'strictly_negative' if nominal_span[1]<0 else \
             'nonnegative_with_possible_zero' if nominal_span[0]>=0 else 'nonpositive_with_possible_zero' if nominal_span[1]<=0 else 'crosses_zero'
         complete_circle=circle and abs(phase['sample'])>=2*Fraction(355,113)
         spatial_colours=None if point_controls is None else _spatial_colours(point_controls,sample_domain)
         return {'policy':POLICY,'curve_class':curve,'centre_source_xy':centres,
+            'centre_source_xy_exact':[_exact_coefficients({'centre':axis[2]})['centre'] for axis in axes],
             'radius_affine_coefficients':_display_coefficients(radius),'phase_affine_coefficients':_display_coefficients(phase),
             'radius_affine_coefficients_exact':_exact_coefficients(radius),'phase_affine_coefficients_exact':_exact_coefficients(phase),
             'coefficient_basis':{'constant':'source literal','sample':'normalized custom-wave sample','time':'source-time seconds'},
@@ -343,8 +345,11 @@ def parametric_wave_recipe(x,y, *, sample_count,point_controls=None,source_prove
             'fixed_sample_source_speed_formula':'sqrt(radius_time_rate^2 + radius(sample,time)^2 * phase_time_rate^2)',
             'speed_unit':'Euclidean source custom-wave x/y coordinate units per source-time second',
             'signed_native_ndc_angular_orientation':orientation,
-            'orientation_definition':'positive is counterclockwise for increasing phase in native X-right/Y-up NDC with positive inverse-aspect factors; temporal direction also depends on signed phase time rate',
-            'native_projection':{'x':'(2*x-1)*invAspectX','y':'(1-2*y)*invAspectY','aspect_factors_resolved':False},
+            'signed_native_vertex_angular_orientation_before_orthographic_projection':vertex_orientation,
+            'orientation_definition':'positive is counterclockwise for increasing phase in final OpenGL X-right/Y-up clip NDC after orthogonalProjection flips vertex Y; temporal direction also depends on signed phase time rate',
+            'native_projection':{'vertex_x':'(2*x-1)*invAspectX','vertex_y':'(1-2*y)*invAspectY',
+                'clip_ndc_x':'(2*x-1)*invAspectX','clip_ndc_y':'(2*y-1)*invAspectY',
+                'orthographic_vertex_y_scale':-1,'aspect_factors_resolved':False},
             'waveform_independent_geometry':True,
             'waveform_independent_point_program':deps<={'sample','time'},
             'point_input_dependencies':sorted(deps),
@@ -361,7 +366,7 @@ def parametric_wave_recipe(x,y, *, sample_count,point_controls=None,source_prove
                 'Custom-wave point x/y reload .5+value1/.5+value2 in both native projectM and original MilkDrop2; only explicit waveform-independent geometry qualifies',
                 'Nominal sample domain is [0,1]; speed ceilings include the binary32 endpoint enclosure for the constant effective sample count, excluding single-dot 0/0',
                 'Finite source intermediates, trigonometric arguments, time and native coordinate conversions are required; no native rounding/trig or driver certification follows',
-                'Source x/y units have no assumed display aspect; positive inverse-aspect factors and the native Y flip determine the NDC orientation convention only',
+                'Source x/y units have no assumed display aspect; the vertex Y flip and orthogonalProjection Y reversal both participate in final clip-NDC orientation',
                 'A negative radius contributes a half-turn phase offset; zero/crossing radii may collapse at the centre, without undefined zero-radius direction being certified',
                 'Time-rate bounds hold sample fixed; growing time-dependent radii have no uniform lifetime speed unless angular time rate is zero',
                 'Phase turns/cycles describe an analytic coordinate parameter, not visible revolutions, displayed flash frequency or a mood verdict']}

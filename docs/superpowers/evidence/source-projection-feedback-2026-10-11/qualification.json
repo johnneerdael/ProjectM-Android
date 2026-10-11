@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "elapsed_seconds": 232.705,
+  "fresh_export": "build/preset-corpus/source-projection-feedback100-2026-10-11/results/Zylot - Spiral.json",
+  "command": "python -m pytest tools/milk-analyzer -q -rs",
+  "log": "build/preset-corpus/projection-feedback-qualification-2026-10-11/prepared-suite.log"
+}

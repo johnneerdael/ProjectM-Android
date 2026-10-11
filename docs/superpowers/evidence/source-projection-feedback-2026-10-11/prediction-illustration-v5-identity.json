@@ -1,0 +1,9 @@
+{
+  "prompt_sha256": "9f110a53e6c92710188c3410cb31ea7f7e27c4e2d3b3c3171fc45b2815add09c",
+  "summary_sha256": "99709da09bb69a201329924dff162d8026709a8a2ade25a705250002d85d2d4e",
+  "generated_from_source_before_native_capture": true,
+  "actual_native_capture_completed": false,
+  "interpretation_scope": "Approximate illustration; exact colour locations, opacity, raster and feedback visibility unknown",
+  "image_sha256": "cd011ba54b8eb52ca95cadb8e2e2d1628b8095fc4cf312f103ba83c7d638c327",
+  "image_path": "build/preset-corpus/preset-understanding-checkpoint-2026-10-11/prediction-image-v5.png"
+}

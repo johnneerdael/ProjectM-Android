@@ -55,7 +55,7 @@ def test_actual_zylot_spiral_exports_radius_phase_colour_and_source_motion():
     assert recipe['nominal_turns_across_sample_domain']==pytest.approx(100/math.tau)
     assert recipe['nominal_phase_cycles_per_source_second']==pytest.approx(10/math.tau)
     assert recipe['maximum_fixed_sample_source_coordinate_speed_per_second']==5
-    assert recipe['signed_native_ndc_angular_orientation']==1
+    assert recipe['signed_native_ndc_angular_orientation']==-1
     assert recipe['waveform_independent_geometry'] is True
     assert recipe['sample_domain']['nominal_interval']==[0,1]
     assert recipe['spatial_vertex_colour']['channels']['r']['affine_coefficients']['sample']==25
@@ -75,7 +75,7 @@ def test_constant_nonzero_radius_is_a_nominal_circle_and_cos_sin_reverses_orient
     assert recipe['curve_class']=='circle_candidate'
     assert recipe['exact_nominal_constant_radius_circle'] is True
     assert recipe['radius_affine_coefficients']['constant']==.2
-    assert recipe['signed_native_ndc_angular_orientation']==-1
+    assert recipe['signed_native_ndc_angular_orientation']==1
     assert recipe['phase_affine_coefficients']['time']==-2
     assert recipe['maximum_fixed_sample_source_coordinate_speed_per_second']>=.4
     assert recipe['complete_circle_parameter_range'] is True
@@ -334,3 +334,12 @@ def test_exactly_cancelling_colour_rates_share_geometry_reparameterization():
     assert all(channel['raw_source_colour_rate_enclosure']==[0,0] for channel in channels.values())
     assert [channels[name]['raw_source_colour_rate_per_second'] for name in 'rgb']==[0,0,0]
     assert recipe['source_locus_relation']['fixed_sample_colours_stationary_proved'] is False
+
+
+def test_final_ndc_orientation_includes_the_pinned_native_orthographic_y_flip():
+    engine=Path(__file__).resolve().parents[2]/'build/preset-corpus/source34/production-engine'
+    projection=(engine/'src/libprojectM/MilkdropPreset/PresetState.cpp').read_text()
+    assert 'orthogonalProjection = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f' in projection
+    recipe,_=control(SPIRAL)
+    assert recipe['signed_native_vertex_angular_orientation_before_orthographic_projection']==1
+    assert recipe['signed_native_ndc_angular_orientation']==-1

@@ -1577,3 +1577,18 @@ native screenshot/10-second declared-audio clip, and separate comparison outcome
 Current capture infrastructure is unresolved; no native screenshot/clip exists.
 See `docs/superpowers/evidence/source-understanding-2026-10-11/README.md` for
 3,784tests+92subtests,100 source exports and full9,606 primitive-census scope.
+
+Current-preset projection/feedback (2026-10-11): keep the selected Zylot Spiral
+through iterative general repairs before another random selection. Additive
+`source_curve_projection.py` distinguishes source geometry, final orthographic
+Y orientation, aspect projection and negative-weight smoothing envelopes from
+raster/visible coverage. `source_affine_radial_feedback.py` qualifies source34
+engine/default-warp lineage before exporting affine radial sampler and inverse
+feature maps; custom shaders and unmatched engines cannot acquire that evidence.
+SDK feedback facts retain colour-only gain/half-life separately from observed
+persistence. Preserve authored source and unknown mood eligibility. Capture
+helper requires an explicit emulator serial and verifies `ro.kernel.qemu=1`
+before pushing or launching; no physical-device fallback. CPU feature queries
+are denied in the current managed session; their relationship to emulator
+startup failures remains unproved. See the projection-feedback evidence folder
+for current qualification rather than extrapolating earlier counts.

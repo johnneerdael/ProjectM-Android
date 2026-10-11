@@ -61,6 +61,10 @@ required. Use a native file-read tool to inspect JSON and the summary.
    Keep the recipe's affine `spatial_vertex_colour` ingredients separate from
    temporal flashing: sample-index modulo cycles are spatial colour ingredients,
    not displayed bands or Hz. Preserve null speeds and all recipe conditions.
+   Read projected curve facts for the declared viewport, coordinate boxes,
+   possible clipping and separate point/locus rate ceilings. Do not convert
+   possible clipping into reached screen coverage. Preserve both vertex and
+   orthographic Y transformations when interpreting orientation.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.
@@ -70,6 +74,11 @@ required. Use a native file-read tool to inspect JSON and the summary.
    threshold schedules and event-rate bounds are brightness mechanisms, not
    proven visible flashes. Read contrast, extent, continuity, unresolved inputs
    and any exclusions together; preserve all uncertainty.
+   Read `facts.feedback` separately: history-colour difference gain and ideal
+   perturbation half-life are operator quantities, not observed trails. For a
+   qualified affine radial sampler, distinguish backward sampling from forward
+   retained-feature direction. Keep domain intervals, default-warp/engine guards,
+   texel-offset and mesh/storage exclusions. Do not claim an executed trajectory.
 6. Read `facts.audio`. Map codes1/2/3 to bass/mid/treble,4/5/6 to attenuated bands,
    and7/8 to packed volume/attenuated volume. Explain the affected control and
    signed gain only when established: e.g. bass can increase radius, change RGB,
@@ -120,3 +129,6 @@ flashing and audio behaviour afterward. Record large misses and their source
 cause, then improve the analyzer; do not rewrite the frozen prediction. Continue
 independent work without waiting for human feedback. If capture infrastructure
 fails, retain that outcome rather than substituting the illustration as evidence.
+Keep the current randomly selected preset through these iterations until its
+remaining interpretation gaps are understood; improve general mathematics rather
+than adding filename-specific interpretations or switching to an easier preset.
