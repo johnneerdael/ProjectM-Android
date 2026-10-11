@@ -353,6 +353,12 @@
                 android:layout_height="wrap_content" />
 
             <com.example.projectm.visualizer.OptionRow
+                android:id="@+id/row_official_collection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <com.example.projectm.visualizer.OptionRow
                 android:id="@+id/row_skipped"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

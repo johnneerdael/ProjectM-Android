@@ -154,6 +154,7 @@ public class MainActivity extends Activity {
     private ImageView nowPlayingIcon;
     private TextView nowPlayingText;
     private Updater updater;
+    private OfficialCollection officialCollection;
     private OptionRow installRow;
     private boolean updateAnnounced;  // the pill announces a ready update once per launch
     private final Updater.Listener updateListener = this::onUpdateReady;
@@ -428,6 +429,7 @@ public class MainActivity extends Activity {
         });
         updater = Updater.get(this, prefs);
         updater.attach(handler, updateListener);
+        officialCollection = new OfficialCollection(this, prefs, handler, visualizerView);
 
         TextView versionInfo = findViewById(R.id.version_info);
         versionInfo.setText(getString(R.string.engine_version_info,
@@ -959,7 +961,8 @@ public class MainActivity extends Activity {
     }
 
     private void refreshStatus() {
-        CustomPresetPack.retryPendingCleanups(directory -> ProjectMJNI.isCustomPresetPackInUse(directory.getAbsolutePath()));
+        CustomPresetPack.retryPendingCleanups(directory -> ProjectMJNI.isCustomPresetPackInUse(directory.getAbsolutePath())
+                || ProjectMJNI.isOfficialPresetPackInUse(directory.getAbsolutePath()));
         refreshMusicCategory();
         int change = ProjectMJNI.getPresetChangeCounter();
         if (change != lastPresetChange) {
@@ -1432,6 +1435,7 @@ public class MainActivity extends Activity {
         handler.post(uiRefresh);
         if (menu == Menu.MAIN) handler.post(audioMeterRefresh);
         updater.onResume();
+        officialCollection.onResume();
         // Checked on every resume: access may have been granted while the app was in the background.
         if (!trackWatcher.start()) {
             Log.i(TAG, "Track titles off: no notification-listener access");
@@ -1497,6 +1501,7 @@ public class MainActivity extends Activity {
         resumed = false;
         if (BuildConfig.TOUCHSCREEN) phoneAudio.pause();
         updater.onPause();
+        officialCollection.onPause();
         audioHandler.removeCallbacks(audioWatch);
         setAudioEnabled(false);
         visualizerView.onPause();
@@ -1506,6 +1511,7 @@ public class MainActivity extends Activity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        if (officialCollection != null) officialCollection.focusChanged(hasFocus);
         if (hasFocus) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -1524,10 +1530,16 @@ public class MainActivity extends Activity {
         audioHandler.post(this::stopAudio);
         audioThread.quitSafely();
         updater.detach(updateListener);
+        officialCollection.onDestroy();
         // projectM owns GL objects, so it is destroyed on the GL thread. If the thread is already
         // gone, the next onSurfaceCreated() cleans up instead.
         visualizerView.queueEvent(renderer::release);
         super.onDestroy();
+    }
+
+    void holdCollectionDialog(boolean held) {
+        handler.removeCallbacks(hideMenu);
+        if (!held && resumed && menu != Menu.NONE) handler.postDelayed(hideMenu, MENU_AUTO_HIDE_MS);
     }
 
     private String appVersion() {

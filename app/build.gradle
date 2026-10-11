@@ -139,4 +139,6 @@ dependencies {
     implementation 'com.google.zxing:core:3.5.4'
     // Framework UI and the standalone QR encoder; no AndroidX runtime dependencies.
     testImplementation 'junit:junit:4.13.2'
+    // Host tests need a real implementation of Android's platform JSON API; never packaged.
+    if (fdroid) testImplementation 'org.json:json:20260814'
 }
