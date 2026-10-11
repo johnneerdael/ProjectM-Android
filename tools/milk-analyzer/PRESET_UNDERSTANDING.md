@@ -383,6 +383,32 @@ This optional integration test requires the fresh record to contain a recognized
 spiral recipe; it skips when the environment variable is absent. Frozen earlier
 exports retain their original facts and descriptions.
 
+## Shader colour palettes, flat-field states and mechanisms
+
+`nonlinear_texture_colour_bounds.stages.<stage>.scalar_palette` (policy
+`source-scalar-palette-map-v1`) applies when every projected RGB path to the
+sampled inputs passes through one common scalar node: the stage output is then
+exactly `f(s)`. The scalar range comes from unit sample domains; 33 points across
+it give raw and clamped colours with hue families, and the black-content and
+white-content colours are evaluated exactly. Independent channel paths report
+`multiple_independent_sample_paths`. Which scalar values occur on screen is not
+claimed.
+
+`nonlinear_texture_colour_bounds.flat_field` (policy
+`source-flat-field-steady-state-v1`) models spatially uniform content: every
+main/blur sample returns the same per-channel value, so the custom warp becomes a
+3-D recurrence iterated from black with clamping and RGBA8 rounding each step
+(up to 900 steps). It reports whether flat regions decay, saturate, settle or
+cycle, the settle time, and the composite colour at that state and at a black
+start. Non-feedback textures (noise, images) abstain. Quantisation stalls
+within half a level of a real fixed point. Edges, drawn elements, gradients and
+advection change real content.
+
+The SDK turns `analysis.families` mechanisms into plain-language construction
+sentences (for example image-driven self-advection, kaleidoscope sectors,
+polar tunnel sampling, complex quadratic fractals) with their stage. These are
+proven program constructions; on-screen prominence remains conditional.
+
 ## Approximate mood layer and corpus grouping
 
 `approximate_mood.py` (policy `approximate-activity-mood-v1`) reads only a
@@ -404,8 +430,11 @@ Motion is measured in screen widths per second; source motion combines by
 root-sum-square. The score is `base + motion_weight*m + flash_weight*f +
 audio_weight*a + colour_weight*c` with each term clipped to [0,1]. Every weight,
 reference and prior is editable (`--rules` JSON). Confidence is high only with
-no prior drivers, medium below half priors, low otherwise or with no drivers, so
-missing evidence never becomes certified Chill. The estimate is an assumed
+no prior or unresolved drivers, medium below half, low otherwise or without any
+source motion/flash magnitude. Unrecognised records become `unresolved` drivers
+that saturate the upper estimate in their dimension, low confidence assigns no
+band (`abstained`, possible bands only), and audio counts once per band (bass,
+mid, treble, volume), so missing evidence never becomes certified Chill. The estimate is an assumed
 preference grouping, not a calibrated mood.
 
 `corpus_understanding.py` runs the whole pack: native parse, static export (no

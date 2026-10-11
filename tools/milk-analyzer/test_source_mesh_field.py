@@ -148,3 +148,17 @@ def test_nonlinear_coordinate_term_stays_unclassified():
     value=field(synthetic('dx=.01*sin(x*y);'))
     assert value['controls']['dx']['terms'][0]['kind']=='nonlinear_coordinate_term'
     assert not pattern(value,'shear','dx')
+
+
+def test_zoom_range_crossing_identity_has_no_fixed_line():
+    value=field(synthetic('dx=0.001;',frame='zoom=1+.01*sin(time);zoomexp=1;warp=0;'))
+    motion=value['controls']['dx']['regions'][0]['axis_motion']
+    assert motion['fixed_point_range'] is None
+    assert motion['behaviour']=='compression_or_expansion_through_translation'
+
+
+def test_zoom_range_crossing_degenerate_slope_is_flagged():
+    value=field(synthetic('dx=.5*(x-.5);',frame='zoom=2+.5*sin(time);zoomexp=1;warp=0;'))
+    motion=value['controls']['dx']['regions'][0]['axis_motion']
+    assert motion['composed_feature_scale_per_step_range'] is None
+    assert motion['behaviour']=='degenerate_sampling_possible'

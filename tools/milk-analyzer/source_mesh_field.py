@@ -381,6 +381,17 @@ def _axis_summary(control,region,domains,scale,fps,controls):
                        behaviour='translation_component')
         return row
     stretch,centre=composed['stretch'],composed['centre']
+    # k=1/(z*stretch)-b is monotone in z, but 1/k and the fixed point have poles
+    # where k crosses 0 (degenerate sampling) or 1 (pure translation: no fixed
+    # line). Corner values are valid only when neither pole lies in the range.
+    z_low,z_high=composed['zoom_range']
+    k_values=sorted(1/(z*stretch)-b for z in (z_low,z_high))
+    if k_values[0]<=0<=k_values[1]:
+        row['behaviour']='degenerate_sampling_possible';return row
+    if k_values[0]<1<k_values[1]:
+        row['behaviour']='compression_or_expansion_through_translation'
+        row['composition']+='; zoom range includes the pure-translation case, so no single fixed line'
+        return row
     scales=[];fixed=[]
     for z in composed['zoom_range']:
         # B(c)=centre+(0.5+(c-0.5)/z-centre)/stretch-(a+b*c): slope k, offset m.

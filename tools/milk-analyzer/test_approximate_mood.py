@@ -14,15 +14,31 @@ def summary(*facts,context=None):
 
 
 def zoom(low,high,audio=()):
-    return ('motion',STATIC+'/mesh_field',{'patterns':[{'pattern':'uniform_zoom','percent_per_step_range':[low,high],
+    return ('motion',STATIC+'/mesh_field',{'status':'described','patterns':[{'pattern':'uniform_zoom','percent_per_step_range':[low,high],
             'audio_inputs':list(audio)}]})
 
 
 def test_empty_summary_is_low_confidence_not_certified_chill():
     result=approximate_mood(summary())
     assert result['confidence']=='low'
+    assert result['bands']==[] and result['abstained'] is True
     assert result['calibrated'] is False
     assert result['activity_estimate']==5.0
+
+
+def test_partial_field_and_unscored_records_widen_interval_and_abstain():
+    partial=('motion',STATIC+'/mesh_field',{'status':'partial','patterns':[{'pattern':'spatially_varying_zoom'}]})
+    flash=('flashing',STATIC+'/flashing/records/0',{'kind':'other_brightness','maximum_brightness_change_per_second':None})
+    result=approximate_mood(summary(partial,flash))
+    assert result['confidence']=='low' and result['bands']==[]
+    assert result['activity_interval'][1]>=80
+    assert result['unresolved_driver_count']>=2
+
+
+def test_audio_is_counted_once_per_band():
+    route=('audio','/analysis/visual_description/elements/0/audio_routes/0',{'input_code':1,'control':'zoom'})
+    result=approximate_mood(summary(zoom(-7,-2,audio=['bass','bass_att']),route))
+    assert result['components']['audio']==pytest.approx(.34)
 
 
 def test_fast_audio_zoom_scores_higher_than_slow_zoom():
@@ -30,14 +46,14 @@ def test_fast_audio_zoom_scores_higher_than_slow_zoom():
     fast=approximate_mood(summary(zoom(-7,-2,audio=['bass'])))
     assert fast['activity_estimate']>slow['activity_estimate']
     assert fast['components']['audio']>0
-    assert slow['confidence']=='high'
+    assert slow['confidence']=='high' and slow['bands']==['Chill']
 
 
 def test_prior_only_mechanism_widens_interval_and_lowers_confidence():
     prior=('motion',STATIC+'/motion/contributions/0',{'kind':'procedural_shader_motion','component_id':'shader_warp'})
     result=approximate_mood(summary(prior))
-    assert result['confidence']=='low'
-    assert result['activity_interval'][0]<result['activity_estimate']
+    assert result['confidence']=='low' and result['bands']==[]
+    assert result['activity_interval'][0]<result['activity_estimate']<result['activity_interval'][1]
     assert result['drivers'][0]['kind']=='prior'
 
 

@@ -12,8 +12,11 @@ drivers into a 1-100 activity estimate:
   time-driven shader motion field of unresolved speed) and use an editable
   assumed magnitude.
 
-Confidence falls as prior-only or unresolved contributions dominate, so missing
-evidence never silently becomes Chill. Weights and references are assumptions
+Unrecognised or unresolved evidence is recorded as ``unresolved`` drivers that
+saturate the upper estimate in their dimension. Confidence is low without any
+source motion/flash magnitude or when priors and unresolved drivers are at
+least half of all drivers; low confidence assigns no band (only possible
+bands), so missing evidence never silently becomes Chill. Weights and references are assumptions
 for preference grouping, not calibrated perception, and every rule is editable.
 """
 import copy
@@ -51,6 +54,21 @@ def _mid(span):
     return (span[0]+span[1])/2 if isinstance(span,list) and len(span)==2 and all(type(v) in (int,float) for v in span) else None
 
 
+AUDIO_CODES={1:'bass',2:'mid',3:'treb',4:'bass',5:'mid',6:'treb'}
+KNOWN_PATTERNS={'uniform_zoom','radial_zoom_profile','uniform_rotation','spatially_varying_rotation',
+    'uniform_translation','translation_component','planar_travelling_wave','planar_standing_pattern',
+    'radial_ring_wave','radial_standing_rings','angular_lobes','angular_modulation_with_seam'}
+KNOWN_MOTION={'backward_sampling_displacement','sampled_content_displacement_relation','native_affine_component_transport',
+    'forward_content_transport','geometry_trajectory','procedural_shader_motion','geometry_audio_partial','geometry_state_update'}
+
+
+def _band(name):
+    name=str(name or '')
+    for band in ('bass','mid','treb','vol'):
+        if name.startswith(band):return band
+    return None
+
+
 def _drivers(summary,rules,fps,scale):
     drivers=[];priors=set()
     def add(dimension,kind,value,path,reason,upper=None,component=None):
@@ -60,19 +78,24 @@ def _drivers(summary,rules,fps,scale):
             key=(dimension,reason,component)
             if key in priors:return
             priors.add(key)
-        drivers.append({'dimension':dimension,'kind':kind,'value':value,'upper':value if upper is None else upper,
+        drivers.append({'dimension':dimension,'kind':kind,'value':value,
+                        'upper':(2*value if kind=='prior' else value) if upper is None else upper,
                         'evidence_path':path,'reason':reason})
     seen_components=set()
     for group,path,value in _facts(summary):
         if not isinstance(value,dict):continue
         if path.endswith('/mesh_field'):
+            if value.get('status')!='described':
+                add('motion','unresolved',0.,path,'per-pixel warp field partly unresolved')
             for row in value.get('patterns',[]):
                 kind=row.get('pattern')
+                if kind not in KNOWN_PATTERNS and not str(kind).startswith(('compression','expansion')):
+                    add('motion','unresolved',0.,path,'unscored warp pattern '+str(kind));continue
                 if kind in ('uniform_zoom','radial_zoom_profile'):
                     low,high=(abs(v)/100 for v in row['percent_per_step_range'])
                     speeds=sorted([low*.5*fps,high*.5*fps])
                     add('motion','source',(speeds[0]+speeds[1])/2,path,'uniform zoom edge flow (half-width)',speeds[1])
-                    if row.get('audio_inputs'):add('audio','source',1.0,path,'audio-driven zoom: '+'/'.join(row['audio_inputs']))
+                    for band in {_band(name) for name in row.get('audio_inputs') or []}-{None}:add('audio','source',1.0,path,band)
                 elif kind in ('uniform_rotation','spatially_varying_rotation'):
                     span=row.get('value_range_radians_per_step')
                     if isinstance(span,list):
@@ -91,8 +114,8 @@ def _drivers(summary,rules,fps,scale):
                     amplitude=row.get('amplitude_pixels_range')
                     weight=min(1.,max(map(abs,amplitude))/10) if isinstance(amplitude,list) else .5
                     add('motion','source',speed*weight*(row.get('screen_fraction') or 1),path,kind.replace('_',' '))
-                    if row.get('amplitude_dependencies') and set(row['amplitude_dependencies'])&{'bass','bass_att','mid','mid_att','treb','treb_att'}:
-                        add('audio','source',1.0,path,'audio-scaled ripple amplitude')
+                    for band in {_band(name) for name in row.get('amplitude_dependencies') or []}-{None}:
+                        add('audio','source',1.0,path,band)
                 elif kind=='angular_lobes':
                     rate=abs((row.get('oscillator') or {}).get('angular_rotation_radians_per_second') or 0)
                     add('motion','source',rate*.5,path,'rotating angular lobes')
@@ -115,10 +138,13 @@ def _drivers(summary,rules,fps,scale):
                 seen_components.add(component)
                 add('motion','prior',rules['prior_shader_motion_vp_s'],path,'time-driven shader field of unresolved speed',component=component)
             elif kind=='geometry_audio_partial':
-                add('audio','source',1.0,path,'audio-driven geometry ('+str(value.get('audio_input'))+')')
+                band=_band(value.get('audio_input'))
+                if band:add('audio','source',1.0,path,band)
                 add('motion','prior',rules['prior_audio_geometry_vp_s'],path,'audio-driven geometry of unresolved speed',component=component)
             elif kind in ('geometry_trajectory','geometry_state_update') and not known:
                 add('motion','prior',rules['prior_geometry_motion_vp_s'],path,'moving geometry of unresolved speed',component=component)
+            elif kind not in KNOWN_MOTION:
+                add('motion','unresolved',0.,path,'unscored motion kind '+str(kind))
         elif '/flashing/records/' in path:
             hz=value.get('cycle_rate_hz');delta=value.get('brightness_delta_range')
             if type(hz) in (int,float) and hz>0:
@@ -126,12 +152,20 @@ def _drivers(summary,rules,fps,scale):
                 add('flash','source',hz*contrast,path,'brightness cycle '+format(hz,'.3g')+' Hz')
             elif value.get('kind') in ('shader_brightness_change','shape_material_brightness_change') and value.get('maximum_brightness_change_per_second') not in (0,0.0):
                 add('flash','prior',rules['prior_flash_hz_contrast'],path,'brightness change of unresolved rate',component=value.get('component_id'))
+            elif value.get('maximum_brightness_change_per_second') not in (0,0.0):
+                add('flash','unresolved',0.,path,'unscored brightness record '+str(value.get('kind')))
         elif path.endswith('/wave_material'):
             rates=[((c or {}).get('raw_time_curve') or {}).get('maximum_absolute_control_rate_per_second') for c in (value.get('channels') or {}).values()]
             rates=[r for r in rates if type(r) in (int,float)]
             if rates:add('colour','source',max(rates),path,'built-in wave colour change rate ceiling')
         elif group=='audio' and '/audio_routes/' in path:
-            add('audio','source',1.0,path,'authored audio route to '+str(value.get('control')))
+            band=AUDIO_CODES.get(value.get('input_code'))
+            if band:add('audio','source',1.0,path,band)
+        elif path.endswith('/classification') and isinstance(value.get('unknown_contributors'),list):
+            for row in value['unknown_contributors']:
+                dimension=row.get('dimension') if row.get('dimension') in ('motion','flash','brightness') else 'motion'
+                add('flash' if dimension=='brightness' else dimension,'unresolved',0.,path,
+                    'strict model unresolved: '+str(row.get('component_id'))+' '+str(row.get('reason'))[:60])
     return drivers
 
 
@@ -156,6 +190,10 @@ def approximate_mood(summary,rules=None):
     def score(key):
         motion=min(1.,total('motion',key=key)/rules['motion_reference_vp_s'])
         flash=min(1.,total('flash',key=key)/rules['flash_reference'])
+        if key=='upper':
+            # Unresolved evidence could be strong: the upper estimate saturates it.
+            if any(d['kind']=='unresolved' and d['dimension']=='motion' for d in drivers):motion=1.
+            if any(d['kind']=='unresolved' and d['dimension']=='flash' for d in drivers):flash=1.
         audio=min(1.,len({d['reason'] for d in drivers if d['dimension']=='audio'})*rules['audio_route_step'])
         colour=min(1.,total('colour',key=key)/rules['colour_reference_per_s'])
         value=(rules['base']+rules['motion_weight']*motion+rules['flash_weight']*flash+
@@ -165,14 +203,20 @@ def approximate_mood(summary,rules=None):
     source_only=[d for d in drivers if d['kind']=='source']
     # Lower estimate: drop prior-only drivers (their mechanisms might be weak).
     kept=drivers[:];drivers[:]=source_only;low=score('value')[0];drivers[:]=kept
-    prior_share=0. if not drivers else sum(1 for d in drivers if d['kind']=='prior')/len(drivers)
-    confidence='high' if drivers and prior_share==0 else 'medium' if prior_share<.5 else 'low'
-    if not drivers:confidence='low'
+    uncertain=[d for d in drivers if d['kind'] in ('prior','unresolved')]
+    prior_share=0. if not drivers else len(uncertain)/len(drivers)
+    has_source=any(d['dimension'] in ('motion','flash') and d['kind']=='source' for d in drivers)
+    if not has_source:confidence='low'
+    elif prior_share==0:confidence='high'
+    elif prior_share<.5:confidence='medium'
+    else:confidence='low'
     interval=[min(low,estimate),max(upper,estimate)]
-    bands=[name for name,a,b in BANDS if a<=estimate<=b]
     possible=[name for name,a,b in BANDS if interval[0]<=b and interval[1]>=a]
+    # Low confidence abstains: no band is assigned, only possible bands.
+    bands=[] if confidence=='low' else [name for name,a,b in BANDS if a<=estimate<=b]
     return {'policy':POLICY,'activity_estimate':round(estimate,1),'activity_interval':[round(v,1) for v in interval],
         'bands':bands,'possible_bands':possible,'confidence':confidence,'prior_driver_share':round(prior_share,3),
+        'abstained':not bands,'unresolved_driver_count':sum(1 for d in drivers if d['kind']=='unresolved'),
         'components':{k:round(v,3) for k,v in components.items()},'drivers':drivers,'rules':rules,
         'strict_eligible_bands':next((v.get('eligible_bands') for _,p,v in _facts(summary) if p==STATIC+'/classification'),None),
         'calibrated':False,'uses_rendered_images':False,

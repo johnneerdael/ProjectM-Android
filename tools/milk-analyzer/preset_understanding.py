@@ -143,6 +143,21 @@ def summarize_preset(record):
             fact('colour',STATIC+'/prominence/components/'+str(index)+'/final_transfer/legacy_response',legacy,
                  'Native composite gamma/echo controls; final displayed brightness remains conditional')
             break
+    nonlinear=appearance.get('nonlinear_texture_colour_bounds')
+    if isinstance(nonlinear,dict):
+        for stage,row in (nonlinear.get('stages') or {}).items():
+            palette=(row or {}).get('scalar_palette') if isinstance(row,dict) else None
+            if isinstance(palette,dict) and palette.get('status')=='conditional_scalar_palette':
+                fact('colour',BASE+'/nonlinear_texture_colour_bounds/stages/'+stage+'/scalar_palette',palette,
+                     'Stage RGB as a palette of one sampled scalar; which scalar values occur is unverified')
+        if isinstance(nonlinear.get('flat_field'),dict) and nonlinear['flat_field'].get('status')=='conditional_flat_field_state':
+            fact('feedback',BASE+'/nonlinear_texture_colour_bounds/flat_field',nonlinear['flat_field'],
+                 'Uniform-content steady state of the feedback loop; real content with edges and drawings differs')
+    families=analysis.get('families')
+    if isinstance(families,list):
+        for index,row in enumerate(families):
+            if isinstance(row,dict) and isinstance(row.get('mechanism'),str):
+                fact('construction','/analysis/families/'+str(index),row,'Proven source program mechanism; visible prominence conditional')
     if 'radial_uv_envelope' in static:
         uv=_object(static['radial_uv_envelope'],STATIC+'/radial_uv_envelope')
         fact('feedback',STATIC+'/radial_uv_envelope',uv,
@@ -256,6 +271,35 @@ def summarize_preset(record):
               "mood": mood, "unresolved_questions": questions, "limitations": list(LIMITATIONS)}
     result["description"] = _description(result)
     return result
+
+
+MECHANISM_TEXT={
+    'builtin_wave_primitive':'a built-in audio waveform line',
+    'custom_wave_primitive':'a custom line waveform',
+    'point_cloud_primitive':'a custom waveform drawn as points',
+    'procedural_point_motion':'points whose positions move with sample, time or audio',
+    'parametric_radial_curve':'a parametric radial curve',
+    'polygon_shape_primitive':'a filled or outlined polygon shape',
+    'procedural_shape_instances':'repeated shape instances with instance-dependent geometry',
+    'radial_band':'a ring-shaped band at a bounded radius',
+    'periodic_radial_glow':'periodic radial glow spots',
+    'spatial_oscillatory_bands':'spatially oscillating colour bands or stripes',
+    'polar_radial_sampling':'angle/radius (polar or log-polar) texture sampling, a tunnel-like mapping',
+    'angular_mirror_fold':'kaleidoscope-style mirrored angular sectors',
+    'cartesian_mirror_fold':'mirror reflection of the sampled image across an axis',
+    'radial_twist':'a radius-dependent swirl of the image',
+    'spatial_rotation':'a spatially varying rotation of the image',
+    'global_rotation':'a rotation of the sampled image',
+    'angular_periodic_warp':'an angularly periodic warp of the feedback mesh',
+    'image_driven_advection':'image content steering its own sampling coordinates (self-advection: flowing, smeared or fluid-like structure)',
+    'gradient_driven_advection':'flow along image gradients from central differences (reaction-diffusion or fluid-like organic patterns)',
+    'noise_driven_advection':'noise textures displacing the sampling coordinates (turbulent shimmer)',
+    'uv_advection':'a periodic spatial displacement field (ripples or wobble)',
+    'multi_copy_feedback_recursion':'several scaled copies of the previous frame (recursive nested copies)',
+    'nonlinear_feedback_map':'a nonlinear feedback map of the previous frame (fractal-like iteration)',
+    'radial_feedback_transform':'a scaling of the previous frame inside the shader (zoom tunnel or expansion)',
+    'complex_quadratic_recurrence':'a loop-iterated complex quadratic map (Julia/Mandelbrot-style fractal)',
+}
 
 
 def _fmt(value):
@@ -385,7 +429,7 @@ def _wave_hue_cycle(material):
         for index in range(steps+1):
             family=hue_family(wave_colour(channels,index*HUE_STEP_SECONDS,bool(material.get('normalization_enabled'))))
             counts[family]=counts.get(family,0)+1
-    except (ValueError,KeyError,TypeError):
+    except (ValueError,KeyError,TypeError,OverflowError,ArithmeticError):
         return ''
     total=sum(counts.values())
     ranked=sorted(counts.items(),key=lambda item:-item[1])
@@ -701,6 +745,38 @@ def _description(summary):
         if item['path'].endswith('/legacy_response') and isinstance(item['value'],dict):
             text=_composite_sentence(item['value'])
             if text:sentences.append(text)
+    mechanisms=[]
+    for item in summary['facts']['construction']:
+        if item['path'].startswith('/analysis/families/') and isinstance(item['value'],dict):
+            name=item['value'].get('mechanism');text=MECHANISM_TEXT.get(name)
+            label=(text or name.replace('_',' '))+' ('+str(item['value'].get('stage'))+')'
+            if label not in mechanisms:mechanisms.append(label)
+    if mechanisms:
+        sentences.append('Source mechanisms: '+'; '.join(mechanisms[:8])+'. Proven program constructions; how prominent each is on screen is conditional.')
+    for item in summary['facts']['colour']:
+        row=item['value']
+        if not item['path'].endswith('/scalar_palette') or not isinstance(row,dict):continue
+        stage=item['path'].split('/stages/')[1].split('/')[0]
+        text=(stage.capitalize()+' colour is a palette of one sampled scalar, running through '+', '.join(row.get('hue_families') or [])+
+              ' across its range')
+        black,white=row.get('black_content_hue_family'),row.get('white_content_hue_family')
+        if black and white:text+='; black content shows '+black+' and white content shows '+white
+        sentences.append(text+'. Which scalar values occur depends on the feedback content.')
+    for item in summary['facts']['feedback']:
+        row=item['value']
+        if not item['path'].endswith('/flat_field') or not isinstance(row,dict):continue
+        from time_expression import hue_family
+        behaviour=row.get('flat_region_behaviour');seconds=row.get('settle_seconds')
+        text='Flat-field model: uniform regions '+{'decays_to_black':'decay to black','saturates_to_white':'saturate to white',
+            'settles_on_colour':'settle','cycles':'cycle','still_changing':'keep changing'}.get(behaviour,str(behaviour))
+        if type(seconds) in (int,float) and behaviour in ('settles_on_colour','decays_to_black','saturates_to_white'):
+            text=text.replace('uniform regions','flat regions')+' in about '+format(seconds,'.2g')+' s'
+        display=row.get('composite_rgb_at_state')
+        if isinstance(display,list) and len(display)==3:
+            text+=', displayed as '+hue_family(display)+' '+str([round(v,2) for v in display])
+        start=row.get('composite_rgb_at_start')
+        if isinstance(start,list) and len(start)==3:text+=' (black start displays as '+hue_family(start)+')'
+        sentences.append(text+'; edges, drawn elements and advection make real content differ.')
     markers=[]
     for item in summary['facts']['motion']:
         row=item['value']

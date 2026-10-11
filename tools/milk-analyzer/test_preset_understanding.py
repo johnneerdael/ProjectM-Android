@@ -577,6 +577,28 @@ def test_time_only_wave_colour_reports_visited_hues():
     assert 'closed-form colour over 120 s visits' in text
 
 
+def test_scalar_palette_flat_field_and_mechanism_prose():
+    record=control_record()
+    visual=record['analysis']['visual_description']
+    sample=lambda s,rgb,family:{'scalar':s,'clamped_rgb':rgb,'hue_family':family}
+    visual['nonlinear_texture_colour_bounds']={'stages':{'composite':{'scalar_palette':{
+        'policy':'source-scalar-palette-map-v1','status':'conditional_scalar_palette','scalar_range':[-1,2],
+        'black_content_scalar':[-.46,-.46],'white_content_scalar':[1.4,1.4],'hue_families':['yellow','orange','red'],
+        'black_content_hue_family':'yellow','white_content_hue_family':'red',
+        'samples':[sample(-.5,[1,1,.5],'yellow'),sample(1.1,[.67,.39,0],'orange'),sample(1.4,[.18,0,0],'red')]}}},
+        'flat_field':{'policy':'source-flat-field-steady-state-v1','status':'conditional_flat_field_state','state':'fixed_point',
+            'state_rgb':[0,1,.48],'settle_seconds':2.8,'flat_region_behaviour':'settles_on_colour',
+            'composite_rgb_at_state':[.54,.13,0],'composite_rgb_at_start':[1,1,.5]}}
+    record['analysis']['families']=[{'mechanism':'image_driven_advection','stage':'warp','status':'proven_program_mechanism'}]
+    result=summarize_preset(record)
+    text=result['description']
+    assert 'Composite colour is a palette of one sampled scalar' in text
+    assert 'black content shows yellow' in text and 'white content shows red' in text
+    assert 'flat regions settle in about 2.8 s' in text and 'displayed as red' in text
+    assert 'image content steering its own sampling coordinates' in text
+    assert any(f['path']=='/analysis/families/0' for f in result['facts']['construction'])
+
+
 def test_unsupported_recipe_or_preset_name_does_not_supply_spiral_claim():
     record = control_record()
     record["preset"]["name"] = "Spiral Circle Tunnel.milk"

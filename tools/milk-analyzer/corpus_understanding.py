@@ -9,7 +9,7 @@ approximate bands are assumption-based preference groups, not calibrated moods.
 """
 import argparse
 import collections
-from concurrent.futures import ProcessPoolExecutor,as_completed
+import multiprocessing
 import hashlib
 import json
 from pathlib import Path
@@ -42,8 +42,8 @@ def work(path,options,expected_models):
     started=time.perf_counter()
     raw=Path(path).read_bytes()
     row={'name':Path(path).name,'sha256':hashlib.sha256(raw).hexdigest(),'status':'error'}
-    signal.signal(signal.SIGALRM,_alarm);signal.alarm(int(options['timeout']))
     try:
+        signal.signal(signal.SIGALRM,_alarm);signal.alarm(int(options['timeout']))
         if loaded_model_hashes()!=expected_models:raise ValueError('worker model identity changed')
         record,_=export_preset(path,reader=options['reader'],input_scenario=options['input_scenario'],
                                behaviour_context=options['behaviour_context'])
@@ -54,29 +54,38 @@ def work(path,options,expected_models):
         mood=approximate_mood(summary,options.get('rules'))
         row.update(status='computed',description=summary['description'],
             approximate_mood={k:mood[k] for k in ('activity_estimate','activity_interval','bands','possible_bands',
-                                                  'confidence','prior_driver_share','components','strict_eligible_bands')},
+                                                  'confidence','prior_driver_share','components','strict_eligible_bands',
+                                                  'abstained','unresolved_driver_count')},
             drivers=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']],
             record_sha256=record.get('record_sha256'))
-    except Exception as error:
+    except BaseException as error:
+        if isinstance(error,KeyboardInterrupt):raise
         row.update(status='timeout' if isinstance(error,_Timeout) else 'error',error_type=type(error).__name__,error=str(error)[:500])
     finally:
-        signal.alarm(0)
+        try:signal.alarm(0)
+        except _Timeout:pass
         row['elapsed_seconds']=round(time.perf_counter()-started,3)
     return row
+
+
+def _star_work(arguments):
+    return work(*arguments)
 
 
 def report(output):
     rows=[json.loads(p.read_text()) for p in sorted((output/'results').glob('*.json'))]
     computed=[r for r in rows if r['status']=='computed']
     bands=collections.Counter();confidence=collections.Counter();collections_by_band=collections.defaultdict(list)
+    abstained=0
     for row in computed:
         mood=row['approximate_mood'];confidence[mood['confidence']]+=1
+        abstained+=not mood['bands']
         for band in mood['bands']:
             bands[band]+=1;collections_by_band[band].append({'name':row['name'],'activity':mood['activity_estimate'],
                                                              'confidence':mood['confidence']})
     for band in collections_by_band:collections_by_band[band].sort(key=lambda r:r['activity'])
     summary={'policy':POLICY,'presets':len(rows),'status':dict(collections.Counter(r['status'] for r in rows)),
-        'approximate_band_counts':dict(bands),'confidence_counts':dict(confidence),
+        'approximate_band_counts':dict(bands),'confidence_counts':dict(confidence),'abstained_presets':abstained,
         'strict_eligible_presets':sum(1 for r in computed if r['approximate_mood'].get('strict_eligible_bands')),
         'activity_histogram':dict(sorted(collections.Counter(int(r['approximate_mood']['activity_estimate']//10)*10 for r in computed).items())),
         'calibrated':False,'uses_rendered_images':False,
@@ -112,6 +121,7 @@ def main(argv=None):
     (args.output/'results').mkdir(parents=True,exist_ok=True)
     manifest_path=args.output/'run-manifest.json'
     manifest={'policy':POLICY,'model_modules':models,'options':{k:v for k,v in options.items() if k!='timeout'},
+              'reader_sha256':hashlib.sha256(Path(options['reader']).read_bytes()).hexdigest(),
               'presets_directory':str(args.presets)}
     if manifest_path.exists():
         previous=json.loads(manifest_path.read_text())
@@ -119,14 +129,19 @@ def main(argv=None):
     else:manifest_path.write_text(json.dumps(manifest,indent=2)+'\n')
     paths=sorted(p for p in args.presets.iterdir() if p.suffix=='.milk')
     if args.limit:paths=paths[:args.limit]
-    done={json.loads(p.read_text())['name'] for p in (args.output/'results').glob('*.json')}
-    pending=[p for p in paths if p.name not in done]
+    # Resume only rows computed for the same preset bytes; errors/timeouts retry.
+    done={}
+    for result in (args.output/'results').glob('*.json'):
+        row=json.loads(result.read_text())
+        if row.get('status')=='computed':done[row['name']]=row.get('sha256')
+    pending=[p for p in paths if done.get(p.name)!=hashlib.sha256(p.read_bytes()).hexdigest()]
     print(json.dumps({'event':'ready','presets':len(paths),'pending':len(pending)}),flush=True)
     completed=0
-    with ProcessPoolExecutor(max_workers=args.workers,max_tasks_per_child=200) as pool:
-        futures={pool.submit(work,str(path),options,models):path for path in pending}
-        for future in as_completed(futures):
-            row=future.result()
+    # multiprocessing.Pool recycles workers safely; ProcessPoolExecutor with
+    # max_tasks_per_child deadlocked once every worker had been retired.
+    tasks=[(str(path),options,models) for path in pending]
+    with multiprocessing.get_context('spawn').Pool(args.workers,maxtasksperchild=200) as pool:
+        for row in pool.imap_unordered(_star_work,tasks,chunksize=4):
             key=hashlib.sha256(row['name'].encode()).hexdigest()[:20]
             target=args.output/'results'/(key+'.json')
             temporary=target.with_suffix('.tmp');temporary.write_text(json.dumps(row)+'\n');temporary.replace(target)

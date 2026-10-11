@@ -3,8 +3,10 @@
 Exports serialise equation graphs as {'root', 'nodes'}. When a graph depends on
 source time alone (constants and ``time``), it is a closed-form function that
 can be sampled at declared times without executing preset frames. Arithmetic is
-nominal binary64 with EEL division semantics (x/0 = 0); native float32 rounding
-is not reproduced. Hue bands mirror source_colour_character.HUE_BANDS.
+nominal binary64 with projectm-eval semantics for EEL graphs: int is floor,
+division by |d|<1e-5 is 0, sqrt takes |x|, pow returns 0 for NaN results and for
+a near-zero base with a negative exponent. Native float32 rounding is not
+reproduced. Hue bands mirror source_colour_character.HUE_BANDS.
 """
 import colorsys
 import math
@@ -15,7 +17,7 @@ HUE_BANDS={'red':((0,15),(345,360)),'orange':((15,45),),'yellow':((45,75),),
 SATURATION_FLOOR=.08
 VALUE_FLOOR=.02
 UNARY={'sin':math.sin,'cos':math.cos,'tan':math.tan,'abs':abs,'negate':lambda v:-v,
-       'sqr':lambda v:v*v,'floor':math.floor,'ceil':math.ceil,'int':lambda v:float(math.trunc(v)),
+       'sqr':lambda v:v*v,'floor':math.floor,'ceil':math.ceil,'int':math.floor,
        'sign':lambda v:(v>0)-(v<0),'exp':math.exp,'atan':math.atan}
 
 
@@ -41,10 +43,15 @@ def evaluate(expression,time):
         elif op=='add':result=args[0]+args[1]
         elif op=='subtract':result=args[0]-args[1]
         elif op=='multiply':result=args[0]*args[1]
-        elif op in ('divide','eel_divide'):result=0.0 if args[1]==0 else args[0]/args[1]
+        elif op=='eel_divide':result=0.0 if abs(args[1])<1e-5 else args[0]/args[1]
+        elif op=='divide':result=0.0 if args[1]==0 else args[0]/args[1]
         elif op=='min':result=min(args)
         elif op=='max':result=max(args)
-        elif op=='pow':result=math.pow(args[0],args[1])
+        elif op=='pow':
+            if abs(args[0])<1e-5 and args[1]<0:result=0.0
+            else:
+                try:result=math.pow(args[0],args[1])
+                except ValueError:result=0.0
         elif op=='sqrt':result=math.sqrt(abs(args[0]))
         elif op in ('less','greater','less_equal','greater_equal'):
             result=float({'less':args[0]<args[1],'greater':args[0]>args[1],
@@ -54,7 +61,8 @@ def evaluate(expression,time):
         if not math.isfinite(result):raise ValueError('nonfinite time-expression value')
         memo[index]=result
         return result
-    return value(expression['root'])
+    try:return value(expression['root'])
+    except (OverflowError,ZeroDivisionError) as error:raise ValueError('time expression outside finite domain: '+str(error)) from error
 
 
 def hue_family(rgb):

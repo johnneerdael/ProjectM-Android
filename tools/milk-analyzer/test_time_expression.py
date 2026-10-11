@@ -48,3 +48,17 @@ def test_hue_families_and_normalisation():
 def test_hue_bands_match_colour_character():
     from source_colour_character import HUE_BANDS as SOURCE_BANDS
     assert HUE_BANDS==SOURCE_BANDS
+
+
+def test_projectm_eval_semantics():
+    c=lambda v:{'op':'constant','args':[],'detail':{'value':v}}
+    assert evaluate(graph([{'op':'int','args':[1],'detail':{}},c(-0.5)]),0.)==-1.0
+    assert evaluate(graph([{'op':'eel_divide','args':[1,2],'detail':{}},c(1),c(1e-6)]),0.)==0.0
+    assert evaluate(graph([{'op':'pow','args':[1,2],'detail':{}},c(0.0),c(-1)]),0.)==0.0
+    assert evaluate(graph([{'op':'pow','args':[1,2],'detail':{}},c(-2.0),c(0.5)]),0.)==0.0
+
+
+def test_overflow_becomes_value_error():
+    nodes=[{'op':'exp','args':[1],'detail':{}},{'op':'multiply','args':[2,3],'detail':{}},
+           {'op':'input','args':[],'detail':{'name':'time'}},{'op':'constant','args':[],'detail':{'value':10}}]
+    with pytest.raises(ValueError):evaluate(graph(nodes),100.)

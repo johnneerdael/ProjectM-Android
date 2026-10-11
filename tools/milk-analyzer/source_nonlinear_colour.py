@@ -10,14 +10,14 @@ def nonlinear_texture_colour_bounds(analysis,warp_vertex,*,input_domains=None):
     from field_math import SWIZZLE
     from source_native_warp import _f32
     from source_polar import _nodes
-    stages={}
+    stages={};flat_inputs={}
     time_names={'time',':native-render-time-f32','_c2.x'}
     for stage in ('warp','composite'):
         r={'source_model':'unknown','channel_value_envelopes':None,
             'raw_rgb_bounds_if_samples_unit_interval':None,'sample_textures':[],
             'colour_difference_gain':None,'whole_feedback_contraction':None,
             'actual_feedback_persistence':None,'visible_flashing':None,'unknown_reasons':[],
-            'channel_threshold_resets':[],
+            'channel_threshold_resets':[],'scalar_palette':None,
             'direct_sample_colour_response':{'policy':'source-direct-sample-colour-response-v1','samples':[],
                 'includes_sampling_coordinate_response':False,'visible_response_strength':None,'conditions':[]},
             'direct_colour_time_response':{'policy':'source-fixed-sample-colour-time-response-v1','status':'unknown',
@@ -142,6 +142,10 @@ def nonlinear_texture_colour_bounds(analysis,warp_vertex,*,input_domains=None):
             r['direct_sample_colour_response']=sample_colour_response(projected,samples,domains,derived_samples)
             from source_threshold_resets import channel_threshold_resets
             r['channel_threshold_resets']=channel_threshold_resets(projected,domains)
+            from source_scalar_palette import scalar_palette
+            r['scalar_palette']=scalar_palette(projected,domains,local_sample_names)
+            if input_domains is None and all(sel.op!='unknown' for sel in projected):
+                flat_inputs[stage]=(projected,samples,dict(domains))
             spans=[c['nominal_value_range'] for c in channels]
             r['channel_value_envelopes']=channels
             r['sample_textures']=sorted({s.detail.get('canonical_texture') for name,s in samples},key=str)
@@ -153,6 +157,11 @@ def nonlinear_texture_colour_bounds(analysis,warp_vertex,*,input_domains=None):
                 set(c['assumed_finite_input_names'])-local_sample_names-derived for c in channels)))
         except (ValueError,RecursionError,OverflowError,IndexError) as error:r['unknown_reasons']=[str(error)]
         stages[stage]=r
+    flat=None
+    if input_domains is None:
+        from source_flat_field import flat_field
+        context=getattr(analysis,'behaviour_context',None) or {}
+        flat=flat_field(flat_inputs,fps=context.get('feedback_fps') if isinstance(context,dict) else None)
     scenario=getattr(analysis,'input_scenario',None)
     if scenario is not None and input_domains is None:
         extra=nonlinear_texture_colour_bounds(analysis,warp_vertex,input_domains=scenario['scalar_input_domains'])
@@ -160,7 +169,7 @@ def nonlinear_texture_colour_bounds(analysis,warp_vertex,*,input_domains=None):
             r['scenario_colour_envelope']={**extra['stages'][stage],
                 'input_scenario_sha256':scenario['record_sha256'],
                 'observed_runtime_inputs':False,'runtime_binding_verified':False}
-    return {'policy':'source-nonlinear-declared-texture-colour-ranges-v1','stages':stages,
+    return {'policy':'source-nonlinear-declared-texture-colour-ranges-v1','stages':stages,'flat_field':flat,
         'uses_shader_execution':False,'uses_equation_execution':False,'uses_rendered_images':False,
         'conditions':['Direct sampled RGBA components independently lie in [0,1]; this input premise is not certified by source',
                       'Nominal scalar arithmetic ranges, explicit packed-input and native-upload domains; no time/pixel samples',

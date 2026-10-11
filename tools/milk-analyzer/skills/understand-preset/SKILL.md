@@ -98,6 +98,11 @@ required. Use a native file-read tool to inspect JSON and the summary.
    keep it separate from strict eligible bands. Read `motion_vectors` for a drawn vector grid and the composite
    gamma/echo sentence for doubling or brightening. All are source facts, not
    observed motion.
+   Read shader `scalar_palette` records as the colour ramp content is shown
+   through (black- and white-content colours are exact), and `flat_field` for
+   the steady colour of flat regions (background) under a custom warp. Read
+   source mechanism sentences for shader constructions such as self-advection,
+   kaleidoscope sectors or polar tunnels.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

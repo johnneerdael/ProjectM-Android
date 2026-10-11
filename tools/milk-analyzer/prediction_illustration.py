@@ -230,8 +230,9 @@ def _backward_map(mesh,width,height):
     rad=2*np.hypot(x-.5,y-.5)
     def sample(time):
         values={name:_terms_field(controls[name]['terms'] or [],x,y,time) for name in names}
-        if np.any(values['warp']!=0):raise ValueError('procedural warp not illustrated')
-        zoom=np.power(np.maximum(values['zoom'],1e-6),np.power(np.maximum(values['zoomexp'],1e-6),2*rad-1))
+        if np.any(values['zoom']<=0) or np.any(values['zoomexp']<=0):raise ValueError('nonpositive zoom/zoomexp not illustrated')
+        # The legacy procedural warp (amplitude 0.0035*warp) is omitted; see limitations.
+        zoom=np.power(values['zoom'],np.power(values['zoomexp'],2*rad-1))
         u=.5+(x-.5)/zoom;v=.5+(y-.5)/zoom
         u=values['cx']+(u-values['cx'])/values['sx'];v=values['cy']+(v-values['cy'])/values['sy']
         cos,sin=np.cos(values['rot']),np.sin(values['rot'])
@@ -280,6 +281,27 @@ def _wave_colour_at(facts,path,time):
     except (ValueError,KeyError,TypeError):return None
 
 
+def _palette_display(image,facts,limitations):
+    """Approximate display through a composite scalar palette anchored at the flat-field state."""
+    palette=facts.get('/analysis/visual_description/nonlinear_texture_colour_bounds/stages/composite/scalar_palette')
+    flat=facts.get('/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field')
+    if not isinstance(palette,dict) or not palette.get('samples') or not isinstance(flat,dict):return None
+    background=flat.get('composite_rgb_at_state');state=flat.get('state_rgb')
+    if not isinstance(background,list) or not isinstance(state,list):return None
+    samples=palette['samples']
+    anchor=min(samples,key=lambda x:sum((a-b)**2 for a,b in zip(x['clamped_rgb'],background)))['scalar']
+    black=palette.get('black_content_scalar')
+    target=(black[0]+black[1])/2 if isinstance(black,list) else samples[0]['scalar']
+    scalars=np.array([x['scalar'] for x in samples]);colours=np.array([x['clamped_rgb'] for x in samples],np.float32)
+    deviation=np.clip(np.abs(image-np.array(state,np.float32)).max(axis=-1),0,1)
+    # Content departing from the flat state moves along the palette toward black content.
+    s=anchor+(target-anchor)*deviation
+    order=np.argsort(scalars)
+    display=np.stack([np.interp(s,scalars[order],colours[order][:,c]) for c in range(3)],axis=-1).astype(np.float32)
+    limitations.append('display via the composite scalar palette: flat regions use the flat-field colour; departures from the flat state move along the palette toward the black-content colour (approximation)')
+    return display
+
+
 def _composite(image,facts):
     for path,value in facts.items():
         if not path.endswith('/legacy_response') or not isinstance(value,dict):continue
@@ -326,6 +348,9 @@ def illustrate_field(summary,*,time,fps,history_steps):
     width,height=context['viewport']
     aspect=(1.0,height/width) if width>=height else (width/height,1.0)
     image=np.zeros((height,width,3),np.float32);limitations=[]
+    flat=facts.get('/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field')
+    if isinstance(flat,dict) and isinstance(flat.get('state_rgb'),list):
+        image[:]=np.array(flat['state_rgb'],np.float32);limitations.append('feedback content starts from the flat-field steady state')
     sample=_backward_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'),width,height)
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain')
@@ -341,7 +366,7 @@ def illustrate_field(summary,*,time,fps,history_steps):
             frame_time=time-frame/fps
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
-                image=cv2.remap(image,map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_CONSTANT)*decay
+                image=cv2.remap(image,map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)*decay
                 image=np.round(np.clip(image,0,1)*255)/255
             for path,points in paths:
                 pixels=[to_pixels(point) for point in points]
@@ -350,11 +375,18 @@ def illustrate_field(summary,*,time,fps,history_steps):
                     cv2.line(image,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),tuple(colour),1,cv2.LINE_AA)
             for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):
                 cv2.line(image,tuple(int(round(v)) for v in start),tuple(int(round(v)) for v in end),shade,1,cv2.LINE_AA)
+        if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
     except ValueError as error:
         limitations.append('field illustration stopped: '+str(error))
-    if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
-    image,note=_composite(image,facts)
-    if note:limitations.append(note)
+    mesh=facts.get('/analysis/visual_description/static_behaviour/mesh_field') or {}
+    warp=((mesh.get('controls') or {}).get('warp') or {}).get('value_range')
+    if isinstance(warp,list) and warp!=[0.0,0.0]:
+        limitations.append('legacy procedural warp (amplitude 0.0035*warp per step) omitted')
+    palette_image=_palette_display(image,facts,limitations)
+    if palette_image is not None:image=palette_image
+    else:
+        image,note=_composite(image,facts)
+        if note:limitations.append(note)
     limitations.append('closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted')
     return image,[path for path,_ in paths],limitations
 
