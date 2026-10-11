@@ -26,3 +26,18 @@ def test_report_groups_bands_and_keeps_errors(tmp_path):
     assert summary['calibrated'] is False
     groups=json.loads((tmp_path/'collections.json').read_text())
     assert [r['name'] for r in groups['Chill']]==['a.milk','b.milk']
+
+
+def test_rescore_recomputes_mood_from_saved_summary(tmp_path):
+    import base64,gzip
+    from corpus_understanding import rescore
+    (tmp_path/'results').mkdir()
+    summary={'policy':'preset-understanding-v1','facts':{'context':[{'path':'/analysis/visual_description/static_behaviour/context',
+        'value':{'viewport':[480,270],'feedback_fps':30}}],'motion':[{'path':'/analysis/visual_description/static_behaviour/mesh_field',
+        'value':{'status':'described','patterns':[{'pattern':'uniform_zoom','percent_per_step_range':[-7,-2],'audio_inputs':['bass']}]}}]}}
+    value=row('z.milk',0,[]);value['summary_gzip_base64']=base64.b64encode(gzip.compress(json.dumps(summary).encode())).decode()
+    (tmp_path/'results'/'z.json').write_text(json.dumps(value))
+    result=rescore(tmp_path)
+    saved=json.loads((tmp_path/'results'/'z.json').read_text())
+    assert saved['approximate_mood']['activity_estimate']>5
+    assert result['presets']==1

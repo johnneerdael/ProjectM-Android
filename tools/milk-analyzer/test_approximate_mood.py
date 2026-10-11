@@ -75,3 +75,21 @@ def test_strict_eligibility_is_reported_separately():
     classification=('mood',STATIC+'/classification',{'eligible_bands':[]})
     record=summary(zoom(-7,-2));record['facts']['mood']=[{'path':classification[1],'value':classification[2]}]
     assert approximate_mood(record)['strict_eligible_bands']==[]
+
+
+def test_shader_lookup_time_partial_is_a_prior_not_unresolved():
+    record=summary(('motion',STATIC+'/motion/contributions/0',{'kind':'authored_sampling_time_partial','component_id':'shader_warp',
+        'speed_interval_vp_per_second':[0,None],'estimate_kind':'unknown'}))
+    result=approximate_mood(record)
+    assert [d['kind'] for d in result['drivers']]==['prior']
+    assert result['unresolved_driver_count']==0
+
+
+def test_uncovered_strict_component_is_unresolved_but_covered_one_is_not():
+    classification=('mood',STATIC+'/classification',{'unknown_contributors':[
+        {'component_id':'shape_0','dimension':'motion'},{'component_id':'shader_warp','dimension':'motion'}]})
+    prior=('motion',STATIC+'/motion/contributions/0',{'kind':'procedural_shader_motion','component_id':'shader_warp'})
+    record=summary(prior);record['facts']['mood']=[{'path':classification[1],'value':classification[2]}]
+    result=approximate_mood(record)
+    reasons=[d['reason'] for d in result['drivers'] if d['kind']=='unresolved']
+    assert reasons==['no approximate driver for shape_0']

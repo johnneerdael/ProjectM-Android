@@ -30,6 +30,7 @@ RULES={
     'motion_reference_vp_s':1.0,'flash_reference':0.6,'colour_reference_per_s':1.0,
     'audio_route_step':0.34,'sweep_reference_hz':2.0,
     'prior_shader_motion_vp_s':0.3,'prior_geometry_motion_vp_s':0.15,'prior_audio_geometry_vp_s':0.2,
+    'prior_shader_lookup_motion_vp_s':0.2,
     'prior_flash_hz_contrast':0.15,
 }
 STATIC='/analysis/visual_description/static_behaviour'
@@ -59,7 +60,8 @@ KNOWN_PATTERNS={'uniform_zoom','radial_zoom_profile','uniform_rotation','spatial
     'uniform_translation','translation_component','planar_travelling_wave','planar_standing_pattern',
     'radial_ring_wave','radial_standing_rings','angular_lobes','angular_modulation_with_seam'}
 KNOWN_MOTION={'backward_sampling_displacement','sampled_content_displacement_relation','native_affine_component_transport',
-    'forward_content_transport','geometry_trajectory','procedural_shader_motion','geometry_audio_partial','geometry_state_update'}
+    'forward_content_transport','geometry_trajectory','procedural_shader_motion','geometry_audio_partial','geometry_state_update',
+    'authored_sampling_time_partial','native_stage_selection','composite_sample_access'}
 
 
 def _band(name):
@@ -70,8 +72,9 @@ def _band(name):
 
 
 def _drivers(summary,rules,fps,scale):
-    drivers=[];priors=set()
+    drivers=[];priors=set();components_with_evidence={}
     def add(dimension,kind,value,path,reason,upper=None,component=None):
+        if component:components_with_evidence[component]=True
         if kind=='prior':
             # One prior per mechanism and component: repeated unresolved
             # contributions do not accumulate an invented magnitude.
@@ -85,6 +88,7 @@ def _drivers(summary,rules,fps,scale):
     for group,path,value in _facts(summary):
         if not isinstance(value,dict):continue
         if path.endswith('/mesh_field'):
+            components_with_evidence['mesh_warp']=True
             if value.get('status')!='described':
                 add('motion','unresolved',0.,path,'per-pixel warp field partly unresolved')
             for row in value.get('patterns',[]):
@@ -129,9 +133,14 @@ def _drivers(summary,rules,fps,scale):
             kind=value.get('kind');component=value.get('component_id')
             span=value.get('speed_interval_vp_per_second')
             known=isinstance(span,list) and len(span)==2 and span[1] is not None and value.get('estimate_kind') not in (None,'unknown')
+            if component:components_with_evidence.setdefault(component,False)
             if kind in ('backward_sampling_displacement','sampled_content_displacement_relation','native_affine_component_transport',
-                        'forward_content_transport'):
-                continue  # native warp is described by mesh_field patterns
+                        'forward_content_transport','native_stage_selection','composite_sample_access'):
+                continue  # native warp is described by mesh_field; selection/access records carry no motion magnitude
+            if kind=='authored_sampling_time_partial':
+                if known:add('motion','source',span[1]*.5,path,'time-moving shader lookup (half of upper bound)',span[1],component=component)
+                else:add('motion','prior',rules['prior_shader_lookup_motion_vp_s'],path,'time-moving shader lookup of unresolved speed',component=component)
+                continue
             if known and kind=='geometry_trajectory':
                 add('motion','source',span[1]*.5,path,'geometry trajectory (half of upper bound)',span[1])
             elif kind=='procedural_shader_motion' and component not in seen_components:
@@ -163,9 +172,13 @@ def _drivers(summary,rules,fps,scale):
             if band:add('audio','source',1.0,path,band)
         elif path.endswith('/classification') and isinstance(value.get('unknown_contributors'),list):
             for row in value['unknown_contributors']:
-                dimension=row.get('dimension') if row.get('dimension') in ('motion','flash','brightness') else 'motion'
-                add('flash' if dimension=='brightness' else dimension,'unresolved',0.,path,
-                    'strict model unresolved: '+str(row.get('component_id'))+' '+str(row.get('reason'))[:60])
+                component=row.get('component_id')
+                if component and component!='preset-output':components_with_evidence.setdefault(component,False)
+    # A component the strict model could not bound, with no approximate driver
+    # (source or prior) of its own, is uncovered evidence.
+    for component,covered in components_with_evidence.items():
+        if not covered and not component.startswith('mesh_warp'):
+            add('motion','unresolved',0.,STATIC+'/classification','no approximate driver for '+component)
     return drivers
 
 

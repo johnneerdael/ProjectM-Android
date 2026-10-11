@@ -34,3 +34,14 @@ def test_faint_channels_follow_their_own_stored_level_orbit():
     assert table[200][26]==25
     assert table[200][255]==25
     assert table[0][26]==26
+
+
+def test_palette_display_keeps_exact_flat_field_colour():
+    from prediction_illustration import _palette_display
+    base='/analysis/visual_description/nonlinear_texture_colour_bounds'
+    facts={base+'/stages/composite/scalar_palette':{'samples':[{'scalar':0.,'clamped_rgb':[1,1,0]},{'scalar':1.,'clamped_rgb':[.6,.4,0]},
+            {'scalar':1.4,'clamped_rgb':[.2,0,0]}],'black_content_scalar':[0.,0.]},
+           base+'/flat_field':{'state_rgb':[0,1,.5],'composite_rgb_at_state':[.54,.13,0]}}
+    image=np.zeros((4,4,3),np.float32);image[:]=[0,1,.5]
+    shown=_palette_display(image,facts,[])
+    assert np.allclose(shown,[.54,.13,0])

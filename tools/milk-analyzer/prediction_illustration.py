@@ -297,7 +297,10 @@ def _palette_display(image,facts,limitations):
     # Content departing from the flat state moves along the palette toward black content.
     s=anchor+(target-anchor)*deviation
     order=np.argsort(scalars)
-    display=np.stack([np.interp(s,scalars[order],colours[order][:,c]) for c in range(3)],axis=-1).astype(np.float32)
+    ramp=np.stack([np.interp(s,scalars[order],colours[order][:,c]) for c in range(3)],axis=-1).astype(np.float32)
+    # Flat regions (deviation 0) show the exact flat-field display colour.
+    weight=deviation[...,None]
+    display=(1-weight)*np.array(background,np.float32)+weight*ramp
     limitations.append('display via the composite scalar palette: flat regions use the flat-field colour; departures from the flat state move along the palette toward the black-content colour (approximation)')
     return display
 

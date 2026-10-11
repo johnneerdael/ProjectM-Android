@@ -1627,3 +1627,18 @@ filter footprint; optional context offsets and main texture size default unknown
 Do not infer half-texel offsets or texture dimensions from viewport. New contracts
 and qualification scope belong in `tools/milk-analyzer/PRESET_UNDERSTANDING.md`
 and corresponding evidence; automatic whole-pack mood grouping remains unfinished.
+
+Continuation session (2026-10-11): emulator captures now work in the task-owned
+`emulator-5610` (AVD `projectmtv-predictor-core234` under
+`build/preset-corpus/runtime34/avd-home`, headless `-gpu swiftshader_indirect`);
+host CPU-feature queries succeed in this session. `emulator_checkpoint_capture.py`
+refuses non-emulator serials and checks `ro.kernel.qemu`. New source modules:
+mesh-field structure (zoom about the screen centre, cx/cy for stretch/rotation),
+motion-vector element (legacy `bMotionVectorsOn` → `mv_a=1`), RGBA8 decay orbits
+under real/float32/fp16 profiles, scalar palettes, flat-field states,
+time-only expression evaluation (projectm-eval semantics) and the approximate
+mood layer (`approximate_mood.py`, editable, abstains at low confidence; strict
+eligibility unchanged). `corpus_understanding.py` must use `multiprocessing.Pool`:
+`ProcessPoolExecutor(max_tasks_per_child)` deadlocked after recycling every
+worker. Do not edit analyzer `.py` files during a corpus run: workers verify
+model hashes. See `docs/superpowers/evidence/source-understanding-checkpoints-2026-10-11/`.

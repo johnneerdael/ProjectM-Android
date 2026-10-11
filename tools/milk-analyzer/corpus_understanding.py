@@ -8,7 +8,9 @@ report with band collections. Strict source eligibility is kept separately;
 approximate bands are assumption-based preference groups, not calibrated moods.
 """
 import argparse
+import base64
 import collections
+import gzip
 import multiprocessing
 import hashlib
 import json
@@ -52,10 +54,10 @@ def work(path,options,expected_models):
             return row
         summary=summarize_preset(record)
         mood=approximate_mood(summary,options.get('rules'))
-        row.update(status='computed',description=summary['description'],
-            approximate_mood={k:mood[k] for k in ('activity_estimate','activity_interval','bands','possible_bands',
-                                                  'confidence','prior_driver_share','components','strict_eligible_bands',
-                                                  'abstained','unresolved_driver_count')},
+        # Compressed SDK summary allows offline rescoring without re-export.
+        packed=base64.b64encode(gzip.compress(json.dumps(summary,separators=(',',':')).encode(),compresslevel=6)).decode()
+        row.update(status='computed',description=summary['description'],summary_gzip_base64=packed,
+            approximate_mood=_mood_row(mood),
             drivers=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']],
             record_sha256=record.get('record_sha256'))
     except BaseException as error:
@@ -70,6 +72,26 @@ def work(path,options,expected_models):
 
 def _star_work(arguments):
     return work(*arguments)
+
+
+def _mood_row(mood):
+    return {k:mood[k] for k in ('activity_estimate','activity_interval','bands','possible_bands','confidence',
+                                'prior_driver_share','components','strict_eligible_bands','abstained','unresolved_driver_count')}
+
+
+def rescore(output,rules=None):
+    """Recompute approximate moods from saved summaries; rows keep their identity."""
+    _initialize()
+    from approximate_mood import approximate_mood
+    for path in sorted((output/'results').glob('*.json')):
+        row=json.loads(path.read_text())
+        if row.get('status')!='computed' or 'summary_gzip_base64' not in row:continue
+        summary=json.loads(gzip.decompress(base64.b64decode(row['summary_gzip_base64'])))
+        mood=approximate_mood(summary,rules)
+        row['approximate_mood']=_mood_row(mood)
+        row['drivers']=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']]
+        temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(row)+'\n');temporary.replace(path)
+    return report(output)
 
 
 def report(output):
@@ -109,9 +131,13 @@ def main(argv=None):
     parser.add_argument('--timeout',type=int,default=180)
     parser.add_argument('--limit',type=int)
     parser.add_argument('--report-only',action='store_true')
+    parser.add_argument('--rescore',action='store_true',help='recompute approximate moods from saved summaries')
     args=parser.parse_args(argv)
     if args.report_only:
         print(json.dumps(report(args.output),indent=2));return
+    if args.rescore:
+        rules=json.loads(args.rules.read_text()) if args.rules else None
+        print(json.dumps(rescore(args.output,rules),indent=2));return
     from effect_family_export import loaded_model_hashes
     models=loaded_model_hashes()
     options={'reader':str(args.reader.resolve()),'timeout':args.timeout,
