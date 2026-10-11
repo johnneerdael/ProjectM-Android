@@ -133,13 +133,13 @@ def test_marker_uses_declared_time_domain_when_projection_is_absent(monkeypatch)
 def test_spiral_exports_quantized_persistence_and_layer_sweep_without_density_credit():
     value=report(read(PRESETS/'Zylot - Spiral.milk'),{'viewport':[480,270],'feedback_fps':30})
     persistence=value['feedback_persistence']
-    assert persistence['status']=='conditional_quantized_decay_orbit'
-    assert persistence['floor_level_from_full']==6
-    assert persistence['steps_to_floor_from_full']==43
+    assert persistence['status'].startswith('conditional_quantized_decay_orbit')
+    assert persistence['floor_level_interval']==[6,6]
+    assert persistence['steps_to_floor_interval']==[43,43]
     relation=value['curve_feedback_relation']['by_component']['wave_0']
     assert {9,43}<={row['declared_steps'] for row in relation['nominal_n_step_relations']}
     sweep=relation['persistence_layer_sweep']
-    assert sweep['interturn_gap_crossed_by_retained_layers_above_floor'] is True
+    assert sweep['interturn_gap_crossed_before_floor'] is True
     assert sweep['horizons'][0]['separation_exceeds_pitch'] is False
     assert sweep['final_visible_density'] is None
     assert 'source_feedback_persistence.py' in value['model_sources']
@@ -153,6 +153,8 @@ def test_spiral_exports_radius_locked_colour_and_diffusion_bound():
     assert colour['status']=='conditional_radius_locked_colour'
     assert colour['concentric_ring_pattern']=='static_at_fixed_radius'
     assert 9.6<colour['channels']['r']['radial_modulo_period_pixels']<9.7
+    assert colour['sweep_front']['revisit_frames_interval']==[18,19]
+    assert colour['sweep_front']['stored_level_from_full_before_next_crossing_interval'] is not None
     spread=value['curve_feedback_relation']['by_component']['wave_0']['bilinear_diffusion_spread']
     assert spread['status']=='conditional_bilinear_spread_bound'
     assert spread['adjacent_layer_merge_possible'] is True

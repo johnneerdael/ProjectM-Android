@@ -441,14 +441,14 @@ def test_mode3_waveform_alpha_dependency_is_reported():
 def test_quantized_persistence_and_layer_sweep_prose_stays_conditional():
     record=control_record()
     static=record['analysis']['visual_description']['static_behaviour']
-    static['feedback_persistence']={'policy':'source-unorm8-decay-persistence-v1',
-        'status':'conditional_quantized_decay_orbit','decay_gain':.92,'largest_stuck_level':6,
-        'floor_level_from_full':6,'steps_to_floor_from_full':43,'steps_to_half_from_full':9,
-        'seconds_to_floor_from_full':43/30,'seconds_to_half_from_full':.3,'visible_trail_length':None}
+    static['feedback_persistence']={'policy':'source-unorm8-decay-persistence-v2',
+        'status':'conditional_quantized_decay_orbit_profile_dependent','decay_gain':.92,'largest_stuck_level':6,
+        'largest_stuck_level_interval':[6,6],'floor_level_interval':[6,6],'steps_to_floor_interval':[43,43],
+        'steps_to_half_interval':[9,9],'visible_trail_length':None}
     static['curve_feedback_relation']={'components':[{'component_id':'wave_0',
         'status':'conditional_local_curve_feedback_relation','reference_selection':{'source_sample':.5},
         'persistence_layer_sweep':{'status':'conditional_persistence_layer_sweep',
-            'interturn_gap_crossed_by_retained_layers_above_floor':True,
+            'interturn_gap_crossed_before_floor':True,
             'horizons':[{'horizon':'half_level','steps':9,'separation_exceeds_pitch':False,'gap_crossings_lower_bound':0},
                         {'horizon':'floor_level','steps':43,'separation_exceeds_pitch':True,'gap_crossings_lower_bound':3}]}}]}
     result=summarize_preset(record)
@@ -473,6 +473,8 @@ def test_radius_locked_colour_and_spread_prose():
     static=record['analysis']['visual_description']['static_behaviour']
     static['radial_colour_field']={'components':[{'component_id':'wave_0','status':'conditional_radius_locked_colour',
         'concentric_ring_pattern':'static_at_fixed_radius','continuous_curve_colour_angle_independent':True,
+        'sweep_front':{'status':'conditional_rotating_refresh_front','revisit_cadence_hz':1.5915494,
+            'stored_level_from_full_before_next_crossing_interval':[52,57]},
         'channels':{'r':{'status':'radius_locked_channel','radial_modulo_period_pixels':9.6},
                     'g':{'status':'radius_locked_channel','radial_modulo_period_pixels':16.06},
                     'b':{'status':'uniform_channel','radial_modulo_period_pixels':None}}}]}
@@ -484,10 +486,13 @@ def test_radius_locked_colour_and_spread_prose():
     fact=next(f for f in result['facts']['colour'] if '/radial_colour_field/components/' in f['path'])
     assert resolve(record,fact['path'])==fact['value']
     text=result['description']
-    assert 'concentric raw-colour rings' in text
+    assert 'depends only on radius' in text
+    assert 'can read as concentric colour rings' in text
     assert 'r every 9.6 px' in text and 'g every 16.06 px' in text
     assert 'static at a fixed radius' in text
-    assert 'can merge into continuous bands' in text
+    assert 'could merge into continuous bands' in text
+    assert 'sweeps each covered radius at 1.59 Hz' in text
+    assert 'not a whole-screen flash' in text
 
 
 def test_unsupported_recipe_or_preset_name_does_not_supply_spiral_claim():

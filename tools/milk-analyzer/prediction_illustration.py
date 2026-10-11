@@ -5,7 +5,8 @@ equations, shaders or rendered frames are read. Supported now: affine polar
 custom-wave recipes with their declared projection, raw affine colour labels,
 and the qualified central radial feedback map combined with the conditional
 RGBA8 decay orbit. Retained curve copies of age n are drawn at the closed-form
-position F^n(r) and the stored level orbit[n]/255; levels at the floor persist.
+position F^n(r) about the screen centre, each channel at its own float32-profile
+stored level after n decays.
 The image illustrates the source interpretation for human comparison; it is no
 renderer, no capture and never a classification input.
 """
@@ -68,11 +69,28 @@ def _feedback(facts):
     radial=facts.get('/analysis/visual_description/static_behaviour/affine_radial_feedback')
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence')
     if not isinstance(radial,dict) or radial.get('status')!='conditional_affine_radial_sampler':return None
-    if not isinstance(persistence,dict) or persistence.get('status')!='conditional_quantized_decay_orbit':return None
+    if not isinstance(persistence,dict) or persistence.get('status') not in {
+            'conditional_quantized_decay_orbit','conditional_quantized_decay_orbit_profile_dependent'}:return None
     coefficients=radial['zoom_affine_coefficients_exact']
     return {'a':float(_exact(coefficients['a'])),'b':float(_exact(coefficients['b'])),
-            'orbit':persistence['level_orbit_from_full'],'floor':persistence['floor_level_from_full'],
-            'aspect':radial['native_aspect_xy'],'viewport':radial['viewport']}
+            'gain':persistence['decay_gain'],'aspect':radial['native_aspect_xy'],'viewport':radial['viewport']}
+
+
+def _level_table(gain,steps):
+    """Per-level float32-profile stored orbits: table[n][k] after n decays."""
+    from source_feedback_persistence import _level_map
+    mapping=np.array([level for level,_ in _level_map(gain,'float32')])
+    table=[np.arange(256)]
+    for _ in range(steps):table.append(mapping[table[-1]])
+    return np.stack(table)
+
+
+def _qualified_relation(facts,identity):
+    for path,value in facts.items():
+        if ('/curve_feedback_relation/components/' in path and isinstance(value,dict) and
+                value.get('component_id')==identity and value.get('status')=='conditional_local_curve_feedback_relation'):
+            return value
+    return None
 
 
 def _retained_radius(radius,feedback,steps):
@@ -101,42 +119,51 @@ def _spread_sigma(spread,age):
 def illustrate(summary,*,time,fps,history_steps):
     facts=_facts(summary)
     context=facts.get('/analysis/visual_description/static_behaviour/context') or {}
-    width,height=context.get('viewport',[480,270])
+    if not isinstance(context.get('viewport'),list):raise ValueError('declared static-behaviour viewport is required')
+    width,height=context['viewport']
     image=np.zeros((height,width,3),np.float32)
     used=[];limitations=[]
     feedback=_feedback(facts)
     if feedback is None:limitations.append('no qualified radial feedback plus decay orbit: only the fresh curve is drawn')
+    table=None if feedback is None else _level_table(feedback['gain'],history_steps)
     for identity,recipe,projection in _curve_inputs(facts):
         count=recipe['sample_domain']['effective_samples']
         samples=np.linspace(0.0,1.0,count)
         R={key:float(_exact(v)) for key,v in recipe['radius_affine_coefficients_exact'].items()}
         P={key:float(_exact(v)) for key,v in recipe['phase_affine_coefficients_exact'].items()}
+        if projection.get('viewport')!=[width,height]:
+            limitations.append(identity+': projection viewport differs from the declared context; skipped');continue
+        missing=[name for name in 'rgb' if (recipe.get('spatial_vertex_colour') or {}).get('channels',{}).get(name,{}).get('affine_coefficients_exact') is None]
+        if missing:limitations.append(identity+': channels '+''.join(missing)+' lack affine coefficients and are drawn at full level')
         centre=np.array(projection['nominal_centre_pixels'],np.float64)
         scale=np.array(projection['nominal_source_to_pixel_scale_xy'],np.float64)
         trig=recipe.get('axis_trig_functions',['sin','cos'])
         functions={'sin':np.sin,'cos':np.cos}
-        spread=_spread(facts,identity) if feedback is not None else None
-        if feedback is not None and spread is None:limitations.append(identity+': no bilinear spread record; layers drawn unblurred')
-        ages=range(history_steps,-1,-1) if feedback is not None else [0]
+        layered=feedback is not None and _qualified_relation(facts,identity) is not None
+        if feedback is not None and not layered:
+            limitations.append(identity+': no qualified central curve/feedback relation; retained layers omitted')
+        spread=_spread(facts,identity) if layered else None
+        if layered and spread is None:limitations.append(identity+': no bilinear spread record; layers drawn unblurred')
+        ages=range(history_steps,-1,-1) if layered else [0]
         for age in ages:
             drawn=time-age/fps
             radius=R['constant']+R['sample']*samples+R['time']*drawn
             phase=P['constant']+P['sample']*samples+P['time']*drawn
             offset=np.stack([functions[trig[0]](phase)*radius,functions[trig[1]](phase)*radius],axis=-1)*scale
             colour=_colour(recipe,samples,drawn)
-            if age:
-                # Move the drawn points with the retained-feature map in native
-                # radius units (pixels / half the long viewport side).
-                half=max(width,height)/2
-                pixel_radius=np.hypot(offset[:,0],offset[:,1])
-                moved=_retained_radius(pixel_radius/half,feedback,age)*half
-                with np.errstate(divide='ignore',invalid='ignore'):
-                    factor=np.where(pixel_radius>0,moved/pixel_radius,1.0)
-                offset=offset*factor[:,None]
-                orbit=feedback['orbit']
-                level=orbit[age] if age<len(orbit) else feedback['floor']
-                colour=colour*(level/255)
             points=centre+offset
+            if age:
+                # The qualified map is centred on the screen: native radius is the
+                # aspect-corrected distance from the screen centre in NDC units.
+                screen=np.array([width/2,height/2])
+                ndc=(points-screen)/screen*np.array(feedback['aspect'])
+                radius_native=np.hypot(ndc[:,0],ndc[:,1])
+                moved=_retained_radius(radius_native,feedback,age)
+                with np.errstate(divide='ignore',invalid='ignore'):
+                    factor=np.where(radius_native>0,moved/radius_native,1.0)
+                points=screen+(points-screen)*factor[:,None]
+                # Each channel follows its own stored-level orbit from round(c*255).
+                colour=table[age][np.clip(np.rint(colour*255),0,255).astype(int)]/255
             layer=np.zeros_like(image);mask=np.zeros(image.shape[:2],np.float32)
             for index in range(count-1):
                 if not (np.all(np.isfinite(points[index:index+2]))):continue
@@ -173,7 +200,8 @@ def main(argv=None):
         'image_sha256':hashlib.sha256(args.output.read_bytes()).hexdigest(),'declared_time_seconds':args.time,
         'history_steps':args.history_steps,'drawn_components':used,'limitations':limitations+[
             'Illustration of frozen source facts; 1px antialiased layers blurred by the uniform-offset spread reference, newer layers over older ones',
-            'Not a renderer: smoothing, filtering, exact raster, waveform/audio-driven elements and composite effects are omitted'],
+            'Not a renderer: smoothing, filtering, exact raster, waveform/audio-driven elements, additive waves, wave alpha and composite effects are omitted',
+            'Layers older than history_steps, including permanent floor residue, are omitted'],
         'uses_rendered_images':False,'uses_equation_execution':False,'reads_preset_source':False}
     args.output.with_suffix('.json').write_text(json.dumps(identity,indent=2)+'\n')
     print(json.dumps(identity))

@@ -168,42 +168,64 @@ particle or mood credit follows. A producer failure is isolated in
 `producer_failures` without erasing projection evidence.
 
 `static_behaviour.feedback_persistence` (policy
-`source-unorm8-decay-persistence-v1`) applies only to the fixed main-decay warp
+`source-unorm8-decay-persistence-v2`) applies only to the fixed main-decay warp
 model with zero offset and image-independent sampling. The pinned source34 warp
-writes `decay*texture(main)` into an RGBA8 main image, so a locally uniform stored
-level `k` becomes `round(k*d)`. Levels with `k*(1-d)<1/2` are fixed points, so a
-full-white level halves, then stalls at a nonzero floor (for `d=0.92`: halves in
-9 steps and stalls at 6/255 after 43). If `d>1-1/510`, full white never decays.
-Exact half-level ties are reported as ambiguous because GLES leaves the tie
-direction open. Mediump/fp16 arithmetic, filtering at edges, drawing, blending
-and display are not modelled; these are stored levels, not trail length.
+writes `min(decay,1)*texture(main)` at mediump into an RGBA8 main image, so a
+locally uniform stored level `k` becomes the round-to-nearest conversion of the
+shader product. The orbit from full white is computed under three arithmetic
+profiles (exact real, float32, fp16 mediump) because levels near a rounding tie
+can differ: for `d=0.95` the floor is 9 under exact real arithmetic and 10 under
+float32. Results are reported per profile and as intervals
+(`floor_level_interval`, `steps_to_half_interval`, `steps_to_floor_interval`,
+`largest_stuck_level_interval`); `level_orbit_from_full` is the float32
+reference. For `d=0.92` every profile halves in 9 steps and stalls at 6/255
+after 43. Exact ties are ambiguous because GLES leaves tie direction open.
+GLES only prefers round-to-nearest; truncating conversion would remove the
+floor. Edges, filtering, drawing, blending and display are not modelled.
 
-The half-level and floor horizons are added to the curve/feedback step counts
-when at most 128. `persistence_layer_sweep` compares the closed-form
-retained/fresh separation at each horizon with the turn pitch. Crossing at least
-one pitch before the floor supports a conditional gap-filling hypothesis:
-fading retained copies sweep across whole inter-turn gaps. It is not achieved
-density, overlap or thickness.
+The half-level and floor horizons (every distinct profile value, at most 128)
+are added to the curve/feedback step counts. `persistence_layer_sweep` compares
+the closed-form retained/fresh separation at each horizon with the turn pitch;
+`interturn_gap_crossed_before_floor` is true only when every floor horizon
+crosses, false only when none does. Crossing supports a conditional
+gap-filling hypothesis, not achieved density, overlap or thickness.
 
-`curve_feedback_relation` components also carry `bilinear_diffusion_spread`:
-each `GL_LINEAR` warp read at sub-texel offset `f` spreads a texel with variance
-`f(1-f)<=1/4` per axis, so after `n` steps the spread is at most `sqrt(n/4)`
-pixels (the engine's uniform-offset reference is `sqrt(n/6)`). Whole-texel
-offsets add nothing, so the record says only whether adjacent retained layers
-*can* merge into continuous bands. The engine's extra diffusion pass above its
-line-reference scale is excluded only when a scale at most 1 is declared.
+`curve_feedback_relation` components also carry `bilinear_diffusion_spread`.
+Each `GL_LINEAR` warp read at sub-texel offset `f` adds variance `f(1-f)<=1/4`
+per axis, and the qualified radial map stretches earlier spread by at most `J`
+per step (the larger of the forward radial stretch and the zoom). After `n`
+steps `Var<=(1/4)*sum_{k=1..n} J^(2k)`. Without a qualified radial map the bound is
+withheld. Whole-texel offsets add nothing, so only a positive possibility is
+reported: `adjacent_layer_merge_possible` is true or null, never false. An extra
+diffusion pass above the engine's line-reference scale would only add spread.
 
 `static_behaviour.radial_colour_field.components` (policy
 `source-radial-colour-field-v1`): for an affine polar recipe with `Rs!=0`, each
 affine raw label equals `C0+(Cs/Rs)*(R-Rc-Rt*t)+Ct*t`, a function of radius and
-time but not angle. When the radius keeps one sign (proved at time zero, or over
-a declared time domain), the continuous curve paints concentric raw-colour rings.
+time but not angle. When the radius keeps one sign (a time-invariant proof, or
+over a declared time domain), colour along the continuous curve is radius-locked;
+only where feedback actually covers the gaps can this read as concentric rings.
 Per channel it exports radial gradient `Cs/Rs`, radial modulo period
-`|Rs/Cs|*period` (pixels only with a matching isotropic projection), fixed-radius
-rate `Ct-Cs*Rt/Rs` and iso-label ring drift `Rt-Ct*Rs/Cs`. A spiral whose colour
-is radius-locked can therefore read as rings once feedback fills its gaps.
+`|Rs/Cs|*period` where raw labels stay nonnegative (native signed fmod plus
+clamp is not periodic across zero; `negative_raw_label_possible` flags this;
+pixels need a matching isotropic projection), fixed-radius
+rate `Ct-Cs*Rt/Rs` and iso-label ring drift `Rt-Ct*Rs/Cs`. A radius-locked spiral can
+therefore read as rings if feedback fills its gaps; that remains a hypothesis.
 Layering age, smoothing, modulo/clamps and composition remain separate; visible
 ring count and contrast are not certified.
+
+The radial colour record also carries `sweep_front`. At a fixed displayed
+radius the curve's single point moves in angle at `Phi'_R=Pt-Ps*Rt/Rs`, so the
+continuous curve sweeps back over every interior point of a covered radius once
+per `2*pi/|Phi'_R|` seconds, whatever the number of turns. This is a rotating
+refresh front: a local, spatially travelling change, not a whole-screen flash.
+With the stored-level orbit,
+`stored_level_from_full_before_next_crossing_interval` gives the level a
+full-white deposit would reach before the next crossing if no retained content
+arrived from other radii; it is a modulation ceiling, since feedback transport
+can refill the point first. When `Rt!=0` a fixed radius is covered only for
+`|Rs/Rt|` seconds (`revisit_within_radius_coverage`); more than one revisit per
+frame aliases and withholds the level estimate.
 
 `static_behaviour.radial_uv_envelope` needs explicit `texel_offset_pixels`; optional
 `main_texture_size` independently supplies sampled texture dimensions. Neither

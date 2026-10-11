@@ -260,8 +260,10 @@ def _radial_colour_fields(analysis,description,context,evidence):
         if recipe is None:continue
         identity=element['id']
         projection=evidence['curve_projection']['by_component'].get(identity)
-        field_context={} if declared_time is None else {'source_time_domain':declared_time}
-        row=source_radial_colour_field.radial_colour_field(recipe,projection,field_context)
+        field_context={'feedback_fps':context['feedback_fps']}
+        if declared_time is not None:field_context['source_time_domain']=declared_time
+        row=source_radial_colour_field.radial_colour_field(recipe,projection,field_context,
+            persistence=evidence.get('feedback_persistence'))
         components.append({**row,'component_id':identity})
     return {'policy':'source-radial-colour-field-export-v1','components':components,
             'by_component':{row['component_id']:row for row in components},
@@ -323,7 +325,8 @@ def _curve_feedback_relations(analysis,description,context,evidence):
                 description.get('feedback_envelope',{}),context=relation_context)
             row['persistence_layer_sweep']=persistence_layer_sweep(row,evidence.get('feedback_persistence'))
             from source_feedback_persistence import bilinear_diffusion_spread
-            row['bilinear_diffusion_spread']=bilinear_diffusion_spread(row,evidence.get('feedback_persistence'))
+            row['bilinear_diffusion_spread']=bilinear_diffusion_spread(row,evidence.get('feedback_persistence'),
+                radial=evidence.get('affine_radial_feedback'))
         except (ValueError,KeyError,OverflowError,ZeroDivisionError) as error:
             row={'policy':'source-curve-feedback-relation-v1','status':'unknown',
                  'unknown_reasons':[str(error)],'actual_trail_thickness_pixels':None,
@@ -385,12 +388,12 @@ def static_behaviour(analysis,description,context=None):
         result['curve_projection']=produce('curve_projection',_curve_projections,arguments,{'by_component':{},'components':[]})
         result['material_marker_motion']=produce('material_marker_motion',_material_marker_motions,
             (*arguments,result),{'by_component':{},'components':[]})
-        result['radial_colour_field']=produce('radial_colour_field',_radial_colour_fields,
-            (*arguments,result),{'by_component':{},'components':[]})
         result['affine_radial_feedback']=produce('affine_radial_feedback',_affine_radial_feedback,arguments,
             {'native_numeric_certified':False,'visible_motion_speed':None,'whole_preset_activity_credit':False})
         result['feedback_persistence']=produce('feedback_persistence',_feedback_persistence,arguments,
             {'largest_stuck_level':None,'visible_trail_length':None})
+        result['radial_colour_field']=produce('radial_colour_field',_radial_colour_fields,
+            (*arguments,result),{'by_component':{},'components':[]})
         result['curve_feedback_relation']=produce('curve_feedback_relation',_curve_feedback_relations,
             (*arguments,result),{'by_component':{},'components':[]})
         result['radial_uv_envelope']=produce('radial_uv_envelope',_radial_uv_envelope,(result,normalized),

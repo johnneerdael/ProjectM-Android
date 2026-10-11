@@ -26,3 +26,11 @@ def test_spread_reference_uses_uniform_offset_variance():
     spread={'per_step_variance_uniform_offset_reference_texels2':1/6}
     assert _spread_sigma(spread,6)==pytest.approx(1.0)
     assert _spread_sigma(None,6)==0.0
+
+
+def test_faint_channels_follow_their_own_stored_level_orbit():
+    from prediction_illustration import _level_table
+    table=_level_table(float(np.float32(.98)),200)
+    assert table[200][26]==25
+    assert table[200][255]==25
+    assert table[0][26]==26

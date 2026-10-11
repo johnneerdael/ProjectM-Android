@@ -285,16 +285,21 @@ def _description(summary):
             sentences.append(text+'; conditional source envelopes, not observed native texture taps.')
             continue
         if item['path'].endswith('/feedback_persistence'):
-            if row.get('status')!='conditional_quantized_decay_orbit':continue
+            if row.get('status') not in {'conditional_quantized_decay_orbit','conditional_quantized_decay_orbit_profile_dependent'}:continue
+            def span(key):
+                value=row.get(key)
+                if not isinstance(value,list) or len(value)!=2:return None
+                return str(value[0]) if value[0]==value[1] else str(value[0])+'-'+str(value[1])
             text=('Stored RGBA8 decay '+format(row.get('decay_gain'),'.6g')+': a full-white level ')
-            half=row.get('steps_to_half_from_full')
-            text+=('halves within '+str(half)+' steps and ' if type(half) is int else 'never halves and ')
-            text+=('stalls at stored level '+str(row.get('floor_level_from_full'))+'/255 after '+
-                   str(row.get('steps_to_floor_from_full'))+' steps')
-            stuck=row.get('largest_stuck_level')
-            if type(stuck) is int and stuck>0:
-                text+='; stored levels up to '+str(stuck)+'/255 never decay further'
-            sentences.append(text+' (uniform-neighbourhood storage arithmetic; filtering, drawing and visible trail length unverified).')
+            half=span('steps_to_half_interval')
+            text+=('halves within '+half+' steps and ' if half is not None else 'may never halve and ')
+            text+=('stalls at stored level '+str(span('floor_level_interval'))+'/255 after '+
+                   str(span('steps_to_floor_interval'))+' steps')
+            stuck=row.get('largest_stuck_level_interval')
+            if isinstance(stuck,list) and len(stuck)==2 and stuck[1]>0:
+                text+='; stored levels up to '+str(span('largest_stuck_level_interval'))+'/255 never decay further'
+            sentences.append(text+' (exact-real/float32/fp16 profiles, round-to-nearest, uniform neighbourhoods; '
+                'truncating conversion, filtering, drawing and visible trail length unverified).')
             continue
         if '/curve_feedback_relation/components/' in item['path']:
             if row.get('status')!='conditional_local_curve_feedback_relation':continue
@@ -302,19 +307,17 @@ def _description(summary):
             if isinstance(spread,dict) and spread.get('status')=='conditional_bilinear_spread_bound':
                 if spread.get('adjacent_layer_merge_possible') is True:
                     sentences.append(str(row.get('component_id'))+' bilinear feedback resampling can spread retained '
-                        'layers enough that adjacent copies can merge into continuous bands (spread ceiling only; '
-                        'whole-texel offsets add none).')
-                elif spread.get('adjacent_layer_merge_possible') is False:
-                    sentences.append(str(row.get('component_id'))+' retained layers are spaced beyond the bilinear '
-                        'spread ceiling; distinct echo strokes stay possible.')
+                        'layers enough that adjacent copies could merge into continuous bands (a possibility from a '
+                        'spread ceiling; whole-texel offsets add none).')
             sweep=row.get('persistence_layer_sweep')
             if isinstance(sweep,dict) and sweep.get('status')=='conditional_persistence_layer_sweep':
-                floor=next((h for h in sweep.get('horizons',[]) if isinstance(h,dict) and h.get('horizon')=='floor_level'),None)
-                if floor is not None and floor.get('separation_exceeds_pitch') is True:
+                floors=[h for h in sweep.get('horizons',[]) if isinstance(h,dict) and h.get('horizon')=='floor_level']
+                crossings=[h.get('gap_crossings_lower_bound') for h in floors if type(h.get('gap_crossings_lower_bound')) is int]
+                if sweep.get('interturn_gap_crossed_before_floor') is True and crossings:
                     sentences.append(str(row.get('component_id'))+' retained layers drift past fresh ones and '
-                        'cross at least '+str(floor.get('gap_crossings_lower_bound'))+' inter-turn gaps before their '
+                        'cross at least '+str(min(crossings))+' inter-turn gaps before their '
                         'stored level reaches the floor: a conditional gap-filling hypothesis (density unverified).')
-                elif floor is not None and floor.get('separation_exceeds_pitch') is False:
+                elif sweep.get('interturn_gap_crossed_before_floor') is False:
                     sentences.append(str(row.get('component_id'))+' retained layers stay within one inter-turn gap '
                         'before reaching the stored floor; distinct echo layers are possible (density unverified).')
             reference=_object(row.get('reference_selection',{}),item['path']+'/reference_selection')
@@ -487,10 +490,20 @@ def _description(summary):
             period=channel.get('radial_modulo_period_pixels') if isinstance(channel,dict) else None
             if type(period) in (int,float):periods.append(name+' every '+format(period,'.4g')+' px')
         pattern=row.get('concentric_ring_pattern')
-        text=str(row.get('component_id'))+' raw colour is radius-locked, painting concentric raw-colour rings'
-        if periods:text+=' (radial modulo period '+', '.join(periods)+')'
+        text=(str(row.get('component_id'))+' raw colour along the curve depends only on radius (radius-locked); '
+              'where feedback fills the gaps this can read as concentric colour rings')
+        if periods:text+=' (radial modulo period '+', '.join(periods)+' where raw labels stay nonnegative)'
         if pattern=='static_at_fixed_radius':text+='; colour is static at a fixed radius in the fresh drawing'
         elif pattern=='drifting_or_cycling':text+='; ring colours drift or cycle over time'
+        sweep=row.get('sweep_front')
+        if isinstance(sweep,dict) and sweep.get('status')=='conditional_rotating_refresh_front':
+            text+=('; the curve sweeps each covered radius at '+format(sweep['revisit_cadence_hz'],'.3g')+
+                   ' Hz as a rotating refresh front (local travelling change, not a whole-screen flash)')
+            levels=sweep.get('stored_level_from_full_before_next_crossing_interval')
+            if isinstance(levels,list) and len(levels)==2:
+                text+=', a deposit falls to stored level '+str(levels[0])+'-'+str(levels[1])+'/255 before the next crossing without refill'
+        elif isinstance(sweep,dict) and sweep.get('status')=='stationary_curve_at_fixed_radius':
+            text+='; the curve point at each radius does not rotate'
         rings.append(text)
     if rings:
         sentences.append('Ring colour structure: '+'; '.join(rings[:3])+'. This holds for the continuous source curve; '

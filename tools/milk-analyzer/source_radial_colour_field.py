@@ -3,8 +3,9 @@
 For R=Rc+Rs*s+Rt*t with Rs!=0 the sample on the curve is s=(R-Rc-Rt*t)/Rs, so
 an affine raw label C0+Cs*s+Ct*t equals C0+(Cs/Rs)*(R-Rc-Rt*t)+Ct*t: a function
 of radius and time only, independent of angle. While the radius keeps one sign
-the displayed distance from the centre identifies that branch, so the
-continuous curve paints concentric raw-colour rings. Per channel the exports are
+the displayed distance from the centre identifies that branch, so colour along
+the continuous curve is radius-locked; rings can appear only where feedback
+covers the gaps. Per channel the exports are
 the radial gradient Cs/Rs, the radial modulo period |Rs/Cs|*period, the
 fixed-radius colour rate Ct-Cs*Rt/Rs and the iso-label ring drift Rt-Ct*Rs/Cs.
 No sampled vertices, raster, visible ring count or mood credit follows.
@@ -55,15 +56,16 @@ def _pixel_scale(recipe,projection):
     return scale
 
 
-def radial_colour_field(recipe,projection=None,context=None):
+def radial_colour_field(recipe,projection=None,context=None,persistence=None):
     """Derive per-channel radius-locked raw colour for an affine polar recipe."""
     result={'policy':POLICY,'status':'unknown','channels':{},'continuous_curve_colour_angle_independent':None,
-        'concentric_ring_pattern':None,'radius_branch':None,'source_time_domain':None,'nominal_source_to_pixel_scale':None,
+        'concentric_ring_pattern':None,'radius_branch':None,'source_time_domain':None,'sweep_front':None,'nominal_source_to_pixel_scale':None,
         'displayed_colour_angle_independent':None,'visible_ring_count':None,'actual_visible_contrast':None,
         'native_numeric_certified':False,'uses_equation_execution':False,'uses_rendered_images':False,
         'whole_preset_activity_credit':False,'unknown_reasons':[],'projection_unknown_reasons':[],
         'conditions':['Raw labels are exact affine source coefficients before native signed modulo, clamps, interpolation and storage',
-            'Rs!=0 and one radius sign over the declared domain make the displayed centre distance identify a unique sample',
+            'Rs!=0 and one radius sign (time-invariant proof or declared time domain) make the displayed centre distance identify a unique sample',
+            'Radial modulo periods apply where raw labels stay nonnegative: native signed fmod plus clamp is not periodic across zero and negative labels clamp to zero',
             'Ring shapes are circles only under an isotropic aspect-corrected projection about the exact constant centre',
             'Finite sampled polylines, smoothing, line width, feedback layering and composition can change displayed colour; angle independence is for the continuous source curve only',
             'Retained layers under a qualified central radial feedback map keep angle independence, but the deposit age at a pixel can depend on angle']}
@@ -73,6 +75,8 @@ def radial_colour_field(recipe,projection=None,context=None):
         radius=_coefficients(recipe.get('radius_affine_coefficients_exact'))
         if radius['sample']==0:raise ValueError('radius does not vary with sample; colour is not a function of radius')
         sign=recipe.get('radius_sign')
+        declared=(context or {}).get('source_time_domain')
+        if declared is not None:result['source_time_domain']=_enclosure(_span(declared))
         if radius['time']!=0 and recipe.get('radius_sign_is_time_invariant') is not True:
             # A declared finite time domain can still prove one radius sign:
             # R is affine in (s,t), so its extremes lie at the domain corners.
@@ -83,7 +87,6 @@ def radial_colour_field(recipe,projection=None,context=None):
             sign=('strictly_positive' if min(corners)>0 else 'strictly_negative' if max(corners)<0 else
                   'nonnegative_with_possible_zero' if min(corners)>=0 else
                   'nonpositive_with_possible_zero' if max(corners)<=0 else 'crosses_zero')
-            result['source_time_domain']=_enclosure(times)
         if sign not in {'strictly_positive','strictly_negative','nonnegative_with_possible_zero','nonpositive_with_possible_zero'}:
             raise ValueError('radius sign changes across the sample domain; displayed radius has two branches')
         result['radius_branch']=sign
@@ -104,7 +107,8 @@ def radial_colour_field(recipe,projection=None,context=None):
             row={'status':'unknown','radial_gradient_per_source_unit_exact':None,'fixed_radius_rate_exact':None,
                  'fixed_radius_rate_per_second':None,'ring_drift_source_units_per_second_exact':None,
                  'ring_drift_source_units_per_second':None,'radial_modulo_period_source_units':None,
-                 'radial_modulo_period_pixels':None,'unknown_reasons':[]}
+                 'radial_modulo_period_pixels':None,'raw_label_range':None,'negative_raw_label_possible':None,
+                 'unknown_reasons':[]}
             result['channels'][name]=row
             try:
                 channel=channels[name]
@@ -119,6 +123,15 @@ def radial_colour_field(recipe,projection=None,context=None):
                     row['status']='uniform_channel'
                     moving=moving or rate!=0
                     continue
+                # Label extremes over the sample/time box lie at its corners.
+                times=_span(result['source_time_domain']) if result['source_time_domain'] is not None else (0,0)
+                if c['time']!=0 and result['source_time_domain'] is None:
+                    raise ValueError('time-varying label needs a declared source-time domain for its range')
+                corners=[c['constant']+c['sample']*s+c['time']*t for s in (0,1) for t in times]
+                if max(abs(v) for v in corners)>Fraction((2**24-1)*2**104):
+                    raise ValueError('raw label range lacks a finite native float32 domain')
+                row['raw_label_range']=[float(min(corners)),float(max(corners))]
+                row['negative_raw_label_possible']=min(corners)<0
                 drift=_bounded(radius['time']-c['time']*radius['sample']/c['sample'])
                 source_period=float(Fraction(period)*abs(1/gradient))
                 row.update(status='radius_locked_channel',ring_drift_source_units_per_second_exact=_metadata(drift),
@@ -129,9 +142,57 @@ def radial_colour_field(recipe,projection=None,context=None):
                 row['unknown_reasons'].append(str(error))
         if any(row['status']=='unknown' for row in result['channels'].values()):
             raise ValueError('one or more RGB channels lack supported exact affine coefficients')
+        result['sweep_front']=_sweep_front(recipe,radius,context,persistence)
         result.update(status='conditional_radius_locked_colour',continuous_curve_colour_angle_independent=True)
         if varying:result['concentric_ring_pattern']='drifting_or_cycling' if moving else 'static_at_fixed_radius'
         else:result['concentric_ring_pattern']='uniform_colour_no_rings'
     except (ValueError,KeyError,TypeError,OverflowError) as error:
         result['unknown_reasons'].append(str(error))
     return result
+
+
+def _sweep_front(recipe,radius,context,persistence):
+    """Fixed-radius angular rate Phi'_R=Pt-Ps*Rt/Rs and its revisit cadence."""
+    row={'policy':'source-curve-sweep-front-v1','status':'unknown','fixed_radius_angular_rate_exact':None,
+         'fixed_radius_angular_rate_radians_per_second':None,'revisit_cadence_hz':None,'revisit_period_seconds':None,
+         'revisit_frames_interval':None,'stored_level_from_full_before_next_crossing_interval':None,
+         'radius_coverage_seconds':None,'revisit_within_radius_coverage':None,'multiple_revisits_per_frame':None,
+         'whole_screen_flash':False,'visible_flash_frequency_hz':None,'unknown_reasons':[],
+         'conditions':['Each covered radius has one continuous-curve point whose angle moves at Phi_R; it crosses every interior point of that radius once per revisit period',
+             'Line width, sampled polyline gaps and smoothing decide how many pixels a crossing touches',
+             'Stored levels before the next crossing start from a full-white deposit and assume no retained content transported from other radii; feedback can refill a point first',
+             'With Rt!=0 a fixed radius is covered only for |Rs/Rt| seconds; a revisit period longer than that is not a repeated crossing',
+             'A travelling refresh front is local; it is not a whole-screen flash and its visible contrast is unverified']}
+    try:
+        phase={key:_bounded(_exact(value)) for key,value in recipe['phase_affine_coefficients_exact'].items()}
+        rate=_bounded(phase['time']-phase['sample']*radius['time']/radius['sample'])
+        row.update(fixed_radius_angular_rate_exact=_metadata(rate),fixed_radius_angular_rate_radians_per_second=_display(rate))
+        if rate==0:
+            row['status']='stationary_curve_at_fixed_radius'
+            return row
+        cadence=abs(float(rate))/(2*math.pi)
+        row.update(status='conditional_rotating_refresh_front',revisit_cadence_hz=cadence,revisit_period_seconds=1/cadence)
+        # A drifting radius range covers a fixed radius only for |Rs/Rt| seconds.
+        if radius['time']==0:row['revisit_within_radius_coverage']=True
+        else:
+            coverage=abs(float(radius['sample']/radius['time']))
+            row.update(radius_coverage_seconds=coverage,revisit_within_radius_coverage=1/cadence<=coverage)
+        fps=(context or {}).get('feedback_fps')
+        if type(fps) in (int,float) and math.isfinite(fps) and fps>0:
+            frames=fps/cadence
+            row['revisit_frames_interval']=[math.floor(frames),math.ceil(frames)]
+            row['multiple_revisits_per_frame']=frames<1
+            if frames<1:
+                row['unknown_reasons'].append('more than one revisit per frame: sampled crossings alias')
+                return row
+            from source_feedback_persistence import ORBIT_STATUSES
+            if isinstance(persistence,dict) and persistence.get('status') in ORBIT_STATUSES:
+                levels=[]
+                for profile in persistence.get('profiles',{}).values():
+                    orbit=profile.get('level_orbit_from_full')
+                    if not orbit:continue
+                    for n in (math.floor(frames),math.ceil(frames)):levels.append(orbit[n] if n<len(orbit) else orbit[-1])
+                if levels:row['stored_level_from_full_before_next_crossing_interval']=[min(levels),max(levels)]
+    except (ValueError,KeyError,TypeError,ZeroDivisionError) as error:
+        row['unknown_reasons'].append(str(error))
+    return row
