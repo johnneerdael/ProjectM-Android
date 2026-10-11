@@ -28,5 +28,26 @@ class TokenTests(unittest.TestCase):
     def test_revoked_token_rejected(self):
         self.responses['personal_access_tokens/self']['revoked']=True
         with self.assertRaisesRegex(ValueError,'inactive'):self.validate()
+    def test_project_limited_token_requires_real_write_probe(self):
+        self.assertTrue(hasattr(self.module,'AccessError'),'scoped token errors are not handled')
+        def api(endpoint,*args,**kwargs):
+            if endpoint=='personal_access_tokens/self':raise self.module.AccessError(403,endpoint)
+            return self.responses[endpoint]
+        with self.assertRaisesRegex(ValueError,'write probe'):self.module.validate('johnneerdael/fdroiddata',api)
+    def test_scoped_token_probe_creates_and_removes_only_new_branch(self):
+        self.assertTrue(hasattr(self.module,'AccessError'),'scoped token errors are not handled')
+        calls=[]
+        def api(endpoint,method='GET',payload=None):
+            calls.append((endpoint,method,payload))
+            if endpoint=='personal_access_tokens/self':raise self.module.AccessError(403,endpoint)
+            if method=='POST':return {'name':payload['branch']}
+            if method=='DELETE':return None
+            return self.responses[endpoint]
+        result=self.module.validate('johnneerdael/fdroiddata',api,'unique-run')
+        self.assertTrue(result['repository_write_verified'])
+        writes=[c for c in calls if c[1]!='GET']
+        self.assertEqual([c[1] for c in writes],['POST','DELETE'])
+        self.assertEqual(writes[0][2]['branch'],'codex-fdroid-permission-check-unique-run')
+        self.assertTrue(writes[1][0].endswith('codex-fdroid-permission-check-unique-run'))
 
 if __name__=='__main__':unittest.main()
