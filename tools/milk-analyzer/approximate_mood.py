@@ -74,7 +74,18 @@ def _band(name):
     return None
 
 
-def _drivers(summary,rules,fps,scale):
+def _mean_radius(viewport):
+    """Mean distance from the screen centre in long-side units (zoom/rotation flow average)."""
+    width,height=viewport;longest=max(width,height)
+    steps=48;total=0.
+    for i in range(steps):
+        for j in range(steps):
+            x=((i+.5)/steps-.5)*width/longest;y=((j+.5)/steps-.5)*height/longest
+            total+=math.hypot(x,y)
+    return total/(steps*steps)
+
+
+def _drivers(summary,rules,fps,scale,radius=.5):
     drivers=[];priors=set();components_with_evidence={};brightness_elements=set()
     def add(dimension,kind,value,path,reason,upper=None,component=None):
         if component:components_with_evidence[component]=True
@@ -100,15 +111,15 @@ def _drivers(summary,rules,fps,scale):
                     add('motion','unresolved',0.,path,'unscored warp pattern '+str(kind));continue
                 if kind in ('uniform_zoom','radial_zoom_profile'):
                     low,high=(abs(v)/100 for v in row['percent_per_step_range'])
-                    speeds=sorted([low*.5*fps,high*.5*fps])
-                    add('motion','source',(speeds[0]+speeds[1])/2,path,'uniform zoom edge flow (half-width)',speeds[1])
+                    speeds=sorted([low*radius*fps,high*radius*fps])
+                    add('motion','source',(speeds[0]+speeds[1])/2,path,'uniform zoom mean flow',speeds[1])
                     for band in {_band(name) for name in row.get('audio_inputs') or []}-{None}:add('audio','source',1.0,path,band)
                 elif kind in ('uniform_rotation','spatially_varying_rotation'):
                     span=row.get('value_range_radians_per_step')
                     if isinstance(span,list):
                         magnitudes=sorted(abs(v) for v in span) if span[0]*span[1]>=0 else [0.0,max(abs(v) for v in span)]
-                        add('motion','source',(magnitudes[0]+magnitudes[1])/2*.5*fps,path,'rotation edge speed (half-width)',
-                            magnitudes[1]*.5*fps)
+                        add('motion','source',(magnitudes[0]+magnitudes[1])/2*radius*fps,path,'rotation mean flow',
+                            magnitudes[1]*radius*fps)
                 elif kind in ('uniform_translation','translation_component'):
                     span=row.get('translation_pixels_per_second_range')
                     if isinstance(span,list) and all(type(v) in (int,float) for v in span):
@@ -216,7 +227,7 @@ def approximate_mood(summary,rules=None):
     fps=float(context.get('feedback_fps') or 30.)
     viewport=context.get('viewport') or [480,270]
     scale=float(max(viewport))
-    drivers=_drivers(summary,rules,fps,scale)
+    drivers=_drivers(summary,rules,fps,scale,_mean_radius(viewport))
     def total(dimension,kind=None,key='value'):
         source=[d[key] for d in drivers if d['dimension']==dimension and d['kind']=='source']
         prior=[d[key] for d in drivers if d['dimension']==dimension and d['kind']=='prior']

@@ -426,6 +426,16 @@ from strict source eligibility, which it reports unchanged.
   of unknown rate). Each mechanism/component counts once and priors contribute
   only their largest assumed magnitude per dimension.
 
+Shader motion magnitudes come from two exact-pointer facts: warp/composite
+`sample_value_offset_envelope` records (per-step lookup displacement bounds
+driven by sampled colours, from source or declared-scenario domains) and finite
+`sampling_motion` lookup speed ceilings. A warp self-advection bound `b` gives a
+source motion driver `fraction*b*fps` (editable `advection_typical_fraction`,
+default 0.25, because typical sample differences are far below the full
+range); a lookup ceiling gives half its speed. Audio routes into brightness or
+colour controls add one beat-flash prior scaled by the number of
+audio-brightness elements.
+
 Motion is measured in screen widths per second; source motion combines by
 root-sum-square. The score is `base + motion_weight*m + flash_weight*f +
 audio_weight*a + colour_weight*c` with each term clipped to [0,1]. Every weight,

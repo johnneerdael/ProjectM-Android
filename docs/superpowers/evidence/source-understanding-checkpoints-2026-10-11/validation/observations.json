@@ -208,5 +208,145 @@
   "mean_flow_screen_widths_per_s": 0.13356147963786497,
   "global_brightness_jumps_per_10s": 0,
   "mean_luminance": 0.3639051121663943
+ },
+ "goody + EoS + martin - nematodes (Reverse Jelly V3).milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.007933639506476695,
+  "mean_flow_screen_widths_per_s": 0.04013930194778368,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.1288000102124183
+ },
+ "shifter - mosaique simple - foobar2000 nz+ infinite partying.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.09012699662035897,
+  "mean_flow_screen_widths_per_s": 0.291461910540238,
+  "global_brightness_jumps_per_10s": 20,
+  "mean_luminance": 0.6335600266090232
+ },
+ "midezel.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.043465835259022256,
+  "mean_flow_screen_widths_per_s": 0.29075811965740284,
+  "global_brightness_jumps_per_10s": 14,
+  "mean_luminance": 0.07685268416394336
+ },
+ "yin - 102 - Through the ether (The separation) - Bitcore Tweak.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.03952329314454745,
+  "mean_flow_screen_widths_per_s": 0.08285126012578985,
+  "global_brightness_jumps_per_10s": 14,
+  "mean_luminance": 0.5526005126066631
+ },
+ "Zylot - Paint Spill (Music Reactive Paint Mix) nz+ i am mega-moron.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.12295336870219961,
+  "mean_flow_screen_widths_per_s": 0.25226783808320763,
+  "global_brightness_jumps_per_10s": 42,
+  "mean_luminance": 0.3754912167529048
+ },
+ "EoS + Phat - locus interactii b2 phat edit 02.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.004547267971577287,
+  "mean_flow_screen_widths_per_s": 0.01164500755694462,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.20461867567628905
+ },
+ "shifter - spectro - lawns are the deathscapes of humanity spher nz+ i am hated by everything.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.047212556175422284,
+  "mean_flow_screen_widths_per_s": 0.17077927721547895,
+  "global_brightness_jumps_per_10s": 24,
+  "mean_luminance": 0.1675448895356754
+ },
+ "EoS + phat - trinary 02 - afterlife.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.013614113305712805,
+  "mean_flow_screen_widths_per_s": 0.11661515416635666,
+  "global_brightness_jumps_per_10s": 1,
+  "mean_luminance": 0.16595940847403778
+ },
+ "stahlregen & flexi + geiss + rovastar - engraved echoes (mashup 35).milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.13962670776702127,
+  "mean_flow_screen_widths_per_s": 0.30809278702363374,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.17279401694126725
+ },
+ "EoS - repeater 08 - rave on a lot of acid and some K.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.004571299201921587,
+  "mean_flow_screen_widths_per_s": 0.02634254477234208,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.04694507108977851
+ },
+ "EVET - Bracer Peacecock.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.07340719689200645,
+  "mean_flow_screen_widths_per_s": 0.19871556197304016,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.2853044758759985
+ },
+ "suksma - my health fades and the universe laughs - panocorpia.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.18551319609666275,
+  "mean_flow_screen_widths_per_s": 0.4051311213261215,
+  "global_brightness_jumps_per_10s": 62,
+  "mean_luminance": 0.26085805447757804
+ },
+ "PieturP - HSL-here-we-go-circles.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.03415130473970155,
+  "mean_flow_screen_widths_per_s": 0.1612922298721969,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.27876912076752
+ },
+ "map2.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.019221179330635087,
+  "mean_flow_screen_widths_per_s": 0.05797941276105121,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.1839026932416485
+ },
+ "Tripgnosis - Firesticks --- Isosceles edit04.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.032818172236351535,
+  "mean_flow_screen_widths_per_s": 0.1765660104341805,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.40296325174745823
+ },
+ "Stahlregen - funky Blur (lotus mix) cream all over majorettes flacc xfr.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.06917622788306398,
+  "mean_flow_screen_widths_per_s": 0.033616418480341984,
+  "global_brightness_jumps_per_10s": 58,
+  "mean_luminance": 0.08864920172930282
+ },
+ "Fvese-snowflakelike2.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.026412395967219986,
+  "mean_flow_screen_widths_per_s": 0.21449050381779672,
+  "global_brightness_jumps_per_10s": 0,
+  "mean_luminance": 0.604698150984931
+ },
+ "suksma - barnacle coated hemoclubbin'.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.12668782246743424,
+  "mean_flow_screen_widths_per_s": 0.5379598645493389,
+  "global_brightness_jumps_per_10s": 39,
+  "mean_luminance": 0.11618295036764706
+ },
+ "Stahlregen & Flexi + Geiss + ORB - Spotted Blob_2 - usheriah colobot roam3.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.03573373761406004,
+  "mean_flow_screen_widths_per_s": 0.15439965152763763,
+  "global_brightness_jumps_per_10s": 5,
+  "mean_luminance": 0.0718041638298838
+ },
+ "f wen blew my wallet - chub, smack.milk": {
+  "status": "observed",
+  "mean_abs_frame_difference": 0.2246869861031349,
+  "mean_flow_screen_widths_per_s": 0.5109762668609619,
+  "global_brightness_jumps_per_10s": 40,
+  "mean_luminance": 0.33588671080700805
  }
 }

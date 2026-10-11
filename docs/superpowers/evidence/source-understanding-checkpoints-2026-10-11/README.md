@@ -64,3 +64,13 @@ This is weak evidence on a small sample. Known gaps: shader-driven motion
 magnitudes are priors; content that stays dark (one sample displays black
 frames) cannot yet be detected; flashing strength from thresholded audio
 brightness is not separated from clamped colour.
+
+## Whole-pack run r4 (advection and lookup motion) and mean-radius rescore
+
+`corpus-understanding-9606-r4`: 9,598 computed, 8 native-reader timeouts under
+heavy host load. Abstentions fell from 2,705 to 936 (9.7%). The rescore with
+mean-screen-radius zoom/rotation flow (`whole-pack-report-r4a.json`) gives Chill
+1,207, Normal 6,856, Intense 1,224. On 36 validation presets the rank correlation
+with observed activity is 0.53 (0.32 on 28 medium/high-confidence presets).
+Weights were partly adjusted after seeing validation results; no held-out set
+exists yet, so these figures may be optimistic.
