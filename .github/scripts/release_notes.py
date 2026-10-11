@@ -167,14 +167,31 @@ def downloader_code(readme: str) -> str:
     return match.group(1)
 
 
+def android_downloader_code(readme: str) -> str | None:
+    # Historical README revisions contain only the TV code; keep their footer usable.
+    match = re.search(r"^>\s*\*\*Install on your phone or tablet with the Downloader app:\s*code\s+`(\d+)`\*\*\s*$", readme, re.MULTILINE)
+    if match:
+        return match.group(1)
+    if "Install on your phone or tablet with the Downloader app" in readme:
+        raise ValueError("README.md must contain a valid canonical Android Downloader blockquote and code.")
+    return None
+
+
 def install_footer(repo: str, version: str, previous_tag: str | None, readme: str) -> str:
     base = f"https://github.com/{repo}"
     release = f"{base}/releases/download/v{version}"
     latest = f"{base}/releases/latest/download"
     changelog = f"{base}/compare/{previous_tag}...v{version}" if previous_tag else f"{base}/commits/v{version}"
+    android_code = android_downloader_code(readme)
+    phone_install = (
+        f"\n\nInstall on your phone or tablet with the Downloader app: code `{android_code}`. "
+        "Get [Downloader by AFTVnews from Google Play]"
+        "(https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en). "
+        "This code downloads the newest stable touchscreen APK."
+    ) if android_code else ""
     return f"""## Install and downloads
 
-Install on your TV with the Downloader app: code `{downloader_code(readme)}`. The code downloads the newest stable APK.
+Install on your TV with the Downloader app: code `{downloader_code(readme)}`. The code downloads the newest stable TV APK.{phone_install}
 
 - Latest: [Android TV APK]({latest}/projectM-TV.apk) · [Touchscreen Android APK]({latest}/projectM-Android.apk) · [Native core AAR]({latest}/projectM-TV-core.aar)
 - Version {version}: [Android TV APK]({release}/projectM-TV-{version}.apk) · [Touchscreen Android APK]({release}/projectM-Android-{version}.apk) · [Native core AAR]({release}/projectM-TV-core-{version}.aar)

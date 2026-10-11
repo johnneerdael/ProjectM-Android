@@ -99,7 +99,7 @@ For changes with no user-visible effect, use an `Internal` subsection and explai
 
 The workflow collects merged PR sections since the previous reachable version tag. Historical PRs before this automation use their existing change descriptions without validation/checklist/badge sections. Direct commits use their actual descriptions. The generator does not invent claims or use an external AI service.
 
-CI appends install/download information. The canonical Downloader code comes from the install blockquote in `README.md`; update it when the code changes. Notes include stable/latest and versioned APK/core URLs, checksums, the user guide and the comparison link. `RELEASE_NOTES.md` remains a human-readable archive rather than being copied into unrelated releases.
+CI appends install/download information. The canonical TV and Android Downloader codes come from their separate install blockquotes in `README.md`; update the matching blockquote when a code changes. The Android line is omitted for historical README revisions with no Android code. Notes include stable/latest and versioned APK/core URLs, checksums, the user guide and the comparison link. `RELEASE_NOTES.md` remains a human-readable archive rather than being copied into unrelated releases.
 
 ## Versions and tagged builds
 
@@ -121,9 +121,10 @@ Signing still requires the configured release key; locally debug-signed builds c
 
 ## Downloads and core library
 
-The Downloader code shown in README and the fixed APK URL serve the newest stable build:
+The platform-specific Downloader codes and fixed APK URLs serve the newest stable build:
 
-- [Latest APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk)
+- TV: Downloader **4821216**, [latest TV APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk)
+- Phone/tablet: Downloader **6565691**, [latest Android APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk). Install [Downloader from Google Play](https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en).
 - [Latest Native core AAR](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV-core.aar) (canonical integration download)
 
 New releases attach `projectM-TV-<version>.apk`, `projectM-Android-<version>.apk`, `projectM-Android-<version>-mapping.txt`, `projectM-TV-core-<version>.aar`, `projectM-TV-<version>-mapping.txt` and `checksums.txt`, plus the fixed APK/core names above and `projectM-Android.apk`. The touchscreen APK uses app ID `nl.neerdael.projectm` and the same signing key/version as the TV APK; each updater downloads its own platform asset. The reusable build workflow stages TV before building with `-PandroidTouchscreen=true`, because APK/mapping output paths are shared. Release publication uses `--with-touchscreen` to require both APKs, both mappings and matching stable aliases before publishing. Historical release retries without that flag retain the old artifact schema. The canonical versioned and fixed-name core files contain the same Native-capable AAR built with the APK. It contains the public Java/JNI API, native ARMv7/ARM64 libraries and presets, and shares the app version. There is one `:core` module and one published core artifact; separate capped and `core-native` artifacts are retired for new releases.

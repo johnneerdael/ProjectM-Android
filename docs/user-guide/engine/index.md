@@ -1,6 +1,6 @@
 # ProjectM TV Engine
 
-**ProjectM TV Engine** is the renderer inside ProjectM TV and inside apps that use its core library, such as [Milkbeat](https://github.com/johnneerdael/Milkbeat). It is projectM, the open-source reimplementation of Winamp's MilkDrop 2, with an ordered series of patches. The patches make it behave more like MilkDrop 2 and run well on TV hardware up to 4K.
+**ProjectM TV Engine** is the renderer inside ProjectM TV, ProjectM Android and apps that use its core library, such as [Milkbeat](https://github.com/johnneerdael/Milkbeat). It is projectM, the open-source reimplementation of Winamp's MilkDrop 2, with an ordered series of patches. The patches make it behave more like MilkDrop 2 and run well on TV hardware up to 4K.
 
 | | |
 |---|---|

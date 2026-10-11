@@ -8,8 +8,9 @@ Open the panel with **Center**, **Enter** or **Menu**. **Up / Down** selects a r
 
 | Setting | Values | Default | What it does |
 |---|---|---|---|
+| Audio input (ProjectM Android only) | Microphone; Phone playback (Android 10+) | Microphone | Opens the [audio source selector](#phone-audio-input); playback needs Android consent |
 | Auto change | Off, On | On | Change presets automatically after *Preset duration* |
-| Preset mood | All, Chill, Normal, Intense, Custom | All | Which presets play. A mood with no eligible presets on this TV is not offered. Custom appears after a [pack upload](custom-packs.md). See [Preset moods](predictive-collections.md) |
+| Preset mood | All, Chill, Normal, Intense, Custom | All | Which presets play. A mood with no eligible presets on this device is not offered. Custom appears after a [pack upload](custom-packs.md). See [Preset moods](predictive-collections.md) |
 | Preset duration | 10, 15, 20, 30, 45, 60, 90 s | 30 s | How long each preset plays with Auto change on |
 | Track display › | | | Opens the track panel |
 | Advanced › | | | Opens performance and quality settings |
@@ -34,7 +35,7 @@ Capture stops on pause, leaving no background microphone or playback recording. 
 
 | Setting | Values | Default | What it does |
 |---|---|---|---|
-| Resolution | Auto; 720p, 1080p, 1440p, 4K (up to the panel); Native (*panel*) | Auto | How large ProjectM TV renders. See [Picture quality](picture-quality.md#resolution) |
+| Resolution | Auto; 720p, 1080p, 1440p, 4K (up to the panel); Native (*panel*) | Auto | How large the visualizer renders. See [Picture quality](picture-quality.md#resolution) |
 | Frame rate | The refresh rate, ½ or ¼ of it, at least 24 fps | 30 fps at 60 Hz, 25 at 50 Hz | Target frame rate, paced to the display |
 | Detail | Minimal 24×16, Low 32×24, Medium 48×32, High 64×48, Ultra 96×72 | High on SHIELD/Tegra, Low on low-RAM devices, otherwise Medium | Warp mesh size. Per-vertex equations run on the CPU for every mesh point |
 | Native trails | Standard, Medium, High | Standard | How feedback is drawn above 1330p. See [Picture quality](picture-quality.md#native-trails) |
@@ -45,16 +46,16 @@ Capture stops on pause, leaving no background microphone or playback recording. 
 | Skip blank presets | Off, On | On | Moves on from presets that stay black while music plays; skips one permanently the second time |
 | Auto-update | Off, On; *Via F-Droid* | Off | Checks GitHub for new stable releases. See [Updates](getting-started.md#updates) |
 | Custom preset pack | *Upload ZIP ›* | No pack | Upload your own presets from a phone or computer. See [Custom preset packs](custom-packs.md) |
-| Skipped presets | *None*, or *N · Reset* | | Shows how many presets this TV skips; select it to clear the list |
+| Skipped presets | *None*, or *N · Reset* | | Shows how many presets this device skips; select it to clear the list |
 | Background compile | Off, On | On | Compiles the shaders of the next, random and previous presets on a second thread with its own OpenGL context, so switches do not pause. *Off* compiles them at the switch instead: the picture can hold for a second or two at each change. Troubleshooting only, see [The app closes at preset changes](troubleshooting.md#the-app-closes-at-preset-changes) |
 | Shader binary cache | Off, On | On | Keeps compiled shader programs as driver binaries and reuses them in the background thread's and the render thread's contexts. *Off* always compiles from source. Troubleshooting only, see [The app closes at preset changes](troubleshooting.md#the-app-closes-at-preset-changes) |
 | Last exit | *None recorded*, or the reason and how long ago | | The latest time the app ended while on screen, from Android's exit records (Android 11 and later). Select it for the [exit report](#exit-report) |
 
-The Advanced panel scrolls when its rows do not fit; D-pad focus brings each row into view.
+All three panels scroll when their rows do not fit. Swipe vertically on phones; D-pad focus brings each row into view on TV.
 
 ## Diagnostics
 
-Opening **Advanced** also shows a **Diagnostics** card beside it with live values:
+On TV, opening **Advanced** also shows a **Diagnostics** card beside it with live values:
 
 ![Advanced settings at their defaults with the Diagnostics card on a 1080p TV](images/setup/advanced-settings.jpg)
 
@@ -86,7 +87,9 @@ The app keeps those two lines in a small file in its own storage and overwrites 
 
 ## Notices
 
-Small notices can appear in the lower-left pill:
+Small notices can appear in the lower-left pill. **No audio detected** is the TV player-session notice; phone audio status appears in **Audio input** and the Audio meter. An update-ready notice on either build adds an **Install** row to the main panel.
+
+TV examples:
 
 - **No audio detected**: no player session was found after a start. See [Troubleshooting](troubleshooting.md#visuals-do-not-react-to-the-music).
 - **ProjectM TV *version* is ready to install: open the settings**: an auto-update has been downloaded. The **Install** row appears at the top of the main panel.

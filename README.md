@@ -2,13 +2,17 @@
 
 [![Android CI](https://github.com/johnneerdael/ProjectM-TV/actions/workflows/android.yml/badge.svg)](https://github.com/johnneerdael/ProjectM-TV/actions/workflows/android.yml)
 
-ProjectM TV is a music visualizer for Android TV, with a separate **ProjectM Android** touchscreen build for phones and tablets. It turns the music another app plays on the TV into MilkDrop visuals, at up to 4K, with 9,606 presets from Jason Fletcher's *Cream of the Crop* collection. It is not a music player itself. ProjectM Android can visualize its microphone or capture music played locally by another app.
+ProjectM TV and ProjectM Android turn sound into MilkDrop visuals using 9,606 presets from Jason Fletcher's *Cream of the Crop* collection. **ProjectM TV** listens to a music app on your Android TV or Google TV. **ProjectM Android** runs on touchscreen phones and tablets and uses microphone input or music played locally by another app. Both render in landscape and use the same engine; neither is a music player.
 
-It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualizer/projectm), the open-source reimplementation of Winamp's MilkDrop, based on unreleased projectM 4.2 master (commit `6f6480746`) plus 34 ordered patches. The patches restore MilkDrop 2's behaviour where projectM differs, keep presets at their authored scale on 4K screens, and make preset changes smooth on TV hardware.
+It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualizer/projectm), the open-source reimplementation of Winamp's MilkDrop, based on unreleased projectM 4.2 master (commit `6f6480746`) plus 35 ordered patches. The patches restore MilkDrop 2's behaviour where projectM differs, keep presets at their authored scale on 4K screens, and make preset changes smooth on TV hardware.
 
 > **Install on your TV with the Downloader app: code `4821216`**
 >
 > Install *Downloader* by AFTVnews on the TV, open it, enter **4821216** and install the APK it downloads. The code always points to the newest stable release. Details under [Install](#install).
+
+> **Install on your phone or tablet with the Downloader app: code `6565691`**
+>
+> Install [Downloader by AFTVnews from Google Play](https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en), open it, enter **6565691** and install ProjectM Android. The code points to the newest stable touchscreen APK.
 
 <p align="center">
   <img src="docs/user-guide/images/launch.jpg" alt="ProjectM TV showing a preset, with the playing track's cover, artist and title in the upper left" width="100%">
@@ -23,7 +27,7 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 
 **[johnneerdael.github.io/ProjectM-TV](https://johnneerdael.github.io/ProjectM-TV/)** covers:
 
-- **Using the app:** installation, remote controls, every setting, [preset moods](https://johnneerdael.github.io/ProjectM-TV/predictive-collections/), custom packs, picture quality and troubleshooting.
+- **Using the app:** installation on TV or phones, remote and touchscreen controls, audio input, every setting, [preset moods](https://johnneerdael.github.io/ProjectM-TV/predictive-collections/), custom packs, picture quality and troubleshooting.
 - **[ProjectM TV Engine](https://johnneerdael.github.io/ProjectM-TV/engine/):** the patch catalog with before/after proof images and measured benefits, how 4K rendering keeps the authored look (including the resolution-scaling part of [projectM #682](https://github.com/projectM-visualizer/projectm/issues/682)), and how a frame reaches the TV.
 - **[Writing presets](https://johnneerdael.github.io/ProjectM-TV/authoring/):** a source-level guide to how `.milk` presets execute, drawn from MilkDrop 2's code and the analysis of thousands of presets.
 
@@ -105,7 +109,8 @@ On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory
 
 - Android TV or Google TV for the TV APK; a touchscreen phone or tablet for the Android APK. Both require Android 5.0 (API 21) or later and OpenGL ES 3.0; visuals stay in landscape.
 - At least 2 GB of RAM is highly recommended.
-- A music app playing **on the same device**. Verified: Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat). The TV build has no microphone or line-in input, and audio that reaches the TV already Dolby-encoded cannot be visualized. The visualizer receives 8-bit mono audio.
+- **TV audio:** a music app playing on the same TV. Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat) have been verified on TV. The TV build has no microphone or line-in input; already Dolby-encoded audio cannot be visualized.
+- **Phone audio:** microphone input works independently of a music app. Phone playback capture needs Android 10+, Android's consent and a player that allows capture and keeps playing in the background. The TV player list does not certify phone compatibility. Both builds feed the engine 8-bit mono audio.
 - Preset moods are a beta prediction from one short measurement per preset; they will be improved. Chill is not a guarantee of no flashing.
 - Some presets still look different from MilkDrop on Windows: random textures change per load, chaotic presets diverge, and GPU drivers differ in undefined arithmetic. Negative warp zoom follows MilkDrop 2’s CPU power calculation for valid integer nested exponents; fractional negative powers still have nonfinite coordinates with no portable appearance guarantee.
 - 189 of the 9,795 *Cream of the Crop* presets are not included: 116 cannot react to music, 73 use images with text, logos or people (one is in both groups), and 1 has a missing texture.
@@ -130,9 +135,13 @@ Nothing the app hears or reads leaves the device.
 
 The code links to https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk. Every version is under [Releases](https://github.com/johnneerdael/ProjectM-TV/releases).
 
-**On a phone or tablet**
+**On a phone or tablet, with Downloader**
 
-Download the [touchscreen Android APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk) and open it to install. Android may ask you to allow installation from your browser. The two APKs have separate app IDs and settings; auto-update selects the matching APK.
+1. Install [Downloader by AFTVnews from Google Play](https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en).
+2. Open Downloader and enter **6565691**.
+3. Allow Downloader to install apps when Android asks, then confirm installation of **ProjectM Android**.
+
+You can also download the [touchscreen Android APK directly](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk). The stable filenames are `projectM-TV.apk` for TV and `projectM-Android.apk` for phones/tablets. The two apps have separate app IDs and settings; auto-update selects the matching APK.
 
 **From a computer**
 

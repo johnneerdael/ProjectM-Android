@@ -1,5 +1,5 @@
-site_name: ProjectM TV
-site_description: MilkDrop visuals for Android TV, the ProjectM TV Engine, and a source-level guide to writing presets.
+site_name: ProjectM TV and Android
+site_description: MilkDrop visuals for Android TV, phones and tablets, the ProjectM TV Engine, and a source-level guide to writing presets.
 site_url: https://johnneerdael.github.io/ProjectM-TV/
 repo_url: https://github.com/johnneerdael/ProjectM-TV
 repo_name: johnneerdael/ProjectM-TV
@@ -57,7 +57,7 @@ nav:
   - Home: index.md
   - Use it:
       - Install and get started: getting-started.md
-      - Remote controls: controls.md
+      - Touchscreen and remote controls: controls.md
       - Settings reference: settings.md
       - Preset moods (beta): predictive-collections.md
       - Custom preset packs: custom-packs.md
@@ -77,7 +77,7 @@ nav:
       - engine/index.md
       - Patch catalog: engine/patches.md
       - Rendering MilkDrop at 4K: engine/resolution.md
-      - How a frame reaches your TV: engine/pipeline.md
+      - How a frame reaches your screen: engine/pipeline.md
       - Validation and evidence: engine/validation.md
   - Predictor:
       - Road ahead: predictor.md
