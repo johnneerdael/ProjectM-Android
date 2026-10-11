@@ -439,9 +439,9 @@ def _point_clouds(facts):
     return clouds
 
 
-def _draw_points(image,record,time,to_pixels,canvas=None):
+def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
     count=int(record['sample_count']);programs=record['programs']
-    inputs={**record.get('held_inputs',{}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
+    inputs={**record.get('held_inputs',{}),**(audio or {}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
     values={name:np.broadcast_to(_evaluate_np(programs[name],inputs),(count,)) for name in 'rgbaxy'}
     period=256/255
     rgba=[np.clip(np.fmod(np.fmod(values[c],period)+period,period),0,1) for c in 'rgba']
@@ -703,7 +703,20 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
     return out
 
 
-def illustrate_field(summary,*,time,fps,history_steps):
+BANDS=('bass','mid','treb','bass_att','mid_att','treb_att')
+
+
+def declared_audio(path):
+    """Per-frame band values from a milk-audio-inputs report (declared input, not a rendered frame)."""
+    report=json.loads(Path(path).read_text())
+    frames=report.get('frames')
+    if not isinstance(frames,list) or not frames:raise ValueError('audio report has no frames')
+    rows=[{name:float(row[name]) for name in BANDS if type(row.get(name)) in (int,float)} for row in frames]
+    if any(set(row)!=set(BANDS) for row in rows):raise ValueError('audio report frames need all six bands')
+    return {'frames':rows,'sha256':hashlib.sha256(Path(path).read_bytes()).hexdigest(),'pcm_sha256':report.get('pcm_sha256')}
+
+
+def illustrate_field(summary,*,time,fps,history_steps,audio=None):
     """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite."""
     facts=_facts(summary)
     context=facts.get('/analysis/visual_description/static_behaviour/context') or {}
@@ -755,6 +768,12 @@ def illustrate_field(summary,*,time,fps,history_steps):
     try:
         for frame in range(history_steps,-1,-1):
             frame_time=time-frame/fps
+            bands=None
+            if audio is not None:
+                # Native frame k renders at source time (k+1)/fps; nonlinear audio responses are evaluated
+                # per frame instead of at band midpoints (E[f(bands)] differs from f(E[bands])).
+                index=min(len(audio['frames'])-1,max(0,int(round(frame_time*fps))-1))
+                bands=audio['frames'][index];held.update(bands)
             previous=image;canvas['previous_alpha']=canvas['alpha']
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
@@ -790,7 +809,7 @@ def illustrate_field(summary,*,time,fps,history_steps):
                 canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
             for shape in textured:image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous,canvas)
-            for _,record in clouds:image=_draw_points(image,record,frame_time,to_pixels,canvas)
+            for _,record in clouds:image=_draw_points(image,record,frame_time,to_pixels,canvas,bands)
             for alpha,colour in sprites:
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
@@ -822,6 +841,7 @@ def main(argv=None):
     parser.add_argument('summary',type=Path);parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--time',type=float,default=5.0,help='declared source time in seconds')
     parser.add_argument('--history-steps',type=int,default=150)
+    parser.add_argument('--audio',type=Path,help='declared per-frame bands (milk-audio-inputs report) instead of band midpoints')
     args=parser.parse_args(argv)
     if args.output.exists():parser.error('output exists; frozen predictions are never overwritten')
     data=args.summary.read_bytes();summary=json.loads(data)
@@ -829,7 +849,9 @@ def main(argv=None):
     fps=float(_facts(summary).get('/analysis/visual_description/static_behaviour/context',{}).get('feedback_fps',30))
     image,used,limitations=illustrate(summary,time=args.time,fps=fps,history_steps=args.history_steps)
     if not used:
-        image,used,limitations=illustrate_field(summary,time=args.time,fps=fps,history_steps=args.history_steps)
+        audio=declared_audio(args.audio) if args.audio else None
+        image,used,limitations=illustrate_field(summary,time=args.time,fps=fps,history_steps=args.history_steps,audio=audio)
+        if audio:limitations.append('audio-driven controls use the declared per-frame bands (audio report sha256 %s)'%audio['sha256'][:16])
     rgb=(np.clip(image,0,1)*255+.5).astype(np.uint8)
     cv2.imwrite(str(args.output),cv2.cvtColor(rgb,cv2.COLOR_RGB2BGR))
     identity={'policy':POLICY,'summary_sha256':hashlib.sha256(data).hexdigest(),
@@ -840,7 +862,8 @@ def main(argv=None):
             'Content older than history_steps, including permanent floor residue, is omitted'],
         'uses_rendered_images':False,'uses_equation_execution':False,'reads_preset_source':False,
         'evaluates_exported_closed_form_graphs':True,
-        'graph_evaluation_scope':'exported sample/time/audio-midpoint point programs, shape controls and per-pixel warp terms; no preset frames are executed'}
+        'graph_evaluation_scope':'exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed',
+        'declared_audio_sha256':(audio or {}).get('sha256') if 'audio' in locals() else None}
     args.output.with_suffix('.json').write_text(json.dumps(identity,indent=2)+'\n')
     print(json.dumps(identity))
 

@@ -80,3 +80,16 @@ def test_untextured_shape_fill_and_outline():
     assert drawn
     assert out[135, 240].tolist() == [1., 1., 1.]               # white gradient fill at the centre
     assert (out[..., 0] > .5).sum() > (out[..., 1] > .5).sum()  # red outline pixels beyond the fill
+
+
+def test_declared_audio_requires_all_bands(tmp_path):
+    import json
+    import pytest
+    from prediction_illustration import declared_audio
+    good = {'frames': [{'bass': 1, 'mid': 2, 'treb': 3, 'bass_att': 1, 'mid_att': 1, 'treb_att': 1}]}
+    (tmp_path / 'good.json').write_text(json.dumps(good))
+    record = declared_audio(tmp_path / 'good.json')
+    assert record['frames'][0]['mid'] == 2.0 and len(record['sha256']) == 64
+    (tmp_path / 'bad.json').write_text(json.dumps({'frames': [{'bass': 1}]}))
+    with pytest.raises(ValueError):
+        declared_audio(tmp_path / 'bad.json')

@@ -595,3 +595,26 @@ tint hue placement remain unmodelled.
   shape whose opacity is cubic in the mid band (`mid_att^2*mid*0.002`), so
   band midpoints understate it. That sensitivity is audio-dependent rather
   than a source error.
+- Audio-driven controls are evaluated per frame. `prediction_illustration.py
+  --audio <milk-audio-inputs report>` takes declared per-frame bands (native
+  frame k at source time (k+1)/fps) instead of band midpoints. Engine bands are
+  heavy-tailed (r5 audio: mid mean 1.01, median 0.57, p90 2.23), so a nonlinear
+  response such as `mid_att^2*mid*0.002` averages 0.020, ten times its midpoint
+  value. Through a 0.97 feedback gain that becomes a saturating haze. The
+  frozen r5 v4 illustration with the declared audio reproduces the haze, the
+  glow spots and the blue/green colour cycle. At frame 60 its mean RGB is
+  0.028/0.085/0.110 against 0.035/0.079/0.079 native. Saturation is
+  0.94 against 0.80 because display gamma still uses its range midpoint.
+- `audio_series.py` (`source-audio-drawing-series-v1`) evaluates closed-form
+  audio-driven drawing over a declared reference band sequence
+  (`fixtures/reference-band-sequence-2026-10-12.json`: the checkpoint audio
+  after JNI U8 ingress, continuous 300 frames from the source34 audio
+  adapter). Covered drawing is untextured and textured custom shapes (textured
+  ones use a declared nominal content luma of 0.25 and are flagged) plus
+  closed-form point clouds. The result is the screen-mean fresh-drawing
+  contribution per frame, its mean, its p95 jump and the transitions above
+  0.03 per second. These feed `brightness.audio_drawing_mean`,
+  `brightness.audio_drawing_jump_p95` and, when nonzero,
+  `flash.coherent_transitions_hz` (evidence `source-estimate+declared-audio`).
+  Feedback accumulation and the composite are excluded, and the sequence is a
+  declared input, not music statistics.

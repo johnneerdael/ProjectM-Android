@@ -1,0 +1,79 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r5-v4",
+ "preset": "144.milk",
+ "fresh_prediction": false,
+ "note": "Prediction conditioned on the declared per-frame bands of the checkpoint audio (milk-audio-inputs, continuous 300 frames, JNI U8 ingress)",
+ "frozen_before_capture": {
+  "description-v4-before-capture.json": "bf1d6caf75e1baab0702d5192109ba7b9d1ec8ab8e038926a03d16481245a431",
+  "declared-audio-bands.json": "06f76c9ce0fc532cc332e07d706617921945ace8e87d4e3fb7f7244f72f2d2d6",
+  "recipe-v4-before-capture.json": "fd0a0a31ebb3e725ae593e3a71def3a263930dd7b50d7974a5cb650783bda76f",
+  "prediction-v4.json": "bb56203faeb06e2339ae8961c4fec951cfbfdf68a59d2cb062ae57bea774902f",
+  "prediction-v4.png": "83e96cd78738bd2eb5b0c57ac2aa964b58c7fff9c2a0458f4f431932ac0808ec"
+ },
+ "capture_result_sha256": "908e5f0697823b536247aee94715cadfab59355e333fd1cc0c58acd85f4bc48b",
+ "calibrated_score": null,
+ "review_measurements": {
+  "frame149": {
+   "prediction_luma": 0.012,
+   "native_luma": 0.018,
+   "prediction_mean_rgb": [
+    0.009,
+    0.004,
+    0.098
+   ],
+   "native_mean_rgb": [
+    0.013,
+    0.008,
+    0.137
+   ]
+  },
+  "frame60_mean_rgb": {
+   "prediction": [
+    0.028,
+    0.085,
+    0.11
+   ],
+   "native": [
+    0.035,
+    0.079,
+    0.079
+   ]
+  },
+  "frame240_mean_rgb": {
+   "prediction": [
+    0.008,
+    0.063,
+    0.074
+   ],
+   "native": [
+    0.004,
+    0.021,
+    0.051
+   ]
+  },
+  "audio_bands": "mid mean 1.01, p50 0.57, p90 2.23; shape_2 opacity mid_att^2*mid*0.002 mean 0.020 vs 0.002 at band midpoints"
+ },
+ "agreements": [
+  "Blue haze from the cubic-audio full-screen shape",
+  "Glow spots and blue/green colour cycling of the injected field",
+  "Central blue column, magenta core/chevron, magenta line arcs, curved advection smear"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "Prediction more saturated (0.94 vs 0.80); native spots whiter",
+   "cause": "display gamma uses the midpoint of its vol-dependent range; blur sites approximated"
+  }
+ ],
+ "controlled_variants": {
+  "no-shape2": "mean blue 0.131 -> 0.047 (haze source)",
+  "no-mus-injection": "frame black (injected glow is the light source)",
+  "no-textured-shapes": "centre glow changes; frame stays lit"
+ },
+ "general_fixes": [
+  "Nonlinear audio responses are evaluated per frame from a declared band sequence instead of band midpoints (E[f(bands)] != f(E[bands]))"
+ ],
+ "status": "understood for review at this checkpoint (no calibrated score)",
+ "uses_rendered_images_for_classification": false
+}

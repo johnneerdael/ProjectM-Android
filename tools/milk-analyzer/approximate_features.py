@@ -205,6 +205,22 @@ def feature_vector(summary,rules=None):
     vector['flash.coherent_delta_peak']=_feature(delta,[delta,max(delta,.3 if unresolved_flash else delta)],
         evidence_flash if (cycles or brightness_elements) else ('unknown' if unresolved_flash else 'source-estimate'),cycle_paths+brightness_paths)
     vector['brightness.jump_p95']=_feature(delta*.5,[delta*.5,max(delta*.5,.3 if unresolved_flash else delta*.5)],'assumed',cycle_paths+brightness_paths)
+    from audio_series import audio_drawing_series
+    try:series=audio_drawing_series(summary)
+    except (ValueError,OSError,KeyError,TypeError):series=None
+    if series is not None:
+        # Audio-driven drawing evaluated per frame over the declared reference bands (E[f(bands)]).
+        note='declared reference band sequence; fresh drawing per frame (feedback and composite excluded)'
+        vector['brightness.audio_drawing_mean']=_feature(series['mean'],evidence='source-estimate+declared-audio',note=note)
+        vector['brightness.audio_drawing_jump_p95']=_feature(series['delta_p95'],evidence='source-estimate+declared-audio',note=note)
+        if series['transitions_hz']>0:
+            current=vector['flash.coherent_transitions_hz']
+            value=max(current['value'] or 0.,series['transitions_hz'])
+            vector['flash.coherent_transitions_hz']=_feature(value,[value,max(value,current['interval'][1])],'source-estimate+declared-audio',
+                                                             current['evidence_paths'],note=note)
+    else:
+        vector['brightness.audio_drawing_mean']=_feature(note='no closed-form audio-driven drawing')
+        vector['brightness.audio_drawing_jump_p95']=_feature(note='no closed-form audio-driven drawing')
     vector['audio.bass_peak_rgb_effect']=(_feature(min(.15,.05*coverage),evidence='assumed',paths=brightness_paths,
         note='per audio-brightness element; displayed gain unresolved') if brightness_elements else _feature(0.,evidence='assumed',note='no audio brightness route'))
     vector.update(_palette(summary))
