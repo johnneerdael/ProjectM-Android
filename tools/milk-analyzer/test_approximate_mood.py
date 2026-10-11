@@ -104,3 +104,15 @@ def test_audio_route_to_brightness_adds_flash_prior():
     assert result['components']['flash']>0
     more=[('audio','/analysis/visual_description/elements/%d/audio_routes/0'%i,{'input_code':1,'control':'colour_r'}) for i in range(5)]
     assert approximate_mood(summary(zoom(-2,-1),*more))['components']['flash']>result['components']['flash']
+
+
+def test_self_advection_bound_and_lookup_speed_are_source_motion():
+    advection=('motion','/analysis/visual_description/sampling_geometry/stages/warp/3/sample_value_offset_envelope',
+               {'source_model':'sample_value_offset_bounds','offset_range_uv':[[-.015,.015],[-.02,.02]]})
+    lookup=('motion','/analysis/visual_description/sampling_geometry/stages/warp/4/sampling_motion',
+            {'policy':'source-affine-sampling-time-motion-v1','maximum_lookup_axis_speed_uv_per_second':[.3,.4]})
+    result=approximate_mood(summary(advection,lookup))
+    kinds={d['reason']:d for d in result['drivers']}
+    assert kinds['self-advection displacement (typical fraction of bound)']['value']==pytest.approx(.02*30*.25)
+    assert kinds['time-driven lookup motion (half of ceiling)']['value']==pytest.approx(.25)
+    assert result['confidence'] in ('high','medium')

@@ -143,6 +143,25 @@ def summarize_preset(record):
             fact('colour',STATIC+'/prominence/components/'+str(index)+'/final_transfer/legacy_response',legacy,
                  'Native composite gamma/echo controls; final displayed brightness remains conditional')
             break
+    geometry=appearance.get('sampling_geometry')
+    if isinstance(geometry,dict):
+        for stage,maps in (geometry.get('stages') or {}).items():
+            for index,row in enumerate(maps or []):
+                if not isinstance(row,dict):continue
+                path=BASE+'/sampling_geometry/stages/'+stage+'/'+str(index)
+                envelope=row.get('sample_value_offset_envelope') or {}
+                for key,label in ((None,'source'),('scenario_offset_envelope','scenario')):
+                    record=envelope if key is None else envelope.get(key) or {}
+                    span=record.get('offset_range_uv') if isinstance(record,dict) else None
+                    if (isinstance(span,list) and len(span)==2 and all(isinstance(axis,list) and len(axis)==2 and
+                            all(type(v) in (int,float) for v in axis) for axis in span)):
+                        fact('motion',path+'/sample_value_offset_envelope'+('' if key is None else '/'+key),record,
+                             'Per-step lookup displacement bound driven by sampled colours (self-advection, '+label+' domains); typical displacement is smaller')
+                        break
+                motion=row.get('sampling_motion') or {}
+                rates=motion.get('maximum_lookup_axis_speed_uv_per_second')
+                if isinstance(rates,list) and len(rates)==2 and all(type(v) in (int,float) for v in rates):
+                    fact('motion',path+'/sampling_motion',motion,'Time-driven lookup speed ceiling per axis (UV/s)')
     nonlinear=appearance.get('nonlinear_texture_colour_bounds')
     if isinstance(nonlinear,dict):
         for stage,row in (nonlinear.get('stages') or {}).items():

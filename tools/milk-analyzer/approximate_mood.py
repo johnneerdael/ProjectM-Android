@@ -32,6 +32,7 @@ RULES={
     'prior_shader_motion_vp_s':0.3,'prior_geometry_motion_vp_s':0.15,'prior_audio_geometry_vp_s':0.2,
     'prior_shader_lookup_motion_vp_s':0.2,'prior_audio_brightness_hz_contrast':0.3,
     'audio_brightness_element_reference':2.0,'audio_brightness_element_cap':6.0,
+    'advection_typical_fraction':0.25,
     'prior_flash_hz_contrast':0.15,
 }
 STATIC='/analysis/visual_description/static_behaviour'
@@ -125,6 +126,16 @@ def _drivers(summary,rules,fps,scale):
                 elif kind=='angular_lobes':
                     rate=abs((row.get('oscillator') or {}).get('angular_rotation_radians_per_second') or 0)
                     add('motion','source',rate*.5,path,'rotating angular lobes')
+        elif '/sample_value_offset_envelope' in path and '/stages/warp/' in path and isinstance(value.get('offset_range_uv'),list):
+            bound=max(max(abs(v) for v in axis) for axis in value['offset_range_uv'])
+            speed=bound*fps
+            add('motion','source',speed*rules['advection_typical_fraction'],path,'self-advection displacement (typical fraction of bound)',
+                speed,component='shader_warp')
+        elif path.endswith('/sampling_motion') and '/sampling_geometry/stages/' in path:
+            rates=value['maximum_lookup_axis_speed_uv_per_second']
+            speed=math.hypot(*rates)
+            stage=path.split('/sampling_geometry/stages/')[1].split('/')[0]
+            add('motion','source',speed*.5,path,'time-driven lookup motion (half of ceiling)',speed,component='shader_'+stage)
         elif '/radial_colour_field/components/' in path:
             sweep=value.get('sweep_front') or {}
             if sweep.get('status')=='conditional_rotating_refresh_front':
