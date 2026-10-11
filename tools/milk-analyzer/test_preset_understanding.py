@@ -363,6 +363,81 @@ def test_uv_window_fact_keeps_declared_filter_dimensions_and_observation_separat
     assert result['actual_visible_appearance_verified'] is False
 
 
+def test_intrinsic_waveform_audio_is_retained_without_invented_bass_route():
+    record=control_record()
+    element=record['analysis']['visual_description']['elements'][0]
+    element['audio_routes']=[]
+    element['waveform_recipe']={'policy':'source31-static-builtin-waveform-v1',
+        'form_name':'audio_deformed_circle','effective_mode':0,'audio_inputs':['waveform_right'],
+        'appearance_guaranteed':False,'audio_instrument_identity':None}
+    result=summarize_preset(record)
+    fact=next(f for f in result['facts']['audio'] if f['path'].endswith('/waveform_recipe'))
+    assert resolve(record,fact['path'])==fact['value']
+    assert 'intrinsic waveform inputs waveform_right' in result['description']
+    assert 'band-specific strength unresolved' in result['description']
+    assert 'bass →' not in result['description']
+
+
+def marker_row(**changes):
+    row={'policy':'source-material-marker-motion-v1','component_id':'wave_0',
+        'status':'conditional_raw_material_marker','raw_material_status':'sample_varying_common_label',
+        'marker_phase_rate_radians_per_second':10.0,'marker_radius_rate_source_coordinates_per_second':0.0,
+        'maximum_marker_source_speed_per_second':5,'maximum_marker_pixels_speed_per_second':2400,
+        'source_geometric_locus':{'status':'conditional_fixed_angle_branch',
+            'maximum_interior_normal_source_speed_per_second':.05},
+        'visible_motion_speed':None,'unique_visible_particles_verified':False,
+        'whole_preset_activity_credit':False,'unknown_reasons':[]}
+    row.update(changes)
+    return row
+
+
+def test_material_marker_fact_keeps_label_and_geometric_speeds_separate():
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['material_marker_motion']={
+        'components':[marker_row()]}
+    result=summarize_preset(record)
+    fact=next(f for f in result['facts']['motion'] if '/material_marker_motion/components/' in f['path'])
+    assert resolve(record,fact['path'])==fact['value']
+    text=result['description']
+    assert 'raw colour labels' in text
+    assert '10.0 rad/s' in text and '2400' in text
+    assert 'geometric locus' in text and '0.05' in text
+    assert 'not visible speed' in text
+
+
+@pytest.mark.parametrize('row',[
+    marker_row(status='unresolved_common_raw_material_marker',maximum_marker_source_speed_per_second=None),
+    marker_row(status='conditional_uniform_raw_material',raw_material_status='sample_uniform_static_raw_material'),
+])
+def test_unresolved_or_uniform_marker_does_not_produce_speed_prose(row):
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['material_marker_motion']={'components':[row]}
+    text=summarize_preset(record)['description']
+    assert 'raw colour labels' not in text
+    assert 'quiet' not in text
+
+
+def test_unrepresentable_marker_radial_rate_is_not_printed_as_none():
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['material_marker_motion']={
+        'components':[marker_row(marker_radius_rate_source_coordinates_per_second=None)]}
+    text=summarize_preset(record)['description']
+    assert 'radial None' not in text
+    assert 'radial rate not representable' in text
+
+
+def test_mode3_waveform_alpha_dependency_is_reported():
+    record=control_record()
+    element=record['analysis']['visual_description']['elements'][0]
+    element['audio_routes']=[]
+    element['waveform_recipe']={'policy':'source31-static-builtin-waveform-v1','form_name':'mode3_line',
+        'effective_mode':3,'audio_inputs':['waveform_left'],
+        'source_alpha_policy':'reference coefficient*1.3*treb^2 before volume ramp; authored wave_a is replaced'}
+    text=summarize_preset(record)['description']
+    assert 'treb^2' in text
+    assert 'bass →' not in text
+
+
 def test_unsupported_recipe_or_preset_name_does_not_supply_spiral_claim():
     record = control_record()
     record["preset"]["name"] = "Spiral Circle Tunnel.milk"

@@ -87,3 +87,44 @@ def test_spiral_exports_radial_feedback_with_opposing_sampler_and_feature_direct
     assert value['classification']['eligible_bands']==[]
     assert 'source_affine_radial_feedback.py' in value['model_sources']
     json.dumps(value,allow_nan=False)
+
+
+def test_spiral_exports_raw_material_marker_separately_from_geometric_locus():
+    value=report(read(PRESETS/'Zylot - Spiral.milk'),{'viewport':[480,270],'feedback_fps':30})
+    marker=value['material_marker_motion']['by_component']['wave_0']
+    assert marker['status']=='conditional_raw_material_marker'
+    assert marker['maximum_marker_source_speed_per_second']==5
+    assert marker['nominal_marker_pixels_speed_per_second']==2400
+    assert 2400.0000178<marker['maximum_marker_pixels_speed_per_second']<2400.00002
+    assert marker['source_geometric_locus']['maximum_interior_normal_source_speed_per_second']==.05
+    assert marker['visible_motion_speed'] is None
+    assert marker['whole_preset_activity_credit'] is False
+    assert 'source_material_marker_motion.py' in value['model_sources']
+    assert value['classification']['eligible_bands']==[]
+    json.dumps(value,allow_nan=False)
+
+
+def test_marker_export_failure_is_isolated_from_curve_projection(monkeypatch):
+    import source_material_marker_motion
+    def fail(*args):raise ValueError('forced marker failure')
+    monkeypatch.setattr(source_material_marker_motion,'material_marker_motion',fail)
+    value=report(read(PRESETS/'Zylot - Spiral.milk'),{'viewport':[480,270],'feedback_fps':30})
+    assert value['producer_failures']['material_marker_motion']['reason']=='forced marker failure'
+    assert value['material_marker_motion']['by_component']=={}
+    assert value['curve_projection']['by_component']['wave_0']['status']=='conditional_projected_coordinates'
+
+
+def test_marker_uses_declared_time_domain_when_projection_is_absent(monkeypatch):
+    import source_static_behaviour
+    from types import SimpleNamespace
+    captured={}
+    import source_material_marker_motion
+    def spy(recipe,projection,context):
+        captured.update(projection=projection,context=context);return {'status':'unknown'}
+    monkeypatch.setattr(source_material_marker_motion,'material_marker_motion',spy)
+    monkeypatch.setattr('source_motion_behaviour._effective_domains',lambda analysis,context:{'time':[0,4]})
+    description={'elements':[{'id':'wave_0','parameters':{'source_curve_recipe':{}}}]}
+    source_static_behaviour._material_marker_motions(SimpleNamespace(),description,{'viewport':[480,270]},
+        {'curve_projection':{'by_component':{}}})
+    assert captured['projection'] is None
+    assert captured['context']['source_time_domain']==[0,4]

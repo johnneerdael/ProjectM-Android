@@ -31,7 +31,10 @@ instead of calculating each polygon individually.
 The experimental [understanding SDK and LLM skill](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-static-output-bounds/tools/milk-analyzer/PRESET_UNDERSTANDING.md)
 turn this JSON into auditable approximate descriptions. Analytic custom-wave
 recipes can identify source spirals, their parameter timing and interior curve
-drift. These are distinct from visible motion and strict mood certification.
+drift. They also separate how fast a curve's colour pattern travels along it
+from how fast the curve's shape drifts: a spiral's source shape can drift slowly
+while its raw colour labels travel quickly along it. These are distinct from visible motion and strict
+mood certification.
 
 Read the [field definitions, units and assumptions](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-static-output-bounds/tools/milk-analyzer/STATIC_BEHAVIOUR.md).
 

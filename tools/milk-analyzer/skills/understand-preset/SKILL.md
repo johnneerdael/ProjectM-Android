@@ -65,6 +65,14 @@ required. Use a native file-read tool to inspect JSON and the summary.
    possible clipping and separate point/locus rate ceilings. Do not convert
    possible clipping into reached screen coverage. Preserve both vertex and
    orthographic Y transformations when interpreting orientation.
+   Read `static_behaviour.material_marker_motion` for raw colour-label motion.
+   When every varying RGBA channel shares one `ds/dt=-Ct/Cs` and uniform
+   channels are static, raw labels ride the curve at the exported radius/phase
+   rates. Report this beside, never instead of, geometric locus drift: a shape
+   can creep slowly while its colour pattern spins quickly. Uniform or
+   incompatible labels give no marker speed and do not prove quietness.
+   Native colour modulo, clamps and feedback can hide labels; never call a
+   marker ceiling visible speed.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

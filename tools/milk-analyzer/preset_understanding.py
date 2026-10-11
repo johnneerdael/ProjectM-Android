@@ -146,6 +146,10 @@ def summarize_preset(record):
             if key in element:
                 fact("construction", path + "/" + key, element[key], "Source component construction, not displayed dominance")
         parameters = _object(element.get("parameters", {}), path + "/parameters")
+        if 'waveform_recipe' in element:
+            waveform=_object(element['waveform_recipe'],path+'/waveform_recipe')
+            fact('audio',path+'/waveform_recipe',waveform,
+                 'Intrinsic native waveform inputs and source construction; explicit EEL audio routes are separate')
         if "source_curve_recipe" in parameters:
             recipe_path = path + "/parameters/source_curve_recipe"
             recipe = _object(parameters["source_curve_recipe"], recipe_path)
@@ -178,6 +182,7 @@ def summarize_preset(record):
     for key, group, rows_key in (("colour", "colour", "components"), ("shape_state", "shape_state", "components"),
                                 ("curve_projection", "geometry", "components"),
                                 ("curve_feedback_relation", "feedback", "components"),
+                                ("material_marker_motion", "motion", "components"),
                                 ("motion", "motion", "contributions"), ("flashing", "flashing", "records")):
         section = _object(static.get(key, {}), STATIC + "/" + key)
         for index, row in enumerate(_rows(section.get(rows_key, []), STATIC + "/" + key + "/" + rows_key)):
@@ -316,6 +321,17 @@ def _description(summary):
     routes = []
     for item in summary["facts"]["audio"]:
         row = item["value"]
+        if item['path'].endswith('/waveform_recipe'):
+            inputs=row.get('audio_inputs',[])
+            if not isinstance(inputs,list) or any(not isinstance(value,str) for value in inputs):
+                raise ValueError(item['path']+'/audio_inputs must be a string array')
+            if row.get('policy')=='source31-static-builtin-waveform-v1' and inputs:
+                alpha=row.get('source_alpha_policy')
+                sentences.append('Native '+str(row.get('form_name','waveform construction'))+
+                    ' has intrinsic waveform inputs '+', '.join(inputs)+
+                    ('; alpha policy: '+alpha if isinstance(alpha,str) and alpha else '')+
+                    '; audio preprocessing/history, displayed contribution and band-specific strength unresolved.')
+            continue
         routes.append(AUDIO_LABELS.get(row.get("input_code"), "unrecognized audio input") + " → " +
                       str(row.get("control", "unknown control")))
     if routes:
@@ -425,6 +441,29 @@ def _description(summary):
                          "; source sample-index colour formulas, not temporal flashing or verified displayed colour bands.")
     if locus_colours:
         sentences.append("Interior source colour relation: " + "; ".join(locus_colours[:3]) + ".")
+    markers=[]
+    for item in summary['facts']['motion']:
+        row=item['value']
+        if '/material_marker_motion/components/' not in item['path'] or row.get('status')!='conditional_raw_material_marker':continue
+        phase=row.get('marker_phase_rate_radians_per_second')
+        source=row.get('maximum_marker_source_speed_per_second')
+        if type(phase) not in (int,float) or type(source) not in (int,float):continue
+        radial=row.get('marker_radius_rate_source_coordinates_per_second')
+        radial_text=('radial '+str(radial)+' source units/s' if type(radial) in (int,float) else
+                     'radial rate not representable in binary64 display')
+        text=(str(row.get('component_id'))+' raw colour labels ride the source curve at '+str(phase)+
+              ' rad/s ('+radial_text+'), label speed ceiling '+format(source,'.4g')+' source units/s')
+        pixels=row.get('maximum_marker_pixels_speed_per_second')
+        if type(pixels) in (int,float):text+=' or '+format(pixels,'.4g')+' declared-viewport pixels/s'
+        locus=row.get('source_geometric_locus')
+        normal=locus.get('maximum_interior_normal_source_speed_per_second') if isinstance(locus,dict) else None
+        if type(normal) in (int,float):
+            text+=', while the geometric locus normal drift ceiling is '+format(normal,'.4g')+' source units/s'
+        markers.append(text)
+    if markers:
+        sentences.append('Material-labelled motion: '+'; '.join(markers[:3])+
+            '. Labels and shape drift are separate source quantities; native colour modulo/clamps, '
+            'interpolation and feedback can hide labels, so this is not visible speed.')
     physical = []
     for item in summary["facts"]["motion"]:
         row = item["value"]

@@ -152,6 +152,21 @@ bound, not achieved stroke brightness. Separation versus turn pitch can inform
 a conditional layering hypothesis; visible overlap, thickness and density remain
 unverified.
 
+`static_behaviour.material_marker_motion.components` (policy
+`source-material-marker-motion-v1`) separates raw colour-label transport from
+geometric drift on the same affine polar recipe. For labels `C0+Cs*s+Ct*t`,
+a common branch exists only when every channel with `Cs!=0` gives the same
+`ds/dt=-Ct/Cs` and every `Cs=0` channel (including alpha) has `Ct=0`. Then
+`R'=Rt+Rs*ds/dt` and `Phi'=Pt+Ps*ds/dt`, with speed ceiling
+`sqrt(R'^2+(max|R|*Phi')^2)` in source units and an optional pixel ceiling only
+for a matching explicit projection. Time-growing radii need a declared time
+domain. The geometric locus record keeps its fixed-angle normal-drift ceiling.
+Uniform labels are temporal modulation or static material, not quietness;
+incompatible labels stay unresolved. Native modulo/clamps, interpolation,
+sampling, feedback and composition can hide labels; no visible speed, unique
+particle or mood credit follows. A producer failure is isolated in
+`producer_failures` without erasing projection evidence.
+
 `static_behaviour.radial_uv_envelope` needs explicit `texel_offset_pixels`; optional
 `main_texture_size` independently supplies sampled texture dimensions. Neither
 is silently inferred by the static context. It distinguishes coordinates within

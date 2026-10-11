@@ -225,6 +225,31 @@ def _curve_projections(analysis,description,context):
             'uses_rendered_images':False,'native_numeric_certified':False}
 
 
+def _material_marker_motions(analysis,description,context,evidence):
+    import source_material_marker_motion
+    from source_motion_behaviour import _effective_domains
+    declared_time=_effective_domains(analysis,context).get('time')
+    components=[]
+    for element in description.get('elements',[]):
+        recipe=element.get('parameters',{}).get('source_curve_recipe')
+        if recipe is None:continue
+        identity=element['id']
+        projection=evidence['curve_projection']['by_component'].get(identity)
+        marker_context={'viewport':context['viewport']}
+        # Reuse the projection's declared time domain so pixel ceilings stay
+        # bound to the same source interval rather than a second assumption.
+        if projection is not None and projection.get('source_time_domain') is not None:
+            marker_context['source_time_domain']=projection['source_time_domain']
+        elif projection is None and declared_time is not None:
+            marker_context['source_time_domain']=declared_time
+        row=source_material_marker_motion.material_marker_motion(recipe,projection,marker_context)
+        components.append({**row,'component_id':identity})
+    return {'policy':'source-material-marker-export-v1','components':components,
+            'by_component':{row['component_id']:row for row in components},
+            'uses_equation_execution':False,'uses_rendered_images':False,
+            'native_numeric_certified':False,'whole_preset_activity_credit':False}
+
+
 def _affine_radial_feedback(analysis,description,context):
     from source_affine_radial_feedback import affine_radial_feedback
     from engine_profiles import CORE_2334_ENGINE
@@ -307,7 +332,8 @@ def static_behaviour(analysis,description,context=None):
                                              'source_shape_state_domains.py','source_proofs_worker.py',
                                              'source_stochastic_brightness.py','source_parametric_wave.py',
                                              'source_curve_projection.py','source_affine_radial_feedback.py',
-                                             'source_curve_feedback_relation.py','source_radial_uv_envelope.py']},
+                                             'source_curve_feedback_relation.py','source_radial_uv_envelope.py',
+                                             'source_material_marker_motion.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}
@@ -325,6 +351,8 @@ def static_behaviour(analysis,description,context=None):
         arguments=(analysis,description,normalized)
         result['shape_state']=produce('shape_state',_shape_state,arguments,{'by_component':{},'components':[]})
         result['curve_projection']=produce('curve_projection',_curve_projections,arguments,{'by_component':{},'components':[]})
+        result['material_marker_motion']=produce('material_marker_motion',_material_marker_motions,
+            (*arguments,result),{'by_component':{},'components':[]})
         result['affine_radial_feedback']=produce('affine_radial_feedback',_affine_radial_feedback,arguments,
             {'native_numeric_certified':False,'visible_motion_speed':None,'whole_preset_activity_credit':False})
         result['curve_feedback_relation']=produce('curve_feedback_relation',_curve_feedback_relations,
