@@ -1,0 +1,45 @@
+8c0bdfe6862a83f62e26cf3d9deff62a6bbdd79f feat(predictor): describe correlated colour and retained-layer spacing
+6c99bb816da1a9b1803aee040745b48ba49f4b8c docs(predictor): distinguish client retries from goal resumption
+ed1833da15d5e7799639b88e56545f39186033b5 docs(predictor): record interruption resumption checks
+bada3b012e39350784ee158b8e51eac8b9522f53 docs(predictor): preserve native GLES spiral comparison evidence
+2aabf283a378f840a8ede2481ee88fd956b3fec9 feat(predictor): explain projected curves and radial feedback
+a5920c37e5420cf447fa59e4bd984dcdd7cca1d0 feat(predictor): expose auditable effect understanding and curve motion
+6cc20d92785d5b57c3578cb0c6d270a6bca2b7c8 feat(predictor): describe sequential shape layout and random colour
+8e6e9b187e041f46702efead2974eab5724bf68b feat(predictor): compose declared input motion and blur response bounds
+e773a0aefcb42e137f92504d873b43ec1f859dcc feat(predictor): bound legacy and nonlinear colour influence
+7659ffa30ad271c3ebe11d894a6b1beb7601092d feat(predictor): map conditional response potential with editable preferences
+8fd5e124bf9a0d4149ff0356bddc8c5f36ff0fc3 fix(predictor): qualify output bounds and preserve independent source work
+7a01c8f0ebfbb9f6c647e0278b285a0abd84b4c3 feat(predictor): inspect outer shader folds without expanding their phases
+85786b63f27be3acd215a806b50606e722eea757 fix(predictor): retain partial behaviour and reject incomplete Chill suggestions
+a752316766610d67e7340c16dd6410381c0cd9d3 feat(predictor): join source flash motion prominence and hue evidence
+f736618ec008bd077992662469df260bcc8925a6 docs(predictor): validate Enzyme and GLSL component port candidates
+e42652bdec346a47dd3e4fb783f574a657922bb2 docs(analyzer): retain conservative random initialization control
+2e1f0394c7eb027dbffd442a21935676d4f1783a feat(analyzer): reuse compiler IR and precision query components
+ba6fc4ec2eb7ac7e41734f893932ad45d90367ac feat(analyzer): add optional proofs and recurrent audio ancestry
+3c396a7aa472c6575ef39d3c859683f1c9daac24 feat(analyzer): add optional bounded symbolic response calculus
+472b97c1763afeb32e9fdb412eb3855bfe35a046 docs(predictor): evaluate component reuse with bounded experiments
+2c96284f5cfb13c34a22b4de6de6c272b9195a48 docs(predictor): research reusable shader and MilkDrop analysis tools
+02a171f97c93a2f1590455621e2e74bdd0310705 feat(predictor): quantify shape centre response to audio bands
+2571b042074156383c621c35b08b5d7a80c2126b feat(predictor): quantify waveform normalization jump mechanisms
+1cada7df765d9d692575389c488743ff9644cf1b feat(predictor): bound shape material changes under declared audio ranges
+a00712e3262c7185f6e46f4f0ed407201221caa8 perf(predictor): isolate blackout colour projection from texture coordinates
+b2f3f0669e90f1faafd3bee9585a605f2f327c6c fix(predictor): retain feedback identities and reuse source queries
+d1391efc2689e12e021aa9f36893f80559a0302c feat(predictor): quantify shape colour differences and modulo cadence
+a9a9468af7333f387836b15e3d759106990d95cc fix(predictor): preserve typed lanes in effect dependency projection
+0a09bc55beeff097d7c3b77c46871048afcb5d74 docs(predictor): freeze a 2000-preset source coverage audit
+c564bda0fb53e530dee427d0e992ee292dfb9f1c feat(predictor): summarize nonlinear feedback colour sensitivity
+2c17f7d489019920835520c616bd96a054286ad0 feat(predictor): bound nonlinear lookup time motion
+c1b48b8b1ffb492b92258864dae0f7ec16210ed7 feat(predictor): quantify continuous shader threshold resets
+2e054f1357a304af75952eecabb2f8498d5a73ed feat(predictor): bound spatial native control displacement separately
+79a63d1aedf8aaf4f9b1e49d60535629c6931b8c feat(predictor): compose radial zoom into feedback displacement
+474b9525baba908445ae31ba0e6bcbb3b138e692 feat(predictor): bound nonlinear mesh UV response globally
+852f69cdd1c7b4e5f42398dcde799e163e5b2208 feat(predictor): propagate native feedback displacement through lookups
+12bf724876b819d0d683efdf1731ff8664a99a62 feat(predictor): identify possible nearest lookup temporal jumps
+0674823fc093ff606d220900761ef7cd05703fad feat(predictor): compose nested lookup motion into RGB ceilings
+1d5ad51bf805752b1d38978e3b9a5d50974efa33 feat(predictor): propagate nonlinear sampled colour response
+2331659eb814b3b9d5746cf284c70de555235e84 feat(predictor): quantify affine lookup and inverse feature motion
+906fc56271deae18f00414460f33aaa7cd6fbf54 feat(predictor): bound direct shader colour time variation
+a1baac43690d4590aab3edb22fc0984786d07d02 feat(predictor): bound shape colour and opacity blend variation
+511f7c65598b09964e25b67a009f9618fd237e23 feat(predictor): expose source blackout gates and feedback movement steps
+769c2bdfc0b5518ed60f8b467bcd8ffccd4469a8 feat(predictor): bound normalized colours with proved nonzero domains
+2c97a2acee61fb9b1fcce5a2f341f4bc1931fecc feat(predictor): bound vector magnitude and distance with stable memo identities

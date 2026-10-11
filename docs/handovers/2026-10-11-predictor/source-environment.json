@@ -1,0 +1,23 @@
+{
+  "MILK_SYMBOLIC_PYTHON": "/Users/jneerdael/Scripts/source-analysis-evaluation/python-env/bin/python",
+  "MILK_PROOF_PYTHON": "/Users/jneerdael/Scripts/source-analysis-evaluation/python-env/bin/python",
+  "MILK_FPTAYLOR_JS": "/Users/jneerdael/Scripts/source-analysis-evaluation/fptaylor-js/fptaylor.js",
+  "MILK_JAVASCRIPT_RUNTIME": "/Users/jneerdael/.bun/bin/bun",
+  "MILK_FPTAYLOR_CONFIG": "/Users/jneerdael/Scripts/source-analysis-evaluation/fptaylor-js/src/default_config.txt",
+  "SOURCE_SHADER_NAGA_WORKER": "/Users/jneerdael/Scripts/source-analysis-evaluation/naga-canonical-build/release/source-shader-naga-worker",
+  "SOURCE_SHADER_SLANG_COMPILER": "/Users/jneerdael/Scripts/source-analysis-evaluation/evidence/bin/slangc",
+  "SOURCE_STATE_CRAB_WORKER": "/Users/jneerdael/Scripts/source-analysis-evaluation/evidence/source-state-crab-worker",
+  "MILK_NATIVE_CLOCK_AUDIO_BINARY": "build/visual-loop/source50/clock-adapters/milk-audio-inputs",
+  "MILK_TEST_CURRENT_BINARIES": "build/visual-loop/source49/adapters",
+  "MILK_NATIVE_READER": "build/visual-loop/source49/adapters/milk-native-reader",
+  "MILK_NATIVE_RANDOM_BINARY": "build/visual-loop/source49/adapters/milk-shader-random",
+  "MILK_NATIVE_NOISE_BINARY": "build/visual-loop/source49/noise-raw-adapter/milk-noise-inputs",
+  "MILK_NATIVE_RANDOM_ENGINE_SOURCE": "build/visual-loop/source49/production-engine",
+  "MILK_TEST_2316_BINARIES": "build/visual-loop/source50/adapters",
+  "MILK_TEST_2317_BINARIES": "build/visual-loop/source51/adapters",
+  "MILK_TEST_2321_BINARIES": "build/visual-loop/source2321/adapters",
+  "MILK_TEST_2322_BINARIES": "build/visual-loop/source2322/adapters",
+  "MILK_TEST_2325_BINARIES": "build/visual-loop/source-pr57/adapters",
+  "MILK_TEST_2327_BINARIES": "build/visual-loop/source-pr59/adapters",
+  "MILK_TEST_CORPUS15_BINARIES": "build/preset-corpus/source29/adapters"
+}

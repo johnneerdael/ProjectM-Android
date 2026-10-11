@@ -1,0 +1,41 @@
+{
+  "captured_utc": "2026-10-11 16:18:23 UTC",
+  "worktree": "/Users/jneerdael/Scripts/Projectm-TV/.worktrees/predictor-memory-repair",
+  "root_checkout": "/Users/jneerdael/Scripts/Projectm-TV",
+  "branch": "feat/predictor-static-output-bounds",
+  "head": "8c0bdfe6862a83f62e26cf3d9deff62a6bbdd79f",
+  "remote_branch_head": "8c0bdfe6862a83f62e26cf3d9deff62a6bbdd79f",
+  "bundle_prerequisite_commit": "43023889ec38cf1250f3bfcaaf079a840acbdf76",
+  "status_porcelain": "M tools/milk-analyzer/preset_understanding.py\n M tools/milk-analyzer/test_preset_understanding.py\n?? tools/milk-analyzer/fixtures/original-milkdrop2-225c-source-reference-2026-10-06.json\n?? tools/milk-analyzer/source_material_marker_motion.py\n?? tools/milk-analyzer/test_source_material_marker_motion.py",
+  "new_goal": "Produce complete handover; previous predictor goal cleared by user",
+  "preserved_predictor_goal": "Automatic source-only effect/audio-behaviour understanding and mood grouping for all9606 presets through static math and SDK/LLM interpretation; approximate recognizable effects, not exact pixel recreation",
+  "current_preset": {
+    "name": "Zylot - Spiral.milk",
+    "sha256": "02481b33b1399e5a186bc12f5f4230bb00d368edfd802857e4a2dac4831f5923"
+  },
+  "last_committed_validation": {
+    "commit": "8c0bdfe6",
+    "tests": 3985,
+    "subtests": 92,
+    "full_suite_passed": true,
+    "source_exports": 100,
+    "exact_SDK_fact_values": 14179,
+    "eligible_moods_in_sample": 0
+  },
+  "pending_validation": {
+    "material_marker_module": "48 new +128 neighbors=176 passed by producer, not integrated/not independently reviewed",
+    "intrinsic_audio_SDK": "29 passed,1 optional fresh-export skip; not full-suite-qualified"
+  },
+  "unrelated_untracked_fixture": "tools/milk-analyzer/fixtures/original-milkdrop2-225c-source-reference-2026-10-06.json",
+  "capture_scope": "Native macOS source-matched patched engine +SwiftShader GLES3; not Android AAR/JNI certification",
+  "Downloads_delivery": "Not writable under current session permission profile; archive built in worktree for copy",
+  "live_owned_capture_or_test_jobs": false,
+  "bundle_prerequisite_commits": [
+    "910e837b7d3eb636b3de30df402095b0a7e59a7c",
+    "7f9e6bd64ee214b5a6e8862c4e3b5342d4a72962",
+    "f745670d35d3a362bea1a6a56928b55b70cc9887",
+    "a704a377c6c52bb31bed878e61e6e5b397701b4e",
+    "b1bb994dbfaa04159630570cd9b2c255b173a6bd",
+    "43023889ec38cf1250f3bfcaaf079a840acbdf76"
+  ]
+}
