@@ -1,0 +1,61 @@
+"""Approximate mood: labelled drivers, editable rules, no silent Chill."""
+import pytest
+
+from approximate_mood import approximate_mood,validate_rules
+
+STATIC='/analysis/visual_description/static_behaviour'
+
+
+def summary(*facts,context=None):
+    groups={name:[] for name in ('context','motion','flashing','audio','colour','feedback','construction')}
+    groups['context'].append({'path':STATIC+'/context','value':context or {'viewport':[480,270],'feedback_fps':30}})
+    for group,path,value in facts:groups[group].append({'path':path,'value':value})
+    return {'policy':'preset-understanding-v1','facts':groups}
+
+
+def zoom(low,high,audio=()):
+    return ('motion',STATIC+'/mesh_field',{'patterns':[{'pattern':'uniform_zoom','percent_per_step_range':[low,high],
+            'audio_inputs':list(audio)}]})
+
+
+def test_empty_summary_is_low_confidence_not_certified_chill():
+    result=approximate_mood(summary())
+    assert result['confidence']=='low'
+    assert result['calibrated'] is False
+    assert result['activity_estimate']==5.0
+
+
+def test_fast_audio_zoom_scores_higher_than_slow_zoom():
+    slow=approximate_mood(summary(zoom(-.1,-.1)))
+    fast=approximate_mood(summary(zoom(-7,-2,audio=['bass'])))
+    assert fast['activity_estimate']>slow['activity_estimate']
+    assert fast['components']['audio']>0
+    assert slow['confidence']=='high'
+
+
+def test_prior_only_mechanism_widens_interval_and_lowers_confidence():
+    prior=('motion',STATIC+'/motion/contributions/0',{'kind':'procedural_shader_motion','component_id':'shader_warp'})
+    result=approximate_mood(summary(prior))
+    assert result['confidence']=='low'
+    assert result['activity_interval'][0]<result['activity_estimate']
+    assert result['drivers'][0]['kind']=='prior'
+
+
+def test_known_flash_cycle_raises_flash_component():
+    flash=('flashing',STATIC+'/flashing/records/0',{'kind':'shader_brightness_change','cycle_rate_hz':4,'brightness_delta_range':[0,.5]})
+    result=approximate_mood(summary(flash))
+    assert result['components']['flash']==1.0
+    assert 'Intense' in result['possible_bands'] or result['activity_estimate']>=35
+
+
+def test_rules_are_editable_and_validated():
+    result=approximate_mood(summary(zoom(-7,-2)),{'motion_weight':0.})
+    assert result['activity_estimate']==5.0
+    with pytest.raises(ValueError):validate_rules({'unknown':1})
+    with pytest.raises(ValueError):validate_rules({'base':-1})
+
+
+def test_strict_eligibility_is_reported_separately():
+    classification=('mood',STATIC+'/classification',{'eligible_bands':[]})
+    record=summary(zoom(-7,-2));record['facts']['mood']=[{'path':classification[1],'value':classification[2]}]
+    assert approximate_mood(record)['strict_eligible_bands']==[]

@@ -276,36 +276,48 @@ def _region_text(row):
     return ' within '+' and '.join(parts)+(' ('+format(fraction*100,'.0f')+'% of the screen)' if type(fraction) in (int,float) else '')
 
 
+def _span_text(span,unit='',digits='.3g'):
+    if not isinstance(span,list) or len(span)!=2 or not all(type(v) in (int,float) for v in span):return 'unresolved'
+    low,high=span
+    return (format(low,digits) if abs(low-high)<=1e-9*max(1,abs(low)) else format(low,digits)+' to '+format(high,digits))+unit
+
+
 def _mesh_field_sentence(field,decay=None):
     parts=[]
     for row in field.get('patterns',[]):
         if not isinstance(row,dict):continue
         kind=row.get('pattern');where=_region_text(row)
-        if kind=='uniform_zoom':
+        if kind in ('uniform_zoom','radial_zoom_profile'):
             low,high=row['percent_per_step_range']
             span=sorted([abs(low),abs(high)])
-            text='the whole image '+str(row.get('content_motion'))+' by '+_fmt(span[0])+('-'+_fmt(span[1]) if span[0]!=span[1] else '')+'% per step'
+            text=('the whole image '+str(row.get('content_motion'))+' by '+_fmt(span[0])+
+                  ('-'+_fmt(span[1]) if span[0]!=span[1] else '')+'% per step')
+            if kind=='radial_zoom_profile':text+=' (zoomexp makes the rate vary with radius)'
             if row.get('audio_inputs'):text+=' (driven by '+'/'.join(row['audio_inputs'])+')'
             parts.append(text)
         elif kind=='spatially_varying_zoom':
             parts.append('zoom varies across the screen with '+'/'.join(row.get('coordinates',[])))
         elif kind in ('uniform_rotation','spatially_varying_rotation'):
-            parts.append(kind.replace('_',' ')+' '+str(row.get('value_range_radians_per_step'))+' rad per step')
-        elif kind=='uniform_translation':
+            parts.append(kind.replace('_',' ')+' '+_span_text(row.get('value_range_radians_per_step'),' rad')+' per step')
+        elif kind in ('uniform_translation','translation_component'):
             axis='horizontal' if row.get('control')=='dx' else 'vertical'
-            parts.append(axis+' drift '+_fmt(row.get('translation_pixels_per_second'))+' px/s'+where)
-        elif kind and kind.startswith(('compression_toward_fixed_line','expansion_from_fixed_line')):
+            label=' drift ' if kind=='uniform_translation' else ' offset component (combined with zoom/rotation) '
+            parts.append(axis+label+_span_text(row.get('translation_pixels_per_second_range'),' px/s')+where)
+        elif kind and kind.startswith(('compression_toward_fixed_line','expansion_from_fixed_line','compression_or_expansion')):
             axis='x' if row.get('control')=='dx' else 'y'
-            verb='compressed' if kind.startswith('compression') else 'stretched'
-            text=('content is '+verb+' '+_fmt(abs(row.get('feature_scale_per_step') or 0))+'x per step toward '+axis+'='+
-                  _fmt(row.get('fixed_point'))+where)
-            if kind.endswith('_with_mirror'):text+=' with mirroring'
-            gain=row.get('thin_line_peak_gain_per_step')
-            if type(gain) in (int,float) and gain<1:
-                text+=('; thin lines there keep about '+_fmt(gain)+'x of their peak per step'+
-                       (' (x'+_fmt(decay)+' decay = '+_fmt(gain*decay)+' per step)' if type(decay) in (int,float) else ''))
+            verb={'compression_toward_fixed_line':'compressed','expansion_from_fixed_line':'stretched'}.get(
+                kind.split('_with_mirror')[0].split('+')[0],'compressed or stretched')
+            scales=row.get('composed_feature_scale_per_step_range')
+            text=('content is '+verb+' '+_span_text([abs(v) for v in scales] if isinstance(scales,list) else None,'x')+
+                  ' per step toward '+axis+'='+_span_text(row.get('fixed_point_range'))+where)
+            if '_with_mirror' in kind:text+=' with mirroring'
+            fraction=row.get('thin_line_integrated_fraction_per_step')
+            if type(fraction) in (int,float):
+                text+=('; a thin line there keeps about '+_fmt(fraction)+'x of its integrated intensity per step'+
+                       (' (x'+_fmt(decay)+' decay = '+_fmt(fraction*decay)+')' if type(decay) in (int,float) else '')+
+                       ', so converging lines fade, with aliasing leaving beaded remnants')
             parts.append(text)
-        elif kind=='shear':parts.append('shear between axes'+where)
+        elif kind and kind.endswith('shear'):parts.append('shear between axes'+where)
         elif kind in ('planar_travelling_wave','planar_standing_pattern'):
             osc=row.get('oscillator') or {}
             direction=osc.get('travel_direction_xy') or [0,0];speed=osc.get('phase_speed_pixels_per_second') or 0
@@ -322,12 +334,14 @@ def _mesh_field_sentence(field,decay=None):
             speed=osc.get('radial_phase_speed_pixels_per_second') or 0
             parts.append('concentric ring ripples of wavelength '+format(osc.get('radial_wavelength_pixels') or 0,'.0f')+' px '+
                          ('moving '+('outward' if speed>0 else 'inward')+' at '+format(abs(speed),'.0f')+' px/s' if speed else 'standing'))
-        elif kind=='angular_lobes':
+        elif kind in ('angular_lobes','angular_modulation_with_seam'):
             osc=row.get('oscillator') or {}
-            parts.append(_fmt(osc.get('angular_lobes'))+'-lobed angular modulation rotating '+_fmt(osc.get('angular_rotation_radians_per_second'))+' rad/s')
+            label=(_fmt(osc.get('angular_lobes'))+'-lobed angular modulation' if kind=='angular_lobes' else
+                   'angular modulation with non-integer coefficient '+_fmt(osc.get('angular_lobes'))+' (seam at the left axis)')
+            parts.append(label+' rotating '+_fmt(osc.get('angular_rotation_radians_per_second'))+' rad/s')
     if not parts:return ''
     return ('Per-pixel warp field ('+str(field.get('policy'))+'): '+'; '.join(parts[:6])+
-            '. These are per-step sampling-map facts under the engine convention; visible motion depends on content, decay and composition.')
+            '. These are per-step sampling-map facts (zoom about the screen centre); visible motion depends on content, decay and composition.')
 
 
 def _composite_sentence(legacy):
@@ -336,11 +350,17 @@ def _composite_sentence(legacy):
         span=ranges.get(name)
         return span[0] if isinstance(span,list) and len(span)==2 and span[0]==span[1] else None
     parts=[]
-    gamma=value('gamma')
-    if gamma is not None and gamma!=1:parts.append('gamma '+_fmt(gamma)+' scales brightness up to '+_fmt(gamma)+'x before clamping')
+    echo=legacy.get('echo_selection')=='active or possible native echo'
+    weight=legacy.get('gamma_absolute_weight_sum_upper')
+    if type(weight) in (int,float) and abs(weight-1)>1e-6:
+        parts.append(('gamma redraws brighten the image up to '+_fmt(weight)+'x before clamping') if weight>1 else
+                     ('gamma darkens the image to '+_fmt(weight)+'x'))
     alpha=value('echo_alpha');zoom=value('echo_zoom');orient=value('echo_orient')
-    if legacy.get('echo_selection')=='active or possible native echo' and alpha is not None and alpha>0.001:
-        text=('the composite overlays a '+_fmt(zoom)+'x magnified copy of the centre at '+format(alpha*100,'.0f')+'% opacity')
+    if echo and (alpha is None or alpha>0.001):
+        size=('variable-size' if zoom is None else _fmt(zoom)+'x magnified' if zoom>1 else
+              _fmt(zoom)+'x shrunk (sampling beyond the image edge)' if zoom<1 else 'same-size')
+        text='the composite blends a '+size+' copy of the image about its centre at '+(
+            format(alpha*100,'.0f')+'% opacity' if alpha is not None else 'variable opacity')
         if orient is not None and math.isfinite(orient):
             # Native C++ int % 4 truncates toward zero: odd mirrors U, >=2 mirrors V.
             code=int(math.fmod(math.trunc(orient),4))
@@ -349,6 +369,28 @@ def _composite_sentence(legacy):
         parts.append(text)
     if not parts:return ''
     return 'Composite: '+'; '.join(parts)+'.'
+
+
+HUE_WINDOW_SECONDS=120.0
+HUE_STEP_SECONDS=0.25
+
+
+def _wave_hue_cycle(material):
+    """Hue families visited by closed-form time-only wave colour over a declared window."""
+    from time_expression import wave_colour,hue_family
+    channels=material.get('channels') or {}
+    try:
+        counts={}
+        steps=int(HUE_WINDOW_SECONDS/HUE_STEP_SECONDS)
+        for index in range(steps+1):
+            family=hue_family(wave_colour(channels,index*HUE_STEP_SECONDS,bool(material.get('normalization_enabled'))))
+            counts[family]=counts.get(family,0)+1
+    except (ValueError,KeyError,TypeError):
+        return ''
+    total=sum(counts.values())
+    ranked=sorted(counts.items(),key=lambda item:-item[1])
+    return ('closed-form colour over '+format(HUE_WINDOW_SECONDS,'g')+' s visits '+
+            ', '.join(name+' '+format(100*count/total,'.0f')+'%' for name,count in ranked if count/total>=.03))
 
 
 def _description(summary):
@@ -622,7 +664,8 @@ def _description(summary):
             if text:sentences.append(text)
     for item in summary['facts']['construction']:
         row=item['value']
-        if item['path'].endswith('/motion_vectors') and isinstance(row,dict) and row.get('status')=='described':
+        if (item['path'].endswith('/motion_vectors') and isinstance(row,dict) and row.get('status')=='described'
+                and (row.get('vector_count') or 0)>0):
             rows=row.get('rows_screen_fraction_from_top') or []
             colour=row.get('colour_rgba') or []
             text=(str(row.get('vector_count'))+' motion vectors ('+('active' if row.get('activation')=='active' else 'possibly active')+
@@ -648,6 +691,8 @@ def _description(summary):
                     details.append('at most '+_fmt(curve['maximum_absolute_control_rate_per_second'])+'/s')
                 if type(curve.get('period_seconds')) in (int,float):details.append('period '+_fmt(curve['period_seconds'])+' s')
                 parts.append(text+(' ('+', '.join(details)+')' if details else ''))
+        cycle=_wave_hue_cycle(row)
+        if cycle:parts.append(cycle)
         if varying:
             sentences.append('Built-in wave colour changes over time: '+'; '.join(parts)+
                 ('; RGB is clamped then max-normalised, so the hue shifts while the brightest channel stays at full'

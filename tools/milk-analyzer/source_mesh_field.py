@@ -9,12 +9,13 @@ uniform inputs. This pass decomposes each into:
 - signed additive terms: constants, uniform audio/time terms (bounded with
   declared input domains), coordinate-affine terms and spatial oscillators
   sin/cos(kx*x+ky*y+kr*rad+ka*ang+w*t+phi) with wavelength and phase velocity;
-- motion semantics using the pinned engine convention: the warp samples from
-  (u-dx, v-dy) after zoom/rotation about (cx, cy), so retained content moves by
-  +dx (right) and +dy (down, y=0 at the top) per feedback step; zoom>1 expands
-  and zoom<1 contracts content about the centre. A same-axis affine term
-  d=a+b*c gives the backward map c-d=(1-b)*c-a: features scale by 1/(1-b) per
-  step toward c*=-a/b.
+- motion semantics using the pinned engine convention, in per-pixel units: the
+  backward map is B(c)=cx+(0.5+(c-0.5)/z^(e^(2rad-1))-cx)/sx (rotated about
+  (cx,cy)) minus d(c). Zoom acts about the screen centre; cx/cy centre stretch
+  and rotation only. Retained content moves +dx right and +dy down (y=0 top);
+  zoom<1 contracts. With z uniform, zoomexp 1, no rotation and a same-axis
+  affine d=a+b*c the slope is k=1/(z*s_axis)-b, features scale by 1/k per step
+  and the fixed line solves c=B(c).
 
 No equations are executed per frame; nominal real algebra over the source graph
 only. Results are not visible motion, coverage or mood certificates.
@@ -203,7 +204,7 @@ def _oscillator(node,scale,aspect):
             radial_wavelength_rad_units=2*math.pi/abs(kr),radial_wavelength_pixels=2*math.pi/abs(kr)*scale/2,
             radial_phase_speed_pixels_per_second=speed*scale/2)
     elif ka and not planar and not kr:
-        row.update(pattern='angular_lobes',angular_lobes=abs(ka),
+        row.update(pattern='angular_lobes' if float(ka).is_integer() else 'angular_modulation_with_seam',angular_lobes=abs(ka),
             angular_rotation_radians_per_second=-float(omega)/ka if omega else 0.0,
             angular_lobes_integer=float(ka).is_integer())
     else:row['pattern']='mixed_coordinate_oscillator'
@@ -321,35 +322,92 @@ def _screen_fraction(box,domains):
     return fraction if all(c in ('x','y') for c in box) else None
 
 
-def _axis_summary(control,region,domains,scale,fps):
-    """Constant offset, same-axis coefficient and derived per-step motion for dx/dy."""
+def _thin_line(scale_step):
+    magnitude=min(1.0,abs(scale_step))
+    mean_peak=magnitude if magnitude<=.5 else 1-1/(4*magnitude)
+    return magnitude,mean_peak
+
+
+def _composition(control,controls):
+    """Uniform zoom/stretch/centre for one axis, or the reason it is unresolved."""
+    axis='x' if control=='dx' else 'y'
+    def constant(name):
+        row=controls.get(name) or {}
+        span=row.get('value_range')
+        if row.get('uniform_across_mesh') is not True or not isinstance(span,list) or None in span:return None
+        return span
+    zoom=constant('zoom');exponent=constant('zoomexp');stretch=constant('sx' if axis=='x' else 'sy')
+    centre=constant('cx' if axis=='x' else 'cy');rotation=constant('rot');warp=constant('warp')
+    if None in (zoom,exponent,stretch,centre,rotation,warp):return None,'zoom/stretch/centre/rotation/warp are not uniform bounded controls'
+    if exponent!=[1.0,1.0]:return None,'zoomexp is not 1: zoom varies with radius'
+    if rotation!=[0.0,0.0]:return None,'nonzero rotation couples the axes'
+    if warp!=[0.0,0.0]:return None,'procedural warp adds oscillating displacement'
+    if centre[0]!=centre[1] or stretch[0]!=stretch[1]:return None,'stretch/centre vary'
+    if zoom[0]<=0 or stretch[0]==0:return None,'nonpositive zoom or zero stretch'
+    return {'zoom_range':zoom,'stretch':stretch[0],'centre':centre[0]},None
+
+
+def _axis_summary(control,region,domains,scale,fps,controls):
+    """Per-step content motion along one axis for dx/dy within a region."""
     axis='x' if control=='dx' else 'y'
     other='y' if axis=='x' else 'x'
-    a=0.0;b=0.0;cross=0.0;open_terms=[]
+    low=high=0.0;b=0.0;cross=0.0;open_terms=[]
     for term in region['terms']:
-        if term['kind']=='constant':a+=term['value']
+        if term['kind']=='constant':low+=term['value'];high+=term['value']
+        elif term['kind']=='uniform':
+            span=term.get('value_range')
+            if span is None:open_terms.append('unbounded uniform term');continue
+            low+=span[0];high+=span[1]
         elif term['kind']=='coordinate_affine':
             coefficients=term['coefficients']
-            if set(coefficients)-{axis,other}:open_terms.append('radius/angle dependence');continue
-            a+=term['constant'];b+=coefficients.get(axis,0.0);cross+=coefficients.get(other,0.0)
-        elif term['kind'] in ('uniform','spatial_oscillator'):continue
+            if 'time' in coefficients:open_terms.append('time-growing offset')
+            if set(coefficients)-{axis,other,'time'}:open_terms.append('radius/angle dependence');continue
+            low+=term['constant'];high+=term['constant'];b+=coefficients.get(axis,0.0);cross+=coefficients.get(other,0.0)
+        elif term['kind']=='spatial_oscillator':continue
         else:open_terms.append(term['kind'])
-    row={'constant_offset':a,'same_axis_coefficient':b,'cross_axis_coefficient':cross,
-         'translation_pixels_per_step':a*scale if not b and not cross else None,
-         'translation_pixels_per_second':a*scale*fps if not b and not cross and fps else None,
-         'fixed_point':None,'feature_scale_per_step':None,'thin_line_peak_gain_per_step':None,
-         'behaviour':None,'open_terms':open_terms}
-    if b:
-        if b==1:row['behaviour']='degenerate_same_axis_map'
-        else:
-            scale_step=1/(1-b)
-            row.update(fixed_point=-a/b,feature_scale_per_step=scale_step,
-                # A sub-texel line across this axis is hit by about |s| of the
-                # backward samples, so its peak gain per step is min(1,|s|).
-                thin_line_peak_gain_per_step=min(1.0,abs(scale_step)),
-                behaviour='compression_toward_fixed_line' if abs(scale_step)<1 else 'expansion_from_fixed_line')
-            if scale_step<0:row['behaviour']+='_with_mirror'
-    elif a:row['behaviour']='uniform_translation'
+    row={'offset_range':[low,high],'same_axis_coefficient':b,'cross_axis_coefficient':cross,
+         'translation_pixels_per_step_range':None,'translation_pixels_per_second_range':None,
+         'raw_feature_scale_per_step':None,'composed_feature_scale_per_step_range':None,'fixed_point_range':None,
+         'thin_line_integrated_fraction_per_step':None,'thin_line_mean_first_step_peak':None,
+         'composition':None,'behaviour':None,'open_terms':open_terms}
+    if open_terms:return row
+    if b and b!=1:row['raw_feature_scale_per_step']=1/(1-b)
+    composed,reason=_composition(control,controls)
+    row['composition']=reason or 'uniform zoom about the screen centre and axis stretch folded in'
+    if composed is None:
+        if not b and not cross:
+            row.update(translation_pixels_per_step_range=[low*scale,high*scale],
+                       translation_pixels_per_second_range=[low*scale*fps,high*scale*fps] if fps else None,
+                       behaviour='translation_component')
+        return row
+    stretch,centre=composed['stretch'],composed['centre']
+    scales=[];fixed=[]
+    for z in composed['zoom_range']:
+        # B(c)=centre+(0.5+(c-0.5)/z-centre)/stretch-(a+b*c): slope k, offset m.
+        k=1/(z*stretch)-b
+        for a in (low,high):
+            m=centre+(0.5-0.5/z-centre)/stretch-a
+            if k==0:scales.append(math.inf);continue
+            scales.append(1/k)
+            if k!=1:fixed.append(m/(1-k))
+    if any(math.isinf(v) for v in scales):row['behaviour']='degenerate_sampling';return row
+    row['composed_feature_scale_per_step_range']=[min(scales),max(scales)]
+    if fixed and len(fixed)==len(scales):row['fixed_point_range']=[min(fixed),max(fixed)]
+    identity=all(abs(v-1)<1e-12 for v in scales)
+    if identity:
+        if low or high:
+            row.update(translation_pixels_per_step_range=[low*scale,high*scale],
+                       translation_pixels_per_second_range=[low*scale*fps,high*scale*fps] if fps else None,
+                       behaviour='uniform_translation')
+    else:
+        smallest=min(abs(v) for v in scales);largest=max(abs(v) for v in scales)
+        if largest<1:row['behaviour']='compression_toward_fixed_line'
+        elif smallest>1:row['behaviour']='expansion_from_fixed_line'
+        else:row['behaviour']='compression_or_expansion'
+        if all(v<0 for v in scales):row['behaviour']+='_with_mirror'
+        if largest<1:
+            fraction,_=_thin_line(largest);_,peak=_thin_line(largest)
+            row.update(thin_line_integrated_fraction_per_step=fraction,thin_line_mean_first_step_peak=peak)
     if cross:row['behaviour']=(row['behaviour']+'+' if row['behaviour'] else '')+'shear'
     return row
 
@@ -361,12 +419,13 @@ def mesh_field_structure(analysis,context=None):
         'pixel_scale':None,'coordinate_domains':None,'visible_motion_speed':None,'native_numeric_certified':False,
         'uses_equation_execution':False,'uses_rendered_images':False,'whole_preset_activity_credit':False,
         'unknown_reasons':[],
-        'conditions':['Engine convention: warp samples (u-dx, v-dy) after zoom/rotation about (cx, cy); retained content moves +dx right and +dy down (y=0 top) per feedback step',
+        'conditions':['Engine convention: zoom acts about the screen centre; stretch and rotation about (cx, cy); then the warp samples (u-dx, v-dy); retained content moves +dx right and +dy down (y=0 top) per feedback step',
+            'Zoom is z^(zoomexp^(2*rad-1)) per vertex; it is uniform only when zoomexp is 1',
             'Per-pixel x/y are aspect-corrected: both measure the long side, so 1 unit is max(width, height) pixels; rad=1 is half the long side',
             'Coordinate gates are single-coordinate thresholds; boundary strictness, mesh interpolation between vertices and texel sampling are not resolved',
             'Uniform audio/time ranges use declared input domains, not observed music; oscillator speeds are nominal phase velocities of a control field, not visible feature speeds',
             'Fields act on the sampling map each feedback step; displayed motion also depends on content, decay, shaders and composition',
-            'Compression by s per step leaves a sub-texel line hit by about |s| of the backward bilinear samples: peak gain min(1,|s|) per step on top of decay; expansion keeps peak brightness']}
+            'Compression by s per step scales a line\'s integrated intensity by |s| per step (its peak too once it is about a texel wide); a fresh sharp line\'s phase-averaged first-step peak is |s| for |s|<=1/2 and 1-1/(4|s|) above; expansion keeps integrated intensity']}
     try:
         aspect,scale=_aspect(context)
         domains=_domains(aspect)
@@ -393,30 +452,43 @@ def mesh_field_structure(analysis,context=None):
                 row['value_range']=_envelope(field,envelope_domains)
                 regions=_regions(row['terms'])
                 row['regions']=[{'box':{k:_finite(v) for k,v in region['box'].items()},
-                                 'screen_fraction':_screen_fraction(region['box'],domains),
-                                 'terms':region['terms'],
-                                 **({'axis_motion':_axis_summary(control,region,domains,scale,fps)} if control in ('dx','dy') else {})}
-                                for region in regions]
+                                 'screen_fraction':_screen_fraction(region['box'],domains),'terms':region['terms']}
+                                for region in regions if all(a<b for a,b in region['box'].values())]
                 row['status']='described'
-            except _Budget as error:row['unknown_reasons'].append(str(error))
-        result['patterns']=_patterns(result['controls'],scale,fps)
+            except (_Budget,RecursionError) as error:row['unknown_reasons'].append(str(error))
+        for control in ('dx','dy'):
+            row=result['controls'][control]
+            for region in row.get('regions') or []:
+                region['axis_motion']=_axis_summary(control,region,domains,scale,fps,result['controls'])
+        result['patterns']=_patterns({**result['controls'],'_rad_max':domains['rad'][1]},scale,fps)
         result['status']='described' if all(r['status']=='described' for r in result['controls'].values()) else 'partial'
     except (ValueError,TypeError,KeyError) as error:
         result['unknown_reasons'].append(str(error))
     return result
 
 
+def scale_domains_rad(controls):
+    return controls.get('_rad_max',math.sqrt(2))
+
+
 def _patterns(controls,scale,fps):
     """Readable pattern records derived from the per-control decomposition."""
     rows=[]
-    zoom=controls.get('zoom',{})
-    if zoom.get('status')=='described' and zoom.get('uniform_across_mesh') and zoom.get('value_range'):
-        low,high=zoom['value_range']
-        if not (low==high==1.0):
-            rows.append({'pattern':'uniform_zoom','control':'zoom','value_range':[low,high],
-                'content_motion':'contracts toward the zoom centre' if high<1 else 'expands from the zoom centre' if low>1 else 'contracts or expands',
-                'percent_per_step_range':[(low-1)*100,(high-1)*100],
-                'thin_line_peak_gain_per_step_range':[min(1.0,low),min(1.0,high)],
+    zoom=controls.get('zoom',{});exponent=controls.get('zoomexp',{})
+    if (zoom.get('status')=='described' and zoom.get('uniform_across_mesh') and zoom.get('value_range') and
+            exponent.get('uniform_across_mesh') and isinstance(exponent.get('value_range'),list) and None not in exponent['value_range']):
+        low,high=zoom['value_range'];e_low,e_high=exponent['value_range']
+        if not (low==high==1.0) and low>0 and e_low>0:
+            # Effective per-vertex zoom z^(e^(2rad-1)) over rad in [0, rad_max].
+            rad_max=max(scale_domains_rad(controls),0.0)
+            powers=[e**(2*r-1) for e in (e_low,e_high) for r in (0.0,rad_max)]
+            effective=[z**q for z in (low,high) for q in powers]
+            lo,hi=min(effective),max(effective)
+            rows.append({'pattern':'uniform_zoom' if e_low==e_high==1.0 else 'radial_zoom_profile','control':'zoom',
+                'value_range':[low,high],'zoomexp_range':[e_low,e_high],'effective_zoom_range':[lo,hi],
+                'content_motion':'contracts toward the screen centre' if hi<1 else 'expands from the screen centre' if lo>1 else 'contracts or expands',
+                'percent_per_step_range':[(lo-1)*100,(hi-1)*100],
+                'thin_line_integrated_fraction_per_step_range':[min(1.0,lo),min(1.0,hi)],
                 'audio_inputs':zoom['dependencies'].get('audio',[])})
     elif zoom.get('status')=='described' and not zoom.get('uniform_across_mesh'):
         rows.append({'pattern':'spatially_varying_zoom','control':'zoom','coordinates':zoom['dependencies'].get('coordinates',[]),
@@ -434,9 +506,10 @@ def _patterns(controls,scale,fps):
             if motion.get('behaviour'):
                 rows.append({'pattern':motion['behaviour'],'control':control,'region':region['box'],
                              'screen_fraction':region['screen_fraction'],**{k:motion[k] for k in
-                             ('constant_offset','same_axis_coefficient','cross_axis_coefficient','fixed_point',
-                              'feature_scale_per_step','thin_line_peak_gain_per_step',
-                              'translation_pixels_per_step','translation_pixels_per_second')}})
+                             ('offset_range','same_axis_coefficient','cross_axis_coefficient','fixed_point_range',
+                              'raw_feature_scale_per_step','composed_feature_scale_per_step_range',
+                              'thin_line_integrated_fraction_per_step','thin_line_mean_first_step_peak','composition',
+                              'translation_pixels_per_step_range','translation_pixels_per_second_range')}})
             for term in region['terms']:
                 if term['kind']=='spatial_oscillator':
                     rows.append({'pattern':term['oscillator']['pattern'],'control':control,'region':region['box'],

@@ -45,7 +45,10 @@ def _channel(field,name):
     if span is not None:
         try:native=[_f32(v) for v in span]
         except ValueError:pass
+    from time_expression import time_only
+    expression=curve.get('expression')
     return {'raw_time_curve':{k:v for k,v in curve.items() if k not in {'expression','phase_expression'}},
+            'time_only_expression':expression if time_only(expression) else None,
             'native_float32_endpoint_domain':native,'consumed':True,
             'unknown_reasons':[] if native is not None else ['no finite source/native channel envelope']}
 

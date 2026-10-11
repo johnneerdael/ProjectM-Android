@@ -239,17 +239,27 @@ of an affine coordinate/time argument report planar wavelength and phase speed
 (the pattern moves along the wavevector at `-w/|k|`), radial ring wavelength and
 speed, or angular lobe count and rotation.
 
-Engine convention (pinned source34 warp shader): the warp samples `(u-dx, v-dy)`
-after zoom/rotation about `(cx, cy)`, so retained content moves `+dx` right and
-`+dy` down (y=0 top) per step; `zoom<1` contracts content toward the centre.
-Per-pixel `x`/`y` are aspect-corrected: both measure the long side (1 unit =
-`max(width,height)` pixels) and the short axis spans a centred sub-range (at
-16:9, y spans 0.219-0.781). A same-axis affine term `d=a+b*c` gives the backward
-map `c-d=(1-b)c-a`: features scale by `s=1/(1-b)` per step toward `c*=-a/b`
-(compression, expansion, or mirroring when `s<0`). A sub-texel line across that
-axis is hit by about `|s|` of the backward samples, so under compression its
-peak keeps about `min(1,|s|)` per step on top of decay. Patterns are per-step
-sampling-map facts, not visible speeds.
+Engine convention (pinned source34 warp shader), in per-pixel units: zoom acts
+about the screen centre as `0.5+(c-0.5)/z^(zoomexp^(2*rad-1))`; `cx`/`cy`
+centre only stretch and rotation; then the warp samples `(u-dx, v-dy)`. Retained
+content therefore moves `+dx` right and `+dy` down (y=0 top) per step, and
+`zoom<1` contracts toward the screen centre. Zoom is uniform only when zoomexp
+is 1; otherwise a `radial_zoom_profile` reports the effective range over
+radius. Per-pixel `x`/`y` are aspect-corrected: both measure the long side (1
+unit = `max(width,height)` pixels) and the short axis spans a centred sub-range
+(at 16:9, y spans 0.219-0.781).
+
+For a same-axis affine term `d=a+b*c`, the raw slope gives `s=1/(1-b)`. When
+zoom/stretch/centre are uniform, zoomexp is 1, rotation and procedural warp are
+zero, the composed backward slope is `k=1/(z*s_axis)-b`; features scale by
+`1/k` per step (`composed_feature_scale_per_step_range`, with mirroring when
+negative) toward the fixed line solving `c=B(c)` (`fixed_point_range`). Uniform
+audio/time terms widen the offset into an interval; unbounded, time-growing or
+unresolved terms withhold the behaviour. Under compression a line's integrated
+intensity scales by `|s|` per step, and so does its peak once it is about a
+texel wide; a fresh sharp line's phase-averaged first-step peak is `|s|` for
+`|s|<=1/2` and `1-1/(4|s|)` above. Sampling aliasing leaves beaded remnants.
+Patterns are per-step sampling-map facts, not visible speeds.
 
 `static_behaviour.motion_vectors` describes the native motion-vector element:
 `mv_a>=0.0001` with positive integer grid counts (legacy `bMotionVectorsOn`
@@ -258,10 +268,14 @@ colour and length. Vectors point toward the previous sampling position and are
 drawn into the feedback image, so they are later warped and decayed.
 
 The legacy composite (`final_transfer.legacy_response` on prominence
-components) is described as gamma brightening and the video echo: the image is
-drawn at weight `1-alpha` and the central `1/zoom` region magnified at weight
-`alpha`; odd orientation mirrors horizontally and orientation `>=2` vertically
-(native integer truncation). Built-in wave `wave_material` time curves are
+components) is described from the gamma redraw weight sum and the video echo.
+With echo active the engine draws each pass once and adds `int(gamma-0.0001)`
+redraws, so the weight sum is about `max(1,gamma)`: gamma below 1 does not
+darken. Without echo the gamma-only path sums to `gamma`. The echo blends the
+image at `1-alpha` with a copy scaled by `echo_zoom` about the centre at
+`alpha` (magnified above 1, shrunk with edge sampling below 1); odd orientation
+mirrors horizontally and orientation `>=2` vertically (native integer
+truncation). Built-in wave `wave_material` time curves are
 reported as per-channel ranges, rate ceilings and periods when known, with
 max-normalisation noted.
 
@@ -368,3 +382,34 @@ PRESET_UNDERSTANDING_FRESH_EXPORT=FRESH_ZYLOT_JSON build/preset-lab-venv/bin/pyt
 This optional integration test requires the fresh record to contain a recognized
 spiral recipe; it skips when the environment variable is absent. Frozen earlier
 exports retain their original facts and descriptions.
+
+## Approximate mood layer and corpus grouping
+
+`approximate_mood.py` (policy `approximate-activity-mood-v1`) reads only a
+`preset-understanding-v1` summary and returns an editable activity estimate
+(1-100), its interval, Chill/Normal/Intense band candidates (overlaps 25-30 and
+70-75), confidence and labelled drivers with evidence pointers. It is separate
+from strict source eligibility, which it reports unchanged.
+
+- `source` drivers carry magnitudes from source facts: per-pixel warp patterns
+  (uniform zoom edge flow, rotation, translation, ripples), curve sweep-front
+  cadence, bounded geometry trajectories, brightness cycles, colour rates and
+  authored audio routes.
+- `prior` drivers stand for mechanisms present with unresolved magnitude (a
+  time-driven shader field, moving or audio-driven geometry, brightness change
+  of unknown rate). Each mechanism/component counts once and priors contribute
+  only their largest assumed magnitude per dimension.
+
+Motion is measured in screen widths per second; source motion combines by
+root-sum-square. The score is `base + motion_weight*m + flash_weight*f +
+audio_weight*a + colour_weight*c` with each term clipped to [0,1]. Every weight,
+reference and prior is editable (`--rules` JSON). Confidence is high only with
+no prior drivers, medium below half priors, low otherwise or with no drivers, so
+missing evidence never becomes certified Chill. The estimate is an assumed
+preference grouping, not a calibrated mood.
+
+`corpus_understanding.py` runs the whole pack: native parse, static export (no
+rendering or frame simulation), SDK summary and approximate mood per preset,
+with a process pool, per-preset timeout, frozen model identity and resumable
+compact results. `report.json` counts statuses, bands, confidence and the
+activity histogram; `collections.json` lists presets per band by activity.

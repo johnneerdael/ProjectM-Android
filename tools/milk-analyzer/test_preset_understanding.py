@@ -499,28 +499,38 @@ def test_mesh_field_and_composite_echo_prose():
     record=control_record()
     static=record['analysis']['visual_description']['static_behaviour']
     static['mesh_field']={'policy':'source-mesh-field-structure-v1','status':'described','pixel_scale':480,'patterns':[
-        {'pattern':'uniform_zoom','control':'zoom','value_range':[.93,.98],'content_motion':'contracts toward the zoom centre',
+        {'pattern':'uniform_zoom','control':'zoom','value_range':[.93,.98],'content_motion':'contracts toward the screen centre',
          'percent_per_step_range':[-7.0,-2.0],'audio_inputs':['bass','bass_att']},
-        {'pattern':'uniform_translation','control':'dx','region':{},'screen_fraction':1.0,'translation_pixels_per_step':-.24,
-         'translation_pixels_per_second':-7.2},
+        {'pattern':'uniform_translation','control':'dx','region':{},'screen_fraction':1.0,
+         'translation_pixels_per_second_range':[-7.2,-7.2]},
         {'pattern':'compression_toward_fixed_line','control':'dy','region':{'y':[.35,.65]},'screen_fraction':.5333,
-         'fixed_point':.501,'feature_scale_per_step':.5,'thin_line_peak_gain_per_step':.5},
+         'fixed_point_range':[.5009,.501],'composed_feature_scale_per_step_range':[.4819,.4949],
+         'thin_line_integrated_fraction_per_step':.4949},
         {'pattern':'planar_travelling_wave','control':'dy','region':{'y':[.35,.65]},'screen_fraction':.5333,
          'oscillator':{'planar_wavelength_pixels':100.5,'phase_speed_pixels_per_second':-64.0,'travel_direction_xy':[-1.0,0.0]},
          'amplitude_pixels_range':[7.2,28.8],'amplitude_dependencies':['bass','bass_att']}]}
     static['prominence']={'components':[{'component_id':'shape_0','final_transfer':{'legacy_response':{
         'native_control_ranges':{'gamma':[2.4,2.4],'echo_alpha':[.5,.5],'echo_zoom':[2.0,2.0],'echo_orient':[0.0,0.0]},
-        'echo_selection':'active or possible native echo'}}}]}
+        'echo_selection':'active or possible native echo','gamma_absolute_weight_sum_upper':2.4}}}]}
     result=summarize_preset(record)
     paths=[f['path'] for f in result['facts']['motion']]
     assert any(path.endswith('/mesh_field') for path in paths)
     text=result['description']
-    assert 'contracts toward the zoom centre by 2-7% per step' in text
-    assert 'compressed 0.5x per step toward y=0.501' in text
-    assert 'thin lines there keep about 0.5x of their peak per step' in text
+    assert 'contracts toward the screen centre by 2-7% per step' in text
+    assert 'compressed 0.482 to 0.495x per step toward y=0.501' in text or 'compressed 0.482 to 0.495x per step' in text
     assert 'travels right at 64 px/s' in text
     assert 'wavelength 100 px' in text
-    assert '2x magnified' in text and '50% opacity' in text and 'gamma 2.4' in text
+    assert '2x magnified' in text and '50% opacity' in text and 'up to 2.4x' in text
+
+
+def test_gamma_below_one_with_echo_does_not_claim_darkening():
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['prominence']={'components':[{'component_id':'shape_0',
+        'final_transfer':{'legacy_response':{'native_control_ranges':{'gamma':[.5,.5],'echo_alpha':[.3,.3],'echo_zoom':[.8,.8],
+        'echo_orient':[-1.0,-1.0]},'echo_selection':'active or possible native echo','gamma_absolute_weight_sum_upper':1.0}}}]}
+    text=summarize_preset(record)['description']
+    assert 'darkens' not in text and 'gamma' not in text
+    assert '0.8x shrunk' in text and 'mirrored horizontally' in text
 
 
 def test_motion_vector_element_prose():
@@ -549,6 +559,22 @@ def test_builtin_wave_colour_time_curves_prose():
     assert 'r 0-1.3 (at most 1.01/s)' in text and 'g 0-0.8 (at most 0.492/s, period 5.1 s)' in text
     assert 'b constant 0.5' in text
     assert 'max-normalised' in text
+
+
+def test_time_only_wave_colour_reports_visited_hues():
+    record=control_record()
+    element=record['analysis']['visual_description']['elements'][0]
+    sine=lambda bias,rate:{'root':0,'nodes':[{'op':'add','args':[1,2],'detail':{}},
+        {'op':'constant','args':[],'detail':{'value':bias}},{'op':'sin','args':[3],'detail':{}},
+        {'op':'multiply','args':[4,5],'detail':{}},{'op':'constant','args':[],'detail':{'value':rate}},
+        {'op':'input','args':[],'detail':{'name':'time'}}]}
+    curve={'curve_kind':'compound_time','nominal_value_range':[-.5,1.5],'maximum_absolute_control_rate_per_second':.5}
+    element['wave_material']={'policy':'source-native-builtin-wave-material-v1','normalization_enabled':True,'channels':{
+        'wave_r':{'raw_time_curve':curve,'time_only_expression':sine(.5,.5)},
+        'wave_g':{'raw_time_curve':{'curve_kind':'constant','constant_value':.1}},
+        'wave_b':{'raw_time_curve':curve,'time_only_expression':sine(.5,.3)}}}
+    text=summarize_preset(record)['description']
+    assert 'closed-form colour over 120 s visits' in text
 
 
 def test_unsupported_recipe_or_preset_name_does_not_supply_spiral_claim():

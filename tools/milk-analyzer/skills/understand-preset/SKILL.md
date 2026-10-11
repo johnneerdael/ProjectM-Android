@@ -91,8 +91,11 @@ required. Use a native file-read tool to inspect JSON and the summary.
    Read `static_behaviour.mesh_field` patterns for per-pixel warp regions,
    uniform zoom/rotation, translations, compression or expansion toward fixed
    lines and travelling ripples (wavelength, direction, phase speed). Use the
-   thin-line peak gain with the decay to judge whether converging lines pile
-   up or fade. Read `motion_vectors` for a drawn vector grid and the composite
+   thin-line integrated fraction with the decay to judge whether converging
+   lines pile up or fade (beaded remnants can stay brighter). Zoom acts about
+   the screen centre; zoomexp makes it vary with radius. Read
+   `approximate_mood.py` output as an editable estimate with labelled drivers;
+   keep it separate from strict eligible bands. Read `motion_vectors` for a drawn vector grid and the composite
    gamma/echo sentence for doubling or brightening. All are source facts, not
    observed motion.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,

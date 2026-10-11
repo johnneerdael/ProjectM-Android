@@ -63,7 +63,9 @@ def motion_vector_element(analysis,context=None):
         columns=_positions(counts[0][0],offsets[0][0],1,64)
         rows=_positions(counts[1][0],offsets[1][0],-1,48)
         colour=[ranges[name] for name in ('mv_r','mv_g','mv_b','mv_a')]
-        result.update(status='described',activation='active' if alpha is not None and alpha[0]>=float(np.float32(.0001)) else 'possible',
+        activation='active' if alpha is not None and alpha[0]>=float(np.float32(.0001)) else 'possible'
+        if not columns or not rows:activation='inactive_no_points_in_bounds'
+        result.update(status='described',activation=activation,
             columns_screen_fraction=columns,rows_screen_fraction_from_top=[1-v for v in rows],
             vector_count=len(columns)*len(rows),
             colour_rgba=[None if span is None else (span[0] if span[0]==span[1] else span) for span in colour],

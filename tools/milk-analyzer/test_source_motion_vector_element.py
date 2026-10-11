@@ -42,3 +42,9 @@ def test_explicit_grid_and_offset():
 def test_dynamic_alpha_keeps_possible_activation():
     value=vectors(read_raw('nMotionVectorsX=8\nnMotionVectorsY=4\nper_frame_1=mv_a=bass-1;\n'))
     assert value['activation'] in {'possible','active',None}
+
+
+def test_offsets_pushing_all_points_out_report_no_points():
+    value=vectors(read_raw('mv_a=1\nnMotionVectorsX=2\nnMotionVectorsY=2\nmv_dx=2\n'))
+    assert value['vector_count']==0
+    assert value['activation']=='inactive_no_points_in_bounds'

@@ -186,88 +186,61 @@ def _mid(span):
     return None if not isinstance(span,list) or len(span)!=2 or None in span else (span[0]+span[1])/2
 
 
-def _region_contains(box,point):
-    for name,span in (box or {}).items():
-        value={'x':point[0],'y':point[1]}.get(name)
-        if value is None:return False
-        low,high=span
-        if (low is not None and value<low) or (high is not None and value>high):return False
-    return True
+def _terms_field(terms,x,y,time):
+    """Vectorised sum of decomposed control terms over per-pixel coordinates."""
+    total=np.zeros_like(x)
+    for term in terms:
+        kind=term.get('kind')
+        if kind=='constant':total+=term['value']
+        elif kind=='uniform':
+            value=_mid(term.get('value_range'))
+            if value is None:raise ValueError('unbounded uniform term')
+            total+=value
+        elif kind=='coordinate_affine':
+            coefficients=term['coefficients']
+            if set(coefficients)-{'x','y'}:raise ValueError('radius/angle/time affine term not illustrated')
+            total+=term['constant']+coefficients.get('x',0)*x+coefficients.get('y',0)*y
+        elif kind=='spatial_oscillator':
+            osc=term['oscillator'];amplitude=_mid(term.get('amplitude_range'))
+            if amplitude is None or set(osc['coordinate_coefficients'])-{'x','y'}:raise ValueError('oscillator not illustrated')
+            argument=(osc['coordinate_coefficients'].get('x',0)*x+osc['coordinate_coefficients'].get('y',0)*y+
+                      osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
+            total+=amplitude*(np.sin(argument) if osc['function']=='sin' else np.cos(argument))
+        elif kind=='coordinate_gated':
+            coordinate={'x':x,'y':y}.get(term['coordinate'])
+            if coordinate is None:raise ValueError('gate on radius/angle not illustrated')
+            for branch in term['branches']:
+                low,high=branch['interval']
+                mask=np.ones_like(x,dtype=bool)
+                if low is not None:mask&=coordinate>low
+                if high is not None:mask&=coordinate<high
+                total+=np.where(mask,_terms_field(branch['terms'],x,y,time),0.0)
+        else:raise ValueError(str(kind)+' term not illustrated')
+    return total
 
 
-def _displacement_terms(control):
-    """Per-region callable pieces for one dx/dy control, using mid-range values."""
-    regions=[]
-    for region in control.get('regions') or []:
-        pieces=[];ok=True
-        for term in region.get('terms',[]):
-            kind=term.get('kind')
-            if kind=='constant':pieces.append(('const',term['value']))
-            elif kind=='uniform':
-                value=_mid(term.get('value_range'))
-                if value is None:ok=False;break
-                pieces.append(('const',value))
-            elif kind=='coordinate_affine':
-                if set(term['coefficients'])-{'x','y'}:ok=False;break
-                pieces.append(('affine',term['constant'],term['coefficients']))
-            elif kind=='spatial_oscillator':
-                osc=term['oscillator'];amp=_mid(term.get('amplitude_range'))
-                if amp is None or set(osc['coordinate_coefficients'])-{'x','y'}:ok=False;break
-                pieces.append(('osc',amp,osc))
-            else:ok=False;break
-        if not ok:return None
-        regions.append((region.get('box') or {},pieces))
-    return regions
-
-
-def _evaluate(regions,point,time):
-    for box,pieces in regions:
-        if not _region_contains(box,point):continue
-        total=0.0
-        for piece in pieces:
-            if piece[0]=='const':total+=piece[1]
-            elif piece[0]=='affine':total+=piece[1]+sum(c*{'x':point[0],'y':point[1]}[k] for k,c in piece[2].items())
-            else:
-                amp,osc=piece[1],piece[2]
-                arg=(sum(c*{'x':point[0],'y':point[1]}[k] for k,c in osc['coordinate_coefficients'].items())+
-                     osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
-                total+=amp*(math.sin(arg) if osc['function']=='sin' else math.cos(arg))
-        return total
-    return 0.0
-
-
-def _field_map(mesh):
-    """Forward per-step map from mesh-field facts, or None when not fully described."""
+def _backward_map(mesh,width,height):
+    """Closure computing per-pixel source coordinates from mesh-field facts."""
     controls=(mesh or {}).get('controls') or {}
-    if not controls or any(controls.get(name,{}).get('status')!='described' for name in ('zoom','dx','dy','rot','cx','cy')):
-        return None
-    zoom=controls['zoom']
-    if not zoom.get('uniform_across_mesh'):return None
-    z=_mid(zoom.get('value_range'));rot=controls['rot'].get('value_range')
-    if z is None or z<=0 or rot is None or any(abs(v)>1e-12 for v in rot):return None
-    centre=(_mid(controls['cx'].get('value_range')),_mid(controls['cy'].get('value_range')))
-    dx,dy=_displacement_terms(controls['dx']),_displacement_terms(controls['dy'])
-    if None in centre or dx is None or dy is None:return None
-    zoom_gain=min(1.0,z)
-    gains=[]
-    for control in ('dx','dy'):
-        for region in controls[control].get('regions') or []:
-            gain=(region.get('axis_motion') or {}).get('thin_line_peak_gain_per_step')
-            if type(gain) in (int,float) and gain<1:gains.append((region.get('box') or {},gain))
-    def gain(point):
-        value=zoom_gain
-        for box,factor in gains:
-            if _region_contains(box,point):value*=factor
-        return value
-    def step(point,time):
-        # Backward sampling u=c+(p-c)/z-d(p); solve the forward position p.
-        p=point
-        for _ in range(4):
-            d=(_evaluate(dx,p,time),_evaluate(dy,p,time))
-            p=(centre[0]+z*(point[0]+d[0]-centre[0]),centre[1]+z*(point[1]+d[1]-centre[1]))
-        return p
-    step.gain=gain
-    return step
+    names=('zoom','zoomexp','rot','warp','cx','cy','dx','dy','sx','sy')
+    if any(controls.get(name,{}).get('status')!='described' for name in names):return None
+    long=max(width,height)
+    columns,rows=np.meshgrid(np.arange(width)+.5,np.arange(height)+.5)
+    x=.5+(columns-width/2)/long;y=.5+(rows-height/2)/long
+    rad=2*np.hypot(x-.5,y-.5)
+    def sample(time):
+        values={name:_terms_field(controls[name]['terms'] or [],x,y,time) for name in names}
+        if np.any(values['warp']!=0):raise ValueError('procedural warp not illustrated')
+        zoom=np.power(np.maximum(values['zoom'],1e-6),np.power(np.maximum(values['zoomexp'],1e-6),2*rad-1))
+        u=.5+(x-.5)/zoom;v=.5+(y-.5)/zoom
+        u=values['cx']+(u-values['cx'])/values['sx'];v=values['cy']+(v-values['cy'])/values['sy']
+        cos,sin=np.cos(values['rot']),np.sin(values['rot'])
+        du,dv=u-values['cx'],v-values['cy']
+        # Engine formula; per-pixel u/v share the flipped main-texture frame.
+        u=du*cos-dv*sin+values['cx'];v=du*sin+dv*cos+values['cy']
+        u=u-values['dx'];v=v-values['dy']
+        return ((u-.5)*long+width/2-.5).astype(np.float32),((v-.5)*long+height/2-.5).astype(np.float32)
+    return sample
 
 
 def _builtin_wave_paths(facts,aspect):
@@ -299,60 +272,90 @@ def _wave_colour(facts,path):
     return tuple(mids),'time-varying colour drawn at envelope midpoints'
 
 
+def _wave_colour_at(facts,path,time):
+    from time_expression import wave_colour
+    material=facts.get(path.rsplit('/',1)[0]+'/wave_material')
+    if not isinstance(material,dict):return None
+    try:return wave_colour(material.get('channels') or {},time,bool(material.get('normalization_enabled')))
+    except (ValueError,KeyError,TypeError):return None
+
+
 def _composite(image,facts):
     for path,value in facts.items():
         if not path.endswith('/legacy_response') or not isinstance(value,dict):continue
         ranges=value.get('native_control_ranges') or {}
-        gamma=_mid(ranges.get('gamma'));alpha=_mid(ranges.get('echo_alpha'));zoom=_mid(ranges.get('echo_zoom'))
-        orient=_mid(ranges.get('echo_orient'))
+        alpha=_mid(ranges.get('echo_alpha'));zoom=_mid(ranges.get('echo_zoom'));orient=_mid(ranges.get('echo_orient'))
+        weight=value.get('gamma_absolute_weight_sum_upper')
         if value.get('echo_selection')=='active or possible native echo' and alpha and zoom:
             height,width=image.shape[:2]
             matrix=np.array([[zoom,0,(1-zoom)*width/2],[0,zoom,(1-zoom)*height/2]],np.float32)
-            echo=cv2.warpAffine(image,matrix,(width,height),flags=cv2.INTER_LINEAR)
+            echo=cv2.warpAffine(image,matrix,(width,height),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)
             code=int(math.fmod(math.trunc(orient or 0),4))
             if code%2:echo=echo[:,::-1]
             if code>=2:echo=echo[::-1]
             image=(1-alpha)*image+alpha*echo
-        if gamma:image=image*gamma
-        return np.clip(image,0,1),'composite echo/gamma applied'
+        if type(weight) in (int,float):image=image*weight
+        return np.clip(image,0,1),'composite echo and gamma redraw weight applied'
     return image,None
 
 
+def _motion_vector_marks(facts,sample,time,width,height):
+    vectors=facts.get('/analysis/visual_description/static_behaviour/motion_vectors')
+    if not isinstance(vectors,dict) or vectors.get('status')!='described' or not vectors.get('vector_count'):return []
+    if sample is None:return []
+    map_x,map_y=sample(time)
+    length=_mid(vectors.get('length_scale')) or .9
+    colour=vectors.get('colour_rgba') or [1,1,1,1]
+    shade=tuple(float(v) if type(v) in (int,float) else 1.0 for v in colour[:3])
+    marks=[]
+    for fx in vectors['columns_screen_fraction']:
+        for fy in vectors['rows_screen_fraction_from_top']:
+            px,py=fx*width,fy*height
+            i,j=min(height-1,int(py)),min(width-1,int(px))
+            ex,ey=px+(map_x[i,j]-px)*length,py+(map_y[i,j]-py)*length
+            if math.hypot(ex-px,ey-py)<1.25:ey=py+1.25
+            marks.append(((px,py),(ex,ey),shade))
+    return marks
+
+
 def illustrate_field(summary,*,time,fps,history_steps):
-    """Built-in waves advected through the decomposed per-pixel field, then composite."""
+    """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite."""
     facts=_facts(summary)
     context=facts.get('/analysis/visual_description/static_behaviour/context') or {}
     if not isinstance(context.get('viewport'),list):raise ValueError('declared static-behaviour viewport is required')
     width,height=context['viewport']
     aspect=(1.0,height/width) if width>=height else (width/height,1.0)
     image=np.zeros((height,width,3),np.float32);limitations=[]
-    step=_field_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'))
-    persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence')
-    if step is None:limitations.append('per-pixel field not fully described: retained layers omitted')
-    table=None
-    if step is not None and isinstance(persistence,dict) and persistence.get('decay_gain'):
-        table=_level_table(persistence['decay_gain'],history_steps)
-    elif step is not None:limitations.append('no decay orbit: retained layers omitted');step=None
+    sample=_backward_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'),width,height)
+    persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
+    decay=persistence.get('decay_gain')
+    if sample is None or type(decay) not in (int,float):
+        limitations.append('per-pixel field or decay not fully described: only the fresh drawing is shown');history_steps=0
     paths,wave_limits=_builtin_wave_paths(facts,aspect);limitations+=wave_limits
-    def to_pixels(point):
-        return ((point[0]-(.5-.5*aspect[0]))/aspect[0]*width,(point[1]-(.5-.5*aspect[1]))/aspect[1]*height)
-    for path,points in paths:
-        colour,note=_wave_colour(facts,path);limitations.append(path+': '+note)
-        ages=range(history_steps,-1,-1) if step is not None else [0]
-        for age in ages:
-            moved=list(points);attenuation=np.ones(len(points))
-            for k in range(age):
-                drawn_time=time-(age-k)/fps
-                attenuation*=np.array([step.gain(point) for point in moved])
-                moved=[step(point,drawn_time) for point in moved]
-            level=np.array(colour) if age==0 else table[age][np.clip(np.rint(np.array(colour)*255),0,255).astype(int)]/255
-            pixels=[to_pixels(point) for point in moved]
-            for index,(a,b) in enumerate(zip(pixels,pixels[1:])):
-                if all(map(math.isfinite,a+b)):
-                    shade=tuple(float(v) for v in level*attenuation[index])
-                    cv2.line(image,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),shade,1,cv2.LINE_AA)
+    long=max(width,height)
+    def to_pixels(point):return ((point[0]-.5)*long+width/2,(point[1]-.5)*long+height/2)
+    colours={path:_wave_colour(facts,path) for path,_ in paths}
+    for path,(colour,note) in colours.items():limitations.append(path+': '+note)
+    try:
+        for frame in range(history_steps,-1,-1):
+            frame_time=time-frame/fps
+            if sample is not None and history_steps:
+                map_x,map_y=sample(frame_time)
+                image=cv2.remap(image,map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_CONSTANT)*decay
+                image=np.round(np.clip(image,0,1)*255)/255
+            for path,points in paths:
+                pixels=[to_pixels(point) for point in points]
+                colour=_wave_colour_at(facts,path,frame_time) or colours[path][0]
+                for a,b in zip(pixels,pixels[1:]):
+                    cv2.line(image,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),tuple(colour),1,cv2.LINE_AA)
+            for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):
+                cv2.line(image,tuple(int(round(v)) for v in start),tuple(int(round(v)) for v in end),shade,1,cv2.LINE_AA)
+    except ValueError as error:
+        limitations.append('field illustration stopped: '+str(error))
+    if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
     image,note=_composite(image,facts)
     if note:limitations.append(note)
+    limitations.append('closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted')
     return image,[path for path,_ in paths],limitations
 
 
@@ -375,9 +378,8 @@ def main(argv=None):
         'illustrator_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'image_sha256':hashlib.sha256(args.output.read_bytes()).hexdigest(),'declared_time_seconds':args.time,
         'history_steps':args.history_steps,'drawn_components':used,'limitations':limitations+[
-            'Illustration of frozen source facts; 1px antialiased layers blurred by the uniform-offset spread reference, newer layers over older ones',
-            'Not a renderer: smoothing, filtering, exact raster, waveform/audio-driven elements, additive waves, wave alpha and composite effects are omitted',
-            'Layers older than history_steps, including permanent floor residue, are omitted'],
+            'Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted',
+            'Content older than history_steps, including permanent floor residue, is omitted'],
         'uses_rendered_images':False,'uses_equation_execution':False,'reads_preset_source':False}
     args.output.with_suffix('.json').write_text(json.dumps(identity,indent=2)+'\n')
     print(json.dumps(identity))
