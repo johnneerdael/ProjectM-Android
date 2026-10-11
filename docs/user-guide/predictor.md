@@ -29,6 +29,20 @@ The [export reference](predictor-export.md) keeps these contracts separate. The
 47 numerical fields have not all become static. Removing retained frame arrays
 from a forecast does not remove its simulation cost.
 
+## Approximate grouping for the whole pack
+
+An approximate grouping layer reads the source description and gives every
+preset an editable activity estimate from 1 to 100, with Chill, Normal and
+Intense candidates. Each estimate lists its drivers: measured source facts (for
+example a zoom of 2–7% per step driven by bass, a ripple travelling at 64 px/s,
+a brightness cycle rate) and assumed priors for mechanisms whose strength the
+analysis cannot yet bound. When assumed or unresolved drivers dominate, the
+preset gets no group, only possible groups, so a preset is never placed in
+Chill just because evidence is missing. These groups are assumption-based
+preferences, not calibrated moods; all weights can be edited and the whole pack
+can be rescored without re-running the analysis. The strict source eligibility
+described below remains separate.
+
 ## Source behaviour work in progress
 
 The experimental branch now joins conditional flashing, movement-speed, prominence
