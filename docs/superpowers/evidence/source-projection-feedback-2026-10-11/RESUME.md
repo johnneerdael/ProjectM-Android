@@ -32,3 +32,14 @@ Reported platform error:
 Request ID: `4a2e1d49-9bdd-42dc-a41d-f2722ce8d622`.
 Observed goal status was blocked; its cause is not established by these tools.
 No engineering work should be credited to a retry until current evidence verifies it.
+
+## Supported client retry configuration
+
+Local Codex CLI is0.162.1. A filtered read of the user's configuration found no
+model-provider retry overrides. OpenAI's [configuration reference](https://developers.openai.com/codex/config-reference/)
+documents `model_providers.<id>.stream_max_retries` for SSE interruptions (default5)
+and `request_max_retries` for HTTP requests (default4). Provider settings must be
+in user configuration; project-scoped provider entries are ignored. Raising
+retries may help the SSE transport, but the current transport and cause are not
+established here, and it does not reactivate a blocked goal. This session cannot
+write `~/.codex/config.toml`; no retry or provider configuration was changed.
