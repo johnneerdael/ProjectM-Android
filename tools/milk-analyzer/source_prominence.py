@@ -6,6 +6,7 @@ not raster coverage or visible contrast; the latter always permits zero.
 import hashlib
 import json
 import math
+from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
@@ -110,6 +111,76 @@ def _value_range(field,domains):
     return pair,report
 
 
+def _aggregate_shape_support(controls,instances,viewport,domains):
+    """Sum unclipped polygon envelopes over the full native instance domain.
+
+    This is a union upper bound, without independence, clipping or overlap credit.
+    Unknown positions cannot invalidate the geometric area theorem, but known
+    nonfinite native conversions must still prevent transparency certification.
+    """
+    ranges={};evidence={};unknown=[];invalid=False
+    native_domains={**domains,'instance':[0.,float(instances-1)]}
+    for name in ('rad','x','y','ang','sides'):
+        pair,report=_value_range(controls[name],native_domains)
+        ranges[name]=pair
+        if report is not None:evidence[name]=report
+        if pair is None:continue
+        if name=='sides':
+            invalid|=not all(-(2**31)-1<v<2**31 for v in pair)
+        else:
+            values=pair
+            if name=='x':values=[2*v-1 for v in pair]
+            if name=='y':values=[1-2*v for v in pair]
+            with np.errstate(over='ignore',invalid='ignore'):
+                invalid|=not all(math.isfinite(float(np.float32(v))) for v in values)
+    aspect=min(1.,viewport[1]/viewport[0]);radius=ranges['rad'];sides=ranges['sides']
+    if radius is not None and not invalid:
+        with np.errstate(over='ignore',invalid='ignore'):
+            magnitude=max(abs(float(np.float32(v))) for v in radius)
+            projected=[float(np.float32(magnitude*float(np.float32(aspect)))),magnitude]
+            for axis,name in enumerate(('x','y')):
+                if ranges[name] is None:continue
+                center=[float(np.float32(2*v-1 if name=='x' else 1-2*v)) for v in ranges[name]]
+                # Individually finite controls can still overflow when native
+                # float32 radius offsets are added to the transformed centre.
+                invalid|=not all(math.isfinite(float(np.float32(c+sign*projected[axis])))
+                    for c in center for sign in (-1,1))
+    area=1.;perimeter=4.*instances;summed=None
+    if radius is not None and sides is not None and not invalid:
+        radius=[float(np.float32(v)) for v in radius]
+        magnitude=max(map(abs,radius))
+        # n*sin(2*pi/n) increases for native n>=3. The greatest admitted
+        # side count therefore bounds every polygon in the whole group.
+        n=max(3,min(100,math.trunc(sides[1])))
+        # Avoid assuming libm's trig/product rounding encloses ideal geometry.
+        # 355/113 > pi; for n>=5 this upper angle is below pi/2. A positive
+        # last term of the alternating sin series is an upper enclosure there.
+        pi_upper=Fraction(355,113)
+        theta=2*pi_upper/n
+        sine_upper=Fraction(1) if n<=4 else min(Fraction(1),sum(
+            ((-1)**k*theta**(2*k+1)/math.factorial(2*k+1) for k in range(7)),Fraction(0)))
+        exact=instances*n*Fraction(magnitude)**2*sine_upper/8*min(Fraction(1),Fraction(viewport[1],viewport[0]))
+        try:summed=float(exact)
+        except OverflowError:summed=math.inf
+        if math.isfinite(summed) and Fraction(summed)<exact:summed=math.nextafter(summed,math.inf)
+        if not math.isfinite(summed):summed=None
+        area=1. if summed is None else min(1.,summed)
+        exact_perimeter=instances*min(Fraction(4),pi_upper*Fraction(magnitude))
+        perimeter=float(exact_perimeter)
+        if Fraction(perimeter)<exact_perimeter:perimeter=math.nextafter(perimeter,math.inf)
+    else:unknown.append('finite aggregate radius/native side-count envelope unresolved')
+    if invalid:unknown.append('aggregate geometry has a potentially invalid native conversion')
+    unknown.append('aggregate polygon support has no clipping/overlap lower bound')
+    return {'area_fraction_interval':[0.,area],'nominal_area_fraction':None,
+            'summed_nominal_area_fraction':None,'summed_clipped_area_fraction_upper':summed if summed is not None else float(instances),
+            'method':'aggregate polygon area envelope','perimeter_fraction_upper':perimeter,
+            'distinct_support_count':instances,'known_invalid_native_domain':invalid,
+            'projection_translation_ndc':[1/viewport[0],1/viewport[1]],'aspect_y':aspect,
+            'configured_instances':instances,'parameter_ranges':[{'instance_interval':[0,instances-1],
+                'radius':radius,'center_x':ranges['x'],'center_y':ranges['y'],
+                'side_count':sides,'angle':ranges['ang'],'range_evidence':evidence}]},unknown
+
+
 def _shape_support(controls,instances,viewport,domains):
     from source_appearance import _phase_literal
     unknown=[];records=[];nominal=0.;nominal_known=True;polygons=[];spans=[];perimeters=[];known_invalid=False
@@ -118,8 +189,7 @@ def _shape_support(controls,instances,viewport,domains):
     aspect=min(1.,viewport[1]/viewport[0])
     if instances<=0:return {'area_fraction_interval':[0.,0.],'nominal_area_fraction':0.,
         'summed_nominal_area_fraction':0.,'method':'no configured instances','parameter_ranges':[]},[]
-    if instances>256:return {'area_fraction_interval':[0.,1.],'nominal_area_fraction':None,
-        'summed_nominal_area_fraction':None,'method':'instance budget exceeded','parameter_ranges':[]},['more than256 configured instances exceed source geometry budget']
+    if instances>256:return _aggregate_shape_support(controls,instances,viewport,domains)
     for index in range(instances):
         c=_instance_controls(controls,index)
         radius,report=_value_range(c['rad'],domains);x,xr=_value_range(c['x'],domains);y,yr=_value_range(c['y'],domains)

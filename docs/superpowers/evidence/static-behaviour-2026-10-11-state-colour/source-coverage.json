@@ -1,0 +1,16 @@
+{
+  "counts": {
+    "active_shapes": 3098,
+    "aggregate_support_components": 605,
+    "finite_subunit_aggregate_support_components": 353,
+    "presets": 2000,
+    "presets_with_aggregate_shape_support": 330,
+    "presets_with_paired_output_axes": 385,
+    "presets_with_shape_state_boxes": 528,
+    "presets_with_stochastic_colour_recipes": 98,
+    "presets_with_useful_hues": 1529,
+    "shapes_with_paired_output_axes": 720,
+    "stochastic_colour_components": 156
+  },
+  "no_appearance_or_mood_accuracy_claim": true
+}

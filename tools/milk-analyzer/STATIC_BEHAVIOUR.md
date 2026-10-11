@@ -14,6 +14,7 @@ source reader parses the preset; compiler evidence may qualify stage selection.
 | `motion.contributions` | Conditional viewport-unit/second envelopes, audio partial response, backward-sampling and forward-transport distinctions | Typical optical flow or actual trajectories from displacement alone |
 | `prominence.by_component` | Clipped support, opacity, final difference gain and displayed contribution intervals | Guaranteed dominance, visible contrast or accumulated feedback coverage |
 | `colour.components` | Source RGB/HSV anchors, hue-family possibilities, conditional final palette and contribution weights | A measured palette or a unique image |
+| `shape_state.by_component` | Conditional private-state invariants and per-instance shape-output intervals | Native finiteness, visible speed or mood eligibility |
 | `classification` | Known-source potential index, conservative interval, overlapping candidate and eligible preference bands | Calibrated human mood accuracy |
 
 `classification.predicted_bands` uses the known component potential estimate.
@@ -43,6 +44,33 @@ The colour producer joins shape centre/perimeter/border colours, wave colours an
 qualified transfer rules. It preserves unknown inherited feedback/image colours.
 Hue candidates and encoded-RGB temperature tags describe possible ingredients;
 they do not prove a warm/cold or psychedelic overall appearance.
+
+## Sequential shapes and random colour
+
+`shape_state.by_component.shape_N.state_domains` reports private variable boxes
+whose initialization and complete ordered instance transition have been proved.
+`instance_output_domains` reports supported output axes separately. For example,
+a reflected sine/cosine walker can have both x/y bounds while its accumulated
+angle remains unbounded; an independent tangent axis can remain absent. Native
+instance counts and exact engine initialization policy participate in provenance.
+See `SOURCE_SHAPE_STATE_DOMAINS.md` for semantics and unresolved conditions.
+These nominal layout facts do not replace existing motion or finite-domain guards.
+
+For more than256 configured shape instances, prominence uses one aggregate
+polygon-area envelope over the complete instance domain. It sums unclipped area
+ceilings and caps union coverage at one, without enumerating every polygon or
+assuming overlap/independence. Its lower bound is zero; known invalid native
+geometry still prevents transparency certification. The ideal-area upper uses
+exact rational arithmetic, a rational upper bound on pi and a conservative sine
+series rather than assuming one final floating-point adjustment is sufficient.
+
+`colour.components[].source_palette.stochastic_vertex_colour` describes supported
+direct or quantized native random RGB calls, encoded channel bounds, copied-draw
+correlation and initialization/frame/instance invocation scope. Separate calls
+are distinct values even when their syntax matches; copied values retain their
+shared-grey correlation. Live constant or unknown borders remain part of the
+combined material box. A refresh scope is a possible invocation source, not a
+guaranteed visible flash, uniform RNG distribution or reached palette histogram.
 
 ## Reproducible reference and cohort
 

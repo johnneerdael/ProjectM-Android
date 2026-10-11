@@ -1,0 +1,2749 @@
+[
+  {
+    "appearance_accuracy_verified": false,
+    "automatic_eligible_bands": [],
+    "native_numeric_certified": false,
+    "preset": {
+      "relative_path": "suksma - fiShbRaiN - witchcraft (phugly megalopolish remix)2 - skekseas.milk",
+      "sha256": "f7db9f207d24cb092dc2d0ca12f04f51713899c7ab1ee05736b0bf0b6c9f82fb"
+    },
+    "shape_colour": [
+      {
+        "component_id": "shape_0",
+        "contribution_interval": [
+          0.0,
+          1.0
+        ],
+        "eligible_accent": true,
+        "final_candidate_palette": {
+          "anchors": [],
+          "hue_families_possible": [],
+          "model": "unknown",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": null,
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [],
+          "transfer_model": "unresolved final RGB transfer"
+        },
+        "provenance": {
+          "context_sha256": "030fc47771d2cd14dd670f17519c2012c0a3394c7c5539ed1bd8e2a93254cad9",
+          "model_sha256": "580aa1d36a5847fec5a687031011399364c4a9bc2d281357f775e19ac1f7d7f4",
+          "parser_inputs_sha256": "a0660c9ca4ca0d96cdc0376142dc4fd62c3adc66438453b2ae63ba9cbea50284",
+          "preset_sha256": "f7db9f207d24cb092dc2d0ca12f04f51713899c7ab1ee05736b0bf0b6c9f82fb"
+        },
+        "source_palette": {
+          "anchors": [],
+          "hue_families_possible": [],
+          "model": "sampled_RGBA_times_native_vertex_tint",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": [
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ]
+          ],
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [],
+          "vertex_tint_anchors": [
+            {
+              "hsv": [
+                0.0,
+                0.0,
+                0.9999998807907104
+              ],
+              "hue_family": "grayscale",
+              "raw_source_rgb": [
+                0.9999998807907104,
+                0.9999998807907104,
+                0.9999998807907104
+              ],
+              "rgb": [
+                0.9999998807907104,
+                0.9999998807907104,
+                0.9999998807907104
+              ],
+              "role": "centre",
+              "temperature": "neutral"
+            },
+            {
+              "hsv": [
+                0.8333333333333334,
+                1.0,
+                0.9999998807907104
+              ],
+              "hue_family": "pink",
+              "raw_source_rgb": [
+                0.9999998807907104,
+                0.0,
+                0.9999998807907104
+              ],
+              "rgb": [
+                0.9999998807907104,
+                0.0,
+                0.9999998807907104
+              ],
+              "role": "perimeter",
+              "temperature": "warm"
+            },
+            {
+              "hsv": [
+                0.0,
+                1.0,
+                0.9999998807907104
+              ],
+              "hue_family": "red",
+              "raw_source_rgb": [
+                0.9999998807907104,
+                0.0,
+                0.0
+              ],
+              "rgb": [
+                0.9999998807907104,
+                0.0,
+                0.0
+              ],
+              "role": "border",
+              "temperature": "warm"
+            }
+          ]
+        },
+        "stage": "drawing",
+        "status": "inherited_colour",
+        "unknown_reasons": [
+          "later main/blur/texture composition may change the source colours",
+          "sampled texture/feedback supplies unknown RGBA; vertex tint is not the actual image palette"
+        ]
+      },
+      {
+        "component_id": "shape_1",
+        "contribution_interval": [
+          0.0,
+          1.0
+        ],
+        "eligible_accent": true,
+        "final_candidate_palette": {
+          "anchors": [],
+          "hue_families_possible": [],
+          "model": "unknown",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": null,
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [],
+          "transfer_model": "unresolved final RGB transfer"
+        },
+        "provenance": {
+          "context_sha256": "030fc47771d2cd14dd670f17519c2012c0a3394c7c5539ed1bd8e2a93254cad9",
+          "model_sha256": "580aa1d36a5847fec5a687031011399364c4a9bc2d281357f775e19ac1f7d7f4",
+          "parser_inputs_sha256": "a0660c9ca4ca0d96cdc0376142dc4fd62c3adc66438453b2ae63ba9cbea50284",
+          "preset_sha256": "f7db9f207d24cb092dc2d0ca12f04f51713899c7ab1ee05736b0bf0b6c9f82fb"
+        },
+        "source_palette": {
+          "anchors": [
+            {
+              "hsv": [
+                0.0,
+                0.0,
+                0.9999998807907104
+              ],
+              "hue_family": "grayscale",
+              "raw_source_rgb": [
+                0.9999998807907104,
+                0.9999998807907104,
+                0.9999998807907104
+              ],
+              "rgb": [
+                0.9999998807907104,
+                0.9999998807907104,
+                0.9999998807907104
+              ],
+              "role": "centre",
+              "temperature": "neutral"
+            },
+            {
+              "hsv": [
+                0.8333333333333334,
+                1.0,
+                0.9999998807907104
+              ],
+              "hue_family": "pink",
+              "raw_source_rgb": [
+                0.9999998807907104,
+                0.0,
+                0.9999998807907104
+              ],
+              "rgb": [
+                0.9999998807907104,
+                0.0,
+                0.9999998807907104
+              ],
+              "role": "perimeter",
+              "temperature": "warm"
+            },
+            {
+              "hsv": [
+                0.0,
+                1.0,
+                0.9999998807907104
+              ],
+              "hue_family": "red",
+              "raw_source_rgb": [
+                0.9999998807907104,
+                0.0,
+                0.0
+              ],
+              "rgb": [
+                0.9999998807907104,
+                0.0,
+                0.0
+              ],
+              "role": "border",
+              "temperature": "warm"
+            }
+          ],
+          "hue_families_possible": [
+            "grayscale",
+            "red",
+            "orange",
+            "yellow",
+            "pink"
+          ],
+          "model": "native_vertex_gradient_box",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": [
+            [
+              0.9999998807907104,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ]
+          ],
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [
+            "neutral",
+            "warm"
+          ]
+        },
+        "stage": "drawing",
+        "status": "known_source_colour",
+        "unknown_reasons": [
+          "later main/blur/texture composition may change the source colours"
+        ]
+      }
+    ],
+    "shape_state": {
+      "by_component": {
+        "shape_0": {
+          "component_id": "shape_0",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              310
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "ang": [
+              0.0,
+              6.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 311,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "1c1b85463f046d55a2eebfec72df83d09afa84ed59bdb091cadb870d54f40192",
+          "shape_index": 0,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "f7db9f207d24cb092dc2d0ca12f04f51713899c7ab1ee05736b0bf0b6c9f82fb"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "my": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "time",
+            "treb"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: tan"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        },
+        "shape_1": {
+          "component_id": "shape_1",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              280
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "ang": [
+              0.0,
+              6.6
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 281,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "dbeb0bf11c04db203cae56a7f70c938f7c1ba125d9f915519ff09099c79ff311",
+          "shape_index": 1,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "f7db9f207d24cb092dc2d0ca12f04f51713899c7ab1ee05736b0bf0b6c9f82fb"
+          },
+          "state_domains": {
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "mx": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "mid",
+            "time"
+          ],
+          "unresolved_native_operations": [
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: tan"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        }
+      },
+      "components": [
+        {
+          "component_id": "shape_0",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              310
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "ang": [
+              0.0,
+              6.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 311,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "1c1b85463f046d55a2eebfec72df83d09afa84ed59bdb091cadb870d54f40192",
+          "shape_index": 0,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "f7db9f207d24cb092dc2d0ca12f04f51713899c7ab1ee05736b0bf0b6c9f82fb"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "my": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "time",
+            "treb"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: tan"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        },
+        {
+          "component_id": "shape_1",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              280
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "ang": [
+              0.0,
+              6.6
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 281,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "dbeb0bf11c04db203cae56a7f70c938f7c1ba125d9f915519ff09099c79ff311",
+          "shape_index": 1,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "f7db9f207d24cb092dc2d0ca12f04f51713899c7ab1ee05736b0bf0b6c9f82fb"
+          },
+          "state_domains": {
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "mx": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "mid",
+            "time"
+          ],
+          "unresolved_native_operations": [
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: tan"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        }
+      ],
+      "conditions": [
+        "Conditional nominal state/output domains do not establish motion, prominence or mood eligibility"
+      ],
+      "native_numeric_certified": false,
+      "policy": "source-shape-state-export-v1",
+      "uses_equation_execution": false,
+      "uses_rendered_images": false,
+      "uses_shader_execution": false,
+      "visible_motion_certified": false
+    }
+  },
+  {
+    "appearance_accuracy_verified": false,
+    "automatic_eligible_bands": [],
+    "native_numeric_certified": false,
+    "preset": {
+      "relative_path": "loin bowel - don't you understand baby, i don't want a big studio in the hills - how to impress dullards2.milk",
+      "sha256": "5ed4718064d8b61994e37f140dabf27b81537a6cecd26192ccee56e141eea6a2"
+    },
+    "shape_colour": [
+      {
+        "component_id": "shape_0",
+        "contribution_interval": [
+          0.0,
+          1.0
+        ],
+        "eligible_accent": true,
+        "final_candidate_palette": {
+          "anchors": [],
+          "hue_families_possible": [],
+          "model": "unknown",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": null,
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [],
+          "transfer_model": "unresolved final RGB transfer"
+        },
+        "provenance": {
+          "context_sha256": "030fc47771d2cd14dd670f17519c2012c0a3394c7c5539ed1bd8e2a93254cad9",
+          "model_sha256": "580aa1d36a5847fec5a687031011399364c4a9bc2d281357f775e19ac1f7d7f4",
+          "parser_inputs_sha256": "a0660c9ca4ca0d96cdc0376142dc4fd62c3adc66438453b2ae63ba9cbea50284",
+          "preset_sha256": "5ed4718064d8b61994e37f140dabf27b81537a6cecd26192ccee56e141eea6a2"
+        },
+        "source_palette": {
+          "anchors": [],
+          "hue_families_possible": [
+            "grayscale",
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "cyan",
+            "blue",
+            "purple",
+            "pink"
+          ],
+          "model": "bounded_stochastic_native_vertex_rgb",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": [
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ]
+          ],
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "stochastic_vertex_colour": {
+            "actual_palette_verified": false,
+            "centre": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 0
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 1
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 2
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 0
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 1
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 2
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            },
+            "conditions": [
+              "Separate live call sites are not proved equal; copied results retain their source identity",
+              "Native rand uses floor(maximum), clamped to at least1, and may reach its upper endpoint",
+              "Bounded channel values describe source ingredients, not reached hue frequencies or perceptual flashing",
+              "Initialization, frame and instance execution scopes remain separate; no source program/frames are executed"
+            ],
+            "native_rng_distribution_certified": false,
+            "perimeter": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 3
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 4
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 5
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 3
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 4
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 5
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            }
+          },
+          "temperature_candidates": [
+            "cool",
+            "mixed",
+            "neutral",
+            "warm"
+          ]
+        },
+        "stage": "drawing",
+        "status": "partial_source_colour",
+        "unknown_reasons": [
+          "b has an interval rather than a constant native colour",
+          "b2 has an interval rather than a constant native colour",
+          "g has an interval rather than a constant native colour",
+          "g2 has an interval rather than a constant native colour",
+          "later main/blur/texture composition may change the source colours",
+          "r has an interval rather than a constant native colour",
+          "r2 has an interval rather than a constant native colour"
+        ]
+      },
+      {
+        "component_id": "shape_1",
+        "contribution_interval": [
+          0.0,
+          1.0
+        ],
+        "eligible_accent": true,
+        "final_candidate_palette": {
+          "anchors": [],
+          "hue_families_possible": [],
+          "model": "unknown",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": null,
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [],
+          "transfer_model": "unresolved final RGB transfer"
+        },
+        "provenance": {
+          "context_sha256": "030fc47771d2cd14dd670f17519c2012c0a3394c7c5539ed1bd8e2a93254cad9",
+          "model_sha256": "580aa1d36a5847fec5a687031011399364c4a9bc2d281357f775e19ac1f7d7f4",
+          "parser_inputs_sha256": "a0660c9ca4ca0d96cdc0376142dc4fd62c3adc66438453b2ae63ba9cbea50284",
+          "preset_sha256": "5ed4718064d8b61994e37f140dabf27b81537a6cecd26192ccee56e141eea6a2"
+        },
+        "source_palette": {
+          "anchors": [],
+          "hue_families_possible": [
+            "grayscale",
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "cyan",
+            "blue",
+            "purple",
+            "pink"
+          ],
+          "model": "bounded_stochastic_native_vertex_rgb",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": [
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ]
+          ],
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "stochastic_vertex_colour": {
+            "actual_palette_verified": false,
+            "centre": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 0
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 1
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 2
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 0
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 1
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 2
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            },
+            "conditions": [
+              "Separate live call sites are not proved equal; copied results retain their source identity",
+              "Native rand uses floor(maximum), clamped to at least1, and may reach its upper endpoint",
+              "Bounded channel values describe source ingredients, not reached hue frequencies or perceptual flashing",
+              "Initialization, frame and instance execution scopes remain separate; no source program/frames are executed"
+            ],
+            "native_rng_distribution_certified": false,
+            "perimeter": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 3
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 4
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 5
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 3
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 4
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 5
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            }
+          },
+          "temperature_candidates": [
+            "cool",
+            "mixed",
+            "neutral",
+            "warm"
+          ]
+        },
+        "stage": "drawing",
+        "status": "partial_source_colour",
+        "unknown_reasons": [
+          "b has an interval rather than a constant native colour",
+          "b2 has an interval rather than a constant native colour",
+          "g has an interval rather than a constant native colour",
+          "g2 has an interval rather than a constant native colour",
+          "later main/blur/texture composition may change the source colours",
+          "r has an interval rather than a constant native colour",
+          "r2 has an interval rather than a constant native colour"
+        ]
+      }
+    ],
+    "shape_state": {
+      "by_component": {
+        "shape_0": {
+          "component_id": "shape_0",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              511
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 512,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "7d511a9d7c9dce5a9009f71225b5587242f5a1100556c0bcbcc7e07f761eba51",
+          "shape_index": 0,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "5ed4718064d8b61994e37f140dabf27b81537a6cecd26192ccee56e141eea6a2"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "treb"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        },
+        "shape_1": {
+          "component_id": "shape_1",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              1023
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 1024,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "355354902bc0cadabd6374149bab7a2841424484919b7c9eb03895f6e82283af",
+          "shape_index": 1,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "5ed4718064d8b61994e37f140dabf27b81537a6cecd26192ccee56e141eea6a2"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "mid"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        }
+      },
+      "components": [
+        {
+          "component_id": "shape_0",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              511
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 512,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "7d511a9d7c9dce5a9009f71225b5587242f5a1100556c0bcbcc7e07f761eba51",
+          "shape_index": 0,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "5ed4718064d8b61994e37f140dabf27b81537a6cecd26192ccee56e141eea6a2"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "treb"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        },
+        {
+          "component_id": "shape_1",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              1023
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 1024,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "355354902bc0cadabd6374149bab7a2841424484919b7c9eb03895f6e82283af",
+          "shape_index": 1,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "5ed4718064d8b61994e37f140dabf27b81537a6cecd26192ccee56e141eea6a2"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "mid"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        }
+      ],
+      "conditions": [
+        "Conditional nominal state/output domains do not establish motion, prominence or mood eligibility"
+      ],
+      "native_numeric_certified": false,
+      "policy": "source-shape-state-export-v1",
+      "uses_equation_execution": false,
+      "uses_rendered_images": false,
+      "uses_shader_execution": false,
+      "visible_motion_certified": false
+    }
+  },
+  {
+    "appearance_accuracy_verified": false,
+    "automatic_eligible_bands": [],
+    "native_numeric_certified": false,
+    "preset": {
+      "relative_path": "loin bowel - don't you understand baby, i don't want a big studio in the hills - how to impress dullards2 nz+.milk",
+      "sha256": "19b27b41a06143518f024b00aa50ca1e6b023839b994bb56655e9302b73e74ca"
+    },
+    "shape_colour": [
+      {
+        "component_id": "shape_0",
+        "contribution_interval": [
+          0.0,
+          1.0
+        ],
+        "eligible_accent": true,
+        "final_candidate_palette": {
+          "anchors": [],
+          "hue_families_possible": [],
+          "model": "unknown",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": null,
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [],
+          "transfer_model": "unresolved final RGB transfer"
+        },
+        "provenance": {
+          "context_sha256": "030fc47771d2cd14dd670f17519c2012c0a3394c7c5539ed1bd8e2a93254cad9",
+          "model_sha256": "580aa1d36a5847fec5a687031011399364c4a9bc2d281357f775e19ac1f7d7f4",
+          "parser_inputs_sha256": "a0660c9ca4ca0d96cdc0376142dc4fd62c3adc66438453b2ae63ba9cbea50284",
+          "preset_sha256": "19b27b41a06143518f024b00aa50ca1e6b023839b994bb56655e9302b73e74ca"
+        },
+        "source_palette": {
+          "anchors": [],
+          "hue_families_possible": [
+            "grayscale",
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "cyan",
+            "blue",
+            "purple",
+            "pink"
+          ],
+          "model": "bounded_stochastic_native_vertex_rgb",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": [
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ]
+          ],
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "stochastic_vertex_colour": {
+            "actual_palette_verified": false,
+            "centre": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 0
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 1
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 2
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 0
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 1
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 2
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            },
+            "conditions": [
+              "Separate live call sites are not proved equal; copied results retain their source identity",
+              "Native rand uses floor(maximum), clamped to at least1, and may reach its upper endpoint",
+              "Bounded channel values describe source ingredients, not reached hue frequencies or perceptual flashing",
+              "Initialization, frame and instance execution scopes remain separate; no source program/frames are executed"
+            ],
+            "native_rng_distribution_certified": false,
+            "perimeter": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 3
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 4
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_0_per_frame",
+                    "site_index": 5
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 3
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 4
+                },
+                {
+                  "equation_phase": "shape_0_per_frame",
+                  "site_index": 5
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            }
+          },
+          "temperature_candidates": [
+            "cool",
+            "mixed",
+            "neutral",
+            "warm"
+          ]
+        },
+        "stage": "drawing",
+        "status": "partial_source_colour",
+        "unknown_reasons": [
+          "b has an interval rather than a constant native colour",
+          "b2 has an interval rather than a constant native colour",
+          "g has an interval rather than a constant native colour",
+          "g2 has an interval rather than a constant native colour",
+          "later main/blur/texture composition may change the source colours",
+          "r has an interval rather than a constant native colour",
+          "r2 has an interval rather than a constant native colour"
+        ]
+      },
+      {
+        "component_id": "shape_1",
+        "contribution_interval": [
+          0.0,
+          1.0
+        ],
+        "eligible_accent": true,
+        "final_candidate_palette": {
+          "anchors": [],
+          "hue_families_possible": [],
+          "model": "unknown",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": null,
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "temperature_candidates": [],
+          "transfer_model": "unresolved final RGB transfer"
+        },
+        "provenance": {
+          "context_sha256": "030fc47771d2cd14dd670f17519c2012c0a3394c7c5539ed1bd8e2a93254cad9",
+          "model_sha256": "580aa1d36a5847fec5a687031011399364c4a9bc2d281357f775e19ac1f7d7f4",
+          "parser_inputs_sha256": "a0660c9ca4ca0d96cdc0376142dc4fd62c3adc66438453b2ae63ba9cbea50284",
+          "preset_sha256": "19b27b41a06143518f024b00aa50ca1e6b023839b994bb56655e9302b73e74ca"
+        },
+        "source_palette": {
+          "anchors": [],
+          "hue_families_possible": [
+            "grayscale",
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "cyan",
+            "blue",
+            "purple",
+            "pink"
+          ],
+          "model": "bounded_stochastic_native_vertex_rgb",
+          "reached_palette_verified": false,
+          "rgb_component_intervals": [
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ],
+            [
+              0.0,
+              0.9999998807907104
+            ]
+          ],
+          "scope": "source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance",
+          "stochastic_vertex_colour": {
+            "actual_palette_verified": false,
+            "centre": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 0
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 1
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 2
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 0
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 1
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 2
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            },
+            "conditions": [
+              "Separate live call sites are not proved equal; copied results retain their source identity",
+              "Native rand uses floor(maximum), clamped to at least1, and may reach its upper endpoint",
+              "Bounded channel values describe source ingredients, not reached hue frequencies or perceptual flashing",
+              "Initialization, frame and instance execution scopes remain separate; no source program/frames are executed"
+            ],
+            "native_rng_distribution_certified": false,
+            "perimeter": {
+              "channels": [
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 3
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 4
+                  }
+                },
+                {
+                  "division_denominator": 100.0,
+                  "encoded_channel_interval": [
+                    0.0,
+                    0.9999998807907104
+                  ],
+                  "integer_projection": true,
+                  "maximum_random_argument": 100,
+                  "refresh_scope": "shape_instance_invocation",
+                  "site": {
+                    "equation_phase": "shape_1_per_frame",
+                    "site_index": 5
+                  }
+                }
+              ],
+              "distinct_source_sites": [
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 3
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 4
+                },
+                {
+                  "equation_phase": "shape_1_per_frame",
+                  "site_index": 5
+                }
+              ],
+              "encoded_rgb_component_intervals": [
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ],
+                [
+                  0.0,
+                  0.9999998807907104
+                ]
+              ],
+              "refresh_scope": "shape_instance_invocation",
+              "shared_random_draw": false
+            }
+          },
+          "temperature_candidates": [
+            "cool",
+            "mixed",
+            "neutral",
+            "warm"
+          ]
+        },
+        "stage": "drawing",
+        "status": "partial_source_colour",
+        "unknown_reasons": [
+          "b has an interval rather than a constant native colour",
+          "b2 has an interval rather than a constant native colour",
+          "g has an interval rather than a constant native colour",
+          "g2 has an interval rather than a constant native colour",
+          "later main/blur/texture composition may change the source colours",
+          "r has an interval rather than a constant native colour",
+          "r2 has an interval rather than a constant native colour"
+        ]
+      }
+    ],
+    "shape_state": {
+      "by_component": {
+        "shape_0": {
+          "component_id": "shape_0",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              511
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 512,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "7d511a9d7c9dce5a9009f71225b5587242f5a1100556c0bcbcc7e07f761eba51",
+          "shape_index": 0,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "19b27b41a06143518f024b00aa50ca1e6b023839b994bb56655e9302b73e74ca"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "treb"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        },
+        "shape_1": {
+          "component_id": "shape_1",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              1023
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 1024,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "355354902bc0cadabd6374149bab7a2841424484919b7c9eb03895f6e82283af",
+          "shape_index": 1,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "19b27b41a06143518f024b00aa50ca1e6b023839b994bb56655e9302b73e74ca"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "mid"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        }
+      },
+      "components": [
+        {
+          "component_id": "shape_0",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              511
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 512,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "7d511a9d7c9dce5a9009f71225b5587242f5a1100556c0bcbcc7e07f761eba51",
+          "shape_index": 0,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "19b27b41a06143518f024b00aa50ca1e6b023839b994bb56655e9302b73e74ca"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "treb"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        },
+        {
+          "component_id": "shape_1",
+          "conditions": [
+            "Native intermediate finiteness, overflow, conversions and transcendental arithmetic remain unresolved",
+            "All source input/private-state values used in nominal arithmetic are real-valued premises",
+            "One complete instance transition is inductive; sequential instances do not reset private locals",
+            "State/output boxes do not prove visible movement, prominence or mood accuracy"
+          ],
+          "initial_variable_policy": "native-new-private-locals-zero-v1",
+          "input_domains": {
+            "instance": [
+              0,
+              1023
+            ]
+          },
+          "instance_output_domains": {
+            "a": [
+              0.0,
+              1.0
+            ],
+            "x": [
+              0.1,
+              1.0000000000000002
+            ],
+            "y": [
+              0.1,
+              1.0000000000000002
+            ]
+          },
+          "native_instance_count": 1024,
+          "native_numeric_certified": false,
+          "numeric_model": "nominal-real",
+          "obligations": {
+            "mx": {
+              "initialization": "proven",
+              "transition": "proven"
+            },
+            "my": {
+              "initialization": "proven",
+              "transition": "proven"
+            }
+          },
+          "policy": "source-shape-private-state-induction-v1",
+          "request_sha256": "355354902bc0cadabd6374149bab7a2841424484919b7c9eb03895f6e82283af",
+          "shape_index": 1,
+          "source_identity": {
+            "parser_inputs": {
+              "engine": {
+                "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+              },
+              "engine_archive_sha256": "9dbe2f4d472eeea9809706104bea64133a07dda4be4f5da4531b0a7d899fb197",
+              "float_formatter_sha256": "d0ccd13d29d2c8080641234c92720d1888626ca83af507fdb471f453fc6d1c3b",
+              "float_literal_policy": "float32-roundtrip-v1",
+              "random_binding_contract": {
+                "body_sha256": {
+                  "MilkdropPreset.Initialize": "e9b09519fa583dd0263f2657eab74a1cbc9701c043b1235064e2889153f16bad",
+                  "MilkdropShader.GetReferencedSamplers": "e2cedb2940bf69834244f2b9a081c21a0c4f5666de887ad23b80b6bac24f9447",
+                  "MilkdropShader.LoadTexturesAndCompile": "2f3ba7eada45e65821b6f2b942f0f37f4bd89c8765300c97a37520a3a333938f",
+                  "MilkdropShader.LoadVariables": "fc5acc978feafffa6d65df74970d40d69209984d024fcc7cea4509393e5b52d3",
+                  "PerPixelMesh.Draw": "8a92931649bade9d4dc02caafb36f91c38a5eb27f9c9caf01f883232cd259838",
+                  "Sampler.Bind": "4126ec94f1a79ef506040870904f98c8fc3a5b05becd0856992aecba3675ae7d",
+                  "Sampler.Constructor": "b467206c63fd6cb069c929a0054579efe46e0fc6c1b64e629e10cfd6877e8d8b",
+                  "Sampler.WrapMode": "d54b5750d5777dbd3ce54d3e4bb4e9085579a2a01ff017053eedb068782f86a2",
+                  "Texture.Bind": "04f9f9edf638507ba6333237bccdfdbe0789a55a69971908f8d9ca393388eb2a",
+                  "TextureManager.ExtractTextureSettings": "9d67b7e31e6016b9ff54077168c2030491b64f0785529777a1419c2e24bf9872",
+                  "TextureManager.GetRandomTexture": "427f40c9a0bf6c45bd74d6a433936a57b45a7999394e541a4859e9eb0f495025",
+                  "TextureManager.GetSampler": "86808d805455bd5f269478ad8f64e0737b76a532e29d784f353e0af229c3cccf",
+                  "TextureManager.GetTexture": "043fb7d85e676adb25ab606e0c656e23bcd26cf712d6c309f9952793304be0fe",
+                  "TextureManager.LoadTexture": "f41c1a0bd50d17d784067bdba0700c2dea7aa4a09aa058ea71ee80ed9e36c20e",
+                  "TextureManager.Preload": "99f526cb3a5aa80fa788687170ff3d053a6201be2fa9b8de1c26b626363b6e58",
+                  "TextureSamplerDescriptor.Bind": "a878f6ed163204e1fba022e94ddbc58ceaf3ebe12291d075cfa738adda5798b2",
+                  "TextureSamplerDescriptor.SamplerDeclaration": "d868913835dc9f6458b1a1bbe44fde4dffac38ed0ea72a637a3c727b43d22373",
+                  "TextureSamplerDescriptor.ShortRandomAlias": "f9c04d1da77c09159ff1b7320e5b015a1c4f5f3c67c2526541f3d31f39330550",
+                  "TextureSamplerDescriptor.TexSizeDeclaration": "34c90baf231753f012f69e21330bf0e2ca7361fd5398fd6c063ca6b26cea0bc0"
+                },
+                "engine": {
+                  "commit": "6f64807467e312034883a4389e6aa80a675458bc",
+                  "patches_sha256": "a6e0298331988d9777607f2cb75ade4bb362f69787e865aaaf6578479267d0df"
+                },
+                "file_sha256": {
+                  "MilkdropPreset/MilkdropShader.hpp": "c777e79ffc90368418c786f04a08613410ff1803b61d18a4f7f8bbdf6dbc10de",
+                  "MilkdropPreset/PerPixelMesh.hpp": "61a06eef48c9ee96fc7451ff17596c816906d5ca6a160769d6c792c85b1fb0d6",
+                  "MilkdropPreset/PresetState.hpp": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+                  "Renderer/Sampler.hpp": "7c3a547080e5677ee1584fa04ef0b6a5709402e75fb47cd29a5f24f99af78302",
+                  "Renderer/Texture.hpp": "b8c1b2d2b188470522e39f4f0153637dc2c9460f079e12f7befed09c4e07efde",
+                  "Renderer/TextureManager.hpp": "021e053984546581fa80ea085b5beca1d66f1a09e9294cd0de296f0fbae87a15",
+                  "Renderer/TextureSamplerDescriptor.hpp": "adc68ba5b14f28e1d9829b719bb05fb959a41aed8105cfc615865c6baf9fc7cf"
+                },
+                "policy": "projectmtv-random-slot-inputs-v1"
+              },
+              "setting_lookup_policy": "native-case-insensitive-v1",
+              "shader_header_sha256": "6717e212969ea9c5e7d38bd2133d8624cea820409016a17ae9b281467fe1832b"
+            },
+            "preset_sha256": "19b27b41a06143518f024b00aa50ca1e6b023839b994bb56655e9302b73e74ca"
+          },
+          "state_domains": {
+            "mx": [
+              0.0,
+              1.0000000000000002
+            ],
+            "my": [
+              0.0,
+              1.0000000000000002
+            ]
+          },
+          "status": "proven",
+          "unknown_state_reasons": {
+            "b_border": "transition has unsupported/unbounded numerical dependency",
+            "g_border": "transition has unsupported/unbounded numerical dependency",
+            "ma": "transition has unsupported/unbounded numerical dependency",
+            "r_border": "transition has unsupported/unbounded numerical dependency"
+          },
+          "unresolved_native_finite_inputs": [
+            "bass",
+            "ma",
+            "mid"
+          ],
+          "unresolved_native_operations": [
+            "cos native argument/intermediate finiteness and library arithmetic",
+            "sin native argument/intermediate finiteness and library arithmetic",
+            "unsupported numerical operation: rand"
+          ],
+          "uses_equation_execution": false,
+          "uses_rendered_images": false,
+          "uses_shader_execution": false,
+          "visible_motion_certified": false
+        }
+      ],
+      "conditions": [
+        "Conditional nominal state/output domains do not establish motion, prominence or mood eligibility"
+      ],
+      "native_numeric_certified": false,
+      "policy": "source-shape-state-export-v1",
+      "uses_equation_execution": false,
+      "uses_rendered_images": false,
+      "uses_shader_execution": false,
+      "visible_motion_certified": false
+    }
+  }
+]

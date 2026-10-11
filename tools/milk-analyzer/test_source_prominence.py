@@ -88,6 +88,54 @@ def test_coincident_instances_do_not_sum_union_coverage_above_one():
     assert repeated['support']['summed_nominal_area_fraction']>1
 
 
+def test_large_instance_group_has_analytic_tiny_area_bound_without_enumeration():
+    row,_=evidence('rad=.001;x=.2+.001*instance;',config='shapecode_0_num_inst=1024\n')
+    expected=1024*.001**2*.5*9/16
+    assert row['support']['area_fraction_interval'][1]<=expected*1.00001
+    assert row['support']['method']=='aggregate polygon area envelope'
+    assert len(row['support']['parameter_ranges'])==1
+    assert row['support']['configured_instances']==1024
+
+
+def test_large_instance_radius_domain_includes_every_instance():
+    row,_=evidence('rad=.001+.000001*instance;',config='shapecode_0_num_inst=1024\n')
+    assert row['support']['area_fraction_interval'][1]>=1024*.002023**2*.5*9/16
+    assert row['support']['area_fraction_interval'][1]<.002
+
+
+def test_large_instance_invalid_position_cannot_be_hidden_by_zero_radius_alpha():
+    row,_=evidence('x=1e100;rad=0;a=0;a2=0;',config='shapecode_0_num_inst=1024\n')
+    assert row['known_invalid_native_domain']
+    assert row['displayed_contribution_interval'][1]>0
+
+
+def test_large_instance_octagon_bound_encloses_ideal_trig_product():
+    from decimal import Decimal
+    row,_=evidence('rad=.001;sides=8;',config='shapecode_0_num_inst=1024\n')
+    # Independently calculated with 80-digit arithmetic and native float32 rad.
+    ideal=Decimal('.0004072935446542592259129667')
+    assert Decimal.from_float(row['support']['area_fraction_interval'][1])>=ideal
+
+
+def test_large_instance_unknown_sides_does_not_get_an_invented_area_bound():
+    row,_=evidence('rad=.001;sides=bass;',config='shapecode_0_num_inst=1024\n')
+    assert row['support']['area_fraction_interval']==[0.,1.]
+
+
+def test_large_instance_native_corner_overflow_cannot_be_hidden_by_zero_alpha():
+    row,_=evidence('x=1e38;rad=3e38;ang=0;a=0;a2=0;',
+                   viewport=(1080,1080),config='shapecode_0_num_inst=1024\n')
+    assert row['known_invalid_native_domain']
+    assert row['displayed_contribution_interval'][1]>0
+
+
+def test_large_instance_finite_corner_addition_keeps_zero_alpha_certificate():
+    row,_=evidence('x=1e38;rad=1e38;ang=0;a=0;a2=0;',
+                   viewport=(1080,1080),config='shapecode_0_num_inst=1024\n')
+    assert not row['known_invalid_native_domain']
+    assert row['displayed_contribution_interval']==[0.,0.]
+
+
 def test_separated_instance_overlap_union_has_safe_bounds():
     row,_=evidence('x=.1+.04*instance;',config='shapecode_0_num_inst=20\n')
     assert 0<row['support']['area_fraction_interval'][0]<=row['support']['area_fraction_interval'][1]<=1

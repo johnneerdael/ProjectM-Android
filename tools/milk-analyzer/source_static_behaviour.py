@@ -165,6 +165,36 @@ def _displayed_output(analysis,flashing,context):
     return result
 
 
+def _shape_state(analysis,description,context):
+    """Export private-state proofs without amending drawing/activity guards."""
+    from engine_profiles import CORE_2334_ENGINE, matches
+    from scene_equations import SHAPE, _scalar, source_settings
+    from source_shape_state_domains import RESET, ZERO_POLICY, shape_state_domain_evidence
+    source=analysis.source
+    engine=source.get('parser_inputs',{}).get('engine')
+    initialization=ZERO_POLICY if isinstance(engine,dict) and matches(engine,CORE_2334_ENGINE) else None
+    values=source_settings(source)
+    declared={name:span for name,span in context['scalar_input_domains'].items() if name in RESET}
+    components=[]
+    for index in range(4):
+        if not _scalar(values,f'shapecode_{index}_enabled',0,'bool'):continue
+        default,kind=SHAPE['num_inst']
+        count=_scalar(values,f'shapecode_{index}_num_inst',default,kind)
+        if count<=0:continue
+        # The native loop uses saved configuration, not equation writes or a
+        # caller's narrower declaration. Main Q remains an explicit premise.
+        inputs={**declared,'instance':[0,count-1]}
+        proof=shape_state_domain_evidence(source,policy=analysis.policy,shape_index=index,
+            input_domains=inputs,initial_variable_policy=initialization)
+        components.append({**proof,'component_id':f'shape_{index}','shape_index':index,
+                           'native_instance_count':count,'input_domains':inputs})
+    return {'policy':'source-shape-state-export-v1','components':components,
+            'by_component':{row['component_id']:row for row in components},
+            'native_numeric_certified':False,'visible_motion_certified':False,
+            'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
+            'conditions':['Conditional nominal state/output domains do not establish motion, prominence or mood eligibility']}
+
+
 def static_behaviour(analysis,description,context=None):
     from effect_families import _CACHE,_SemanticBudget
     from source_flash_behaviour import flash_evidence
@@ -181,7 +211,8 @@ def static_behaviour(analysis,description,context=None):
                 'model_sources':{name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
                                 for name in ['source_static_behaviour.py','source_flash_behaviour.py',
                                              'source_motion_behaviour.py','source_prominence.py','source_colour_character.py','static_behaviour_scoring.py',
-                                             'source_blur_propagation.py','source_colour_modulus.py']},
+                                             'source_blur_propagation.py','source_colour_modulus.py',
+                                             'source_shape_state_domains.py','source_proofs_worker.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}
@@ -197,6 +228,7 @@ def static_behaviour(analysis,description,context=None):
             finally:
                 _CACHE.reset(producer_token)
         arguments=(analysis,description,normalized)
+        result['shape_state']=produce('shape_state',_shape_state,arguments,{'by_component':{},'components':[]})
         result['flashing']=produce('flashing',flash_evidence,arguments,
             {'records':[],'source_hazards':[{'stage':'composite','reason':'flashing producer incomplete'}]})
         result['motion']=produce('motion',motion_evidence,arguments,

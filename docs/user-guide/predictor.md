@@ -50,6 +50,12 @@ Callers can also declare maximum changes per second for exact scalar input names
 This lets the predictor combine time, bass, mids and other supported input responses
 into conditional shape movement bounds. An amplitude range alone does not supply
 a change rate, and those declared rates are not measurements of a song or its BPM.
+
+Private shape-state proofs now report where supported walkers can remain across
+their sequential instances. Random colour recipes distinguish separately drawn
+RGB values from a copied grayscale value and preserve live borders. These facts
+make the source description more informative; they do not yet close feedback,
+visible speed or whole-preset mood uncertainty.
 Uniform final-color cycles have integrated calm/moderate/intense source controls;
 feedback presets still retain their unresolved movement and flashing contributions.
 

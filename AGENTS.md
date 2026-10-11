@@ -1545,3 +1545,17 @@ combined geometry records across120presets; same-context scorer ablation204→21
 potential indices, with no whole-preset eligibility. Experimental rational shader
 translation is not integrated (zero first-ten source gains). See
 `docs/superpowers/evidence/static-behaviour-2026-10-11-input-rates/README.md`.
+
+Sequential-shape source follow-up (2026-10-11): `shape_state` independently exports
+conditional nominal private-state induction and per-instance output boxes. Use
+only the exact source34 private-local allocation policy; preserve native saved
+instance count, reset inputs, unsupported tan, cross-phase/register and numerical
+conditions. State boxes do not clear motion/finite-domain or mood guards. Large
+groups use an aggregate ideal polygon-area upper over the full instance domain,
+without enumerating shapes or claiming clipping/overlap lower support. Random
+EEL calls retain distinct value identities and stable phase/site metadata; copied
+draws preserve correlation. Bounded stochastic material recipes must union every
+live border/fill group and never certify distribution or visible flashing.
+See `tools/milk-analyzer/SOURCE_SHAPE_STATE_DOMAINS.md` and
+`tools/milk-analyzer/STATIC_BEHAVIOUR.md`; completed qualification counts belong
+in the corresponding evidence folder.

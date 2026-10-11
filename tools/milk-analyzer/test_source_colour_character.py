@@ -201,3 +201,71 @@ def test_joint_dynamic_native_channel_identity_preserves_grayscale_under_modulo(
     component=result['by_component']['shape_0']
     assert component['source_palette']['hue_families_possible']==['grayscale']
     assert component['source_palette']['model']=='correlated_native_shared_scalar_rgb'
+
+
+def test_separate_random_colour_calls_are_not_a_shared_gray_scalar():
+    result=source_character('shapecode_0_enabled=1\nshape_0_per_frame1='
+        'r=int(rand(100))/100;g=int(rand(100))/100;b=int(rand(100))/100;'
+        'r2=r;g2=g;b2=b;a=1;a2=1;\n')
+    component=result['by_component']['shape_0']
+    assert component['source_palette']['model']!='correlated_native_shared_scalar_rgb'
+    assert set(component['source_palette']['hue_families_possible'])!={'grayscale'}
+
+
+def test_copied_single_random_colour_value_keeps_true_gray_correlation():
+    result=source_character('shapecode_0_enabled=1\nshape_0_per_frame1='
+        'r=int(rand(100))/100;g=r;b=r;r2=r;g2=r;b2=r;a=1;a2=1;\n')
+    component=result['by_component']['shape_0']
+    assert component['source_palette']['model']=='correlated_native_shared_scalar_rgb'
+
+
+def test_distinct_random_calls_cannot_cancel_to_a_constant():
+    from effect_families import _EEL,_number,_same
+    call={'kind':'call','function':'rand','args':[{'kind':'constant','value':100.}]}
+    model=_EEL(equation_phase='shape_0_per_frame')
+    a=model.lower(call);b=model.lower(call)
+    assert not _same(a,b)
+    from shader_fields import Field
+    assert _number(Field('subtract',(a,b),'float')) is None
+    assert _same(a,a)
+
+
+def test_quantized_random_native_rgb_exports_bounded_palette_and_refresh_scope():
+    result=source_character('shapecode_0_enabled=1\nshape_0_per_frame1='
+        'r=int(rand(100))/100;g=int(rand(100))/100;b=int(rand(100))/100;'
+        'r2=r;g2=g;b2=b;a=1;a2=1;\n')
+    component=result['by_component']['shape_0']
+    recipe=component['source_palette']['stochastic_vertex_colour']
+    assert recipe['centre']['shared_random_draw'] is False
+    assert len(recipe['centre']['distinct_source_sites'])==3
+    from primitives import colour_modulo
+    assert recipe['centre']['encoded_rgb_component_intervals']==[[0.,float(colour_modulo(1.))]]*3
+    assert recipe['centre']['refresh_scope']=='shape_instance_invocation'
+    assert recipe['actual_palette_verified'] is False
+    assert result['useful_hue_description']
+
+
+def test_init_random_palette_is_not_frame_refresh():
+    result=source_character('shapecode_0_enabled=1\n'
+        'shape_0_init1=shade=rand(100);\n'
+        'shape_0_per_frame1=r=shade/100;g=r;b=r;r2=r;g2=r;b2=r;a=1;a2=1;\n')
+    recipe=result['by_component']['shape_0']['source_palette']['stochastic_vertex_colour']
+    assert recipe['centre']['shared_random_draw'] is True
+    assert recipe['centre']['refresh_scope']=='preset_initialization'
+
+
+@pytest.mark.parametrize('border', ['border_r=1;border_g=0;border_b=0;', 'border_r=bass;border_g=0;border_b=0;'])
+def test_random_fill_box_retains_live_constant_or_unknown_border(border):
+    result=source_character('shapecode_0_enabled=1\nshape_0_per_frame1='
+        'r=rand(10)/100;g=rand(10)/100;b=rand(10)/100;'
+        'r2=r;g2=g;b2=b;a=1;a2=1;border_a=1;'+border+'\n')
+    palette=result['by_component']['shape_0']['source_palette']
+    assert palette['rgb_component_intervals'][0][1]>.99
+    assert palette['rgb_component_intervals'][1][1]<.11
+
+
+def test_random_fill_box_does_not_include_disabled_border():
+    result=source_character('shapecode_0_enabled=1\nshape_0_per_frame1='
+        'r=rand(10)/100;g=rand(10)/100;b=rand(10)/100;'
+        'r2=r;g2=g;b2=b;a=1;a2=1;border_a=0;border_r=1;\n')
+    assert result['by_component']['shape_0']['source_palette']['rgb_component_intervals'][0][1]<.11

@@ -22,6 +22,12 @@ is uncalibrated: `predicted_bands` are provisional and `eligible_bands` require
 complete bounded evidence. Missing feedback or input trajectories can still prevent
 automatic classification. The historical numerical contract below remains separate.
 
+The report also exposes `shape_state` for conditional per-instance layout bounds
+and stochastic vertex-colour recipes with distinct/copy-draw identity and refresh
+scope. Neither a bounded layout nor a possible random refresh establishes visible
+movement speed or flashing. Large shape groups use aggregate area upper bounds
+instead of calculating each polygon individually.
+
 Read the [field definitions, units and assumptions](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-static-output-bounds/tools/milk-analyzer/STATIC_BEHAVIOUR.md).
 
 ## Static source-description contract

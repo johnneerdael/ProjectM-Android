@@ -97,3 +97,14 @@ qualification JSON under build/preset-corpus; revalidate before full-suite use.
   (ma/mx/my occurs in249 saved-v6 presets), plus wave and nonlinear shader motion.
   Review native per-instance reset/order and existing equation-domain proof support
   before implementing any new state inference. Do not fill unknown state values.
+- 2026-10-11 sequential-state/colour checkpoint: 3,690 prepared tests plus
+  92 subtests, 100 schema/model-valid exports and corrected fixed2000 source run
+  pass. Paired shape-output axes are exported for385 presets, stochastic colour
+  recipes for98 and aggregate large-group support for330. These are conditional
+  descriptor counts; activity indices remain378 and automatic eligibility empty.
+  False grayscale claims, embedded operand aliases, division epsilon, live-border
+  union and aggregate native-corner/area-rounding bugs are repaired/reviewed.
+  See `docs/superpowers/evidence/static-behaviour-2026-10-11-state-colour/README.md`.
+  Goal remains unfinished; next proofs must handle visible state steps, waveform
+  transport and previous-feedback evolution rather than treating bounded x/y
+  positions as known movement speed.

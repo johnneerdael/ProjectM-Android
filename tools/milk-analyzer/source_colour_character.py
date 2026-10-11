@@ -123,7 +123,7 @@ def _palette(anchors=(),box=None,*,model='unknown',forced_families=None):
             'scope':'source anchors and conditional independent RGB box; no reached hue histogram or displayed dominance'}
 
 
-def _material_palette(element):
+def _material_palette(element,group_boxes=None):
     from source_fill_envelopes import native_channel_envelope
     material=element['material'];temporal=element.get('scenario_material_envelope') or element.get('material_temporal',{})
     groups=[];reasons=[]
@@ -143,7 +143,7 @@ def _material_palette(element):
                 envelope=None if channel is None else native_channel_envelope(channel)
                 box.append([0.,1.] if envelope is None else [_clamp(v) for v in envelope])
                 reasons.append(name+' has an interval rather than a constant native colour')
-        boxes.append(box)
+        boxes.append((group_boxes or {}).get(role,box))
     box=None if not boxes else [[min(b[i][0] for b in boxes),max(b[i][1] for b in boxes)] for i in range(3)]
     textured=material.get('texture',{}).get('role') not in {None,'untextured_vertex_gradient'}
     if textured and box is not None:
@@ -218,6 +218,50 @@ def _custom_wave_palette(analysis,identity):
     return palette,status,reasons
 
 
+def _random_vertex_palette(controls):
+    """Bound direct native random channels; infer no RNG distribution/visibility."""
+    from source_appearance import _phase_literal
+    from primitives import colour_modulo
+    def channel(field):
+        denominator=1.
+        if field.op=='divide' and len(field.args)==2:
+            denominator=_phase_literal(field.args[1]);field=field.args[0]
+        if denominator is None or not math.isfinite(denominator) or denominator<=0:return None
+        quantized=field.op in {'int','floor'} and len(field.args)==1
+        if quantized:field=field.args[0]
+        if field.op!='rand' or len(field.args)!=1 or field.detail.get('value_binding')!='stateful_random_call':return None
+        maximum=_phase_literal(field.args[0])
+        if maximum is None or not math.isfinite(maximum):return None
+        maximum=max(1,math.floor(maximum))
+        upper=maximum/denominator
+        # This exact simple scope avoids modulo seams/out-of-range upload.
+        if not math.isfinite(upper) or not 0<upper<=1:return None
+        phase=field.detail.get('equation_phase')
+        if not isinstance(phase,str):return None
+        refresh='preset_initialization' if phase.endswith('_init') or phase=='per_frame_init_' else \
+            'shape_instance_invocation' if phase.startswith('shape_') and phase.endswith('_per_frame') else \
+            'main_frame_invocation' if phase=='per_frame_' else 'unresolved_execution_scope'
+        return {'site':{'equation_phase':phase,'site_index':field.detail['site_index']},
+            'encoded_channel_interval':[0.,float(colour_modulo(upper))],
+            'maximum_random_argument':maximum,'division_denominator':denominator,
+            'integer_projection':quantized,'refresh_scope':refresh}
+    groups={}
+    for group,names in [('centre',('r','g','b')),('perimeter',('r2','g2','b2')),('border',('border_r','border_g','border_b'))]:
+        channels=[channel(controls[name]) for name in names]
+        if any(c is None for c in channels):continue
+        sites={_digest(c['site']):c['site'] for c in channels}
+        scopes={c['refresh_scope'] for c in channels}
+        groups[group]={'encoded_rgb_component_intervals':[c['encoded_channel_interval'] for c in channels],
+            'channels':channels,'distinct_source_sites':list(sites.values()),
+            'shared_random_draw':len(sites)==1,'refresh_scope':next(iter(scopes)) if len(scopes)==1 else 'mixed_execution_scopes'}
+    if not groups:return None
+    return {**groups,'actual_palette_verified':False,'native_rng_distribution_certified':False,
+        'conditions':['Separate live call sites are not proved equal; copied results retain their source identity',
+            'Native rand uses floor(maximum), clamped to at least1, and may reach its upper endpoint',
+            'Bounded channel values describe source ingredients, not reached hue frequencies or perceptual flashing',
+            'Initialization, frame and instance execution scopes remain separate; no source program/frames are executed']}
+
+
 def _source_palette(analysis,description,element):
     if 'material' in element:
         palette,status,reasons=_material_palette(element)
@@ -235,6 +279,16 @@ def _source_palette(analysis,description,element):
             if mono:
                 palette.update(hue_families_possible=['grayscale'],temperature_candidates=['neutral'],model='correlated_native_shared_scalar_rgb')
                 status='dynamic_source_colour' if not palette['anchors'] else status
+            stochastic=_random_vertex_palette(controls)
+            if stochastic:
+                bounded,status,reasons=_material_palette(element,{name:stochastic[name]['encoded_rgb_component_intervals']
+                    for name in ('centre','perimeter','border') if name in stochastic})
+                palette['rgb_component_intervals']=bounded['rgb_component_intervals']
+                palette['stochastic_vertex_colour']=stochastic
+                if not mono:
+                    palette['model']='bounded_stochastic_native_vertex_rgb'
+                    palette['hue_families_possible']=_box_families(palette['rgb_component_intervals'])
+                    palette['temperature_candidates']=sorted({TEMPERATURE[f] for f in palette['hue_families_possible']})
         return palette,status,reasons
     wave=element.get('wave_material')
     if wave is not None:
@@ -405,7 +459,7 @@ def colour_character(analysis,description,prominence,context):
                     'weight_interval':[0.,0.],'contributors':[],'role':'conditional source/final candidate, not dominant image hue'})
                 row['weight_interval'][1]=min(1.,row['weight_interval'][1]+(1. if interval[1] is None else interval[1]))
                 row['contributors'].append(identity)
-    useful=any(r['eligible_accent'] and (r['source_palette']['anchors'] or
+    useful=any(r['eligible_accent'] and (r['source_palette'].get('stochastic_vertex_colour') or r['source_palette']['anchors'] or
         0<len(r['source_palette']['hue_families_possible'])<len(FAMILIES)) for r in rows)
     return {'policy':POLICY,'provenance':provenance,'components':rows,
         'by_component':{r['component_id']:r for r in rows},

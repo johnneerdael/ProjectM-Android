@@ -1,0 +1,17 @@
+{
+  "independent_review": "all reproduced findings cleared; no outstanding finding in final diff",
+  "inputs": {
+    "build/preset-corpus/state-colour-aggregate-final-suite-2026-10-11.log": "8e1f6d1e46cf5665e38f07f1fba9e78c7f30d6066be127cc858a3998d1e1df2b",
+    "build/preset-corpus/static-behaviour-2000-2026-10-11-state-colour-v8-final/manifest.json": "3b37ffc2da56e05d599e612a62f380236de3ba30047296b9b2350d6aeb61e637",
+    "build/preset-corpus/static-behaviour-2000-2026-10-11-state-colour-v8-final/rows.jsonl.gz": "5cf11e9990387939933d68d58cca73ae2b66db892baa8feeb004b95ad03feb66",
+    "build/preset-corpus/static-behaviour-final100-2026-10-11-state-colour-v8/batch-000001.zip": "b64a74ecab8164e17853b6e96669415eb1f2ca3b4aa729218240234b43305407",
+    "build/preset-corpus/static-behaviour-final100-2026-10-11-state-colour-v8/run-manifest.json": "13db1bfc62f9ce228266a3ba92dcb16e0e803c06f094b2e1ee2a41c3c10c1400"
+  },
+  "native_appearance_certified": false,
+  "no_images": true,
+  "prepared_tests": 3690,
+  "strict_mkdocs": true,
+  "subtests": 92,
+  "test_seconds": 216.44,
+  "warnings": "five intentional nonfinite-conversion controls"
+}

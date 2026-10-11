@@ -420,6 +420,10 @@ def _key(value):
                     value.detail.get('value_binding'),value.detail.get('state_scope'))
     elif value.op == 'constant':
         identity = ('constant', str(_number(value)))
+    elif value.op == 'rand':
+        # Equal call syntax is not equal evaluated storage. Exact aliases keep
+        # the same node; separate stateful draws cannot cancel or prove grey.
+        identity = ('stateful_rand_value', id(value))
     else:
         detail = tuple((name, str(value.detail.get(name))) for name in
                        ('operator', 'index', 'sampler', 'surface', 'name', 'field', 'read_components') if name in value.detail)
@@ -697,6 +701,7 @@ class _EEL:
         self.equation_phase=equation_phase
         self.written = set()
         self.unknown = []
+        self.random_site_count = 0
 
     @classmethod
     def assignment_targets(cls,tree):
@@ -784,7 +789,12 @@ class _EEL:
             for name in embedded:
                 self.environment[name]=Field('unknown',detail={'reason':reason});self.written.add(name)
             return Field('unknown',detail={'reason':reason})
-        return self.operation(self.OPS.get(function,function),tuple(self.lower(arg) for arg in tree.get('args',[])))
+        args=tuple(self.lower(arg) for arg in tree.get('args',[]))
+        if function=='rand':
+            site=self.random_site_count;self.random_site_count+=1
+            return Field('rand',args,detail={'site_index':site,'equation_phase':self.equation_phase,
+                'value_binding':'stateful_random_call'})
+        return self.operation(self.OPS.get(function,function),args)
 
     @staticmethod
     def operation(op,args):
