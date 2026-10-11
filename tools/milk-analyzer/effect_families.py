@@ -902,6 +902,9 @@ class _Analysis:
     def main_equations(self):
         environment = {name: _constant(_scalar(self.values, key, default, kind))
                        for name, (key, default, kind) in MAIN.items()}
+        # Native PresetState: bMotionVectorsOn supplies mv_a=1 unless mv_a is set.
+        environment['mv_a'] = _constant(_scalar(self.values, 'mv_a',
+            _scalar(self.values, 'bMotionVectorsOn', 0, 'bool'), 'float'))
         # The native preset owns a zero-initialized complete Q snapshot.
         # Init writes then establish values reloaded before main frame code.
         environment.update({f'q{i}':_constant(0) for i in range(1,33)})

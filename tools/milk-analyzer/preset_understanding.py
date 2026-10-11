@@ -130,6 +130,19 @@ def summarize_preset(record):
         persistence=_object(static['feedback_persistence'],STATIC+'/feedback_persistence')
         fact('feedback',STATIC+'/feedback_persistence',persistence,
              'Conditional RGBA8 stored-level decay orbit for a fixed uniform decay; not visible trail length')
+    if 'motion_vectors' in static:
+        fact('construction',STATIC+'/motion_vectors',_object(static['motion_vectors'],STATIC+'/motion_vectors'),
+             'Native motion-vector drawing element: grid, colour and activation; visible contrast unverified')
+    if 'mesh_field' in static:
+        fact('motion',STATIC+'/mesh_field',_object(static['mesh_field'],STATIC+'/mesh_field'),
+             'Per-pixel warp control field structure: regions, affine terms and oscillators; not visible motion')
+    for index,row in enumerate(_rows(_object(static.get('prominence',{}),STATIC+'/prominence').get('components',[]),
+                                     STATIC+'/prominence/components')):
+        legacy=(row.get('final_transfer') or {}).get('legacy_response') if isinstance(row,dict) else None
+        if isinstance(legacy,dict) and legacy.get('native_control_ranges'):
+            fact('colour',STATIC+'/prominence/components/'+str(index)+'/final_transfer/legacy_response',legacy,
+                 'Native composite gamma/echo controls; final displayed brightness remains conditional')
+            break
     if 'radial_uv_envelope' in static:
         uv=_object(static['radial_uv_envelope'],STATIC+'/radial_uv_envelope')
         fact('feedback',STATIC+'/radial_uv_envelope',uv,
@@ -243,6 +256,99 @@ def summarize_preset(record):
               "mood": mood, "unresolved_questions": questions, "limitations": list(LIMITATIONS)}
     result["description"] = _description(result)
     return result
+
+
+def _fmt(value):
+    return format(value,'.3g') if type(value) in (int,float) else 'unresolved'
+
+
+def _region_text(row):
+    region=row.get('region') or {}
+    parts=[]
+    for name,span in region.items():
+        if not isinstance(span,list) or len(span)!=2:continue
+        low,high=span
+        if low is not None and high is not None:parts.append(_fmt(low)+'<'+name+'<'+_fmt(high))
+        elif low is not None:parts.append(name+'>'+_fmt(low))
+        elif high is not None:parts.append(name+'<'+_fmt(high))
+    if not parts:return ''
+    fraction=row.get('screen_fraction')
+    return ' within '+' and '.join(parts)+(' ('+format(fraction*100,'.0f')+'% of the screen)' if type(fraction) in (int,float) else '')
+
+
+def _mesh_field_sentence(field,decay=None):
+    parts=[]
+    for row in field.get('patterns',[]):
+        if not isinstance(row,dict):continue
+        kind=row.get('pattern');where=_region_text(row)
+        if kind=='uniform_zoom':
+            low,high=row['percent_per_step_range']
+            span=sorted([abs(low),abs(high)])
+            text='the whole image '+str(row.get('content_motion'))+' by '+_fmt(span[0])+('-'+_fmt(span[1]) if span[0]!=span[1] else '')+'% per step'
+            if row.get('audio_inputs'):text+=' (driven by '+'/'.join(row['audio_inputs'])+')'
+            parts.append(text)
+        elif kind=='spatially_varying_zoom':
+            parts.append('zoom varies across the screen with '+'/'.join(row.get('coordinates',[])))
+        elif kind in ('uniform_rotation','spatially_varying_rotation'):
+            parts.append(kind.replace('_',' ')+' '+str(row.get('value_range_radians_per_step'))+' rad per step')
+        elif kind=='uniform_translation':
+            axis='horizontal' if row.get('control')=='dx' else 'vertical'
+            parts.append(axis+' drift '+_fmt(row.get('translation_pixels_per_second'))+' px/s'+where)
+        elif kind and kind.startswith(('compression_toward_fixed_line','expansion_from_fixed_line')):
+            axis='x' if row.get('control')=='dx' else 'y'
+            verb='compressed' if kind.startswith('compression') else 'stretched'
+            text=('content is '+verb+' '+_fmt(abs(row.get('feature_scale_per_step') or 0))+'x per step toward '+axis+'='+
+                  _fmt(row.get('fixed_point'))+where)
+            if kind.endswith('_with_mirror'):text+=' with mirroring'
+            gain=row.get('thin_line_peak_gain_per_step')
+            if type(gain) in (int,float) and gain<1:
+                text+=('; thin lines there keep about '+_fmt(gain)+'x of their peak per step'+
+                       (' (x'+_fmt(decay)+' decay = '+_fmt(gain*decay)+' per step)' if type(decay) in (int,float) else ''))
+            parts.append(text)
+        elif kind=='shear':parts.append('shear between axes'+where)
+        elif kind in ('planar_travelling_wave','planar_standing_pattern'):
+            osc=row.get('oscillator') or {}
+            direction=osc.get('travel_direction_xy') or [0,0];speed=osc.get('phase_speed_pixels_per_second') or 0
+            vector=[direction[0]*speed,direction[1]*speed]
+            heading=('right' if vector[0]>0 else 'left') if abs(vector[0])>=abs(vector[1]) else ('down' if vector[1]>0 else 'up')
+            text=('a ripple of wavelength '+format(osc.get('planar_wavelength_pixels') or 0,'.0f')+' px '+
+                  ('travels '+heading+' at '+format(abs(speed),'.0f')+' px/s' if speed else 'stands still'))
+            amplitude=row.get('amplitude_pixels_range')
+            if isinstance(amplitude,list):text+=', displacing '+_fmt(min(map(abs,amplitude)))+'-'+_fmt(max(map(abs,amplitude)))+' px per step'
+            if row.get('amplitude_dependencies'):text+=' ('+'/'.join(row['amplitude_dependencies'])+'-scaled)'
+            parts.append(text+where)
+        elif kind in ('radial_ring_wave','radial_standing_rings'):
+            osc=row.get('oscillator') or {}
+            speed=osc.get('radial_phase_speed_pixels_per_second') or 0
+            parts.append('concentric ring ripples of wavelength '+format(osc.get('radial_wavelength_pixels') or 0,'.0f')+' px '+
+                         ('moving '+('outward' if speed>0 else 'inward')+' at '+format(abs(speed),'.0f')+' px/s' if speed else 'standing'))
+        elif kind=='angular_lobes':
+            osc=row.get('oscillator') or {}
+            parts.append(_fmt(osc.get('angular_lobes'))+'-lobed angular modulation rotating '+_fmt(osc.get('angular_rotation_radians_per_second'))+' rad/s')
+    if not parts:return ''
+    return ('Per-pixel warp field ('+str(field.get('policy'))+'): '+'; '.join(parts[:6])+
+            '. These are per-step sampling-map facts under the engine convention; visible motion depends on content, decay and composition.')
+
+
+def _composite_sentence(legacy):
+    ranges=legacy.get('native_control_ranges') or {}
+    def value(name):
+        span=ranges.get(name)
+        return span[0] if isinstance(span,list) and len(span)==2 and span[0]==span[1] else None
+    parts=[]
+    gamma=value('gamma')
+    if gamma is not None and gamma!=1:parts.append('gamma '+_fmt(gamma)+' scales brightness up to '+_fmt(gamma)+'x before clamping')
+    alpha=value('echo_alpha');zoom=value('echo_zoom');orient=value('echo_orient')
+    if legacy.get('echo_selection')=='active or possible native echo' and alpha is not None and alpha>0.001:
+        text=('the composite overlays a '+_fmt(zoom)+'x magnified copy of the centre at '+format(alpha*100,'.0f')+'% opacity')
+        if orient is not None and math.isfinite(orient):
+            # Native C++ int % 4 truncates toward zero: odd mirrors U, >=2 mirrors V.
+            code=int(math.fmod(math.trunc(orient),4))
+            mirror=[name for flag,name in ((code%2!=0,'horizontally'),(code>=2,'vertically')) if flag]
+            text+=' ('+('mirrored '+' and '.join(mirror) if mirror else 'no flip')+')'
+        parts.append(text)
+    if not parts:return ''
+    return 'Composite: '+'; '.join(parts)+'.'
 
 
 def _description(summary):
@@ -508,6 +614,48 @@ def _description(summary):
     if rings:
         sentences.append('Ring colour structure: '+'; '.join(rings[:3])+'. This holds for the continuous source curve; '
             'layering, smoothing and modulo/clamps can break it, and visible ring count is unverified.')
+    decay=next((item['value'].get('decay_gain') for item in summary['facts']['feedback']
+                if item['path'].endswith('/feedback_persistence') and isinstance(item['value'],dict)),None)
+    for item in summary['facts']['motion']:
+        if item['path'].endswith('/mesh_field') and isinstance(item['value'],dict):
+            text=_mesh_field_sentence(item['value'],decay)
+            if text:sentences.append(text)
+    for item in summary['facts']['construction']:
+        row=item['value']
+        if item['path'].endswith('/motion_vectors') and isinstance(row,dict) and row.get('status')=='described':
+            rows=row.get('rows_screen_fraction_from_top') or []
+            colour=row.get('colour_rgba') or []
+            text=(str(row.get('vector_count'))+' motion vectors ('+('active' if row.get('activation')=='active' else 'possibly active')+
+                  ') on '+str(len(row.get('columns_screen_fraction') or []))+' columns x '+str(len(rows))+' row'+('s' if len(rows)!=1 else ''))
+            if len(rows)==1:text+=' at '+format(rows[0]*100,'.0f')+'% down the screen'
+            if colour and all(type(v) in (int,float) for v in colour[:3]):text+=', colour '+str([round(v,3) for v in colour[:3]])
+            sentences.append('Motion vectors: '+text+'; each points toward where the warp sampled content from and is drawn into '
+                             'the feedback image, so it is then warped and decayed with other drawings.')
+    for item in summary['facts']['colour']:
+        row=item['value']
+        if not item['path'].endswith('/wave_material') or not isinstance(row,dict):continue
+        parts=[];varying=False
+        for name,channel in (row.get('channels') or {}).items():
+            curve=(channel or {}).get('raw_time_curve') or {}
+            label=name.replace('wave_','')
+            if curve.get('curve_kind')=='constant' and type(curve.get('constant_value')) in (int,float):
+                parts.append(label+' constant '+_fmt(curve['constant_value']))
+            elif isinstance(curve.get('nominal_value_range'),list):
+                low,high=curve['nominal_value_range'];varying=True
+                text=label+' '+_fmt(low)+'-'+_fmt(high)
+                details=[]
+                if type(curve.get('maximum_absolute_control_rate_per_second')) in (int,float):
+                    details.append('at most '+_fmt(curve['maximum_absolute_control_rate_per_second'])+'/s')
+                if type(curve.get('period_seconds')) in (int,float):details.append('period '+_fmt(curve['period_seconds'])+' s')
+                parts.append(text+(' ('+', '.join(details)+')' if details else ''))
+        if varying:
+            sentences.append('Built-in wave colour changes over time: '+'; '.join(parts)+
+                ('; RGB is clamped then max-normalised, so the hue shifts while the brightest channel stays at full'
+                 if row.get('normalization_enabled') else '')+'. Raw source curves, not observed displayed colours.')
+    for item in summary['facts']['colour']:
+        if item['path'].endswith('/legacy_response') and isinstance(item['value'],dict):
+            text=_composite_sentence(item['value'])
+            if text:sentences.append(text)
     markers=[]
     for item in summary['facts']['motion']:
         row=item['value']

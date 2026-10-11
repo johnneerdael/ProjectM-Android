@@ -182,6 +182,180 @@ def illustrate(summary,*,time,fps,history_steps):
     return image,used,limitations
 
 
+def _mid(span):
+    return None if not isinstance(span,list) or len(span)!=2 or None in span else (span[0]+span[1])/2
+
+
+def _region_contains(box,point):
+    for name,span in (box or {}).items():
+        value={'x':point[0],'y':point[1]}.get(name)
+        if value is None:return False
+        low,high=span
+        if (low is not None and value<low) or (high is not None and value>high):return False
+    return True
+
+
+def _displacement_terms(control):
+    """Per-region callable pieces for one dx/dy control, using mid-range values."""
+    regions=[]
+    for region in control.get('regions') or []:
+        pieces=[];ok=True
+        for term in region.get('terms',[]):
+            kind=term.get('kind')
+            if kind=='constant':pieces.append(('const',term['value']))
+            elif kind=='uniform':
+                value=_mid(term.get('value_range'))
+                if value is None:ok=False;break
+                pieces.append(('const',value))
+            elif kind=='coordinate_affine':
+                if set(term['coefficients'])-{'x','y'}:ok=False;break
+                pieces.append(('affine',term['constant'],term['coefficients']))
+            elif kind=='spatial_oscillator':
+                osc=term['oscillator'];amp=_mid(term.get('amplitude_range'))
+                if amp is None or set(osc['coordinate_coefficients'])-{'x','y'}:ok=False;break
+                pieces.append(('osc',amp,osc))
+            else:ok=False;break
+        if not ok:return None
+        regions.append((region.get('box') or {},pieces))
+    return regions
+
+
+def _evaluate(regions,point,time):
+    for box,pieces in regions:
+        if not _region_contains(box,point):continue
+        total=0.0
+        for piece in pieces:
+            if piece[0]=='const':total+=piece[1]
+            elif piece[0]=='affine':total+=piece[1]+sum(c*{'x':point[0],'y':point[1]}[k] for k,c in piece[2].items())
+            else:
+                amp,osc=piece[1],piece[2]
+                arg=(sum(c*{'x':point[0],'y':point[1]}[k] for k,c in osc['coordinate_coefficients'].items())+
+                     osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
+                total+=amp*(math.sin(arg) if osc['function']=='sin' else math.cos(arg))
+        return total
+    return 0.0
+
+
+def _field_map(mesh):
+    """Forward per-step map from mesh-field facts, or None when not fully described."""
+    controls=(mesh or {}).get('controls') or {}
+    if not controls or any(controls.get(name,{}).get('status')!='described' for name in ('zoom','dx','dy','rot','cx','cy')):
+        return None
+    zoom=controls['zoom']
+    if not zoom.get('uniform_across_mesh'):return None
+    z=_mid(zoom.get('value_range'));rot=controls['rot'].get('value_range')
+    if z is None or z<=0 or rot is None or any(abs(v)>1e-12 for v in rot):return None
+    centre=(_mid(controls['cx'].get('value_range')),_mid(controls['cy'].get('value_range')))
+    dx,dy=_displacement_terms(controls['dx']),_displacement_terms(controls['dy'])
+    if None in centre or dx is None or dy is None:return None
+    zoom_gain=min(1.0,z)
+    gains=[]
+    for control in ('dx','dy'):
+        for region in controls[control].get('regions') or []:
+            gain=(region.get('axis_motion') or {}).get('thin_line_peak_gain_per_step')
+            if type(gain) in (int,float) and gain<1:gains.append((region.get('box') or {},gain))
+    def gain(point):
+        value=zoom_gain
+        for box,factor in gains:
+            if _region_contains(box,point):value*=factor
+        return value
+    def step(point,time):
+        # Backward sampling u=c+(p-c)/z-d(p); solve the forward position p.
+        p=point
+        for _ in range(4):
+            d=(_evaluate(dx,p,time),_evaluate(dy,p,time))
+            p=(centre[0]+z*(point[0]+d[0]-centre[0]),centre[1]+z*(point[1]+d[1]-centre[1]))
+        return p
+    step.gain=gain
+    return step
+
+
+def _builtin_wave_paths(facts,aspect):
+    """Built-in waveform centre-lines in EEL coordinates, without audio wiggle."""
+    paths=[];limitations=[]
+    for path,value in facts.items():
+        if not path.endswith('/waveform_recipe') or not isinstance(value,dict):continue
+        form=value.get('form_name')
+        if form=='two_channel_parallel_traces' and value.get('line_angle_rad') is not None:
+            angle=value['line_angle_rad'];offset=value.get('separation_normal_offset') or 0.0
+            direction=(math.cos(angle),math.sin(angle));normal=(-direction[1],direction[0])
+            for sign in (1,-1):
+                points=[]
+                for t in np.linspace(-1.5,1.5,240):
+                    ndc=(direction[0]*t+normal[0]*sign*offset,direction[1]*t+normal[1]*sign*offset)
+                    points.append((.5+.5*ndc[0]*aspect[0],.5-.5*ndc[1]*aspect[1]))
+                paths.append((path,points))
+        else:limitations.append(path+': built-in waveform form '+str(form)+' is not illustrated')
+    return paths,limitations
+
+
+def _wave_colour(facts,path):
+    material=facts.get(path.rsplit('/',1)[0]+'/wave_material')
+    if not isinstance(material,dict):return (1.0,1.0,1.0),'material absent; white'
+    if material.get('constant_vertex_rgb'):return tuple(material['constant_vertex_rgb'][:3]),'constant'
+    mids=[_mid(span) for span in material.get('rgb_component_envelopes') or []]
+    if len(mids)!=3 or None in mids:return (1.0,1.0,1.0),'colour envelope absent; white'
+    if material.get('normalization_enabled') and max(mids)>0:mids=[v/max(mids) for v in mids]
+    return tuple(mids),'time-varying colour drawn at envelope midpoints'
+
+
+def _composite(image,facts):
+    for path,value in facts.items():
+        if not path.endswith('/legacy_response') or not isinstance(value,dict):continue
+        ranges=value.get('native_control_ranges') or {}
+        gamma=_mid(ranges.get('gamma'));alpha=_mid(ranges.get('echo_alpha'));zoom=_mid(ranges.get('echo_zoom'))
+        orient=_mid(ranges.get('echo_orient'))
+        if value.get('echo_selection')=='active or possible native echo' and alpha and zoom:
+            height,width=image.shape[:2]
+            matrix=np.array([[zoom,0,(1-zoom)*width/2],[0,zoom,(1-zoom)*height/2]],np.float32)
+            echo=cv2.warpAffine(image,matrix,(width,height),flags=cv2.INTER_LINEAR)
+            code=int(math.fmod(math.trunc(orient or 0),4))
+            if code%2:echo=echo[:,::-1]
+            if code>=2:echo=echo[::-1]
+            image=(1-alpha)*image+alpha*echo
+        if gamma:image=image*gamma
+        return np.clip(image,0,1),'composite echo/gamma applied'
+    return image,None
+
+
+def illustrate_field(summary,*,time,fps,history_steps):
+    """Built-in waves advected through the decomposed per-pixel field, then composite."""
+    facts=_facts(summary)
+    context=facts.get('/analysis/visual_description/static_behaviour/context') or {}
+    if not isinstance(context.get('viewport'),list):raise ValueError('declared static-behaviour viewport is required')
+    width,height=context['viewport']
+    aspect=(1.0,height/width) if width>=height else (width/height,1.0)
+    image=np.zeros((height,width,3),np.float32);limitations=[]
+    step=_field_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'))
+    persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence')
+    if step is None:limitations.append('per-pixel field not fully described: retained layers omitted')
+    table=None
+    if step is not None and isinstance(persistence,dict) and persistence.get('decay_gain'):
+        table=_level_table(persistence['decay_gain'],history_steps)
+    elif step is not None:limitations.append('no decay orbit: retained layers omitted');step=None
+    paths,wave_limits=_builtin_wave_paths(facts,aspect);limitations+=wave_limits
+    def to_pixels(point):
+        return ((point[0]-(.5-.5*aspect[0]))/aspect[0]*width,(point[1]-(.5-.5*aspect[1]))/aspect[1]*height)
+    for path,points in paths:
+        colour,note=_wave_colour(facts,path);limitations.append(path+': '+note)
+        ages=range(history_steps,-1,-1) if step is not None else [0]
+        for age in ages:
+            moved=list(points);attenuation=np.ones(len(points))
+            for k in range(age):
+                drawn_time=time-(age-k)/fps
+                attenuation*=np.array([step.gain(point) for point in moved])
+                moved=[step(point,drawn_time) for point in moved]
+            level=np.array(colour) if age==0 else table[age][np.clip(np.rint(np.array(colour)*255),0,255).astype(int)]/255
+            pixels=[to_pixels(point) for point in moved]
+            for index,(a,b) in enumerate(zip(pixels,pixels[1:])):
+                if all(map(math.isfinite,a+b)):
+                    shade=tuple(float(v) for v in level*attenuation[index])
+                    cv2.line(image,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),shade,1,cv2.LINE_AA)
+    image,note=_composite(image,facts)
+    if note:limitations.append(note)
+    return image,[path for path,_ in paths],limitations
+
+
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('summary',type=Path);parser.add_argument('--output',type=Path,required=True)
@@ -193,6 +367,8 @@ def main(argv=None):
     if summary.get('policy')!='preset-understanding-v1':parser.error('preset-understanding-v1 summary required')
     fps=float(_facts(summary).get('/analysis/visual_description/static_behaviour/context',{}).get('feedback_fps',30))
     image,used,limitations=illustrate(summary,time=args.time,fps=fps,history_steps=args.history_steps)
+    if not used:
+        image,used,limitations=illustrate_field(summary,time=args.time,fps=fps,history_steps=args.history_steps)
     rgb=(np.clip(image,0,1)*255+.5).astype(np.uint8)
     cv2.imwrite(str(args.output),cv2.cvtColor(rgb,cv2.COLOR_RGB2BGR))
     identity={'policy':POLICY,'summary_sha256':hashlib.sha256(data).hexdigest(),

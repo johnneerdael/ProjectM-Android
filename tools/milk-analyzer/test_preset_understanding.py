@@ -495,6 +495,62 @@ def test_radius_locked_colour_and_spread_prose():
     assert 'not a whole-screen flash' in text
 
 
+def test_mesh_field_and_composite_echo_prose():
+    record=control_record()
+    static=record['analysis']['visual_description']['static_behaviour']
+    static['mesh_field']={'policy':'source-mesh-field-structure-v1','status':'described','pixel_scale':480,'patterns':[
+        {'pattern':'uniform_zoom','control':'zoom','value_range':[.93,.98],'content_motion':'contracts toward the zoom centre',
+         'percent_per_step_range':[-7.0,-2.0],'audio_inputs':['bass','bass_att']},
+        {'pattern':'uniform_translation','control':'dx','region':{},'screen_fraction':1.0,'translation_pixels_per_step':-.24,
+         'translation_pixels_per_second':-7.2},
+        {'pattern':'compression_toward_fixed_line','control':'dy','region':{'y':[.35,.65]},'screen_fraction':.5333,
+         'fixed_point':.501,'feature_scale_per_step':.5,'thin_line_peak_gain_per_step':.5},
+        {'pattern':'planar_travelling_wave','control':'dy','region':{'y':[.35,.65]},'screen_fraction':.5333,
+         'oscillator':{'planar_wavelength_pixels':100.5,'phase_speed_pixels_per_second':-64.0,'travel_direction_xy':[-1.0,0.0]},
+         'amplitude_pixels_range':[7.2,28.8],'amplitude_dependencies':['bass','bass_att']}]}
+    static['prominence']={'components':[{'component_id':'shape_0','final_transfer':{'legacy_response':{
+        'native_control_ranges':{'gamma':[2.4,2.4],'echo_alpha':[.5,.5],'echo_zoom':[2.0,2.0],'echo_orient':[0.0,0.0]},
+        'echo_selection':'active or possible native echo'}}}]}
+    result=summarize_preset(record)
+    paths=[f['path'] for f in result['facts']['motion']]
+    assert any(path.endswith('/mesh_field') for path in paths)
+    text=result['description']
+    assert 'contracts toward the zoom centre by 2-7% per step' in text
+    assert 'compressed 0.5x per step toward y=0.501' in text
+    assert 'thin lines there keep about 0.5x of their peak per step' in text
+    assert 'travels right at 64 px/s' in text
+    assert 'wavelength 100 px' in text
+    assert '2x magnified' in text and '50% opacity' in text and 'gamma 2.4' in text
+
+
+def test_motion_vector_element_prose():
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['motion_vectors']={
+        'policy':'source-motion-vector-element-v1','status':'described','activation':'active',
+        'columns_screen_fraction':[.1*i for i in range(1,10)],'rows_screen_fraction_from_top':[.8],
+        'vector_count':9,'colour_rgba':[1.0,1.0,1.0,1.0],'length_scale':[.9,.9],'drawn_into_feedback':True}
+    result=summarize_preset(record)
+    assert any(f['path'].endswith('/motion_vectors') for f in result['facts']['construction'])
+    text=result['description']
+    assert '9 motion vectors' in text and '1 row' in text and '80% down the screen' in text
+    assert 'warped and decayed' in text
+
+
+def test_builtin_wave_colour_time_curves_prose():
+    record=control_record()
+    element=record['analysis']['visual_description']['elements'][0]
+    curve=lambda low,high,rate,period=None:{'raw_time_curve':{'curve_kind':'compound_time','nominal_value_range':[low,high],
+        'maximum_absolute_control_rate_per_second':rate,'period_seconds':period}}
+    element['wave_material']={'policy':'source-native-builtin-wave-material-v1','normalization_enabled':True,
+        'channels':{'wave_r':curve(0,1.3,1.008),'wave_g':curve(0,.8,.492,5.1),'wave_b':{'raw_time_curve':{'curve_kind':'constant',
+        'constant_value':.5}}}}
+    text=summarize_preset(record)['description']
+    assert 'wave colour changes over time' in text
+    assert 'r 0-1.3 (at most 1.01/s)' in text and 'g 0-0.8 (at most 0.492/s, period 5.1 s)' in text
+    assert 'b constant 0.5' in text
+    assert 'max-normalised' in text
+
+
 def test_unsupported_recipe_or_preset_name_does_not_supply_spiral_claim():
     record = control_record()
     record["preset"]["name"] = "Spiral Circle Tunnel.milk"

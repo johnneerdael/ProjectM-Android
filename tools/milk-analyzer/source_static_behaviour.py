@@ -271,6 +271,16 @@ def _radial_colour_fields(analysis,description,context,evidence):
             'native_numeric_certified':False,'whole_preset_activity_credit':False}
 
 
+def _mesh_field(analysis,description,context):
+    from source_mesh_field import mesh_field_structure
+    return mesh_field_structure(analysis,context)
+
+
+def _motion_vectors(analysis,description,context):
+    from source_motion_vector_element import motion_vector_element
+    return motion_vector_element(analysis,context)
+
+
 def _affine_radial_feedback(analysis,description,context):
     from source_affine_radial_feedback import affine_radial_feedback
     from engine_profiles import CORE_2334_ENGINE
@@ -368,7 +378,8 @@ def static_behaviour(analysis,description,context=None):
                                              'source_curve_projection.py','source_affine_radial_feedback.py',
                                              'source_curve_feedback_relation.py','source_radial_uv_envelope.py',
                                              'source_material_marker_motion.py','source_feedback_persistence.py',
-                                             'source_radial_colour_field.py']},
+                                             'source_radial_colour_field.py','source_mesh_field.py',
+                                             'source_motion_vector_element.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}
@@ -388,6 +399,8 @@ def static_behaviour(analysis,description,context=None):
         result['curve_projection']=produce('curve_projection',_curve_projections,arguments,{'by_component':{},'components':[]})
         result['material_marker_motion']=produce('material_marker_motion',_material_marker_motions,
             (*arguments,result),{'by_component':{},'components':[]})
+        result['mesh_field']=produce('mesh_field',_mesh_field,arguments,{'controls':{},'patterns':[]})
+        result['motion_vectors']=produce('motion_vectors',_motion_vectors,arguments,{'activation':None})
         result['affine_radial_feedback']=produce('affine_radial_feedback',_affine_radial_feedback,arguments,
             {'native_numeric_certified':False,'visible_motion_speed':None,'whole_preset_activity_credit':False})
         result['feedback_persistence']=produce('feedback_persistence',_feedback_persistence,arguments,

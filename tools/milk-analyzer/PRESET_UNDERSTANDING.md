@@ -227,6 +227,44 @@ can refill the point first. When `Rt!=0` a fixed radius is covered only for
 `|Rs/Rt|` seconds (`revisit_within_radius_coverage`); more than one revisit per
 frame aliases and withholds the level estimate.
 
+## Per-pixel warp fields, motion vectors and composite
+
+`static_behaviour.mesh_field` (policy `source-mesh-field-structure-v1`)
+decomposes each native per-pixel warp control (zoom, zoomexp, rot, warp, cx,
+cy, dx, dy, sx, sy) from its source graph. Single-coordinate `select` gates
+become interval regions; signed additive terms are classified as constant,
+uniform (audio/time/q, bounded with declared input domains), coordinate-affine,
+uniform-scaled coordinate-affine, spatial oscillators or unresolved. Oscillators
+of an affine coordinate/time argument report planar wavelength and phase speed
+(the pattern moves along the wavevector at `-w/|k|`), radial ring wavelength and
+speed, or angular lobe count and rotation.
+
+Engine convention (pinned source34 warp shader): the warp samples `(u-dx, v-dy)`
+after zoom/rotation about `(cx, cy)`, so retained content moves `+dx` right and
+`+dy` down (y=0 top) per step; `zoom<1` contracts content toward the centre.
+Per-pixel `x`/`y` are aspect-corrected: both measure the long side (1 unit =
+`max(width,height)` pixels) and the short axis spans a centred sub-range (at
+16:9, y spans 0.219-0.781). A same-axis affine term `d=a+b*c` gives the backward
+map `c-d=(1-b)c-a`: features scale by `s=1/(1-b)` per step toward `c*=-a/b`
+(compression, expansion, or mirroring when `s<0`). A sub-texel line across that
+axis is hit by about `|s|` of the backward samples, so under compression its
+peak keeps about `min(1,|s|)` per step on top of decay. Patterns are per-step
+sampling-map facts, not visible speeds.
+
+`static_behaviour.motion_vectors` describes the native motion-vector element:
+`mv_a>=0.0001` with positive integer grid counts (legacy `bMotionVectorsOn`
+maps to `mv_a=1`), the engine grid positions (rows measured from the bottom),
+colour and length. Vectors point toward the previous sampling position and are
+drawn into the feedback image, so they are later warped and decayed.
+
+The legacy composite (`final_transfer.legacy_response` on prominence
+components) is described as gamma brightening and the video echo: the image is
+drawn at weight `1-alpha` and the central `1/zoom` region magnified at weight
+`alpha`; odd orientation mirrors horizontally and orientation `>=2` vertically
+(native integer truncation). Built-in wave `wave_material` time curves are
+reported as per-channel ranges, rate ceilings and periods when known, with
+max-normalisation noted.
+
 `static_behaviour.radial_uv_envelope` needs explicit `texel_offset_pixels`; optional
 `main_texture_size` independently supplies sampled texture dimensions. Neither
 is silently inferred by the static context. It distinguishes coordinates within

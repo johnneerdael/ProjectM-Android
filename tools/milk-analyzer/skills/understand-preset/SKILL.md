@@ -88,6 +88,13 @@ required. Use a native file-read tool to inspect JSON and the summary.
    as concentric colour rings more than as a thin-line curve; keep visible ring
    count, contrast and any legible winding unverified. Read its `sweep_front`
    cadence as a travelling local refresh, never as a whole-screen flash.
+   Read `static_behaviour.mesh_field` patterns for per-pixel warp regions,
+   uniform zoom/rotation, translations, compression or expansion toward fixed
+   lines and travelling ripples (wavelength, direction, phase speed). Use the
+   thin-line peak gain with the decay to judge whether converging lines pile
+   up or fade. Read `motion_vectors` for a drawn vector grid and the composite
+   gamma/echo sentence for doubling or brightening. All are source facts, not
+   observed motion.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.
