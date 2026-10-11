@@ -420,7 +420,7 @@ def _point_clouds(facts):
     return clouds
 
 
-def _draw_points(image,record,time,to_pixels):
+def _draw_points(image,record,time,to_pixels,canvas=None):
     count=int(record['sample_count']);programs=record['programs']
     inputs={**record.get('held_inputs',{}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
     values={name:np.broadcast_to(_evaluate_np(programs[name],inputs),(count,)) for name in 'rgbaxy'}
@@ -443,7 +443,7 @@ def _draw_points(image,record,time,to_pixels):
     finite=np.isfinite(px)&np.isfinite(py)
     xs=np.rint(px[finite]).astype(int);ys=np.rint(py[finite]).astype(int)
     colour=np.stack(rgba[:3],axis=-1)[finite];alpha=rgba[3][finite]
-    layer=np.zeros_like(image);cover=np.zeros(image.shape[:2],np.float32)
+    layer=np.zeros_like(image);cover=np.zeros(image.shape[:2],np.float32);alpha_sq=np.zeros(image.shape[:2],np.float32)
     # vertex_point_size 2 for thick waves (2x2 pixels), otherwise 1.
     offsets=range(2) if flags.get('thick') else range(1)
     for dx in offsets:
@@ -451,7 +451,12 @@ def _draw_points(image,record,time,to_pixels):
             keep=(xs+dx>=0)&(xs+dx<width)&(ys+dy>=0)&(ys+dy<height)
             np.add.at(layer,(ys[keep]+dy,xs[keep]+dx),colour[keep]*alpha[keep,None])
             np.maximum.at(cover,(ys[keep]+dy,xs[keep]+dx),alpha[keep])
-    if flags.get('additive',True):return np.clip(image+layer,0,1)
+            np.add.at(alpha_sq,(ys[keep]+dy,xs[keep]+dx),alpha[keep]**2)
+    additive=flags.get('additive',True)
+    if canvas is not None:
+        # GL applies the same blend factors to alpha: additive dst.a += src.a^2; over src.a^2 + dst.a(1-src.a).
+        canvas['alpha']=np.clip(canvas['alpha']+alpha_sq if additive else cover**2+canvas['alpha']*(1-cover),0,1)
+    if additive:return np.clip(image+layer,0,1)
     return np.clip(image*(1-cover[...,None])+layer,0,1)
 
 
@@ -488,33 +493,36 @@ def _value_at(record,key,expression_key,held,time):
 
 
 def _textured_shapes(facts,held):
-    """Shapes that redraw the previous frame through a regular polygon (texture role previous_main)."""
+    """Single-instance custom shapes with closed-form controls: textured (previous frame) or gradient fills."""
     base='/analysis/visual_description/elements/'
     shapes=[]
     for path,material in facts.items():
         if not path.startswith(base) or not path.endswith('/material') or not isinstance(material,dict):continue
         texture=material.get('texture') or {}
-        if texture.get('role')!='previous_main':continue
+        if texture.get('role') not in ('previous_main','untextured_vertex_gradient'):continue
         element=path[:-len('/material')]
         controls={(v or {}).get('control'):v for p,v in facts.items() if p.startswith(element+'/motion_controls/') and isinstance(v,dict)}
         geometry=facts.get(element+'/geometry') or {}
         sides=geometry.get('effective_sides')
-        if type(sides) not in (int,float):continue
+        if type(sides) not in (int,float) or (geometry.get('configured_instances') or 1)!=1:continue
         shapes.append({'id':facts.get(element+'/id'),'controls':controls,'texture':texture,'sides':int(sides),
+                       'textured':texture.get('role')=='previous_main',
                        'channels':material.get('channel_expressions') or {},'blend':material.get('blend_mode'),
-                       'rgb':(material.get('centre_vertex_rgba') or [1,1,1,None])[:3],'held':held})
+                       'rgb':(material.get('centre_vertex_rgba') or [1,1,1,None])[:3],
+                       'thick_outline':bool(material.get('thick_outline')),'held':held})
     return shapes
 
 
-def _draw_textured_shape(image,shape,time,wrap,source=None):
+def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None):
     """Exact affine fan mapping of a textured shape onto the previous frame.
 
-    projectM CustomShape: vertex NDC = (2x-1 + rad*cos(t)*aspectY, 1-2y + rad*sin(t)) and the
-    orthographic projection reverses Y, so in bottom-origin screen fractions the centre is (x, y)
-    and a vertex lies at (x + rad*aspY/2*cos(t), y - rad/2*sin(t)). Texture coordinates are
-    (0.5 + 0.5*aspY*cos(t')/zoom, 0.5 + 0.5*sin(t')/zoom) with t' = t - ang + tex_ang, in GL
-    bottom-origin texture space: the copy is mirrored vertically relative to the polygon (verified
-    position convention: a y=.2 shape renders 80% down the captured frame).
+    projectM CustomShape: vertex NDC = (2x-1 + rad*cos(t)*aspectY, 1-2y + rad*sin(t)); the
+    orthographic projection reverses Y, so on screen (bottom-origin fractions) the centre is (x, y)
+    and the vertex direction is (cos t, -sin t). Texture coordinates (0.5+0.5*aspY*cos(t')/zoom,
+    0.5+0.5*sin(t')/zoom), t' = t - ang + tex_ang, address the stored previous frame, which the same
+    reversal leaves flipped, so the copy keeps the screen orientation and is rotated by
+    tex_ang - ang. Controlled emulator check: a textured square with tex_zoom .5 shows the scene
+    minified ~0.18x without mirroring; a y=.2 shape renders 80% down the frame.
     """
     height,width=image.shape[:2];aspect=min(1.,height/width);held=shape['held']
     def control(name,default=None):
@@ -524,26 +532,58 @@ def _draw_textured_shape(image,shape,time,wrap,source=None):
     x=control('position_x');y=control('position_y');radius=control('radius');angle=control('rotation',0.)
     zoom=_value_at(shape['texture'],'tex_zoom_source','tex_zoom_expression',held,time)
     tex_angle=_value_at(shape['texture'],'tex_angle_source_rad','tex_angle_expression',held,time)
-    alphas=[]
-    for group,name in (('centre','a'),('perimeter','a2')):
+    def channel(group,name):
         value=_value_at({'expression':(shape['channels'].get(group) or {}).get(name)},'none','expression',held,time)
-        alphas.append(None if value is None else min(1.,max(0.,value)))
+        if value is None:return None
+        period=256/255  # projectM color_modulo, then [0,1]
+        return min(1.,max(0.,math.fmod(math.fmod(value,period)+period,period)))
+    alphas=[channel('centre','a'),channel('perimeter','a2')]
+    centre_rgb=[channel('centre',c) for c in 'rgb'];edge_rgb=[channel('perimeter',c+'2') for c in 'rgb']
+    border=[channel('border','border_'+c) for c in 'rgba']
     if None in (x,y,radius,angle,zoom,tex_angle) or None in alphas or zoom==0 or radius<=0:return image,False
     columns,rows=np.meshgrid((np.arange(width)+.5)/width,1-(np.arange(height)+.5)/height)
-    ux=(columns-x)/(radius*aspect*.5);uy=-(rows-y)/(radius*.5)
+    # (ux, sn) = s*(cos t, sin t) of the vertex parameterisation; screen up is -sin t.
+    ux=(columns-x)/(radius*aspect*.5);sn=-(rows-y)/(radius*.5)
     delta=tex_angle-angle;cos,sin=math.cos(delta),math.sin(delta)
-    u=.5+.5/zoom*(cos*ux-sin*uy)*aspect;v=.5+.5/zoom*(sin*ux+cos*uy)
-    phi=np.mod(np.arctan2(uy,ux)-(angle+math.pi/4),2*math.pi/shape['sides'])
+    u=.5+.5/zoom*(cos*ux-sin*sn)*aspect;v=.5-.5/zoom*(sin*ux+cos*sn)
+    phi=np.mod(np.arctan2(sn,ux)-(angle+math.pi/4),2*math.pi/shape['sides'])
     edge=math.cos(math.pi/shape['sides'])/np.cos(phi-math.pi/shape['sides'])
-    fraction=np.hypot(ux,uy)/edge
+    fraction=np.hypot(ux,sn)/edge
     inside=fraction<=1
     if not inside.any():return image,True
     map_x=(u*width-.5).astype(np.float32);map_y=((1-v)*height-.5).astype(np.float32)
-    border=cv2.BORDER_WRAP if wrap else cv2.BORDER_REPLICATE
-    sampled=cv2.remap(image if source is None else source,map_x,map_y,cv2.INTER_LINEAR,borderMode=border)*np.array(shape['rgb'],np.float32)
+    wrap_mode=cv2.BORDER_WRAP if wrap else cv2.BORDER_REPLICATE
+    t=np.clip(fraction,0,1)[...,None]
+    if shape.get('textured',True):
+        sampled=cv2.remap(image if source is None else source,map_x,map_y,cv2.INTER_LINEAR,borderMode=wrap_mode)
+        sampled=sampled*np.array([c if c is not None else 1. for c in centre_rgb],np.float32)
+    else:
+        if None in centre_rgb or None in edge_rgb:return image,False
+        sampled=(np.array(centre_rgb,np.float32)*(1-t)+np.array(edge_rgb,np.float32)*t).astype(np.float32)
     alpha=np.where(inside,alphas[0]+(alphas[1]-alphas[0])*np.clip(fraction,0,1),0.)[...,None].astype(np.float32)
-    if shape['blend']=='additive':return np.clip(image+sampled*alpha,0,1),True
-    return image*(1-alpha)+sampled*alpha,True
+    if canvas is not None:
+        # Textured fill = vertex colour * texture, so source alpha is vertex alpha times the previous
+        # frame's stored alpha (verified: a textured copy of a frame whose alpha is 0 leaves the canvas unchanged).
+        if shape.get('textured',True):
+            stored=cv2.remap(canvas['previous_alpha'],map_x,map_y,cv2.INTER_LINEAR,borderMode=wrap_mode)
+            alpha=alpha*stored[...,None]
+        a=alpha[...,0]
+        canvas['alpha']=np.clip(canvas['alpha']+a*a if shape['blend']=='source_alpha_additive' else a*a+canvas['alpha']*(1-a),0,1)
+    if shape['blend']=='source_alpha_additive':image=np.clip(image+sampled*alpha,0,1)
+    else:image=image*(1-alpha)+sampled*alpha
+    if None not in border and border[3]>.0001:
+        # Outline: the polygon edge in the border colour, alpha-blended over (thick: MilkDrop's 4 offsets).
+        aspect_y=min(1.,height/width)
+        angles=np.arange(shape['sides'])/shape['sides']*2*math.pi+angle+math.pi/4
+        px=(x+radius*aspect_y*.5*np.cos(angles))*width;py=(1-(y-radius*.5*np.sin(angles)))*height
+        layer=np.zeros(image.shape[:2],np.float32)
+        points=np.stack([px,py],axis=-1)
+        for dx,dy in ([(0,0),(1,0),(1,1),(0,1)] if shape.get('thick_outline') else [(0,0)]):
+            cv2.polylines(layer,[np.round((points+[dx,dy])*16).astype(np.int32)],True,1.0,1,cv2.LINE_8,4)
+        a=layer*border[3]
+        image=image*(1-a[...,None])+a[...,None]*np.array(border[:3],np.float32)
+        if canvas is not None:canvas['alpha']=a*a+canvas['alpha']*(1-a)
+    return image,True
 
 
 def illustrate_field(summary,*,time,fps,history_steps):
@@ -554,6 +594,8 @@ def illustrate_field(summary,*,time,fps,history_steps):
     width,height=context['viewport']
     aspect=(1.0,height/width) if width>=height else (width/height,1.0)
     image=np.zeros((height,width,3),np.float32);limitations=[]
+    # Stored canvas alpha starts cleared; it weights textured copies of the previous frame.
+    canvas={'alpha':np.zeros((height,width),np.float32)}
     flat=facts.get('/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field')
     if isinstance(flat,dict) and isinstance(flat.get('state_rgb'),list):
         image[:]=np.array(flat['state_rgb'],np.float32);limitations.append('feedback content starts from the flat-field steady state')
@@ -583,11 +625,13 @@ def illustrate_field(summary,*,time,fps,history_steps):
     try:
         for frame in range(history_steps,-1,-1):
             frame_time=time-frame/fps
-            previous=image
+            previous=image;canvas['previous_alpha']=canvas['alpha']
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
                 image=cv2.remap(image,map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)*decay
                 image=np.round(np.clip(image,0,1)*255)/255
+                # The warp multiplies by vec4(decay,decay,decay,1): stored alpha is resampled, not decayed.
+                canvas['alpha']=np.round(np.clip(cv2.remap(canvas['alpha'],map_x,map_y,cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE),0,1)*255)/255
             for path,points in paths:
                 alpha,additive=wave_alpha[path]
                 if alpha is None:continue
@@ -598,10 +642,14 @@ def illustrate_field(summary,*,time,fps,history_steps):
                     cv2.line(layer,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),tuple(colour),1,cv2.LINE_AA)
                 coverage=layer.max(axis=-1,keepdims=True)
                 image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
+                a=coverage[...,0]*alpha
+                canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
-            for shape in textured:image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous)
-            for _,record in clouds:image=_draw_points(image,record,frame_time,to_pixels)
-            for alpha,colour in sprites:image=image*(1-alpha[...,None])+alpha[...,None]*colour
+            for shape in textured:image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous,canvas)
+            for _,record in clouds:image=_draw_points(image,record,frame_time,to_pixels,canvas)
+            for alpha,colour in sprites:
+                image=image*(1-alpha[...,None])+alpha[...,None]*colour
+                canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
             for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):
                 cv2.line(image,tuple(int(round(v)) for v in start),tuple(int(round(v)) for v in end),shade,1,cv2.LINE_AA)
         if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')

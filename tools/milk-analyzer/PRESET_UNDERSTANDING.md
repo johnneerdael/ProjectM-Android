@@ -547,10 +547,20 @@ illustrator:
    per-frame `decay` assignment is effective. Native frame `k` is rendered at
    source time `(k+1)/30`.
 
+4. Textured fills copy the stored previous frame without mirroring and rotate it
+   by `tex_ang-ang`. A quadrant control and a `tex_ang=±1` control matched the
+   operator to native at mean absolute error 0.0012, and confirmed the rotation
+   sign. The copy's alpha is the vertex alpha times the stored canvas alpha.
+   The warp keeps alpha undecayed, and blending updates it with the same factors
+   as RGB.
+5. Shape outlines (`border_*`, thick: four offsets) and untextured gradient fills
+   are drawn. The r4 dark central hexagram is the black outline of a textured
+   triangle, rotated by its own copy.
+
 The legacy composite also exports `tint_amount`. The illustrator applies the
 fShader corner tint with zero random hue offsets, so hue placement is not a
 prediction. Textured shapes redraw the previous frame through their polygon
-with the exact affine fan mapping. On r4, frame 149, the final frozen
-illustration has mean luma 0.256 against 0.231 native, and saturation 0.49
-against 0.47. The dark central hexagram (a textured triangle plus the vertical
-flip) is still a miss.
+with the exact affine fan mapping. The frozen r4 v4 illustration at frame
+149 has mean luma 0.212 against 0.210 native, saturation 0.507 against 0.499
+and centre luma 0.337 against 0.338. The random-spout `wave_1` ring and the
+tint hue placement remain unmodelled.

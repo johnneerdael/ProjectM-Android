@@ -1,0 +1,44 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r4-v4",
+ "preset": "Phat+fiShbRaiN_Mandala_Bare_No_Border_mix.milk",
+ "fresh_prediction": false,
+ "note": "After calibrating textured-shape mapping and adding untextured fills/outlines and canvas alpha",
+ "frozen_before_capture": {
+  "description-v4-before-capture.json": "af127e78006a44ceb7c7a7e591edf2f391658890f22c909822d47f8d3a9f3a70",
+  "recipe-v4-before-capture.json": "17da40173958950ff1906d6e5b0810f28880e1f1ae148a3f80d08e63a778c538",
+  "prediction-v4.png": "93072d841eb1ded212781ed396ad8835f977d89fc2ef1591b8e15a8616938238",
+  "prediction-v4.json": "417bf8219546fc8763871cf917375f4f6abcc141c6c9ddb90859db0ed7e74fb2"
+ },
+ "capture_result_sha256": "bedfc7f2680c2507528caeff3083941240cf25e0aa23aca0deecbc8ad364189c",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction": {
+   "mean_luma": 0.212,
+   "mean_saturation": 0.507,
+   "centre_luma": 0.337
+  },
+  "capture_frame149": {
+   "mean_luma": 0.21,
+   "mean_saturation": 0.499,
+   "centre_luma": 0.338
+  }
+ },
+ "agreements": [
+  "Dark hexagram mandala centre with bright rim",
+  "Dark side lobes, four-fold mirrored fountains, radial streaks",
+  "Mean luma within 1%, saturation within 2%"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "wave_1 ring (random spout, persistent per-point state) not drawn"
+  },
+  {
+   "size": "small",
+   "observed": "Composite tint hue placement uses zero random offsets; later frames turn pinker natively"
+  }
+ ],
+ "status": "understood for review at this checkpoint (no calibrated score)",
+ "uses_rendered_images_for_classification": false
+}

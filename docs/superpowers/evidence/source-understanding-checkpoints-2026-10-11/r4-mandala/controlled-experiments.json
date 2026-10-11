@@ -67,6 +67,24 @@
   },
   "textured-copy-control.milk": {
    "preset_sha256": "3b8193cca19cea371b0873bb3c510f831899ddf45d21c8f0e2429ed9c861f1b2"
+  },
+  "Mandala-canvas-view.milk": {
+   "preset_sha256": "9a30fbf696f7ef56f34b6d404220ec787cbea17b230f4ceabc3e7dd08d2b3053"
+  },
+  "capture-canvas-view": {
+   "capture_result_sha256": "978840e8eae5c947f345d1c55115be514093c840eac1a6d4856addfa5bc2c236"
+  },
+  "capture-textured-mapping-control": {
+   "capture_result_sha256": "b6acf66182b176a1bf34ed492843a02cfdebbabb8433113f49e375213e17d07b"
+  },
+  "capture-textured-rotation-control": {
+   "capture_result_sha256": "e1818af5c1029c8344bd27d056174cb1ed75352948bf1b1081459379bf1c10d5"
+  },
+  "textured-mapping-control.milk": {
+   "preset_sha256": "9ea08e787578d7a205e04543faf36af1977b8997b79bb3789d62d42e10ce7e97"
+  },
+  "textured-rotation-control.milk": {
+   "preset_sha256": "619f682a277d7f21c3d7acca4a55758dc2bdb3e4508b477aab5b24cc085cd188"
   }
  },
  "findings": {
@@ -75,7 +93,9 @@
   "dot_waves_draw_authored_points": "wave_2-only, decay 0: authored points hit lit pixels 98.5-100% at time (k+1)/30; 4-tap smoothed midpoints 22-25% (chance)",
   "frame_time": "native frame k corresponds to source time (k+1)/30",
   "textured_triangle_dark_star": "Native centre luma (frame 149, 120x80 box): original 0.366; triangle forced on 0.371; triangle disabled 0.559; darken-centre off 0.332; triangle untextured 0.493 (white). The dark hexagram comes from the textured copy itself, not from audio gating or darken-centre.",
-  "textured_copy_alpha": "Control (white untextured square, then a textured square copying the previous frame): centre is white already at frame 0, when the previous frame is black. The copy is therefore weighted by texture alpha (src.a = vertex.a * texture.a; the canvas alpha starts at 0). The canvas alpha channel is a separate state: decay scales RGB only, and blending updates alpha by src.a^2 + dst.a*(1-src.a) or src.a^2 + dst.a. Not yet modelled by the illustrator."
+  "textured_copy_alpha": "Control (white untextured square, then a textured square copying the previous frame): centre is white already at frame 0, when the previous frame is black. The copy is therefore weighted by texture alpha (src.a = vertex.a * texture.a; the canvas alpha starts at 0). The canvas alpha channel is a separate state: decay scales RGB only, and blending updates alpha by src.a^2 + dst.a*(1-src.a) or src.a^2 + dst.a. Not yet modelled by the illustrator.",
+  "textured_mapping": "Textured fill copies the previous frame with no mirroring (quadrant control, tex_zoom .5: operator vs native centre mean abs error 0.0012); rotation sign confirmed with tex_ang=+1 (0.0011) vs -1 (0.0052).",
+  "dark_star_cause": "Canvas view (echo/tint off) shows black outline edges on the textured triangle: border_a follows the bass gate with black border colour; the textured copy rotates them into the dark hexagram."
  },
  "scope": "review/diagnostic evidence for illustrator conventions; never a classification input"
 }

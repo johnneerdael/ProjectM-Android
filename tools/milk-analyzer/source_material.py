@@ -40,6 +40,7 @@ def shape_material(controls,requested_image):
         'perimeter_vertex_rgba':converted['perimeter'],'border_vertex_rgba':converted['border'],
         'border_draw_enabled':None if border_alpha is None else border_alpha>float(np.float32(.0001)),
         'border_enable_threshold':float(np.float32(.0001)),
+        'thick_outline':_flag(controls['thick']) if 'thick' in controls else None,
         'channel_expressions':programs,
         'colour_conversion':'qualified native float32 euclidean modulo256/255 before interpolation/storage',
         'blend_mode':None if additive is None else 'source_alpha_additive' if additive else 'source_alpha_over',
