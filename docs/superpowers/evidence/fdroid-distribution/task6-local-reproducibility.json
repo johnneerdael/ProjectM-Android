@@ -1,0 +1,31 @@
+{
+  "source_sha": "a562f72a38651d4b7ff21726e14d3fa83c6972ae",
+  "version": "2.3.39",
+  "version_code": 88,
+  "fdroidserver": "2.4.5",
+  "host": "macOS ARM64",
+  "jdk": "21.0.11",
+  "signed_reference_key": "fb872b7bb00c34c5e89d42ab44c824980c0d8110e7cf26bd07da78036479c936",
+  "official_release_key_tested": false,
+  "published_delivery_tested": false,
+  "records": [
+    {
+      "target": "TV",
+      "package": "nl.neerdael.projectmtv",
+      "signed_reference_sha256": "8d78b56383e2fd960520edce4b26d6c1291bc85331788c1fa6adfc82862951f9",
+      "fdroid_build_sha256": "8d78b56383e2fd960520edce4b26d6c1291bc85331788c1fa6adfc82862951f9",
+      "reference_bytes": 2176949,
+      "fdroid_bytes": 2176949,
+      "signature_transfer": "passed"
+    },
+    {
+      "target": "Android",
+      "package": "nl.neerdael.projectm",
+      "signed_reference_sha256": "01b5870cc7c0aac357ba97e3048b1195dfb2f2dc5bffc6b0e7fc89d88d892dd5",
+      "fdroid_build_sha256": "01b5870cc7c0aac357ba97e3048b1195dfb2f2dc5bffc6b0e7fc89d88d892dd5",
+      "reference_bytes": 2181752,
+      "fdroid_bytes": 2181752,
+      "signature_transfer": "passed"
+    }
+  ]
+}

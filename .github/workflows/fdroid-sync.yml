@@ -1,0 +1,52 @@
+name: Synchronize F-Droid submissions
+
+on:
+  workflow_call:
+    secrets:
+      FDROID_GITLAB_TOKEN:
+        required: true
+  workflow_dispatch:
+    inputs:
+      validate_only:
+        description: Check token permissions without updating submissions
+        type: boolean
+        default: false
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fdroid-submission-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # Secrets and external writes are available only to trusted main execution.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+          filter: blob:none
+      - name: Prepare pinned F-Droid tooling
+        run: |
+          python3 -m venv "$RUNNER_TEMP/fdroid-venv"
+          "$RUNNER_TEMP/fdroid-venv/bin/pip" install -r tools/fdroid/requirements.txt
+      - name: Validate authentication and branch permissions
+        if: github.event_name == 'workflow_dispatch' && inputs.validate_only
+        env:
+          FDROID_GITLAB_TOKEN: ${{ secrets.FDROID_GITLAB_TOKEN }}
+        run: python3 .github/scripts/validate_fdroid_token.py --write-probe
+      - name: Synchronize latest complete stable release
+        if: github.event_name != 'workflow_dispatch' || !inputs.validate_only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FDROID_GITLAB_TOKEN: ${{ secrets.FDROID_GITLAB_TOKEN }}
+        run: >-
+          "$RUNNER_TEMP/fdroid-venv/bin/python" .github/scripts/fdroid_sync.py sync

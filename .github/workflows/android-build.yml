@@ -53,7 +53,14 @@ jobs:
           persist-credentials: false
           submodules: recursive  # projectM is built from source (third_party/projectm)
       - name: Test release tooling
-        run: python3 -m unittest discover -s .github/scripts/tests -v
+        run: |
+          python3 -m venv "$RUNNER_TEMP/fdroid-venv"
+          "$RUNNER_TEMP/fdroid-venv/bin/pip" install -r tools/fdroid/requirements.txt
+          "$RUNNER_TEMP/fdroid-venv/bin/python" -m unittest discover -s .github/scripts/tests -v
+      - name: Lint both F-Droid recipes without credentials
+        working-directory: tools/fdroid
+        run: >-
+          "$RUNNER_TEMP/fdroid-venv/bin/fdroid" lint -f nl.neerdael.projectmtv nl.neerdael.projectm
       - name: Test diagnostics options
         run: python3 -m unittest discover -s tools -p test_tv_diagnostics.py -v
       - uses: actions/setup-java@v5

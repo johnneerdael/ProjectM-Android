@@ -1,4 +1,4 @@
-"""Read-only GitLab permission checks; never output credentials or token response bodies."""
+"""Validate GitLab permissions with an optional transient branch probe; never output credentials."""
 import argparse
 import datetime
 import json
@@ -55,6 +55,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fork',default='johnneerdael/fdroiddata');parser.add_argument('--diagnose',action='store_true');parser.add_argument('--write-probe',action='store_true');args=parser.parse_args()
     credential=os.environ.get('FDROID_GITLAB_TOKEN','')
     if not credential:raise SystemExit('FDROID_GITLAB_TOKEN is missing')
+    if any(ord(char)<33 or ord(char)>126 for char in credential):
+        raise SystemExit('FDROID_GITLAB_TOKEN contains invalid characters')
     opener=urllib.request.build_opener(NoRedirect())
     def api(endpoint,method='GET',payload=None):
         data=json.dumps(payload).encode() if payload is not None else None

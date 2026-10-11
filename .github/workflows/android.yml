@@ -16,22 +16,6 @@ permissions:
   pull-requests: read
 
 jobs:
-  validate-fdroid-token:
-    name: Validate F-Droid synchronization permissions
-    # Explicitly requested credential check on this trusted owner-created feature branch.
-    # All publication/build jobs below remain main-only.
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feat/fdroid-distribution'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Verify scope and temporary branch creation/deletion
-        env:
-          FDROID_GITLAB_TOKEN: ${{ secrets.FDROID_GITLAB_TOKEN }}
-        run: python3 .github/scripts/validate_fdroid_token.py --diagnose --write-probe
-
   build:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/android-build.yml
@@ -104,6 +88,13 @@ jobs:
           cp "dist/$AAR_NAME" dist/projectM-TV-core.aar
           python3 .github/scripts/publish_release.py publish --repo "$GITHUB_REPOSITORY" \
             --version "$VERSION" --sha "$GITHUB_SHA" --notes notes.md --assets-dir dist --with-touchscreen --with-fdroid
+
+  fdroid:
+    name: Keep F-Droid submissions current
+    needs: [release]
+    uses: ./.github/workflows/fdroid-sync.yml
+    secrets:
+      FDROID_GITLAB_TOKEN: ${{ secrets.FDROID_GITLAB_TOKEN }}
 
   milkbeat:
     name: Rebuild Milkbeat with this core

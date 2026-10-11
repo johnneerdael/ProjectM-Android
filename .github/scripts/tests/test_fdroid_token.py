@@ -1,6 +1,9 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import os
+import subprocess
+import sys
 
 SOURCE=Path(__file__).resolve().parents[1]/'validate_fdroid_token.py'
 
@@ -49,5 +52,12 @@ class TokenTests(unittest.TestCase):
         self.assertEqual([c[1] for c in writes],['POST','DELETE'])
         self.assertEqual(writes[0][2]['branch'],'codex-fdroid-permission-check-unique-run')
         self.assertTrue(writes[1][0].endswith('codex-fdroid-permission-check-unique-run'))
+
+    def test_malformed_header_value_is_never_printed(self):
+        credential='private-credential\nnever-print-this'
+        result=subprocess.run([sys.executable,str(SOURCE)],env=dict(os.environ,FDROID_GITLAB_TOKEN=credential),capture_output=True,text=True)
+        self.assertNotEqual(result.returncode,0)
+        self.assertNotIn('private-credential',result.stdout+result.stderr)
+        self.assertNotIn('never-print-this',result.stdout+result.stderr)
 
 if __name__=='__main__':unittest.main()
