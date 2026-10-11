@@ -1,5 +1,3 @@
-apply plugin: 'com.android.application'
-
 // Floors for this release line. CI derives each patch/code from first-parent main history.
 // Reset all three only for a planned new release line; routine PRs need no version bump.
 def baseVersionName = "2.3.0"
@@ -9,6 +7,32 @@ def baseVersionCommit = "8b70620339018cfaf5ac05acdb4ea8104dc2eb59"
 // Keep the default TV tasks and artifact paths stable for F-Droid and device tooling.
 def touchscreen = providers.gradleProperty("androidTouchscreen").map { it.toBoolean() }.getOrElse(false)
 def appLabel = touchscreen ? "ProjectM Android" : "ProjectM TV"
+def distribution = providers.gradleProperty('projectmDistribution').getOrElse('github')
+if (!(distribution in ['github', 'fdroid'])) {
+    throw new GradleException('projectmDistribution must be github or fdroid')
+}
+def fdroid = distribution == 'fdroid'
+def fdroidFlavor = touchscreen ? 'fdroidAndroid' : 'fdroidTv'
+def overrideValue = { String property, String environment, String fallback ->
+    def configured = providers.gradleProperty(property).orNull
+    def supplied = System.getenv(environment)
+    if (configured && supplied && configured != supplied) {
+        throw new GradleException("Conflicting ${property} and ${environment}")
+    }
+    supplied ?: configured ?: fallback
+}
+def releaseVersion = overrideValue('projectmReleaseVersion', 'PROJECTM_RELEASE_VERSION', baseVersionName)
+def releaseCode = overrideValue('projectmReleaseVersionCode', 'PROJECTM_RELEASE_VERSION_CODE', baseVersionCode.toString())
+if (!(releaseVersion ==~ /\d+\.\d+\.\d+(-ci\.\d+)?/)) {
+    throw new GradleException('Invalid projectmReleaseVersion')
+}
+if (!(releaseCode ==~ /[0-9]+/) || releaseCode.length() > 10 || releaseCode.toLong() < 1 || releaseCode.toLong() > 2100000000L) {
+    throw new GradleException('Invalid projectmReleaseVersionCode: expected 1..2100000000')
+}
+ext.projectmResolvedReleaseVersion = providers.provider { releaseVersion }
+ext.projectmResolvedReleaseTag = providers.provider { 'v' + releaseVersion.split('-')[0] }
+
+apply plugin: 'com.android.application'
 
 android {
     // Java package of the code; the installed app ID (applicationId below) is separate since 1.9.7.
@@ -20,6 +44,7 @@ android {
     defaultConfig {
         applicationId touchscreen ? "nl.neerdael.projectm" : "nl.neerdael.projectmtv"
         buildConfigField "boolean", "TOUCHSCREEN", touchscreen.toString()
+        buildConfigField "boolean", "FDROID", fdroid.toString()
         buildConfigField "String", "APK_PREFIX", touchscreen ? '"projectM-Android-"' : '"projectM-TV-"'
         manifestPlaceholders = [leanbackRequired: !touchscreen, touchscreenRequired: touchscreen,
                                 appTheme: touchscreen ? "@style/Theme.Touchscreen" : "@style/Theme.Leanback"]
@@ -27,8 +52,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 34
         testInstrumentationRunner "com.example.projectm.visualizer.MusicCategoryInstrumentation"
-        versionCode = (System.getenv("PROJECTM_RELEASE_VERSION_CODE") ?: baseVersionCode.toString()).toInteger()
-        versionName = (System.getenv("PROJECTM_RELEASE_VERSION") ?: baseVersionName) + (System.getenv("VERSION_SUFFIX") ?: "")
+        versionCode = releaseCode.toInteger()
+        versionName = releaseVersion + (System.getenv("VERSION_SUFFIX") ?: "")
     }
     signingConfigs {
         release {
@@ -72,6 +97,19 @@ android {
     buildFeatures {
         buildConfig true
     }
+    // Named flavors only for F-Droid's per-device metadata selection; GitHub paths stay stable.
+    if (fdroid) {
+        flavorDimensions 'distribution'
+        productFlavors {
+            create(fdroidFlavor) {
+                dimension 'distribution'
+                applicationId touchscreen ? 'nl.neerdael.projectm' : 'nl.neerdael.projectmtv'
+            }
+        }
+        sourceSets.getByName(fdroidFlavor).manifest.srcFile 'src/fdroid/AndroidManifest.xml'
+    }
+    sourceSets.main.java.srcDir "src/${distribution}/java"
+    sourceSets.test.java.srcDir fdroid ? 'src/testFdroid/java' : 'src/testGithub/java'
     if (touchscreen) {
         [sourceSets.debug, sourceSets.release, sourceSets.profile].each { it.res.srcDir "src/touch/res" }
         sourceSets.debug.manifest.srcFile "src/touch/AndroidManifest.xml"

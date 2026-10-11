@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Auto-update from the GitHub releases (Settings › Advanced › Auto-update, off by default). While
+ * Auto-update from the GitHub releases (Settings › Advanced › Auto-update, on by default). While
  * it is off, the app opens no network connection. While it is on, the app checks whether a newer
  * release exists at every launch and every 6 hours while it stays in the foreground, downloads its
  * APK in the background, checks that it is this app, newer and signed with the same key, and then
@@ -108,7 +108,8 @@ final class Updater {
 
     boolean isViaFDroid() { return viaFDroid; }
 
-    boolean isEnabled() { return !viaFDroid && prefs.getBoolean(PREF_ENABLED, false); }
+    boolean isEnabled() { return !viaFDroid && enabledPreference(prefs); }
+    static boolean enabledPreference(SharedPreferences prefs) { return prefs.getBoolean(PREF_ENABLED, true); }
 
     /** The version downloaded and ready to install, or null. */
     String readyVersion() { return readyVersion; }

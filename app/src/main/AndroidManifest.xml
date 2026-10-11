@@ -3,7 +3,7 @@
 
     <!-- Required permissions -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <!-- Opt-in auto-update to GitHub and the temporary LAN custom preset ZIP upload listener. -->
+    <!-- GitHub app updates, optional preset downloads and temporary LAN custom ZIP uploads. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     

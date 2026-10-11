@@ -8,6 +8,19 @@ import org.junit.Test;
 
 public class UpdaterTest {
     @Test
+    public void defaultEnabledStillHonorsExplicitOff() throws Exception {
+        java.lang.reflect.Method method = null;
+        try { method = Updater.class.getDeclaredMethod("enabledPreference", android.content.SharedPreferences.class); }
+        catch (NoSuchMethodException missing) { }
+        org.junit.Assert.assertNotNull("explicit GitHub update preference policy missing", method);
+        for (Boolean stored : new Boolean[]{null, Boolean.FALSE, Boolean.TRUE}) {
+            android.content.SharedPreferences preferences = (android.content.SharedPreferences) java.lang.reflect.Proxy.newProxyInstance(
+                    getClass().getClassLoader(), new Class<?>[]{android.content.SharedPreferences.class},
+                    (proxy, called, args) -> called.getName().equals("getBoolean") ? stored == null ? args[1] : stored : null);
+            org.junit.Assert.assertEquals(stored == null || stored, method.invoke(null, preferences));
+        }
+    }
+    @Test
     public void updatesStayOnTheInstalledPlatform() {
         assertEquals(BuildConfig.TOUCHSCREEN ? "projectM-Android-2.3.40.apk" : "projectM-TV-2.3.40.apk",
                 Updater.apkName("2.3.40"));
