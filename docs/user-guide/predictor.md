@@ -56,6 +56,12 @@ their sequential instances. Random colour recipes distinguish separately drawn
 RGB values from a copied grayscale value and preserve live borders. These facts
 make the source description more informative; they do not yet close feedback,
 visible speed or whole-preset mood uncertainty.
+
+The experimental branch now provides a standard-library SDK and local LLM skill
+for reading these facts into recognizable effect descriptions. A source spiral
+can have rapidly moving parameter points but much slower curve drift, so the
+description preserves both. Approximate LLM mood estimates stay separate from the
+strict physical model's eligibility result.
 Uniform final-color cycles have integrated calm/moderate/intense source controls;
 feedback presets still retain their unresolved movement and flashing contributions.
 

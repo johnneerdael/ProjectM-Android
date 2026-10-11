@@ -212,7 +212,8 @@ def static_behaviour(analysis,description,context=None):
                                 for name in ['source_static_behaviour.py','source_flash_behaviour.py',
                                              'source_motion_behaviour.py','source_prominence.py','source_colour_character.py','static_behaviour_scoring.py',
                                              'source_blur_propagation.py','source_colour_modulus.py',
-                                             'source_shape_state_domains.py','source_proofs_worker.py']},
+                                             'source_shape_state_domains.py','source_proofs_worker.py',
+                                             'source_stochastic_brightness.py','source_parametric_wave.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}

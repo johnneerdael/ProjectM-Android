@@ -1,0 +1,7 @@
+{
+  "method": "image_gen approximate illustration from frozenSDKv2 sourcefacts, before anynativecapture",
+  "image_sha256": "0d44bca624f6a06d3419b031cea968e37467a701a4a8ff9a4f656f02bbbef4bf",
+  "source_description": "random-description-v2-before-capture.json",
+  "no_actual_frame_used": true,
+  "recreation_accuracy_claim": false
+}

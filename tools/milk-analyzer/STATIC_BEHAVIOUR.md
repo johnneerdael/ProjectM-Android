@@ -47,6 +47,14 @@ they do not prove a warm/cold or psychedelic overall appearance.
 
 ## Sequential shapes and random colour
 
+`flashing.records[].stochastic_material_partial` now gives supported random
+material two-state RGB difference ceilings, including native alpha and blend
+weights. RNG-only frame partials hold non-RNG inputs fixed. Init-only draws have
+zero refresh opportunities, which does not make changing alpha/geometry constant.
+Declared FPS is a frame-refresh upper bound, never a sum of instances or a
+measured flash frequency. Textured fills retain a separate fixed-unit-texture
+partial. These fields do not erase unresolved total activity or grant mood credit.
+
 `shape_state.by_component.shape_N.state_domains` reports private variable boxes
 whose initialization and complete ordered instance transition have been proved.
 `instance_output_domains` reports supported output axes separately. For example,

@@ -336,7 +336,7 @@ def _fixed_unit_texture_material_partial(element):
     return result
 
 
-def _shape_records(analysis, element, domains, rejected):
+def _shape_records(analysis, element, domains, rejected, feedback_fps=None):
     from source_shape_activity import shape_activity
     from source_shape_jump_bounds import shape_material_jump_bounds
     from source_time_switches import time_switch_events
@@ -365,10 +365,14 @@ def _shape_records(analysis, element, domains, rejected):
         local_element={**element,'material_temporal':{**temporal,'channels':qualified_channels}}
     changes, hazards = shape_activity(local_element)
     jumps = {r['part']:r for r in shape_material_jump_bounds(element)}
+    from source_stochastic_brightness import stochastic_material_brightness
+    stochastic={r['part']:r for r in stochastic_material_brightness(analysis,element,
+        {'feedback_fps':feedback_fps})}
     rows = []
     for part,names in [('fill',('r','g','b','a','r2','g2','b2','a2')),
                        ('border',('border_r','border_g','border_b','border_a'))]:
         row = _record(element['id'],element['stage'],part,'shape_material_brightness_change')
+        if part in stochastic:row['stochastic_material_partial']=stochastic[part]
         row['contributing_code_paths']=element.get('evidence',[])
         row['source_evidence']['qualified_material_hazards']=hazards
         if part=='fill' and element['material']['texture']['role']!='untextured_vertex_gradient':
@@ -441,7 +445,7 @@ def flash_evidence(analysis, description, context):
             result['records'].append(row)
     for element in description.get('elements',[]):
         if 'material_temporal' in element and 'material' in element:
-            try:result['records'].extend(_shape_records(analysis,element,domains,result['rejected_predicates']))
+            try:result['records'].extend(_shape_records(analysis,element,domains,result['rejected_predicates'],fps))
             except (ValueError,RecursionError,OverflowError,IndexError) as error:
                 row = _record(element['id'],element['stage'],'material','shape_material_brightness_change')
                 row['unknown_reasons'] = [str(error)]

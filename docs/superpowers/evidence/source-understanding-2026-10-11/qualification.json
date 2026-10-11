@@ -1,0 +1,18 @@
+{
+  "prepared_tests": 3784,
+  "subtests": 92,
+  "test_seconds": 217.83,
+  "fresh_sdk_tests": 22,
+  "strict_mkdocs": true,
+  "actual_native_capture_completed": false,
+  "target": "published34/35/36-equivalent source34 profile; no live latest-release refresh",
+  "inputs": {
+    "build/preset-corpus/parametric-waves-full9606-2026-10-11/manifest.json": "4680ca515d100cfab79c1614e9fbb0bd0cf478bdf4aa928689a7568fe71e73e1",
+    "build/preset-corpus/parametric-waves-full9606-2026-10-11/rows.jsonl.gz": "b5e988d0638bb907ea9c0bb0ea7b2f037b1009687c9fec6076df1e785487b402",
+    "build/preset-corpus/source-understanding-final100-2026-10-11/run-manifest.json": "376ab5c7e1272b6442696b46449014c056c9453bebe8d0b88e42ec6def57b2ea",
+    "build/preset-corpus/source-understanding-final100-2026-10-11/batch-000001.zip": "d9987d1a5730b74c0ff93f1f58c7a73bd7288fb6d233753d620a9341b91a6742",
+    "build/preset-corpus/preset-understanding-checkpoint-2026-10-11/prediction-image.png": "0d44bca624f6a06d3419b031cea968e37467a701a4a8ff9a4f656f02bbbef4bf",
+    "build/preset-corpus/preset-understanding-checkpoint-2026-10-11/enriched-description-v4-before-capture.json": "f40fd0cf9baa18d8966635209f6195858611c4b6b75f677a6236e0f014058f53",
+    "build/preset-corpus/source-understanding-prepared-suite-2026-10-11.log": "e392ca286477b3537903a393da386e52fe4919798b6cee5d8ca451fc6004e1b8"
+  }
+}

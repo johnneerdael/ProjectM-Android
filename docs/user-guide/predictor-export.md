@@ -28,6 +28,11 @@ scope. Neither a bounded layout nor a possible random refresh establishes visibl
 movement speed or flashing. Large shape groups use aggregate area upper bounds
 instead of calculating each polygon individually.
 
+The experimental [understanding SDK and LLM skill](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-static-output-bounds/tools/milk-analyzer/PRESET_UNDERSTANDING.md)
+turn this JSON into auditable approximate descriptions. Analytic custom-wave
+recipes can identify source spirals, their parameter timing and interior curve
+drift. These are distinct from visible motion and strict mood certification.
+
 Read the [field definitions, units and assumptions](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-static-output-bounds/tools/milk-analyzer/STATIC_BEHAVIOUR.md).
 
 ## Static source-description contract

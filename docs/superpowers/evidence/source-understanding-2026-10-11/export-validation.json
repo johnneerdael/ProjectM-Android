@@ -1,0 +1,7 @@
+{
+  "records": 100,
+  "schema_errors": 0,
+  "sdk_fact_mismatches": 0,
+  "parametric_curve_components": 8,
+  "stochastic_brightness_partials": 30
+}

@@ -91,6 +91,29 @@ def test_invalid_viewport_and_fps_are_rejected():
         flash_evidence(SimpleNamespace(outputs={}),{'elements':[]},{'viewport':[0,1080],'feedback_fps':0})
 
 
+def test_random_material_exports_independent_difference_without_total_flash_credit():
+    result=source_evidence('fWaveAlpha=0\nshapecode_0_enabled=1\nshape_0_per_frame1='
+        'r=rand(100)/100;g=r;b=r;r2=r;g2=r;b2=r;a=.5;a2=.5;border_a=0;\n')
+    row=next(r for r in result['records'] if r['component_id']=='shape_0' and r['part']=='fill')
+    partial=row['stochastic_material_partial']
+    assert .49<partial['maximum_rng_induced_frame_rgb_infinity_norm_difference']<.51
+    assert partial['maximum_frame_refresh_opportunities_per_second']==30
+    assert row['total_brightness_rate_known'] is False
+    assert row['event_rate_hz'] is None
+    assert row['visible_flashing_verified'] is False
+
+
+def test_init_random_colour_zero_refresh_does_not_make_changing_alpha_constant():
+    result=source_evidence('fWaveAlpha=0\nshapecode_0_enabled=1\nshape_0_init1=shade=rand(100)/100;\n'
+        'shape_0_per_frame1=r=shade;g=r;b=r;r2=r;g2=r;b2=r;a=.5+.4*sin(time);a2=a;border_a=0;\n')
+    row=next(r for r in result['records'] if r['component_id']=='shape_0' and r['part']=='fill')
+    partial=row['stochastic_material_partial']
+    assert partial['maximum_frame_refresh_opportunities_per_second']==0
+    assert partial['maximum_rng_induced_frame_rgb_infinity_norm_difference']==0
+    assert partial['maximum_local_rgb_infinity_norm_difference']>.7
+    assert row['total_brightness_rate_known'] is False
+
+
 def test_sympy_cancellation_changes_the_actual_derivative_bound():
     from source_symbolic import SymbolicSession
     python=os.environ.get('MILK_SYMBOLIC_PYTHON')

@@ -1468,8 +1468,12 @@ compiler/Naga/Slang/Crab and precision-query bridges are auxiliary source export
 not native or visual certification. Prepared component environments and exact
 artifact hashes are required for their optional controls. See
 `tools/milk-analyzer/SOURCE_COMPONENTS.md` and component evidence/research reports.
-Keep the original predictor-maths goal paused until the approved component
-adoption/validation phase completes; no main merge or device corpus is included.
+The component adoption checkpoint is historical. The active user goal now covers
+source-only effect understanding and automatic mood grouping across all9,606
+presets, using ongoing research/manual additions and a documented LLM skill/SDK.
+Exact image recreation is not the product objective; keep source evidence,
+approximate interpretations and native observations distinct. No main merge or
+duplicate device corpus is authorized by this follow-up.
 
 
 Static behaviour integration (2026-10-10, in progress): the source description
@@ -1559,3 +1563,17 @@ live border/fill group and never certify distribution or visible flashing.
 See `tools/milk-analyzer/SOURCE_SHAPE_STATE_DOMAINS.md` and
 `tools/milk-analyzer/STATIC_BEHAVIOUR.md`; completed qualification counts belong
 in the corresponding evidence folder.
+
+Effect-understanding SDK/curves (2026-10-11): `preset_understanding.py` is a
+standard-library consumer of source JSON with exact fact pointers and a local
+`skills/understand-preset/SKILL.md`. Keep approximate LLM mood estimates separate
+from strict physical eligibility. `source_parametric_wave.py` adds conditional
+affine polar recipes and interior locus relations; point speed, curve drift,
+raw colour rates, finite polylines and visible motion are distinct. Use exact
+coefficients/outward bounds and early term/factor budgets. Stochastic brightness
+partials preserve unresolved total activity. Checkpoint captures require an
+isolated emulator only, frozen description plus generated illustration before
+native screenshot/10-second declared-audio clip, and separate comparison outcomes.
+Current capture infrastructure is unresolved; no native screenshot/clip exists.
+See `docs/superpowers/evidence/source-understanding-2026-10-11/README.md` for
+3,784tests+92subtests,100 source exports and full9,606 primitive-census scope.

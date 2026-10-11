@@ -6,6 +6,22 @@
 
 **Goal:** Improve source-only activity classification by quantified flashing,
 motion and prominence, preserving uncertainty and source semantics.
+
+**Updated user objective, 2026-10-11:** Resolve automatic mood grouping for all
+9,606 presets through continued open-source research and manual analysis additions.
+The static JSON plus documented LLM skill/SDK must describe recognizable effects
+and their behaviour; exact reproduction is not required. Existing strict physical
+eligibility remains a separate certificate from approximate source interpretations.
+At intermediate checkpoints, randomly select a preset, freeze its SDK/skill
+description and generate a prediction illustration before native observations.
+Then obtain a low-resolution screenshot and10-second clip with declared audio
+using an isolated emulator only; do not use physical devices. Compare afterward
+and diagnose large understanding misses without rewriting the original prediction.
+Do not wait for human feedback to continue independent work. Retain actual native,
+source, audio, device and output identities; never call a generated illustration a
+native screenshot. Requested delivery is Downloads; the current restricted session
+can write only inside the repository/tmp, so local artifacts and links are retained
+while that delivery constraint remains unresolved.
 **Architecture:** Extend typed source analysis, export three evidence groups and
 join them into a versioned behaviour scorer. Reuse optional proof/symbolic/compiler
 facilities selectively, with no display simulation.

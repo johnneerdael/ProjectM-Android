@@ -993,9 +993,13 @@ class _Analysis:
                                  conditions=conditions + (['custom line mode is selected'] if dots is None else []))
                         phase = _radial_curve(env['x'], env['y'])
                         if phase is not None and 'sample' in _deps(phase):
+                            from source_parametric_wave import parametric_wave_from_analysis
+                            try:curve_recipe=parametric_wave_from_analysis(self,component)
+                            except (ValueError,RecursionError,OverflowError):curve_recipe=None
                             self.add('parametric_radial_curve', f'wave_{index}_per_point', xy,
                                      'paired sine/cosine positions with shared radius and sample-dependent phase', component=component,
-                                     parameters={'exact_circle_proven': False}, conditions=conditions)
+                                     parameters={'exact_circle_proven': False,
+                                                 **({'source_curve_recipe':curve_recipe} if curve_recipe is not None else {})}, conditions=conditions)
                 else:
                     env = {name: _constant(_scalar(self.values, prefix+name, default, dtype))
                            for name, (default, dtype) in SHAPE.items()}

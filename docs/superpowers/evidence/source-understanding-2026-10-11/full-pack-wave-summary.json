@@ -1,0 +1,24 @@
+{
+  "counts": {
+    "active_custom_waves": 11417,
+    "computed": 9606,
+    "presets_with_active_custom_waves": 4641,
+    "presets_with_radial_construction": 438,
+    "presets_with_supported_recipes": 42,
+    "recipes_with_locus_relation": 53,
+    "supported_recipes": 53
+  },
+  "errors": {},
+  "manifest_sha256": "4680ca515d100cfab79c1614e9fbb0bd0cf478bdf4aa928689a7568fe71e73e1",
+  "mood_accuracy_verified": false,
+  "presets": 9606,
+  "reader_sha256": "754e4f4129db585cb4f7d5bee915d6bb24ac10ab25901ee7ef0832ce50744afc",
+  "recipe_classes": {
+    "affine_radius_polar_spiral_candidate": 38,
+    "circle_candidate": 15
+  },
+  "rows_sha256": "b5e988d0638bb907ea9c0bb0ea7b2f037b1009687c9fec6076df1e785487b402",
+  "scope": "whole-pack primitive source coverage; shader selection/final visibility/mood remain separate",
+  "uses_rendered_images": false,
+  "wall_seconds": 255.38884229099494
+}

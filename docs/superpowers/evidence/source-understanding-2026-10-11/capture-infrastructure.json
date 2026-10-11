@@ -1,0 +1,14 @@
+{
+  "actual_capture_completed": false,
+  "predicted_image_completed_before_capture": true,
+  "device_native_aar_loaded": false,
+  "direct_adb_reads_and_pushes_succeeded": true,
+  "launch_error": "ADB smartsocket listener: Operation not permitted; stopped unchanged retries",
+  "current_emulator_version_probe": "Qt incompatible processor: required neon; exit134",
+  "historical_headless_failure": "SIGILL init_cache_info beforeAndroid/AARstartup; binaryunchanged",
+  "next_capture_action": "isolate a different official emulator build; preserve all pre-capture descriptions/images",
+  "goal_work_continues": "SDK,source wave recipes,stochastic brightness andopen-source interval research",
+  "capture_policy": "emulator-only; no physical-device capture",
+  "alternative_emulator_download": "official36.3.10 archive390093951bytes SHA256f285a4974c3352a1c0026ae76fe53b06a02d71d0e13ebbab79a928af1f86d3a2; localcurlfailedDNS",
+  "physical_device_usage_stopped": true
+}
