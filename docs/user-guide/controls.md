@@ -15,7 +15,11 @@ Install **ProjectM Android** on a phone or tablet. It uses the same landscape vi
 
 A slow horizontal swipe works too. Vertical drags and cancelled gestures do not change presets. Scrolling a menu stays within that menu. Touch input restarts the 10-second inactivity timer; the menu stays open while a finger is down. The TV build retains its remote controls.
 
-## While visuals are showing
+![Touchscreen menu after scrolling, with preset values, Track display, Advanced and Close menu](images/setup/phone-menu.png)
+
+*Phone emulator capture from the touchscreen validation build. The version label identifies that build; the screenshot illustrates the touch menu layout.*
+
+## TV remote: while visuals are showing
 
 | Key | Action |
 |---|---|
@@ -27,7 +31,7 @@ A slow horizontal swipe works too. Vertical drags and cancelled gestures do not 
 
 Switches from the remote are always instant cuts. Blends are used only for automatic preset changes.
 
-## In the settings panel
+## TV remote: in the settings panel
 
 | Key | Action |
 |---|---|
@@ -41,12 +45,13 @@ The panel hides after 10 seconds without input; every key press restarts that ti
 
 ## The main panel
 
-When the panel opens, focus starts on the **Random** button, or on **Install** when an update is ready. From top to bottom the panel shows:
+On TV, when the panel opens, focus starts on the **Random** button, or on **Install** when an update is ready. From top to bottom the panel shows:
 
 - **Preset**: the name of the playing preset.
 - **Presets in rotation**: how many presets the current mood can play, and how many this TV has skipped.
 - **Audio**: a live meter and status: *Listening*, *Very quiet*, *No sound* or *No access*.
 - **Previous / Random / Next** buttons. *Next* follows the shuffled order; *Random* picks any preset in the mood. All three are instant cuts.
+- On phones, **Audio input** chooses Microphone or Phone playback.
 - **Auto change**, **Preset mood** and **Preset duration**, then **Track display ›** and **Advanced ›**.
 - A status line with the current frame rate and render size (for example *30.0 fps · 4K auto*).
 - The engine version: *v‹version› · ProjectM TV Engine / Based on unreleased projectM 4.2 master / Upstream 4.2.0 · 6f6480746*.

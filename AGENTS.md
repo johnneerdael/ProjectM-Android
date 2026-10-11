@@ -2,7 +2,7 @@
 
 ## Pull requests and release notes
 
-Each successfully tested merge to `main` publishes a versioned APK and one Native core AAR, then updates Milkbeat through the canonical core alias. Use a feature branch and PR for changes. Android APK CI retains full Git history and tags with `filter: blob:none`; current source and historical version metadata are fetched on demand rather than downloading every historical evidence blob.
+Each successfully tested merge to `main` publishes versioned TV and touchscreen APKs and one Native core AAR, then updates Milkbeat through the canonical core alias. Use a feature branch and PR for changes. Android APK CI retains full Git history and tags with `filter: blob:none`; current source and historical version metadata are fetched on demand rather than downloading every historical evidence blob.
 
 - Include a substantive `## Release notes` section in every PR body. Follow `.github/pull_request_template.md`.
 - Write for people using the app: describe the changed behavior, its effect, and relevant limits. Include a concrete trigger or before/after example when useful.
@@ -10,7 +10,7 @@ Each successfully tested merge to `main` publishes a versioned APK and one Nativ
 - Keep release notes aligned with the final PR scope. Rewrite them when implementation changes.
 - Use an `Internal` subsection for documentation, tests, or CI-only work with no user-visible effect, and explain the actual change. A bare “No user-visible changes” is insufficient.
 - Put test commands/results in `## Validation`, outside release notes. Omit badges, agent transcripts, implementation process, and manual install instructions from the release-notes section.
-- Let CI append the current Downloader code, APK/core AAR links, checksums and comparison link. Update the canonical install blockquote in `README.md` when the Downloader code changes.
+- Let CI append the platform-specific Downloader codes, APK/core AAR links, checksums and comparison link. Update the matching canonical TV or phone/tablet install blockquote in `README.md` when its Downloader code changes.
 - Preserve upstream attribution when describing backported fixes.
 - Do not bump versions in routine PRs. The base version/code/commit in `app/build.gradle` define the automatic release sequence. Change them together only for a planned new release line; follow `docs/RELEASING.md`.
 
@@ -117,7 +117,8 @@ Prefer configuration, composition, or a small wrapper to copied library source o
 
 | Need | Existing API / implementation | Version truth | Constraints |
 |---|---|---|---|
-| Audio input | `android.media.audiofx.Visualizer` on the player's session (`PlayerSessionFinder`), on the `AudioCapture` `HandlerThread` → `ProjectMJNI.addWaveform` | framework, minSdk 21 | 8-bit mono; needs `RECORD_AUDIO`; no microphone use |
+| TV audio input | `android.media.audiofx.Visualizer` on the player's session (`PlayerSessionFinder`), on the `AudioCapture` `HandlerThread` → `ProjectMJNI.addWaveform` | framework, minSdk 21 | 8-bit mono; needs `RECORD_AUDIO`; no microphone use |
+| Phone audio input | `AudioRecord` microphone or API29+ `AudioPlaybackCaptureConfiguration` / MediaProjection (`PhoneAudioInput`, `PhonePlaybackService`, `PhonePcmCapture`) → unsigned mono `ProjectMJNI.addWaveform` | framework, compileSdk34 | Foreground-only; Record audio permission, fresh playback consent per session; source player must allow capture |
 | Playing track | `MediaSessionManager` via `TrackListenerService` / `TrackWatcher` | framework | needs notification access; no notification content is read |
 | Rendering | `GLSurfaceView` + GLES 3.0 + projectM C API via JNI | `third_party/projectm` immutable commit + `tools/projectm-patches/` | projectM handle only on the GL thread |
 | Frame pacing | `Choreographer` in `VisualizerView` | framework | |
@@ -162,7 +163,7 @@ Follow the existing dependency injection and ownership model. Prefer explicit de
 Use the project's established resource or localization mechanism for user-facing text. Follow its locale ownership and translation workflow; do not invent an English-only or all-locales policy.
 
 - **Not localized today.** `app/src/main/res/values/strings.xml` holds `app_name` (overridden by `resValue` for test builds) the engine version label and Resolution selector labels; there are no `values-*` locale directories and no translation workflow. UI text is English literals in Java (`MainActivity`, `OptionRow`, …) and the layout XML. Introducing localization is a deliberate change that should move strings to resources consistently.
-- **Wording conventions:** the app name is "ProjectM TV" and its maintained engine is "ProjectM TV Engine". Use "based on unreleased projectM 4.2 master" and pin `6f6480746` for current upstream provenance. The numeric upstream version `4.2.0` does not mean an upstream 4.2 release. The core AAR shares the app release version; `ProjectMJNI.getVersion()` still reports the upstream numeric version; keep this API meaning. Preserve package/API/artifact names and historical evidence identities. Menu paths use `›` (e.g. *Settings › Advanced › Auto-update*). Keep setting names and values identical in the UI, the README settings tables and `docs/user-guide/settings.md`.
+- **Wording conventions:** the TV app is "ProjectM TV" and the touchscreen app is "ProjectM Android". Both use "ProjectM TV Engine". Use "based on unreleased projectM 4.2 master" and pin `6f6480746` for current upstream provenance. The numeric upstream version `4.2.0` does not mean an upstream 4.2 release. The core AAR shares the app release version; `ProjectMJNI.getVersion()` still reports the upstream numeric version; keep this API meaning. Preserve package/API/artifact names and historical evidence identities. Menu paths use `›` (e.g. *Settings › Advanced › Auto-update*). Keep setting names and values identical in the UI, the README settings tables and `docs/user-guide/settings.md`.
 - Store listing text: `fastlane/metadata/android/en-US/` (F-Droid metadata, English only).
 
 ## Code structure and modularization
@@ -299,8 +300,8 @@ A successful tested merge to `main` triggers the versioned APK/single Native cor
 
 - **Versioning (`.github/scripts/release_version.py`):** publishing happens only for `refs/heads/main` on `push` or `workflow_dispatch`. Version = `baseVersionName` patch + (first-parent ordinal since `baseVersionCommit` − 1); the code advances in step from `baseVersionCode`. Other builds get a `-ci.<run>` suffix and file names `…-ci.<run>-<sha>.apk/.aar`. The user-planned Native minor release line sets the base triple to 2.3.0 / code 49 / `8b70620339018cfaf5ac05acdb4ea8104dc2eb59`; this deliberate line change is the documented exception to routine no-bump rules. Publication remains contingent on successful main CI.
 - **Signing secrets (names only):** `SIGNING_KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`. A publishing build without the keystore fails; PR artifacts use a temporary debug key.
-- **Publication:** GitHub Release `v<version>` with `projectM-TV-<version>.apk`, `projectM-TV-core-<version>.aar` (Native), stable-named `projectM-TV.apk` / `projectM-TV-core.aar`, `projectM-TV-<version>-mapping.txt` and `checksums.txt`. Notes come from merged PRs' `## Release notes` sections plus a CI footer.
-- **Downloader code:** read by `release_notes.py` from the README blockquote `` > **Install on your TV with the Downloader app: code `4821216`** `` (exact regex; changing its format breaks release-note generation). The code is an AFTVnews short link to `releases/latest/download/projectM-TV.apk`; who manages the short link is not recorded in the repository.
+- **Publication:** GitHub Release `v<version>` with `projectM-TV-<version>.apk`, `projectM-Android-<version>.apk`, `projectM-TV-core-<version>.aar` (Native), stable aliases `projectM-TV.apk` / `projectM-Android.apk` / `projectM-TV-core.aar`, separate TV/Android `-mapping.txt` files and `checksums.txt`. Notes come from merged PRs' `## Release notes` sections plus a CI footer.
+- **Downloader codes:** read by `release_notes.py` from the README blockquote `` > **Install on your TV with the Downloader app: code `4821216`** `` (exact regex; changing its format breaks release-note generation). The TV code remains **4821216** and targets `releases/latest/download/projectM-TV.apk`. The separate canonical `` > **Install on your phone or tablet with the Downloader app: code `6565691`** `` supplies the Android footer and targets `projectM-Android.apk`. Keep the two blockquote formats distinct; the Android code is optional only for versions before 2.3.38 (v2.3.37 predates this code). From 2.3.38 onward the generator requires it even if the entire blockquote is removed. The user supplied code 6565691 and the Downloader Play Store link on 2026-10-11.
 - **Milkbeat:** `publish_release.py milkbeat` (token secret `MILKBEAT_TOKEN`) sends `repository_dispatch` `projectm-core-release` with the version to `johnneerdael/Milkbeat`, unless Milkbeat's latest release already names this core version or newer.
 - **Committed generated files:** `core/src/main/assets/presets.idx`, `core/src/main/assets/preset-genres/`. Not committed: APKs, AARs, `build/`, raw diagnostics. `RELEASE_NOTES.md` is a manual archive (last entry 2.1.5) and is not used by CI.
 
@@ -512,7 +513,7 @@ evidence. Preserve real upstream versus single-patch-removal labels; never relab
 an ablation as upstream. Human-review figures must match retained raw frame hashes
 and pixel crops without brightness changes.
 
-Publication scope lock (user instruction2026-10-08): PR55's engine inventory is
+Publication scope lock (user instruction 2026-10-08): PR55's engine inventory is
 main120547f3,15patches ending0015. Finish the readable single-page comparisons for
 that set and publish; deeper optimization/lifecycle comparisons move to a follow-up.
 Do not add engine patches or reopen this scope for later work. Preserve immutable

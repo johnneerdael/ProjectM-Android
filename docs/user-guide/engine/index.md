@@ -1,13 +1,13 @@
 # ProjectM TV Engine
 
-**ProjectM TV Engine** is the renderer inside ProjectM TV and inside apps that use its core library, such as [Milkbeat](https://github.com/johnneerdael/Milkbeat). It is projectM, the open-source reimplementation of Winamp's MilkDrop 2, with an ordered series of patches. The patches make it behave more like MilkDrop 2 and run well on TV hardware up to 4K.
+**ProjectM TV Engine** is the renderer inside ProjectM TV, ProjectM Android and apps that use its core library, such as [Milkbeat](https://github.com/johnneerdael/Milkbeat). It is projectM, the open-source reimplementation of Winamp's MilkDrop 2, with an ordered series of patches. The patches make it behave more like MilkDrop 2 and run well on TV hardware up to 4K.
 
 | | |
 |---|---|
 | Upstream base | [projectM](https://github.com/projectM-visualizer/projectm) master at commit `6f6480746` |
 | Upstream version | Unreleased projectM 4.2 master. CMake reports `4.2.0`, but **no projectM 4.2 has been released**; this is a development snapshot |
 | Expression evaluator | projectm-eval 1.0.7 (`22fb0cfd`) |
-| Patches | [15, applied at build time](patches.md) from [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches) |
+| Patches | [35, applied at build time](patches.md) from [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches) |
 | Graphics | OpenGL ES 3.0 (upstream at the pin requires 3.2) |
 | Library | Linked statically into `libprojectmtv.so`, shipped in the APK and the [core AAR](../development.md#use-the-engine-in-another-app) |
 | Version label | Settings panel: *v‹version› · ProjectM TV Engine / Based on unreleased projectM 4.2 master / Upstream 4.2.0 · 6f6480746* |
@@ -35,7 +35,7 @@ The fork tracks upstream instead of drifting from it. In October 2026 the whole 
 
 ## Pages in this section
 
-- [Patch catalog](patches.md): every patch, with before/after images.
+- [Patch catalog](patches.md): patch descriptions and the available visual evidence.
 - [Rendering MilkDrop at 4K](resolution.md): quad lines, reference scaling, virtual `texsize`, Native trails.
 - [How a frame reaches your TV](pipeline.md): audio capture, threads, prewarming, transitions, automatic quality, skipping.
 - [Validation and evidence](validation.md): how changes are proven, and what the proofs cover.

@@ -1,5 +1,5 @@
 ---
-title: ProjectM TV
+title: ProjectM TV and Android
 hide:
   - navigation
   - toc
@@ -8,8 +8,8 @@ hide:
 <div class="pm-hero" markdown>
 ![A ProjectM TV preset with the playing track's cover, artist and title](images/launch.jpg)
 <div class="pm-hero__text" markdown>
-# ProjectM TV
-MilkDrop visuals for the music on your Android TV, up to 4K, with 9,606 presets and an engine tuned to behave like the original MilkDrop 2.
+# ProjectM TV and Android
+MilkDrop visuals on your TV, phone or tablet, with 9,606 presets and the same ProjectM TV Engine. Use a music app on the TV, or choose microphone input or phone playback on touchscreen Android.
 
 [Get started](getting-started.md){ .md-button .md-button--primary } [Write presets](authoring/index.md){ .md-button } [Explore the engine](engine/index.md){ .md-button }
 </div>
@@ -17,6 +17,8 @@ MilkDrop visuals for the music on your Android TV, up to 4K, with 9,606 presets 
 
 <div class="pm-download" markdown>
 **Install on your TV with the Downloader app: code `4821216`**. Install *Downloader* by AFTVnews, enter the code and confirm. [More install options](getting-started.md#install-on-the-tv).
+
+**Phone or tablet: code `6565691`**. Get [Downloader by AFTVnews from Google Play](https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en), enter the code and install ProjectM Android. [Phone setup](getting-started.md#install-on-a-phone-or-tablet).
 </div>
 
 ## Use it
@@ -27,15 +29,15 @@ MilkDrop visuals for the music on your Android TV, up to 4K, with 9,606 presets 
 
     ---
 
-    Permissions, track titles and good first settings, with screenshots.
+    Choose the right APK, install with Downloader, and set up audio and track titles.
 
     [:octicons-arrow-right-24: Get started](getting-started.md)
 
--   :material-remote-tv:{ .lg .middle } **Remote and settings**
+-   :material-remote-tv:{ .lg .middle } **Touchscreen, remote and settings**
 
     ---
 
-    Every key and every setting, including the live Diagnostics card.
+    Swipe and tap on phones; use the remote on TV. All settings, including phone audio input and TV diagnostics.
 
     [:octicons-arrow-right-24: Controls](controls.md) · [Settings](settings.md)
 
@@ -73,7 +75,7 @@ MilkDrop visuals for the music on your Android TV, up to 4K, with 9,606 presets 
 
 </div>
 
-ProjectM TV listens to the music app's own audio session. The separate [ProjectM Android touchscreen build](getting-started.md#install-on-a-phone-or-tablet) supports microphone input and consented phone playback capture. Neither stores audio, and only goes online if you turn on auto-update.
+ProjectM TV listens to the music app's own audio session. The separate [ProjectM Android touchscreen build](getting-started.md#install-on-a-phone-or-tablet) supports microphone input and consented phone playback capture. Neither stores audio. Network use is limited to opt-in auto-update and the temporary local custom-pack upload page.
 
 ## What makes it different
 
@@ -83,7 +85,7 @@ ProjectM TV listens to the music app's own audio session. The separate [ProjectM
 
     ---
 
-    Most of the fourteen engine patches restore MilkDrop 2's behaviour where projectM differs: tolerant equation loading, HLSL its compiler accepted, and Direct3D pixel rules. Each comes with before/after proof.
+    The maintained engine patches restore MilkDrop 2's behaviour where projectM differs: tolerant equation loading, HLSL its compiler accepted, and Direct3D pixel rules. The catalog links the changes to their visual evidence.
 
     [:octicons-arrow-right-24: Patch catalog](engine/patches.md)
 
@@ -95,7 +97,7 @@ ProjectM TV listens to the music app's own audio session. The separate [ProjectM
 
     [:octicons-arrow-right-24: Rendering at 4K](engine/resolution.md)
 
--   :material-chip:{ .lg .middle } **Built for a TV box**
+-   :material-chip:{ .lg .middle } **Adaptive quality**
 
     ---
 

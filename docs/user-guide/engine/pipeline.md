@@ -1,10 +1,10 @@
-# How a frame reaches your TV
+# How a frame reaches your screen
 
-This page follows ProjectM TV from the music player's audio to the pixels on the panel. It covers the parts of the engine that make MilkDrop practical on a TV box: audio capture, threading, preset switching without stalls, transitions, automatic quality and preset skipping.
+This page follows audio input through the shared ProjectM TV Engine to the screen. The TV and touchscreen apps use different capture APIs, then the same rendering pipeline: audio capture, threading, preset switching without stalls, transitions, automatic quality and preset skipping.
 
 ## Audio: listening to the player, not the room
 
-ProjectM TV never uses the microphone. Android's `Visualizer` API attaches to an **audio session**, and the obvious choice, session 0 (the global mix), often hears nothing on TV hardware. On an NVIDIA SHIELD with HDMI eARC and Dolby output, media is mixed on the Dolby MSD module and encoded to E-AC3. Android places session-0 effects on the idle primary output, so the Visualizer receives silence. The selection code is unchanged in Android 14.
+The TV build never uses the microphone. Android's `Visualizer` API attaches to an **audio session**, and the obvious choice, session 0 (the global mix), often hears nothing on TV hardware. On an NVIDIA SHIELD with HDMI eARC and Dolby output, media is mixed on the Dolby MSD module and encoded to E-AC3. Android places session-0 effects on the idle primary output, so the Visualizer receives silence. The selection code is unchanged in Android 14.
 
 A Visualizer attached to the **player's own session** sits on the output the music actually plays through. Android does not list other apps' sessions, but session IDs come from one counter in steps of 8. `PlayerSessionFinder` therefore probes the 128 IDs below a freshly generated one, 16 at a time with 300 ms to settle, and takes the first with a signal:
 
@@ -15,12 +15,19 @@ A Visualizer attached to the **player's own session** sits on the output the mus
 
 The capture is 8-bit mono. Audio that a video app sends to the TV already Dolby-encoded is never mixed, so it cannot be visualized.
 
+## Phone and tablet audio
+
+ProjectM Android defaults to a foreground-only microphone `AudioRecord`. On Android 10+, Phone playback uses an `AudioPlaybackCaptureConfiguration` tied to a fresh Android MediaProjection consent token. A non-exported mediaProjection foreground service starts before obtaining the token; it creates no virtual display or video recording. Capture is limited to permitted media/game/unknown-usage playback in the same user profile.
+
+`PhonePcmCapture` reads 44.1kHz signed PCM16 mono and converts it to the engine's existing unsigned 8-bit mono waveform input. Microphone and playback capture stop on activity pause; projection revocation or a capture failure also stops the playback service. A new playback session requires new consent. The TV player-session discovery path is unchanged. See [phone setup](../getting-started.md#touchscreen-phone-or-tablet) for the user flow.
+
 ## Threads and ownership
 
 | Thread | Priority | Work |
 |---|---|---|
 | GL (GLSurfaceView) | `THREAD_PRIORITY_DISPLAY` | Owns the projectM instance: create, render, load, settings, output measurement, transition overlay |
-| AudioCapture | `THREAD_PRIORITY_AUDIO` | `Visualizer` callbacks into a mutex-protected buffer |
+| PhoneAudioCapture (touchscreen) | `THREAD_PRIORITY_AUDIO` | Blocking microphone/playback AudioRecord reads into the same buffered engine input |
+| AudioCapture (TV) | `THREAD_PRIORITY_AUDIO` | `Visualizer` callbacks into a mutex-protected buffer |
 | Native worker | default | Preset index, shuffling, prefetching the next preset's text |
 | Prewarm | background | Compiles upcoming presets' shaders in a second, short-lived projectM instance |
 | UI | default | Overlay; status polled every 500 ms |
@@ -61,7 +68,7 @@ projectM's soft cut renders both the outgoing and the incoming preset for the wh
 | **Classic** | projectM's own blend at full render size. |
 | **Lightweight** | The last frame is copied into a texture, the new preset starts as a hard cut, and the snapshot fades out over it with a slow zoom, for at most 3 s. One extra full-screen pass, and the texture exists only during the fade. |
 
-Remote-control switches are always instant cuts. Beat-triggered cuts happen only when **Cut on loud beats** is on.
+Manual switches from remote keys, touchscreen swipes or transport buttons are always instant cuts. Beat-triggered cuts happen only when **Cut on loud beats** is on.
 
 ## Tile-based GPUs
 

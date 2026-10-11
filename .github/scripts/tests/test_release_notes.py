@@ -210,6 +210,30 @@ Co-Authored-By: Agent <agent@example.org>
         self.assertNotIn("core-native", result)
         self.assertIn("Native core AAR", result)
 
+    def test_install_footer_uses_separate_readme_codes_for_android_and_tv(self):
+        readme = README + "> **Install on your phone or tablet with the Downloader app: code `1234567`**\n"
+        result = notes.install_footer("johnneerdael/ProjectM-TV", "2.3.38", "v2.3.37", readme)
+        self.assertIn("Install on your TV with the Downloader app: code `7654321`", result)
+        self.assertIn("Install on your phone or tablet with the Downloader app: code `1234567`", result)
+        self.assertIn("https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en", result)
+        self.assertNotIn("6565691", result)
+
+    def test_malformed_android_code_is_not_silently_omitted(self):
+        readme = README + "> **Install on your phone or tablet with the Downloader app: code `TBD`**\n"
+        with self.assertRaisesRegex(ValueError, "Android Downloader"):
+            notes.install_footer("johnneerdael/ProjectM-TV", "2.3.38", None, readme)
+
+    def test_current_release_requires_android_block_even_when_deleted_or_renamed(self):
+        for version in ("2.3.38", "2.3.100", "2.4.0", "3.0.0"):
+            for suffix in ("", "> **Install on Android with Downloader: code `1234567`**\n"):
+                with self.subTest(version=version, suffix=suffix), self.assertRaisesRegex(ValueError, "Android Downloader"):
+                    notes.install_footer("johnneerdael/ProjectM-TV", version, None, README + suffix)
+
+    def test_legacy_readme_does_not_invent_an_android_downloader_code(self):
+        result = notes.install_footer("johnneerdael/ProjectM-TV", "2.3.37", None, README)
+        self.assertNotIn("Install on your phone or tablet with the Downloader app", result)
+        self.assertIn("projectM-Android.apk", result)
+
     def test_missing_canonical_downloader_code_fails_instead_of_stale_fallback(self):
         with self.assertRaises(ValueError):
             notes.render_release_notes("johnneerdael/ProjectM-TV", "2.1.5", None, "No install code.", [], lambda sha: [])

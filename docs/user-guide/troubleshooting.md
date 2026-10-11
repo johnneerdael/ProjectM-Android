@@ -1,8 +1,10 @@
 # Troubleshooting
 
-Most problems show up in **Advanced › Diagnostics**: open the settings panel, select **Advanced ›**, and the Diagnostics card appears beside it. The [settings reference](settings.md#diagnostics) explains every line.
+On TV, most problems show up in **Advanced › Diagnostics**: open the settings panel, select **Advanced ›**, and the Diagnostics card appears beside it. The [settings reference](settings.md#diagnostics) explains every line. On phones, use the main panel's **Audio input**, **Audio** meter, frame rate and render size; the separate Diagnostics card is TV-only.
 
 ## Visuals do not react to the music
+
+### Android TV / Google TV
 
 Start the music **on the TV** before opening ProjectM TV. Check the **Audio** meter in the main panel and the **Audio** line in Diagnostics:
 
@@ -15,11 +17,26 @@ Start the music **on the TV** before opening ProjectM TV. Check the **Audio** me
 
 If no player is found, the app retries after the next track change (with notification access) and otherwise once a minute. Audio that a video app sends to the TV already **Dolby-encoded** never passes through Android's mixer and cannot be visualized. [Why the app listens to the player's session](engine/pipeline.md#audio-listening-to-the-player-not-the-room).
 
+### Phone or tablet audio
+
+Tap the visuals to open the menu. Check **Audio input** and the **Audio** meter:
+
+| What you see | What to do |
+|---|---|
+| **No access** or **Permission needed** | Allow Record audio under **Settings › Apps › ProjectM Android › Permissions**, then reopen the app |
+| **Microphone · Unavailable** | The microphone recorder could not start. Check microphone availability and select Microphone again |
+| Microphone is selected but the meter is silent | Check Android's microphone privacy switch, make sound near the device and check whether another app is using the microphone |
+| **Phone playback · Tap to start** | Select Phone playback and approve Android's capture prompt; this is required again after leaving and returning |
+| Phone playback is listening but the meter is silent | Keep music playing on the same device when the visualizer opens. Try a player that allows Android playback capture; protected/opted-out audio cannot be captured |
+| Phone playback is unavailable on an older device | Playback capture needs Android 10+. Use Microphone on earlier supported versions |
+
+Capture stopping when you open another app or lock the device is expected. Microphone resumes on return; Phone playback requires new consent. Notification access enables track titles and does not grant playback capture. [Phone setup](getting-started.md#touchscreen-phone-or-tablet).
+
 ## Track titles are missing
 
-Open **Track display › Track info**. If it reads *Off · Allow*, select it and choose **Configure**, then enable ProjectM TV in Android's notification access ([walkthrough](getting-started.md#track-titles-optional)). **Dismiss** only hides the automatic reminder.
+Open **Track display › Track info**. If it reads *Off · Allow*, select it and choose **Configure**, then enable the installed app (ProjectM TV or ProjectM Android) in Android's notification access ([walkthrough](getting-started.md#track-titles-optional)). **Dismiss** only hides the automatic reminder.
 
-If the title shows but not the cover, the music app may not provide artwork. Covers are verified with Spotify and Milkbeat; SoundCloud and SmartTube provide title and artist only.
+If the title shows but not the cover, the music app may not provide artwork. On TV, covers are verified with Spotify and Milkbeat; SoundCloud and SmartTube provide title and artist only.
 
 ## The picture stutters
 
@@ -28,15 +45,15 @@ If the title shows but not the cover, the music app may not provide artwork. Cov
 3. On a 4K panel keep **Native trails** on **Standard**.
 4. If stutter happens only during changes, set **Transitions** to **Lightweight**.
 
-Diagnostics shows the real render size, frame rate and memory state. More in [Picture quality and performance](picture-quality.md#when-playback-stutters).
+The main panel shows frame rate and render size on both builds; TV Diagnostics adds memory state. More in [Picture quality and performance](picture-quality.md#when-playback-stutters).
 
 ## The render size is lower than my TV
 
-Auto lowers resolution to hold the target frame rate and to keep memory free for the music app; Diagnostics shows *resolution reduced for memory headroom* when memory is the reason. To test a preset at full size, choose **Advanced › Resolution › Native**. Memory protection still applies. Android often runs its menus at 1080p on a 4K TV; Diagnostics lists **Panel** (the physical display) separately from **UI**.
+Auto lowers resolution to hold the target frame rate and to keep memory free for the music app; TV Diagnostics shows *resolution reduced for memory headroom* when memory is the reason. To test a preset at full size, choose **Advanced › Resolution › Native**. Memory protection still applies. Android often runs its menus at 1080p on a 4K TV; Diagnostics lists **Panel** (the physical display) separately from **UI**.
 
 ## The app closes at preset changes
 
-If ProjectM TV closes by itself, often when one preset changes into the next, while the music keeps playing:
+If the visualizer closes by itself, often when one preset changes into the next, while the music keeps playing:
 
 1. Open the app again and check **Advanced › Last exit**. Select it for the [exit report](settings.md#exit-report): *crashed (native code)* or *killed by signal* points to the graphics driver or the engine, *killed for low memory* to memory.
 2. Try **Advanced › Transitions › Lightweight**, then **Classic**. If only Auto blends crash, the lower blend resolution is involved.
@@ -61,11 +78,11 @@ Native trails works only above 1330p. On a 1080p TV, Diagnostics shows *inactive
 
 ## A mood has fewer presets than listed
 
-The panel counts only presets this TV can play, so skipped presets reduce it. A mood with no eligible presets is not offered and the app uses All. See [Preset moods](predictive-collections.md).
+The panel counts only presets this device can play, so skipped presets reduce it. A mood with no eligible presets is not offered and the app uses All. See [Preset moods](predictive-collections.md).
 
 ## A mood feels wrong
 
-Moods are beta predictions from a short measurement and will improve. Report the preset name (shown at the top of the settings panel), the mood, the song and your TV in a [GitHub issue](https://github.com/johnneerdael/ProjectM-TV/issues).
+Moods are beta predictions from a short measurement and will improve. Report the preset name (shown at the top of the settings panel), the mood, the song and your device in a [GitHub issue](https://github.com/johnneerdael/ProjectM-TV/issues).
 
 ## A legacy preset looks dark or sparse
 
@@ -83,17 +100,17 @@ ProjectM TV Engine follows MilkDrop 2 closely and fixes many differences that ot
 
 Negative motion zoom uses MilkDrop 2's CPU power calculation for valid integer nested exponents. Fractional negative powers still produce nonfinite coordinates with no portable appearance guarantee. **Great Tulip Majesty (txtr wrap)** has the same invalid power domain in the original source; its tested 30-frame emulator replay is unchanged by this correction. A source predictor can decline to forecast it even while the app renders a picture.
 
-Include the preset name, your TV and the app version when you report a difference.
+Include the preset name, your device and the app version when you report a difference.
 
 ## Updating fails
 
 - Production releases are signed with one permanent key. A locally built debug APK cannot replace them; uninstall first or use the [separate test build](development.md#test-on-a-tv-without-replacing-the-release).
-- If Android asks whether ProjectM TV may install unknown apps, allow it, return, and select **Install** again.
+- If Android asks whether the visualizer may install unknown apps, allow it, return, and select **Install** again.
 
 ## Custom pack upload does not open
 
-- The phone and TV must be on the same Wi-Fi or Ethernet network. VPN interfaces are never used, and guest networks often isolate devices.
-- Keep the dialog open on the TV; closing it stops the upload page.
+- The uploading device and the device running the visualizer must be on the same Wi-Fi or Ethernet network. VPN interfaces are never used, and guest networks often isolate devices.
+- Keep the dialog open in the visualizer; closing it or leaving the app stops the upload page. Use another device to upload to the phone version.
 - A new QR code is generated each time the dialog opens. Scan the current one.
 
-For anything else, open a [GitHub issue](https://github.com/johnneerdael/ProjectM-TV/issues) with the app version, TV model, Android version and the Diagnostics lines.
+For anything else, open a [GitHub issue](https://github.com/johnneerdael/ProjectM-TV/issues) with the app version, device model, Android version and a screenshot of the settings or exit report. Include TV Diagnostics lines when available.
