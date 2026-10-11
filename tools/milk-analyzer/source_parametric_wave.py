@@ -186,10 +186,56 @@ def _finite_coordinate_domain(centres,radius,sample_interval):
                    for centre in centres for sign in (-1,1))
 
 
+def _joint_spatial_rgb(coefficients,period):
+    """Keep a shared affine sample phase through nominal RGB modulo.
+
+    Derive the fundamental common period algebraically, with source time fixed.
+    Do not sample RGB values, infer reached hues or equate nominal modulo with
+    finite native fmod/interpolation/storage behaviour.
+    """
+    result={'policy':'source-affine-rgb-joint-spatial-period-v1','status':'unknown',
+        'nominal_joint_period_sample':None,'nominal_joint_period_sample_exact':None,
+        'signed_channel_windings':None,'fixed_source_time_required':True,
+        'temporal_flash_frequency_hz':None,'reached_palette_verified':False,
+        'remainder_model':'nominal Euclidean modulo congruence; not native signed-fmod equality',
+        'native_periodicity_verified':False,
+        'native_numeric_certified':False,'uses_equation_execution':False,
+        'uses_rendered_images':False,'unknown_reasons':[],
+        'conditions':['Joint periodicity concerns affine raw RGB modulo at fixed finite source time, not alpha, reached hues, temporal flashes or final palette',
+            'The period can extend beyond the finite native sample domain; no complete colour cycle or repeated displayed bands are certified',
+            'Native signed fmod is not globally periodic across zero; each original and translated channel must retain a compatible remainder sign for this congruence to describe native repetition',
+            'Native float32 arithmetic/fmod, negative-value conventions, interpolation and composition remain separate from this nominal translation relation']}
+    try:
+        if any(coefficients.get(name) is None for name in 'rgb'):
+            raise ValueError('all three finite affine RGB source channels are required')
+        slopes=[coefficients[name]['sample'] for name in 'rgb']
+        if any(max(abs(value.numerator).bit_length(),value.denominator.bit_length())>4096 for value in slopes):
+            raise ValueError('joint RGB rational period budget exceeded')
+        if all(value==0 for value in slopes):
+            result.update(status='uniform_over_source_sample',signed_channel_windings={name:0 for name in 'rgb'})
+            return result
+        denominator=1
+        for value in slopes:
+            denominator=math.lcm(denominator,value.denominator)
+            if denominator.bit_length()>4096:raise ValueError('joint RGB denominator budget exceeded')
+        numerators=[value.numerator*(denominator//value.denominator) for value in slopes]
+        common=Fraction(math.gcd(*numerators),denominator)
+        sample_period=Fraction(period)/common
+        if max(abs(sample_period.numerator).bit_length(),sample_period.denominator.bit_length())>4096:
+            raise ValueError('joint RGB period export budget exceeded')
+        result.update(status='nominal_rgb_modulo_congruence',
+            nominal_joint_period_sample=_display(sample_period),
+            nominal_joint_period_sample_exact=_exact_coefficients({'value':sample_period})['value'],
+            signed_channel_windings={name:int(value/common) for name,value in zip('rgb',slopes)})
+    except ValueError as error:
+        result['unknown_reasons'].append(str(error))
+    return result
+
+
 def _spatial_colours(controls,sample_domain):
     from source_material_temporal import PERIOD
     from source_appearance import _expression
-    channels={}
+    channels={};affine_channels={}
     for name in 'rgba':
         field=controls[name]
         coefficients=_affine(field)
@@ -199,6 +245,7 @@ def _spatial_colours(controls,sample_domain):
             with np.errstate(over='ignore',invalid='ignore'):
                 finite=all(math.isfinite(float(np.float32(value))) for value in interval)
         if not finite:coefficients=None
+        affine_channels[name]=coefficients
         channels[name]={'source_expression':_expression(field),
             'affine_coefficients':None if coefficients is None else _display_coefficients(coefficients),
             'affine_coefficients_exact':None if coefficients is None else _exact_coefficients(coefficients),
@@ -207,6 +254,7 @@ def _spatial_colours(controls,sample_domain):
             'nominal_modulo_cycles_across_sample_domain':None if coefficients is None else _display(abs(coefficients['sample'])/Fraction(PERIOD)),
             'temporal_rate_or_event_frequency':None}
     return {'policy':'source-custom-wave-spatial-colour-bands-v1','channels':channels,
+            'joint_rgb_spatial_pattern':_joint_spatial_rgb(affine_channels,PERIOD),
             'native_colour_modulo_period':PERIOD,'temporal_flash_frequency_hz':None,
             'actual_displayed_colour_bands_verified':False,
             'scope':'affine vertex colour along source sample index; native modulo/quantization, interpolation and composition remain separate',

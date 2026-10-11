@@ -1614,3 +1614,16 @@ Do not blindly repeat a failed or still-running job. These checks preserve task
 continuity but cannot monitor/retry a disconnected ChatGPT stream or set a blocked
 goal active; the exposed goal tool provides no resume operation. Keep the current
 preset, source-only classification and no-physical-device constraints intact.
+
+Source layer/colour relations (2026-10-11): `source_curve_feedback_relation.py`
+joins qualified central affine-polar pitch/locus motion to a radial inverse map.
+Optional fixed-count fractional-linear compositions are algebra, not frame runs;
+guard prefix poles, time/sample/radius and positive adjacent branches, and keep
+retained/fresh/adjacent clipping distinct. Exporter's sample0.5/counts1,4,16 are
+declared diagnostics, not typical/observed trajectory or density. Joint RGB sample
+congruence preserves affine channel winding with native signed-fmod/finite-domain
+qualifiers. `source_radial_uv_envelope.py` separates coordinate wrap from linear
+filter footprint; optional context offsets and main texture size default unknown.
+Do not infer half-texel offsets or texture dimensions from viewport. New contracts
+and qualification scope belong in `tools/milk-analyzer/PRESET_UNDERSTANDING.md`
+and corresponding evidence; automatic whole-pack mood grouping remains unfinished.

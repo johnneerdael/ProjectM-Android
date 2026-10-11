@@ -1,0 +1,125 @@
+{
+  "source_export_sha256": "4798ea154e5c0736b1deb9187e6d1db62d006f2ff5ccad66de077e46417d7e64",
+  "viewport": [
+    480,
+    270
+  ],
+  "feedback_fps": 30,
+  "a": 0.9995139837265015,
+  "b": 0.01,
+  "native_fresh_radius_rate_per_second": -0.1,
+  "nominal_inter_turn_pitch_pixels": 15.079644737231009,
+  "rows": [
+    {
+      "source_native_radius": 0.4,
+      "steps": 1,
+      "retained_nominal_radius": 0.4014112384443781,
+      "fresh_fixed_angle_nominal_radius": 0.39666666666666667,
+      "relative_separation_pixels": 1.1386972266507436,
+      "retained_outside_inscribed_disk": false,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 0.4,
+      "steps": 5,
+      "retained_nominal_radius": 0.40716428586588255,
+      "fresh_fixed_angle_nominal_radius": 0.38333333333333336,
+      "relative_separation_pixels": 5.7194286078118175,
+      "retained_outside_inscribed_disk": false,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 0.4,
+      "steps": 8,
+      "retained_nominal_radius": 0.411596082586684,
+      "fresh_fixed_angle_nominal_radius": 0.37333333333333335,
+      "relative_separation_pixels": 9.18305982080416,
+      "retained_outside_inscribed_disk": false,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 0.4,
+      "steps": 16,
+      "retained_nominal_radius": 0.4239339035094201,
+      "fresh_fixed_angle_nominal_radius": 0.3466666666666667,
+      "relative_separation_pixels": 18.544136842260826,
+      "retained_outside_inscribed_disk": false,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 0.8,
+      "steps": 1,
+      "retained_nominal_radius": 0.8060596642955657,
+      "fresh_fixed_angle_nominal_radius": 0.7966666666666666,
+      "relative_separation_pixels": 2.2543194309357673,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 0.8,
+      "steps": 5,
+      "retained_nominal_radius": 0.8312765815327193,
+      "fresh_fixed_angle_nominal_radius": 0.7833333333333333,
+      "relative_separation_pixels": 11.506379567852646,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 0.8,
+      "steps": 8,
+      "retained_nominal_radius": 0.8512843958945877,
+      "fresh_fixed_angle_nominal_radius": 0.7733333333333333,
+      "relative_separation_pixels": 18.70825501470104,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 0.8,
+      "steps": 16,
+      "retained_nominal_radius": 0.9098372363593157,
+      "fresh_fixed_angle_nominal_radius": 0.7466666666666667,
+      "relative_separation_pixels": 39.16093672623577,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": false
+    },
+    {
+      "source_native_radius": 1.0,
+      "steps": 1,
+      "retained_nominal_radius": 1.0096100845722238,
+      "fresh_fixed_angle_nominal_radius": 0.9966666666666667,
+      "relative_separation_pixels": 3.1064202973336883,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": true
+    },
+    {
+      "source_native_radius": 1.0,
+      "steps": 5,
+      "retained_nominal_radius": 1.0500223911607562,
+      "fresh_fixed_angle_nominal_radius": 0.9833333333333333,
+      "relative_separation_pixels": 16.005373878581484,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": true
+    },
+    {
+      "source_native_radius": 1.0,
+      "steps": 8,
+      "retained_nominal_radius": 1.0825774982108163,
+      "fresh_fixed_angle_nominal_radius": 0.9733333333333334,
+      "relative_separation_pixels": 26.218599570595906,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": true
+    },
+    {
+      "source_native_radius": 1.0,
+      "steps": 16,
+      "retained_nominal_radius": 1.180434675355683,
+      "fresh_fixed_angle_nominal_radius": 0.9466666666666667,
+      "relative_separation_pixels": 56.104322085363926,
+      "retained_outside_inscribed_disk": true,
+      "retained_outside_horizontal_extent": true
+    }
+  ],
+  "formula": "F^n(r)=a^n*r/(1-b*r*S_n), S_n=(a^n-1)/(a-1); S_n=n if a=1",
+  "uses_frame_execution": false,
+  "scope": "Independent nominal algebra illustration, no raster, texture sampling, wrap, storage, colour-attainment or lifetime proof"
+}

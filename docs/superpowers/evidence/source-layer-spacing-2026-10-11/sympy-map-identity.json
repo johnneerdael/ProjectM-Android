@@ -1,0 +1,28 @@
+{
+  "backend": "SymPy",
+  "version": "1.14.0",
+  "checks": [
+    {
+      "steps": 1,
+      "symbolic_difference_zero": true
+    },
+    {
+      "steps": 2,
+      "symbolic_difference_zero": true
+    },
+    {
+      "steps": 3,
+      "symbolic_difference_zero": true
+    },
+    {
+      "steps": 5,
+      "symbolic_difference_zero": true
+    },
+    {
+      "steps": 8,
+      "symbolic_difference_zero": true
+    }
+  ],
+  "scope": "Pure symbolic nominal map equivalence; positive denominators, native rounding and clipping require separate guards",
+  "uses_frames": false
+}

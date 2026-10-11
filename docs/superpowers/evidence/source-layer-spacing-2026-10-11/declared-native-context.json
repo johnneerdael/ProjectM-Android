@@ -1,0 +1,16 @@
+{
+  "viewport": [
+    480,
+    270
+  ],
+  "feedback_fps": 30,
+  "reference_profile": "declared-native-GLES-understanding-reference",
+  "texel_offset_pixels": [
+    0,
+    0
+  ],
+  "main_texture_size": [
+    480,
+    270
+  ]
+}

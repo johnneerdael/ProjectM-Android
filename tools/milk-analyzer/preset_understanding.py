@@ -126,6 +126,10 @@ def summarize_preset(record):
         radial=_object(static['affine_radial_feedback'],STATIC+'/affine_radial_feedback')
         fact('feedback',STATIC+'/affine_radial_feedback',radial,
              'Nominal radial backward sampler and inverse fixed-feature map; no executed history or visible trajectory')
+    if 'radial_uv_envelope' in static:
+        uv=_object(static['radial_uv_envelope'],STATIC+'/radial_uv_envelope')
+        fact('feedback',STATIC+'/radial_uv_envelope',uv,
+             'Conditional UV coordinate and separately declared linear-filter footprint envelopes; no observed sampler taps')
     components = []
     for index, element in enumerate(elements):
         path = BASE + "/elements/" + str(index)
@@ -173,6 +177,7 @@ def summarize_preset(record):
                          "Causal source control or nominal rate; not a visible response measurement")
     for key, group, rows_key in (("colour", "colour", "components"), ("shape_state", "shape_state", "components"),
                                 ("curve_projection", "geometry", "components"),
+                                ("curve_feedback_relation", "feedback", "components"),
                                 ("motion", "motion", "contributions"), ("flashing", "flashing", "records")):
         section = _object(static.get(key, {}), STATIC + "/" + key)
         for index, row in enumerate(_rows(section.get(rows_key, []), STATIC + "/" + key + "/" + rows_key)):
@@ -259,6 +264,34 @@ def _description(summary):
     for item in summary['facts']['feedback']:
         row=item['value']
         if not isinstance(row,dict):continue
+        if item['path'].endswith('/radial_uv_envelope'):
+            if row.get('status')!='conditional_radial_uv_envelope':continue
+            wrap=row.get('coordinate_wrap_possible')
+            edge=row.get('linear_filter_footprint_edge_crossing_possible')
+            text='Declared radial sampler: '+('nominal coordinate wrapping excluded' if wrap is False else
+                'nominal coordinate wrapping possible' if wrap is True else 'coordinate wrapping unresolved')
+            text+='; '+('nominal linear-filter footprint stays in the texture window' if edge is False else
+                'nominal filter-footprint edge crossing possible' if edge is True else 'filter-footprint edge crossing unresolved')
+            sentences.append(text+'; conditional source envelopes, not observed native texture taps.')
+            continue
+        if '/curve_feedback_relation/components/' in item['path']:
+            if row.get('status')!='conditional_local_curve_feedback_relation':continue
+            reference=_object(row.get('reference_selection',{}),item['path']+'/reference_selection')
+            sentences.append(str(row.get('component_id'))+' local relation at reference sample '+
+                str(reference.get('source_sample'))+': nominal inter-turn pitch '+
+                str(row.get('interturn_pitch_pixels_interval'))+' pixels, signed retained/fresh layer separation '+
+                str(row.get('relative_old_minus_new_pixel_step_interval'))+
+                ' pixels/step; diagnostic source geometry, not observed band thickness or final density.')
+            composed=[]
+            for step in _rows(row.get('nominal_n_step_relations',[]),item['path']+'/nominal_n_step_relations'):
+                if step.get('status')!='conditional_closed_form_radial_relation':continue
+                span=step.get('relative_old_minus_new_pixel_separation_interval')
+                if isinstance(span,list) and len(span)==2 and all(type(value) in (int,float) for value in span):
+                    composed.append(str(step.get('declared_steps'))+' declared steps: '+str([float(value) for value in span])+' pixels')
+            if composed:
+                sentences.append('Closed-form retained/fresh separation at the diagnostic reference: '+
+                    '; '.join(composed[:4])+'; no frames evaluated; texture, wrap, clipping and visible thickness remain separate.')
+            continue
         if item['path'].endswith('/affine_radial_feedback'):
             if row.get('status')!='conditional_affine_radial_sampler':continue
             regions=_rows(row.get('direction_regions',[]),item['path']+'/direction_regions')
@@ -376,6 +409,14 @@ def _description(summary):
                       isinstance(channel.get("affine_coefficients"), dict)]
             if affine:
                 spatial.append(component + " spatial vertex-colour affine ingredients in " + "/".join(affine))
+            joint=colour.get('joint_rgb_spatial_pattern')
+            if isinstance(joint,dict) and joint.get('policy')=='source-affine-rgb-joint-spatial-period-v1' and joint.get('status')=='nominal_rgb_modulo_congruence':
+                period=joint.get('nominal_joint_period_sample')
+                winds=_object(joint.get('signed_channel_windings',{}),item['path']+'/spatial_vertex_colour/joint_rgb_spatial_pattern/signed_channel_windings')
+                if type(period) in (int,float) and all(type(winds.get(name)) is int and len(str(winds[name]))<=32 for name in 'rgb'):
+                    spatial.append(component+' nominal joint RGB congruence period '+format(period,'.4g')+
+                        ' source-sample units with RGB winding '+'/'.join(name+'='+str(winds[name]) for name in 'rgb')+
+                        '; fixed source time; native signed remainder, rounding and reached repetitions remain separate')
     if curves:
         sentences.append("Analytic source curves: " + "; ".join(curves[:3]) +
                          "; before native sampling, aspect projection, smoothing, clipping and feedback, not visible revolutions/speed.")

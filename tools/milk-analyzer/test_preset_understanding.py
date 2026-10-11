@@ -309,6 +309,60 @@ def test_supported_polar_recipe_keeps_source_units_and_spatial_colour(curve, lab
     assert result["mood"]["eligible_bands"] == []
 
 
+def test_joint_rgb_phase_recipe_preserves_spatial_and_native_remainder_qualifiers():
+    record=control_record()
+    recipe=polar_recipe()
+    recipe['spatial_vertex_colour']['joint_rgb_spatial_pattern']={
+        'policy':'source-affine-rgb-joint-spatial-period-v1','status':'nominal_rgb_modulo_congruence',
+        'nominal_joint_period_sample':.200784,'signed_channel_windings':{'r':5,'g':3,'b':1},
+        'native_periodicity_verified':False,'temporal_flash_frequency_hz':None}
+    record['analysis']['visual_description']['elements'][0]['parameters']['source_curve_recipe']=recipe
+    result=summarize_preset(record)
+    text=result['description']
+    assert 'RGB winding r=5/g=3/b=1' in text
+    assert '0.2008 source-sample units' in text
+    assert 'native signed remainder' in text
+    assert '0.2008 Hz' not in text
+    assert result['mood']['eligible_bands']==[]
+
+
+def test_local_curve_feedback_prose_retains_diagnostic_scope_and_exact_paths():
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['curve_feedback_relation']={
+        'components':[{'component_id':'wave_0','policy':'source-curve-feedback-relation-v1',
+            'status':'conditional_local_curve_feedback_relation','interturn_pitch_pixels_interval':[15.07,15.08],
+            'relative_old_minus_new_pixel_step_interval':[1.3,1.4],
+            'reference_selection':{'source_sample':.5,'is_typical_or_observed':False},
+            'nominal_n_step_relations':[{'declared_steps':16,'status':'conditional_closed_form_radial_relation',
+                'relative_old_minus_new_pixel_separation_interval':[22.,23.],
+                'actual_trail_thickness_pixels':None}],
+            'actual_trail_thickness_pixels':None,'final_visible_density':None}]}
+    result=summarize_preset(record)
+    fact=next(f for f in result['facts']['feedback'] if '/curve_feedback_relation/' in f['path'])
+    assert resolve(record,fact['path'])==fact['value']
+    assert 'inter-turn pitch' in result['description']
+    assert 'reference sample 0.5' in result['description']
+    assert 'not observed band thickness' in result['description']
+    assert '16 declared steps' in result['description']
+    assert '[22.0, 23.0]' in result['description']
+    assert result['mood']['eligible_bands']==[]
+
+
+def test_uv_window_fact_keeps_declared_filter_dimensions_and_observation_separate():
+    record=control_record()
+    record['analysis']['visual_description']['static_behaviour']['radial_uv_envelope']={
+        'policy':'source-radial-uv-envelope-v1','status':'conditional_radial_uv_envelope',
+        'coordinate_wrap_possible':False,'linear_filter_footprint_edge_crossing_possible':None,
+        'nominal_uv_rectangle':[[.004,.996],[.002,.998]],'texture_size':None,
+        'actual_wrap_sample_observed':False}
+    result=summarize_preset(record)
+    fact=next(f for f in result['facts']['feedback'] if f['path'].endswith('/radial_uv_envelope'))
+    assert resolve(record,fact['path'])==fact['value']
+    assert 'nominal coordinate wrapping excluded' in result['description']
+    assert 'filter-footprint edge crossing unresolved' in result['description']
+    assert result['actual_visible_appearance_verified'] is False
+
+
 def test_unsupported_recipe_or_preset_name_does_not_supply_spiral_claim():
     record = control_record()
     record["preset"]["name"] = "Spiral Circle Tunnel.milk"

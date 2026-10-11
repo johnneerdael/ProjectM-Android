@@ -33,6 +33,40 @@ def test_radial_sampler_export_requires_qualified_branch_and_engine(branch,engin
     assert value['unknown_reasons']
 
 
+def test_spiral_exports_turn_spacing_and_reference_layer_relation_without_density_credit():
+    value=report(read(PRESETS/'Zylot - Spiral.milk'),{'viewport':[480,270],'feedback_fps':30})
+    relation=value['curve_feedback_relation']['by_component']['wave_0']
+    assert relation['status']=='conditional_local_curve_feedback_relation'
+    assert relation['reference_selection']['source_sample']==.5
+    assert relation['reference_selection']['is_typical_or_observed'] is False
+    assert [r['declared_steps'] for r in relation['nominal_n_step_relations']]==[1,4,16]
+    assert relation['nominal_n_step_relations'][-1]['status']=='conditional_closed_form_radial_relation'
+    low,high=relation['interturn_pitch_pixels_interval']
+    assert low<15.07965 and high>15.07964
+    assert relation['new_source_pixel_step_interval'][0]<=-.8<=relation['new_source_pixel_step_interval'][1]
+    assert relation['actual_trail_thickness_pixels'] is None
+    assert relation['final_visible_density'] is None
+    assert value['classification']['eligible_bands']==[]
+    assert 'source_curve_feedback_relation.py' in value['model_sources']
+    json.dumps(value,allow_nan=False)
+
+
+def test_radial_uv_export_requires_explicit_offsets_and_independent_texture_dimensions():
+    source=read(PRESETS/'Zylot - Spiral.milk')
+    unknown=report(source,{'viewport':[480,270],'feedback_fps':30})['radial_uv_envelope']
+    assert unknown['status']=='unknown'
+    declared=report(source,{'viewport':[480,270],'feedback_fps':30,
+        'texel_offset_pixels':[0,0],'main_texture_size':[480,270]})['radial_uv_envelope']
+    assert declared['status']=='conditional_radial_uv_envelope'
+    assert declared['coordinate_wrap_possible'] is False
+    assert declared['linear_filter_footprint_edge_crossing_possible'] is False
+    assert declared['actual_wrap_sample_observed'] is False
+    no_texture=report(source,{'viewport':[480,270],'feedback_fps':30,
+        'texel_offset_pixels':[0,0]})['radial_uv_envelope']
+    assert no_texture['coordinate_wrap_possible'] is False
+    assert no_texture['linear_filter_footprint_edge_crossing_possible'] is None
+
+
 def test_declared_viewport_changes_projection_without_adding_visibility():
     source=read(PRESETS/'Zylot - Spiral.milk')
     value=report(source,{'viewport':[480,270],'feedback_fps':30})

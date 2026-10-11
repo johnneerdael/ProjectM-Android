@@ -1,0 +1,10 @@
+{
+  "exports": 100,
+  "joint_rgb_patterns": 1,
+  "curve_feedback_relations": 1,
+  "eligible_moods": 0,
+  "fact_values": 14179,
+  "errors": [],
+  "schema_and_facts_verified": true,
+  "scope": "source integrity and conditional descriptor counts, not visual or mood accuracy"
+}

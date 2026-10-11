@@ -136,6 +136,30 @@ unmatched engines, singular domains and unsupported effects remain unresolved.
 These are nominal one-step operators before texel offsets, mesh interpolation,
 storage, drawings and final composition, not executed feedback histories.
 
+`static_behaviour.curve_feedback_relation.components` links a supported central
+affine polar curve to that sampler. The exporter declares source-sample reference
+0.5 and diagnostic step counts1,4,16. It supplies same-angle inter-turn pitch,
+fresh radial motion and retained/fresh separation. The reference is not typical,
+observed or certified as a native vertex. Growing radii need a declared finite
+time domain; current, future and adjacent positive-radius branches must remain valid.
+
+Optional n-step records use `F^n(r)=a^n*r/(1-b*r*S_n)`, with
+`S_n=(a^n-1)/(a-1)` or `S_n=n` when `a=1`. No frame sequence or feedback image is
+evaluated. Pole, radius, time/branch and rational-size guards can reject an optional
+record while preserving local evidence. Clipping flags include retained, fresh and
+selected adjacent branches. Gain^n is an independent colour-operator difference
+bound, not achieved stroke brightness. Separation versus turn pitch can inform
+a conditional layering hypothesis; visible overlap, thickness and density remain
+unverified.
+
+`static_behaviour.radial_uv_envelope` needs explicit `texel_offset_pixels`; optional
+`main_texture_size` independently supplies sampled texture dimensions. Neither
+is silently inferred by the static context. It distinguishes coordinates within
+`[0,1]` from a `GL_LINEAR` footprint within the texture-centre window. Unknown
+dimensions leave that footprint unresolved. Default-warp/source34 qualification,
+nominal arithmetic and interpolation premises remain explicit; no observed
+wrapped texel, active filter mode or native precision is certified.
+
 ## Analytic custom-wave curves
 
 When existing `elements[i].parameters.source_curve_recipe` is present, the
@@ -174,6 +198,15 @@ sample domain describe spatial ingredients. They do not establish temporal flash
 frequency, reached screen colour bands, native arithmetic or mood eligibility.
 All source expressions remain opaque data.
 
+`spatial_vertex_colour.joint_rgb_spatial_pattern` preserves common affine RGB
+sample-phase congruence at fixed source time. Slopes25/15/5 have signed winding
+5/3/1 and nominal Euclidean-modulo period equal to the colour period/5. Zero slopes
+give a sample-uniform source. Unsupported/excessive coefficients leave this
+optional pattern unknown and preserve geometry. Native signed fmod is not globally
+periodic across zero; sign conventions, finite sample span, rounding/interpolation
+and reached repetitions remain separate. These sample-unit relations are not
+temporal flashes, arbitrary independent RGB boxes or verified hue counts.
+
 ## Frozen description checkpoints
 
 Save the summary, original input file/hash and source identity before examining
@@ -186,10 +219,13 @@ it does not silently certify other presets or all mood groups.
 The active project workflow also requests a prediction-based illustration before
 capture. Save its prompt/image identity separately from the frozen SDK output;
 an image generator can itself make interpretation errors. Use an isolated emulator
-only, followed by an actual-AAR screenshot and10-second low-resolution clip with
+for Android AAR qualification, followed by a screenshot and10-second low-resolution clip with
 declared audio. Compare the general structure, colours, movement and audio response
 without requiring exact pixels. Preserve both prior descriptions and subsequent
 diagnoses. A failed emulator/capture attempt supplies no native appearance evidence.
+The user also authorizes native execution of the matching patched engine source
+as a comparison alternative. Record its macOS ABI/GLES driver/API binding separately
+from Android AAR/JNI qualification. Physical devices remain excluded.
 
 Local checkpoint files are currently retained under `build/preset-corpus/` because
 this session's filesystem allows writes only in the repository/tmp, while Downloads

@@ -14,7 +14,7 @@ def _digest(value):
 
 def validate_context(request=None):
     request=dict(DEFAULT_CONTEXT if request is None else request)
-    if set(request)-{'viewport','feedback_fps','reference_profile','scalar_input_domains','scalar_input_maximum_rates_per_second','output_storage','activity_preferences'}:
+    if set(request)-{'viewport','feedback_fps','reference_profile','scalar_input_domains','scalar_input_maximum_rates_per_second','output_storage','activity_preferences','texel_offset_pixels','main_texture_size'}:
         raise ValueError('unsupported static behaviour context field')
     viewport=request.get('viewport');fps=request.get('feedback_fps')
     if not isinstance(viewport,(list,tuple)) or len(viewport)!=2 or any(type(v) is not int or not 0<v<2**31 for v in viewport):
@@ -33,8 +33,18 @@ def validate_context(request=None):
     from static_behaviour_scoring import validate_preferences
     from source_motion_behaviour import validate_input_rates
     preferences=validate_preferences(request.get('activity_preferences'))
+    offsets=request.get('texel_offset_pixels')
+    if offsets is not None and (not isinstance(offsets,(list,tuple)) or len(offsets)!=2 or
+            any(type(v) not in {int,float} or not math.isfinite(v) for v in offsets)):
+        raise ValueError('explicit finite texel-offset pixel pair required')
+    texture=request.get('main_texture_size')
+    if texture is not None and (not isinstance(texture,(list,tuple)) or len(texture)!=2 or
+            any(type(v) is not int or not 0<v<2**31 for v in texture)):
+        raise ValueError('explicit positive int32 main texture dimensions required')
     result={'activity_preferences':preferences,'output_storage':storage,'viewport':list(viewport),'feedback_fps':float(fps),
             'reference_profile':request.get('reference_profile','caller-declared-reference'),
+            'texel_offset_pixels':None if offsets is None else list(offsets),
+            'main_texture_size':None if texture is None else list(texture),
             'scalar_input_maximum_rates_per_second':validate_input_rates(request.get('scalar_input_maximum_rates_per_second')),
             'scalar_input_domains':{name:list(span) for name,span in sorted(domains.items())}}
     if not isinstance(result['reference_profile'],str) or not result['reference_profile']:
@@ -230,6 +240,53 @@ def _affine_radial_feedback(analysis,description,context):
     return affine_radial_feedback(analysis,context,consumed=consumed)
 
 
+def _curve_feedback_relations(analysis,description,context,evidence):
+    from fractions import Fraction
+    from source_curve_feedback_relation import curve_feedback_relation
+    from source_curve_projection import _exact,_span,_enclosure
+    components=[]
+    for element in description.get('elements',[]):
+        recipe=element.get('parameters',{}).get('source_curve_recipe')
+        if recipe is None:continue
+        identity=element['id']
+        projection=evidence['curve_projection']['by_component'].get(identity,{})
+        selection={'policy':'source-sample-midpoint-diagnostic-v1','source_sample':.5,
+                   'declared_feedback_step_counts':[1,4,16],
+                   'is_typical_or_observed':False,'native_vertex_attainment_verified':False,
+                   'scope':'declared continuous source-sample reference, not displayed dominance or a whole-curve trajectory'}
+        try:
+            coefficients={key:_exact(value) for key,value in recipe['radius_affine_coefficients_exact'].items()}
+            time=None
+            if coefficients['time']!=0:
+                time=_span(projection.get('source_time_domain'))[0]
+                selection['declared_source_time_reference']=float(time)
+            radius=2*(coefficients['constant']+coefficients['sample']*Fraction(1,2)+
+                      coefficients['time']*(0 if time is None else time))
+            relation_context={'source_radius_domain':_enclosure((radius,radius)),
+                              'feedback_fps':context['feedback_fps'],
+                              'feedback_step_counts':selection['declared_feedback_step_counts']}
+            if time is not None:relation_context['local_source_time_domain']=_enclosure((time,time))
+            row=curve_feedback_relation(recipe,projection,evidence['affine_radial_feedback'],
+                description.get('feedback_envelope',{}),context=relation_context)
+        except (ValueError,KeyError,OverflowError,ZeroDivisionError) as error:
+            row={'policy':'source-curve-feedback-relation-v1','status':'unknown',
+                 'unknown_reasons':[str(error)],'actual_trail_thickness_pixels':None,
+                 'final_visible_density':None,'whole_preset_activity_credit':False,
+                 'uses_equation_execution':False,'uses_rendered_images':False}
+        components.append({**row,'component_id':identity,'reference_selection':selection})
+    return {'policy':'source-curve-feedback-export-v1','components':components,
+            'by_component':{row['component_id']:row for row in components},
+            'uses_equation_execution':False,'uses_rendered_images':False,
+            'native_numeric_certified':False,'whole_preset_activity_credit':False}
+
+
+def _radial_uv_envelope(evidence,context):
+    from source_radial_uv_envelope import radial_uv_envelope
+    declared={'viewport':context['viewport'],'texel_offset_pixels':context['texel_offset_pixels']}
+    if context['main_texture_size'] is not None:declared['texture_size']=context['main_texture_size']
+    return radial_uv_envelope(evidence['affine_radial_feedback'],declared)
+
+
 def static_behaviour(analysis,description,context=None):
     from effect_families import _CACHE,_SemanticBudget
     from source_flash_behaviour import flash_evidence
@@ -249,7 +306,8 @@ def static_behaviour(analysis,description,context=None):
                                              'source_blur_propagation.py','source_colour_modulus.py',
                                              'source_shape_state_domains.py','source_proofs_worker.py',
                                              'source_stochastic_brightness.py','source_parametric_wave.py',
-                                             'source_curve_projection.py','source_affine_radial_feedback.py']},
+                                             'source_curve_projection.py','source_affine_radial_feedback.py',
+                                             'source_curve_feedback_relation.py','source_radial_uv_envelope.py']},
                 'uses_rendered_images':False,'uses_shader_execution':False,'uses_equation_execution':False,
                 'native_numeric_certified':False,'appearance_accuracy_verified':False}
         result['producer_failures']={}
@@ -269,6 +327,10 @@ def static_behaviour(analysis,description,context=None):
         result['curve_projection']=produce('curve_projection',_curve_projections,arguments,{'by_component':{},'components':[]})
         result['affine_radial_feedback']=produce('affine_radial_feedback',_affine_radial_feedback,arguments,
             {'native_numeric_certified':False,'visible_motion_speed':None,'whole_preset_activity_credit':False})
+        result['curve_feedback_relation']=produce('curve_feedback_relation',_curve_feedback_relations,
+            (*arguments,result),{'by_component':{},'components':[]})
+        result['radial_uv_envelope']=produce('radial_uv_envelope',_radial_uv_envelope,(result,normalized),
+            {'coordinate_wrap_possible':None,'linear_filter_footprint_edge_crossing_possible':None})
         result['flashing']=produce('flashing',flash_evidence,arguments,
             {'records':[],'source_hazards':[{'stage':'composite','reason':'flashing producer incomplete'}]})
         result['motion']=produce('motion',motion_evidence,arguments,

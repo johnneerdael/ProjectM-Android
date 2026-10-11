@@ -70,6 +70,46 @@ def test_actual_zylot_spiral_exports_radius_phase_colour_and_source_motion():
     assert recipe['source_provenance']['preset_sha256']==hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def test_joint_rgb_spatial_period_preserves_channel_correlation_without_flash_claims():
+    from source_material_temporal import PERIOD
+    recipe,_=control(SPIRAL+'r=.5+25*sample;g=.5+15*sample;b=.5+5*sample;')
+    joint=recipe['spatial_vertex_colour']['joint_rgb_spatial_pattern']
+    assert joint['status']=='nominal_rgb_modulo_congruence'
+    assert joint['signed_channel_windings']=={'r':5,'g':3,'b':1}
+    period=joint['nominal_joint_period_sample_exact']
+    exact=Fraction(int(period['numerator']),int(period['denominator']))
+    assert exact==Fraction(PERIOD)/5
+    assert joint['nominal_joint_period_sample']==pytest.approx(PERIOD/5)
+    assert joint['temporal_flash_frequency_hz'] is None
+    assert joint['reached_palette_verified'] is False
+
+
+def test_joint_rgb_period_handles_signed_fractional_slopes_and_fixed_time_offsets():
+    from source_material_temporal import PERIOD
+    recipe,_=control(SPIRAL+'r=.5+.125*sample+time;g=.2-.375*sample;b=.1;')
+    joint=recipe['spatial_vertex_colour']['joint_rgb_spatial_pattern']
+    assert joint['signed_channel_windings']=={'r':1,'g':-3,'b':0}
+    assert joint['nominal_joint_period_sample']==pytest.approx(8*PERIOD)
+    assert joint['fixed_source_time_required'] is True
+    assert joint['native_numeric_certified'] is False
+    assert joint['native_periodicity_verified'] is False
+    # Euclidean congruence does not imply signed native fmod equality when
+    # translating a negative channel through zero.
+    assert math.fmod(-.2,PERIOD)!=pytest.approx(math.fmod(-.2+PERIOD,PERIOD))
+    assert any('across zero' in rule for rule in joint['conditions'])
+
+
+def test_joint_rgb_pattern_does_not_invent_a_period_for_uniform_or_unknown_channels():
+    uniform,_=control(SPIRAL+'r=.1+time;g=.2;b=.3;')
+    joint=uniform['spatial_vertex_colour']['joint_rgb_spatial_pattern']
+    assert joint['status']=='uniform_over_source_sample'
+    assert joint['nominal_joint_period_sample'] is None
+    unknown,_=control(SPIRAL+'r=sin(sample);g=.2;b=.3;')
+    joint=unknown['spatial_vertex_colour']['joint_rgb_spatial_pattern']
+    assert joint['status']=='unknown'
+    assert joint['nominal_joint_period_sample'] is None
+
+
 def test_constant_nonzero_radius_is_a_nominal_circle_and_cos_sin_reverses_orientation():
     recipe,_=control('p=sample*7-time*2;x=.4+.2*cos(p);y=.6+.2*sin(p);')
     assert recipe['curve_class']=='circle_candidate'
