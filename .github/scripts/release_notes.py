@@ -167,12 +167,12 @@ def downloader_code(readme: str) -> str:
     return match.group(1)
 
 
-def android_downloader_code(readme: str) -> str | None:
+def android_downloader_code(readme: str, required: bool = False) -> str | None:
     # Historical README revisions contain only the TV code; keep their footer usable.
     match = re.search(r"^>\s*\*\*Install on your phone or tablet with the Downloader app:\s*code\s+`(\d+)`\*\*\s*$", readme, re.MULTILINE)
     if match:
         return match.group(1)
-    if "Install on your phone or tablet with the Downloader app" in readme:
+    if required or "Install on your phone or tablet with the Downloader app" in readme:
         raise ValueError("README.md must contain a valid canonical Android Downloader blockquote and code.")
     return None
 
@@ -182,7 +182,9 @@ def install_footer(repo: str, version: str, previous_tag: str | None, readme: st
     release = f"{base}/releases/download/v{version}"
     latest = f"{base}/releases/latest/download"
     changelog = f"{base}/compare/{previous_tag}...v{version}" if previous_tag else f"{base}/commits/v{version}"
-    android_code = android_downloader_code(readme)
+    # v2.3.37 shipped before the Android Downloader code was added to the README.
+    # Later releases must not silently lose the phone install instructions.
+    android_code = android_downloader_code(readme, required=tuple(map(int, version.split("."))) >= (2, 3, 38))
     phone_install = (
         f"\n\nInstall on your phone or tablet with the Downloader app: code `{android_code}`. "
         "Get [Downloader by AFTVnews from Google Play]"

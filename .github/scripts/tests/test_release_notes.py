@@ -223,8 +223,14 @@ Co-Authored-By: Agent <agent@example.org>
         with self.assertRaisesRegex(ValueError, "Android Downloader"):
             notes.install_footer("johnneerdael/ProjectM-TV", "2.3.38", None, readme)
 
+    def test_current_release_requires_android_block_even_when_deleted_or_renamed(self):
+        for version in ("2.3.38", "2.3.100", "2.4.0", "3.0.0"):
+            for suffix in ("", "> **Install on Android with Downloader: code `1234567`**\n"):
+                with self.subTest(version=version, suffix=suffix), self.assertRaisesRegex(ValueError, "Android Downloader"):
+                    notes.install_footer("johnneerdael/ProjectM-TV", version, None, README + suffix)
+
     def test_legacy_readme_does_not_invent_an_android_downloader_code(self):
-        result = notes.install_footer("johnneerdael/ProjectM-TV", "2.3.38", None, README)
+        result = notes.install_footer("johnneerdael/ProjectM-TV", "2.3.37", None, README)
         self.assertNotIn("Install on your phone or tablet with the Downloader app", result)
         self.assertIn("projectM-Android.apk", result)
 

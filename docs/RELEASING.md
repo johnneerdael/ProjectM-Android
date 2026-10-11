@@ -99,7 +99,7 @@ For changes with no user-visible effect, use an `Internal` subsection and explai
 
 The workflow collects merged PR sections since the previous reachable version tag. Historical PRs before this automation use their existing change descriptions without validation/checklist/badge sections. Direct commits use their actual descriptions. The generator does not invent claims or use an external AI service.
 
-CI appends install/download information. The canonical TV and Android Downloader codes come from their separate install blockquotes in `README.md`; update the matching blockquote when a code changes. The Android line is omitted for historical README revisions with no Android code. Notes include stable/latest and versioned APK/core URLs, checksums, the user guide and the comparison link. `RELEASE_NOTES.md` remains a human-readable archive rather than being copied into unrelated releases.
+CI appends install/download information. The canonical TV and Android Downloader codes come from their separate install blockquotes in `README.md`; update the matching blockquote when a code changes. For versions before 2.3.38, a historical README may omit the Android block. From 2.3.38 onward, generation requires that block and fails if it is missing or malformed. Notes include stable/latest and versioned APK/core URLs, checksums, the user guide and the comparison link. `RELEASE_NOTES.md` remains a human-readable archive rather than being copied into unrelated releases.
 
 ## Versions and tagged builds
 

@@ -1,6 +1,6 @@
 # Patch catalog
 
-ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus **34 ordered patches** in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
+ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus **35 ordered patches** in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
 
 Most patches are about **MilkDrop 2 authenticity**. projectM is a clean-room reimplementation of MilkDrop on OpenGL, and over the years small differences crept in: in how equation code is accepted, how HLSL becomes GLSL, where Direct3D 9 and OpenGL put pixel centres, and which per-frame variables are actually read. Each entry below names what projectM did differently, what MilkDrop 2 does (citing its released source where we checked it), what the patch changes, and the preset that shows it.
 
