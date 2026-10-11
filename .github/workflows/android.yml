@@ -16,6 +16,22 @@ permissions:
   pull-requests: read
 
 jobs:
+  validate-fdroid-token:
+    name: Validate F-Droid synchronization permissions
+    # Explicitly requested credential check on this trusted owner-created feature branch.
+    # All publication/build jobs below remain main-only.
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feat/fdroid-distribution'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check token scope and fork branch permission without writing
+        env:
+          FDROID_GITLAB_TOKEN: ${{ secrets.FDROID_GITLAB_TOKEN }}
+        run: python3 .github/scripts/validate_fdroid_token.py
+
   build:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/android-build.yml
