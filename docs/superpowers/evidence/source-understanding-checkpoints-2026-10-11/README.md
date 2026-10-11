@@ -44,3 +44,23 @@ are written under `build/preset-corpus/corpus-understanding-9606-r2/`. The
 approximate bands are editable, assumption-based preference groups with
 explicit confidence and abstention; they are not calibrated moods. Strict
 eligible bands remain separate and empty for these presets.
+
+## Whole-pack run and validation (r3, rescored)
+
+The run in `corpus-understanding-9606-r3` computed 9,595 of 9,606 presets (11
+records exceeded the SDK's 500,000-node JSON cap, now 2,000,000). Offline
+rescoring (`--rescore`) with element-scaled audio-brightness priors gives
+`whole-pack-report-r3b.json`: Chill 649, Normal 5,563, Intense 1,072 (overlap
+bands counted in both), 2,705 abstentions (low confidence), 21 high, 6,869
+medium confidence. Strict eligibility remains empty.
+
+`validation/` holds a seeded 30-preset emulator sample (seed 2026101199,
+320×180, declared audio) with observed mean frame difference, mean optical-flow
+speed and global brightness jumps. These observations validate, never feed, the
+source-only estimate. Spearman rank correlation of the approximate activity with
+the combined observed activity: 0.27 (first scorer), 0.36 (audio-brightness
+prior), 0.40 (element-scaled prior); 0.19 on the 14 medium-confidence presets.
+This is weak evidence on a small sample. Known gaps: shader-driven motion
+magnitudes are priors; content that stays dark (one sample displays black
+frames) cannot yet be detected; flashing strength from thresholded audio
+brightness is not separated from clamped colour.

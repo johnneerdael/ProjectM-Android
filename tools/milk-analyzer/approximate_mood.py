@@ -30,7 +30,8 @@ RULES={
     'motion_reference_vp_s':1.0,'flash_reference':0.6,'colour_reference_per_s':1.0,
     'audio_route_step':0.34,'sweep_reference_hz':2.0,
     'prior_shader_motion_vp_s':0.3,'prior_geometry_motion_vp_s':0.15,'prior_audio_geometry_vp_s':0.2,
-    'prior_shader_lookup_motion_vp_s':0.2,
+    'prior_shader_lookup_motion_vp_s':0.2,'prior_audio_brightness_hz_contrast':0.3,
+    'audio_brightness_element_reference':2.0,'audio_brightness_element_cap':6.0,
     'prior_flash_hz_contrast':0.15,
 }
 STATIC='/analysis/visual_description/static_behaviour'
@@ -56,6 +57,7 @@ def _mid(span):
 
 
 AUDIO_CODES={1:'bass',2:'mid',3:'treb',4:'bass',5:'mid',6:'treb'}
+BRIGHTNESS_CONTROLS=('colour','opacity','alpha','brightness','border','gamma','decay')
 KNOWN_PATTERNS={'uniform_zoom','radial_zoom_profile','uniform_rotation','spatially_varying_rotation',
     'uniform_translation','translation_component','planar_travelling_wave','planar_standing_pattern',
     'radial_ring_wave','radial_standing_rings','angular_lobes','angular_modulation_with_seam'}
@@ -72,7 +74,7 @@ def _band(name):
 
 
 def _drivers(summary,rules,fps,scale):
-    drivers=[];priors=set();components_with_evidence={}
+    drivers=[];priors=set();components_with_evidence={};brightness_elements=set()
     def add(dimension,kind,value,path,reason,upper=None,component=None):
         if component:components_with_evidence[component]=True
         if kind=='prior':
@@ -170,10 +172,22 @@ def _drivers(summary,rules,fps,scale):
         elif group=='audio' and '/audio_routes/' in path:
             band=AUDIO_CODES.get(value.get('input_code'))
             if band:add('audio','source',1.0,path,band)
+            control=str(value.get('control') or '')
+            if band and control.startswith(BRIGHTNESS_CONTROLS):
+                # Audio steering brightness/colour pulses with the music (beat-driven flashing);
+                # its displayed contrast is unresolved, so the magnitude is an editable prior.
+                brightness_elements.add(path.split('/audio_routes/')[0])
         elif path.endswith('/classification') and isinstance(value.get('unknown_contributors'),list):
             for row in value['unknown_contributors']:
                 component=row.get('component_id')
                 if component and component!='preset-output':components_with_evidence.setdefault(component,False)
+    if brightness_elements:
+        # More elements pulsing with the music give more and larger brightness
+        # modulation; the per-element magnitude stays an editable prior.
+        count=len(brightness_elements)
+        scale=min(rules['audio_brightness_element_cap'],count)/rules['audio_brightness_element_reference']
+        add('flash','prior',rules['prior_audio_brightness_hz_contrast']*scale,STATIC+'/classification',
+            'audio-driven brightness/colour in '+str(count)+' element'+('s' if count!=1 else ''))
     # A component the strict model could not bound, with no approximate driver
     # (source or prior) of its own, is uncovered evidence.
     for component,covered in components_with_evidence.items():

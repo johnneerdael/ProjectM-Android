@@ -1,0 +1,39 @@
+{
+  "policy": "source-corpus-understanding-v1",
+  "presets": 9606,
+  "status": {
+    "computed": 9595,
+    "error": 11
+  },
+  "approximate_band_counts": {
+    "Chill": 649,
+    "Intense": 1072,
+    "Normal": 5563
+  },
+  "confidence_counts": {
+    "low": 2705,
+    "medium": 6869,
+    "high": 21
+  },
+  "abstained_presets": 2705,
+  "strict_eligible_presets": 0,
+  "activity_histogram": {
+    "0": 11,
+    "10": 607,
+    "20": 1198,
+    "30": 2366,
+    "40": 1252,
+    "50": 1400,
+    "60": 1679,
+    "70": 418,
+    "80": 401,
+    "90": 243,
+    "100": 20
+  },
+  "calibrated": false,
+  "uses_rendered_images": false,
+  "notes": [
+    "Approximate bands are editable assumption-based preference groups, not calibrated moods",
+    "Confidence reflects the share of prior-only drivers; low-confidence presets need more source mathematics"
+  ]
+}

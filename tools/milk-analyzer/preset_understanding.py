@@ -12,7 +12,7 @@ import sys
 
 POLICY = "preset-understanding-v1"
 MAX_BYTES = 32 * 1024 * 1024
-MAX_NODES = 500_000
+MAX_NODES = 2_000_000
 MAX_DEPTH = 128
 FAMILY_LABELS = {
     1: "built-in/custom line waveform",

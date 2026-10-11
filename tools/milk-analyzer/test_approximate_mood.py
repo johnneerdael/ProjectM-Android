@@ -93,3 +93,14 @@ def test_uncovered_strict_component_is_unresolved_but_covered_one_is_not():
     result=approximate_mood(record)
     reasons=[d['reason'] for d in result['drivers'] if d['kind']=='unresolved']
     assert reasons==['no approximate driver for shape_0']
+
+
+def test_audio_route_to_brightness_adds_flash_prior():
+    route=('audio','/analysis/visual_description/elements/2/audio_routes/0',{'input_code':1,'control':'opacity'})
+    motion=('audio','/analysis/visual_description/elements/2/audio_routes/1',{'input_code':1,'control':'position_x'})
+    result=approximate_mood(summary(zoom(-2,-1),route,motion))
+    flash=[d for d in result['drivers'] if d['dimension']=='flash']
+    assert len(flash)==1 and flash[0]['kind']=='prior' and flash[0]['reason']=='audio-driven brightness/colour in 1 element'
+    assert result['components']['flash']>0
+    more=[('audio','/analysis/visual_description/elements/%d/audio_routes/0'%i,{'input_code':1,'control':'colour_r'}) for i in range(5)]
+    assert approximate_mood(summary(zoom(-2,-1),*more))['components']['flash']>result['components']['flash']
