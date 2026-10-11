@@ -76,6 +76,14 @@ Tests passed.
 
 
 class GenerationTests(unittest.TestCase):
+    def test_fdroid_downloads_are_explicit_and_do_not_rewrite_historical_footer(self):
+        readme = README + "> **Install on your phone or tablet with the Downloader app: code `6565691`**\n"
+        historical = notes.install_footer("owner/repo", "2.3.39", None, readme)
+        self.assertNotIn("FDroid", historical)
+        result = notes.install_footer("owner/repo", "2.3.39", None, readme, with_fdroid=True)
+        for name in ("projectM-TV-FDroid-2.3.39.apk", "projectM-Android-FDroid.apk", "cream-of-the-crop-2.3.39.zip"):
+            self.assertIn(name, result)
+
     def test_historical_pr15_plain_validation_and_ai_badges_do_not_leak(self):
         body = """Prevents freezes while loading shaders with self-referencing macros and crashes from custom waveform audio reads while retaining the projectM 4.1.7 pin.
 

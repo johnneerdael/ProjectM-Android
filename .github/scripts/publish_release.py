@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import zipfile
 
 
 def version_tuple(value):
@@ -43,7 +44,7 @@ def tag_commit(repo, tag, api):
     return obj["sha"]
 
 
-def publish(repo, version, sha, notes, assets_dir, api=github_api, command=run, with_touchscreen=False):
+def publish(repo, version, sha, notes, assets_dir, api=github_api, command=run, with_touchscreen=False, with_fdroid=False):
     version_tuple(version)
     if not re.fullmatch(r"[\w.-]+/[\w.-]+", repo) or not re.fullmatch(r"[0-9a-f]{40}", sha):
         raise ValueError("invalid repository or source commit")
@@ -57,9 +58,33 @@ def publish(repo, version, sha, notes, assets_dir, api=github_api, command=run, 
     mapping = f"projectM-TV-{version}-mapping.txt"
     if with_touchscreen:
         pairs.append((f"projectM-Android-{version}.apk", "projectM-Android.apk"))
+    if with_fdroid:
+        if not with_touchscreen:
+            raise ValueError('F-Droid publication requires both device editions')
+        for target in ('TV', 'Android'):
+            pairs.append((f'projectM-{target}-FDroid-{version}.apk',f'projectM-{target}-FDroid.apk'))
     names = [name for pair in pairs for name in pair] + [mapping]
     if with_touchscreen:
         names.append(f"projectM-Android-{version}-mapping.txt")
+    if with_fdroid:
+        names.extend(f'projectM-{target}-FDroid-{version}-mapping.txt' for target in ('TV','Android'))
+        archive_name=f'cream-of-the-crop-{version}.zip'
+        names.extend([archive_name,'release-version.json'])
+        metadata=json.loads((assets_dir/'release-version.json').read_text())
+        if (metadata.get('schema_version')!=1 or metadata.get('version')!=version or
+                metadata.get('tag')!=f'v{version}' or metadata.get('source_sha')!=sha or
+                type(metadata.get('version_code')) is not int or not 1<=metadata['version_code']<=2100000000):
+            raise ValueError('release metadata differs from built source/version')
+        archive=assets_dir/archive_name
+        archive_sha=hashlib.sha256(archive.read_bytes()).hexdigest()
+        for target in ('TV','Android'):
+            with zipfile.ZipFile(assets_dir/f'projectM-{target}-FDroid-{version}.apk') as apk:
+                descriptor=json.loads(apk.read('assets/official-pack.json'))
+                selection=json.loads(apk.read('assets/starter-selection.json'))
+            if selection.get('status')!='qualified':raise ValueError('starter selection must be runtime qualified')
+            if (descriptor.get('collection_id')!=metadata.get('collection_id') or
+                    descriptor.get('archive_sha256')!=archive_sha or descriptor.get('compressed_bytes')!=archive.stat().st_size):
+                raise ValueError('official archive does not match the F-Droid APK descriptor')
     digests = {name: hashlib.sha256((assets_dir / name).read_bytes()).hexdigest() for name in names}
     for versioned, alias in pairs:
         if versioned in digests and alias in digests and digests[versioned] != digests[alias]:
@@ -126,15 +151,26 @@ def main():
     publish_parser.add_argument("--output", type=Path)
     publish_parser.add_argument("--with-touchscreen", action="store_true",
                                 help="Require both TV and touchscreen APKs and mappings")
+    publish_parser.add_argument('--with-fdroid',action='store_true',help='Require four editions, collection and release metadata')
+    manifest_parser=subcommands.add_parser('manifest')
+    manifest_parser.add_argument('--version',required=True);manifest_parser.add_argument('--version-code',type=int,required=True)
+    manifest_parser.add_argument('--sha',required=True);manifest_parser.add_argument('--collection-lock',type=Path,required=True)
+    manifest_parser.add_argument('--output',type=Path,required=True)
     milkbeat_parser = subcommands.add_parser("milkbeat")
     milkbeat_parser.add_argument("--version", required=True)
     args = parser.parse_args()
     if args.action == "publish":
-        result = publish(args.repo, args.version, args.sha, args.notes, args.assets_dir, with_touchscreen=args.with_touchscreen)
+        result = publish(args.repo, args.version, args.sha, args.notes, args.assets_dir, with_touchscreen=args.with_touchscreen,with_fdroid=args.with_fdroid)
         if args.output:
             with args.output.open("a", encoding="utf-8") as stream:
                 stream.write(f"url={result['url']}\n")
         print(json.dumps(result))
+    elif args.action=='manifest':
+        stable=args.version.split('-ci.',1)[0];version_tuple(stable)
+        if not re.fullmatch('[0-9a-f]{40}',args.sha) or not 1<=args.version_code<=2100000000:raise ValueError('Invalid release identity')
+        lock=json.loads(args.collection_lock.read_text())
+        result={'schema_version':1,'version':stable,'version_code':args.version_code,'tag':'v'+stable,'source_sha':args.sha,'collection_id':lock['collection_id']}
+        args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(result,sort_keys=True,separators=(',',':'))+'\n')
     else:
         version_tuple(args.version)
         if not os.environ.get("GH_TOKEN"):

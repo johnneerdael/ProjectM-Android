@@ -85,7 +85,7 @@ jobs:
         run: >-
           python3 .github/scripts/release_notes.py generate
           --checkout . --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA"
-          --version "$VERSION" --previous-tag "$PREVIOUS_TAG" --output notes.md
+          --version "$VERSION" --previous-tag "$PREVIOUS_TAG" --output notes.md --with-fdroid
 
       - name: Publish complete signed artifacts
         env:
@@ -93,13 +93,17 @@ jobs:
           VERSION: ${{ needs.build.outputs.version }}
           APK_NAME: ${{ needs.build.outputs.apk_name }}
           ANDROID_APK_NAME: ${{ needs.build.outputs.android_apk_name }}
+          FDROID_TV_APK_NAME: ${{ needs.build.outputs.fdroid_tv_apk_name }}
+          FDROID_ANDROID_APK_NAME: ${{ needs.build.outputs.fdroid_android_apk_name }}
           AAR_NAME: ${{ needs.build.outputs.aar_name }}
         run: |
           cp "dist/$APK_NAME" dist/projectM-TV.apk
           cp "dist/$ANDROID_APK_NAME" dist/projectM-Android.apk
+          cp "dist/$FDROID_TV_APK_NAME" dist/projectM-TV-FDroid.apk
+          cp "dist/$FDROID_ANDROID_APK_NAME" dist/projectM-Android-FDroid.apk
           cp "dist/$AAR_NAME" dist/projectM-TV-core.aar
           python3 .github/scripts/publish_release.py publish --repo "$GITHUB_REPOSITORY" \
-            --version "$VERSION" --sha "$GITHUB_SHA" --notes notes.md --assets-dir dist --with-touchscreen
+            --version "$VERSION" --sha "$GITHUB_SHA" --notes notes.md --assets-dir dist --with-touchscreen --with-fdroid
 
   milkbeat:
     name: Rebuild Milkbeat with this core

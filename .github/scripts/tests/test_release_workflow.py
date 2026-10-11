@@ -15,7 +15,7 @@ def packaging_scripts(release):
     text = WORKFLOW.read_text().split("\n  apk:\n", 1)[1]
     for match in re.finditer(r"^      - name: ([^\n]+)\n(.*?)(?=^      - |\Z)", text, re.M | re.S):
         name, block = match.groups()
-        if not (name.startswith("Build release APK") or name == "Name APK" or "core AAR" in name or name in ("Build release APK for touchscreen Android", "Name Android APK")):
+        if not (name.startswith("Build release APK") or name == "Name APK" or "core AAR" in name or name in ("Build release APK for touchscreen Android", "Name Android APK", "Name F-Droid TV APK", "Name F-Droid Android APK")):
             continue
         run = re.search(r"^        run: (.+)$", block, re.M)
         if run is None:
@@ -39,9 +39,10 @@ class ArtifactPackagingTests(unittest.TestCase):
 import sys
 from pathlib import Path
 policy = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('-PprojectmCoreRenderingPolicy=')), 'native')
+fdroid = '-PprojectmDistribution=fdroid' in sys.argv
 core = Path('core/build/outputs/aar/core-release.aar')
 core.parent.mkdir(parents=True, exist_ok=True)
-core.write_bytes((policy + ' engine').encode())
+core.write_bytes((policy + (' starter engine' if fdroid else ' engine')).encode())
 if any(a.endswith('assembleRelease') for a in sys.argv):
     apk = Path('app/build/outputs/apk/release/app-release.apk')
     apk.parent.mkdir(parents=True, exist_ok=True)
@@ -50,6 +51,15 @@ if any(a.endswith('assembleRelease') for a in sys.argv):
     mapping = Path('app/build/outputs/mapping/release/mapping.txt')
     mapping.parent.mkdir(parents=True, exist_ok=True)
     mapping.write_text('touch mapping' if touch else 'native mapping')
+if fdroid:
+    touch = '-PandroidTouchscreen=true' in sys.argv
+    flavor = 'fdroidAndroid' if touch else 'fdroidTv'
+    apk = Path('app/build/outputs/apk') / flavor / 'release' / ('app-' + flavor + '-release.apk')
+    apk.parent.mkdir(parents=True, exist_ok=True)
+    apk.write_bytes((policy + (' touch fdroid apk' if touch else ' fdroid apk')).encode())
+    mapping = Path('app/build/outputs/mapping') / (flavor + 'Release') / 'mapping.txt'
+    mapping.parent.mkdir(parents=True, exist_ok=True)
+    mapping.write_text('fdroid touch mapping' if touch else 'fdroid tv mapping')
 """)
                 (root / "gradlew").chmod(0o755)
                 fake_bin = root / "bin"
@@ -68,7 +78,10 @@ if any(a.endswith('assembleRelease') for a in sys.argv):
                 self.assertEqual((root / f"dist/projectM-Android-2.1.5{suffix}.apk").read_bytes(), b"native touch apk")
                 self.assertEqual((root / f"dist-mapping/projectM-TV-2.1.5{suffix}-mapping.txt").read_text(), "native mapping")
                 self.assertEqual((root / f"dist-mapping/projectM-Android-2.1.5{suffix}-mapping.txt").read_text(), "touch mapping")
-                self.assertEqual(len(list((root / "dist").glob("*.apk"))), 2)
+                self.assertTrue((root / f"dist/projectM-TV-FDroid-2.1.5{suffix}.apk").exists(),'F-Droid edition missing from staging')
+                self.assertEqual((root / f"dist/projectM-TV-FDroid-2.1.5{suffix}.apk").read_bytes(),b'native fdroid apk')
+                self.assertEqual((root / f"dist/projectM-Android-FDroid-2.1.5{suffix}.apk").read_bytes(),b'native touch fdroid apk')
+                self.assertEqual(len(list((root / "dist").glob("*.apk"))), 4)
                 self.assertEqual(len(list((root / "dist-aar").glob("*.aar"))), 1)
 
 

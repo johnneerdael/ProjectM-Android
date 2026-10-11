@@ -5,6 +5,9 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import inspect
+import zipfile
+import subprocess
 
 spec = importlib.util.spec_from_file_location("publish_release", Path(__file__).parents[1] / "publish_release.py")
 module = importlib.util.module_from_spec(spec)
@@ -50,6 +53,63 @@ class PublishTests(unittest.TestCase):
 
     def publish(self, api, with_touchscreen=True):
         return module.publish("owner/repo", "2.1.5", "a" * 40, self.notes, self.root, api, self.commands.append, with_touchscreen=with_touchscreen)
+
+    def fdroid_assets(self):
+        self.assertIn('with_fdroid',inspect.signature(module.publish).parameters,'four-edition publication is missing')
+        archive=self.root/'cream-of-the-crop-2.1.5.zip';archive.write_bytes(b'verified collection archive')
+        identity='c'*64
+        descriptor={'collection_id':identity,'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'compressed_bytes':archive.stat().st_size}
+        for target in ['TV','Android']:
+            versioned=self.root/f'projectM-{target}-FDroid-2.1.5.apk'
+            with zipfile.ZipFile(versioned,'w') as z:
+                z.writestr('assets/official-pack.json',json.dumps(descriptor));z.writestr('assets/starter-selection.json',json.dumps({'status':'qualified'}))
+            (self.root/f'projectM-{target}-FDroid.apk').write_bytes(versioned.read_bytes())
+            (self.root/f'projectM-{target}-FDroid-2.1.5-mapping.txt').write_text('fdroid mapping')
+        (self.root/'release-version.json').write_text(json.dumps({'schema_version':1,'version':'2.1.5','version_code':17,'tag':'v2.1.5','source_sha':'a'*40,'collection_id':identity}))
+
+    def test_four_editions_publish_matching_collection_and_version_metadata(self):
+        self.fdroid_assets();api=FakeAPI()
+        module.publish('owner/repo','2.1.5','a'*40,self.notes,self.root,api,self.commands.append,with_touchscreen=True,with_fdroid=True)
+        uploaded=self.commands[0]
+        self.assertIn(str(self.root/'release-version.json'),uploaded)
+        self.assertIn(str(self.root/'cream-of-the-crop-2.1.5.zip'),uploaded)
+        self.assertIn(str(self.root/'projectM-Android-FDroid-2.1.5.apk'),uploaded)
+
+    def test_wrong_fdroid_archive_digest_cannot_publish(self):
+        self.fdroid_assets();(self.root/'cream-of-the-crop-2.1.5.zip').write_bytes(b'wrong')
+        api=FakeAPI()
+        with self.assertRaisesRegex(ValueError,'archive'):
+            module.publish('owner/repo','2.1.5','a'*40,self.notes,self.root,api,self.commands.append,with_touchscreen=True,with_fdroid=True)
+        self.assertFalse(api.calls)
+
+    def test_unqualified_or_wrong_source_metadata_rejected(self):
+        self.fdroid_assets();metadata=json.loads((self.root/'release-version.json').read_text());metadata['source_sha']='b'*40
+        (self.root/'release-version.json').write_text(json.dumps(metadata));api=FakeAPI()
+        with self.assertRaisesRegex(ValueError,'metadata'):
+            module.publish('owner/repo','2.1.5','a'*40,self.notes,self.root,api,self.commands.append,with_touchscreen=True,with_fdroid=True)
+        self.assertFalse(api.calls)
+
+    def test_candidate_selection_cannot_be_published(self):
+        self.fdroid_assets()
+        versioned=self.root/'projectM-TV-FDroid-2.1.5.apk'
+        with zipfile.ZipFile(versioned) as apk:
+            descriptor=apk.read('assets/official-pack.json')
+        with zipfile.ZipFile(versioned,'w') as apk:
+            apk.writestr('assets/official-pack.json',descriptor)
+            apk.writestr('assets/starter-selection.json',json.dumps({'status':'candidate'}))
+        api=FakeAPI()
+        with self.assertRaisesRegex(ValueError,'qualified'):
+            module.publish('owner/repo','2.1.5','a'*40,self.notes,self.root,api,self.commands.append,with_touchscreen=True,with_fdroid=True)
+        self.assertFalse(api.calls)
+
+    def test_release_metadata_cli_carries_explicit_built_identity(self):
+        lock=self.root/'lock.json';lock.write_text(json.dumps({'collection_id':'c'*64}))
+        output=self.root/'release-version.json'
+        subprocess.run([sys.executable,str(Path(module.__file__)),'manifest','--version','2.3.39-ci.42',
+                        '--version-code','88','--sha','a'*40,'--collection-lock',str(lock),'--output',str(output)],check=True)
+        metadata=json.loads(output.read_text())
+        self.assertEqual(metadata['source_sha'],'a'*40)
+        self.assertEqual((metadata['version'],metadata['version_code'],metadata['tag']),('2.3.39',88,'v2.3.39'))
 
     def test_uploads_all_artifacts_before_publishing_the_draft(self):
         api = FakeAPI(latest={"tag_name": "v2.1.4"})
