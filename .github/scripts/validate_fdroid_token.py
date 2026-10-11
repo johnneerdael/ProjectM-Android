@@ -33,7 +33,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fork',default='johnneerdael/fdroiddata');args=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fork',default='johnneerdael/fdroiddata');parser.add_argument('--diagnose',action='store_true');args=parser.parse_args()
     credential=os.environ.get('FDROID_GITLAB_TOKEN','')
     if not credential:raise SystemExit('FDROID_GITLAB_TOKEN is missing')
     opener=urllib.request.build_opener(NoRedirect())
@@ -41,8 +41,18 @@ def main():
         request=urllib.request.Request('https://gitlab.com/api/v4/'+endpoint,headers={'PRIVATE-TOKEN':credential,'Accept':'application/json'})
         try:
             with opener.open(request,timeout=30) as response:return json.load(response)
-        except urllib.error.HTTPError as error:raise ValueError(f'GitLab permission check failed with HTTP {error.code}') from None
+        except urllib.error.HTTPError as error:raise ValueError(f'GitLab {endpoint} returned HTTP {error.code} ({error.headers.get("Content-Type", "unknown content type")})') from None
         except urllib.error.URLError:raise ValueError('GitLab permission check could not reach the API') from None
+    if args.diagnose:
+        results={}
+        for endpoint in ['user','personal_access_tokens/self','projects/'+urllib.parse.quote(args.fork,safe=''),'projects/fdroid%2Ffdroiddata/merge_requests/50236']:
+            try:
+                result=api(endpoint)
+                results[endpoint]={'reachable':True}
+                if endpoint=='personal_access_tokens/self':results[endpoint].update(scopes=result.get('scopes'),active=result.get('active'),revoked=result.get('revoked'))
+                if endpoint.startswith('projects/') and '/merge_requests/' not in endpoint:results[endpoint].update(project_id=result.get('id'),permissions=result.get('permissions'))
+            except ValueError as error:results[endpoint]={'reachable':False,'error':str(error)}
+        print(json.dumps(results,sort_keys=True))
     try:print(json.dumps(validate(args.fork,api),sort_keys=True))
     except ValueError as error:raise SystemExit(str(error)) from None
 

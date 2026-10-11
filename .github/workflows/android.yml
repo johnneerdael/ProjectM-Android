@@ -30,7 +30,7 @@ jobs:
       - name: Check token scope and fork branch permission without writing
         env:
           FDROID_GITLAB_TOKEN: ${{ secrets.FDROID_GITLAB_TOKEN }}
-        run: python3 .github/scripts/validate_fdroid_token.py
+        run: python3 .github/scripts/validate_fdroid_token.py --diagnose
 
   build:
     if: github.ref == 'refs/heads/main'
