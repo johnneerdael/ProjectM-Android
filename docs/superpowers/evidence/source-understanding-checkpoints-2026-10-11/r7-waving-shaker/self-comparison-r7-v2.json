@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "suksma - Aderrasi - The Waving Shaker - unbelievable talk - i'd k him now if.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r7-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "e08359827b95e1b0153e28b95204efa7b0e31ed667e826984a05354077c56ba1",
+  "recipe-v2-before-capture.json": "cc61e660642c91f8986e2857e2b7a1b015a66025bb2296b0dae5e0d4552dacd5",
+  "description-v2-before-capture.json": "967d6d434032f54e5963c8e157dba91754666d612552ac23a7cf64f5fd2b54a9",
+  "prediction-v2.png": "86caff7b43225b5c7e60ed71e59ec97ad10cb249ebf30b2e6ee2a2bc32708e3e"
+ },
+ "capture_result_sha256": "17b5ddaf10f000c30907a531eda02c00a2a675cb57d0cfff40105352a50b4c3e",
+ "review_measurements": {
+  "prediction": {
+   "luma": 0.185,
+   "saturation": 0.0
+  },
+  "native_frames_60_149_240": {
+   "luma": [
+    0.343,
+    0.314,
+    0.336
+   ],
+   "saturation": 0.0
+  }
+ },
+ "agreements": [
+  "Grayscale (saturation 0), web of blurred streaking lines, horizontal waveform, zooming copies"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "About half as bright; native has crisper bright lines",
+   "cause": "Q uniforms held at 0 (q1..q32 drive vb/vm/vt mixes); blur levels approximated by Gaussians; wave alignment omitted"
+  }
+ ],
+ "status": "character understood; brightness half"
+}

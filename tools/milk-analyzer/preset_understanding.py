@@ -119,7 +119,7 @@ def summarize_preset(record):
             fact("context", STATIC + "/" + key, static[key], "Declared source-analysis context; not a device observation")
     for key in ('feedback_envelope','feedback_transfer','feedback_colour_sensitivity',
                 'native_warp_recipe','native_warp_transport','native_radial_zoom','native_warp_displacement',
-                'texture_colour_transfer'):
+                'texture_colour_transfer','stage_programs'):
         if key in appearance:
             fact('feedback',BASE+'/'+key,appearance[key],
                  'Conditional history-colour or sampling operator; source injection/storage/final appearance remain separate')

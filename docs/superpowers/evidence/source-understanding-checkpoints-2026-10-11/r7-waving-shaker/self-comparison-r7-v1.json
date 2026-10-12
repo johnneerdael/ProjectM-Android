@@ -1,0 +1,34 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "suksma - Aderrasi - The Waving Shaker - unbelievable talk - i'd k him now if.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r7-v1",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "description-v1-before-capture.json": "b01e02da1c810c5a3dbfe8864f16da0fe781bfb7165c39f96f9705bbc256c6f2",
+  "recipe-v1-before-capture.json": "cc61e660642c91f8986e2857e2b7a1b015a66025bb2296b0dae5e0d4552dacd5",
+  "prediction-v1.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction-v1.json": "8464206e094cbc9881d30a6393c62b4437fa38801f254b59d69e8dfea10e36f6"
+ },
+ "capture_result_sha256": "41bac78f27699e6527b7dba3d88ac1cb2bdf42e22544162945c5ae082ed5ccc8",
+ "review_measurements": {
+  "prediction_luma": 0.0,
+  "native_luma_frames_60_149_240": [
+   0.343,
+   0.314,
+   0.336
+  ]
+ },
+ "agreements": [
+  "Grayscale built-in wave; smooth"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Prediction black; native grayscale web of streaking lines around a moving horizontal waveform",
+   "cause": "built-in waveform modes not drawn; nonlinear warp (ret*|blur2-.5|*5) and loop composite (4 rotated zooming copies) had no evaluable representation",
+   "general_fix": "builtin_wave_geometry: projectM modes 0-9 from declared reference PCM windows; source_stage_program: warp/composite returned-RGB graphs exported with sample nodes and loop plans, evaluated per pixel with grid_math.evaluate_grid (shader_uniforms layout, Q=0)"
+  }
+ ]
+}

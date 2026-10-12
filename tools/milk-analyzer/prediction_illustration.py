@@ -290,11 +290,48 @@ def _backward_map(mesh,width,height):
     return sample
 
 
+def _builtin_wave_dynamic(facts):
+    """Built-in waves drawable per frame from declared PCM (modes 0-9 except 8)."""
+    rows=[]
+    for path,value in facts.items():
+        if not path.endswith('/waveform_recipe') or not isinstance(value,dict):continue
+        mode=value.get('effective_mode')
+        if type(mode) not in (int,float) or int(mode)%16 in (8,10,11,12,13,14,15):continue
+        rows.append((path,value))
+    return rows
+
+
+def _builtin_wave_frame(recipe,frame_time,frame_index,bands,viewport):
+    """Per-frame built-in wave polylines (NDC) from the declared reference PCM window."""
+    from builtin_wave_geometry import vertices,reference_windows
+    from time_expression import evaluate_inputs
+    windows=_REFERENCE_WINDOWS.get('data')
+    if windows is None:windows=_REFERENCE_WINDOWS['data']=reference_windows()
+    window=windows[min(len(windows)-1,max(0,frame_index))]
+    controls=recipe.get('control_expressions') or {}
+    def control(name,default):
+        expression=controls.get(name)
+        if expression:
+            try:return evaluate_inputs(expression,{'time':frame_time,**bands})
+            except (ValueError,KeyError,TypeError):pass
+        value=recipe.get(name)
+        return float(value) if type(value) in (int,float) else default
+    pre=recipe.get('preprocess') or {}
+    return vertices(int(recipe['effective_mode']),left=window,wave_x=control('wave_x',.5),wave_y=control('wave_y',.5),
+                    mystery=control('wave_mystery',0.),scale=float(pre.get('wave_scale') or 1.),
+                    smoothing=float(pre.get('wave_smoothing') or 0.),time=frame_time,viewport=viewport)
+
+
+_REFERENCE_WINDOWS={}
+
+
 def _builtin_wave_paths(facts,aspect):
     """Built-in waveform centre-lines in EEL coordinates, without audio wiggle."""
     paths=[];limitations=[]
+    dynamic={path for path,_ in _builtin_wave_dynamic(facts)}
     for path,value in facts.items():
         if not path.endswith('/waveform_recipe') or not isinstance(value,dict):continue
+        if path in dynamic:continue
         form=value.get('form_name')
         if form=='two_channel_parallel_traces' and value.get('line_angle_rad') is not None:
             angle=value['line_angle_rad'];offset=value.get('separation_normal_offset') or 0.0
@@ -678,21 +715,28 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
 
 
 def _field_from_expression(expression):
-    """Rebuild an exported {'root','nodes'} graph as shader_fields.Field objects."""
-    from shader_fields import Field
+    """Rebuild an exported {'root','nodes'[,'plans']} graph as shader_fields.Field objects (with LoopPlans)."""
+    from shader_fields import Field,LoopPlan
     nodes=expression['nodes'];built={}
+    plans=[LoopPlan(tuple(p['names']),iteration_limit=int(p.get('iteration_limit',1024))) for p in expression.get('plans') or []]
     def build(index):
         if index in built:return built[index]
         node=nodes[index];detail=dict(node.get('detail') or {})
-        # The export keeps member fields but not the swizzle flag; xyzw/rgba fields are swizzles.
+        # The export keeps member fields but not always the swizzle flag; xyzw/rgba fields are swizzles.
         if node['op']=='member' and isinstance(detail.get('field'),str) and detail['field'] and set(detail['field'])<=set('xyzwrgba'):
             detail['swizzle']=True
+        if 'plan_ref' in detail:detail['plan']=plans[detail.pop('plan_ref')]
         op=node['op']
         # 'narrow' is the native double->float32 upload; the grid evaluator stores float32, so a cast suffices.
         if op=='narrow':op='cast'
         built[index]=Field(op,tuple(build(a) for a in node['args']),node.get('dtype','float'),detail)
         return built[index]
-    return build(expression['root'])
+    root=build(expression['root'])
+    for plan,entry in zip(plans,expression.get('plans') or []):
+        plan.condition=None if entry.get('condition') is None else build(entry['condition'])
+        plan.updates={name:build(i) for name,i in (entry.get('updates') or {}).items()}
+        plan.effects=tuple(build(i) for i in entry.get('effects') or [])
+    return root
 
 
 def _fit_inputs(expression,inputs):
@@ -734,6 +778,53 @@ def _noise_texture(name):
         rng=np.random.default_rng(abs(hash(name))%(2**32))
         _NOISE[name]=cv2.resize(rng.random((cells,cells,3)).astype(np.float32),(256,256),interpolation=cv2.INTER_CUBIC).clip(0,1)
     return _NOISE[name]
+
+
+def _declared_uniforms(width,height,time,fps,bands):
+    """Packed shader uniforms from a declared render state (shader_uniforms layout; Q values unknown -> 0)."""
+    from shader_uniforms import source_uniforms
+    bands={name:float((bands or {}).get(name,1.)) for name in BANDS}
+    render={'time':float(time),'fps':float(fps),'frame':int(round(time*fps)),'progress':0.,**bands}
+    scene={'frames':[{'render_inputs':render,'main':{f'q{i}':0. for i in range(1,33)}}],'viewport':[width,height]}
+    values={k:np.asarray(v,np.float32) for k,v in source_uniforms(scene,0).items()}
+    values.update({k:np.float32(v) for k,v in bands.items()})
+    values[':native-render-time-f32']=np.float32(time)
+    return values
+
+
+def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None):
+    """Evaluate an exported stage program per pixel with the shared grid evaluator (source_stage_program)."""
+    from grid_math import evaluate_grid
+    height,width=image.shape[:2]
+    inputs={'_uv':uv.astype(np.float32),'_uv_orig':uv[...,2:].astype(np.float32),'_rad_ang':_rad_ang(width,height),
+            **_lowlevel_uniforms(width,height),**_declared_uniforms(width,height,time,fps,bands),
+            'rand_frame':np.asarray(rand if rand is not None else [.5]*4,np.float32),'rand_preset':np.full(4,.5,np.float32)}
+    if diffuse is not None:inputs['_vDiffuse']=np.asarray(diffuse,np.float32)
+    blurred={}
+    def sample(detail,coordinates):
+        texture=str(detail.get('canonical_texture','main'))
+        source=image
+        if texture.startswith('noise'):source=_noise_texture(texture)
+        elif texture.startswith('blur'):
+            level=int(texture[4:] or 1)
+            if level not in blurred:blurred[level]=cv2.GaussianBlur(image,(0,0),2.**level)
+            source=blurred[level]
+        elif texture!='main':source=_noise_texture('noise_mq')  # named images: deterministic stand-in
+        wrap=(detail.get('sampling_policy') or {}).get('wrap',True)
+        th,tw=source.shape[:2]
+        u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
+        u=np.where(np.isfinite(u),u,0.);v=np.where(np.isfinite(v),v,0.)
+        if wrap:u=np.mod(u,tw);v=np.mod(v,th)
+        else:u=np.clip(u,0,tw-1);v=np.clip(v,0,th-1)
+        x0=np.floor(u).astype(int);y0=np.floor(v).astype(int);fx=(u-x0)[:,None];fy=(v-y0)[:,None]
+        fix=(lambda i,n:np.mod(i,n)) if wrap else (lambda i,n:np.clip(i,0,n-1))
+        x1=fix(x0+1,tw);y1=fix(y0+1,th);x0=fix(x0,tw);y0=fix(y0,th)
+        values=((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
+        return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
+    fitted=_fit_inputs(program,inputs)
+    value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample),np.float32)
+    value=value.reshape(height,width,-1)
+    return value[...,:3]
 
 
 def _injection_lanes(transfer):
@@ -846,6 +937,17 @@ def _affine_composite(image,facts,time,fps):
 
 def _display(image,facts,time,fps,limitations):
     """Composite the canvas for display: affine custom composite, scalar palette or the legacy model."""
+    program=((facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}).get('composite') or {}
+    if program.get('status')=='exported':
+        try:
+            height,width=image.shape[:2]
+            columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+            uv=np.stack([columns,rows,columns,rows],axis=-1)
+            shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'))
+            limitations.append('composite shader evaluated per pixel from its exported program (Q uniforms 0, blur by Gaussians, noise stand-ins)')
+            return np.clip(shown,0,1)
+        except Exception as error:  # noqa: BLE001 - fall back to the affine/legacy display
+            limitations.append('composite program not evaluated: '+str(error)[:120])
     composite_image=_affine_composite(image,facts,time,fps)
     palette_image=None if composite_image is not None else _palette_display(image,facts,limitations)
     if composite_image is not None:
@@ -899,6 +1001,10 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     sample=_backward_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'),width,height)
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None
+    programs=(facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}
+    warp_program=(programs.get('warp') or {}).get('program') if (programs.get('warp') or {}).get('status')=='exported' else None
+    composite_program=(programs.get('composite') or {}).get('program') if (programs.get('composite') or {}).get('status')=='exported' else None
+    diffuse=((facts.get('/analysis/visual_description/feedback_transfer') or {}).get('vertex_colour_binding') or {}).get('rgba')
     custom_warp=((facts.get('/analysis/visual_description/native_warp_recipe') or {}).get('shader_branch') not in (None,'legacy','unknown')
                  or (facts.get('/analysis/visual_description/feedback_transfer') or {}).get('source_model','').startswith('affine_previous'))
     transfer=facts.get('/analysis/visual_description/feedback_transfer') or {}
@@ -912,9 +1018,14 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
         if main_coordinates is not None:limitations.append('main feedback sample uses the exported shader coordinate expression (image-driven displacement included)')
         limitations.append('custom warp approximated as uniform gain %.4g plus constant offset; blur sites read the same pixel'%decay+
                            ('; injected spatial fields evaluated per frame (seeded rand_frame stand-in)' if injection else '; injected spatial fields omitted'))
+    if warp_program is not None and sample is not None:
+        decay=1.  # the exported warp program supplies the full colour transfer below
+        limitations.append('warp shader evaluated per pixel from its exported program (Q uniforms 0, blur by Gaussians, noise stand-ins)')
     if sample is None or type(decay) not in (int,float):
         limitations.append('per-pixel field or decay not fully described: only the fresh drawing is shown');history_steps=0
     paths,wave_limits=_builtin_wave_paths(facts,aspect);limitations+=wave_limits
+    dynamic_waves=_builtin_wave_dynamic(facts)
+    if dynamic_waves:limitations.append('built-in waveforms drawn per frame from the declared reference PCM (projectM modes 0-9; wave alignment omitted)')
     long=max(width,height)
     # Wave vertices: x=(2x-1)*invAspectX, y=(1-2y)*invAspectY, then the orthographic projection
     # reverses Y, so the top-left row is height/2-(y-.5)*long (source y grows upward on screen).
@@ -931,7 +1042,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     if sprites:limitations.append('borders and darken-centre blended into the feedback canvas every frame')
     if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)')
     for path,(colour,note) in colours.items():limitations.append(path+': '+note)
-    wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths}
+    wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths+dynamic_waves}
     try:
         for frame in range(history_steps,-1,-1):
             frame_time=time-frame/fps
@@ -952,8 +1063,20 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                                                           {k:held[k] for k in BANDS if k in held})
                     except Exception as error:  # noqa: BLE001 - fall back to the mesh map
                         limitations.append('shader sample coordinates not evaluated: '+str(error)[:120]);main_coordinates=None
-                warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)*decay+offset
-                if injection is not None:
+                program_done=False
+                if warp_program is not None:
+                    try:
+                        uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,*np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)],axis=-1)
+                        warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:held[k] for k in BANDS if k in held},diffuse)
+                        image=np.clip(warped,0,1)
+                        image=np.round(image*255)/255
+                        canvas['alpha']=np.ones_like(canvas['alpha'])
+                        warped=image;program_done=True
+                    except Exception as error:  # noqa: BLE001 - fall back to the transfer model
+                        limitations.append('warp program not evaluated: '+str(error)[:120]);warp_program=None;warped=image*0
+                if warp_program is None:
+                    warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)*decay+offset
+                if injection is not None and not program_done:
                     try:warped=warped+_evaluate_injection(injection,image,map_x,map_y,frame_time,int(round(frame_time*fps)),None,
                                                           {k:held[k] for k in BANDS if k in held})
                     except Exception as error:  # noqa: BLE001 - illustration degrades to the gain model
@@ -974,6 +1097,29 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 layer=np.zeros_like(image)
                 for a,b in zip(pixels,pixels[1:]):
                     cv2.line(layer,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),tuple(colour),1,cv2.LINE_AA)
+                coverage=layer.max(axis=-1,keepdims=True)
+                image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
+                a=coverage[...,0]*alpha
+                canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
+            for path,recipe in dynamic_waves:
+                alpha,additive=wave_alpha[path]
+                if alpha is None:continue
+                try:polylines,loop=_builtin_wave_frame(recipe,frame_time,int(round(frame_time*fps))-1,
+                                                       {k:held[k] for k in BANDS if k in held},(width,height))
+                except ValueError:continue
+                colour=_wave_colour_at(facts,path,frame_time) or _wave_colour(facts,path)[0]
+                layer=np.zeros_like(image)
+                for points in polylines:
+                    # Same pipeline as custom waves: column=(1+x)/2*W, row=(1+y)/2*H.
+                    px=(points[:,0]+1)/2*width;py=(points[:,1]+1)/2*height
+                    pixel=np.round(np.stack([px,py],-1)*16).astype(np.int32)
+                    offsets=[(0,0),(16,0),(16,16),(0,16)] if recipe.get('thick') else [(0,0)]
+                    for ox,oy in offsets:
+                        if recipe.get('dots'):
+                            for x,y in ((pixel+[ox,oy])//16):
+                                if 0<=x<width and 0<=y<height:layer[y,x]=colour
+                        else:
+                            cv2.polylines(layer,[pixel+[ox,oy]],bool(loop),tuple(float(c) for c in colour),1,cv2.LINE_8,4)
                 coverage=layer.max(axis=-1,keepdims=True)
                 image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
                 a=coverage[...,0]*alpha

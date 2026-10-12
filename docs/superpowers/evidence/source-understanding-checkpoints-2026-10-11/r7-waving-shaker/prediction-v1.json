@@ -1,0 +1,25 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "b01e02da1c810c5a3dbfe8864f16da0fe781bfb7165c39f96f9705bbc256c6f2",
+  "illustrator_sha256": "6886dc2c98f1c2e629abc57de664e67d54ba4710601107ce18f9a34fe7c6b843",
+  "image_sha256": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [],
+  "limitations": [
+    "feedback content starts from the flat-field steady state",
+    "per-pixel field or decay not fully described: only the fresh drawing is shown",
+    "/analysis/visual_description/elements/1/waveform_recipe: built-in waveform form horizontal_momentum_trace is not illustrated",
+    "borders and darken-centre blended into the feedback canvas every frame",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "audio-driven controls use the declared per-frame bands (audio report sha256 4c76bd9cb3ed46b3)",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed",
+  "declared_audio_sha256": "4c76bd9cb3ed46b3e31e315d882d0d66edaa2332f8e6a7b4c106084f3408918b"
+}

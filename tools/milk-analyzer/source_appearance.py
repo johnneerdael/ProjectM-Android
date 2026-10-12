@@ -92,6 +92,13 @@ def _colour_number(value,depth=0):
     return None
 
 
+def _stage_programs(analysis):
+    from source_stage_program import stage_programs
+    try:return stage_programs(analysis)
+    except Exception as error:  # noqa: BLE001 - optional structural export
+        return {'policy':'source-stage-program-v1','stages':{},'unknown_reasons':[str(error)[:200]]}
+
+
 def _expression(field):
     """Bounded equation/control DAG; unknown loops/programs are not expanded."""
     nodes=[];ids={}
@@ -562,6 +569,7 @@ def appearance_from_analysis(analysis):
         'texture_colour_transfer':texture_transfer,
         'texture_colour_envelopes':texture_colour_envelopes(texture_transfer),
         'nonlinear_texture_colour_bounds':nonlinear_texture_colour_bounds(analysis,feedback['vertex_colour_binding']['rgba']),
+        'stage_programs':_stage_programs(analysis),
         'execution_unknowns':list(analysis.unknowns),
         'uses_rendered_images':False,'uses_shader_execution':False,
         'uses_equation_execution':False,'appearance_match_accuracy':None,

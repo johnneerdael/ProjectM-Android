@@ -636,3 +636,24 @@ tint hue placement remain unmodelled.
 - Whole-pack run r5 (analyzer `72b11bea`): all 9,606 presets computed.
   Approximate bands are Chill 1,194, Normal 6,953 and Intense 1,498, with 843
   abstentions (8.8%).
+
+### Stage programs and built-in waveforms (r7 checkpoint)
+
+- `source_stage_program.py` (`source-stage-program-v1`) exports each authored
+  warp/composite stage's returned RGB as a typed graph with texture-sample nodes
+  inline and loop plans as a table (`visual_description.stage_programs`, also in
+  the SDK summary). The illustrator rebuilds the graph (`shader_fields.Field`,
+  `LoopPlan`) and evaluates it per pixel with `grid_math.evaluate_grid`, binding
+  the `shader_uniforms` layout from a declared render state (Q values 0), `_uv`,
+  `_rad_ang`, blur levels (Gaussian stand-ins) and noise stand-ins. Any
+  translated shader — nonlinear, image-dependent or looping — now drives the
+  feedback and display instead of falling back to a gain model.
+- `builtin_wave_geometry.py` implements projectM 4.1.7 built-in waveform modes
+  0-9 (excluding the spectrum mode 8) from declared PCM: wave_scale/smoothing
+  IIR, mode geometry, edge clipping and the 4-tap midpoint insertion.
+  `fixtures/reference-waveform-windows-2026-10-12.npy` holds the declared
+  checkpoint PCM windows (576 U8 samples per frame). Built-in vertices use the
+  same screen mapping as custom waves (column (1+x)/2·W, row (1+y)/2·H).
+- r7 (`The Waving Shaker`): v1 black → v2 grayscale web of blurred streaking
+  lines around a moving horizontal waveform, luma 0.185 against native 0.31–0.34
+  (Q uniforms held at 0 explain part of the gap).
