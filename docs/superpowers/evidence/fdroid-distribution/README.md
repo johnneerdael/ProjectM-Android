@@ -162,3 +162,29 @@ archive and temporary pointer while preserving the active generation and
 All 9,608 / Custom 2 catalogs. See [bounded recovery identities](pr-recovery.json).
 The original rendering qualification and its source/artifact hashes above
 remain historical records; the renderer/native source bytes are unchanged.
+
+## Published 2.3.40 verification
+
+Source `7f232d1a0139a858f4c0231adac93080f9cd6511` published four APKs and
+the full Native AAR. Anonymous public downloads match release checksums;
+the 40,615,848-byte collection retains pinned SHA-256 `8200aad345c5dbbc011809c93d4e1267fbc2a3c1ae62d31073d111848a9a96b0`.
+Both F-Droid APKs verify against production signer `ee51370f485325d703adbca4d811989d90e044da6181f7629965e6add03cfcef`.
+TV is 2,093,513 bytes; phone is 2,098,380 bytes, both 20 presets/zero textures.
+
+Both actual Linux F-Droid scans/builds/public-binary signature transfers passed
+with fdroidserver 2.4.5, JDK 21.0.12.1, NDK 27.3.13750724 and CMake 3.22.1
+in the pinned official buildserver image. A fresh TV repeat produced an
+identical unsigned APK. The initial Mac/public discrepancy affects only ELF
+compiler comments and GNU build IDs; other section bytes match in both ABIs.
+See [production reproduction receipt](production-linux-repro.json).
+
+The actual production-signed TV and phone apps each downloaded the real
+public archive through their normal HTTPS path and displayed all 9,606
+presets. Both retained the collection on cold restart. The original synthetic
+transport qualification remains distinct.
+
+The initial live sync failed twice before writes on a slow path-filtered
+100-commit history request. Its replacement reuses the complete comparison
+commit graph, with regressions for the timeout-prone route and checkpoint
+ancestry independent of API order. Live retry after the reviewed fix remains
+required; production publication is already verified.

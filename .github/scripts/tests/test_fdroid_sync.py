@@ -56,7 +56,9 @@ class FakeGitLab:
         if '/repository/compare?' in endpoint:
             branch = urllib.parse.parse_qs(endpoint.split('?')[1])['to'][0]
             return {'diffs': [{'new_path': 'metadata/' + branch + '.yml', 'old_path': 'metadata/' + branch + '.yml'}]
-                    + ([{'new_path': 'unmanaged.yml', 'old_path': 'unmanaged.yml'}] if self.extra_file else [])}
+                    + ([{'new_path': 'unmanaged.yml', 'old_path': 'unmanaged.yml'}] if self.extra_file else []),
+                    'commits': [{'id': self.branches[branch], 'parent_ids': [self.master],
+                                 'message': self.messages.get(branch, 'Legacy recipe')}]}
         if '/repository/commits?' in endpoint:
             branch = urllib.parse.parse_qs(endpoint.split('?')[1])['ref_name'][0]
             return [{'message': self.messages[branch]}] if branch in self.messages else []
@@ -92,6 +94,33 @@ class SyncTests(unittest.TestCase):
     def sync(self, release=RELEASE, latest=None):
         return self.module.synchronize(release, 'johnneerdael/fdroiddata', self.api,
                                        self.api.publish, latest or (lambda: RELEASE))
+
+    def test_ownership_uses_compare_history_without_path_filtered_timeout(self):
+        self.sync()
+        original=self.api.__call__
+        calls=[]
+        def checked(endpoint,*args,**kwargs):
+            calls.append(endpoint)
+            if '/repository/commits?' in endpoint:raise TimeoutError('path history read operation timed out')
+            if '/repository/compare?' in endpoint:
+                branch=urllib.parse.parse_qs(endpoint.split('?')[1])['to'][0]
+                result=original(endpoint,*args,**kwargs)
+                result['commits']=[{'id':self.api.branches[branch],'parent_ids':[self.api.master],
+                                    'message':self.api.messages[branch]}]
+                return result
+            return original(endpoint,*args,**kwargs)
+        result=self.module.synchronize(RELEASE,'johnneerdael/fdroiddata',checked,self.api.publish,lambda:RELEASE)
+        self.assertEqual(len(result),2)
+        self.assertFalse(any('/repository/commits?' in url for url in calls))
+
+    def test_checkpoint_follows_head_ancestry_not_list_order(self):
+        older={'id':'a'*40,'parent_ids':['d'*40],'message':'Sync ProjectM F-Droid older'}
+        newest={'id':'b'*40,'parent_ids':['a'*40],'message':'Sync ProjectM F-Droid newest'}
+        maintainer={'id':'c'*40,'parent_ids':['b'*40],'message':'Preserve maintainer note'}
+        for commits in ([older,newest,maintainer],[maintainer,older,newest]):
+            self.assertEqual(self.module.automation_checkpoint({'commits':commits},'c'*40),newest['message'])
+        for invalid in ({},{'commits':[]},{'commits':[dict(maintainer,parent_ids=['c'*40])]}):
+            with self.assertRaises(ValueError):self.module.automation_checkpoint(invalid,'c'*40)
 
     def test_creates_one_phone_mr_and_repeat_has_no_writes(self):
         result = self.sync()

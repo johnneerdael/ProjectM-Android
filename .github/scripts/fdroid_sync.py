@@ -39,6 +39,40 @@ def read_file(api, project, appid, ref):
     return recipes.parse(text, appid)
 
 
+def automation_checkpoint(comparison, head):
+    # GitLab documents compare.commits as complete, even when its diff times out.
+    # Follow first-parent ancestry instead of trusting API list ordering or dates.
+    commits = comparison.get('commits')
+    if not isinstance(commits, list):
+        raise ValueError('Missing comparison commit history; preserve submission')
+    nodes = {}
+    for commit in commits:
+        if (not isinstance(commit, dict) or
+                not re.fullmatch('[0-9a-f]{40}', str(commit.get('id', ''))) or
+                commit['id'] in nodes):
+            raise ValueError('Invalid comparison commit history; preserve submission')
+        nodes[commit['id']] = commit
+    if head not in nodes:
+        raise ValueError('Comparison does not contain the validated branch head')
+    visited = set()
+    while head in nodes:
+        if head in visited:
+            raise ValueError('Cyclic comparison commit history')
+        visited.add(head)
+        commit = nodes[head]
+        message = commit.get('message', '')
+        if not isinstance(message, str):
+            raise ValueError('Invalid comparison commit message')
+        if message.startswith('Sync ProjectM F-Droid '):
+            return message
+        parents = commit.get('parent_ids')
+        if (not isinstance(parents, list) or
+                any(not re.fullmatch('[0-9a-f]{40}', str(parent)) for parent in parents)):
+            raise ValueError('Invalid comparison commit parents')
+        head = parents[0] if parents else None
+    return None
+
+
 def synchronize(release, fork, api, publisher, latest):
     recipes.validate_release(release)
     if not re.fullmatch(r'[\w.-]+/[\w.-]+', fork) or fork == UPSTREAM:
@@ -96,10 +130,7 @@ def synchronize(release, fork, api, publisher, latest):
                         diff.get('old_path') != 'metadata/' + appid + '.yml' or
                         diff.get('collapsed') or diff.get('too_large')):
                     raise ValueError('Submission branch contains unmanaged files or incomplete diff')
-            commits = api(f'projects/{pid}/repository/commits?' + query(
-                {'ref_name': appid, 'path': 'metadata/' + appid + '.yml', 'per_page': 100}))
-            checkpoint = next((commit['message'] for commit in commits
-                               if commit.get('message', '').startswith('Sync ProjectM F-Droid ')), None)
+            checkpoint = automation_checkpoint(compare, head)
             if checkpoint:
                 expected = re.search(r'^Managed-Metadata-SHA256: ([0-9a-f]{64})$', checkpoint, re.M)
                 base = re.search(r'^Target-Master: ([0-9a-f]{40})$', checkpoint, re.M)
