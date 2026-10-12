@@ -1,0 +1,14 @@
+{
+ "black": {
+  "n": 40,
+  "median_display_luma": 0.013,
+  "share_below_0.01": 0.47,
+  "with_substitutions": 18
+ },
+ "random": {
+  "n": 40,
+  "median_display_luma": 0.142,
+  "share_below_0.01": 0.23,
+  "with_substitutions": 27
+ }
+}

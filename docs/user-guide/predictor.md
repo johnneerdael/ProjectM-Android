@@ -57,9 +57,9 @@ edges.
 
 Every preset now gets a group; before, 839 presets got none. Each group carries
 a confidence level. On presets the model never saw during fitting, the main
-group was right 64% of the time overall (chance is 33%), 84% for high-confidence
-presets, and 73% on the 90 presets checked against emulator captures. A calm
-preset was placed in Intense, or the reverse, 1.5% of the time. Real music, other
+group was right 65% of the time overall (chance is 33%), 84% for high-confidence
+presets, and 74% on the 90 presets checked against emulator captures. A calm
+preset was placed in Intense, or the reverse, 1.3% of the time. Real music, other
 render sizes and TV GPUs can behave differently.
 
 The model also uses a source estimate of how bright the feedback canvas settles:
@@ -70,8 +70,8 @@ times at positions computed in a loop, are now read from source as well.
 
 The Mood facets in the app still use the measured values from the offline
 renders. Computing them from source alone is the goal; per facet group, the
-source estimates currently agree with the measured values for 47% (Colour) to
-81% (Comfort) of presets.
+source estimates currently agree with the measured values for 50% (Colour) to
+82% (Comfort) of presets.
 
 ## Source behaviour work in progress
 

@@ -795,12 +795,15 @@ repeated on correctly oriented frames. Probes and results:
 
   | Statistic | Out-of-fold Spearman | Held-out 90 |
   |---|---|---|
-  | Luminance | 0.604 (0.583) | 0.668 (0.574) |
-  | Frame difference | 0.701 (0.693) | 0.743 (0.733) |
-  | Flow | 0.671 (0.665) | 0.760 (0.729) |
-  | Brightness jumps | 0.760 (0.757) | 0.756 (0.734) |
-  | Saturation | 0.618 (0.593) | 0.562 (0.556) |
-  | Warm/cool | 0.555 (0.498) | 0.630 (0.468) |
+  | Luminance | 0.634 (0.583) | 0.700 (0.574) |
+  | Frame difference | 0.710 (0.693) | 0.755 (0.733) |
+  | Flow | 0.679 (0.665) | 0.767 (0.729) |
+  | Brightness jumps | 0.765 (0.757) | 0.729 (0.734) |
+  | Saturation | 0.635 (0.593) | 0.521 (0.556) |
+  | Warm/cool | 0.600 (0.498) | 0.691 (0.468) |
+
+  The shipped model is fitted on the r8c whole-pack export, which has offline
+  compile evidence and stage transfers that bind the per-frame state.
 
 - **Activity.** `display_activity.py` takes the percentile of the mean
   percentile rank of frame difference, flow and brightness jumps, measured
@@ -812,11 +815,11 @@ repeated on correctly oriented frames. Probes and results:
 - **Grouping.** `approximate_mood(summary, display=...)` assigns bands from the
   calibrated activity, with confidence from the interval width: high ≤ 0.6,
   medium ≤ 0.8. Out-of-fold, against measured activity:
-  - activity Spearman 0.740 (0.793 on the held-out 90; descriptor v1: 0.735
+  - activity Spearman 0.749 (0.786 on the held-out 90; descriptor v1: 0.735
     and 0.784);
-  - primary band accuracy 0.64 overall, 0.84 at high confidence (24% of
-    presets), 0.73 on the held-out set (v1: 0.64, 0.85 on 22%, 0.72);
-  - Chill/Intense swaps 1.5% (v1: 1.4%).
+  - primary band accuracy 0.65 overall, 0.84 at high confidence (24% of
+    presets), 0.74 on the held-out set (v1: 0.64, 0.85 on 22%, 0.72);
+  - Chill/Intense swaps 1.3% (v1: 1.4%).
 
   The whole-pack rescore (`corpus_understanding.py --rescore --display-model`)
   gives no abstentions (previously 839): Chill 3,480, Normal 4,503, Intense
@@ -1105,3 +1108,12 @@ repeated on correctly oriented frames. Probes and results:
   black preset the shaders compile and the illustrator also predicts black,
   but the calibrated model predicts activity. Encoding that a preset is
   provably dark is the next Energy lever.
+- **r8c whole-pack export (shipped model).** It combines offline compile
+  evidence with stage transfers that bind the per-frame state. Facet
+  agreement with remap rises on every group: Energy 0.537, Brightness 0.585,
+  Colour 0.504, Movement 0.635 and Comfort 0.815 (r7: 0.528, 0.571, 0.475,
+  0.629, 0.811). The steady-state estimate separates ruler-black presets
+  (median display luma 0.013, 47% below 0.01) from random ones (0.142, 23%).
+  Evidence: `fit-report-r8c.json`, `facet-agreement-r8c.json`,
+  `band-eval-r8c-oof.json`.
+
