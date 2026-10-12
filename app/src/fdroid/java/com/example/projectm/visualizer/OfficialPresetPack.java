@@ -133,7 +133,8 @@ final class OfficialPresetPack {
                 } else if (path.startsWith("textures/")) {
                     if (path.substring(9).contains("/") || !path.toLowerCase(Locale.ROOT).matches(".*\\.(jpg|jpeg|png|tga|bmp|dib|dds)")) throw new IOException("Invalid official texture");
                     textures++;
-                } else if (!(path.equals("presets.idx") || path.startsWith("preset-genres/") || path.equals("LICENSE") || path.startsWith("LICENSES/") || path.equals("docs/THIRD_PARTY.md")))
+                } else if (!(path.equals("presets.idx") || path.startsWith("preset-genres/") || path.equals("LICENSE") || path.startsWith("LICENSES/") || path.equals("docs/THIRD_PARTY.md")
+                        || path.equals("preset-attributes/facets.json") || path.equals("preset-attributes/attributes.tsv") || path.equals("preset-attributes/manifest.json")))
                     throw new IOException("Unexpected collection metadata");
             }
             if (seen.size() != expected.size()+1 || presets != descriptor.presetCount || textures != descriptor.textureCount || expanded != descriptor.expandedBytes)
