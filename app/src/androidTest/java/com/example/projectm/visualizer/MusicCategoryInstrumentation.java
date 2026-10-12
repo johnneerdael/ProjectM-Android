@@ -56,6 +56,7 @@ public final class MusicCategoryInstrumentation extends Instrumentation {
             else if ("resolution_recording".equals(setupCase)) ResolutionSetupTest.record(this);
             else if ("resolution".equals(setupCase)) ResolutionSetupTest.run(this);
             else if ("native_trails".equals(setupCase)) NativeTrailsSetupTest.run(this);
+            else if ("mood".equals(setupCase)) MoodSetupTest.run(this);
             else TrackAccessSetupTest.run(this, setupCase);
             return;
         }
