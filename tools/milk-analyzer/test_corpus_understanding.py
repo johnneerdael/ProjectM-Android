@@ -67,3 +67,21 @@ def test_rescore_writes_source_calibrated_facets_into_the_index(tmp_path):
     facets=json.loads((tmp_path/'preference-index.json').read_text())['presets'][0]['facets']
     assert facets['policy']=='preset-facets-v1' and facets['evidence']=='source-calibrated'
     assert {'monochrome','pastel'}<=set(facets['unresolved_options'])
+
+
+def test_worker_passes_the_presets_offline_compile_manifest(tmp_path, monkeypatch):
+    import hashlib
+    import corpus_understanding as C
+    import effect_family_export
+    preset = tmp_path / 'a.milk'; preset.write_bytes(b'[preset00]\n')
+    sha = hashlib.sha256(preset.read_bytes()).hexdigest()
+    manifests = tmp_path / 'manifests'; manifests.mkdir(); (manifests / (sha + '.json')).write_text('{"kind": "x"}')
+    seen = []
+    def fake_export(path, **kwargs):
+        seen.append(kwargs.get('compile_manifest'));return {'status': 'error', 'error': 'stop'}, None
+    monkeypatch.setattr(effect_family_export, 'export_preset', fake_export)
+    monkeypatch.setattr(effect_family_export, 'loaded_model_hashes', lambda: 'm')
+    options = {'reader': 'r', 'timeout': 30, 'input_scenario': None, 'behaviour_context': None, 'compile_manifests': str(manifests)}
+    C.work(preset, options, 'm')
+    C.work(preset, {**options, 'compile_manifests': str(tmp_path)}, 'm')
+    assert seen == [{'kind': 'x'}, None]

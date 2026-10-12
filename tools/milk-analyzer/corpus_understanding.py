@@ -47,8 +47,13 @@ def work(path,options,expected_models):
     try:
         signal.signal(signal.SIGALRM,_alarm);signal.alarm(int(options['timeout']))
         if loaded_model_hashes()!=expected_models:raise ValueError('worker model identity changed')
+        manifest=None
+        if options.get('compile_manifests'):
+            # Per-preset offline compile evidence (source_compile_manifest schema), keyed by preset sha256.
+            candidate=Path(options['compile_manifests'])/(row['sha256']+'.json')
+            if candidate.exists():manifest=json.loads(candidate.read_text())
         record,_=export_preset(path,reader=options['reader'],input_scenario=options['input_scenario'],
-                               behaviour_context=options['behaviour_context'])
+                               behaviour_context=options['behaviour_context'],compile_manifest=manifest)
         if record.get('status')!='computed':
             row.update(status=record.get('status','error'),error=record.get('error'))
             return row
@@ -171,6 +176,7 @@ def main(argv=None):
     parser.add_argument('--report-only',action='store_true')
     parser.add_argument('--rescore',action='store_true',help='recompute approximate moods from saved summaries')
     parser.add_argument('--display-model',type=Path,help='source-calibrated display model (calibrated_display JSON tree model)')
+    parser.add_argument('--compile-manifests',type=Path,help='directory of per-preset offline compile manifests (<sha256>.json)')
     args=parser.parse_args(argv)
     display_model=str(args.display_model.resolve()) if args.display_model else None
     if args.report_only:
@@ -184,7 +190,8 @@ def main(argv=None):
              'input_scenario':json.loads(args.input_scenario.read_text()) if args.input_scenario else None,
              'behaviour_context':json.loads(args.behaviour_context.read_text()) if args.behaviour_context else None,
              'rules':json.loads(args.rules.read_text()) if args.rules else None,
-             **({'display_model':display_model} if display_model else {})}
+             **({'display_model':display_model} if display_model else {}),
+             **({'compile_manifests':str(args.compile_manifests.resolve())} if args.compile_manifests else {})}
     (args.output/'results').mkdir(parents=True,exist_ok=True)
     manifest_path=args.output/'run-manifest.json'
     manifest={'policy':POLICY,'model_modules':models,'options':{k:v for k,v in options.items() if k!='timeout'},
