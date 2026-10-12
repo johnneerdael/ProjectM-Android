@@ -1,0 +1,35 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Stahlregen & Aderrasi + EoS + fiShBRaiN + Geiss + Krash - Altars of Eckshak (green).milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r12-v1",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "58cfba8c7aababd05ba626c27f74f0d41911d80904ad8fd7d304c3e640ab3f74",
+  "description-v1-before-capture.json": "2a389e75434266bb8345481c3730a859328b9d116831020d944dfa3323bb797e",
+  "recipe-v1-before-capture.json": "a96ee2390615f0085d740935669d17f8c2e8f7f8bc0c96f3102d6a09cf1399db",
+  "prediction-v1.png": "f0fadb00ab1bc1e309f2707fbbcc855d7807a25314ee2b486c00d04cf7bdd435",
+  "llm-look-description-v1.txt": "8dbe8e0356852fc8536a5597a289c78487714fc7bfcc2d09b4410afa41a8bf38"
+ },
+ "capture_result_sha256": "4150b465f96e7841f0f5a9e4d6bcdfbc1881d3ff2fc0206a006b8cb19fd28e02",
+ "review_measurements": {
+  "prediction_luma": 0.03,
+  "screenshot_luma": 0.052
+ },
+ "agreements": [
+  "Centre glow from the rotating quadratic trace and the upper V of zoom-stretched haze",
+  "Calibrated display estimate Chill"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Lower half of the X of rays and its green edges missing",
+   "cause": "a custom wave without position code was treated as unresolved; projectM starts each point at x=0.5+value1, y=0.5+value2 (stereo X-Y trace)",
+   "next": "default point positions"
+  }
+ ],
+ "notes": [
+  "The frozen v1 look description mentions a 'faint greenish band texture'; the frozen image shows a grey-white centre glow and a V-shaped haze"
+ ]
+}

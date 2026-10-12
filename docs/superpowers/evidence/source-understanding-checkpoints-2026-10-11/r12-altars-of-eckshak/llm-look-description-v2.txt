@@ -1,0 +1,8 @@
+LLM look description from the SDK recipe (before capture, r12 v2):
+A calm, symmetric outward zoom (0.3-16% per frame, stronger towards the edges) with a slight twist.
+A green custom wave without position code traces the stereo waveform as an X-Y line (x = 0.5 + left,
+y = 0.5 + right); with near-identical channels it is a diagonal line through the centre, and the
+composite's left-right mirrored echo turns it into an X. The zoom stretches the line ends into long,
+soft rays with green edges. A greyscale rotating quadratic trace (built-in wave) forms a small bright
+glow at the centre. Calibrated display estimate: Chill. Expected: dark background, a pale X of rays
+with green edges meeting at a bright centre; slow, steady motion.

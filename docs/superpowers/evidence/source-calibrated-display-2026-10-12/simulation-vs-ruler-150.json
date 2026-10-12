@@ -1,0 +1,36 @@
+{
+ "policy": "source-simulation-vs-engine-ruler-v1",
+ "sample": "150 random bundled presets (seed 20261012), 160x90, 5 s, declared reference bands; statistics over the second half",
+ "spearman_vs_engine_ruler": {
+  "before_2026_10_12_fixes": {
+   "mean_luminance": 0.204,
+   "mean_abs_frame_difference": 0.17,
+   "global_brightness_jumps_per_10s": 0.344,
+   "mean_saturation": 0.082
+  },
+  "after_fixes_cac96833": {
+   "mean_luminance": 0.538,
+   "mean_abs_frame_difference": 0.489,
+   "global_brightness_jumps_per_10s": 0.506,
+   "mean_saturation": 0.445
+  },
+  "calibrated_model_oof_same_presets": {
+   "mean_luminance": 0.659,
+   "mean_abs_frame_difference": 0.711,
+   "global_brightness_jumps_per_10s": 0.707,
+   "mean_saturation": 0.581
+  }
+ },
+ "fixes_between": [
+  "engine motion frame and procedural warp formulas",
+  "mesh-vertex motion",
+  "engine blur bank and timing",
+  "conditional wrap",
+  "wave/shape orientation and point coverage",
+  "custom-wave state recurrences and waveform inputs",
+  "inlined per-frame graphs and EEL operations in shaders",
+  "per-frame wave alpha/colour and borders",
+  "never-written variables"
+ ],
+ "note": "Source-only simulation from static facts; no rendered frame of the preset is read. Ruler values are calibration targets."
+}

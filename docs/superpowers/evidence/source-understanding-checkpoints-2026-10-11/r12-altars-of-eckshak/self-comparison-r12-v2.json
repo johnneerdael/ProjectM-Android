@@ -1,0 +1,49 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Stahlregen & Aderrasi + EoS + fiShBRaiN + Geiss + Krash - Altars of Eckshak (green).milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r12-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "19890ef4b19d1b084aa15231fe3801950d262f3fb5b4620c338f5be53c174595",
+  "description-v2-before-capture.json": "82127b7834aa66ab89513d9b26ded17c75bac2157cbecd22ff54e0551ac53263",
+  "recipe-v2-before-capture.json": "9e2ce82f5169bbd59f6d6f160fdb123e3ada06806eaf4a320c36fdf549bdbe3a",
+  "prediction-v2.png": "b1a52bd1306e22b59a943ef324b99298eac65067bc3b40f295e6e494006b017d",
+  "llm-look-description-v2.txt": "841f68e6cd25862e8923234bd26838dbda86383aa8506e95af2419ff35dea1d3"
+ },
+ "capture_result_sha256": "f2b19752c52509e60fd6d7e6b7c2e8a716fbb10c59908d0cb16b62f60ace2574",
+ "review_measurements": {
+  "prediction_luma": 0.057,
+  "screenshot_luma": 0.053,
+  "p10_p50_p90_prediction": [
+   0.0,
+   0.0,
+   0.194
+  ],
+  "p10_p50_p90_screenshot": [
+   0.0,
+   0.0,
+   0.18
+  ],
+  "mean_rgb_prediction": [
+   0.05,
+   0.06,
+   0.058
+  ],
+  "mean_rgb_screenshot": [
+   0.05,
+   0.055,
+   0.049
+  ],
+  "blurred_luma_correlation": 0.965
+ },
+ "agreements": [
+  "Pale X of zoom-stretched rays with green edges meeting at a bright centre glow; dark background; brightness and distribution match"
+ ],
+ "misses": [],
+ "general_fixes": [
+  "custom-wave points start at x = 0.5 + value1, y = 0.5 + value2 (projectM/MilkDrop), so a wave without position code is a stereo X-Y trace from the declared PCM"
+ ],
+ "status": "understood"
+}

@@ -820,4 +820,15 @@ repeated on correctly oriented frames. Probes and results:
   with its bright border (luma 0.546 vs 0.465, saturation 0.98 vs 0.97), and in v3
   it drifts asymmetrically as in the engine. The rendering is still redder than
   native (red 0.76 vs 0.56).
+- **Default custom-wave positions.** Each point starts at x = 0.5 + value1,
+  y = 0.5 + value2 (projectM `LoadPerPointEvaluationVariables`, as in MilkDrop),
+  so a wave without position code is a stereo X-Y trace of the declared PCM.
+- **r12 (`Altars of Eckshak (green)`) v1 → v2.** v2 matches the emulator: an X of
+  green-edged rays meeting at a centre glow (blurred correlation 0.965, luma
+  0.057 vs 0.053). The calibrated estimate placed it in Chill.
+- **Simulation versus the engine.** On 150 random presets, the source-only
+  simulation now correlates with the ruler at 0.54 (luminance), 0.49 (frame
+  difference), 0.51 (jumps) and 0.45 (saturation). Before today's fixes it was
+  0.20 / 0.17 / 0.34 / 0.08. The calibrated model on the same presets reaches
+  0.66 / 0.71 / 0.71 / 0.58.
 

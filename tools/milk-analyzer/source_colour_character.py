@@ -192,7 +192,11 @@ def _custom_wave_palette(analysis,identity):
     point={name:frame.environment.get(name,Field('unknown')) for name in (*'rgba',*READONLY,*(f'q{i}' for i in range(1,33)),*(f't{i}' for i in range(1,9)))}
     for name in written-set('rgbaxy')-{'sample','value1','value2'}:
         point[name]=Field('input',detail={'name':'state:'+point_prefix+':'+name})
-    point.update({name:Field('input',detail={'name':name}) for name in ('sample','value1','value2','x','y')})
+    point.update({name:Field('input',detail={'name':name}) for name in ('sample','value1','value2')})
+    # projectM CustomWaveform::LoadPerPointEvaluationVariables (MilkDrop2 alike): each point starts at
+    # x = 0.5 + value1, y = 0.5 + value2, so a wave without position code is a stereo X-Y trace.
+    for name,value in (('x','value1'),('y','value2')):
+        point[name]=Field('add',(_constant(.5),Field('input',detail={'name':value})),'float')
     controls=_assemble(analysis,point_prefix,point).environment
     scenario=getattr(analysis,'input_scenario',None) or {};domains={**scenario.get('scalar_input_domains',{}),'sample':[0.,1.]}
     box=[];values=[];reasons=[];reports={};invalid=False;alpha=None

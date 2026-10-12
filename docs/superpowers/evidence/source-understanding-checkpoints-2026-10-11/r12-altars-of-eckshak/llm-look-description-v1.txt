@@ -1,0 +1,9 @@
+LLM look description from the SDK recipe (before capture, r12 v1):
+A calm, symmetric zoom: the whole picture expands from the centre by 0.3-16% per frame (stronger
+towards the edges through zoomexp) with a slight radius-dependent twist, and the composite adds a
+left-right mirrored, very slightly shrunk echo at 50%, giving two-fold mirror symmetry. Seeds: a
+greyscale rotating quadratic stereo trace (built-in wave) and a cloud of 512 green points (custom
+wave). A custom warp shader shapes the feedback colour. Calibrated display estimate: Chill (activity
+percentile 0.04). Expected: a dark-to-medium, mostly green, mirrored outward-flowing picture of
+streaming traces and dots; slow and smooth.
+The frozen illustration shows a dark field with a faint greenish band texture and corner tints.
