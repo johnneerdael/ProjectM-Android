@@ -821,6 +821,7 @@ public class MainActivity extends Activity {
             if (target == Menu.MOOD) {
                 reloadMood();  // picks up an official collection installed meanwhile
                 mood.revalidateCollection();
+                mood.skipsChanged(ProjectMJNI.getSkippedCount());  // baseline for the polling check
                 renderMood();
             }
             fade(mainMenu, false);
@@ -1170,6 +1171,8 @@ public class MainActivity extends Activity {
             refreshTrackInfoRow();  // access may have been granted meanwhile
         } else if (menu == Menu.MOOD) {
             refreshMoodCollectionRow();  // a custom pack may have finished indexing meanwhile
+            // New skips (blank detection, failed loads) change the pool, counts and dimming.
+            if (mood.skipsChanged(skipped)) renderMood();
         } else {
             skippedRow.setActionValue(skipped > 0 ? numberFormat.format(skipped) + "  ·  Reset" : "None");
             lastExitRow.setActionValue(lastExitSummary());  // keeps its age current

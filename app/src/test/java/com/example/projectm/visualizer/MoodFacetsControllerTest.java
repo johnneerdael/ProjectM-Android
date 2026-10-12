@@ -220,4 +220,26 @@ public class MoodFacetsControllerTest {
         assertEquals("No presets match your mix; playing All", c.header());
         assertEquals("category:all", calls.get(calls.size() - 1));
     }
+
+    @Test public void skipsChangedReappliesPoolOnlyWhenCountChanged() {
+        MoodFacetsController c = controller(facets);
+        c.toggle("chill");
+        calls.clear();
+        assertFalse(c.skipsChanged(0));   // first call only records the baseline
+        assertFalse(c.skipsChanged(0));
+        assertEquals(Collections.<String>emptyList(), calls);
+        skipped.add("a.milk");
+        assertTrue(c.skipsChanged(1));
+        assertEquals(Arrays.asList("pool:c.milk", "category:facets"), calls);
+        calls.clear();
+        assertFalse(c.skipsChanged(1));
+        assertEquals(Collections.<String>emptyList(), calls);
+    }
+
+    @Test public void skipsChangedWithoutFacetsOnlyReportsChange() {
+        MoodFacetsController c = controller(facets);
+        c.skipsChanged(0);
+        assertTrue(c.skipsChanged(2));
+        assertEquals(Collections.<String>emptyList(), calls);
+    }
 }

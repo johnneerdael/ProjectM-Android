@@ -91,10 +91,35 @@ final class MoodFacetsController {
         apply();
     }
 
+    /** Comma-joined ids; String.join needs API 26 and the app supports API 21. */
+    private static String joinIds(Collection<String> ids) {
+        StringBuilder out = new StringBuilder();
+        for (String id : ids) {
+            if (out.length() > 0) out.append(',');
+            out.append(id);
+        }
+        return out.toString();
+    }
+
+    private int lastSkipCount = -1;
+
+    /**
+     * Call with the engine's skip count while the panel is visible. The first call records the baseline.
+     * When the count changed, a selection in the built-in collection sends its pool again (the pool
+     * leaves skipped presets out, and may now be exhausted) and true tells the caller to re-render.
+     */
+    boolean skipsChanged(int skipCount) {
+        int before = lastSkipCount;
+        lastSkipCount = skipCount;
+        if (before < 0 || before == skipCount) return false;
+        if (facets != null && !selected.isEmpty() && "bundled".equals(collection)) apply();
+        return true;
+    }
+
     void apply() {
         validateCollection();
         // Without a facet table the stored ids cannot be checked: keep them for a later table.
-        if (facets != null) prefs.put(PREF_FACETS, String.join(",", selected));
+        if (facets != null) prefs.put(PREF_FACETS, joinIds(selected));
         prefs.put(PREF_COLLECTION, collection);
         String category;
         if ("custom".equals(collection)) category = "custom";
