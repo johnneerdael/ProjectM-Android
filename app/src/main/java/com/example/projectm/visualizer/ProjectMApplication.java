@@ -12,6 +12,7 @@ public class ProjectMApplication extends Application {
     private static final String TAG = "ProjectMApplication";
     private static final String PREF_SKIP_LIST_RESET = "skip_list_reset_1_9";
     private static final String PREF_FRAME_RATE_RESET = "frame_rate_reset_30";
+    private static final String PREF_MOOD_MIGRATED = "mood_facets_migrated_1";
     private volatile long customRestoreRequest;
     long customRestoreRequest() { return customRestoreRequest; }
 
@@ -41,6 +42,8 @@ public class ProjectMApplication extends Application {
                     .apply();
         }
 
+        migrateMoodSelection(prefs);
+
         // Before the engine starts: keeps what the previous process was doing when it ended.
         ExitDiagnostics.start(this);
         ProjectMCore.init(this);
@@ -51,7 +54,7 @@ public class ProjectMApplication extends Application {
         // Recover the default if a process died after the durable pointer was saved but before
         // the asynchronous preference write. Later user mood choices keep the same generation.
         if (custom != null && !custom.getName().equals(prefs.getString("custom_pack_generation", "")))
-            prefs.edit().putString("music_category", "custom")
+            prefs.edit().putString("music_category", "custom").putString("mood_collection", "custom")
                     .putString("custom_pack_generation", custom.getName()).apply();
         long customRequest = custom == null ? 0 : ProjectMJNI.setCustomPresetPack(custom.getAbsolutePath());
         customRestoreRequest = customRequest;
@@ -76,6 +79,20 @@ public class ProjectMApplication extends Application {
                 Log.w(TAG, "Custom pack restore did not finish; preserving its files", failedIndex);
             }
         }, "LegacyCleanup").start();
+    }
+
+    /**
+     * The Chill/Normal/Intense moods became Energy options of the Mood panel, and Custom its
+     * collection choice. Carries the previous choice over once (the mood setup case calls it too).
+     */
+    static void migrateMoodSelection(android.content.SharedPreferences prefs) {
+        if (prefs.getBoolean(PREF_MOOD_MIGRATED, false)) return;
+        String legacy = prefs.getString("music_category", "all");
+        android.content.SharedPreferences.Editor edit = prefs.edit().putBoolean(PREF_MOOD_MIGRATED, true);
+        if ("chill".equals(legacy) || "normal".equals(legacy) || "intense".equals(legacy))
+            edit.putString("mood_facets", legacy).putString("music_category", "facets");
+        else if ("custom".equals(legacy)) edit.putString("mood_collection", "custom");
+        edit.apply();
     }
 
     private static void deleteRecursively(File file) {

@@ -16,4 +16,6 @@
     <dimen name="track_panel_gap">24dp</dimen>
     <!-- Diagnostics start below the track corner (safe_vertical + track_cover + 24dp) -->
     <dimen name="diagnostics_margin_top">147dp</dimen>
+    <!-- Gap between option chips in a facet row -->
+    <dimen name="facet_chip_gap">10dp</dimen>
 </resources>

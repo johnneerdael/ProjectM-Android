@@ -20,6 +20,7 @@ public class MusicCategoriesTest {
         assertEquals("all", MusicCategories.normalize("nonexistent"));
         assertEquals("all", MusicCategories.normalize(null));
         assertEquals("all", MusicCategories.normalize("ambient"));
+        assertEquals("facets", MusicCategories.normalize("facets"));  // the Mood panel's pool
     }
     @Test public void pendingRequestDoesNotBecomeFalseFallback() {
         assertEquals("intense", MusicCategories.appliedSelection("intense", "all", true));

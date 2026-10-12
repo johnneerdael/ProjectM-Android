@@ -1,0 +1,46 @@
+{
+ "attributes_sha256": "d21a7eacd35917fb6129455c43d26c82c32c03534b73277a243cdada7ae53e83",
+ "definition_sha256": "046aad75e5dcf3f6f9a909675a125c22c0edd9d0487fae7335cc42296e7822dc",
+ "measured_count": 9606,
+ "option_counts": {
+  "balanced": 4304,
+  "bright": 2700,
+  "chill": 3361,
+  "cool": 1695,
+  "dark": 2602,
+  "drifting": 4752,
+  "fast": 2837,
+  "fractal": 130,
+  "geometric": 1930,
+  "intense": 2882,
+  "kaleidoscope": 3989,
+  "liquid": 3730,
+  "monochrome": 1001,
+  "no_strobe": 4969,
+  "normal": 4807,
+  "particles": 3207,
+  "pastel": 691,
+  "still": 2017,
+  "tunnel": 706,
+  "vivid": 4950,
+  "warm": 2381
+ },
+ "preset_count": 9606,
+ "presets_idx_sha256": "d87c63eb1a54474d3ddfecbef0e5c633c80bfd130d5ef5730bf13f66b4e0dfef",
+ "ruler": {
+  "audio": "checkpoint synthetic PCM, U8 ingress",
+  "engine": "pinned patched source34 (macOS GLES, SwiftShader)",
+  "frames": 300,
+  "size": [
+   480,
+   270
+  ]
+ },
+ "ruler_results_manifest_sha256": "171609404c1cb41c3c6a2385a17cf859832fd2fc67d744affe479d0edf8b0a27",
+ "schema": "projectm-tv-preset-attributes",
+ "style_facts": {
+  "header": "#projectm-tv-facet-style-facts\t1\t3ae40333051261c24f05f48dde4014e5e2d232da",
+  "sha256": "7ee12803eccf79cb4a5a6bdaadf312a1023bcefb23a607bdf33c66319a3d4821"
+ },
+ "version": 1
+}

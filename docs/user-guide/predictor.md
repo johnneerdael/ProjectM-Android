@@ -128,8 +128,9 @@ preferences. It could favor supported smooth control curves, warm colour
 ingredients or strong bass-linked geometry, and penalize supported abrupt
 opacity changes. Preference weights and audience assumptions should be editable.
 
-The shipped overlapping activity ranges are Chill 1–30, Normal 25–75 and Intense
-70–100. They are rank bands, not accuracy percentages. Existing experimental
+The legacy overlapping activity ranges, kept in the core library for Milkbeat, are
+Chill 1–30, Normal 25–75 and Intense 70–100; the app's Mood panel uses the
+separate Energy facet instead ([preset moods](predictive-collections.md)). They are rank bands, not accuracy percentages. Existing experimental
 preference formulas are assumptions; the new static export does not produce a
 calibrated replacement score. A family name alone cannot justify a Chill
 recommendation. Age or genre can supply a user-editable default preference,

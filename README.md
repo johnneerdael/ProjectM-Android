@@ -36,7 +36,7 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 ## Highlights
 
 - **9,606 MilkDrop presets** with smooth blends, shuffled within the mood you choose.
-- **Preset moods (beta):** **All**, **Chill**, **Normal** and **Intense**, from a measured activity score; [predicting presets from their source](https://johnneerdael.github.io/ProjectM-Android/predictor/) is in development.
+- **Preset mood:** a Mood panel with Energy, Brightness, Colour, Movement, Style and Comfort options, live preset counts and combinable choices, from measured attributes of every bundled preset; [predicting presets from their source](https://johnneerdael.github.io/ProjectM-Android/predictor/) is in development.
 - **Presets that work as on MilkDrop 2:** equation code MilkDrop tolerated, HLSL its compiler accepted, Direct3D pixel and texel rules, live per-frame waveform and display controls, legacy colour shading and spirals, huge rotations and negative zoom. [Patch catalog](https://johnneerdael.github.io/ProjectM-Android/engine/patches/).
 - **4K without the darkness:** lines, blur and texel steps scale with resolution; Native trails keeps feedback at an authored-scale canvas with sharp native geometry on top.
 - **No freezes at preset changes:** upcoming presets are compiled in the background.
@@ -56,7 +56,7 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 | Center, Enter, Menu | Open the settings panel |
 | Back | Exit the app |
 
-In the panel, Up and Down move between rows, Left and Right change a value, and Center cycles a value or runs an action. Back closes the panel (from *Advanced* or *Track display* it returns to the main panel), Menu closes it, and it hides itself after 10 seconds without input.
+In the panel, Up and Down move between rows, Left and Right change a value, and Center cycles a value or runs an action. Back closes the panel (from *Advanced*, *Track display* or *Preset mood* it returns to the main panel), Menu closes it, and it hides itself after 10 seconds without input.
 
 ## Touchscreen controls
 
@@ -74,7 +74,7 @@ In ProjectM Android, swipe right for a random preset and left for the previous p
 |---|---|---|
 | Audio input (Android only) | Microphone; Phone playback (Android 10+, consent required) | Microphone |
 | Auto change | Off, On | On |
-| Preset mood | All, Chill, Normal, Intense, Custom (after upload) | All; Custom after an upload |
+| Preset mood | Opens the Mood panel: Energy (Chill, Normal, Intense), Brightness (Dark, Balanced, Bright), Colour (Monochrome, Pastel, Vivid, Warm, Cool), Movement (Still, Drifting, Fast), Style (Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal), Comfort (No strobe); Collection (Built-in, Custom) after an upload; Clear all | Nothing selected (all presets) |
 | Preset duration | 10, 15, 20, 30, 45, 60, 90 s | 30 s |
 
 *Track display ›*
@@ -114,7 +114,7 @@ On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory
 - At least 2 GB of RAM is highly recommended.
 - **TV audio:** a music app playing on the same TV. Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat) have been verified on TV. The TV build has no microphone or line-in input; already Dolby-encoded audio cannot be visualized.
 - **Phone audio:** microphone input works independently of a music app. Phone playback capture needs Android 10+, Android's consent and a player that allows capture and keeps playing in the background. The TV player list does not certify phone compatibility. Both builds feed the engine 8-bit mono audio.
-- Preset moods are a beta prediction from one short measurement per preset; they will be improved. Chill is not a guarantee of no flashing.
+- Preset attributes come from one 10 s render per preset with one synthetic track at 480x270 under SwiftShader. Real music and TV GPUs differ; Style rests on source structure and is the least certain. No strobe and Chill are not guarantees against flashing. Custom-pack presets are not played while any option is active; choose Custom in the Collection row to play them.
 - Some presets still look different from MilkDrop on Windows: random textures change per load, chaotic presets diverge, and GPU drivers differ in undefined arithmetic. Negative warp zoom follows MilkDrop 2’s CPU power calculation for valid integer nested exponents; fractional negative powers still have nonfinite coordinates with no portable appearance guarantee.
 - 189 of the 9,795 *Cream of the Crop* presets are not included: 116 cannot react to music, 73 use images with text, logos or people (one is in both groups), and 1 has a missing texture.
 

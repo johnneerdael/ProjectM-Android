@@ -2,7 +2,7 @@
 
 Upload your own MilkDrop presets and textures to either visualizer from another device on the same network. No file picker, USB stick or storage permission is needed.
 
-In F-Droid editions, your custom pack is separate from the optional Cream of the Crop download. Downloading or removing that collection leaves Custom available. All combines Custom with the currently available starter or full library; the scored moods use that library's original memberships.
+In F-Droid editions, your custom pack is separate from the optional Cream of the Crop download. Downloading or removing that collection leaves Custom available. All combines Custom with the currently available starter or full library; the Mood options use that library's measured attributes.
 
 ## Upload a pack
 
@@ -34,7 +34,7 @@ Presets refer to images by name without extension, ignoring case (`sampler_cloud
 ## How packs behave
 
 - **One pack at a time.** A successful upload replaces the previous pack.
-- **Custom** plays only the pack's presets and becomes the selected mood. **All** plays bundled and custom presets together. **Chill**, **Normal** and **Intense** keep using only the scored bundled library.
+- In **Preset mood**, the **Collection** row (*Built-in* or *Custom*) appears once a pack exists. **Custom** plays only the pack's presets. With nothing selected and *Built-in*, bundled and custom presets play together. While any Energy, Brightness, Colour, Movement, Style or Comfort option is on, only measured bundled presets play: custom presets have no attributes, so choose *Custom* to play them.
 - **Textures:** a custom preset uses its pack's images first and falls back to the available base collection's textures. The texture-free F-Droid starters supply none; download the full collection or include required images in your ZIP. Base presets keep their own images. During a blend, each preset retains its source images. This needs an [engine change](engine/patches.md#0010-each-preset-keeps-its-own-textures), because MilkDrop only ever had one texture folder.
 - **Skips** for presets that fail to load, stay black or run too slowly apply to custom presets as well.
 - **Persistence.** The pack and the Custom selection survive restarts and app updates. Packs are excluded from Android backup, so upload the ZIP again after reinstalling, clearing app data or restoring onto another device.

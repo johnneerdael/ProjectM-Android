@@ -222,10 +222,17 @@ template<class T> void CheckOfficialPack(T& library, const std::string& root, co
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     CHECK(library.CustomPackStatus(customRequest) == 2);
     int customCount = library.CategoryCount("custom");
+    // Facet pool survives an official commit: re-intersected with the new bundled names.
+    CHECK(library.SetPool({"good 1.milk", "official unique.milk", "absent-in-official.milk"}) == 1);
+    CHECK(library.SetCategory("facets"));
     auto request = library.RequestOfficialPack(directory, false); await(request);
     CHECK(library.OfficialPackStatus(request) == 1);
     CHECK(library.CommitOfficialPack(request));
     CHECK(library.OfficialPackStatus(request) == 2);
+    CHECK(library.Category() == "facets" && library.CategoryCount("facets") == 2);
+    library.SetPool({});
+    CHECK(library.CategoryCount("facets") == 0);
+    CHECK(library.Category() == "all");
     CHECK(library.CategoryCount("all") == 2 + customCount);
     CHECK(library.CategoryCount("custom") == customCount);
     CHECK(library.CategoryCount("chill") == 1 && library.Weight("good 1.milk") == 17);
@@ -418,6 +425,22 @@ int main(int argc, char** argv) {
   CHECK(g_library.SetCategory("all"));
   CHECK(g_library.ActiveCount() == 13 && g_library.Weight("good 3.milk") == 40);
 
+  printf("facet pool plays through the facets category\n");
+  CHECK(g_library.SetPool({"good 1.milk", "good 1.milk", "missing.milk", "custom/x.milk"}) == 1);
+  CHECK(g_library.CategoryCount("facets") == 1);
+  CHECK(g_library.SetCategory("facets"));
+  CHECK(g_library.Category() == "facets");
+  for (int i = 0; i < 5; ++i) CHECK(g_library.Random("") == "good 1.milk");
+  g_library.MarkSkipped("good 1.milk", "test");
+  CHECK(g_library.CategoryCount("facets") == 0);
+  CHECK(!g_library.Next().empty());
+  CHECK(g_library.Category() == "all");
+  g_library.ResetSkipped();
+  g_library.MarkSkipped("preskipped.milk", "fixture initial skip");
+  CHECK(g_library.SetPool({}) == 0);
+  CHECK(!g_library.SetCategory("facets"));
+  CHECK(g_library.Category() == "all");
+
   printf("custom packs join All but never join scored categories\n");
   std::string pack = root + "/pack-generation-one";
   mkdir(pack.c_str(), 0700);
@@ -447,6 +470,14 @@ int main(int argc, char** argv) {
   std::string longName = "custom/pack-generation-one/" + std::string(1000, 'x') + ".milk";
   g_library.MarkSkipped(longName, "custom skip identity");
   CHECK(g_library.CategoryCount("custom") == 1 && g_library.CategoryCount("intense") == 3);
+  printf("facet pool requested before the index is ready survives BuildIndex\n");
+  { PresetLibrary& early = *new PresetLibrary();
+    CHECK(early.SetPool({"good 2.milk", "good 3.milk", "missing.milk"}) == 0);  // empty bundled inventory
+    early.Start(&am, skip, "");
+    for (int i = 0; i < 1000 && !early.Ready(); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    CHECK(early.Ready());
+    CHECK(early.CategoryCount("facets") == 2);
+    CHECK(early.SetCategory("facets") && early.Category() == "facets"); }
   // Long nested/display names must preserve their skip identity after a process restart.
   PresetLibrary& restartedPack = *new PresetLibrary();
   restartedPack.Start(&am, skip, "");
@@ -471,6 +502,37 @@ int main(int argc, char** argv) {
   CHECK(g_library.Category() == "all" && g_library.CategoryCount("custom") == 0);
   CHECK(!g_library.Contains(first) && g_library.Read(first).empty());
   CHECK(g_library.ActiveCount() == 13);
+  g_library.ResetSkipped();
+  g_library.MarkSkipped("preskipped.milk", "fixture initial skip");
+
+  printf("a facet pool change during a staged (bundled-only) import keeps the import and no stale facet order\n");
+  CHECK(g_library.SetPool({"good 1.milk"}) == 1);
+  CHECK(g_library.SetCategory("facets") && g_library.Category() == "facets");
+  staged = g_library.RequestCustomPack(pack, false);  // new directory, not applied: bundled-only prepare
+  for (int i = 0; i < 1000 && g_library.CustomPackPending(); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  CHECK(g_library.CustomPackStatus(staged) == 1);
+  CHECK(g_library.SetPool({"good 2.milk", "good 3.milk"}) == 2);  // pool P2 while the pack is staged
+  CHECK(g_library.Category() == "facets");
+  for (int i = 0; i < 10; ++i) { std::string pick = g_library.Random(""); CHECK(pick == "good 2.milk" || pick == "good 3.milk"); }
+  CHECK(g_library.CommitCustomPack(staged));  // the staged import is not invalidated by the pool change
+  CHECK(g_library.Category() == "custom");    // a staged commit selects Custom; it never keeps a facet order
+  CHECK(g_library.CategoryCount("facets") == 2);
+  for (int i = 0; i < 10; ++i) {
+    std::string next = g_library.Next(); g_library.RecordShown(next);
+    CHECK(next.find("custom/pack-generation-one/") == 0);
+    std::string random = g_library.Random(next);
+    CHECK(random.find("custom/pack-generation-one/") == 0);
+  }
+  CHECK(g_library.SetCategory("facets"));     // re-selecting facets draws from the current pool P2
+  for (int i = 0; i < 10; ++i) {
+    std::string next = g_library.Next(); g_library.RecordShown(next);
+    CHECK(next == "good 2.milk" || next == "good 3.milk");
+    std::string random = g_library.Random(next);
+    CHECK(random == "good 2.milk" || random == "good 3.milk");
+  }
+  installPack("");
+  CHECK(g_library.SetPool({}) == 0);
+  CHECK(g_library.SetCategory("all") && g_library.CategoryCount("custom") == 0 && g_library.ActiveCount() == 13);
   g_library.ResetSkipped();
   g_library.MarkSkipped("preskipped.milk", "fixture initial skip");
 

@@ -1,27 +1,62 @@
-# Preset moods (beta)
+# Preset moods
 
-!!! warning "Beta"
-    Preset moods are an early version of ProjectM TV's predictive preset engine. The current scores come from one short measurement of each preset, and they will be heavily improved in future releases. Better measurements are already being researched, along with [prediction from preset source code](authoring/testing.md#5-predicting-a-preset-from-its-source). Use the moods as a starting point. If a preset feels wrong for its mood, please [report it](https://github.com/johnneerdael/ProjectM-Android/issues).
+!!! warning "Measured, not guaranteed"
+    Moods are predictions from one short measurement of each preset. They are a starting point, and they will improve. If a preset feels wrong for its mood, please [report it](https://github.com/johnneerdael/ProjectM-Android/issues).
 
-Open the settings panel and change **Preset mood**:
+Open the settings panel and choose **Preset mood** (Settings › Preset mood) to open the **Mood** panel.
 
-| Mood | Activity score | Presets | What to expect |
-|---|---|---|---|
-| **All** (default) | — | 9,606 | The full library, plus your custom pack |
-| **Chill** | 1–30 | 2,702 | Slower motion, fewer brightness jumps |
-| **Normal** | 25–75 | 4,658 | Moderate activity |
-| **Intense** | 70–100 | 2,795 | Strong motion and brightness changes |
-| **Custom** | — | your pack | Only your [uploaded presets](custom-packs.md) |
+![Mood panel with Energy, Brightness, Colour, Movement, Style and Comfort rows](images/setup/mood.png)
 
-The ranges overlap on purpose: a preset scoring 28 is in both Chill and Normal. Your choice is saved. Automatic changes, **Random** and **Previous** all stay inside the mood. The count shown in the panel excludes presets this TV has skipped. A mood with no eligible presets is not offered.
+## Attributes
 
-Those counts describe the full collection, bundled in GitHub editions or installed through the optional F-Droid download. Before downloading, F-Droid editions have **20 All**, **7 Chill**, **10 Normal** and **2 Intense** starters. Some belong to more than one mood, and two are in All only. Downloading the full collection restores its original memberships and scores. A custom pack remains separate. [Collection setup](getting-started.md#optional-collection-in-f-droid-editions).
+Each group is one row; each option shows the number of presets you would have if you toggled it (*→ N*; for a selected option, the mix without it).
+
+| Group | Options | Measured from |
+|---|---|---|
+| **Energy** | Chill, Normal, Intense | An activity percentile combining frame-to-frame change, motion speed and brightness jumps, ranked against a reference frozen from the 9,606 bundled presets |
+| **Brightness** | Dark, Balanced, Bright | Mean luminance |
+| **Colour** | Monochrome, Pastel, Vivid, Warm, Cool | Coloured share, saturation, luminance and warm/cool balance |
+| **Movement** | Still, Drifting, Fast | Motion speed in screen widths per second |
+| **Style** | Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal | Structure facts read from the preset source |
+| **Comfort** | No strobe | Brightness jumps per 10 s below a threshold |
+
+The exact thresholds are in `tools/milk-analyzer/facets/facets-v1.json`. Ranges can overlap, so a preset can be both Chill and Normal, and one preset can carry several Style options.
+
+## How choices combine
+
+- Options in the **same group** combine as OR: **Vivid** and **Warm** play presets that are either.
+- **Different groups** combine as AND: **Chill** and **Dark** play presets that are both.
+- Nothing selected plays all presets. **Clear all** returns to that (it rests while Custom plays, keeping your options).
+- Options that would leave no presets are dimmed and skipped by Left and Right.
+- The header always shows a count: *N presets in your mix*, all available presets when nothing is selected, or *Custom pack: N presets* while Custom plays. Under 20 it adds *few presets: some repetition*. If no preset is left, because every match is skipped on this TV or a deselection leaves no preset that fits every group, it shows *No presets match your mix; playing All* and plays All.
+- Counts exclude presets this TV has skipped. Automatic changes, **Random** and **Previous** stay inside the mix, and your choice is saved.
+- A **Chill**, **Normal** or **Intense** choice saved by an earlier version becomes the matching **Energy** option.
+- Presets from a [custom pack](custom-packs.md) have no attributes, so they are not played while any option is active. The **Collection** row (*Built-in* or *Custom*) appears when a pack exists or Custom is chosen; choose *Custom* to play the pack.
+
+## Which presets have attributes
+
+GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none: the Mood header then reads *Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)* and only the Collection choice is offered. Downloading, replacing or removing the collection updates the Mood panel and the mix immediately; no restart is needed.
+
+## How the attributes are measured
+
+Energy, Brightness, Colour, Movement and Comfort come from engine-ruler measurements of every bundled preset. Energy's activity percentile is looked up in a reference frozen once from those 9,606 measurements, so a later collection does not shift what Chill or Intense means. Each preset is rendered once for 10 seconds at 480x270 and 30 fps; the statistics use frames 60-299 and one synthetic audio track, on macOS GLES under SwiftShader (see `tools/native-ruler/`). Style comes from facts read from the preset source: its equations and shapes, not a render.
+
+## Limits
+
+- One 10 s render per preset with one synthetic track under SwiftShader. Real music and TV GPUs differ. Emulator agreement on 83 presets was rho 0.91-0.96, which is not a per-preset guarantee.
+- **Style** rests on source structure and is the least certain attribute.
+- **No strobe** and **Chill** are not guarantees against flashing.
+- Custom-pack presets are excluded while any option is active.
+
+## Legacy activity scores
+
+The Chill, Normal and Intense categories that Milkbeat and older versions use (a 1-100 activity score: Chill 1-30, Normal 25-75, Intense 70-100) are unchanged in the core library. The sections below describe that score and its example captures; the **Energy** options in the Mood panel are computed separately from the ruler measurements above.
 
 | Chill | Normal | Intense |
 |---|---|---|
-| ![Preset mood Chill: 2,702 presets in rotation](images/setup/mood-chill.jpg) | ![Preset mood Normal: 4,658 presets in rotation](images/setup/mood-normal.jpg) | ![Preset mood Intense: 2,795 presets in rotation](images/setup/mood-intense.jpg) |
+| ![Legacy Chill category: 2,702 presets in rotation](images/setup/mood-chill.jpg) | ![Legacy Normal category: 4,658 presets in rotation](images/setup/mood-normal.jpg) | ![Legacy Intense category: 2,795 presets in rotation](images/setup/mood-intense.jpg) |
 
-## What the moods look like
+## What the legacy categories look like
 
 These captures come from a 1080p Android TV emulator playing different tracks in Milkbeat, with the mood set and a random preset chosen for each. Your music and TV will produce different frames; these show the character of each mood, not a guarantee.
 
@@ -54,7 +89,7 @@ These captures come from a 1080p Android TV emulator playing different tracks in
 
 A single still cannot show motion. What separates the moods is how fast and how suddenly these pictures change.
 
-## How the scores are made
+## How the legacy scores are made
 
 The score measures **visual activity**, not musical genre or taste. Each bundled preset was run once through the published ProjectM TV core library (version 2.3.3, in its capped build, which predates the current Native engine based on projectM 4.2) with controlled input:
 
@@ -72,7 +107,7 @@ They are combined as `4.3673 + Σ weight × log1p(x) / scale`, with weights of a
 
 The weights were fitted to eight human judgments of real presets. In leave-one-out checks the model placed 4 of 8 in exactly the judged band and 6 of 8 within five points. That is a small calibration set, which is why moods are still beta.
 
-## Known limits
+## Known limits of the legacy scores
 
 - **One short probe.** Fourteen seconds of synthetic audio cannot show how a preset reacts to every song, or how it develops over minutes.
 - **Low resolution.** The probe renders at 128×72; 4K detail and Native trails are not measured.

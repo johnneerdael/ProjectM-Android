@@ -18,6 +18,11 @@ final class OfficialPresetDownload {
         long prepare(String directory); int status(long request); boolean commit(long request);
         void discard(long request); boolean inUse(String directory);
     }
+    /** The cold-start restore's auto-applying native request (setOfficialPresetPack). */
+    interface RestoreIndex {
+        long apply(String directory); int status(long request); void discard(long request);
+        boolean inUse(String directory); void pending(boolean pending);
+    }
     interface Listener { void onStatus(Status status); }
     static final class Status {
         final String phase, identity, error; final long bytes, total;
@@ -32,6 +37,9 @@ final class OfficialPresetDownload {
     private final ExecutorService worker=Executors.newSingleThreadExecutor(task->{Thread t=new Thread(task,"OfficialPresets");t.setDaemon(true);return t;});
     private volatile Status status=new Status("idle",0,0,"",null);
     private volatile OfficialPresetPack.Descriptor descriptor;
+    // The generation the native engine has committed (null: the bundled starters). Unlike the
+    // durable pointer it changes only when a native commit is confirmed, before finish() announces it.
+    private volatile File committedGeneration;
     private volatile Handler main;
     private volatile Listener listener;
     private volatile HttpURLConnection activeConnection;
@@ -44,12 +52,24 @@ final class OfficialPresetDownload {
         if(instance==null) {
             Context app=context.getApplicationContext();
             instance=new OfficialPresetDownload(new File(app.getNoBackupFilesDir(),"official-presets"),url->(HttpURLConnection)url.openConnection());
-            instance.restore(app);
+            instance.restore(()->app.getAssets().open("official-pack.json"),new RestoreIndex(){
+                public long apply(String directory){return ProjectMJNI.setOfficialPresetPack(directory);}
+                public int status(long request){return ProjectMJNI.getOfficialPresetPackStatus(request);}
+                public void discard(long request){ProjectMJNI.discardOfficialPresetPack(request);}
+                public boolean inUse(String directory){return ProjectMJNI.isOfficialPresetPackInUse(directory);}
+                public void pending(boolean pending){ProjectMJNI.setOfficialPresetRestorePending(pending);}
+            },30000);
         }
         return instance;
     }
     OfficialPresetPack.Descriptor descriptor(){return descriptor;}
     Status status(){return status;}
+    /**
+     * The generation committed in the native engine, or null while the engine uses the bundled
+     * starters (no collection, a pending first restore, or a failed/timed-out restore). A pending
+     * install or removal keeps the previous value until its native commit is confirmed.
+     */
+    File committed(){return committedGeneration;}
     synchronized void attach(Handler handler,Listener callback){main=handler;listener=callback;listenerGeneration++;announce(status);}
     synchronized void detach(Listener callback){if(listener==callback){listener=null;main=null;listenerGeneration++;}}
     private synchronized void announce(Status value) {
@@ -58,33 +78,47 @@ final class OfficialPresetDownload {
     }
     private void publish(String phase,long bytes,long total,String identity,String error){status=new Status(phase,bytes,total,identity,error);announce(status);}
     private synchronized void finish(Status value){running=false;status=value;announce(value);}
-    private void restore(Context context) {
+    void restore(Callable<InputStream> descriptorSource,RestoreIndex index,long timeoutMs) {
         synchronized(this){running=true;publish("restoring",0,0,"",null);}
-        ProjectMJNI.setOfficialPresetRestorePending(true);
+        index.pending(true);
         worker.execute(()->{
-            long request=0;
-            boolean restored=false;
-            String identity="";
-            Status outcome=new Status("error",0,0,"","Collection restore failed");
+            long request=0;boolean awaited=false;File current=null;String identity="";Exception failure=null;
             try {
                 recoverFiles(root);
-                try(InputStream in=context.getAssets().open("official-pack.json")){descriptor=OfficialPresetPack.Descriptor.read(in);}
-                File current=OfficialPresetPack.current(root);
+                try(InputStream in=descriptorSource.call()){descriptor=OfficialPresetPack.Descriptor.read(in);}
+                current=OfficialPresetPack.current(root);
                 if(current!=null) {
                     identity=OfficialPresetPack.identity(current);
-                    request=ProjectMJNI.setOfficialPresetPack(current.getAbsolutePath());
-                    CustomPresetPack.awaitStatus(request,2,ProjectMJNI::getOfficialPresetPackStatus,()->false,30000);
+                    request=index.apply(current.getAbsolutePath());
+                    CustomPresetPack.awaitStatus(request,2,index::status,()->false,timeoutMs);
+                    awaited=true;
                 }else if(CustomPresetPack.current(root)!=null)CustomPresetPack.restore(root,null);
-                restored=true;
-                outcome=new Status(identity.isEmpty()?"idle":"installed",0,0,identity,null);
-                CustomPresetPack.scheduleCleanup(root,d->ProjectMJNI.isOfficialPresetPackInUse(d.getAbsolutePath()));
-            }catch(Exception error){outcome=new Status("error",0,0,identity,message(error));}
+                CustomPresetPack.scheduleCleanup(root,d->index.inUse(d.getAbsolutePath()));
+            }catch(Exception error){failure=error;}
             finally{
-                if(!restored&&request!=0)ProjectMJNI.discardOfficialPresetPack(request);
-                ProjectMJNI.setOfficialPresetRestorePending(false);
+                Status outcome;
+                try {
+                    final long settled=request;
+                    boolean applied=restoreApplied(request,awaited,index::status,()->index.discard(settled));
+                    committedGeneration=applied?current:null;
+                    // The status names only what the engine committed: after a failed restore it
+                    // offers the download again instead of describing the stored pack as installed.
+                    if(applied)outcome=new Status("installed",0,0,identity,null);
+                    else outcome=failure==null?new Status("idle",0,0,"",null):new Status("error",0,0,"",message(failure));
+                }finally{index.pending(false);}
                 finish(outcome);
             }
         });
+    }
+    /**
+     * Settles a restore request: whether the engine committed it. An unconfirmed request is
+     * discarded first; discard retires the request unless it was already applied, so the status
+     * read afterwards is final (a timed-out request cannot commit later).
+     */
+    static boolean restoreApplied(long request,boolean awaited,CustomPresetPack.IndexStatus status,Runnable discard) {
+        if(request==0)return false;
+        if(!awaited)discard.run();
+        return status.status(request)==2;
     }
     /** A dead process cannot run install's finally; reclaim its partial archive/pointer. */
     static void recoverFiles(File root)throws IOException {
@@ -135,6 +169,7 @@ final class OfficialPresetDownload {
                     committed=true;
                 }finally{if(!committed)CustomPresetPack.restore(root,previous);}
             }
+            committedGeneration=pack.directory;
             outcome=new Status("installed",next.bytes,next.bytes,next.identity,null);
         }catch(Exception error){outcome=new Status(canceled.get()?"canceled":"error",0,0,previousIdentity,message(error));}
         finally {
@@ -161,6 +196,7 @@ final class OfficialPresetDownload {
                     try{if(!index.commit(request))throw new IOException("Collection changed while removing; retry");committed=true;}
                     finally{if(!committed)CustomPresetPack.restore(root,previous);}
                 }
+                committedGeneration=null;
                 outcome=new Status("idle",0,0,"",null);
             }catch(Exception error){outcome=new Status(canceled.get()?"canceled":"error",0,0,identity,message(error));}
             finally{try{if(!committed&&request!=0)index.discard(request);CustomPresetPack.scheduleCleanup(root,d->index.inUse(d.getAbsolutePath()));}finally{finish(outcome);}}

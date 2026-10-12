@@ -32,6 +32,9 @@ public class OfficialPresetPackTest {
         return d.getDeclaredMethod("read", InputStream.class).invoke(null, new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     }
     File archive(File parent, boolean badMetadata, boolean extra) throws Exception {
+        return archive(parent, badMetadata, extra, new String[0]);
+    }
+    File archive(File parent, boolean badMetadata, boolean extra, String[] attributeFiles) throws Exception {
         Map<String,byte[]> files = new LinkedHashMap<>();
         files.put("presets/one.milk", "[preset00]\nper_frame_1=q1=bass;\n".getBytes());
         files.put("presets/two.milk", "[preset00]\nper_frame_1=q1=mid;\n".getBytes());
@@ -39,6 +42,7 @@ public class OfficialPresetPackTest {
         for (String g : new String[]{"chill","normal","intense"}) files.put("preset-genres/genres/"+g+".idx", (badMetadata ? "unknown.milk\t3\n" : "one.milk\t17\n").getBytes());
         files.put("preset-genres/manifest.json", "{}".getBytes());
         files.put("preset-genres/presets.jsonl", "{}\n".getBytes());
+        for (String a : attributeFiles) files.put("preset-attributes/"+a, "x".getBytes());
         files.put("LICENSE", "notice".getBytes());
         files.put("LICENSES/CC0-1.0.txt", "notice".getBytes());
         files.put("docs/THIRD_PARTY.md", "notice".getBytes());
@@ -85,6 +89,17 @@ public class OfficialPresetPackTest {
                 try{prepare(c,root,zip,d);fail("corrupt official pack accepted");}catch(InvocationTargetException expected){assertTrue(expected.getCause() instanceof IOException);}
                 assertFalse(new File(root,"current").exists());
             }
+        }finally{CustomPresetPack.delete(parent);}
+    }
+    @Test public void presetAttributesAreAcceptedOnlyUnderExactNames()throws Exception {
+        Class<?> c=component();File parent=Files.createTempDirectory("official-attributes").toFile();
+        try {
+            File zip=archive(parent,false,false,new String[]{"facets.json","attributes.tsv","manifest.json"});
+            prepare(c,new File(parent,"accepted"),zip,descriptor(c,zip,expanded(zip),null));
+            File bad=archive(parent,false,false,new String[]{"facets.json","attributes.tsv","manifest.json","other.bin"});
+            try{prepare(c,new File(parent,"rejected"),bad,descriptor(c,bad,expanded(bad),null));fail("unexpected attribute file accepted");}
+            catch(InvocationTargetException expected){assertTrue(expected.getCause() instanceof IOException);}
+            assertFalse(new File(parent,"rejected/current").exists());
         }finally{CustomPresetPack.delete(parent);}
     }
     @Test public void descriptorRejectsPlainHttpAndFractionalSizes()throws Exception {

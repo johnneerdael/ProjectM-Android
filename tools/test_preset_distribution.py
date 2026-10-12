@@ -71,6 +71,32 @@ class DistributionTests(unittest.TestCase):
         self.assertEqual(manifest['groups']['chill']['count'], 7)
         self.assertEqual(manifest['source_library_sha256'], 'original')
 
+    def test_starter_filters_preset_attributes_to_selected_presets(self):
+        folder = self.assets / 'preset-attributes'
+        folder.mkdir()
+        header = ('#projectm-tv-preset-attributes\t1\n#definition\tabc\n#group\tcomfort\tComfort\n'
+                  '#option\tcomfort\tno_strobe\tNo strobe\n'
+                  '#columns\tname\toptions\tluminance\tsaturation\tcoloured_share\twarm_cool\tflow\tframe_difference\tjumps\tactivity\n')
+        names = [f'Preset {i:02}.milk' for i in range(23)]
+        rows = ''.join(('%s\t\t-\t-\t-\t-\t-\t-\t-\t-\n' % n) if n == names[3] else
+                       '%s\tno_strobe\t0.1000\t0.1000\t0.1000\t0.0000\t0.1000\t0.0100\t0.0000\t0.5000\n' % n for n in names)
+        (folder / 'attributes.tsv').write_text(header + rows)
+        (folder / 'facets.json').write_text('{}')
+        (folder / 'manifest.json').write_text(json.dumps({'preset_count': 23, 'measured_count': 23, 'option_counts': {'no_strobe': 23}}))
+        files = self.module.source_files(self.root)
+        self.assertIn('preset-attributes/attributes.tsv', files)
+        output = self.module.starter_files(files, json.loads(self.selection.read_text()))
+        lines = [l for l in output['preset-attributes/attributes.tsv'].decode().splitlines() if not l.startswith('#')]
+        self.assertEqual([l.split('\t')[0] for l in lines], names[:20])
+        manifest = json.loads(output['preset-attributes/manifest.json'])
+        self.assertEqual(manifest['preset_count'], 20)
+        self.assertEqual(manifest['measured_count'], 19)
+        self.assertEqual(manifest['option_counts']['no_strobe'], 19)
+        self.assertEqual([l for l in output['preset-attributes/attributes.tsv'].decode().splitlines() if l.startswith('#')],
+                         header.splitlines())
+        self.assertEqual(manifest['attributes_sha256'], hashlib.sha256(output['preset-attributes/attributes.tsv']).hexdigest())
+        self.assertEqual(manifest['presets_idx_sha256'], hashlib.sha256(output['presets.idx']).hexdigest())
+
     def test_bad_source_hash_rejected(self):
         (self.assets/'presets/Preset 00.milk').write_text('changed')
         with self.assertRaisesRegex(ValueError, 'identity|hash'):

@@ -17,6 +17,40 @@ public class OfficialCollectionTest {
         assertEquals(false,offer.invoke(null,false,true,true,true,"restoring",""));
         assertEquals(false,offer.invoke(null,false,true,true,true,"installed","previous-collection"));
     }
+    @Test public void moodReloadsOnlyWhenTheInstalledCollectionSettlesOnANewIdentity() {
+        assertTrue("first settled report always reloads: attach may have missed the busy restore",OfficialCollection.settledChange(null,false,"a"));
+        assertFalse("still downloading",OfficialCollection.settledChange("",true,""));
+        assertFalse("unchanged",OfficialCollection.settledChange("a",false,"a"));
+        assertTrue("installed",OfficialCollection.settledChange("",false,"a"));
+        assertTrue("replaced",OfficialCollection.settledChange("a",false,"b"));
+        assertTrue("removed",OfficialCollection.settledChange("a",false,""));
+    }
+    @Test public void firstSettledReportReloadsEvenWithoutAnObservedBusyPeriod() {
+        assertTrue("restore cleared a corrupt pointer before attach",OfficialCollection.settledChange(null,false,""));
+        assertFalse("still busy",OfficialCollection.settledChange(null,true,""));
+        assertFalse("already settled once",OfficialCollection.settledChange("",false,""));
+    }
+    @Test public void attributesComeFromTheNativelyCommittedGenerationOnly() throws Exception {
+        java.io.File root=java.nio.file.Files.createTempDirectory("official").toFile();
+        try {
+            assertNull("nothing committed in the engine: bundled starter attributes",OfficialCollection.attributesFile((java.io.File)null));
+            String id="0123abcd-0123-0123-0123-0123456789ab";
+            java.io.File generation=new java.io.File(root,id);
+            assertTrue(generation.mkdirs());
+            assertTrue(new java.io.File(generation,"installed.json").createNewFile());
+            java.nio.file.Files.write(new java.io.File(root,"current").toPath(),(id+"\n").getBytes("UTF-8"));
+            java.io.File expected=new java.io.File(generation,"preset-attributes/attributes.tsv");
+            // A committed archive without attributes: the expected path, which does not exist, so
+            // Mood reports the collection as outdated instead of describing it with the starter table.
+            assertEquals(expected,OfficialCollection.attributesFile(generation));
+            assertFalse(expected.exists());
+            assertTrue(expected.getParentFile().mkdirs());
+            assertTrue(expected.createNewFile());
+            assertEquals(expected,OfficialCollection.attributesFile(generation));
+        } finally {
+            java.nio.file.Files.walk(root.toPath()).sorted(java.util.Comparator.reverseOrder()).forEach(p->p.toFile().delete());
+        }
+    }
     @Test public void timeoutCannotCommitBetweenStatusCheckAndDiscard() {
         java.util.concurrent.atomic.AtomicReference<Runnable> queued=new java.util.concurrent.atomic.AtomicReference<>();
         java.util.concurrent.atomic.AtomicBoolean applied=new java.util.concurrent.atomic.AtomicBoolean();

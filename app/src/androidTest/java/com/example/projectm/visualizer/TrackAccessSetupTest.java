@@ -48,7 +48,7 @@ final class TrackAccessSetupTest {
             test.getUiAutomation();  // connect now: Android's automation-service toast expires before the first capture
             SharedPreferences prefs = test.getTargetContext().getSharedPreferences("projectm_settings", 0);
             prefs.edit().remove("track_access_explained").commit();
-            if ("guide".equals(mode)) prefs.edit().putString("music_category", "all").commit();
+            if ("guide".equals(mode)) prefs.edit().putString("music_category", "all").remove("mood_facets").remove("mood_collection").commit();
             Intent launch = new Intent(test.getTargetContext(), MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             activity = test.startActivitySync(launch);
@@ -92,16 +92,21 @@ final class TrackAccessSetupTest {
                     test.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
                     test.runOnMainSync(() -> target.findViewById(R.id.row_music_category).requestFocus());
                     capture(test, "main-settings");
+                    // Preset mood opens the Mood panel; its first row (Energy) starts on Chill.
                     test.runOnMainSync(() -> target.findViewById(R.id.row_music_category).performClick());
+                    SystemClock.sleep(400);
+                    test.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);
+                    test.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);  // back to the main panel
                     long categoryDeadline = SystemClock.elapsedRealtime() + 15000;
-                    while ((ProjectMJNI.isMusicCategoryPending() || !"chill".equals(ProjectMJNI.getMusicCategory()))
+                    while ((ProjectMJNI.isMusicCategoryPending() || !"facets".equals(ProjectMJNI.getMusicCategory()))
                             && SystemClock.elapsedRealtime() < categoryDeadline)
                         SystemClock.sleep(100);
-                    check("chill".equals(ProjectMJNI.getMusicCategory()) && !ProjectMJNI.isMusicCategoryPending(),
+                    check("facets".equals(ProjectMJNI.getMusicCategory()) && !ProjectMJNI.isMusicCategoryPending()
+                            && "chill".equals(prefs.getString("mood_facets", "")),
                             "Chill did not apply: category=" + ProjectMJNI.getMusicCategory()
                             + ", pending=" + ProjectMJNI.isMusicCategoryPending()
-                            + ", packaged=" + ProjectMJNI.getCategoryPresetCount("chill")
-                            + ", requested=" + prefs.getString("music_category", "missing"));
+                            + ", pool=" + ProjectMJNI.getCategoryPresetCount("facets")
+                            + ", facets=" + prefs.getString("mood_facets", "missing"));
                     // Loading Chill can outlast the panel's auto-hide: reopen it on the category row.
                     if (target.findViewById(R.id.overlay_menu).getVisibility() != View.VISIBLE) {
                         test.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);

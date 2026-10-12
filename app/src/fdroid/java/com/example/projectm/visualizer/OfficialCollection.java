@@ -23,6 +23,8 @@ final class OfficialCollection {
     private long resumedAt;
     private AlertDialog dialog;
     private boolean showingProgress;
+    private Runnable collectionChanged;
+    private String settledIdentity;  // the installed identity last reported to collectionChanged
 
     OfficialCollection(Activity activity,SharedPreferences prefs,Handler handler,VisualizerView view) {
         this.activity=activity;this.prefs=prefs;this.handler=handler;download=OfficialPresetDownload.get(activity);
@@ -60,6 +62,31 @@ final class OfficialCollection {
         }
     }
     static void restore(Context context){OfficialPresetDownload.get(context);}
+    /** Runs on the UI thread whenever the installed collection settles on a different identity (installed, replaced or removed). */
+    void setOnCollectionChanged(Runnable listener){collectionChanged=listener;}
+    /**
+     * The first settled report always counts as a change: the cold-start restore may have validated
+     * and cleared a corrupt pointer before this listener attached, after Mood read the unvalidated
+     * pointer. The reload is keyed on the table source, so an unchanged source costs nothing.
+     */
+    static boolean settledChange(String previous,boolean busy,String identity) {
+        if(busy)return false;
+        return previous==null||!previous.equals(identity);
+    }
+    /**
+     * The preset attributes of the official generation committed in the native engine; null while
+     * the engine uses the bundled starters (no collection, a pending first restore, or a failed or
+     * timed-out restore whose durable pointer remains), so the starter table applies. A pending
+     * install or removal keeps the previous source; the settled report reloads Mood. A committed
+     * pack from an archive without attributes yields the expected path although it does not exist,
+     * so the starter table never describes a full library. No file is read or hashed here.
+     */
+    static java.io.File attributesFile(Context context) {
+        return attributesFile(OfficialPresetDownload.get(context).committed());
+    }
+    static java.io.File attributesFile(java.io.File committedGeneration) {
+        return committedGeneration==null?null:new java.io.File(committedGeneration,"preset-attributes/attributes.tsv");
+    }
     static boolean shouldOffer(boolean seen,boolean resumed,boolean focus,boolean ready,String phase,String identity) {
         return !seen&&resumed&&focus&&ready&&identity.isEmpty()&&(phase.equals("idle")||phase.equals("error"));
     }
@@ -106,6 +133,9 @@ final class OfficialCollection {
     }
     private void changed(OfficialPresetDownload.Status status) {
         if(!resumed)return;
+        boolean settled=settledChange(settledIdentity,status.busy(),status.identity);
+        if(!status.busy())settledIdentity=status.identity;
+        if(settled&&collectionChanged!=null)collectionChanged.run();
         row.setActionValue(status.busy()?status.phase+" ›":status.phase.equals("error")?"Download failed ›":status.phase.equals("canceled")?"Canceled ›":status.identity.isEmpty()?"20 starter presets ›":"Full collection ›");
         if(dialog!=null){dialog.setMessage(message(status));if(showingProgress&&!status.busy())close();}
         maybeOffer();
