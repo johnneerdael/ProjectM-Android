@@ -67,6 +67,7 @@ final class OfficialPresetDownload {
             String identity="";
             Status outcome=new Status("error",0,0,"","Collection restore failed");
             try {
+                recoverFiles(root);
                 try(InputStream in=context.getAssets().open("official-pack.json")){descriptor=OfficialPresetPack.Descriptor.read(in);}
                 File current=OfficialPresetPack.current(root);
                 if(current!=null) {
@@ -84,6 +85,15 @@ final class OfficialPresetDownload {
                 finish(outcome);
             }
         });
+    }
+    /** A dead process cannot run install's finally; reclaim its partial archive/pointer. */
+    static void recoverFiles(File root)throws IOException {
+        synchronized(CustomPresetPack.STORE_LOCK){
+            for(String name:new String[]{"download.zip","current.tmp"}){
+                File partial=new File(root,name);
+                if(partial.exists()&&!partial.delete())throw new IOException("Cannot remove incomplete collection files");
+            }
+        }
     }
     synchronized void start(OfficialPresetPack.Descriptor next,NativeIndex index) {
         if(running||next==null)return;

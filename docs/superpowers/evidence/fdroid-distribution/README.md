@@ -144,3 +144,21 @@ macOS. The final TV setup APK completed full archive installation/custom
 coexistence again. An actual cold launch with both Intense starters skipped
 kept saved Intense and displayed 2,793 eligible full-pack presets (2 skipped).
 See [source/artifact identities and cold-start result](review-corrections.json).
+
+## PR recovery follow-up
+
+Codex's current-head review found a queued-commit timeout race and partial
+archives left after process death. Three host regressions failed before the
+fixes and pass afterward. Publication now serializes the native call and its
+failure decision: cancel queued work before rollback, or settle a native
+publication that already started. Startup clears `download.zip` and
+`current.tmp` under the shared storage lock before validated restoration.
+
+The complete F-Droid TV JVM suite passes with these changes. Both F-Droid
+release builds/package checks pass at local 2.3.40/code89 (TV 2,092,643 bytes,
+phone 2,097,501 bytes); the full Native AAR/schema remains retained. On the
+owned TV emulator, a cold restart cleared a 1,310,720-byte injected incomplete
+archive and temporary pointer while preserving the active generation and
+All 9,608 / Custom 2 catalogs. See [bounded recovery identities](pr-recovery.json).
+The original rendering qualification and its source/artifact hashes above
+remain historical records; the renderer/native source bytes are unchanged.

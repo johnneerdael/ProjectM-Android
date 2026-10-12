@@ -175,4 +175,17 @@ public class OfficialPresetDownloadTest {
             assertFalse(file.exists());
         }finally{file.delete();}
     }
+    @Test public void startupRecoveryRemovesInterruptedFilesAndPreservesActiveGeneration()throws Exception {
+        File parent=Files.createTempDirectory("official-killed-download").toFile(),root=new File(parent,"store");
+        try {
+            OfficialPresetPackTest fixture=new OfficialPresetPackTest();File archive=fixture.archive(parent,false,false);
+            OfficialPresetPack.Descriptor descriptor=(OfficialPresetPack.Descriptor)fixture.descriptor(OfficialPresetPack.class,archive,fixture.expanded(archive),null);
+            CustomPresetPack.Pack pack=OfficialPresetPack.prepare(root,archive,descriptor,()->false,n->{});CustomPresetPack.activate(root,pack);
+            Files.write(new File(root,"download.zip").toPath(),new byte[65536]);
+            Files.write(new File(root,"current.tmp").toPath(),"interrupted pointer".getBytes(StandardCharsets.UTF_8));
+            Method recover=OfficialPresetDownload.class.getDeclaredMethod("recoverFiles",File.class);recover.invoke(null,root);
+            assertFalse(new File(root,"download.zip").exists());assertFalse(new File(root,"current.tmp").exists());
+            assertEquals(pack.directory,OfficialPresetPack.current(root));assertTrue(new File(pack.directory,"official-presets.idx").isFile());
+        }finally{CustomPresetPack.delete(parent);}
+    }
 }

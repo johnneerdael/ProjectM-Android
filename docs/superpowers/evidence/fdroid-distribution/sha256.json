@@ -1,5 +1,5 @@
 {
-  "README.md": "ac6aa0aef551073e994988edaba4395e9b2a13bb3d01689cef8fbb065534161b",
+  "README.md": "98156065cae044232e966a4d5a4dcbdae1d7ad771a4cadee59c3021cd4a74616",
   "phone-pack.txt": "98ba059eec2e89bd4a7b6b1438d390689ee538581c6b7c2aa903d3185e10bbe8",
   "phone-removed.txt": "9ca64fc4630b1d4275fc8b90e9def4bc22a2e8edd8d76b89913fde5657ea8488",
   "phone-restart.txt": "e77518153fb61ecfa53a6f2de2e1a6c33fc2e98dc7c2c87423a0e676346c48e6",
@@ -29,6 +29,7 @@
   "phone/fdroid-starter-8.jpg": "f27e63f25490b8c8f0835c13b71fa9915520bc753e53806a4e9387184788ac95",
   "phone/fdroid-starter-9.jpg": "59c9ac011048c38b6b7b32446ef20c4370c8dbe4d1d6fffd4d46e7ce04c38898",
   "phone/starter-runtime.json": "c6cf1aa863026062ef480096a4a2188b2ca94454b3450333b75414983e99aada",
+  "pr-recovery.json": "97bc9c5d9e6d95eef62376fbb16006cbe93c74cb8c64c05ee7a145adb6b56058",
   "review-corrections.json": "d519ef4f61b05f1419aa5140a0b591cf666ae34214463b5673817076fc3f9cb4",
   "task6-local-reproducibility.json": "bc2a6c82cbf57095ba4e15fe548e5aad990a1f33753487b9029c8382739c0066",
   "tv-pack.txt": "aa2353ef32e1e048f5c99e73c20a349d83e81f4d4c124386e540ac13aee97144",

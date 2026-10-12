@@ -34,15 +34,30 @@ final class OfficialCollection {
             public void discard(long request){ProjectMJNI.discardOfficialPresetPack(request);}
             public boolean inUse(String directory){return ProjectMJNI.isOfficialPresetPackInUse(directory);}
             public boolean commit(long request) {
-                FutureTask<Boolean> task=new FutureTask<>(()->ProjectMJNI.commitOfficialPresetPack(request));
-                view.queueEvent(task);
-                try{return task.get(30,TimeUnit.SECONDS);}
-                catch(Exception failed){
-                    if(ProjectMJNI.getOfficialPresetPackStatus(request)==2)return true;
-                    ProjectMJNI.discardOfficialPresetPack(request);return false;
-                }
+                return commitOnGlThread(request,view::queueEvent,
+                        ()->ProjectMJNI.commitOfficialPresetPack(request),
+                        ProjectMJNI::getOfficialPresetPackStatus,
+                        ()->ProjectMJNI.discardOfficialPresetPack(request),30000);
             }
         };
+    }
+    static boolean commitOnGlThread(long request,Executor gl,Callable<Boolean> commit,
+            CustomPresetPack.IndexStatus status,Runnable discard,long timeoutMs) {
+        Object gate=new Object();boolean[] abandoned={false};
+        FutureTask<Boolean> task=new FutureTask<>(()->{
+            synchronized(gate){return !abandoned[0]&&commit.call();}
+        });
+        try{gl.execute(task);return task.get(timeoutMs,TimeUnit.MILLISECONDS);}
+        catch(Exception failed){
+            if(failed instanceof InterruptedException)Thread.currentThread().interrupt();
+            // A queued commit must never execute after rollback. If it has already
+            // entered native publication, settle its result before reporting failure.
+            synchronized(gate){
+                abandoned[0]=true;task.cancel(false);
+                if(status.status(request)==2)return true;
+                discard.run();return false;
+            }
+        }
     }
     static void restore(Context context){OfficialPresetDownload.get(context);}
     static boolean shouldOffer(boolean seen,boolean resumed,boolean focus,boolean ready,String phase,String identity) {
