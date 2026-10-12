@@ -60,7 +60,10 @@ final class OfficialPresetDownload {
     private synchronized void finish(Status value){running=false;status=value;announce(value);}
     private void restore(Context context) {
         synchronized(this){running=true;publish("restoring",0,0,"",null);}
+        ProjectMJNI.setOfficialPresetRestorePending(true);
         worker.execute(()->{
+            long request=0;
+            boolean restored=false;
             String identity="";
             Status outcome=new Status("error",0,0,"","Collection restore failed");
             try {
@@ -68,13 +71,18 @@ final class OfficialPresetDownload {
                 File current=OfficialPresetPack.current(root);
                 if(current!=null) {
                     identity=OfficialPresetPack.identity(current);
-                    long request=ProjectMJNI.setOfficialPresetPack(current.getAbsolutePath());
+                    request=ProjectMJNI.setOfficialPresetPack(current.getAbsolutePath());
                     CustomPresetPack.awaitStatus(request,2,ProjectMJNI::getOfficialPresetPackStatus,()->false,30000);
                 }else if(CustomPresetPack.current(root)!=null)CustomPresetPack.restore(root,null);
+                restored=true;
                 outcome=new Status(identity.isEmpty()?"idle":"installed",0,0,identity,null);
                 CustomPresetPack.scheduleCleanup(root,d->ProjectMJNI.isOfficialPresetPackInUse(d.getAbsolutePath()));
             }catch(Exception error){outcome=new Status("error",0,0,identity,message(error));}
-            finally{finish(outcome);}
+            finally{
+                if(!restored&&request!=0)ProjectMJNI.discardOfficialPresetPack(request);
+                ProjectMJNI.setOfficialPresetRestorePending(false);
+                finish(outcome);
+            }
         });
     }
     synchronized void start(OfficialPresetPack.Descriptor next,NativeIndex index) {
@@ -102,13 +110,15 @@ final class OfficialPresetDownload {
                 return connection;
             },canceled::get,n->publish("downloading",n,next.bytes,previousIdentity,null));
             publish("verifying",next.bytes,next.bytes,previousIdentity,null);
-            pack=OfficialPresetPack.prepare(root,archive,next,canceled::get,n->publish("extracting",n,next.presetCount,previousIdentity,null));
-            OfficialPresetPack.canceled(canceled::get);
-            publish("indexing",0,0,previousIdentity,null);
-            request=index.prepare(pack.directory.getAbsolutePath());
-            CustomPresetPack.awaitStatus(request,1,index::status,canceled::get,30000);
-            synchronized(this){OfficialPresetPack.canceled(canceled::get);publish("committing",0,0,previousIdentity,null);}
+            // Cleanup shares this lock. Protect the new generation from extraction until
+            // it has native ownership and the durable current pointer has been published.
             synchronized(CustomPresetPack.STORE_LOCK) {
+                pack=OfficialPresetPack.prepare(root,archive,next,canceled::get,n->publish("extracting",n,next.presetCount,previousIdentity,null));
+                OfficialPresetPack.canceled(canceled::get);
+                publish("indexing",0,0,previousIdentity,null);
+                request=index.prepare(pack.directory.getAbsolutePath());
+                CustomPresetPack.awaitStatus(request,1,index::status,canceled::get,30000);
+                synchronized(this){OfficialPresetPack.canceled(canceled::get);publish("committing",0,0,previousIdentity,null);}
                 CustomPresetPack.activate(root,pack);
                 try {
                     if(!index.commit(request))throw new IOException("Collection changed while preparing; retry the download");

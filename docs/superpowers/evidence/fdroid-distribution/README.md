@@ -109,3 +109,38 @@ pass checks. F-Droid APKs contain no install permission/provider or APK-update
 implementation. Starter source hashes, indexes/moods and qualification marker
 pass; the staged full AAR retains all source assets. These local artifacts are
 not official signed/public release claims.
+
+## Final local review corrections
+
+The whole-branch review of `8238b86b..a9dceb17` found two installation/startup
+issues. A cleanup worker could remove a staged official generation before its
+native lease existed. The installer now holds the shared storage lock from
+extraction through native indexing and durable publication. A deterministic
+regression invokes the real cleanup worker at the pre-ownership boundary; it
+failed before the fix and passes with the published generation intact.
+
+Cold startup could persist All while validating the downloaded collection if
+every starter in the saved mood had been skipped. Startup now marks official
+restoration pending before scheduling validation and clears that state in
+`finally`, discarding failed requests. Both first-frame selection and later
+category commands wait, as does fallback persistence. The native regression
+delays restoration with all Intense starters skipped, then restores a full-only
+Intense preset and verifies the requested mood survives. It also verifies
+category-pending state clears after publication. These checks cover the storage
+and startup races; they do not expand the device/fidelity scope above.
+
+After the review corrections, all four release APKs and package checks passed
+again: GitHub TV 43,656,526 bytes, phone 43,661,113 bytes; F-Droid TV
+2,092,317 bytes, phone 2,097,187 bytes. The full Native AAR SHA-256 is
+`97f153cdfda41765eb74e02bb677648cbccb87206c3d82f14ed98a4e12b01e6a`;
+Milkbeat's APK build and focused visualizer consumer checks passed against
+these exact bytes. The F-Droid TV/core JVM suites passed 86/74 tests;
+all eight official-download tests also passed on the phone build. The
+release-tooling suite passed 230 tests using fdroidserver 2.4.5.
+
+Final native checks passed all 64 renderer controls with ASan/UBSan plus
+engine/JNI controls; standalone EGL transition overlay remains skipped on
+macOS. The final TV setup APK completed full archive installation/custom
+coexistence again. An actual cold launch with both Intense starters skipped
+kept saved Intense and displayed 2,793 eligible full-pack presets (2 skipped).
+See [source/artifact identities and cold-start result](review-corrections.json).

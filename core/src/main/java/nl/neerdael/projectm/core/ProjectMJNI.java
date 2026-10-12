@@ -90,6 +90,9 @@ public final class ProjectMJNI {
     /** Live rendering/transition or prewarming can still need an immutable generation's images. */
     public static native boolean isCustomPresetPackInUse(String directory);
     /** Official base collection replaces bundled starters, preserving moods and the custom slot. */
+    /** Hold startup category application/persistence while the host validates its stored collection.
+     * Call before asynchronous validation starts and clear in finally after restore or failure. */
+    public static native void setOfficialPresetRestorePending(boolean pending);
     public static native long setOfficialPresetPack(String directory);
     public static native long prepareOfficialPresetPack(String directory);
     /** Same request-scoped 0/1/2/-1 contract as custom-pack status. */

@@ -150,6 +150,11 @@ public:
         return ++officialSerial_;
     }
     bool OfficialPackPending() const { return officialPending_.load(); }
+    void SetOfficialRestorePending(bool pending) { officialValidationPending_ = pending; }
+    bool RestorePending() const {
+        return CustomRestorePending() || officialValidationPending_.load() ||
+               (officialPending_.load() && officialAutoApply_.load());
+    }
     int OfficialPackStatus(uint64_t serial) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (serial && serial == appliedOfficialSerial_) return 2;
@@ -1036,7 +1041,8 @@ private:
     std::string officialDirectoryRequested_;
     uint64_t officialSerial_ = 0, appliedOfficialSerial_ = 0;
     std::atomic<bool> officialPending_{false};
-    bool officialAutoApply_ = true;
+    std::atomic<bool> officialAutoApply_{true};
+    std::atomic<bool> officialValidationPending_{false};
     int officialStatus_ = -1;
     std::shared_ptr<PreparedOfficial> preparedOfficial_;
     std::vector<std::shared_ptr<PreparedOfficial>> retiredOfficials_;
@@ -2005,7 +2011,7 @@ void HandleAutoSwitch() {
 }
 
 void HandleCommands() {
-    if (g_library.CustomRestorePending()) return;
+    if (g_library.RestorePending()) return;
     if (g_inputs.categoryDirty.exchange(false)) {
         std::string requested;
         uint64_t serial;
@@ -2413,7 +2419,7 @@ JNIEXPORT void JNICALL JNI_FN(onDrawFrame)(JNIEnv*, jclass) {
 
     if (g_engine.current.empty()) {
         // First frame(s): show the idle preset until the index is ready, then start immediately.
-        if (g_library.Ready() && !g_library.CustomRestorePending()) {
+        if (g_library.Ready() && !g_library.RestorePending()) {
             bool applyingCategory = g_inputs.categoryDirty.exchange(false);
             uint64_t categorySerial = 0;
             if (applyingCategory) {
@@ -2666,7 +2672,7 @@ JNIEXPORT jstring JNICALL JNI_FN(getMusicCategory)(JNIEnv* env, jclass) {
 }
 
 JNIEXPORT jboolean JNICALL JNI_FN(isMusicCategoryPending)(JNIEnv*, jclass) {
-    return g_library.CustomRestorePending() || g_library.OfficialPackPending() ||
+    return g_library.RestorePending() || g_library.OfficialPackPending() ||
            g_inputs.categoryRequestedSerial.load() != g_inputs.categoryAppliedSerial.load();
 }
 
@@ -2732,6 +2738,9 @@ static jlong RequestOfficialFromJava(JNIEnv* env, jstring directory, bool apply)
     auto serial = g_library.RequestOfficialPack(path, apply);
     env->ReleaseStringUTFChars(directory, path);
     return static_cast<jlong>(serial);
+}
+JNIEXPORT void JNICALL JNI_FN(setOfficialPresetRestorePending)(JNIEnv*, jclass, jboolean pending) {
+    g_library.SetOfficialRestorePending(pending);
 }
 JNIEXPORT jlong JNICALL JNI_FN(setOfficialPresetPack)(JNIEnv* env, jclass, jstring directory) {
     return RequestOfficialFromJava(env, directory, true);

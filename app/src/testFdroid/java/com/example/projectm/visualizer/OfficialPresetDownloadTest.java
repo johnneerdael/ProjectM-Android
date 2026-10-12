@@ -137,6 +137,34 @@ public class OfficialPresetDownloadTest {
         }finally{CustomPresetPack.delete(parent);}
     }
 
+    @Test public void cleanupCannotDeleteStagingBeforeNativeOwnership()throws Exception {
+        File parent=Files.createTempDirectory("official-cleanup-race").toFile(),root=new File(parent,"store");
+        java.util.concurrent.atomic.AtomicBoolean survived=new java.util.concurrent.atomic.AtomicBoolean();
+        java.util.concurrent.atomic.AtomicReference<java.util.concurrent.Future<?>> cleanup=new java.util.concurrent.atomic.AtomicReference<>();
+        try {
+            OfficialPresetPackTest fixture=new OfficialPresetPackTest();File archive=fixture.archive(parent,false,false);
+            OfficialPresetPack.Descriptor d=(OfficialPresetPack.Descriptor)fixture.descriptor(OfficialPresetPack.class,archive,fixture.expanded(archive),null);
+            byte[] bytes=Files.readAllBytes(archive.toPath());
+            OfficialPresetDownload download=new OfficialPresetDownload(root,url->new Connection(url,200,null,bytes));
+            download.start(d,new OfficialPresetDownload.NativeIndex(){
+                public long prepare(String path){
+                    java.util.concurrent.Future<?> job=CustomPresetPack.scheduleCleanup(root,directory->false);cleanup.set(job);
+                    try{job.get(200,java.util.concurrent.TimeUnit.MILLISECONDS);}
+                    catch(java.util.concurrent.TimeoutException protectedStaging){}
+                    catch(Exception failed){throw new RuntimeException(failed);}
+                    survived.set(new File(path,"official-presets.idx").isFile());return 1;
+                }
+                public int status(long request){return 1;}public boolean commit(long request){return true;}
+                public void discard(long request){}public boolean inUse(String path){return false;}
+            });
+            long until=System.currentTimeMillis()+5000;while(download.status().busy()&&System.currentTimeMillis()<until)Thread.sleep(10);
+            assertTrue("cleanup deleted staging before native ownership",survived.get());
+            assertEquals("installed",download.status().phase);
+            cleanup.get().get(5,java.util.concurrent.TimeUnit.SECONDS);
+            assertNotNull("the published generation must survive cleanup",OfficialPresetPack.current(root));
+        }finally{CustomPresetPack.delete(parent);}
+    }
+
     @Test public void truncatedTransferNeverLeavesAnArchive()throws Exception {
         File file=Files.createTempFile("official-truncated",".zip").toFile();byte[] bytes={1,2,3};
         try{

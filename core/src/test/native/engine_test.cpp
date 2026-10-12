@@ -269,6 +269,32 @@ template<class T> void CheckOfficialPack(T& library, const std::string& root, co
       CHECK(library.OfficialPackStatus(invalid) == -1 && library.CategoryCount("custom") == 0);
     }
     write(directory + "/official-presets.idx", "0/0.milk\tgood 1.milk\t17\n0/1.milk\tofficial unique.milk\t3\n");
+    // File validation precedes native indexing on cold startup. Keep the requested mood
+    // pending even when every starter in that mood has already been skipped.
+    write(directory + "/preset-genres/genres/intense.idx", "official unique.milk\t3\n");
+    library.MarkSkipped("good 1.milk", "cold mood fixture");
+    library.MarkSkipped("good 2.milk", "cold mood fixture");
+    library.MarkSkipped("good 3.milk", "cold mood fixture");
+    Java_nl_neerdael_projectm_core_ProjectMJNI_setOfficialPresetRestorePending(nullptr,nullptr,true);
+    {
+      std::lock_guard<std::mutex> lock(g_inputs.categoryMutex);
+      g_inputs.requestedCategory="intense";++g_inputs.categoryRequestedSerial;
+    }
+    g_inputs.categoryDirty=true;
+    HandleCommands();
+    CHECK(g_inputs.categoryDirty.load());
+    CHECK(Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr,nullptr));
+    auto delayedRestore=library.RequestOfficialPack(directory);await(delayedRestore);
+    CHECK(library.OfficialPackStatus(delayedRestore)==2);
+    HandleCommands();CHECK(g_inputs.categoryDirty.load());
+    Java_nl_neerdael_projectm_core_ProjectMJNI_setOfficialPresetRestorePending(nullptr,nullptr,false);
+    HandleCommands();
+    CHECK(library.Category()=="intense" && library.CategoryCount("intense")==1);
+    CHECK(!Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr,nullptr));
+    auto delayedRemove=library.RequestOfficialPack("",false);await(delayedRemove);
+    CHECK(library.CommitOfficialPack(delayedRemove));
+    library.ResetSkipped();library.MarkSkipped("good 1.milk","restore prior fixture");
+    library.MarkSkipped("preskipped.milk","restore prior fixture");library.SetCategory("all");
     // The two independent cold-restore requests converge on a coherent joined catalog.
     auto restoreOfficial = library.RequestOfficialPack(directory);
     auto restoreCustom = library.RequestCustomPack(custom);
@@ -284,6 +310,11 @@ template<class T> void CheckOfficialPack(T& library, const std::string& root, co
     for (int i = 0; i < 1000 && library.CustomPackPending(); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
     CHECK(library.CustomPackStatus(clearCustom) == 2);
     library.ResetSkipped(); library.MarkSkipped("preskipped.milk", "restore fixture");
+    // Return the GL/category fixture to bundled All before later context-loss controls.
+    { std::lock_guard<std::mutex> lock(g_inputs.categoryMutex);
+      g_inputs.requestedCategory="all";++g_inputs.categoryRequestedSerial; }
+    g_inputs.categoryDirty=true;HandleCommands();
+    CHECK(LoadPreset("good 2.milk",false));
   }
 }
 static void frame() { Java_nl_neerdael_projectm_core_ProjectMJNI_onDrawFrame(nullptr, nullptr); }
