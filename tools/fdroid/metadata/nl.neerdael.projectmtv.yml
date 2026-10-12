@@ -10,7 +10,8 @@ AutoName: ProjectM TV
 
 RepoType: git
 Repo: https://github.com/johnneerdael/ProjectM-Android.git
-Binaries: https://github.com/johnneerdael/ProjectM-Android/releases/download/v%v/projectM-TV-FDroid-%v.apk
+Binaries: 
+  https://github.com/johnneerdael/ProjectM-Android/releases/download/v%v/projectM-TV-FDroid-%v.apk
 
 Builds:
   - versionName: 2.3.39
@@ -23,9 +24,6 @@ Builds:
       - fdroidTv
     rm:
       - docs/superpowers/evidence
-    prebuild: sed -i.bak -e '/^projectmReleaseVersion=/d' -e '/^projectmReleaseVersionCode=/d'
-      ../gradle.properties && rm ../gradle.properties.bak && printf '\nprojectmReleaseVersion=$$VERSION$$\nprojectmReleaseVersionCode=$$VERCODE$$\n'
-      >> ../gradle.properties
     ndk: 27.3.13750724
     gradleprops:
       - projectmDistribution=fdroid
@@ -33,9 +31,10 @@ Builds:
 
 AllowedAPKSigningKeys: ee51370f485325d703adbca4d811989d90e044da6181f7629965e6add03cfcef
 
-AutoUpdateMode: Version v%v
-UpdateCheckMode: HTTP
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v\d+\.\d+\.\d+$
 UpdateCheckName: Ignore
-UpdateCheckData: https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/release-version.json|"version_code"\s*:\s*(\d+)|.|"version"\s*:\s*"(\d+\.\d+\.\d+)"
+UpdateCheckData: 
+  gradle.properties|projectmReleaseVersionCode=(\d+)|gradle.properties|projectmReleaseVersion=(\d+\.\d+\.\d+)
 CurrentVersion: 2.3.39
 CurrentVersionCode: 88

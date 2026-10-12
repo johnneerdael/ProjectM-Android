@@ -91,8 +91,9 @@ The main Android pipeline and manually dispatched **User guide** workflow both c
 
 The read-only `docs-build.yml` reusable workflow supplies the Pages artifact for main, manual and reviewed-PR builds. PR validation never calls the deployer or receives Pages/ID-token write permissions. Run **User guide** manually on `main` to build and publish the guide without publishing another APK/AAR. A manual run on another branch skips the build and deployment.
 
-The release-tooling job installs `tools/fdroid/requirements.txt` (fdroidserver
-2.4.5) in a temporary Python virtual environment before running its tests.
+The release-tooling job installs `tools/fdroid/requirements.txt` (the
+fdroidserver commit and ruamel.yaml version used by fdroiddata's merge request
+CI) in a temporary Python virtual environment before running its tests.
 Reviewed PR validation uses trusted workflow definitions from `main`, even
 when its source checkout is a PR merge commit. Land prerequisite test-tooling
 setup before a follow-up PR depends on it; changing a workflow in that follow-up
@@ -112,7 +113,11 @@ CI appends install/download information. The canonical TV and Android Downloader
 
 `app/build.gradle` holds literal `baseVersionName`, `baseVersionCode` and `baseVersionCommit` values. Keep them unchanged for routine PRs. For a planned major/minor line change, update all three together: the desired first version, a code above the latest released code, and the current `main` commit before that change. Tests verify the sequence.
 
-CI passes `PROJECTM_RELEASE_VERSION` and `PROJECTM_RELEASE_VERSION_CODE` to Gradle. Local builds default to the baseline. To reproduce a tagged release's version metadata after checking out that tag and fetching tags:
+CI passes `PROJECTM_RELEASE_VERSION` and `PROJECTM_RELEASE_VERSION_CODE` to Gradle. Local builds default to the baseline.
+
+Release tags do not point at the `main` commit itself. After allocating the version, the build job creates a release commit on top of it whose only change appends `projectmReleaseVersion` and `projectmReleaseVersionCode` to the root `gradle.properties`, checks it out and builds every artifact from it (`.github/scripts/release_commit.py`). The commit is deterministic: fixed identity, the source commit's timestamp, a `Release v<version>` message with `Version-Code` and `Source-Commit` trailers. The release job rebuilds it from `main`, requires the same SHA as the build, and pushes it only as the `v<version>` tag, never to a branch, so `main`'s first-parent numbering is unchanged. An existing tag is reused only when it already points at that commit. Version allocation and release notes map such tags back to their source commit; older tags pointing directly at `main` commits still work. `release-version.json` and the GitHub Release record the tagged commit. GitHub shows that commit as not belonging to a branch; never delete release tags, because F-Droid builds from them.
+
+A tag created this way builds with its own version after checkout: `./gradlew assembleRelease`. To reproduce an older tag's version metadata after checking it out and fetching tags:
 
 ```bash
 python3 .github/scripts/release_version.py --repo . --sha HEAD \
@@ -138,7 +143,7 @@ New releases attach `projectM-TV-<version>.apk`, `projectM-Android-<version>.apk
 
 New publication also requires both F-Droid editions: `projectM-TV-FDroid-<version>.apk` and `projectM-Android-FDroid-<version>.apk`, their stable aliases and separate R8 mappings, the deterministic `cream-of-the-crop-<version>.zip`, and `release-version.json`. Use `--with-touchscreen --with-fdroid`; earlier release retries retain their historical schema. APK descriptors must match the published archive's hash, size and collection identity, and the starter selection must carry completed runtime qualification. All four APKs share the source/version/code/signing key. The canonical full core AAR is staged before F-Droid builds overwrite local core output; CI checks its 9,606 presets and 74 textures.
 
-`release-version.json` records the stable version, Android code, exact source SHA, tag and collection identity. F-Droid uses HTTP discovery and `Version v%v`, without a 2.2-only tag restriction. Its recipe substitutes the discovered version/code through root Gradle properties and builds the matching slim flavor. Store metadata is separated under `src/fdroidTv/fastlane/` and `src/fdroidAndroid/fastlane/`.
+`release-version.json` records the stable version, Android code, the tagged release commit, tag and collection identity. F-Droid uses `UpdateCheckMode: Tags` with `AutoUpdateMode: Version` and reads the version/code from each tag's `gradle.properties`, so new release lines need no recipe change. The recipe builds the tagged source unchanged and selects the matching slim flavor. Store metadata is separated under `src/fdroidTv/fastlane/` and `src/fdroidAndroid/fastlane/`.
 
 After successful publication, the independent F-Droid synchronization job updates the pending TV submission and one separate phone submission; a failure does not block Milkbeat dispatch. Trusted-main scheduled/manual recovery revalidates the latest complete stable release. Configure `FDROID_GITLAB_TOKEN` with API and repository push access to the fdroiddata fork. The workflow's `validate_only` input checks the token with a temporary branch probe. See [F-Droid tooling](../tools/fdroid/README.md) for ownership, conflict and credential rules. Accepted listings retain F-Droid-managed build history. Local/mock checks are separate from live GitLab pipeline results and maintainer acceptance.
 
@@ -156,7 +161,7 @@ retrace projectM-TV-<version>-mapping.txt crash.txt
 
 `retrace` is in the Android SDK command-line tools (`cmdline-tools/latest/bin`). Native crashes (`Fatal signal`) are not affected.
 
-Publication creates or resumes a draft, uploads every artifact, then publishes it. A retry verifies the tag points to the expected commit and leaves a complete published release unchanged.
+Publication pushes the release tag, creates or resumes a draft, uploads every artifact, then publishes it. A retry verifies the tag points to the expected release commit and leaves a complete published release unchanged.
 
 ## Milkbeat follows each core release
 

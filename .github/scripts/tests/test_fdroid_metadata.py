@@ -54,13 +54,38 @@ class MetadataTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unsupported'):
             self.module.render(updated)
 
-    def test_http_update_discovery_supports_new_release_lines(self):
-        from fdroidserver import checkupdates
+    def test_tagged_source_declares_update_identity(self):
         app = self.module.generate_metadata(self.release, 'tv')
-        self.assertEqual(app.UpdateCheckMode, 'HTTP')
-        self.assertEqual(app.AutoUpdateMode, 'Version v%v')
-        with patch('urllib.request.urlopen', return_value=io.BytesIO(json.dumps(self.release).encode())):
-            self.assertEqual(checkupdates.check_http(app), ('2.4.10', 120))
+        self.assertEqual(app.AutoUpdateMode, 'Version')
+        self.assertEqual(app.UpdateCheckMode, r'Tags ^v\d+\.\d+\.\d+$')
+        self.assertFalse(app.Builds[-1].prebuild)
+        rendered = self.module.render(app)
+        self.assertNotIn('prebuild', rendered)
+        self.assertNotIn('VercodeOperation', rendered)
+
+    def test_rendered_recipes_pass_rewritemeta_unchanged(self):
+        # fdroiddata CI fails a merge request whose metadata rewritemeta would reformat.
+        from fdroidserver import rewritemeta
+        previous = Path.cwd()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'metadata').mkdir()
+            (root / 'config').mkdir()
+            (root / 'config/categories.yml').write_text('Multimedia:\n  name: Multimedia\n')
+            rendered = {}
+            for target, (appid, _, _, _) in self.module.TARGETS.items():
+                rendered[appid] = self.module.render(self.module.generate_metadata(self.release, target))
+                (root / 'metadata' / (appid + '.yml')).write_text(rendered[appid])
+            try:
+                os.chdir(root)
+                with patch.object(sys, 'argv', ['fdroid rewritemeta', *rendered]):
+                    rewritemeta.main()
+            finally:
+                os.chdir(previous)
+            for appid, text in rendered.items():
+                self.assertEqual((root / 'metadata' / (appid + '.yml')).read_text(), text, appid)
+                # Layout of fdroiddata's job (ruamel.yaml 0.18): long values start on the next line.
+                self.assertIn('\nBinaries: \n  https://', text)
 
     def test_real_importer_selects_platform_title_and_screenshots(self):
         from fdroidserver import update, common
@@ -90,50 +115,79 @@ class MetadataTests(unittest.TestCase):
             finally:
                 os.chdir(previous)
 
-    def test_pinned_checkupdates_cli_auto_adds_both_future_builds(self):
+    def test_pinned_checkupdates_cli_reads_release_tags_and_auto_adds_both_builds(self):
         from fdroidserver import checkupdates
+        sys.path.insert(0, str(SCRIPT.parent))
+        from release_commit import create
         previous = Path.cwd()
-        newer = dict(self.release, version='2.5.0', version_code=130, tag='v2.5.0')
+
+        def run(*command, cwd):
+            subprocess.run(command, cwd=cwd, check=True, capture_output=True)
+
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / 'metadata').mkdir()
-            (root / 'config').mkdir()
-            (root / 'config/categories.yml').write_text('Multimedia:\n  name: Multimedia\n')
+            # Upstream: an older tag without a declared version, then a release-commit tag.
+            source = root / 'source'
+            source.mkdir()
+            for command in [['git', 'init', '-q', '-b', 'main'], ['git', 'config', 'user.name', 'Upstream'],
+                            ['git', 'config', 'user.email', 'upstream@example.org']]:
+                run(*command, cwd=source)
+            (source / 'gradle.properties').write_text('org.gradle.jvmargs=-Xmx2g\n')
+            run('git', 'add', '.', cwd=source)
+            run('git', 'commit', '-q', '-m', 'Older release', cwd=source)
+            run('git', 'tag', 'v2.4.9', cwd=source)
+            (source / 'README').write_text('next\n')
+            run('git', 'add', '.', cwd=source)
+            run('git', 'commit', '-q', '-m', 'Merge the next release', cwd=source)
+            tagged = create(source, 'HEAD', '2.5.0', 130)
+            run('git', 'tag', 'v2.5.0', tagged, cwd=source)
+            fdroiddata = root / 'fdroiddata'
+            (fdroiddata / 'metadata').mkdir(parents=True)
+            (fdroiddata / 'config').mkdir()
+            (fdroiddata / 'config/categories.yml').write_text('Multimedia:\n  name: Multimedia\n')
             for target, (appid, _, _, _) in self.module.TARGETS.items():
-                (root / 'metadata' / (appid + '.yml')).write_text(self.module.render(self.module.generate_metadata(self.release, target)))
-            for command in [['git', 'init'], ['git', 'config', 'user.name', 'F-Droid test'],
+                app = self.module.generate_metadata(self.release, target)
+                app.Repo = str(source)
+                app.Builds[-1].submodules = False
+                (fdroiddata / 'metadata' / (appid + '.yml')).write_text(self.module.render(app))
+            for command in [['git', 'init', '-q'], ['git', 'config', 'user.name', 'F-Droid test'],
                             ['git', 'config', 'user.email', 'test@example.org'], ['git', 'add', '.'],
-                            ['git', 'commit', '-m', 'Fixture baseline']]:
-                subprocess.run(command, cwd=root, check=True, capture_output=True)
+                            ['git', 'commit', '-q', '-m', 'Fixture baseline']]:
+                run(*command, cwd=fdroiddata)
             try:
-                os.chdir(root)
+                os.chdir(fdroiddata)
                 args = ['fdroid checkupdates', '--allow-dirty', '--auto', *[values[0] for values in self.module.TARGETS.values()]]
-                with patch.object(sys, 'argv', args), patch('urllib.request.urlopen', side_effect=lambda *a, **k: io.BytesIO(json.dumps(newer).encode())):
+                with patch.object(sys, 'argv', args):
                     with self.assertRaises(SystemExit) as exited:
                         checkupdates.main()
                     self.assertEqual(exited.exception.code, 0)
                 for target, (appid, flavor, _, _) in self.module.TARGETS.items():
-                    app = self.module.parse((root / 'metadata' / (appid + '.yml')).read_text(), appid)
-                    self.assertEqual(app.CurrentVersionCode, 130)
-                    self.assertEqual(app.Builds[-1].commit, 'v2.5.0')
+                    app = self.module.parse((fdroiddata / 'metadata' / (appid + '.yml')).read_text(), appid)
+                    self.assertEqual((app.CurrentVersion, app.CurrentVersionCode), ('2.5.0', 130))
+                    # Auto-update records the release tag's full commit hash.
+                    self.assertEqual(app.Builds[-1].commit, tagged)
                     self.assertEqual(app.Builds[-1].gradle, [flavor])
+                    self.assertFalse(app.Builds[-1].get('prebuild'))
                     self.assertEqual(app.AutoName, self.module.TARGETS[target][3])
                     self.assertEqual(len(app.Builds), 2)
             finally:
                 os.chdir(previous)
 
-    def test_prebuild_applies_substitution_without_editing_version_baseline(self):
-        app = self.module.generate_metadata(self.release, 'tv')
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / 'app').mkdir()
-            properties = root / 'gradle.properties'
-            properties.write_text('org.gradle.jvmargs=-Xmx2g\nprojectmReleaseVersion=old\nprojectmReleaseVersionCode=1\n')
-            script = app.Builds[-1].prebuild[0].replace('$$VERSION$$', '2.4.10').replace('$$VERCODE$$', '120')
-            subprocess.run(['bash', '-eu', '-c', script], cwd=root / 'app', check=True)
-            self.assertEqual(properties.read_text().count('projectmReleaseVersion='), 1)
-            self.assertIn('projectmReleaseVersionCode=120', properties.read_text())
-            self.assertIn('org.gradle.jvmargs=-Xmx2g', properties.read_text())
+    def test_merge_request_description_follows_fdroiddata_inclusion_template(self):
+        repository = SCRIPT.parents[2]
+        for target, (appid, flavor, _, title) in self.module.TARGETS.items():
+            with self.subTest(target=target):
+                text = self.module.merge_request_description(target)
+                for heading in ['## Abstract', '## Checklist', '### Policy', '### Docs', '### Merge Request Setup',
+                                '### Metadata', '### Pipeline']:
+                    self.assertIn('\n' + heading + '\n', '\n' + text)
+                self.assertIn(f'`metadata/{appid}.yml`', text)
+                self.assertIn('UpdateCheckMode: Tags', text)
+                self.assertIn('* [ ] All pipelines should pass.', text)
+                screenshot = text.split(f'![{title} screenshot](', 1)[1].split(')', 1)[0]
+                local = screenshot.split('/main/', 1)[1]
+                self.assertTrue((repository / local).is_file(), local)
+                self.assertTrue(local.startswith(f'src/{flavor}/fastlane/'))
 
     def test_invalid_identity_and_rollback_are_rejected(self):
         original = self.module.generate_metadata(self.release, 'tv')

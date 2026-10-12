@@ -12,6 +12,9 @@ import subprocess
 import sys
 from typing import Callable
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from release_commit import source_of  # noqa: E402
+
 
 @dataclass(frozen=True)
 class Commit:
@@ -254,8 +257,8 @@ def collect_commits(checkout: Path, sha: str, previous_tag: str | None) -> list[
     revision = current
     if previous_tag:
         try:
-            previous = git(checkout, "rev-parse", "--verify", "--end-of-options", f"refs/tags/{previous_tag}^{{commit}}")
-        except subprocess.CalledProcessError as error:
+            previous = source_of(checkout, f"refs/tags/{previous_tag}")
+        except ValueError as error:
             raise ValueError(f"Previous tag does not exist: {previous_tag}") from error
         parents = git(checkout, "rev-list", "--first-parent", current, "--").splitlines()
         if previous not in parents:
@@ -320,8 +323,8 @@ def previous_release_tag(checkout: Path, sha: str, version: str, hint: str | Non
         if release_version >= current_version:
             continue
         try:
-            commit = git(checkout, "rev-parse", "--verify", "--end-of-options", f"refs/tags/{tag}^{{commit}}")
-        except subprocess.CalledProcessError:
+            commit = source_of(checkout, f"refs/tags/{tag}")
+        except ValueError:
             continue
         if commit in history:
             candidates[tag] = release_version

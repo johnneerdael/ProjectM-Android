@@ -1,0 +1,2 @@
+# fdroiddata rewritemeta writes "Key: " before a long value on the next line.
+tools/fdroid/metadata/*.yml whitespace=-blank-at-eol
