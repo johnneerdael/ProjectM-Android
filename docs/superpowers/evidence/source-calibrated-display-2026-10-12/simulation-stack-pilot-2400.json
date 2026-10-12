@@ -1,0 +1,33 @@
+{
+ "policy": "simulation-feature-stack-pilot-v1",
+ "sample": "2400 random bundled presets (seed 20261012), 2377 simulated (14 timeouts, 9 errors), validation sets excluded -> 2346",
+ "simulation": "source-only per-pixel field simulation (prediction_illustration.simulated_display_series), 160x90, 5 s, declared reference bands; analyzer code changed during the run (cac96833..f84ceb8d)",
+ "method": "5-fold CV second stage (HistGradientBoosting) on [calibrated OOF prediction + 4 simulated statistics] vs the calibrated OOF prediction alone through the same second stage",
+ "spearman_vs_engine_ruler": {
+  "mean_luminance": {
+   "calibrated_oof": 0.559,
+   "calibrated_restacked": 0.536,
+   "calibrated_plus_simulation": 0.675,
+   "simulation_alone": 0.532
+  },
+  "mean_abs_frame_difference": {
+   "calibrated_oof": 0.693,
+   "calibrated_restacked": 0.673,
+   "calibrated_plus_simulation": 0.739,
+   "simulation_alone": 0.559
+  },
+  "global_brightness_jumps_per_10s": {
+   "calibrated_oof": 0.76,
+   "calibrated_restacked": 0.747,
+   "calibrated_plus_simulation": 0.773,
+   "simulation_alone": 0.58
+  },
+  "mean_saturation": {
+   "calibrated_oof": 0.583,
+   "calibrated_restacked": 0.562,
+   "calibrated_plus_simulation": 0.685,
+   "simulation_alone": 0.429
+  }
+ },
+ "conclusion": "the simulation adds information beyond the descriptor model for every statistic (largest for luminance and saturation)"
+}
