@@ -187,6 +187,9 @@ def _mid(span):
 
 
 _UNRESOLVED_TERMS=set()
+# Linear scale of the simulated viewport relative to the declared one: 1-2 px dots and lines keep
+# their share of the picture by weighting with scale^2 (dots) and scale (lines).
+_DRAW_SCALE=[1.]
 # Per-frame context for mesh terms: seeded rng and declared bands (set by illustrate_field).
 _TERM_CONTEXT={}
 
@@ -210,18 +213,23 @@ def _terms_field(terms,x,y,time):
             total+=term.get('sign',1)*float(np.asarray(_evaluate_np(term['expression'],inputs,_TERM_CONTEXT.get('rng'))).reshape(-1)[0])
         elif kind=='uniform':
             value=_mid(term.get('value_range'))
-            if value is None:raise ValueError('unbounded uniform term')
+            if value is None:_UNRESOLVED_TERMS.add('unbounded uniform');value=0.
             total+=value
         elif kind=='coordinate_affine':
             coefficients=term['coefficients']
-            if set(coefficients)-{'x','y','rad'}:raise ValueError('angle/time affine term not illustrated')
-            # Mesh-field convention: x/y measure the long side; rad=1 is half the long side.
-            total+=term['constant']+coefficients.get('x',0)*x+coefficients.get('y',0)*y+coefficients.get('rad',0)*2*np.hypot(x-.5,y-.5)
+            if set(coefficients)-{'x','y','rad','ang'}:
+                _UNRESOLVED_TERMS.add('affine term in '+','.join(sorted(set(coefficients)-{'x','y','rad','ang'})));continue
+            # Mesh-field convention: x/y measure the long side; rad=1 is half the long side;
+            # projectM per-pixel ang = -atan2(y*aspectY, x*aspectX) on NDC, i.e. -atan2(y-.5, x-.5) here.
+            total+=(term['constant']+coefficients.get('x',0)*x+coefficients.get('y',0)*y+coefficients.get('rad',0)*2*np.hypot(x-.5,y-.5)
+                    +coefficients.get('ang',0)*-np.arctan2(y-.5,x-.5))
         elif kind=='spatial_oscillator':
             osc=term['oscillator'];amplitude=_mid(term.get('amplitude_range'))
-            if amplitude is None or set(osc['coordinate_coefficients'])-{'x','y','rad'}:raise ValueError('oscillator not illustrated')
+            if amplitude is None or set(osc['coordinate_coefficients'])-{'x','y','rad','ang'}:
+                _UNRESOLVED_TERMS.add('oscillator');continue
             argument=(osc['coordinate_coefficients'].get('x',0)*x+osc['coordinate_coefficients'].get('y',0)*y+
                       osc['coordinate_coefficients'].get('rad',0)*2*np.hypot(x-.5,y-.5)+
+                      osc['coordinate_coefficients'].get('ang',0)*-np.arctan2(y-.5,x-.5)+
                       osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
             total+=amplitude*(np.sin(argument) if osc['function']=='sin' else np.cos(argument))
         elif kind in ('nonlinear_coordinate_term','unresolved_inputs') and term.get('expression') and _TERM_CONTEXT.get('rng') is not None \
@@ -238,8 +246,8 @@ def _terms_field(terms,x,y,time):
             if names-set(inputs):raise ValueError('nonlinear term inputs not illustrated: '+', '.join(sorted(map(str,names-set(inputs)))))
             total+=term.get('sign',1)*_evaluate_np(expression,inputs)
         elif kind=='coordinate_gated':
-            coordinate={'x':x,'y':y}.get(term['coordinate'])
-            if coordinate is None:raise ValueError('gate on radius/angle not illustrated')
+            coordinate={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'ang':-np.arctan2(y-.5,x-.5)}.get(term['coordinate'])
+            if coordinate is None:_UNRESOLVED_TERMS.add('gate on '+str(term['coordinate']));continue
             for branch in term['branches']:
                 low,high=branch['interval']
                 mask=np.ones_like(x,dtype=bool)
@@ -509,6 +517,7 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
         # (half a pixel), so the same 1 px strip is mostly lit four times.
         for ox,oy in ([(0,0),(.5,0),(.5,.5),(0,.5)] if flags.get('thick') else [(0,0)]):
             pass_layer=np.zeros_like(image)
+            colour=colour*min(1.,_DRAW_SCALE[0]) if ox==0 and oy==0 else colour
             for i in valid:
                 a=(int(round((px[i]+ox)*2)),int(round((py[i]+oy)*2)));b=(int(round((px[i+1]+ox)*2)),int(round((py[i+1]+oy)*2)))
                 cv2.line(pass_layer,a,b,tuple(float(c) for c in colour[i]),1,cv2.LINE_8,1)
@@ -520,7 +529,7 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
         return np.clip(image*(1-cover[...,None])+layer,0,1)
     finite=np.isfinite(px)&np.isfinite(py)
     xs=np.rint(px[finite]).astype(int);ys=np.rint(py[finite]).astype(int)
-    colour=np.stack(rgba[:3],axis=-1)[finite];alpha=rgba[3][finite]
+    colour=np.stack(rgba[:3],axis=-1)[finite];alpha=rgba[3][finite]*min(1.,_DRAW_SCALE[0]**2)
     layer=np.zeros_like(image);cover=np.zeros(image.shape[:2],np.float32);alpha_sq=np.zeros(image.shape[:2],np.float32)
     # vertex_point_size 2 for thick waves (2x2 pixels), otherwise 1.
     offsets=range(2) if flags.get('thick') else range(1)
@@ -835,12 +844,51 @@ def _affine_composite(image,facts,time,fps):
         return None
 
 
-def illustrate_field(summary,*,time,fps,history_steps,audio=None):
-    """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite."""
+def _display(image,facts,time,fps,limitations):
+    """Composite the canvas for display: affine custom composite, scalar palette or the legacy model."""
+    composite_image=_affine_composite(image,facts,time,fps)
+    palette_image=None if composite_image is not None else _palette_display(image,facts,limitations)
+    if composite_image is not None:
+        limitations.append('custom composite applied from its exported affine texture transfer (blur levels approximated by Gaussians)')
+        return composite_image
+    if palette_image is not None:return palette_image
+    for path,value in facts.items():
+        if path.endswith('/legacy_response') and isinstance(value,dict):value['_illustration_time']=time
+    shown,note=_composite(image,facts)
+    if any(type(v.get('tint_amount')) in (int,float) and v['tint_amount']>.001 for p,v in facts.items()
+           if p.endswith('/legacy_response') and isinstance(v,dict)):
+        limitations.append('legacy fShader corner tint applied with zero random hue offsets (tint strength known; hue placement illustrative)')
+    if note:limitations.append(note)
+    return shown
+
+
+def simulated_display_series(summary,*,seconds=4.,fps=30.,viewport=(160,90),audio=None):
+    """Source-only simulated display statistics: per-frame luma, saturation and change (no rendered frames)."""
+    rows=[];previous=[None]
+    def record(frame_time,shown):
+        shown=np.clip(shown,0,1);luma=.2126*shown[...,0]+.7152*shown[...,1]+.0722*shown[...,2]
+        mx=shown.max(-1);mn=shown.min(-1);saturation=np.where(mx>0,(mx-mn)/np.maximum(mx,1e-6),0)
+        change=None if previous[0] is None else float(np.abs(luma-previous[0]).mean())
+        rows.append({'time':frame_time,'mean_luma':float(luma.mean()),'mean_saturation':float(saturation.mean()),
+                     'mean_abs_luma_change':change,'global_luma_jump':None if previous[0] is None else float(luma.mean()-previous[0].mean())})
+        previous[0]=luma
+    steps=int(round(seconds*fps))
+    image,_,limitations=illustrate_field(summary,time=steps/fps,fps=fps,history_steps=steps,audio=audio,viewport=viewport,frame_callback=record)
+    if not rows:record(steps/fps,image);limitations.append('simulation produced no per-frame rows; final display only')
+    return rows,limitations
+
+
+def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None):
+    """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite.
+
+    viewport overrides the declared size (all geometry is resolution-independent); frame_callback,
+    when given, receives (frame_time, displayed_image) after every simulated frame.
+    """
     facts=_facts(summary)
     context=facts.get('/analysis/visual_description/static_behaviour/context') or {}
     if not isinstance(context.get('viewport'),list):raise ValueError('declared static-behaviour viewport is required')
-    width,height=context['viewport']
+    width,height=viewport or context['viewport']
+    _DRAW_SCALE[0]=width/float(context['viewport'][0])
     aspect=(1.0,height/width) if width>=height else (width/height,1.0)
     image=np.zeros((height,width,3),np.float32);limitations=[]
     # Stored canvas alpha starts cleared; it weights textured copies of the previous frame.
@@ -943,6 +991,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None):
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
             for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):
                 cv2.line(image,tuple(int(round(v)) for v in start),tuple(int(round(v)) for v in end),shade,1,cv2.LINE_AA)
+            if frame_callback is not None:frame_callback(frame_time,_display(image,facts,frame_time,fps,[]))
         if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
     except ValueError as error:
         limitations.append('field illustration stopped: '+str(error))
@@ -952,20 +1001,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None):
         limitations.append('legacy procedural warp (amplitude 0.0035*warp per step) omitted')
     if _UNRESOLVED_TERMS:
         limitations.append('mesh terms held at range midpoint or zero: '+', '.join(sorted(_UNRESOLVED_TERMS)));_UNRESOLVED_TERMS.clear()
-    composite_image=_affine_composite(image,facts,time,fps)
-    palette_image=None if composite_image is not None else _palette_display(image,facts,limitations)
-    if composite_image is not None:
-        image=composite_image
-        limitations.append('custom composite applied from its exported affine texture transfer (blur levels approximated by Gaussians)')
-    elif palette_image is not None:image=palette_image
-    else:
-        for path,value in facts.items():
-            if path.endswith('/legacy_response') and isinstance(value,dict):value['_illustration_time']=time
-        image,note=_composite(image,facts)
-        if any(type(v.get('tint_amount')) in (int,float) and v['tint_amount']>.001 for p,v in facts.items()
-               if p.endswith('/legacy_response') and isinstance(v,dict)):
-            limitations.append('legacy fShader corner tint applied with zero random hue offsets (tint strength known; hue placement illustrative)')
-        if note:limitations.append(note)
+    image=_display(image,facts,time,fps,limitations)
     limitations.append('closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted')
     return image,[path for path,_ in paths]+[str(identity) for identity,_ in clouds],limitations
 
