@@ -16,7 +16,7 @@ SKIP_GROUPS={'identity'}
 SKIP_KEYS={'conditions','unknown_reasons','evidence','limitations','scope','note','policy','source_locations',
            'source_keys','expression','expressions','programs','nodes','representative_points','lane_expressions_rgb',
            'coordinate_expression','offset_expressions','channel_expressions','tex_zoom_expression','tex_angle_expression',
-           'level_orbit_from_full','profiles','series','samples','reference_table'}
+           'level_orbit_from_full','profiles','series','samples','reference_table','program','plans','declared_audio_sha256'}
 INDEX=re.compile(r'/\d+(?=/|$)')
 MAX_DEPTH=8
 MAX_STRING=40
