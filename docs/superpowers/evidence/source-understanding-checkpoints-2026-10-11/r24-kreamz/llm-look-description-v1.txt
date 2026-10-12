@@ -1,0 +1,12 @@
+LLM look description from the SDK recipe, source parts only (before capture, r24 v1; the recipe's engine-measured facets block was deliberately not used):
+The picture is built from a small cluster of drawn points in the middle of the screen (wave_0: 512 points, all inside x 0.40-0.60, y 0.40-0.60, closed-form positions, alpha 1), so the drawn content is a compact central figure, not a full-screen pattern.
+Its colour ingredients are mostly blue (47%) and yellow (46%), with a little purple (6%) and green (1%), mean saturation 0.73; they depend on sample position and bass (render.layers wave_0), so the figure should read as two-tone blue/yellow beads or a ring.
+A built-in audio-deformed circle (waveform_right, centred 0.5/0.5, grey 0.5/0.5/0.5) is declared but its authored alpha is 0.001, so it is probably close to invisible.
+Trails are very short: the warp shader's flat-colour transfer keeps about 0.45 of the previous frame (halving in ~0.88 frames, no offset, no floor), so content should fade almost at once instead of smearing long.
+The feedback map has radius-dependent zoom (0.77 to 1.11 across the screen), no rotation, no constant drift (dx = dy = 0), so any motion is radial stretching about the centre, not spinning or sliding.
+A periodic wobble/ripple displacement in the warp stage and an image-driven self-advection in the composite (UV offsets 0.4-1.0) add flowing, smeared distortion on top of that.
+Bass drives red, green and blue through clamped/threshold routes in the shader warp, so brightness or tint may jump with bass; strength is unresolved.
+A nominal brightness-cycle rate of 14.32 Hz exists in the warp shader; whether it shows as visible flashing is unverified.
+Unresolved: final palette and dominance (warp and composite palettes unknown), how much of the screen the figure and distortion cover, visible speed, and the real size of the bass response.
+No strict mood group is eligible; any mood is only an approximate reading from the recipe.
+Expected: a small blue/yellow dotted figure in the centre of a mostly dark screen, quickly fading trails, radial flowing/rippling distortion and bass-linked colour or brightness shifts.

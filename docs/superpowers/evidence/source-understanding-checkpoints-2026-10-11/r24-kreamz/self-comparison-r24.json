@@ -1,0 +1,66 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r24-v1",
+ "preset": "suksma - sac ur bozz wid da kreamz.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0a2061bb5f8de40f1f78bb7d1e2af1aa06b046501213875ece7430660c3b0f5e",
+  "prediction.json": "1d21a7ff37d4108a0a65719938882fc2f145eefb24fdf72cc0bb25fd99cb2a8f",
+  "description.json": "1457a530e0a7540723eab1ce46e9c3644c24dd4840a022301b837354f33ef862",
+  "recipe.json": "031bc44739dfa4bbff34183f8f0a8840cb11f709f1792d303d586dbd46c3c3c9",
+  "llm-look-description-v1.txt": "23c844a195cd98a813cb6b198e86501babed72d9663e48cb050dd642d16ee591"
+ },
+ "capture_result_sha256": "8b3417bf9dcebd59e21fc93b80f86378316b605789a31b1f97b94cb06eebaa01",
+ "review_measurements_v1": {
+  "prediction_luma": 0.369,
+  "screenshot_luma": 0.386,
+  "mean_rgb_prediction": [
+   0.471,
+   0.351,
+   0.192
+  ],
+  "mean_rgb_screenshot": [
+   0.511,
+   0.358,
+   0.203
+  ],
+  "blurred_luma_correlation_single_frame": 0.03,
+  "rgb_frames_60_149": {
+   "prediction": [
+    0.349,
+    0.291,
+    0.144
+   ],
+   "capture": [
+    0.397,
+    0.288,
+    0.148
+   ],
+   "capture_frames_150_299": [
+    0.513,
+    0.397,
+    0.209
+   ]
+  }
+ },
+ "agreements": [
+  "prediction image: golden metallic liquid field through the seaweed texture palette, ring and dark centre, same brightness",
+  "SDK text: short warp trails (warp_transfer gain 0.45), radial zoom field, bass-linked colour/brightness jumps"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "single-frame layout differs (ours left-right mirrored wings, capture asymmetric radial streaks)",
+   "cause": "the warp blur radius is sin(bass*90)*rad and the overbright gate is lum < sin(time*90): differences of 0.01 in bass change the blur by up to 0.9, so frame layout is effectively scrambled by the audio band precision; the canvas asymmetry ends similar (0.117 vs 0.100 mean |x - mirror(x)|) and the time-averaged colour matches",
+   "next": "none required for understanding"
+  },
+  {
+   "size": "medium",
+   "observed": "SDK text expected a small central dotted figure on a mostly dark screen",
+   "cause": "the text read the drawn wave footprint as screen coverage; the composite maps the whole canvas through the seaweed texture (tex2D(sampler_seaweed, 0.4+0.6*ret.xy)*ret.z*3) and the radial zoom spreads content over the screen",
+   "next": "expose composite texture-lookup palettes and canvas fill (flat-field state) more prominently in the recipe"
+  }
+ ],
+ "status": "understood (v1): seaweed-texture palette over a bass-scrambled blurred radial-zoom feedback; time-averaged colour 0.35/0.29/0.14 vs capture 0.40/0.29/0.15 (frames 60-149)",
+ "uses_rendered_images_for_classification": false
+}

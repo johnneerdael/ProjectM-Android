@@ -1073,3 +1073,11 @@ repeated on correctly oriented frames. Probes and results:
   blue: a model gap, not the draw. v4 draws all three waves. Its time-averaged
   colour over frames 60–149 is 0.84/0.47/0.43, against the capture's
   0.83/0.54/0.30 (frames 60–149) and 0.95/0.47/0.42 (frames 150–299).
+- **r24 (`suksma - sac ur bozz wid da kreamz`) v1.** The frozen prediction has
+  the capture's golden metallic palette and brightness (time-averaged colour
+  over frames 60–149: 0.35/0.29/0.14 against 0.40/0.29/0.15). The frame layout
+  differs because the warp blur radius is `sin(bass·90)·rad`: a 0.01 change in
+  bass moves it by up to 0.9, so the per-frame layout depends on audio band
+  precision. The SDK text expected a small figure on a dark screen. It read the
+  wave footprint as coverage, while the composite maps the whole canvas
+  through the `seaweed` texture: an open SDK gap.
