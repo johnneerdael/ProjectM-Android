@@ -42,7 +42,7 @@ def safe_path(name):
 def source_files(root):
     assets = root / 'core/src/main/assets'
     files = {}
-    for folder in ('presets', 'textures', 'preset-genres'):
+    for folder in ('presets', 'textures', 'preset-genres', 'preset-attributes'):
         for path in (assets / folder).rglob('*'):
             if path.is_symlink(): raise ValueError('symlink in collection')
             if path.is_file(): files[safe_path(path.relative_to(assets).as_posix())] = path.read_bytes()
@@ -161,6 +161,23 @@ def starter_files(files, selection):
         manifest['groups'][genre]['count'] = len(output['preset-genres/genres/' + genre + '.idx'].splitlines())
     manifest['checksums'] = {n.removeprefix('preset-genres/'): digest(data) for n, data in output.items() if n.startswith('preset-genres/')}
     output['preset-genres/manifest.json'] = canonical(manifest)
+    attributes = files.get('preset-attributes/attributes.tsv')
+    if attributes is not None:
+        lines = attributes.decode().splitlines()
+        header = [l for l in lines if l.startswith('#')]
+        rows = [l for l in lines if not l.startswith('#') and l.split('\t', 1)[0] in selected]
+        output['preset-attributes/attributes.tsv'] = ('\n'.join(header + rows) + '\n').encode()
+        output['preset-attributes/facets.json'] = files['preset-attributes/facets.json']
+        attribute_manifest = json.loads(files['preset-attributes/manifest.json'])
+        counts = {option: 0 for option in attribute_manifest.get('option_counts', {})}
+        for row in rows:
+            for option in filter(None, row.split('\t')[1].split(',')):
+                counts[option] = counts.get(option, 0) + 1
+        attribute_manifest.update(
+            preset_count=len(rows), measured_count=sum(1 for r in rows if r.split('\t')[2] != '-'),
+            option_counts=counts, attributes_sha256=digest(output['preset-attributes/attributes.tsv']),
+            presets_idx_sha256=digest(output['presets.idx']))
+        output['preset-attributes/manifest.json'] = canonical(attribute_manifest)
     output['starter-selection.json'] = canonical(selection)
     return output
 
