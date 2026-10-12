@@ -76,11 +76,11 @@ Native trails works only above 1330p. On a 1080p TV, Diagnostics shows *inactive
 
 **Advanced › Skipped presets** shows the count; select it to reset the list. Presets that still fail are skipped again.
 
-## A mood has fewer presets than listed
+## My mix has fewer presets than expected
 
-F-Droid editions start with 20 presets: All 20, Chill 7, Normal 10 and Intense 2. Open **Advanced › Cream of the Crop** to download the complete library. [Collection setup](getting-started.md#optional-collection-in-f-droid-editions).
+F-Droid editions start with 20 presets, so Mood counts are small. Open **Advanced › Cream of the Crop** to download the complete library. [Collection setup](getting-started.md#optional-collection-in-f-droid-editions).
 
-The panel counts only presets this device can play, so skipped presets reduce it. A mood with no eligible presets is not offered and the app uses All. See [Preset moods](predictive-collections.md).
+The Mood panel counts only presets this device can play, so skipped presets reduce it. Options that would leave no presets are dimmed. If every match in your mix is skipped, the header reads *No presets left in your mix; playing All*. Custom-pack presets are not played while an option is active; choose *Custom* in the Collection row. A full-collection download made before attributes existed offers only the Collection choice; download it again. See [Preset moods](predictive-collections.md).
 
 ## The collection download failed or disappeared
 
@@ -90,7 +90,7 @@ An incomplete or corrupted collection is rejected. After a restart, missing or c
 
 ## A mood feels wrong
 
-Moods are beta predictions from a short measurement and will improve. Report the preset name (shown at the top of the settings panel), the mood, the song and your device in a [GitHub issue](https://github.com/johnneerdael/ProjectM-Android/issues).
+Mood attributes are predictions from a short measurement (Style, from source structure, is the least certain) and will improve. Report the preset name (shown at the top of the settings panel), the options you selected, the song and your device in a [GitHub issue](https://github.com/johnneerdael/ProjectM-Android/issues).
 
 ## A legacy preset looks dark or sparse
 

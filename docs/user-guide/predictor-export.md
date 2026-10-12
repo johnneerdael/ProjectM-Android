@@ -13,6 +13,25 @@ Publishing this reference does not merge the experimental predictor or change th
 [shipped mood collections](predictive-collections.md). The
 [predictor overview](predictor.md) explains the direction and current evidence.
 
+## Preset-attributes bundle (shipped Mood facets)
+
+The app's [Mood panel](predictive-collections.md) reads a measured bundle in `core/src/main/assets/preset-attributes/`. It is separate from the predictor exports above: its inputs are engine-ruler measurements (`tools/native-ruler/`) and source style facts, not source-classification output.
+
+| File | Content |
+|---|---|
+| `facets.json` | The definition (`schema: projectm-tv-mood-facets`, `version: 1`): groups, option ids and labels, threshold rules, and the combination rule (OR within a group, AND across groups). Source: `tools/milk-analyzer/facets/facets-v1.json` |
+| `attributes.tsv` | Header lines `#projectm-tv-preset-attributes<TAB>1`, `#definition<TAB><sha256 of facets.json>`, one `#group<TAB>id<TAB>label` and `#option<TAB>group<TAB>id<TAB>label` line per group and option, then `#columns<TAB>name<TAB>options<TAB>luminance<TAB>saturation<TAB>coloured_share<TAB>warm_cool<TAB>flow<TAB>frame_difference<TAB>jumps<TAB>activity`. Each data row is the preset file name, its comma-separated option ids and the eight measured values (activity is a 0-1 percentile) |
+| `manifest.json` | `schema`, `version`, `preset_count`, `measured_count`, per-option `option_counts`, SHA-256 of `attributes.tsv`, `facets.json`, `presets.idx`, the ruler results manifest and the style facts, plus the ruler conditions (`size` 480x270, `frames` 300, audio and engine identity) |
+
+Build and verify (standard library only; CI runs `--check`):
+
+```sh
+python3 tools/milk-analyzer/attribute_bundle.py --ruler <ruler results dir> --style <style facts file> --ruler-manifest <committed ruler results manifest>
+python3 tools/milk-analyzer/attribute_bundle.py --check
+```
+
+`--check` verifies the bundle against `presets.idx`, the definition and the manifest, and recomputes every option membership from the stored values and style options. `tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
+
 ## Static source-description contract
 
 Implementation checkpoint: `9c8ff632`, 2026-10-10, experimental

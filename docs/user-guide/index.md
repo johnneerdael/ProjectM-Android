@@ -43,11 +43,11 @@ GitHub editions include the full collection. F-Droid editions start with **20 cu
 
     [:octicons-arrow-right-24: Controls](controls.md) · [Settings](settings.md)
 
--   :material-palette-swatch-variant:{ .lg .middle } **Preset moods** *(beta)*
+-   :material-palette-swatch-variant:{ .lg .middle } **Preset moods**
 
     ---
 
-    Chill, Normal and Intense, from a measured activity score, with example captures.
+    Combine Energy, Brightness, Colour, Movement, Style and Comfort options with live preset counts.
 
     [:octicons-arrow-right-24: Moods](predictive-collections.md)
 

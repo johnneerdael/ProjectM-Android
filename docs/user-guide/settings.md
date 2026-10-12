@@ -10,7 +10,7 @@ Open the panel with **Center**, **Enter** or **Menu**. **Up / Down** selects a r
 |---|---|---|---|
 | Audio input (ProjectM Android only) | Microphone; Phone playback (Android 10+) | Microphone | Opens the [audio source selector](#phone-audio-input); playback needs Android consent |
 | Auto change | Off, On | On | Change presets automatically after *Preset duration* |
-| Preset mood | All, Chill, Normal, Intense, Custom | All | Which presets play. A mood with no eligible presets on this device is not offered. Custom appears after a [pack upload](custom-packs.md). See [Preset moods](predictive-collections.md) |
+| Preset mood | Opens the Mood panel: Energy (Chill, Normal, Intense), Brightness (Dark, Balanced, Bright), Colour (Monochrome, Pastel, Vivid, Warm, Cool), Movement (Still, Drifting, Fast), Style (Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal), Comfort (No strobe); Collection (Built-in, Custom); Clear all | Nothing selected | Which presets play. Choices combine: any option within a group, and all groups together. Nothing selected plays everything. Collection appears after a [pack upload](custom-packs.md); Custom-pack presets do not play while an option is active. See [Preset moods](predictive-collections.md) |
 | Preset duration | 10, 15, 20, 30, 45, 60, 90 s | 30 s | How long each preset plays with Auto change on |
 | Track display › | | | Opens the track panel |
 | Advanced › | | | Opens performance and quality settings |

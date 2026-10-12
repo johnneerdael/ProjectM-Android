@@ -148,17 +148,17 @@ TV covers have been verified with Spotify and Milkbeat. SoundCloud and SmartTube
 
 ## Pick a preset mood
 
-Open the panel and move to **Preset mood**:
+Open the panel and choose **Preset mood** (Settings › Preset mood). The **Mood** panel has one row per attribute group: **Energy**, **Brightness**, **Colour**, **Movement**, **Style** and **Comfort**. Move Left or Right to an option and press Center to switch it on or off. Every option shows how many presets you would have (*→ N*), and options that would leave none are dimmed. With nothing selected, everything plays; **Clear all** returns to that.
 
-| Mood | What plays |
+| You select | What plays |
 |---|---|
-| **All** (default) | The available library: 9,606 in GitHub editions or after the full download; 20 starters otherwise, plus your custom pack |
-| **Chill** | Calmer presets: predicted activity 1–30 |
-| **Normal** | Moderate presets: 25–75 |
-| **Intense** | Strong movement and brightness changes: 70–100 |
-| **Custom** | Only your uploaded pack; appears after an upload |
+| Nothing (default) | The available library: 9,606 in GitHub editions or after the full download; 20 starters otherwise, plus your custom pack |
+| **Energy › Chill** | Calmer presets |
+| **Chill** and **Dark** (different groups) | Presets that are both |
+| **Vivid** and **Warm** (same group) | Presets that are either |
+| **Collection › Custom** | Only your uploaded pack; the row appears after an upload |
 
-Moods are predictions from the beta [predictive collections](predictive-collections.md), not guarantees. Chill is a starting point, not a promise of no flashing.
+Attributes are measured predictions, not guarantees. **Comfort › No strobe** and **Chill** are starting points, not promises of no flashing. A Chill, Normal or Intense choice from an earlier version becomes the matching **Energy** option. Details: [Preset moods](predictive-collections.md).
 
 ## Good starting settings
 
