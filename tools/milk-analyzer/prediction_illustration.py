@@ -1143,9 +1143,9 @@ def _absent(name):
 
 class _FrameStepper:
     """Steps the exported per-frame recurrence (stage_programs.frame) under declared bands."""
-    def __init__(self,frame,rng_seed=8191,constants=None):
+    def __init__(self,frame,rng_seed=8191,constants=None,deadline=None):
         # Readonly render values the engine loads before frame code (aspect, viewport, mesh).
-        self.constants=dict(constants or {})
+        self.constants=dict(constants or {});self.deadline=deadline
         self.state_programs=(frame or {}).get('state') or {}
         self.output_programs=(frame or {}).get('outputs') or {}
         self.values=None;self.start={};self.failed=set();self.zero_inputs=set();self.rng=np.random.default_rng(rng_seed)
@@ -1157,7 +1157,8 @@ class _FrameStepper:
         missing=(input_names(plain) or set())-set(inputs)
         if missing:
             self.zero_inputs|=missing;inputs={**inputs,**{name:_absent(name) for name in missing}}
-        value=_evaluate_np(program,inputs,self.rng)
+        from eel_memory import evaluate_np
+        value=evaluate_np(program,inputs,self.rng,deadline=self.deadline)
         return value if isinstance(value,Memory) else float(np.asarray(value).reshape(-1)[0])
     def step(self,time,fps,bands,frame_index):
         base={**self.constants,**{k:float(v) for k,v in bands.items()},'time':float(np.float32(time)),'fps':float(np.float32(fps)),'frame':float(frame_index),'progress':0.}

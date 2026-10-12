@@ -102,3 +102,18 @@ def test_stage_transfer_supplies_render_inputs_and_stepped_frame_state(monkeypat
     controls = seen[0]
     assert abs(controls['time'] - 2.) < 1e-6 and controls['frame'] == 59. and controls['fps'] == 30.
     assert abs(controls['q1'] - 2.) < 1e-6 and controls['aspecty'] > 1.
+
+
+def test_stage_controls_stop_stepping_at_their_budget(monkeypatch):
+    import time
+    import prediction_illustration as P
+    calls = []
+    def slow_step(self, time_s, fps, bands, k):
+        calls.append(k); time.sleep(.02); return {}
+    monkeypatch.setattr(P._FrameStepper, 'step', slow_step)
+    facts = {'/analysis/visual_description/stage_programs': {'frame': {'status': 'exported', 'state': {}, 'outputs': {'q1': {}}, 'unsupported': {}}},
+             '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    started = time.perf_counter()
+    controls = E._stage_controls(facts, {'bass': 1.}, (2., 5., 8.), budget_seconds=.1)
+    assert time.perf_counter() - started < 1. and len(calls) < 20
+    assert set(controls) == {2., 5., 8.} and controls[8.]['time'] == 8.

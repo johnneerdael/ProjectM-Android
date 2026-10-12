@@ -147,3 +147,12 @@ def test_bitwise_operators_truncate_to_integers_like_projectm_eval():
     assert not model.unknown
     assert value(model, 'a') == 2. and value(model, 'o') == float(-1 | 4) and value(model, 'z', {'s': 37.}) == 0.
     assert M.input_names(serialise(model.environment['a'])) == set()
+
+
+def test_evaluation_stops_at_its_deadline():
+    import time
+    import pytest
+    tree = seq(assign(var('i'), num(0)), call('loop', num(1000000), assign(var('i'), call('_add', var('i'), num(1)))))
+    graph = serialise(lowered(tree).environment['i'])
+    with pytest.raises(ValueError, match='budget'):
+        M.evaluate_np(graph, {}, deadline=time.perf_counter() - 1)

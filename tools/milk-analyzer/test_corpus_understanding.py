@@ -85,3 +85,8 @@ def test_worker_passes_the_presets_offline_compile_manifest(tmp_path, monkeypatc
     C.work(preset, options, 'm')
     C.work(preset, {**options, 'compile_manifests': str(tmp_path)}, 'm')
     assert seen == [{'kind': 'x'}, None]
+
+
+def test_worker_timeout_is_not_swallowed_by_broad_exception_handlers():
+    import corpus_understanding as C
+    assert not issubclass(C._Timeout, Exception) and issubclass(C._Timeout, BaseException)

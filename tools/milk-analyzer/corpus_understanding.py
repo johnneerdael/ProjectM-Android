@@ -28,7 +28,8 @@ def _initialize():
     if str(HERE) not in sys.path:sys.path.insert(0,str(HERE))
 
 
-class _Timeout(Exception):
+class _Timeout(BaseException):
+    # BaseException: broad 'except Exception' handlers inside the analysis must not swallow the alarm.
     pass
 
 

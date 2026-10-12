@@ -16,6 +16,7 @@ runs the body that many times. A loop is exported as a plan: the names it writes
 ``memory:<space>``), each name's start-of-iteration slot, and its end-of-iteration update.
 """
 import math
+import time
 
 import numpy as np
 
@@ -141,11 +142,12 @@ def input_names(expression, *, stochastic=False):
     return names
 
 
-def evaluate_np(expression, inputs, rng=None, batch_shape=None):
+def evaluate_np(expression, inputs, rng=None, batch_shape=None, deadline=None):
     """Value of a serialised graph over declared inputs (vectorised; rand needs an rng).
 
     batch_shape: the shape of the evaluated batch, so every point gets its own rand draw (as every
     instance or frame does in the engine) even when the rand argument is a constant.
+    deadline: time.perf_counter() value after which loops stop with ValueError('evaluation budget exceeded').
     """
     names = input_names(expression, stochastic=rng is not None)
     if names is None or names - set(inputs):raise ValueError('point program not evaluable')
@@ -205,7 +207,9 @@ def evaluate_np(expression, inputs, rng=None, batch_shape=None):
             current[name] = start.owned_copy() if isinstance(start, Memory) else start
         active.append(plan_ref)
         try:
-            for _ in range(count):
+            for iteration in range(count):
+                if deadline is not None and iteration % 256 == 0 and time.perf_counter() > deadline:
+                    raise ValueError('evaluation budget exceeded')
                 memo[plan_ref] = {};slots[plan_ref] = current
                 updated = {name: value(plan['updates'][name]) for name in plan['names']}
                 for name, result in updated.items():
