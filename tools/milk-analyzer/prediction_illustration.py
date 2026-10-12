@@ -619,64 +619,17 @@ def _motion_vector_marks(facts,sample,time,width,height,maps=None):
     return marks
 
 
-_UNARY_NP={'sin':np.sin,'cos':np.cos,'tan':np.tan,'abs':np.abs,'negate':np.negative,'sqr':np.square,'floor':np.floor,
-           'ceil':np.ceil,'int':np.floor,'sign':np.sign,'exp':np.exp,'atan':np.arctan,
-           'log':lambda v:np.where(v>0,np.log(np.where(v>0,v,1.)),0.),'log10':lambda v:np.where(v>0,np.log10(np.where(v>0,v,1.)),0.),
-           'asin':lambda v:np.where(np.abs(v)<=1,np.arcsin(np.clip(v,-1,1)),0.),'acos':lambda v:np.where(np.abs(v)<=1,np.arccos(np.clip(v,-1,1)),0.)}
-
-
-_STOCHASTIC={'rand'}
+from eel_memory import _UNARY_NP,STOCHASTIC as _STOCHASTIC,Memory  # noqa: E402 - shared projectm-eval numerics
 
 
 def _evaluate_np(expression,inputs,rng=None):
-    """Vectorised twin of time_expression.evaluate_inputs (same projectm-eval semantics).
+    """Vectorised evaluation with projectm-eval semantics (eel_memory: loops and megabuf included).
 
     With an rng, projectm-eval rand(x) is sampled as uniform [0, max(1, floor(x))): a seeded
     Monte Carlo draw of the authored distribution, not the engine's random stream.
     """
-    from time_expression import input_names
-    stochastic=rng is not None and any(n['op'] in _STOCHASTIC for n in expression['nodes'])
-    plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if stochastic and n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
-    names=input_names(plain)
-    if names is None or names-set(inputs):raise ValueError('point program not evaluable')
-    nodes=expression['nodes'];memo={}
-    def value(index):
-        if index in memo:return memo[index]
-        node=nodes[index];op=node['op'];args=[value(a) for a in node['args']]
-        with np.errstate(all='ignore'):
-            if op=='rand' and rng is not None:
-                limit=np.maximum(1.,np.floor(args[0]));result=rng.random(np.shape(limit))*limit
-            elif op=='constant':result=np.float64(node['detail']['value'])
-            elif op=='input':result=np.asarray(inputs[node['detail']['name']],np.float64)
-            elif op=='add':result=args[0]+args[1]
-            elif op=='subtract':result=args[0]-args[1]
-            elif op=='multiply':result=args[0]*args[1]
-            elif op=='eel_divide':result=np.where(np.abs(args[1])<1e-5,0.,args[0]/np.where(np.abs(args[1])<1e-5,1.,args[1]))
-            elif op=='divide':result=np.where(args[1]==0,0.,args[0]/np.where(args[1]==0,1.,args[1]))
-            elif op=='remainder':
-                divisor=np.trunc(args[1]);result=np.where(divisor==0,0.,np.fmod(np.trunc(args[0]),np.where(divisor==0,1.,divisor)))
-            elif op=='eel_equal':result=(np.abs(args[0]-args[1])<1e-5).astype(np.float64)
-            elif op=='atan2':result=np.arctan2(args[0],args[1])
-            elif op=='sigmoid':
-                t=1+np.exp(np.minimum(700.,-args[0]*args[1]));result=np.where(np.abs(t)>1e-5,1/t,0.)
-            elif op=='bnot':result=(np.abs(args[0])<1e-5).astype(np.float64)
-            elif op=='band':result=((np.abs(args[0])>1e-5)&(np.abs(args[1])>1e-5)).astype(np.float64)
-            elif op=='bor':result=((np.abs(args[0])>1e-5)|(np.abs(args[1])>1e-5)).astype(np.float64)
-            elif op=='min':result=np.minimum(args[0],args[1])
-            elif op=='max':result=np.maximum(args[0],args[1])
-            elif op=='pow':
-                result=np.where((np.abs(args[0])<1e-5)&(args[1]<0),0.,np.power(args[0],args[1]))
-                result=np.where(np.isnan(result),0.,result)
-            elif op=='sqrt':result=np.sqrt(np.abs(args[0]))
-            elif op=='less':result=(args[0]<args[1]).astype(np.float64)
-            elif op=='greater':result=(args[0]>args[1]).astype(np.float64)
-            elif op=='less_equal':result=(args[0]<=args[1]).astype(np.float64)
-            elif op=='greater_equal':result=(args[0]>=args[1]).astype(np.float64)
-            elif op=='select':result=np.where(args[0]!=0,args[1],args[2])
-            else:result=_UNARY_NP[op](args[0])
-        memo[index]=result
-        return result
-    return value(expression['root'])
+    from eel_memory import evaluate_np
+    return evaluate_np(expression,inputs,rng)
 
 
 def _point_clouds(facts):
@@ -840,10 +793,10 @@ def _dynamic_border_operators(facts,width,height,values):
 
 def _eval_filled(expression,inputs,rng=None):
     """Scalar value of an EEL graph; inputs it reads but nobody supplies are 0 (projectm-eval)."""
-    from time_expression import input_names
+    from eel_memory import input_names
     plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
     missing=(input_names(plain) or set())-set(inputs)
-    value=float(np.asarray(_evaluate_np(expression,{**inputs,**{n:0. for n in missing}},rng)).reshape(-1)[0])
+    value=float(np.asarray(_evaluate_np(expression,{**inputs,**{n:_absent(n) for n in missing}},rng)).reshape(-1)[0])
     return value if math.isfinite(value) else 0.
 
 
@@ -1134,23 +1087,49 @@ def _noise_texture(name):
     return _NOISE[name]
 
 
+def _render_constants(context):
+    """Readonly per-frame values from the declared render context (PerFrameContext::LoadStateVariables).
+
+    aspectx/aspecty are RenderContext invAspectX/Y: 1 on the long axis and long/short on the other,
+    as float32; pixelsx/pixelsy are the viewport; meshx/meshy the per-pixel mesh size.
+    """
+    viewport=(context or {}).get('viewport')
+    if not isinstance(viewport,list) or len(viewport)!=2:return {}
+    width,height=float(viewport[0]),float(viewport[1])
+    aspect_x=float(np.float32(width/height)) if height>width else 1.
+    aspect_y=float(np.float32(height/width)) if width>height else 1.
+    values={'pixelsx':width,'pixelsy':height,'aspectx':float(np.float32(1/np.float32(aspect_x))),
+            'aspecty':float(np.float32(1/np.float32(aspect_y)))}
+    grid=(context or {}).get("mesh_grid")
+    if isinstance(grid,list) and len(grid)==2:values.update(meshx=float(grid[0]),meshy=float(grid[1]))
+    return values
+
+
+def _absent(name):
+    """Value of an input nobody supplies: projectm-eval variables read 0, memory buffers start zeroed."""
+    return Memory() if isinstance(name,str) and name.startswith('memory:') else 0.
+
+
 class _FrameStepper:
     """Steps the exported per-frame recurrence (stage_programs.frame) under declared bands."""
-    def __init__(self,frame,rng_seed=8191):
+    def __init__(self,frame,rng_seed=8191,constants=None):
+        # Readonly render values the engine loads before frame code (aspect, viewport, mesh).
+        self.constants=dict(constants or {})
         self.state_programs=(frame or {}).get('state') or {}
         self.output_programs=(frame or {}).get('outputs') or {}
         self.values=None;self.start={};self.failed=set();self.zero_inputs=set();self.rng=np.random.default_rng(rng_seed)
     def _eval(self,program,inputs):
         # projectm-eval reads a variable that is never written as 0 (for example 'cyyspeed' produced by
         # MilkDrop's joining of a line split across numbered records).
-        from time_expression import input_names
+        from eel_memory import input_names
         plain={'root':program['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in program['nodes']]}
         missing=(input_names(plain) or set())-set(inputs)
         if missing:
-            self.zero_inputs|=missing;inputs={**inputs,**{name:0. for name in missing}}
-        return float(np.asarray(_evaluate_np(program,inputs,self.rng)).reshape(-1)[0])
+            self.zero_inputs|=missing;inputs={**inputs,**{name:_absent(name) for name in missing}}
+        value=_evaluate_np(program,inputs,self.rng)
+        return value if isinstance(value,Memory) else float(np.asarray(value).reshape(-1)[0])
     def step(self,time,fps,bands,frame_index):
-        base={**{k:float(v) for k,v in bands.items()},'time':float(np.float32(time)),'fps':float(np.float32(fps)),'frame':float(frame_index),'progress':0.}
+        base={**self.constants,**{k:float(v) for k,v in bands.items()},'time':float(np.float32(time)),'fps':float(np.float32(fps)),'frame':float(frame_index),'progress':0.}
         if self.values is None:
             init_inputs={**base,**{'init:per_frame_init_:'+k:v for k,v in base.items()}}
             self.values={}
@@ -1164,7 +1143,7 @@ class _FrameStepper:
         for name,programs in self.state_programs.items():
             try:value=self._eval(programs['update'],inputs)
             except Exception:value=self.values.get(name,0.);self.failed.add(name)  # noqa: BLE001
-            updated[name]=value if math.isfinite(value) else 0.
+            updated[name]=value if isinstance(value,Memory) or math.isfinite(value) else 0.
         outputs={}
         for name,program in self.output_programs.items():
             try:
@@ -1172,7 +1151,7 @@ class _FrameStepper:
                 if math.isfinite(value):outputs[name]=value
             except Exception:self.failed.add(name)  # noqa: BLE001
         self.values=updated
-        return {**{name:0. for name in self.zero_inputs},**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()},**outputs}
+        return {**{name:_absent(name) for name in self.zero_inputs},**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()},**outputs}
 
 
 def _declared_uniforms(width,height,time,fps,bands):
@@ -1428,7 +1407,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None
     frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
-    stepper=_FrameStepper(frame_record) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
+    stepper=_FrameStepper(frame_record,constants=_render_constants(context)) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
     programs=(facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}
     warp_program=(programs.get('warp') or {}).get('program') if (programs.get('warp') or {}).get('status')=='exported' else None
     composite_program=(programs.get('composite') or {}).get('program') if (programs.get('composite') or {}).get('status')=='exported' else None
@@ -1469,6 +1448,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     held={name:(span[0]+span[1])/2 for name,span in (context.get('scalar_input_domains') or {}).items()
           if isinstance(span,list) and len(span)==2}
     for name in ('bass','mid','treb','bass_att','mid_att','treb_att'):held.setdefault(name,1.0)
+    held.update(_render_constants(context))
     textured=_textured_shapes(facts,held)
     wrap=True
     if textured:limitations.append('textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)')

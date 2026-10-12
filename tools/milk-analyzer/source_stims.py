@@ -28,6 +28,8 @@ def _facts(field):
             raise _SemanticBudget('Stims causal field traversal budget exceeded')
         if node.op == 'input':
             dependencies.add(node.detail['name'])
+            if str(node.detail['name']).startswith('memory:'):
+                unknown.add('shared memory buffer content depends on writes in other phases and earlier frames')
         if node.op == 'unknown':
             unknown.add(node.detail.get('reason', 'unsupported source value'))
         if node.op == 'rand':

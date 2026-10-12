@@ -108,7 +108,7 @@ def _expression(field,budget=256):
         index=len(nodes);ids[id(node)]=index;nodes.append(None)
         detail={key:value for key,value in node.detail.items() if key in {'value','name','field','operator','target_type','reason','index',
             'sampler','canonical_texture','surface','frame','site_index','sampling_policy','coordinate_convention','intrinsic','lod_effect',
-            'numeric_domain','explicit_source_cast','equation_phase','value_binding','native_uniform_role','native_mesh_reset_input'}}
+            'numeric_domain','explicit_source_cast','equation_phase','value_binding','native_uniform_role','native_mesh_reset_input','space'}}
         nodes[index]={'op':node.op,'dtype':node.dtype,'args':[visit(arg) for arg in node.args],'detail':detail}
         if node.op.startswith('loop_'):nodes[index]['unresolved_loop_plan']=True
         return index

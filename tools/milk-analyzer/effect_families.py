@@ -687,8 +687,18 @@ def _periodic_advection(parts):
     return False
 
 
+class _EelLoopPlan:
+    """Plan of a fixed-count EEL loop (eel_memory): written names, their per-iteration updates."""
+    kind='eel_count'
+
+    def __init__(self,names):
+        from eel_memory import MAX_LOOP_COUNT
+        self.names=list(names);self.condition=None;self.updates={};self.effects=[];self.iteration_limit=MAX_LOOP_COUNT
+
+
 class _EEL:
-    """Symbolic native EEL tree substitution; stateful forms remain unknown."""
+    """Symbolic native EEL tree substitution; fixed-count loops and megabuf memory are versioned
+    (eel_memory); while loops and other stateful forms remain unknown."""
     COMPOUND={'_addop':'add','_subop':'subtract','_mulop':'multiply','_divop':'eel_divide',
               '_modop':'remainder','_orop':'eel_bitwise_or','_andop':'eel_bitwise_and'}
     OPS = {'_add': 'add', '_sub': 'subtract', '_mul': 'multiply', '_div': 'eel_divide',
@@ -696,12 +706,72 @@ class _EEL:
            '_below': 'less', '_above': 'greater', 'below': 'less', 'above': 'greater',
            'equal': 'equal', 'if': 'select'}
 
-    def __init__(self, environment=None,*,equation_phase=None):
+    def __init__(self, environment=None,*,equation_phase=None,memory_written=None):
         self.environment = dict(environment or {})
+        # Buffers some block of the preset writes; None when unknown. Both buffers start zeroed,
+        # so a buffer that no block writes reads 0.
+        self.memory_written = memory_written
         self.equation_phase=equation_phase
         self.written = set()
         self.unknown = []
         self.random_site_count = 0
+        # Current version of each megabuf/gmegabuf buffer (eel_memory): starts as the buffer input.
+        self.memory = {}
+
+    def memory_version(self,space):
+        if space not in self.memory:
+            self.memory[space]=Field('input',detail={'name':'memory:'+space,'equation_phase':self.equation_phase,
+                'value_binding':'memory_buffer'})
+        return self.memory[space]
+
+    @staticmethod
+    def memory_target(node):
+        if isinstance(node,dict) and node.get('kind')=='call' and node.get('function')=='mem' and len(node.get('args',[]))==1:
+            return node.get('memory_space') if node.get('memory_space') in {'global','local'} else None
+        return None
+
+    @classmethod
+    def memory_spaces_written(cls,tree):
+        spaces=set();pending=[tree]
+        while pending:
+            node=pending.pop()
+            if isinstance(node,list):pending.extend(node);continue
+            if not isinstance(node,dict):continue
+            if node.get('function') in {'assign','_set',*cls.COMPOUND} and node.get('args'):
+                space=cls.memory_target(node['args'][0])
+                if space is not None:spaces.add(space)
+            pending.extend(v for v in node.values() if isinstance(v,(dict,list)))
+        return spaces
+
+    def fixed_count_loop(self,tree):
+        """loop(n, body) as an eel_memory plan: written names get slots, results carry the final values."""
+        count=self.lower(tree['args'][0])
+        body=tree['args'][1]
+        names=sorted(self.assignment_targets(body))+['memory:'+s for s in sorted(self.memory_spaces_written(body))]+['__value']
+        plan=_EelLoopPlan(names)
+        initial={}
+        for name in names:
+            if name=='__value':initial[name]=_constant(0)
+            elif name.startswith('memory:'):initial[name]=self.memory_version(name.split(':',1)[1])
+            else:initial[name]=self.lower({'kind':'variable','name':name})
+        outer=dict(self.environment);outer_memory=dict(self.memory)
+        for name in names:
+            slot=Field('loop_eel_slot',detail={'plan':plan,'name':name})
+            if name.startswith('memory:'):self.memory[name.split(':',1)[1]]=slot
+            elif name!='__value':self.environment[name]=slot
+        result=self.lower(body)
+        for name in names:
+            if name=='__value':plan.updates[name]=result
+            elif name.startswith('memory:'):plan.updates[name]=self.memory[name.split(':',1)[1]]
+            else:plan.updates[name]=self.environment[name]
+        self.environment=outer;self.memory=outer_memory
+        # Arguments: count, start values, then the updates, so graph walkers see what the body reads.
+        arguments=(count,*(initial[name] for name in names),*(plan.updates[name] for name in names))
+        results={name:Field('loop_eel_result',arguments,detail={'plan':plan,'name':name}) for name in names}
+        for name in names:
+            if name.startswith('memory:'):self.memory[name.split(':',1)[1]]=results[name]
+            elif name!='__value':self.environment[name]=results[name];self.written.add(name)
+        return results['__value']
 
     @classmethod
     def assignment_targets(cls,tree):
@@ -740,6 +810,21 @@ class _EEL:
             for instruction in tree.get('instructions', []):
                 result = self.lower(instruction)
             return result
+        if function == 'mem' and self.memory_target(tree) is not None:
+            space=self.memory_target(tree)
+            if self.memory_written is not None and space not in self.memory_written:
+                self.lower(tree['args'][0]);return _constant(0)
+            return Field('array_mem_read',(self.memory_version(space),self.lower(tree['args'][0])),detail={'space':space})
+        if function in {'assign','_set',*self.COMPOUND} and self.memory_target(tree['args'][0]) is not None:
+            space=self.memory_target(tree['args'][0])
+            index=self.lower(tree['args'][0]['args'][0]);right=self.lower(tree['args'][1])
+            before=self.memory_version(space)
+            value=right if function in {'assign','_set'} else self.operation(self.COMPOUND[function],
+                (Field('array_mem_read',(before,index),detail={'space':space}),right))
+            self.memory[space]=Field('array_mem_write',(before,index,value),detail={'space':space})
+            return value
+        if function == 'loop' and len(tree.get('args',[]))==2:
+            return self.fixed_count_loop(tree)
         if function in {'assign','_set'} and tree['args'][0].get('kind') == 'variable':
             name = tree['args'][0]['name'].lower()
             value = self.lower(tree['args'][1])
@@ -755,14 +840,22 @@ class _EEL:
             condition = self.lower(tree['args'][0]); number = _number(condition)
             if number is not None:
                 return self.lower(tree['args'][1 if number else 2])
-            before = dict(self.environment)
-            yes = self.lower(tree['args'][1]); env_yes = dict(self.environment)
-            self.environment = dict(before)
-            no = self.lower(tree['args'][2]); env_no = dict(self.environment)
+            before = dict(self.environment); memory_before = dict(self.memory)
+            yes = self.lower(tree['args'][1]); env_yes = dict(self.environment); memory_yes = dict(self.memory)
+            self.environment = dict(before); self.memory = dict(memory_before)
+            no = self.lower(tree['args'][2]); env_no = dict(self.environment); memory_no = dict(self.memory)
             for name in env_yes.keys() | env_no.keys():
                 y = env_yes.get(name, before.get(name, Field('input', detail={'name': name})))
                 n = env_no.get(name, before.get(name, Field('input', detail={'name': name})))
                 self.environment[name] = y if _same(y, n) else Field('select', (condition, y, n))
+            for space in memory_yes.keys() | memory_no.keys():
+                # A branch that never touched the buffer keeps the version from before the if.
+                base = memory_before.get(space)
+                if base is None:
+                    base = Field('input', detail={'name': 'memory:' + space, 'equation_phase': self.equation_phase,
+                                                  'value_binding': 'memory_buffer'})
+                y = memory_yes.get(space, base); n = memory_no.get(space, base)
+                self.memory[space] = y if y is n else Field('select', (condition, y, n))
             return Field('select', (condition, yes, no))
         if function in {'loop', 'while', 'mem', 'assign'}:
             self.unknown.append('stateful EEL ' + function + ' is not statically normalized')
@@ -875,7 +968,7 @@ class _Analysis:
     def equation(self, prefix, environment):
         section = self.sections.get(prefix)
         selected = select_equation(section, prefix, policy=self.policy)
-        model = _EEL(environment,equation_phase=prefix)
+        model = _EEL(environment,equation_phase=prefix,memory_written=self.memory_written())
         if selected['compile_status'] == 'omitted':
             self.unknowns.append({'section': prefix, 'reason': 'native equation loader omits rejected block'})
             return model
@@ -885,6 +978,19 @@ class _Analysis:
         model.lower(selected['tree'])
         self.unknowns.extend({'section': prefix, 'reason': reason} for reason in dict.fromkeys(model.unknown))
         return model
+
+    def memory_written(self):
+        """megabuf/gmegabuf spaces written by any accepted equation block of the preset."""
+        if not hasattr(self,'_memory_written'):
+            spaces=set()
+            for prefix,section in self.sections.items():
+                if not isinstance(section,dict):continue
+                selected=select_equation(section,prefix,policy=self.policy)
+                if selected['compile_status']!='accepted':continue
+                if selected['tree_status']!='parsed':return None
+                spaces|=_EEL.memory_spaces_written(selected['tree'])
+            self._memory_written=frozenset(spaces)
+        return self._memory_written
 
     def frame_environment(self,prefix,initialized,resets):
         """Reload target fields; persistent written locals need previous-state inputs."""
@@ -918,6 +1024,7 @@ class _Analysis:
         self.main = frame.environment
         # Kept for the frame-program export (state recurrence over declared inputs).
         self.frame_init = init.environment
+        self.frame_memory = frame.memory; self.frame_init_memory = init.memory
         # PerPixelContext is a separate evaluator. Readonly values are copied
         # before main frame code; warp controls reload each vertex. Q values
         # copy once after main code and may then evolve across vertices.

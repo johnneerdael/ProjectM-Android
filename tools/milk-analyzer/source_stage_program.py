@@ -30,6 +30,7 @@ def serialise(field):
         if key in plan_ids:return plan_ids[key]
         index=len(plans);plan_ids[key]=index
         entry={'names':list(plan.names),'condition':None,'updates':{},'effects':[],'iteration_limit':plan.iteration_limit}
+        if getattr(plan,'kind',None):entry['kind']=plan.kind
         plans.append(entry)
         entry['condition']=None if plan.condition is None else visit(plan.condition)
         entry['updates']={name:visit(value) for name,value in plan.updates.items()}
@@ -77,6 +78,8 @@ def frame_program(analysis):
     referenced=set()
     for name in outputs:
         if name in main:referenced|=inputs_of(main[name])
+    memory=getattr(analysis,'frame_memory',None) or {}
+    for version in memory.values():referenced|=inputs_of(version)
     pending=list(referenced);states=set()
     while pending:
         name=pending.pop()
@@ -88,6 +91,15 @@ def frame_program(analysis):
         try:
             initial=init.get(name,Field('constant',detail={'value':0.}))
             result['state'][name]={'initial':serialise(initial),'update':serialise(main[name])}
+        except (ValueError,RecursionError) as error:result['unsupported'][name]=str(error)
+    # megabuf/gmegabuf persist across frames (eel_memory): the init block's final version starts
+    # them (the init block reads zeroed buffers), the frame block's final version updates them.
+    init_memory=getattr(analysis,'frame_init_memory',None) or {}
+    for space,version in sorted((getattr(analysis,'frame_memory',None) or {}).items()):
+        name='memory:'+space
+        try:
+            initial=init_memory.get(space,Field('input',detail={'name':name}))
+            result['state'][name]={'initial':serialise(initial),'update':serialise(version)}
         except (ValueError,RecursionError) as error:result['unsupported'][name]=str(error)
     for name in outputs:
         if name not in main:continue

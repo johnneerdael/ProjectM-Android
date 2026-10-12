@@ -392,10 +392,14 @@ def test_box_fold_sphere_with_translation_but_no_expansion_is_not_mandelbox():
 def test_dynamic_shape_zero_instances_and_unknown_radius_have_honest_gates():
     zero = analyze(read('fWaveAlpha=0\nshapecode_0_enabled=1\nshapecode_0_num_inst=0\n'))
     assert 'polygon_shape_primitive' not in families(zero)
-    unknown = analyze(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
+    # megabuf starts zeroed and no block writes it: the radius is exactly 0, so nothing is drawn.
+    unwritten = analyze(read('fWaveAlpha=0\nshapecode_0_enabled=1\n'
         'shape_0_per_frame1=rad=megabuf(0);\n'))
-    assert not rows(unknown,'polygon_shape_primitive')
-    assert unknown['unknowns']
+    assert not rows(unwritten,'polygon_shape_primitive')
+    # Frame code writes it: the radius is a memory read of frame-written content, a drawn shape.
+    written = analyze(read('fWaveAlpha=0\nshapecode_0_enabled=1\nper_frame_1=megabuf(0)=.2;\n'
+        'shape_0_per_frame1=rad=megabuf(0);\n'))
+    assert rows(written,'polygon_shape_primitive')
 
 
 def test_prepared_compatibility_rejection_suppresses_custom_program():

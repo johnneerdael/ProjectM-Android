@@ -1,0 +1,211 @@
+"""Evaluation of exported EEL graphs, including fixed-count loops and megabuf/gmegabuf memory.
+
+Graphs are the serialised {'root','nodes','plans'} form of source_stage_program.serialise or
+source_appearance._expression. Arithmetic follows projectm-eval (TreeFunctions.c): division by
+|d|<1e-5 is 0, sqrt takes |x|, pow gives 0 for NaN results, EEL equal is |a-b|<1e-5.
+
+Memory (MemoryBuffer.c): an index addresses item int32(index + 0.0001), truncated toward zero, and
+is valid in [0, 128*65536); reads outside give 0 and writes outside are discarded. ``megabuf`` is
+the preset's buffer shared by its per-frame, per-pixel, shape and wave code; ``gmegabuf`` is the
+process-wide buffer. Both start zeroed here. A graph reads a buffer as the input
+``memory:<space>`` and each write yields a new memory version, so reads see exactly the writes
+that precede them in source order.
+
+``loop(n, body)`` (execute_loop) reads n once, truncates it to an integer, caps it at 1048576 and
+runs the body that many times. A loop is exported as a plan: the names it writes (variables and
+``memory:<space>``), each name's start-of-iteration slot, and its end-of-iteration update.
+"""
+import math
+
+import numpy as np
+
+MAX_LOOP_COUNT = 1048576
+MEMORY_ITEMS = 128 * 65536
+_UNARY_NP = {'sin': np.sin, 'cos': np.cos, 'tan': np.tan, 'abs': np.abs, 'negate': np.negative, 'sqr': np.square,
+             'floor': np.floor, 'ceil': np.ceil, 'int': np.floor, 'sign': np.sign, 'exp': np.exp, 'atan': np.arctan,
+             'log': lambda v: np.where(v > 0, np.log(np.where(v > 0, v, 1.)), 0.),
+             'log10': lambda v: np.where(v > 0, np.log10(np.where(v > 0, v, 1.)), 0.),
+             'asin': lambda v: np.where(np.abs(v) <= 1, np.arcsin(np.clip(v, -1, 1)), 0.),
+             'acos': lambda v: np.where(np.abs(v) <= 1, np.arccos(np.clip(v, -1, 1)), 0.)}
+STOCHASTIC = {'rand'}
+MEMORY_OPS = {'array_mem_read', 'array_mem_write'}
+LOOP_OPS = {'loop_eel_result', 'loop_eel_slot'}
+
+
+def memory_index(index):
+    """Item addressed by a projectm-eval memory index, or None outside the buffer."""
+    shifted = float(index) + .0001
+    if not math.isfinite(shifted) or not -2147483648. < shifted < 2147483648.:return None
+    item = int(shifted)
+    return item if 0 <= item < MEMORY_ITEMS else None
+
+
+def loop_count(value):
+    """Iterations of loop(value, ...): integer truncation, at most MAX_LOOP_COUNT, none when <= 0."""
+    value = float(value)
+    if math.isnan(value) or value < 1:return 0
+    return MAX_LOOP_COUNT if value >= MAX_LOOP_COUNT else int(value)
+
+
+class Memory:
+    """One version of a zero-initialised buffer: shared base items plus this version's own writes."""
+    __slots__ = ('base', 'overlay')
+
+    def __init__(self, base=None, overlay=None):
+        self.base = {} if base is None else base
+        self.overlay = {} if overlay is None else overlay
+
+    def read(self, index):
+        item = memory_index(index)
+        if item is None:return 0.
+        return self.overlay.get(item, self.base.get(item, 0.))
+
+    def write(self, index, value):
+        item = memory_index(index)
+        if item is None:return self
+        return Memory(self.base, {**self.overlay, item: float(value)})
+
+    def items(self):
+        return {**self.base, **self.overlay}
+
+    def owned_copy(self):
+        return Memory(self.items(), {})
+
+
+def _apply(op, node, args, rng):
+    with np.errstate(all='ignore'):
+        if op == 'rand' and rng is not None:
+            limit = np.maximum(1., np.floor(args[0]));return rng.random(np.shape(limit)) * limit
+        if op == 'add':return args[0] + args[1]
+        if op == 'subtract':return args[0] - args[1]
+        if op == 'multiply':return args[0] * args[1]
+        if op == 'eel_divide':return np.where(np.abs(args[1]) < 1e-5, 0., args[0] / np.where(np.abs(args[1]) < 1e-5, 1., args[1]))
+        if op == 'divide':return np.where(args[1] == 0, 0., args[0] / np.where(args[1] == 0, 1., args[1]))
+        if op == 'remainder':
+            divisor = np.trunc(args[1]);return np.where(divisor == 0, 0., np.fmod(np.trunc(args[0]), np.where(divisor == 0, 1., divisor)))
+        if op == 'eel_equal':return (np.abs(args[0] - args[1]) < 1e-5).astype(np.float64)
+        if op == 'atan2':return np.arctan2(args[0], args[1])
+        if op == 'sigmoid':
+            t = 1 + np.exp(np.minimum(700., -args[0] * args[1]));return np.where(np.abs(t) > 1e-5, 1 / t, 0.)
+        if op == 'bnot':return (np.abs(args[0]) < 1e-5).astype(np.float64)
+        if op == 'band':return ((np.abs(args[0]) > 1e-5) & (np.abs(args[1]) > 1e-5)).astype(np.float64)
+        if op == 'bor':return ((np.abs(args[0]) > 1e-5) | (np.abs(args[1]) > 1e-5)).astype(np.float64)
+        if op == 'min':return np.minimum(args[0], args[1])
+        if op == 'max':return np.maximum(args[0], args[1])
+        if op == 'pow':
+            result = np.where((np.abs(args[0]) < 1e-5) & (args[1] < 0), 0., np.power(args[0], args[1]))
+            return np.where(np.isnan(result), 0., result)
+        if op == 'sqrt':return np.sqrt(np.abs(args[0]))
+        if op == 'less':return (args[0] < args[1]).astype(np.float64)
+        if op == 'greater':return (args[0] > args[1]).astype(np.float64)
+        if op == 'less_equal':return (args[0] <= args[1]).astype(np.float64)
+        if op == 'greater_equal':return (args[0] >= args[1]).astype(np.float64)
+        if op == 'select':
+            if isinstance(args[1], Memory) or isinstance(args[2], Memory):
+                if np.ndim(args[0]):raise ValueError('memory version selected per evaluated point')
+                return args[1] if args[0] != 0 else args[2]
+            return np.where(args[0] != 0, args[1], args[2])
+        return _UNARY_NP[op](args[0])
+
+
+def _read(memory, index):
+    if np.ndim(index) == 0:return np.float64(memory.read(float(index)))
+    return np.vectorize(memory.read, otypes=[np.float64])(index)
+
+
+def _write(memory, index, value):
+    if np.ndim(index) or np.ndim(value):raise ValueError('vectorised memory write is not a single source write')
+    return memory.write(float(index), float(value))
+
+
+def input_names(expression, *, stochastic=False):
+    """Inputs of a graph this module evaluates (None when an operation is unsupported).
+
+    Loop slots are not inputs; nodes reached only through a loop plan's updates are included.
+    """
+    from time_expression import SUPPORTED
+    if not isinstance(expression, dict) or not isinstance(expression.get('nodes'), list):return None
+    allowed = SUPPORTED | MEMORY_OPS | LOOP_OPS | (STOCHASTIC if stochastic else set())
+    names = set()
+    for node in expression['nodes']:
+        if node.get('op') not in allowed:return None
+        if node.get('op') == 'input':names.add(node.get('detail', {}).get('name'))
+    return names
+
+
+def evaluate_np(expression, inputs, rng=None):
+    """Value of a serialised graph over declared inputs (vectorised; rand needs an rng)."""
+    names = input_names(expression, stochastic=rng is not None)
+    if names is None or names - set(inputs):raise ValueError('point program not evaluable')
+    nodes = expression['nodes'];plans = expression.get('plans') or []
+    stochastic = rng is not None
+    # Which loop plans each node's value depends on (through slots, directly or via nested loops).
+    depends = {}
+
+    def plans_of(index):
+        if index in depends:return depends[index]
+        depends[index] = frozenset()
+        node = nodes[index];found = set()
+        if node['op'] == 'loop_eel_slot':found.add(node['detail']['plan_ref'])
+        for arg in node['args']:found |= plans_of(arg)
+        if node['op'] == 'loop_eel_result':
+            plan = node['detail']['plan_ref'];inner = set()
+            for update in plans[plan]['updates'].values():inner |= plans_of(update)
+            found |= inner - {plan}
+        depends[index] = frozenset(found)
+        return depends[index]
+
+    active = [];slots = {};memo = {None: {}}
+
+    def store(index):
+        own = plans_of(index)
+        for plan in reversed(active):
+            if plan in own:return memo[plan]
+        return memo[None]
+
+    def value(index):
+        table = store(index)
+        if index in table:return table[index]
+        node = nodes[index];op = node['op']
+        if op == 'constant':result = np.float64(node['detail']['value'])
+        elif op == 'input':
+            raw = inputs[node['detail']['name']]
+            result = raw if isinstance(raw, Memory) else np.asarray(raw, np.float64)
+        elif op == 'loop_eel_slot':result = slots[node['detail']['plan_ref']][node['detail']['name']]
+        elif op == 'loop_eel_result':result = run_loop(index)[node['detail']['name']]
+        elif op == 'array_mem_read':result = _read(value(node['args'][0]), value(node['args'][1]))
+        elif op == 'array_mem_write':result = _write(value(node['args'][0]), value(node['args'][1]), value(node['args'][2]))
+        elif op == 'rand' and not stochastic:result = np.abs(value(node['args'][0]))
+        else:result = _apply(op, node, [value(arg) for arg in node['args']], rng)
+        table[index] = result
+        return result
+
+    def run_loop(index):
+        node = nodes[index];plan_ref = node['detail']['plan_ref'];plan = plans[plan_ref]
+        table = store(index);key = ('loop', plan_ref)
+        if key in table:return table[key]
+        count_value = value(node['args'][0])
+        if np.ndim(count_value):raise ValueError('loop count varies across evaluated points')
+        count = loop_count(count_value)
+        current = {}
+        for name, initial in zip(plan['names'], node['args'][1:1 + len(plan['names'])]):
+            start = value(initial)
+            current[name] = start.owned_copy() if isinstance(start, Memory) else start
+        active.append(plan_ref)
+        try:
+            for _ in range(count):
+                memo[plan_ref] = {};slots[plan_ref] = current
+                updated = {name: value(plan['updates'][name]) for name in plan['names']}
+                for name, result in updated.items():
+                    if isinstance(result, Memory):
+                        start = current[name]
+                        if isinstance(start, Memory) and result.base is start.base:
+                            start.base.update(result.overlay);updated[name] = Memory(start.base, {})
+                        else:updated[name] = result.owned_copy()
+                current = updated
+        finally:
+            active.pop();memo.pop(plan_ref, None);slots.pop(plan_ref, None)
+        table[key] = current
+        return current
+
+    return value(expression['root'])
