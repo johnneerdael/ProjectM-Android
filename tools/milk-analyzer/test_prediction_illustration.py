@@ -210,3 +210,45 @@ def test_mode3_wave_alpha_uses_reference_alpha_and_treble_squared():
     alpha = _frame_wave_alpha(material, {'treb': 1.5, 'bass': 1., 'mid': 1.}, 3, 480)
     assert abs(alpha - .15 * 1.3 * 2.25) < 1e-6
     assert _frame_wave_alpha(material, {'treb': 1.5}, 3, 4000) == 1.0  # .44*1.3*2.25 clamps
+
+
+def test_gl_lines_are_half_open_along_the_major_axis():
+    from prediction_illustration import _gl_line_pixels
+    # 1.25 px long horizontal line from a pixel centre covers that pixel only (end pixel excluded).
+    rows, cols = _gl_line_pixels([10.5], [5.5], [11.75], [5.5], 32, 16)
+    assert list(cols) == [10] and list(rows) == [5]
+    # Ten pixels to the right covers columns 10-19; the reversed line covers 11-20 (exit excluded).
+    rows, cols = _gl_line_pixels([10.5], [5.5], [20.5], [5.5], 32, 16)
+    assert sorted(cols) == list(range(10, 20))
+    rows, cols = _gl_line_pixels([20.5], [5.5], [10.5], [5.5], 32, 16)
+    assert sorted(cols) == list(range(11, 21))
+    # y-major diagonal: one pixel per row.
+    rows, cols = _gl_line_pixels([3.5], [2.5], [5.5], [8.5], 32, 16)
+    assert sorted(rows) == list(range(2, 8)) and len(cols) == 6
+
+
+def test_control_with_unbounded_unknown_term_is_held_whole():
+    from prediction_illustration import _control_field, _UNRESOLVED_TERMS
+    x, y = np.meshgrid(np.linspace(0, 1, 5), np.linspace(0, 1, 4))
+    # dx = q*x - x with the q*x half unknown: summing only -x would invent a strong leftward flow.
+    control = {'terms': [{'kind': 'unresolved_inputs', 'expression': None, 'sign': 1},
+                         {'kind': 'coordinate_affine', 'coefficients': {'x': -1.}, 'constant': 0.}], 'value_range': None}
+    assert np.all(_control_field(control, 'dx', x, y, 0.) == 0.)
+    assert np.all(_control_field({**control, 'value_range': [.1, .3]}, 'dx', x, y, 0.) == .2)
+    zoom = {'terms': [{'kind': 'unresolved_inputs', 'expression': None}], 'value_range': None}
+    assert np.all(_control_field(zoom, 'zoom', x, y, 0.) == 1.)
+    resolved = {'terms': [{'kind': 'coordinate_affine', 'coefficients': {'x': -1.}, 'constant': 0.}]}
+    assert np.allclose(_control_field(resolved, 'dx', x, y, 0.), -x)
+    _UNRESOLVED_TERMS.clear()
+
+
+def test_motion_vector_minimum_length_is_in_texture_units():
+    from prediction_illustration import _motion_vector_marks
+    facts = {'/analysis/visual_description/static_behaviour/motion_vectors': {
+        'status': 'described', 'vector_count': 1, 'columns_screen_fraction': [.5], 'rows_screen_fraction_from_top': [.5],
+        'length_scale': [.25, .25], 'colour_rgba': [1, 1, 1, 1]}}
+    width, height = 480, 270
+    still = (np.full((height, width), 239.5, np.float32), np.full((height, width), 134.5, np.float32))
+    (start, end, _), = _motion_vector_marks(facts, lambda t: still, 0., width, height, still)
+    minimum = np.hypot(1.25 / width, 1.25 / height)
+    assert start == (240., 135.) and np.allclose(end, (240 + minimum * width, 135 + minimum * height))

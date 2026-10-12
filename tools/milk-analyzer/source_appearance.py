@@ -99,12 +99,12 @@ def _stage_programs(analysis):
         return {'policy':'source-stage-program-v1','stages':{},'unknown_reasons':[str(error)[:200]]}
 
 
-def _expression(field):
+def _expression(field,budget=256):
     """Bounded equation/control DAG; unknown loops/programs are not expanded."""
     nodes=[];ids={}
     def visit(node):
         if id(node) in ids:return ids[id(node)]
-        if len(nodes)>=256:raise ValueError('control expression export budget exceeded')
+        if len(nodes)>=budget:raise ValueError('control expression export budget exceeded')
         index=len(nodes);ids[id(node)]=index;nodes.append(None)
         detail={key:value for key,value in node.detail.items() if key in {'value','name','field','operator','target_type','reason','index',
             'sampler','canonical_texture','surface','frame','site_index','sampling_policy','coordinate_convention','intrinsic','lod_effect',

@@ -1,0 +1,87 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r17-v1/v2",
+ "preset": "suksma - fuck alltec auto in orem, but then thanks too.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "79a355d09939d2c64a6b199e8863038306314502a9471c3d76bc5ab077af4f49",
+  "description-v1-before-capture.json": "d8e9ee737cfe908ae07ae32935e20592c5d2a660a118c58bb79125a11e36383f",
+  "recipe-v1-before-capture.json": "6e6400514cc4372c77f783eaecc179f85241828ee88942fcf2a0401a1f80f994",
+  "prediction-v1.png": "6cbeb1facb6dbd03ffee6557feec45f81b57f501a1ecf4c19f317d3b718dcb9e",
+  "llm-look-description-v1.txt": "9655175ecedf15b691a9c90fe61b9bb29f8632dbf0f0cea4e1073a0b8b1c4fa5"
+ },
+ "capture_result_sha256": "fc5b520e4897f2cd84958668eb5ac6981fcfa89f5c8bb2f8e8659b6e4e2df374",
+ "review_measurements_v1": {
+  "prediction_luma": 0.223,
+  "screenshot_luma": 0.155,
+  "mean_rgb_prediction": [
+   0.57,
+   0.068,
+   0.11
+  ],
+  "mean_rgb_screenshot": [
+   0.206,
+   0.133,
+   0.134
+  ],
+  "saturation": [
+   0.894,
+   0.432
+  ],
+  "blurred_luma_correlation": -0.244
+ },
+ "review_measurements_v2_after_general_fixes": {
+  "prediction_luma": 0.173,
+  "screenshot_luma": 0.155,
+  "mean_rgb_prediction": [
+   0.228,
+   0.149,
+   0.151
+  ],
+  "mean_rgb_screenshot": [
+   0.206,
+   0.133,
+   0.134
+  ],
+  "saturation": [
+   0.426,
+   0.432
+  ],
+  "blurred_luma_correlation": 0.368
+ },
+ "engine_ruler_frame_149_luma": 0.159,
+ "calibrated_display_estimate": {
+  "activity": 0.4066,
+  "bands": [
+   "Normal"
+  ],
+  "certain_bands": []
+ },
+ "agreements": [
+  "SDK description: slow inward pull, dense white motion-vector grid drawn into the feedback, channel-split warp rescale, self-advecting composite; calm-to-moderate flow (Normal estimate)",
+  "Capture: dark brown/violet field textured by a warped grid of orange/white vector ticks with radial curvature; luma 0.155, saturation 0.43"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "v1 prediction a bright saturated red field with long radial lines; capture dark with short ticks",
+   "cause": "(1) the mesh exporter dropped the graph of one per-pixel dx/dy term over the 256-node budget (three inlined per-frame Q blocks); (2) the illustrator summed the remaining terms, so the cancelling -x partner became a strong flow and motion vectors grew to cover the screen; (3) motion vectors were drawn after the warp at full brightness, while MilkdropPreset::RenderFrame draws them into the previous frame before warping (they reach the screen once warped and decayed); (4) anti-aliased lines with both endpoints instead of GLES aliased diamond-exit lines",
+   "next": "fixed generally (v2); remaining ~10% brightness excess and grid regularity differences are within line-raster detail"
+  },
+  {
+   "size": "small",
+   "observed": "v2 still ~10% brighter than the emulator/ruler, field curvature less pronounced",
+   "cause": "per-frame audio analysis details and vector raster detail",
+   "next": "none required for understanding"
+  }
+ ],
+ "general_fixes_after_capture": [
+  "mesh-field per-term graphs exported up to 1024 nodes (TERM_EXPRESSION_NODES)",
+  "a mesh control with an unknown unbounded addend is held whole at its neutral value (or control range midpoint) instead of summing partial terms",
+  "per-pixel mesh terms read start-of-frame per-frame state (like shader programs)",
+  "motion vectors drawn into the previous frame before the warp, from the previous warp map",
+  "motion vectors rasterised as aliased GL lines (diamond exit, end pixel excluded) with mv_a blending; minimum length in texture units as PresetMotionVectorsVertexShader"
+ ],
+ "status": "look understood (v2: palette, structure and brightness within ~10%)",
+ "uses_rendered_images_for_classification": false
+}

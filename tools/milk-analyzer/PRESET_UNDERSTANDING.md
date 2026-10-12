@@ -876,3 +876,25 @@ repeated on correctly oriented frames. Probes and results:
   textured shape copies the centre onto itself, so the first colour to reach it
   becomes a fixed point.
 
+- **Large per-pixel terms.** Per-pixel motion terms can inline several whole
+  per-frame Q blocks. The mesh field now exports each term's graph up to 1,024
+  nodes (previously 256). If a control still has a term that is unknown and has
+  no range, the illustrator holds the whole control at its neutral value (zoom 1,
+  dx 0, …) or at the control's range midpoint. Summing only the known terms can
+  invent motion: in `dx = q·x − x` the `−x` alone is a strong leftward flow.
+  Mesh terms read the per-frame state at the start of the frame, like shader
+  programs.
+- **Motion vectors.** `MilkdropPreset::RenderFrame` draws motion vectors into
+  the previous frame before the warp, using the u/v map from the previous warp.
+  They therefore reach the screen only after one warp, decay and shader pass.
+  GLES has no line smoothing. The illustrator draws aliased 1-pixel lines by the
+  diamond-exit rule: the pixel that holds the end point is not drawn, so a
+  1.25-pixel vector covers one pixel. It blends them with `mv_a` and applies the
+  minimum length in texture units (`|(1.25/W, 1.25/H)|`), as
+  `PresetMotionVectorsVertexShader` does.
+- **r17 (`suksma - fuck alltec auto in orem…`) v1 → v2.** v1 drew a bright red
+  field of long radial lines. The capture is a dark brown field of warped
+  orange and white vector ticks. v2 matches its palette and structure: luma
+  0.173 vs 0.155 (ruler 0.159) and saturation 0.43 vs 0.43. The canvas follows
+  the native passthrough canvas within about 15%. The regression on r8–r16 is
+  unchanged except r11 (blurred correlation 0.957 → 0.991).

@@ -32,6 +32,9 @@ COMPARISONS={'less':'<','greater':'>','less_equal':'<=','greater_equal':'>='}
 MAX_NODES=4096
 MAX_TERMS=64
 MAX_REGIONS=32
+# Per-term graph export budget: per-pixel terms inline whole per-frame Q graphs (a few hundred nodes
+# each); a term exported without its graph cannot be evaluated and its cancelling partners mislead.
+TERM_EXPRESSION_NODES=1024
 
 
 class _Budget(ValueError):
@@ -218,7 +221,7 @@ def _classify(sign,node,domains,scale,aspect,depth):
         row['kind']='unresolved_inputs'
         # Keep the bounded graph (random calls, state or unsupported inputs remain explicit in it).
         from source_appearance import _expression
-        row['expression']=_expression(node)
+        row['expression']=_expression(node,TERM_EXPRESSION_NODES)
         return row
     linear=_linear(node)
     if not deps['coordinates']:
@@ -230,7 +233,7 @@ def _classify(sign,node,domains,scale,aspect,depth):
             if deps['audio'] or deps['time']:
                 # Per-frame audio/time value: keep the bounded graph for declared-input evaluation.
                 from source_appearance import _expression
-                row['expression']=_expression(node)
+                row['expression']=_expression(node,TERM_EXPRESSION_NODES)
         return row
     if linear is not None and all(value==0 for key,value in linear.items() if key!='const'):
         row.update(kind='constant',value=sign*float(linear.get('const',Fraction(0))))
@@ -279,7 +282,7 @@ def _classify(sign,node,domains,scale,aspect,depth):
             ends=[sign*float(value)*scale_range[0],sign*float(value)*scale_range[1]]
             coefficients[key]=[min(ends),max(ends)]
         from source_appearance import _expression
-        row['expression']=_expression(node)
+        row['expression']=_expression(node,TERM_EXPRESSION_NODES)
         row.update(kind='uniform_scaled_coordinate_affine',coefficient_ranges=coefficients if scale_range else None,
             scale_dependencies=sorted(set().union(*(_dependencies(f)['audio']|_dependencies(f)['time']|_dependencies(f)['q']
                                                      for f in factors if f is not affine[0]))))
@@ -288,7 +291,7 @@ def _classify(sign,node,domains,scale,aspect,depth):
     # Keep the bounded source graph so consumers can evaluate the term per mesh point;
     # the contribution is sign * expression (inputs x, y, rad, ang and uniform inputs).
     from source_appearance import _expression
-    row['expression']=_expression(node)
+    row['expression']=_expression(node,TERM_EXPRESSION_NODES)
     return row
 
 

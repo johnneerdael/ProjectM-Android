@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe (before capture, r17 v1):
+A slow inward pull: the feedback image contracts toward the screen centre by 0.5-5.5% per step
+(zoomexp 0.35 makes the rate radius-dependent), with no rotation. A dense 63x47 grid of white
+motion vectors is drawn into the feedback each frame, pointing where the warp samples from, so the
+vector field itself becomes visible texture. The per-vertex translation (dx/dy) depends on position,
+all audio bands and a carried q8 value through a thresholded/clamped response, so audio nudges the
+flow sideways rather than flashing it. Warp and composite shaders are present: the warp shader
+rescales the previous frame (x0.90 and x1.15), and the composite self-advects (image content
+steering its own sampling: smeared, fluid structure). Palette is unresolved from source.
+Calibrated display estimate: Normal (activity 0.41, interval 0.01-0.86, not certain); luminance
+~0.17, saturation ~0.58, frame difference ~0.04, flow ~0.14 screen widths/s, jumps ~1.2 per 10 s.
+Expected: a fairly dark but saturated, smoothly flowing field streaked by radial vector-grid lines
+converging on the centre, with fluid smearing from the composite; calm to moderate activity.

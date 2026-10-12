@@ -213,7 +213,7 @@ def _terms_field(terms,x,y,time):
             total+=term.get('sign',1)*float(np.asarray(_evaluate_np(term['expression'],inputs,_TERM_CONTEXT.get('rng'))).reshape(-1)[0])
         elif kind=='uniform':
             value=_mid(term.get('value_range'))
-            if value is None:_UNRESOLVED_TERMS.add('unbounded uniform');value=0.
+            if value is None:_UNRESOLVED_TERMS.add('unbounded uniform');_TERM_CONTEXT['unknown_addend']=True;value=0.
             total+=value
         elif kind=='coordinate_affine':
             coefficients=term['coefficients']
@@ -246,6 +246,7 @@ def _terms_field(terms,x,y,time):
                     **{n:1.0 for n in ('bass','mid','treb','bass_att','mid_att','treb_att')}}
             if names is None or names-set(inputs):
                 value=_mid(term.get('value_range'));total+=0. if value is None else value
+                if value is None:_TERM_CONTEXT['unknown_addend']=True
                 _UNRESOLVED_TERMS.add('nonlinear term '+('operation' if names is None else 'inputs '+','.join(sorted(map(str,names-set(inputs))))))
             else:total+=term.get('sign',1)*_evaluate_np(expression,inputs)
         elif kind=='coordinate_gated':
@@ -258,11 +259,28 @@ def _terms_field(terms,x,y,time):
                 if high is not None:mask&=coordinate<high
                 total+=np.where(mask,_terms_field(branch['terms'],x,y,time),0.0)
         else:
-            # Unresolved terms (random, state or unsupported inputs) are held at their range midpoint,
-            # or zero without a range; the illustration continues and records the substitution.
+            # Unresolved terms (random, state or unsupported inputs) are held at their range midpoint;
+            # without a range the sum is unknown (its partners may cancel it), so the caller holds the
+            # whole control at its neutral value. The substitution is recorded.
             value=_mid(term.get('value_range'))
+            if value is None:_TERM_CONTEXT['unknown_addend']=True
             total+=0. if value is None else value
             _UNRESOLVED_TERMS.add(str(kind))
+    return total
+
+
+# Neutral control values (no motion): a control with an unknown, unbounded addend is held here.
+_NEUTRAL={'zoom':1.,'zoomexp':1.,'rot':0.,'warp':0.,'cx':.5,'cy':.5,'dx':0.,'dy':0.,'sx':1.,'sy':1.}
+
+
+def _control_field(control,name,x,y,time):
+    """One mesh control over the vertices; neutral when a term is unknown and unbounded."""
+    _TERM_CONTEXT.pop('unknown_addend',None)
+    total=_terms_field(control['terms'] or [],x,y,time)
+    if _TERM_CONTEXT.pop('unknown_addend',None):
+        value=_mid(control.get('value_range'))
+        _UNRESOLVED_TERMS.add('control %s held whole (unbounded unknown term)'%name)
+        return np.full_like(x,_NEUTRAL[name] if value is None else value)
     return total
 
 
@@ -315,7 +333,7 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
     x=.5+(columns-width/2)/long;y=.5+(rows-height/2)/long
     rad=2*np.hypot(x-.5,y-.5)
     def sample(time):
-        values={name:_terms_field(controls[name]['terms'] or [],x,y,time) for name in names}
+        values={name:_control_field(controls[name],name,x,y,time) for name in names}
         # Negative zoom with zoomexp exactly 1 is the zoom itself (patch 0047's CPU path: a point
         # reflection of the sample); other nonpositive bases have no defined power and are not illustrated.
         positive=values['zoom']>0
@@ -543,22 +561,61 @@ def _composite(image,facts):
     return image,None
 
 
-def _motion_vector_marks(facts,sample,time,width,height):
+def _mv_alpha(facts):
+    vectors=facts.get('/analysis/visual_description/static_behaviour/motion_vectors') or {}
+    colour=vectors.get('colour_rgba') or [1,1,1,1]
+    return min(1.,max(0.,colour[3])) if len(colour)>3 and type(colour[3]) in (int,float) else 1.
+
+
+def _gl_line_pixels(x0,y0,x1,y1,width,height):
+    """Pixels of aliased 1 px GL lines (window coordinates, pixel centres at i+.5), vectorised.
+
+    Diamond-exit rule along the major axis: a pixel is produced when the segment leaves its diamond,
+    i.e. its exit vertex (centre + half a pixel in the drawing direction) lies in (start, end]; the
+    pixel holding the end point is not produced, so a line about one pixel long covers one pixel.
+    The minor coordinate is taken where the line crosses the pixel centre.
+    """
+    x0,y0,x1,y1=(np.asarray(v,np.float64).ravel() for v in (x0,y0,x1,y1))
+    dx,dy=x1-x0,y1-y0;xmajor=np.abs(dx)>=np.abs(dy)
+    a0=np.where(xmajor,x0,y0);a1=np.where(xmajor,x1,y1);b0=np.where(xmajor,y0,x0);b1=np.where(xmajor,y1,x1)
+    step=np.where(a1>=a0,1.,-1.);span=np.abs(a1-a0)
+    # First exit vertex strictly after the start in the drawing direction (vertices sit on integers).
+    first=np.where(step>0,np.floor(a0)+1,np.ceil(a0)-1)
+    rows=[];cols=[]
+    for k in range(int(np.ceil(span.max()))+1 if len(span) else 0):
+        exit_=first+step*k;offset=(exit_-a0)*step
+        keep=(offset>0)&(offset<=span)
+        if not keep.any():continue
+        centre=exit_-.5*step
+        t=np.clip(np.where(span>0,(centre-a0)*step/np.where(span>0,span,1.),0.),0,1)
+        minor=np.floor(b0+(b1-b0)*t);major=np.floor(centre)
+        col=np.where(xmajor,major,minor)[keep].astype(int);row=np.where(xmajor,minor,major)[keep].astype(int)
+        inside=(col>=0)&(col<width)&(row>=0)&(row<height)
+        cols.append(col[inside]);rows.append(row[inside])
+    if not rows:return np.zeros(0,int),np.zeros(0,int)
+    return np.concatenate(rows),np.concatenate(cols)
+
+
+def _motion_vector_marks(facts,sample,time,width,height,maps=None):
     vectors=facts.get('/analysis/visual_description/static_behaviour/motion_vectors')
     if not isinstance(vectors,dict) or vectors.get('status')!='described' or not vectors.get('vector_count'):return []
     if sample is None:return []
-    map_x,map_y=sample(time)
+    map_x,map_y=maps if maps is not None else sample(time)
     length=_mid(vectors.get('length_scale')) or .9
     colour=vectors.get('colour_rgba') or [1,1,1,1]
     shade=tuple(float(v) if type(v) in (int,float) else 1.0 for v in colour[:3])
+    minimum=math.hypot(1.25/width,1.25/height)
     marks=[]
     for fx in vectors['columns_screen_fraction']:
         for fy in vectors['rows_screen_fraction_from_top']:
             px,py=fx*width,fy*height
             i,j=min(height-1,int(py)),min(width-1,int(px))
-            ex,ey=px+(map_x[i,j]-px)*length,py+(map_y[i,j]-py)*length
-            if math.hypot(ex-px,ey-py)<1.25:ey=py+1.25
-            marks.append(((px,py),(ex,ey),shade))
+            # PresetMotionVectorsVertexShader works in texture units: dist=(old-pos)*mv_l, lengthened to
+            # minimum_length=|(1.25/W, 1.25/H)| along its direction (or set to (min, min) when ~zero).
+            du,dv=(map_x[i,j]+.5-px)/width*length,(map_y[i,j]+.5-py)/height*length
+            norm=math.hypot(du,dv)
+            if norm<=minimum:du,dv=(du*minimum/norm,dv*minimum/norm) if norm>1e-8 else (minimum,minimum)
+            marks.append(((px,py),(px+du*width,py+dv*height),shade))
     return marks
 
 
@@ -1394,7 +1451,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     _TERM_CONTEXT.pop('stage',None)
     warp_samples_blur='"canonical_texture": "blur' in json.dumps(warp_program) if warp_program is not None else False
     wave_states={};shape_states={}
-    previous=image
+    previous=image;vector_maps=None
     try:
         # history_steps rendered frames ending at the declared time (native frame k renders at (k+1)/fps).
         for frame in range(max(history_steps-1,0),-1,-1):
@@ -1407,6 +1464,15 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 bands=audio['frames'][index];held.update(bands)
             # Blur timing (MilkdropPreset::RenderFrame): blur textures are made from the previous frame's
             # buffer; a warp shader that samples blur reads last frame's update (two canvases back).
+            if vector_maps is not None:
+                # MilkdropPreset::RenderFrame draws motion vectors into the previous frame before warping it,
+                # from the u/v map the previous warp wrote: they reach the screen only through one warp.
+                # GLES has no line smoothing, so they are aliased 1 px lines (sub-pixel endpoints).
+                marks=_motion_vector_marks(facts,sample,frame_time,width,height,vector_maps)
+                if marks:
+                    rows,cols=_gl_line_pixels(*np.array([[a[0],a[1],b[0],b[1]] for a,b,_ in marks]).T,width,height)
+                    alpha=float(_mv_alpha(facts))
+                    image=image.copy();image[rows,cols]=image[rows,cols]*(1-alpha)+np.array(marks[0][2],np.float32)*alpha
             older=previous;previous=image;canvas['previous_alpha']=canvas['alpha']
             # Per-frame base inputs, read by inlined per-frame graphs (e.g. a Q accumulating 30/fps per frame).
             # projectM's frame counter (m_frameCount) is 0 on the first rendered frame, which renders at
@@ -1415,13 +1481,15 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             held.update(fps=float(fps),frame=float(frame_number),progress=0.,time=float(frame_time))
             if stepper is not None:
                 held.update(stepper.step(frame_time,fps,{k:held[k] for k in BANDS if k in held},frame_number))
-            _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
-                                 bands={k:v for k,v in held.items() if isinstance(v,(int,float))})
-            # Shader programs inline Q graphs over start-of-frame state: their inputs take those values.
+            # Shader programs and per-pixel terms inline Q graphs over start-of-frame state: their inputs
+            # take those values.
             stage_controls={**held,**(stepper.start if stepper is not None else {})}
+            _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
+                                 bands={k:v for k,v in stage_controls.items() if isinstance(v,(int,float))})
             _TERM_CONTEXT['stage']=stage_controls
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
+                vector_maps=(map_x,map_y)
                 main_x,main_y=map_x,map_y
                 if main_coordinates is not None:
                     try:main_x,main_y=_evaluate_injection(None,image,map_x,map_y,frame_time,int(round(frame_time*fps)),main_coordinates,
@@ -1562,8 +1630,6 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             for alpha,colour in sprites+_dynamic_border_operators(facts,width,height,held):
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
-            for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):
-                cv2.line(image,tuple(int(round(v)) for v in start),tuple(int(round(v)) for v in end),shade,1,cv2.LINE_AA)
             if frame_callback is not None:frame_callback(frame_time,_display(image,facts,frame_time,fps,[],previous))
         if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
     except ValueError as error:
