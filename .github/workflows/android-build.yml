@@ -71,6 +71,8 @@ jobs:
           java-version: '21'  # same major as F-Droid's build server (OpenJDK 21), for reproducible builds
       - name: Check the preset index (names and memory weights) is up to date
         run: tools/gen-preset-index.py --check
+      - name: Check the mood facet attribute bundle
+        run: python3 tools/milk-analyzer/attribute_bundle.py --check
       - name: Check presets (audio-reactive, no excluded or missing textures)
         run: tools/check-presets.py
       - name: Install Mesa (headless OpenGL ES 3 for the transition overlay test)
