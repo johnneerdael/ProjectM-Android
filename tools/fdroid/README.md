@@ -80,8 +80,9 @@ atomic `--force-with-lease` against its previously observed head, and starts
 from current upstream `master`. Unmanaged maintainer fields survive; changes
 to managed fields, unknown unsupported fields, unexpected files, conflicting
 heads and delayed releases stop the run. A managed-field edit is adopted only
-when the recipe then equals this generator's own output for the same build, for
-example a reviewer suggestion we also made in `fdroid_metadata.py` (fdroiddata
+when the recipe then equals this generator's own output for the release named by
+the last sync checkpoint (version and code read from that tag's
+`gradle.properties`), for example a reviewer suggestion we also made in `fdroid_metadata.py` (fdroiddata
 !52248 changed `UpdateCheckData` to read the version name from the same file,
 `.`). Make such review changes in the generator so both listings receive them.
 No discussion comments are posted.
