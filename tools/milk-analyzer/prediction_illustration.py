@@ -1352,9 +1352,12 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             # buffer; a warp shader that samples blur reads last frame's update (two canvases back).
             older=previous;previous=image;canvas['previous_alpha']=canvas['alpha']
             # Per-frame base inputs, read by inlined per-frame graphs (e.g. a Q accumulating 30/fps per frame).
-            held.update(fps=float(fps),frame=float(int(round(frame_time*fps))),progress=0.,time=float(frame_time))
+            # projectM's frame counter (m_frameCount) is 0 on the first rendered frame, which renders at
+            # time 1/fps: frame k has frame = k and time (k+1)/fps.
+            frame_number=max(0,int(round(frame_time*fps))-1)
+            held.update(fps=float(fps),frame=float(frame_number),progress=0.,time=float(frame_time))
             if stepper is not None:
-                held.update(stepper.step(frame_time,fps,{k:held[k] for k in BANDS if k in held},int(round(frame_time*fps))))
+                held.update(stepper.step(frame_time,fps,{k:held[k] for k in BANDS if k in held},frame_number))
             _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
                                  bands={k:v for k,v in held.items() if isinstance(v,(int,float))})
             # Shader programs inline Q graphs over start-of-frame state: their inputs take those values.

@@ -831,4 +831,12 @@ repeated on correctly oriented frames. Probes and results:
   difference), 0.51 (jumps) and 0.45 (saturation). Before today's fixes it was
   0.20 / 0.17 / 0.34 / 0.08. The calibrated model on the same presets reaches
   0.66 / 0.71 / 0.71 / 0.58.
+- **Frame counter.** The per-frame `frame` variable is projectM's `m_frameCount`:
+  0 on the first rendered frame, which renders at time 1/fps. Frame k therefore
+  has `frame = k` at time (k+1)/fps; the illustrator had passed k+1. On r11,
+  where `frame % 15` gates the targets of the dx/dy springs, the fix raises
+  single-step motion correlation at frame 12 from 0.13 to 0.76.
+- **r11 v4.** It matches the emulator: luma 0.468 vs 0.466, colour within 0.01,
+  canvas correlation 0.82–0.96. Applying our composite to the native canvas
+  reproduces the native display, so the composite model is exact.
 

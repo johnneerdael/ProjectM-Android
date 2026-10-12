@@ -1,0 +1,61 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r11-v4",
+ "preset": "Rozzor & Neuro - Starover (Semicolon Mix).milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v4.json": "4a92cb11c5713fceacdb3150e438092fe67ed83d376e6778782e5a6e7e75d7f3",
+  "description-v4-before-capture.json": "ea7f9a3821e84f335c85b1301d1e8dcdee292456a497f6af69fb84b29ef74ff2",
+  "recipe-v4-before-capture.json": "e46e7648249e4fdf4c8f43fa7ee4f5bb303a8bc3c8b42eb7b848670fbd164717",
+  "prediction-v4.png": "217c9c9f4ef57a043691955a9beff25ebfb9b79a7363a85d1a6d0078d82f7fec"
+ },
+ "capture_result_sha256": "9f17e55c5d06d5677596d0932b459d6976b30e828e5df9fba471ffdfd63e96ad",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.468,
+  "screenshot_luma": 0.466,
+  "p10_p50_p90_prediction": [
+   0.288,
+   0.411,
+   0.785
+  ],
+  "p10_p50_p90_screenshot": [
+   0.296,
+   0.417,
+   0.758
+  ],
+  "mean_rgb_prediction": [
+   0.547,
+   0.514,
+   0.024
+  ],
+  "mean_rgb_screenshot": [
+   0.556,
+   0.506,
+   0.022
+  ],
+  "saturation": [
+   0.963,
+   0.965
+  ],
+  "blurred_luma_correlation": 0.846,
+  "feedback_canvas_vs_native_ruler_passthrough": {
+   "blurred_correlation_frames_10_30_60_100_149": [
+    0.912,
+    0.819,
+    0.957,
+    0.917,
+    0.964
+   ]
+  },
+  "composite_check": "our composite applied to the native canvas gives (0.558,0.512,0.022) vs native display (0.556,0.506,0.022): the red excess of v3 came from the canvas"
+ },
+ "agreements": [
+  "Same arcs, nested swirls, palette and border as the emulator frame; brightness, saturation and percentiles match"
+ ],
+ "misses": [],
+ "general_fixes": [
+  "the per-frame 'frame' variable follows projectM's m_frameCount: frame k has frame = k (0 on the first rendered frame) while rendering at time (k+1)/fps; it was k+1, which shifted frame%N-driven state (here the dx/dy spring targets) by a frame and decorrelated the motion"
+ ],
+ "status": "understood"
+}
