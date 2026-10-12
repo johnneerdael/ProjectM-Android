@@ -169,6 +169,7 @@ class BundleTest(unittest.TestCase):
             path = t / 'ruler' / 'a.milk.json'
             row = json.loads(path.read_text()); row['warm_cool'] = None; row['coloured_share'] = 0.0
             path.write_text(json.dumps(row))
+            write_manifest(t)
             B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out', ruler_manifest=t / 'ruler-manifest.json')
             self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json'), [])
             rows = {l.split('\t')[0]: l.split('\t') for l in (t / 'out' / 'attributes.tsv').read_text().splitlines() if not l.startswith('#')}
