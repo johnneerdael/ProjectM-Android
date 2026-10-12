@@ -21,6 +21,7 @@ public class MoodFacetsControllerTest {
     private int customCount = 0;
     private int allCount = 9606;
     private boolean customPending = false;
+    private int skipReads = 0;
     private PresetFacets facets;
 
     @Before public void setUp() throws IOException { facets = PresetFacets.parse(new StringReader(TABLE)); }
@@ -41,7 +42,7 @@ public class MoodFacetsControllerTest {
                     public int count(String category) { return "custom".equals(category) ? customCount : "all".equals(category) ? allCount : -1; }
                     public boolean customPending() { return customPending; }
                 },
-                () -> skipped, outdatedDownload);
+                () -> { skipReads++; return skipped; }, outdatedDownload);
     }
 
     @Test public void optionCountOfOnlySelectedOptionIsEngineAllCount() {
@@ -260,5 +261,71 @@ public class MoodFacetsControllerTest {
         c.skipsChanged(0);
         assertTrue(c.skipsChanged(2));
         assertEquals(Collections.<String>emptyList(), calls);
+    }
+
+    /** Every option id of the table, in panel order. */
+    private List<String> optionIds(PresetFacets table) {
+        List<String> ids = new ArrayList<>();
+        for (PresetFacets.Group group : table.groups()) for (PresetFacets.Option option : group.options) ids.add(option.id);
+        return ids;
+    }
+
+    @Test public void snapshotReadsSkipListOnceForAllOptionsAndHeader() {
+        store.put("mood_facets", "chill");
+        skipped.add("c.milk");
+        MoodFacetsController c = controller(facets);
+        skipReads = 0;
+        MoodFacetsController.Snapshot snapshot = c.snapshot();
+        for (int pass = 0; pass < 5; pass++) {
+            for (String id : optionIds(facets)) {
+                snapshot.optionCount(id);
+                snapshot.isDimmed(id);
+            }
+            snapshot.header();
+            snapshot.exhausted();
+            snapshot.selection();
+        }
+        assertEquals(1, skipReads);
+    }
+
+    @Test public void snapshotMatchesPerCallLogicInEveryState() {
+        String[][] states = {{}, {"chill"}, {"intense"}, {"chill", "no_strobe"}, {"chill", "intense"}, {"intense", "no_strobe"}};
+        for (String[] state : states) {
+            for (int skipCase = 0; skipCase < 3; skipCase++) {
+                store.clear();
+                skipped.clear();
+                if (skipCase == 1) skipped.add("a.milk");
+                if (skipCase == 2) skipped.addAll(Arrays.asList("a.milk", "b.milk", "c.milk"));
+                StringBuilder ids = new StringBuilder();
+                for (String id : state) ids.append(ids.length() > 0 ? "," : "").append(id);
+                store.put("mood_facets", ids.toString());
+                MoodFacetsController c = controller(facets);
+                MoodFacetsController.Snapshot snapshot = c.snapshot();
+                PresetFacets.Selection direct = facets.select(c.selected(), skipped);
+                String where = Arrays.toString(state) + " skip case " + skipCase;
+                for (String id : optionIds(facets)) {
+                    int expected = c.selected().size() == 1 && c.selected().contains(id) ? allCount : direct.countIfToggled(id);
+                    assertEquals(where + " " + id, expected, snapshot.optionCount(id));
+                    assertEquals(where + " " + id, expected, c.optionCount(id));
+                    assertEquals(where + " " + id, !c.selected().contains(id) && expected == 0, snapshot.isDimmed(id));
+                }
+                assertEquals(where, c.header(), snapshot.header());
+                assertEquals(where, c.exhausted(), snapshot.exhausted());
+                assertEquals(where, direct.poolSize(), snapshot.selection().poolSize());
+            }
+        }
+    }
+
+    @Test public void snapshotHeaderFollowsCustomAndMissingTable() {
+        customCount = 1234;
+        store.put("mood_collection", "custom");
+        MoodFacetsController custom = controller(facets);
+        assertEquals(custom.header(), custom.snapshot().header());
+        assertEquals("Custom pack: " + n(1234) + " presets", custom.snapshot().header());
+        store.clear();
+        MoodFacetsController none = controller(null, true);
+        assertNull(none.snapshot().selection());
+        assertEquals(0, none.snapshot().optionCount("chill"));
+        assertEquals(MoodFacetsController.OUTDATED_DOWNLOAD, none.snapshot().header());
     }
 }

@@ -411,3 +411,36 @@ class BundleTest(unittest.TestCase):
             rows = {l.split('\t')[0]: l.split('\t') for l in (t / 'out' / 'attributes.tsv').read_text().splitlines() if not l.startswith('#')}
             self.assertEqual(rows['a.milk'][5], '-')
             self.assertFalse({'warm', 'cool'} & set(rows['a.milk'][1].split(',')))
+
+    def test_check_recomputes_the_generated_manifest_metadata(self):
+        edits = {
+            'schema': lambda m: m.update(schema='projectm-tv-other'),
+            'version': lambda m: m.update(version=2),
+            'preset_count': lambda m: m.update(preset_count=m['preset_count'] + 1),
+            'measured_count': lambda m: m.update(measured_count=m['measured_count'] - 1),
+            'option_counts': lambda m: m['option_counts'].update(tunnel=m['option_counts']['tunnel'] + 1),
+        }
+        missing = {
+            'option_counts': lambda m: m['option_counts'].pop('tunnel'),
+            'measured_count': lambda m: m.pop('measured_count'),
+        }
+        extra = {'option_counts': lambda m: m['option_counts'].update(unknown_option=0)}
+        for label, cases in (('edited', edits), ('missing', missing), ('extra', extra)):
+            for field, edit in cases.items():
+                with self.subTest(change=label, field=field), tempfile.TemporaryDirectory() as tmp:
+                    t = make_inputs(tmp)
+                    self.build(t)
+                    self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json'), [])
+                    manifest = json.loads((t / 'out' / 'manifest.json').read_text())
+                    edit(manifest)
+                    (t / 'out' / 'manifest.json').write_text(json.dumps(manifest, indent=1, sort_keys=True) + '\n')
+                    problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')
+                    self.assertTrue(any(field in p for p in problems), problems)
+
+    def test_the_committed_bundle_passes_check(self):
+        root = Path(__file__).resolve().parents[2]
+        bundle = root / 'core/src/main/assets/preset-attributes'
+        if not (bundle / 'manifest.json').is_file():
+            self.skipTest('no committed bundle in this checkout')
+        self.assertEqual(B.check(bundle, root / 'core/src/main/assets/presets.idx',
+                                 ruler_manifest=root / B.DEFAULT_RULER_MANIFEST), [])

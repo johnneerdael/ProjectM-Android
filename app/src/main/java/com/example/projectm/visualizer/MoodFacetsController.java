@@ -53,9 +53,7 @@ final class MoodFacetsController {
     }
 
     /** A selection that matches no playable preset (all skipped, or no preset fits every group): All plays, the selection stays stored. */
-    boolean exhausted() {
-        return facets != null && !selected.isEmpty() && "bundled".equals(collection) && selection().poolSize() == 0;
-    }
+    boolean exhausted() { return snapshot().exhausted(); }
 
     boolean facetsAvailable() { return facets != null; }
     boolean outdatedDownload() { return outdatedDownload; }
@@ -66,6 +64,61 @@ final class MoodFacetsController {
 
     PresetFacets.Selection selection() {
         return facets == null ? null : facets.select(selected, skips.names());
+    }
+
+    /**
+     * The current state with one read of the skip list: a render derives every option count, the
+     * dimming and the header from one snapshot instead of reading the skip list for each of them.
+     */
+    Snapshot snapshot() { return new Snapshot(); }
+
+    final class Snapshot {
+        private final PresetFacets.Selection selection = MoodFacetsController.this.selection();
+        private final Set<String> chosen = new LinkedHashSet<>(selected);
+        private final String shownCollection = collection;
+
+        /** Null without a facet table. */
+        PresetFacets.Selection selection() { return selection; }
+
+        /** See {@link MoodFacetsController#exhausted()}. */
+        boolean exhausted() {
+            return selection != null && !chosen.isEmpty() && "bundled".equals(shownCollection) && selection.poolSize() == 0;
+        }
+
+        /**
+         * The "-> N" of an option's chip: the presets left if it were toggled. Removing the only selected
+         * option selects the engine's All category (which Custom joins), so that count comes from the engine.
+         */
+        int optionCount(String optionId) {
+            if (selection == null) return 0;
+            if (chosen.size() == 1 && chosen.contains(optionId)) {
+                int all = engine.count("all");
+                if (all > 0) return all;
+            }
+            return selection.countIfToggled(optionId);
+        }
+
+        /** An unselected option that would leave no preset. */
+        boolean isDimmed(String optionId) { return !chosen.contains(optionId) && optionCount(optionId) == 0; }
+
+        /** The pool size line: always a count when one is known. */
+        String header() {
+            NumberFormat format = NumberFormat.getIntegerInstance();
+            if ("custom".equals(shownCollection)) {
+                int custom = engine.count("custom");
+                return custom > 0 ? "Custom pack: " + format.format(custom) + " presets" : "Custom pack";
+            }
+            if (outdatedDownload) return OUTDATED_DOWNLOAD;
+            if (selection == null || chosen.isEmpty()) {
+                int all = engine.count("all");
+                return all > 0 ? format.format(all) + " presets in your mix" : "All presets in your mix";
+            }
+            // Every selected preset is skipped, or deselecting left groups that no preset satisfies together.
+            if (exhausted()) return "No presets match your mix; playing All";
+            int size = selection.poolSize();
+            String text = format.format(size) + " presets in your mix";
+            return size < FEW ? text + " · few presets: some repetition" : text;
+        }
     }
 
     void toggle(String optionId) {
@@ -79,19 +132,8 @@ final class MoodFacetsController {
         apply();
     }
 
-    /**
-     * The "-> N" of an option's chip: the presets left if it were toggled. Removing the only selected
-     * option selects the engine's All category (which Custom joins), so that count comes from the engine.
-     */
-    int optionCount(String optionId) {
-        PresetFacets.Selection current = selection();
-        if (current == null) return 0;
-        if (selected.size() == 1 && selected.contains(optionId)) {
-            int all = engine.count("all");
-            if (all > 0) return all;
-        }
-        return current.countIfToggled(optionId);
-    }
+    /** One option's chip count; a render of several options uses one {@link #snapshot()}. */
+    int optionCount(String optionId) { return snapshot().optionCount(optionId); }
 
     void clearAll() {
         validateCollection();
@@ -135,32 +177,18 @@ final class MoodFacetsController {
         // Without a facet table the stored ids cannot be checked: keep them for a later table.
         if (facets != null) prefs.put(PREF_FACETS, joinIds(selected));
         prefs.put(PREF_COLLECTION, collection);
+        // One skip list read for the exhausted check and the pool.
+        Snapshot current = facets != null && !selected.isEmpty() && "bundled".equals(collection) ? snapshot() : null;
         String category;
         if ("custom".equals(collection)) category = "custom";
-        else if (facets != null && !selected.isEmpty() && !exhausted()) {
-            engine.setPresetPool(selection().presetNames());
+        else if (current != null && !current.exhausted()) {
+            engine.setPresetPool(current.selection().presetNames());
             category = "facets";
         } else category = "all";
         prefs.put(PREF_CATEGORY, category);
         engine.setMusicCategory(category);
     }
 
-    /** The pool size line: always a count when one is known. */
-    String header() {
-        NumberFormat format = NumberFormat.getIntegerInstance();
-        if ("custom".equals(collection)) {
-            int custom = engine.count("custom");
-            return custom > 0 ? "Custom pack: " + format.format(custom) + " presets" : "Custom pack";
-        }
-        if (outdatedDownload) return OUTDATED_DOWNLOAD;
-        if (facets == null || selected.isEmpty()) {
-            int all = engine.count("all");
-            return all > 0 ? format.format(all) + " presets in your mix" : "All presets in your mix";
-        }
-        // Every selected preset is skipped, or deselecting left groups that no preset satisfies together.
-        if (exhausted()) return "No presets match your mix; playing All";
-        int size = selection().poolSize();
-        String text = format.format(size) + " presets in your mix";
-        return size < FEW ? text + " · few presets: some repetition" : text;
-    }
+    /** The pool size line; a render that also shows option counts uses one {@link #snapshot()}. */
+    String header() { return snapshot().header(); }
 }

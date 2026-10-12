@@ -150,6 +150,7 @@ public class MainActivity extends Activity {
     private final List<FacetRow> facetRows = new ArrayList<>();
     private PresetFacets moodFacets;
     private MoodFacetsController mood;
+    private SkipListFile skipListFile;
     private String moodSource;  // where the facet table came from; a change reloads it
     private int moodRevision;   // bumped on every Mood change, refreshes the main row's summary
     private View diagnosticsPanel;
@@ -900,8 +901,8 @@ public class MainActivity extends Activity {
         if ("facets".equals(applied)) {
             // The engine's count is the truth; the table's count stands in while the category is pending.
             int engine = ProjectMJNI.isMusicCategoryPending() ? 0 : ProjectMJNI.getCategoryPresetCount("facets");
-            PresetFacets.Selection selection = mood.selection();
             if (engine > 0) return numberFormat.format(engine) + " presets";
+            PresetFacets.Selection selection = mood.selection();
             return selection == null ? "All" : numberFormat.format(selection.poolSize()) + " presets";
         }
         return MusicCategories.label(applied);
@@ -929,7 +930,7 @@ public class MainActivity extends Activity {
             }
             @Override public int count(String category) { return ProjectMJNI.getCategoryPresetCount(category); }
             @Override public boolean customPending() { return ProjectMJNI.isCustomPresetPackPending(); }
-        }, this::skippedPresets, outdatedDownload);
+        }, skipList(), outdatedDownload);
         moodRevision++;
         if (replacing) {
             buildMoodRows();
@@ -947,18 +948,10 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Names in the engine's skip list (one per line); none when the file does not exist. */
-    private Set<String> skippedPresets() {
-        File file = ProjectMCore.skipListFile(this);
-        if (!file.isFile()) return Collections.emptySet();
-        Set<String> names = new HashSet<>();
-        try (java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(
-                new java.io.FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
-            for (String line; (line = in.readLine()) != null; ) if (!line.isEmpty()) names.add(line);
-        } catch (IOException unreadable) {
-            Log.w(TAG, "Skip list unreadable", unreadable);
-        }
-        return names;
+    /** The engine's skip list, re-read only when the file changed; one per activity. */
+    private SkipListFile skipList() {
+        if (skipListFile == null) skipListFile = new SkipListFile(ProjectMCore.skipListFile(this));
+        return skipListFile;
     }
 
     /** One FacetRow per facet group; none without a facet table. */
@@ -985,22 +978,22 @@ public class MainActivity extends Activity {
         if (moodMenu == null || mood == null) return;
         moodRevision++;
         boolean bundled = "bundled".equals(mood.collection());
-        PresetFacets.Selection selection = mood.selection();
-        if (selection != null) {
+        // One skip list read for every count, the dimming and the header.
+        MoodFacetsController.Snapshot snapshot = mood.snapshot();
+        if (snapshot.selection() != null) {
             Set<String> selected = mood.selected();
             Map<String, Integer> counts = new HashMap<>();
             Set<String> dimmed = new HashSet<>();
             for (PresetFacets.Group group : moodFacets.groups()) {
                 for (PresetFacets.Option option : group.options) {
                     // "→ N": the presets left if this option were toggled (for a selected one, without it).
-                    int count = mood.optionCount(option.id);
-                    counts.put(option.id, count);
-                    if (!selected.contains(option.id) && count == 0) dimmed.add(option.id);
+                    counts.put(option.id, snapshot.optionCount(option.id));
+                    if (snapshot.isDimmed(option.id)) dimmed.add(option.id);
                 }
             }
             for (FacetRow row : facetRows) row.update(selected, counts, dimmed, bundled);
         }
-        setText(moodHeader, mood.header());
+        setText(moodHeader, snapshot.header());
         // Custom plays without facets: Clear all would wipe the hidden stored selection, so it rests.
         if (moodClearRow != null) moodClearRow.setAlpha(mood.canClear() ? 1f : 0.4f);
         refreshMoodCollectionRow();

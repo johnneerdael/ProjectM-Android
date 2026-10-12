@@ -20,6 +20,7 @@ RULER_FIELDS = {'luminance': 'mean_luminance', 'saturation': 'mean_saturation', 
 ACTIVITY_METRICS = ('mean_abs_frame_difference', 'mean_flow_screen_widths_per_s', 'global_brightness_jumps_per_10s')
 STYLES = {'kaleidoscope', 'tunnel', 'liquid', 'geometric', 'particles', 'fractal'}
 SCHEMA = 'projectm-tv-preset-attributes'
+MANIFEST_VERSION = 1
 REFERENCE_SCHEMA = 'projectm-tv-activity-reference'
 QUANTILES = 1001
 
@@ -296,7 +297,7 @@ def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, r
     output = Path(output_dir); output.mkdir(parents=True, exist_ok=True)
     (output / 'facets.json').write_bytes(definition_bytes)
     (output / 'attributes.tsv').write_bytes(attributes)
-    manifest = {'schema': SCHEMA, 'version': 1, 'definition_sha256': _sha(definition_bytes),
+    manifest = {'schema': SCHEMA, 'version': MANIFEST_VERSION, 'definition_sha256': _sha(definition_bytes),
                 'presets_idx_sha256': _sha(Path(presets_idx).read_bytes()), 'attributes_sha256': _sha(attributes),
                 'preset_count': len(names), 'measured_count': len(measured), 'ruler': ruler,
                 'style_facts': {'header': style_header, 'sha256': _sha(Path(style_tsv).read_bytes())},
@@ -356,9 +357,14 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
     if names != sorted(_index_names(presets_idx)):
         problems.append('attributes rows do not match presets.idx names')
     state = []; mismatches = []
+    counts = {o: 0 for o in preset_facets.option_ids(definition)}; measured = 0
     for row in rows:
         if len(row) != 2 + len(COLUMNS):
             problems.append('malformed row: ' + row[0]); continue
+        if not all(v == '-' for v in row[2:]):
+            measured += 1
+        for option in (row[1].split(',') if row[1] else []):
+            counts[option] = counts.get(option, 0) + 1
         if evidence is not None:
             in_evidence = (evidence.get(row[0]) or {}).get('status') == 'measured'
             if in_evidence != (not all(v == '-' for v in row[2:])):
@@ -387,6 +393,13 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
         problems.append('bundle rows differ from the evidence manifest metrics (%d): %s' % (len(mismatches), '; '.join(mismatches[:5])))
     if state:
         problems.append('bundle rows differ from the evidence manifest measured state (%d): %s' % (len(state), '; '.join(state[:5])))
+    # The generated metadata must agree with the rows it describes, like the hashes above.
+    expected = {'schema': SCHEMA, 'version': MANIFEST_VERSION, 'preset_count': len(rows),
+                'measured_count': measured, 'option_counts': counts}
+    for field, value in expected.items():
+        if manifest.get(field) != value:
+            problems.append('manifest %s %s differs from %s recomputed from the bundle' % (
+                field, json.dumps(manifest.get(field), sort_keys=True), json.dumps(value, sort_keys=True)))
     return problems
 
 
