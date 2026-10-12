@@ -19,11 +19,14 @@ def write_manifest(tmp, skip=()):
 
 def make_inputs(tmp):
     tmp = Path(tmp)
-    (tmp / 'ruler').mkdir()
+    (tmp / 'ruler').mkdir(); (tmp / 'presets').mkdir()
     stats = {'a.milk': (.05, .1, .05, .0, .01, .005, 0.), 'b.milk': (.3, .6, .8, .3, .2, .05, 3.), 'c.milk': (.5, .2, .4, -.3, .5, .2, 30.)}
+    for name in list(stats) + ['d.milk']:
+        (tmp / 'presets' / name).write_text('[preset00]\n// %s\n' % name)  # presets/ next to presets.idx: the default
     for name, (lum, sat, col, wc, flow, diff, jumps) in stats.items():
+        digest = hashlib.sha256((tmp / 'presets' / name).read_bytes()).hexdigest()
         (tmp / 'ruler' / (name + '.json')).write_text(json.dumps({
-            'status': 'measured', 'preset': name, 'preset_sha256': name * 2, 'ruler': RULER, 'mean_luminance': lum, 'mean_saturation': sat,
+            'status': 'measured', 'preset': name, 'preset_sha256': digest, 'ruler': RULER, 'mean_luminance': lum, 'mean_saturation': sat,
             'coloured_share': col, 'warm_cool': wc, 'mean_flow_screen_widths_per_s': flow, 'mean_abs_frame_difference': diff,
             'global_brightness_jumps_per_10s': jumps}))
     write_manifest(tmp)
@@ -90,6 +93,90 @@ class BundleTest(unittest.TestCase):
             (t / 'ruler-manifest.json').write_text(json.dumps(manifest))
             with self.assertRaises(ValueError):
                 self.build(t)
+
+    def test_build_rejects_a_measured_manifest_row_whose_result_was_deleted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            (t / 'ruler' / 'b.milk.json').unlink()
+            with self.assertRaisesRegex(ValueError, 'b.milk'):
+                self.build(t)
+            self.assertFalse((t / 'out').exists())
+
+    def test_build_rejects_a_measured_manifest_row_whose_result_is_no_longer_measured(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            path = t / 'ruler' / 'b.milk.json'
+            path.write_text(path.read_text().replace('"status": "measured"', '"status": "failed"'))
+            with self.assertRaisesRegex(ValueError, 'b.milk'):
+                self.build(t)
+
+    def test_build_rejects_two_measured_results_for_one_manifest_row(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            (t / 'ruler' / 'b-copy.json').write_bytes((t / 'ruler' / 'b.milk.json').read_bytes())
+            with self.assertRaisesRegex(ValueError, 'b.milk'):
+                self.build(t)
+
+    def test_build_rejects_a_preset_asset_that_differs_from_the_measured_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            (t / 'presets' / 'c.milk').write_text('[preset00]\nchanged\n')
+            with self.assertRaisesRegex(ValueError, 'c.milk'):
+                self.build(t)
+            (t / 'presets' / 'c.milk').unlink()
+            with self.assertRaisesRegex(ValueError, 'c.milk'):
+                self.build(t)
+            self.assertFalse((t / 'out').exists())
+
+    def test_build_and_check_take_an_explicit_presets_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            (t / 'presets').rename(t / 'elsewhere')
+            with self.assertRaises(ValueError):
+                self.build(t)
+            B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out', ruler_manifest=t / 'ruler-manifest.json', presets_dir=t / 'elsewhere')
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json', presets_dir=t / 'elsewhere'), [])
+            self.assertTrue(any('a.milk' in p for p in B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')))
+
+    def test_check_compares_bundled_preset_bytes_with_the_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            self.build(t)
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json'), [])
+            (t / 'presets' / 'd.milk').write_text('unmeasured presets have no evidence row\n')
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json'), [])
+            (t / 'presets' / 'a.milk').write_text('[preset00]\nedited after measuring\n')
+            problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')
+            self.assertTrue(any('a.milk' in p for p in problems), problems)
+            (t / 'presets' / 'a.milk').unlink()
+            problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')
+            self.assertTrue(any('a.milk' in p for p in problems), problems)
+
+    def freeze(self, t):
+        return B.freeze_activity_reference(t / 'ruler', t / 'reference.json', t / 'ruler-manifest.json', t / 'presets.idx')
+
+    def test_freeze_verifies_the_evidence_before_writing_the_reference(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            self.assertEqual(len(self.freeze(t)), 64)
+            (t / 'reference.json').unlink()
+            (t / 'ruler' / 'c.milk.json').unlink()  # completeness
+            with self.assertRaisesRegex(ValueError, 'c.milk'):
+                self.freeze(t)
+            self.assertFalse((t / 'reference.json').exists())
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            path = t / 'ruler' / 'b.milk.json'  # result hash
+            path.write_text(path.read_text().replace('"mean_luminance": 0.3', '"mean_luminance": 0.31'))
+            with self.assertRaisesRegex(ValueError, 'b.milk'):
+                self.freeze(t)
+            self.assertFalse((t / 'reference.json').exists())
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            (t / 'presets' / 'a.milk').write_text('[preset00]\nchanged\n')  # preset asset hash
+            with self.assertRaisesRegex(ValueError, 'a.milk'):
+                self.freeze(t)
+            self.assertFalse((t / 'reference.json').exists())
 
     def test_build_requires_a_manifest(self):
         with tempfile.TemporaryDirectory() as tmp:

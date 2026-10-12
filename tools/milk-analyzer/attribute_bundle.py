@@ -1,8 +1,10 @@
 """Mood facet attribute bundle: engine-ruler measurements + source style facts -> Android assets.
 
-build() writes preset-attributes/{facets.json, attributes.tsv, manifest.json}; check() verifies the
-bundle against presets.idx, the definition, its frozen activity reference and its manifest, and
-recomputes every membership from the stored values and style options. Activity is scored against the
+build() writes preset-attributes/{facets.json, attributes.tsv, manifest.json} after verifying the ruler
+results against the evidence manifest in both directions and the bundled preset bytes against its preset
+hashes; check() verifies the bundle against presets.idx, the definition, its frozen activity reference,
+its manifest, the evidence manifest and the bundled preset bytes, and recomputes every membership from
+the stored values and style options. Activity is scored against the
 frozen reference (facets/activity-reference-v1.json, written once by --freeze-activity-reference),
 never against the corpus of the current build. Standard library only.
 """
@@ -87,28 +89,69 @@ def _measured_rows(ruler_dir):
     return rows, ruler
 
 
-def verify_against_manifest(ruler_dir, ruler_manifest):
-    """Every measured result file must be a row of the evidence manifest (same preset, result and preset hashes)."""
-    manifest = json.loads(Path(ruler_manifest).read_text())
-    entries = {r['preset']: r for r in manifest.get('rows', [])}
+def _manifest_entries(ruler_manifest):
+    """Evidence manifest rows by preset; a preset listed twice is rejected."""
+    rows = json.loads(Path(ruler_manifest).read_text()).get('rows', [])
+    entries = {r['preset']: r for r in rows}
+    if len(entries) != len(rows):
+        raise ValueError('ruler results manifest lists a preset more than once')
+    return entries
+
+
+def _presets_dir(presets_idx, presets_dir):
+    return Path(presets_dir) if presets_dir is not None else Path(presets_idx).parent / 'presets'
+
+
+def preset_asset_problems(names, entries, presets_dir):
+    """Every named preset with a measured evidence row must still have the bytes the ruler measured."""
     problems = []
+    for name in names:
+        entry = entries.get(name)
+        if entry is None or entry.get('status') != 'measured':
+            continue
+        try:
+            data = (Path(presets_dir) / name).read_bytes()
+        except OSError:
+            problems.append('%s: preset asset missing from %s' % (name, presets_dir)); continue
+        if _sha(data) != entry.get('preset_sha256'):
+            problems.append('%s: preset asset differs from the evidence preset_sha256' % name)
+    return problems
+
+
+def verify_against_manifest(ruler_dir, ruler_manifest, presets_idx, presets_dir=None):
+    """Two-way check of the ruler results against the evidence manifest, then of the measured bytes.
+
+    Every measured result file must be a row of the manifest (same preset, result and preset hashes);
+    every manifest row marked measured must have exactly one measured result file; and every preset in
+    presets.idx with a measured row must still have the measured bytes in presets_dir (default:
+    presets/ next to presets.idx)."""
+    entries = _manifest_entries(ruler_manifest)
+    problems = []; consumed = {}
     for path in sorted(Path(ruler_dir).glob('*.json')):
         raw = path.read_bytes(); row = json.loads(raw)
         if row.get('status') != 'measured':
             continue
-        entry = entries.get(row.get('preset'))
+        name = row.get('preset'); consumed[name] = consumed.get(name, 0) + 1
+        entry = entries.get(name)
         if entry is None:
-            problems.append('%s: not in the evidence manifest' % row.get('preset'))
+            problems.append('%s: not in the evidence manifest' % name)
+        elif entry.get('status') != 'measured':
+            problems.append('%s: measured result but the manifest status is %r' % (name, entry.get('status')))
         elif entry.get('result_sha256') != _sha(raw):
-            problems.append('%s: result differs from the manifest result_sha256' % row['preset'])
+            problems.append('%s: result differs from the manifest result_sha256' % name)
         elif entry.get('preset_sha256') != row.get('preset_sha256'):
-            problems.append('%s: preset_sha256 differs from the manifest' % row['preset'])
+            problems.append('%s: preset_sha256 differs from the manifest' % name)
+    for name, entry in sorted(entries.items()):
+        if entry.get('status') == 'measured' and consumed.get(name, 0) != 1:
+            problems.append('%s: manifest row is measured but %d measured result files match it' % (name, consumed.get(name, 0)))
+    problems += preset_asset_problems(_index_names(presets_idx), entries, _presets_dir(presets_idx, presets_dir))
     if problems:
         raise ValueError('ruler results do not match the evidence manifest (%d): %s' % (len(problems), '; '.join(problems[:5])))
 
 
-def freeze_activity_reference(ruler_dir, output, ruler_manifest):
-    """Writes the activity reference once from the measured corpus; returns its sha256."""
+def freeze_activity_reference(ruler_dir, output, ruler_manifest, presets_idx, presets_dir=None):
+    """Writes the activity reference once from the verified measured corpus; returns its sha256."""
+    verify_against_manifest(ruler_dir, ruler_manifest, presets_idx, presets_dir)
     rows, ruler = _measured_rows(ruler_dir)
     provenance = {'ruler': ruler, 'preset_count': len(rows),
                   'ruler_results_manifest_sha256': _sha(Path(ruler_manifest).read_bytes())}
@@ -151,10 +194,10 @@ def _header(definition, definition_sha):
     return lines
 
 
-def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, ruler_manifest=None):
+def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, ruler_manifest=None, presets_dir=None):
     if ruler_manifest is None:
         raise ValueError('a ruler results manifest (evidence) is required to build')
-    verify_against_manifest(ruler_dir, ruler_manifest)
+    verify_against_manifest(ruler_dir, ruler_manifest, presets_idx, presets_dir)
     definition_path = Path(definition_path or preset_facets.DEFINITION)
     definition_bytes = definition_path.read_bytes(); definition = json.loads(definition_bytes)
     reference = load_activity_reference(definition, definition_path)
@@ -192,7 +235,7 @@ def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, r
 DEFAULT_RULER_MANIFEST = Path('docs/superpowers/evidence/mood-facets-ruler-2026-10-12/ruler-results-manifest.json')
 
 
-def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None):
+def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, presets_dir=None):
     bundle = Path(bundle_dir); problems = []
     definition_path = Path(definition_path or preset_facets.DEFINITION)
     try:
@@ -220,7 +263,9 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None):
         try:
             if recorded and _sha(Path(ruler_manifest).read_bytes()) != recorded:
                 problems.append('ruler results manifest evidence differs from the bundle manifest hash')
-        except OSError as error:
+            problems += preset_asset_problems(_index_names(presets_idx), _manifest_entries(ruler_manifest),
+                                              _presets_dir(presets_idx, presets_dir))
+        except (OSError, KeyError, ValueError) as error:
             problems.append('ruler results manifest evidence unreadable: %s' % error)
     if manifest.get('attributes_sha256') != _sha(attributes):
         problems.append('attributes.tsv does not match its manifest hash')
@@ -253,6 +298,7 @@ def main(argv=None):
     parser.add_argument('--ruler', type=Path); parser.add_argument('--style', type=Path)
     parser.add_argument('--ruler-manifest', type=Path, help='committed engine-ruler results manifest (evidence); --check defaults to %s' % DEFAULT_RULER_MANIFEST)
     parser.add_argument('--presets-idx', type=Path, default=Path('core/src/main/assets/presets.idx'))
+    parser.add_argument('--presets-dir', type=Path, help='bundled preset files hashed against the evidence (default: presets/ next to --presets-idx)')
     parser.add_argument('--bundle', type=Path, default=Path('core/src/main/assets/preset-attributes'))
     parser.add_argument('--check', action='store_true')
     parser.add_argument('--freeze-activity-reference', type=Path, metavar='OUTPUT',
@@ -261,16 +307,16 @@ def main(argv=None):
     if args.freeze_activity_reference:
         if not args.ruler or not args.ruler_manifest:
             parser.error('--ruler and --ruler-manifest are required to freeze the activity reference')
-        print(freeze_activity_reference(args.ruler, args.freeze_activity_reference, args.ruler_manifest))
+        print(freeze_activity_reference(args.ruler, args.freeze_activity_reference, args.ruler_manifest, args.presets_idx, args.presets_dir))
         return
     if args.check:
-        problems = check(args.bundle, args.presets_idx, ruler_manifest=args.ruler_manifest or DEFAULT_RULER_MANIFEST)
+        problems = check(args.bundle, args.presets_idx, ruler_manifest=args.ruler_manifest or DEFAULT_RULER_MANIFEST, presets_dir=args.presets_dir)
         for problem in problems:
             print(problem)
         raise SystemExit(1 if problems else 0)
     if not args.ruler or not args.style or not args.ruler_manifest:
         parser.error('--ruler, --style and --ruler-manifest are required to build')
-    print(json.dumps({k: v for k, v in build(args.ruler, args.style, args.presets_idx, args.bundle, ruler_manifest=args.ruler_manifest).items() if k != 'option_counts'}))
+    print(json.dumps({k: v for k, v in build(args.ruler, args.style, args.presets_idx, args.bundle, ruler_manifest=args.ruler_manifest, presets_dir=args.presets_dir).items() if k != 'option_counts'}))
 
 
 if __name__ == '__main__':
