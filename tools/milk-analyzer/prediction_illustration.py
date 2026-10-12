@@ -638,7 +638,7 @@ def _point_clouds(facts):
     for path,value in facts.items():
         if '/colour/components/' not in path or not isinstance(value,dict):continue
         record=(value.get('source_palette') or {}).get('point_colour_distribution') or {}
-        if record.get('status')=='closed_form_point_colours' and record.get('positions_closed_form') and record.get('programs'):
+        if record.get('status') in ('closed_form_point_colours','frame_state_point_colours') and record.get('positions_closed_form') and record.get('programs'):
             clouds.append((value.get('component_id') or path,record))
     return clouds
 
@@ -1655,7 +1655,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     for name in points['state']:inputs[points['state_input_prefix']+name]=np.array([row[name] for row in series])
                     ends={points['state_input_prefix']+name:np.array([row[name] for row in series[1:]]+[entry['point'][name]]) for name in points['state']}
                 else:ends=None
-                image=_draw_points(image,record,frame_time,to_pixels,canvas,inputs,rng,ends)
+                try:image=_draw_points(image,record,frame_time,to_pixels,canvas,inputs,rng,ends)
+                except ValueError as error:
+                    # One undrawable point cloud is left out instead of stopping the whole illustration.
+                    note='point cloud '+str(index)+' not drawn: '+str(error)
+                    if note not in limitations:limitations.append(note)
                 if recurrence:
                     # End of frame: this frame's per-frame update gives the next frame's start state.
                     entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**(bands or {})},frame_time,entry['frame'],rng)

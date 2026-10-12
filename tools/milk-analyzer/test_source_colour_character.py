@@ -324,3 +324,35 @@ def test_random_walk_wave_positions_are_a_stochastic_point_recurrence():
     low,high=record['position_bounds']['x']
     # 512 steps of .01 from .5: the walk stays far inside +-5.12 and moves off the start.
     assert .5-1.<low<.5<high<.5+1. and high-low>.02
+
+
+def test_uninitialized_wave_frame_variables_persist_as_wave_state():
+    # old is written but never initialised: it persists across frames from 0 (t1 = .01, .02, ...).
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_bUseDots=1\n'
+        'wave_0_per_frame1=t1=old+.01;old=t1;\nwave_0_per_point1=x=sample;y=.5;r=t1;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['status']=='closed_form_point_colours'
+    assert 'old' in record['frame_recurrence']['state']
+
+
+def test_wave_point_names_never_written_in_the_wave_read_zero():
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_bUseDots=1\n'
+        'wave_0_per_point1=x=sample;y=.5;r=.5+v;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['status']=='closed_form_point_colours' and abs(record['mean_rgb'][0]-.5)<1e-9
+
+
+def test_wave_colours_over_main_frame_state_keep_their_programs_for_frame_stepping():
+    result=source_character('per_frame_1=acc=acc+.1;q1=acc;\nwavecode_0_enabled=1\nwavecode_0_bUseDots=1\n'
+        'wave_0_per_point1=x=sample;y=.5;r=q1;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['status']=='frame_state_point_colours' and record['mean_rgb'] is None
+    assert record['positions_closed_form'] is True and record['programs'] is not None
+    assert record['frame_inputs']==['acc']
+
+
+def test_frame_state_wave_colours_keep_their_waveform_inputs():
+    result=source_character('per_frame_1=acc=acc+.1;q1=acc;\nwavecode_0_enabled=1\nwavecode_0_bUseDots=1\n'
+        'wave_0_per_point1=x=.5+value1;y=.5;r=q1;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['status']=='frame_state_point_colours' and 'waveform_inputs' in record

@@ -704,7 +704,7 @@ class _EEL:
     OPS = {'_add': 'add', '_sub': 'subtract', '_mul': 'multiply', '_div': 'eel_divide',
            '_mod': 'remainder', '_neg': 'negate', '_equal': 'equal',
            '_below': 'less', '_above': 'greater', 'below': 'less', 'above': 'greater',
-           'equal': 'equal', 'if': 'select'}
+           'equal': 'equal', 'if': 'select', '/*and*/': 'eel_bitwise_and', '/*or*/': 'eel_bitwise_or'}
 
     def __init__(self, environment=None,*,equation_phase=None,memory_written=None):
         self.environment = dict(environment or {})
@@ -992,11 +992,20 @@ class _Analysis:
             self._memory_written=frozenset(spaces)
         return self._memory_written
 
-    def frame_environment(self,prefix,initialized,resets):
-        """Reload target fields; persistent written locals need previous-state inputs."""
+    def frame_environment(self,prefix,initialized,resets,uninitialized_state=False):
+        """Reload target fields; persistent written locals need previous-state inputs.
+
+        uninitialized_state: locals the block writes but init does not set also persist from 0, so
+        they read their previous value as 'state:<prefix>:<name>' (custom-wave per-frame contexts).
+        """
         selected=select_equation(self.sections.get(prefix),prefix,policy=self.policy)
         written=_EEL.assignment_targets(selected.get('tree'))
         inputs=dict(initialized)
+        if uninitialized_state:
+            for name in written-inputs.keys()-resets.keys():
+                if not re.fullmatch(r'reg[0-9]{2}',name):
+                    inputs[name]=Field('input',detail={'name':'state:'+prefix+':'+name,'state_scope':'previous persistent value (initially 0)',
+                        'equation_phase':prefix,'value_binding':'phase_scalar_snapshot'})
         for name in inputs.keys()-resets.keys():
             if name in written or re.fullmatch(r'reg[0-9]{2}',name):
                 scope='shared:'+name if re.fullmatch(r'reg[0-9]{2}',name) else 'state:'+prefix+':'+name

@@ -1,0 +1,126 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r23-v1",
+ "preset": "i poison my plants with my piss - i am for you nz+.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f1d05e4ceb757e5f48f515b8559760b1429a082c0b09a34f735fe5e92cdcdaf3",
+  "prediction.json": "dac2f230c75c5c771d6fbeaf25a937ac6998968c9edfeaf3b3ed4d36f23516c9",
+  "description.json": "cbc873e20f9cc89f8efb95fe31fd329d54457b20d3823c0b6906e14fc2d0a722",
+  "recipe.json": "aa99f97fd3900ff7afc63178fd4be4b664d2ac61bcc7e5e65cb544104d841041",
+  "llm-look-description-v1.txt": "6b3db6317e395a070047b68a7d408501cb1ad34f866e8bfe399b45d9c8d79c4b"
+ },
+ "capture_result_sha256": "26910a575e58811e3e7c705d19bc2671ac23e1ae09863693cbcc1b8896452207",
+ "review_measurements_v1": {
+  "prediction_luma": 0.807,
+  "screenshot_luma": 0.758,
+  "mean_rgb_prediction": [
+   0.992,
+   0.707,
+   0.832
+  ],
+  "mean_rgb_screenshot": [
+   0.984,
+   0.732,
+   0.299
+  ],
+  "blurred_luma_correlation": 0.15
+ },
+ "agreements_v1": [
+  "diagonal smeared streak structure and the small pentagons at the upper left are predicted; brightness close (0.807 vs 0.758)",
+  "SDK text: colourful, bright, saturated, smeared organic feedback with a waveform trace, point dots and small polygons"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "v1 is pink/magenta (blue 0.83); the capture is yellow/orange/red (blue 0.30)",
+   "cause": "the three drawn custom waves were not drawn: wave_1 positions use EEL bitwise & (unsupported op), wave_3 reads wave per-frame variables that persist without init (oldt2/oldt3) and a never-written name (v), wave_0 colours read main per-frame state through q1. The inverting composite (1.5 - ...) then turned the missing wave colours into excess blue",
+   "diagnostics": {
+    "canvas": "identity-composite variant vs native ruler: canvas blue 0.38 (ours) vs 0.69-0.78 (ruler) from frame ~86, when the random q thresholds are redrawn (sin(time*.5) > .99)",
+    "random_draws": "native variants with 1-4 and 7 extra rand() calls in init keep canvas blue 0.63-0.74; our six stepper seeds keep display blue 0.87-0.89: a systematic model gap, not the random draw",
+    "stepper_seed_spread_display_rgb_frames_60_149": {
+     "1": [
+      0.84,
+      0.374,
+      0.884
+     ],
+     "2": [
+      0.841,
+      0.398,
+      0.894
+     ],
+     "3": [
+      0.841,
+      0.469,
+      0.882
+     ],
+     "4": [
+      0.84,
+      0.383,
+      0.873
+     ],
+     "5": [
+      0.841,
+      0.45,
+      0.879
+     ],
+     "8191": [
+      0.841,
+      0.361,
+      0.876
+     ]
+    }
+   },
+   "next": "done in v2-v4"
+  },
+  {
+   "size": "small",
+   "observed": "SDK reports no decay value",
+   "cause": "custom warp shader (decay not applied)",
+   "next": "done in r22: render.feedback.warp_transfer"
+  }
+ ],
+ "general_fixes": [
+  "EEL bitwise /*and*/ and /*or*/ lower to eel_bitwise_and/or ((int64)a op (int64)b, truncation toward zero)",
+  "custom-wave per-frame variables written without init persist from 0 as wave state",
+  "a wave per-point name that no block of the wave writes reads 0 (wave contexts only see q/t copies)",
+  "point colours over main per-frame state keep their programs (status frame_state_point_colours, frame_inputs) for frame stepping, with waveform inputs; an undrawable point cloud is skipped with a limitation instead of stopping the illustration"
+ ],
+ "review_measurements_v4": {
+  "prediction_luma": 0.725,
+  "screenshot_luma": 0.758,
+  "mean_rgb_prediction": [
+   0.965,
+   0.656,
+   0.45
+  ],
+  "blurred_luma_correlation_single_frame": 0.351,
+  "rgb_frames_60_149": {
+   "prediction": [
+    0.841,
+    0.473,
+    0.425
+   ],
+   "capture": [
+    0.831,
+    0.54,
+    0.295
+   ],
+   "capture_frames_150_299": [
+    0.947,
+    0.47,
+    0.422
+   ]
+  }
+ },
+ "misses_v4": [
+  {
+   "size": "small",
+   "observed": "single-frame layout differs (blurred correlation 0.35)",
+   "cause": "chaotic image-driven advection of the drawn layers; the palette and brightness over time match",
+   "next": "none required for understanding"
+  }
+ ],
+ "status": "understood (v4): random-threshold noise channel edits on a smeared feedback canvas fed by three custom waves and four polygons; the inverting composite gives a yellow/orange/red picture. Time-averaged colour 0.84/0.47/0.43 against the capture 0.83/0.54/0.30 (frames 60-149) and 0.95/0.47/0.42 (150-299)",
+ "uses_rendered_images_for_classification": false
+}

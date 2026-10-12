@@ -29,6 +29,7 @@ _UNARY_NP = {'sin': np.sin, 'cos': np.cos, 'tan': np.tan, 'abs': np.abs, 'negate
              'acos': lambda v: np.where(np.abs(v) <= 1, np.arccos(np.clip(v, -1, 1)), 0.)}
 STOCHASTIC = {'rand'}
 MEMORY_OPS = {'array_mem_read', 'array_mem_write'}
+BITWISE_OPS = {'eel_bitwise_and', 'eel_bitwise_or'}
 LOOP_OPS = {'loop_eel_result', 'loop_eel_slot'}
 
 
@@ -103,6 +104,10 @@ def _apply(op, node, args, rng, batch_shape=None):
         if op == 'greater':return (args[0] > args[1]).astype(np.float64)
         if op == 'less_equal':return (args[0] <= args[1]).astype(np.float64)
         if op == 'greater_equal':return (args[0] >= args[1]).astype(np.float64)
+        if op in BITWISE_OPS:
+            # projectm-eval (double build): (int64)a & (int64)b, C truncation toward zero.
+            a, b = (np.where(np.isfinite(v) & (np.abs(v) < 9.2e18), np.trunc(v), 0.).astype(np.int64) for v in args[:2])
+            return (a & b if op == 'eel_bitwise_and' else a | b).astype(np.float64)
         if op == 'select':
             if isinstance(args[1], Memory) or isinstance(args[2], Memory):
                 if np.ndim(args[0]):raise ValueError('memory version selected per evaluated point')
@@ -128,7 +133,7 @@ def input_names(expression, *, stochastic=False):
     """
     from time_expression import SUPPORTED
     if not isinstance(expression, dict) or not isinstance(expression.get('nodes'), list):return None
-    allowed = SUPPORTED | MEMORY_OPS | LOOP_OPS | (STOCHASTIC if stochastic else set())
+    allowed = SUPPORTED | MEMORY_OPS | LOOP_OPS | BITWISE_OPS | (STOCHASTIC if stochastic else set())
     names = set()
     for node in expression['nodes']:
         if node.get('op') not in allowed:return None

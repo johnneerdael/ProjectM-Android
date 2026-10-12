@@ -1048,3 +1048,28 @@ repeated on correctly oriented frames. Probes and results:
   `render.feedback.warp_transfer`, the exported warp evaluated on flat colours
   (here gain 0.977 per frame, about 30 frames to halve), and the SKILL reads
   it.
+- **Custom-wave scopes.** A wave per-frame variable that its code writes but
+  init does not set persists across frames from 0, so it is wave state. A wave
+  per-point name that no block of the wave writes reads 0, because wave
+  contexts only see q and t copies of other blocks. Point colours that read
+  main per-frame state through inlined Q graphs keep their programs (status
+  `frame_state_point_colours`, `frame_inputs`) for frame stepping, without
+  statistics. EEL bitwise `&`/`|` evaluate as (int64)a op (int64)b. An
+  undrawable point cloud is skipped with a limitation instead of stopping the
+  illustration.
+- **Random noise palettes.** 1,480 bundled presets redraw `mq21..mq31` with
+  `rand()` when `sin(time·0.5)` passes a threshold, and use them as
+  per-channel noise-subtraction windows in their shaders. projectm-eval's
+  generator is a process-wide Mersenne Twister with a fixed seed, so a fresh
+  process is deterministic, but in the app the stream depends on what ran
+  before. The palette of these presets is a draw, and the ruler's colour
+  facet for them is one draw.
+- **r23 (`i poison my plants with my piss - i am for you nz+`) v1 → v4.** v1
+  was pink/magenta and the capture yellow/orange/red. None of the three custom
+  waves was drawn (bitwise `&`, uninitialised wave state, main-frame state in
+  colours), and the inverting composite turned their missing colours into
+  excess blue. Native-ruler variants with shifted random streams kept the
+  engine canvas blue at 0.63–0.74, while our seeds stayed at 0.87–0.89 display
+  blue: a model gap, not the draw. v4 draws all three waves. Its time-averaged
+  colour over frames 60–149 is 0.84/0.47/0.43, against the capture's
+  0.83/0.54/0.30 (frames 60–149) and 0.95/0.47/0.42 (frames 150–299).

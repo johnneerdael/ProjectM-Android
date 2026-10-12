@@ -57,9 +57,14 @@ def _stochastic(graph):
 
 
 def _evaluate(graph,values,rng=None):
-    """Scalar value of a graph; rand calls draw from rng (projectm-eval: uniform on [0, max(1, floor(x))])."""
-    if _stochastic(graph):
-        if rng is None:raise ValueError('random call needs a generator')
+    """Scalar value of a graph; rand calls draw from rng (projectm-eval: uniform on [0, max(1, floor(x))]).
+
+    Graphs inside time_expression's operation set keep its scalar evaluator; others (rand, bitwise,
+    memory, loops) use eel_memory.
+    """
+    from time_expression import SUPPORTED
+    if _stochastic(graph) or any(node.get('op') not in SUPPORTED for node in graph.get('nodes') or []):
+        if _stochastic(graph) and rng is None:raise ValueError('random call needs a generator')
         import numpy as np
         from eel_memory import evaluate_np
         return float(np.asarray(evaluate_np(graph,values,rng)).reshape(-1)[0])
@@ -194,9 +199,27 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
                     if found is None:raise ValueError('point recurrence contains an unsupported operation')
                     names|={n for n in found if not (isinstance(n,str) and n.startswith('init:'))}
         blocked=sorted(map(str,names-{'sample','time'}-set(held)-state_names-wave_names-point_names))
-        if blocked:
+        # Plain names left in point graphs come from inlined main per-frame graphs (Q values): a consumer
+        # resolves them by stepping the exported frame program, so the programs are kept without statistics.
+        frame_inputs=[n for n in blocked if ':' not in n or n.startswith('state:per_frame_:')]
+        if blocked and len(frame_inputs)<len(blocked):
             result['unresolved_inputs']=blocked
             raise ValueError('per-point colour depends on unresolved inputs')
+        if frame_inputs:
+            start=recurrence_trajectory(recurrence,held,(0.,),rng=rng) if state_names else None
+            result.update(_positions(positions,count,held,(0.,),start,waveform if wave_names&_names(positions) else None,
+                                     point_recurrence if point_names else None,rng))
+            if not result.get('positions_closed_form'):
+                result['unresolved_inputs']=blocked
+                raise ValueError('per-point colour depends on unresolved inputs')
+            result['frame_inputs']=sorted(set(frame_inputs)|set(result.get('frame_inputs') or []))
+            result.update(status='frame_state_point_colours',sample_count=count,held_inputs=held,programs={**programs,**positions},stochastic=stochastic)
+            if waveform and (wave_names&(names|_names(positions))):
+                result['waveform_inputs']={**waveform,'source':'declared reference PCM windows (oscilloscope value1/value2)'}
+            if point_names:result['point_recurrence']=point_recurrence
+            if state_names:result['frame_recurrence']=recurrence
+            result['conditions'].append('colours read main per-frame state; statistics need its stepped values, so only the programs are exported')
+            return result
         trajectory=recurrence_trajectory(recurrence,held,times,rng=rng) if state_names else None
         result['held_inputs']=held;result['sample_count']=count
         result['depends_on_sample']='sample' in names;result['depends_on_time']='time' in names

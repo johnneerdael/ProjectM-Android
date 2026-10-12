@@ -137,3 +137,13 @@ def test_rand_draws_independently_for_every_point_of_a_batch():
     assert values.shape == (4000,) and len(set(values.tolist())) == 4000
     # projectm-eval rand(x): continuous uniform on [0, max(1, floor(x))].
     assert abs(values.mean() - 50.) < 2. and values.min() >= 0. and values.max() <= 100.
+
+
+def test_bitwise_operators_truncate_to_integers_like_projectm_eval():
+    # /*and*/ and /*or*/: (int64)a & (int64)b, truncation toward zero.
+    tree = seq(assign(var('a'), call('/*and*/', num(6.9), num(3.2))), assign(var('o'), call('/*or*/', num(-1.5), num(4.))),
+               assign(var('z'), call('/*and*/', num(0.), var('s'))))
+    model = lowered(tree)
+    assert not model.unknown
+    assert value(model, 'a') == 2. and value(model, 'o') == float(-1 | 4) and value(model, 'z', {'s': 37.}) == 0.
+    assert M.input_names(serialise(model.environment['a'])) == set()
