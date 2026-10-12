@@ -731,15 +731,17 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
         limit=4*max(width,height)
         valid=[i for i in range(len(px)-1) if np.isfinite(px[i:i+2]).all() and np.isfinite(py[i:i+2]).all()
                and max(abs(px[i]),abs(py[i]),abs(px[i+1]),abs(py[i+1]))<=limit]
-        # projectM 4.1.7 thick lines: four additive passes offset by +x, +y, -x of 1/viewportX in NDC
-        # (half a pixel), so the same 1 px strip is mostly lit four times.
-        for ox,oy in ([(0,0),(.5,0),(.5,.5),(0,.5)] if flags.get('thick') else [(0,0)]):
+        # projectM 4.1.7 thick lines: four passes offset by +x, +y, -x of 1/viewportX in NDC (CustomWaveform
+        # uses the width for both): half a pixel right and H/(2W) pixels up (NDC y grows upward), so the
+        # same 1 px strip is mostly lit four times (native ruler: a flat line at y=.5 lights one row).
+        up=.5*height/width
+        for ox,oy in ([(0,0),(.5,0),(.5,-up),(0,-up)] if flags.get('thick') else [(0,0)]):
             pass_layer=np.zeros_like(image)
             colour=colour*min(1.,_DRAW_SCALE[0]) if ox==0 and oy==0 else colour
             for i in valid:
-                a=(int(round((px[i]+ox)*2)),int(round((py[i]+oy)*2)));b=(int(round((px[i+1]+ox)*2)),int(round((py[i+1]+oy)*2)))
-                cv2.line(pass_layer,a,b,tuple(float(c) for c in colour[i]),1,cv2.LINE_8,1)
-                cv2.line(cover,a,b,float(alpha[i]),1,cv2.LINE_8,1)
+                a=(int(round((px[i]+ox)*16)),int(round((py[i]+oy)*16)));b=(int(round((px[i+1]+ox)*16)),int(round((py[i+1]+oy)*16)))
+                cv2.line(pass_layer,a,b,tuple(float(c) for c in colour[i]),1,cv2.LINE_8,4)
+                cv2.line(cover,a,b,float(alpha[i]),1,cv2.LINE_8,4)
             layer+=pass_layer
         if canvas is not None:
             canvas['alpha']=np.clip(canvas['alpha']+cover**2 if flags.get('additive',True) else cover**2+canvas['alpha']*(1-cover),0,1)
@@ -1122,7 +1124,7 @@ class _FrameStepper:
             self.zero_inputs|=missing;inputs={**inputs,**{name:0. for name in missing}}
         return float(np.asarray(_evaluate_np(program,inputs,self.rng)).reshape(-1)[0])
     def step(self,time,fps,bands,frame_index):
-        base={**{k:float(v) for k,v in bands.items()},'time':float(time),'fps':float(fps),'frame':float(frame_index),'progress':0.}
+        base={**{k:float(v) for k,v in bands.items()},'time':float(np.float32(time)),'fps':float(np.float32(fps)),'frame':float(frame_index),'progress':0.}
         if self.values is None:
             init_inputs={**base,**{'init:per_frame_init_:'+k:v for k,v in base.items()}}
             self.values={}
@@ -1455,7 +1457,9 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     try:
         # history_steps rendered frames ending at the declared time (native frame k renders at (k+1)/fps).
         for frame in range(max(history_steps-1,0),-1,-1):
-            frame_time=time-frame/fps
+            # RenderContext::time is a float widened to PRJM_EVAL_F: equations see float32 time, which
+            # decides ties such as a 0.1 s refractory test at exactly three frames.
+            frame_time=float(np.float32(time-frame/fps))
             bands=None
             if audio is not None:
                 # Native frame k renders at source time (k+1)/fps; nonlinear audio responses are evaluated
@@ -1604,7 +1608,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                         entry['state']=initial_state(recurrence,{**record.get('held_inputs',{}),**inputs});entry['frame']=0
                         if frame_index>0:limitations.append('custom-wave state pre-rolled with the first declared frame inputs')
                     while entry['frame']<frame_index:
-                        entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**inputs},(entry['frame']+1)/fps,entry['frame'])
+                        entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**inputs},float(np.float32((entry['frame']+1)/fps)),entry['frame'])
                         entry['frame']+=1
                     inputs.update(state_inputs(recurrence,entry['state']))
                 points=record.get('point_recurrence')

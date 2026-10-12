@@ -898,3 +898,21 @@ repeated on correctly oriented frames. Probes and results:
   0.173 vs 0.155 (ruler 0.159) and saturation 0.43 vs 0.43. The canvas follows
   the native passthrough canvas within about 15%. The regression on r8–r16 is
   unchanged except r11 (blurred correlation 0.957 → 0.991).
+- **Float32 time.** `RenderContext::time` is a float that is widened to
+  `PRJM_EVAL_F`, so equations see float32 time. That decides ties: with a 0.1 s
+  beat refractory period (`above(time, t0+.1)`), three frames at 30 fps land
+  exactly on the threshold. The double value 3/30 equals 0.1, while float32(0.1)
+  is larger. The frame stepper, mesh terms, waves and shapes now use float32
+  time. On r18, the beat flags, beat counters and peak follow the engine on all
+  150 frames, verified by a native probe that encodes the q values as colour.
+- **Thick custom waves.** `CustomWaveform` offsets thick passes by 1/viewportX
+  in NDC on both axes. That is half a pixel right and H/(2W) pixels up (NDC y
+  grows upward). The illustrator had moved the vertical pass half a pixel down.
+  A flat line at y = 0.5 therefore lit two rows instead of the engine's one, and
+  additive feedback doubled the canvas.
+- **r18 (`martin - time machine`) v1 → v2.** v1 was overexposed (luma 0.86 vs
+  0.66) and showed side lobes. v2 is identical to the capture: luma 0.659 vs
+  0.660, the same colour and a blurred correlation of 1.0. The canvas mean
+  matches the native passthrough canvas within 0.001. The frozen text had
+  expected a coloured disc. That disc is hidden, because its visibility needs
+  64 beats, and the look comes from the composite's sun and ray terms.

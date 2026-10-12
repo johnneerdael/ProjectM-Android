@@ -1,0 +1,83 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r18-v1/v2",
+ "preset": "martin - time machine.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "4148db2c7af0247afe68740a54460c8f2d752cb34883c40f6d6767886819da01",
+  "description-v1-before-capture.json": "ebcb09e65c124b2b5afae6787f476e604825d4ceb8a9c34eed1165955bfe0a17",
+  "recipe-v1-before-capture.json": "aa67e1d64d3334d03125ff56ada93cf83a1d1cfd12a46b8a314787f677ea6ac9",
+  "prediction-v1.png": "96824dc3b5656169ff38815f6e3e9f12e25dc6d8263de5084f8f29ba2cb1413f",
+  "llm-look-description-v1.txt": "935cc8b0dde43e92b84e8a2709dda62946e6dadc8eb479c1c023ff34a6ae36aa"
+ },
+ "capture_result_sha256": "97244ca7c0d650513add6ae31cd143e8702b26dce73c587954c6a84c6847b263",
+ "review_measurements_v1": {
+  "prediction_luma": 0.858,
+  "screenshot_luma": 0.66,
+  "mean_rgb_prediction": [
+   0.85,
+   0.851,
+   0.917
+  ],
+  "mean_rgb_screenshot": [
+   0.652,
+   0.655,
+   0.704
+  ],
+  "saturation": [
+   0.086,
+   0.084
+  ],
+  "blurred_luma_correlation": 0.524
+ },
+ "review_measurements_v2_after_general_fixes": {
+  "prediction_luma": 0.659,
+  "screenshot_luma": 0.66,
+  "mean_rgb_prediction": [
+   0.652,
+   0.654,
+   0.705
+  ],
+  "mean_rgb_screenshot": [
+   0.652,
+   0.655,
+   0.704
+  ],
+  "saturation": [
+   0.084,
+   0.084
+  ],
+  "blurred_luma_correlation": 1.0
+ },
+ "calibrated_display_estimate": {
+  "activity": 0.9391,
+  "bands": [
+   "Intense"
+  ],
+  "certain_bands": []
+ },
+ "agreements": [
+  "SDK: nearly static feedback, audio-driven drawn elements, horizontal custom wave at y=.5, slow composite brightness cycle; calibrated Intense with many brightness jumps",
+  "Capture: bright white central sun glow with mirrored filigree and a horizontal white line"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "v1 overexposed (luma 0.86 vs 0.66) with side lobes and dark wedges; the frozen text expected a medium-bright coloured disc",
+   "cause": "(1) equations saw double-precision time while RenderContext::time is float32; the preset's 0.1 s beat refractory (above(time,t0+.1)) sits on exact 3-frame ties, so beat frames and the peak (q22, which sizes the god-ray glow) were one frame off; (2) thick custom-wave passes offset half a pixel DOWN instead of H/(2W) px UP, doubling the y=.5 line into two rows and, through additive feedback, the canvas brightness",
+   "next": "fixed generally (v2): q22/q24/q27 match the engine on all 150 frames (colour-encoded native probe), canvas mean within 1e-3, display identical"
+  },
+  {
+   "size": "medium",
+   "observed": "frozen LLM text predicted a coloured pulsing disc; the textured disc shape is invisible (vis=above(q28,2) is 0 for the first 64 beats) and the look is the composite sun glow",
+   "cause": "text over-weighted drawn elements over the composite; recipe did not state shape visibility gates",
+   "next": "describe composite light sources (sun/ray terms) and beat-counter visibility gates"
+  }
+ ],
+ "general_fixes_after_capture": [
+  "equation time is float32 (RenderContext::time widened to PRJM_EVAL_F) in the frame stepper, mesh terms, waves and shapes",
+  "thick custom-wave passes offset +0.5 px right and H/(2W) px up (CustomWaveform incrementX/incrementY = 1/viewportX in NDC), drawn at 1/16 px precision"
+ ],
+ "status": "understood (v2 identical to the capture: luma 0.659 vs 0.660, blurred correlation 1.0)",
+ "uses_rendered_images_for_classification": false
+}

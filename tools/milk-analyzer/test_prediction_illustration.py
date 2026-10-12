@@ -252,3 +252,31 @@ def test_motion_vector_minimum_length_is_in_texture_units():
     (start, end, _), = _motion_vector_marks(facts, lambda t: still, 0., width, height, still)
     minimum = np.hypot(1.25 / width, 1.25 / height)
     assert start == (240., 135.) and np.allclose(end, (240 + minimum * width, 135 + minimum * height))
+
+
+def test_frame_stepper_sees_float32_engine_time():
+    from prediction_illustration import _FrameStepper
+    # gate = above(time, 0.1): RenderContext::time is a float, so frame 2 (time 3/30) passes the
+    # threshold in the engine (float32(0.1) > 0.1) although 3/30 == 0.1 in double precision.
+    nodes = [{'op': 'input', 'args': [], 'detail': {'name': 'time'}},
+             {'op': 'constant', 'args': [], 'detail': {'value': .1}},
+             {'op': 'greater', 'args': [0, 1], 'detail': {}}]
+    stepper = _FrameStepper({'state': {}, 'outputs': {'gate': {'root': 2, 'nodes': nodes}}})
+    values = [stepper.step((k + 1) / 30, 30, {'bass': 1.}, k)['gate'] for k in range(3)]
+    assert values == [0., 0., 1.]
+
+
+def test_thick_custom_wave_flat_line_lights_one_row():
+    from prediction_illustration import _draw_points
+    # x = sample, y = .5, thick: native ruler lights a single row (passes offset right and up by
+    # 1/viewportX in NDC: half a pixel horizontally, H/(2W) pixels vertically).
+    record = {'sample_count': 32, 'draw_flags': {'thick': True, 'additive': True},
+              'programs': {'x': {'root': 0, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'sample'}}]},
+                           'y': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': .5}}]},
+                           **{c: {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': 1.}}]} for c in 'rgba'}}}
+    width, height = 480, 270
+    def to_pixels(point):
+        return ((point[0] - .5) * width + width / 2, height / 2 - (point[1] - .5) * width)
+    image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., to_pixels)
+    lit = np.nonzero(image[:, 20:460, 0].max(axis=1) > .5)[0]
+    assert list(lit) == [135]

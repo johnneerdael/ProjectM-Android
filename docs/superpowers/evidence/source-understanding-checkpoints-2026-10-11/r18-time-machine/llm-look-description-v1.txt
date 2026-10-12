@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe (before capture, r18 v1):
+An almost static feedback frame (contracts toward the centre by only 0.01% per step, no offset)
+over which drawn elements carry the picture: a large 64-sided circle (radius ~0.36 of the screen)
+whose fill, perimeter and outline opacity and RGB colour all follow bass/mid/treble, twelve small
+square instances (radius ~0.02) placed per instance (palette grayscale/red/orange/yellow/green
+possible), a horizontal custom wave of 128 points across the middle (y 0.5) cycling pink, green,
+blue and grey, and an angled built-in waveform trace. A faint white outer border (alpha 0.05) and a
+warp shader adding a periodic ripple/wobble; a composite shader with a very slow brightness cycle.
+Calibrated display estimate: Intense (activity 0.94, interval 0.60-1.00, not certain); luminance
+~0.29, saturation ~0.40, frame difference ~0.11, flow ~0.23 screen widths/s and many global
+brightness jumps (~66 per 10 s, interval 20-250): expect audio-driven flashing of the large disc.
+Expected: a medium-bright scene dominated by a big audio-coloured circle pulsing with the music,
+small squares and a horizontal multicoloured wave line, with strong beat-driven brightness changes.
