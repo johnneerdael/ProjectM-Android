@@ -990,6 +990,8 @@ private:
         bundled_ = names;
         master_ = names;
         categories_["custom"] = {};
+        // A pool requested before the index was ready was stored empty; re-derive it from the inventory.
+        if (!facetPoolRequested_.empty()) categories_[kFacetCategory] = FacetPoolFor(facetPoolRequested_, bundled_);
         for (const auto& name : bundled_) bundledMembership_[name] = 1;
         const char* scored[] = {"chill", "normal", "intense"};
         for (int i = 0; i < 3; ++i) {
@@ -1004,7 +1006,8 @@ private:
         originalBase_ = std::make_shared<BaseCatalog>();
         originalBase_->names = bundled_; originalBase_->weights = weights_;
         originalBase_->membership = bundledMembership_; originalBase_->categories = categories_;
-        originalBase_->categories.erase("custom"); baseCatalog_ = originalBase_;
+        originalBase_->categories.erase("custom"); originalBase_->categories.erase(kFacetCategory);
+        baseCatalog_ = originalBase_;
         skipped_ = std::move(skipped);
         blankStrikes_ = std::move(strikes);
         RecountCategoriesLocked();

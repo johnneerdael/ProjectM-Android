@@ -470,6 +470,14 @@ int main(int argc, char** argv) {
   std::string longName = "custom/pack-generation-one/" + std::string(1000, 'x') + ".milk";
   g_library.MarkSkipped(longName, "custom skip identity");
   CHECK(g_library.CategoryCount("custom") == 1 && g_library.CategoryCount("intense") == 3);
+  printf("facet pool requested before the index is ready survives BuildIndex\n");
+  { PresetLibrary& early = *new PresetLibrary();
+    CHECK(early.SetPool({"good 2.milk", "good 3.milk", "missing.milk"}) == 0);  // empty bundled inventory
+    early.Start(&am, skip, "");
+    for (int i = 0; i < 1000 && !early.Ready(); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    CHECK(early.Ready());
+    CHECK(early.CategoryCount("facets") == 2);
+    CHECK(early.SetCategory("facets") && early.Category() == "facets"); }
   // Long nested/display names must preserve their skip identity after a process restart.
   PresetLibrary& restartedPack = *new PresetLibrary();
   restartedPack.Start(&am, skip, "");
