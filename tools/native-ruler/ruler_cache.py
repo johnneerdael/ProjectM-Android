@@ -25,10 +25,10 @@ def run_identity(preset_sha256,pcm_sha256,binary_sha256,swiftshader,textures,con
 
 
 def can_reuse(target,identity):
-    """Reuse a cached result only when its recorded identity equals the current run's, input for input."""
+    """Reuse a cached result only when it is a measured row whose recorded identity equals the current run's, input for input."""
     try:row=json.loads(Path(target).read_text())
     except (OSError,ValueError):return False
-    return isinstance(row,dict) and row.get('identity')==identity
+    return isinstance(row,dict) and row.get('status')=='measured' and row.get('identity')==identity
 
 
 def resolve_paths(swiftshader,presets,output):

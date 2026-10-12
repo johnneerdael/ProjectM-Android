@@ -26,6 +26,13 @@ class CacheTest(unittest.TestCase):
         for kw in ({'preset_sha256':'q'},{'pcm_sha256':'z'},{'binary_sha256':'z'},{'swiftshader':'z'},{'textures':'z'},
                    {'config':{'size':[480,270],'frames':301,'window':60,'version':1}}):
             self.assertFalse(rc.can_reuse(t,self.ident(**kw)),kw)
+    def test_failed_rows_with_matching_identity_are_not_reused(self):
+        for status in ('render_error','timeout','error'):
+            t=self.write({'status':status,'identity':self.ident()})
+            self.assertFalse(rc.can_reuse(t,self.ident()),status)
+    def test_measured_row_with_matching_identity_is_reused(self):
+        t=self.write({'status':'measured','identity':self.ident()})
+        self.assertTrue(rc.can_reuse(t,self.ident()))
     def test_result_without_identity_is_not_reused(self):
         t=self.write({'status':'measured','preset_sha256':'p'})
         self.assertFalse(rc.can_reuse(t,self.ident()))
