@@ -1,0 +1,30 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "8e0e40423af35c1818e5c46626121369b4ec1e0f413ed16ee3e83b863f8f2d30",
+  "illustrator_sha256": "9892e5c1d070103e5da57fcf854dbc9431c40cee4010d14b1bd76706942d518b",
+  "image_sha256": "bbe64c3928141496738669267b1d426f9735c8405e8da33026fd4d34d830109a",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [
+    "wave_0",
+    "wave_1"
+  ],
+  "limitations": [
+    "motion evaluated at the 48x32 mesh vertices and interpolated over its triangles",
+    "built-in waveforms drawn per frame from the declared reference PCM (projectM modes 0-9; wave alignment omitted)",
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "closed-form custom-wave point clouds drawn per frame (declared per-frame audio when given, else midpoints; wave per-frame state stepped from its exported recurrence; long-side square projection)",
+    "/analysis/visual_description/elements/1/waveform_recipe: final alpha below the native draw gate; not drawn",
+    "composite echo, gamma redraw weight and legacy filters applied",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "audio-driven controls use the declared per-frame bands (audio report sha256 4c76bd9cb3ed46b3)",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed",
+  "declared_audio_sha256": "4c76bd9cb3ed46b3e31e315d882d0d66edaa2332f8e6a7b4c106084f3408918b"
+}

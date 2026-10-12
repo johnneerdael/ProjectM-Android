@@ -575,6 +575,19 @@ def _point_clouds(facts):
     return clouds
 
 
+def _point_pixels(px,py,size,height):
+    """First (column, top-down row) covered by size-s GL points at window coordinates (px, py top-down).
+
+    Columns: ceil(px - s/2 - .5). Rows: the GL window y is height - py, its first covered GL row is
+    ceil(height - py - s/2 - .5), and the covered top-down rows run upward from height-1 minus that
+    row; the returned row is the topmost, so offsets 0..s-1 go down the screen.
+    """
+    columns=np.ceil(np.asarray(px)-size/2-.5).astype(int)
+    first_gl=np.ceil(height-np.asarray(py)-size/2-.5).astype(int)
+    rows=height-1-(first_gl+size-1)
+    return columns,rows
+
+
 def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
     count=int(record['sample_count']);programs=record['programs']
     inputs={**record.get('held_inputs',{}),**(audio or {}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
@@ -618,11 +631,14 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
         if flags.get('additive',True):return np.clip(image+layer,0,1)
         return np.clip(image*(1-cover[...,None])+layer,0,1)
     finite=np.isfinite(px)&np.isfinite(py)
-    xs=np.rint(px[finite]).astype(int);ys=np.rint(py[finite]).astype(int)
+    # GL point coverage: a size-s point at window position w lights pixels whose centres lie in
+    # [w - s/2, w + s/2) (native-ruler probe: x=0.5 lands on column 239, a point at x=0 is not drawn).
+    # Rows here are top-down, so the half-open interval runs from the bottom edge of the GL window.
+    size=2 if flags.get('thick') else 1
+    xs,ys=_point_pixels(px[finite],py[finite],size,height)
     colour=np.stack(rgba[:3],axis=-1)[finite];alpha=rgba[3][finite]*min(1.,_DRAW_SCALE[0]**2)
     layer=np.zeros_like(image);cover=np.zeros(image.shape[:2],np.float32);alpha_sq=np.zeros(image.shape[:2],np.float32)
-    # vertex_point_size 2 for thick waves (2x2 pixels), otherwise 1.
-    offsets=range(2) if flags.get('thick') else range(1)
+    offsets=range(size)
     for dx in offsets:
         for dy in offsets:
             keep=(xs+dx>=0)&(xs+dx<width)&(ys+dy>=0)&(ys+dy<height)
@@ -758,8 +774,9 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
         angles=np.arange(shape['sides'])/shape['sides']*2*math.pi+angle+math.pi/4
         px=(x+radius*aspect_y*.5*np.cos(angles))*width;py=(1-(y-radius*.5*np.sin(angles)))*height
         points=np.stack([px,py],axis=-1)
-        # Each thick pass is blended on its own (pixels two passes cover are blended twice).
-        for dx,dy in ([(0,0),(1,0),(1,1),(0,1)] if shape.get('thick_outline') else [(0,0)]):
+        # Each thick pass is blended on its own; shape borders are offset by 1/viewport in strip
+        # units (LineStyleFor ShapeBorder), i.e. half a pixel, so the passes mostly overlap one line.
+        for dx,dy in ([(0,0),(.5,0),(.5,.5),(0,.5)] if shape.get('thick_outline') else [(0,0)]):
             layer=np.zeros(image.shape[:2],np.float32)
             cv2.polylines(layer,[np.round((points+[dx,dy])*16).astype(np.int32)],True,1.0,1,cv2.LINE_8,4)
             a=layer*border[3]
@@ -1278,7 +1295,8 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 colour=_wave_colour_at(facts,path,frame_time) or _wave_colour(facts,path)[0]
                 # Thick: LineRenderer draws four 1 px passes offset by one pixel (as is, +x, +x+y, +y in NDC,
                 # y up on screen), each blended on its own, so pixels two passes cover receive the blend twice.
-                for ox,oy in ([(0,0),(16,0),(16,-16),(0,-16)] if recipe.get('thick') else [(0,0)]):
+                # Scaled dots are drawn once as 2x2 blocks (Waveform.cpp: one iteration when lineScale > 0).
+                for ox,oy in ([(0,0),(16,0),(16,-16),(0,-16)] if recipe.get('thick') and not recipe.get('dots') else [(0,0)]):
                     layer=np.zeros_like(image)
                     for points in polylines:
                         # Built-in wave NDC: column=(1+x)/2*W, row=(1-y)/2*H (y up on screen; native-ruler
@@ -1286,8 +1304,12 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                         px=(points[:,0]+1)/2*width;py=(1-points[:,1])/2*height
                         pixel=np.round(np.stack([px,py],-1)*16).astype(np.int32)
                         if recipe.get('dots'):
-                            for x,y in ((pixel+[ox,oy])//16):
-                                if 0<=x<width and 0<=y<height:layer[y,x]=colour
+                            # MilkDrop's main-wave dots are 2x2 pixel blocks (GL point coverage).
+                            cols,rows=_point_pixels(px,py,2,height)
+                            for x0,y0 in zip(cols,rows):
+                                for x in (x0,x0+1):
+                                    for y in (y0,y0+1):
+                                        if 0<=x<width and 0<=y<height:layer[y,x]=colour
                         else:
                             cv2.polylines(layer,[pixel+[ox,oy]],bool(loop),tuple(float(c) for c in colour),1,cv2.LINE_8,4)
                     coverage=layer.max(axis=-1,keepdims=True)

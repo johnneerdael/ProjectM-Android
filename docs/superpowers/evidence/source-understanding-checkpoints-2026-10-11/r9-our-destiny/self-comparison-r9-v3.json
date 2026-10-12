@@ -1,0 +1,80 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r9-v3",
+ "preset": "InCUbuS - Our Destiny.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v3.json": "78c1d7b94a5eae9ec603ff7ec65c5ffc21f7318a5eac1f580f590031e32070b4",
+  "description-v3-before-capture.json": "8e0e40423af35c1818e5c46626121369b4ec1e0f413ed16ee3e83b863f8f2d30",
+  "recipe-v3-before-capture.json": "50c0d450b13adc5539e37dfeae284eef2cd9a0144c2652a42a67ea2705969fe1",
+  "prediction-v3.png": "bbe64c3928141496738669267b1d426f9735c8405e8da33026fd4d34d830109a"
+ },
+ "capture_result_sha256": "15d8f71539b801de3921c3ea06b0b6481f23c5e2841b7cec4d4df7eefa32cb2d",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.527,
+  "screenshot_luma": 0.459,
+  "p10_p50_p90_prediction": [
+   0.181,
+   0.488,
+   0.989
+  ],
+  "p10_p50_p90_screenshot": [
+   0.127,
+   0.417,
+   0.916
+  ],
+  "mean_rgb_prediction": [
+   0.451,
+   0.575,
+   0.483
+  ],
+  "mean_rgb_screenshot": [
+   0.37,
+   0.51,
+   0.431
+  ],
+  "saturation": [
+   0.345,
+   0.393
+  ],
+  "blurred_luma_correlation": 0.96,
+  "feedback_canvas_vs_native_ruler_passthrough": {
+   "blurred_correlation_frames_0_60_149": [
+    0.966,
+    0.959,
+    0.966
+   ],
+   "frame_149_disc_centre_rgb": [
+    [
+     0.112,
+     0.132,
+     0.264
+    ],
+    [
+     0.098,
+     0.129,
+     0.24
+    ]
+   ]
+  }
+ },
+ "agreements": [
+  "Green-cyan glow with a dark dot at the disc centre, pale magenta star, greenish concentric ring tunnel",
+  "Disc-centre colour cycle follows the engine frame by frame"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "About 15% too bright overall",
+   "cause": "line rasterisation: our 1 px lines sit a pixel off on some edges and overlapping pixels come out ~17% brighter at frame 0; feedback keeps the excess",
+   "next": "GL quad-line coverage rule for lines (diamond/centre rule)"
+  }
+ ],
+ "general_fixes": [
+  "GL point coverage for dots: pixels whose centres lie in [w - s/2, w + s/2) (native probe: a point at x=0 is not drawn, x=0.5 lands on column 239); built-in wave dots are single 2x2 passes",
+  "shape thick outlines offset by half a pixel (LineStyleFor ShapeBorder: 1/viewport in strip units)"
+ ],
+ "status": "understood: look, colours, structure and dynamics match; brightness ~15% high",
+ "uses_rendered_images_for_classification": false
+}

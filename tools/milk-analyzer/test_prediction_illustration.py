@@ -154,3 +154,12 @@ def test_mesh_interpolation_is_exact_for_affine_fields_and_top_row_first():
     out = interpolate(field.astype(np.float32))
     columns, rows = np.meshgrid(np.arange(96) + .5, np.arange(64) + .5)
     assert np.allclose(out, 2 * columns / 96 * 48 + 3 * rows / 64 * 32, atol=1e-4)
+
+
+def test_point_pixels_follow_gl_point_coverage():
+    from prediction_illustration import _point_pixels
+    # native-ruler probe: x=0.5 (window 240) -> column 239; x=0 -> column -1 (not drawn); y=0.25 -> row 255
+    cols, rows = _point_pixels(np.array([240., 0.]), np.array([255., 135.]), 1, 270)
+    assert list(cols) == [239, -1] and rows[0] == 255
+    cols, rows = _point_pixels(np.array([240.]), np.array([255.]), 2, 270)
+    assert cols[0] == 239 and rows[0] == 254

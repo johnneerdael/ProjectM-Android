@@ -748,3 +748,11 @@ repeated on correctly oriented frames. Probes and results:
   0.89, and the canvas follows the ruler at 0.92–0.98. The rings and the disc
   centre are less green than native (display green 0.41 vs 0.51); this is still
   being investigated.
+- **Points and outlines.** Dots follow GL point coverage: a size-s point at
+  window position w lights pixels whose centres lie in [w - s/2, w + s/2). A
+  native probe confirms that a point at x = 0 is not drawn and one at x = 0.5
+  lands on column 239. Built-in wave dots are single 2×2 passes. Thick shape
+  outlines are offset by half a pixel (`1/viewport` in strip units).
+- **r9 v3.** It matches the emulator capture: the green-cyan glow at the disc
+  centre, the pale star and the greenish ring tunnel, blurred correlation 0.96,
+  about 15% brighter. The remaining difference is line rasterisation.
