@@ -7,7 +7,7 @@ canonical Native core AAR retain the complete collection.
 
 `metadata/` contains local validation recipes. Synchronization generates the
 actual submission recipes from a complete, published GitHub release's
-`release-version.json`, including its exact source SHA and Android version code.
+`release-version.json`, including its tagged release commit and Android version code.
 Do not manually update version floors in `app/build.gradle` to match a release.
 
 Prepare a task-specific environment from the repository root:
@@ -32,12 +32,31 @@ Generate recipes without credentials or writes to GitLab:
   --release-json build/release-version.json --output build/fdroid-metadata
 ```
 
-The HTTP discovery configuration supports subsequent release lines. F-Droid's
-automatic updater appends future builds using `Version v%v`; the recipe
-substitutes their version name and code into root Gradle properties. The pinned
-2.4.5 source parser cannot resolve this app's conditional Gradle package/label,
-so `UpdateCheckName: Ignore` preserves the explicit per-edition name. Packaged
-application IDs and version identities are verified separately in Android CI.
+Each release tag points at a commit on top of the released `main` commit whose
+only change appends `projectmReleaseVersion` and `projectmReleaseVersionCode` to
+the root `gradle.properties` (`.github/scripts/release_commit.py`). The tagged
+source therefore declares its own version: recipes build it unchanged, with no
+`prebuild` edits. `UpdateCheckMode: Tags ^v\d+\.\d+\.\d+$` reads both values
+from each tag's `gradle.properties`, so every release line is discovered, and
+`AutoUpdateMode: Version` records the tag's full commit hash. Older tags
+without these lines are skipped. fdroidserver cannot resolve this app's
+conditional Gradle package/label, so `UpdateCheckName: Ignore` preserves the
+explicit per-edition name. Packaged application IDs and version identities are
+verified separately in Android CI. Synchronization refuses a latest release
+whose tagged `gradle.properties` does not declare its published version/code.
+
+`requirements.txt` pins the fdroidserver commit and ruamel.yaml version that
+fdroiddata's merge request CI uses (fdroidserver `master`, Debian trixie's
+ruamel.yaml 0.18.10). Its `fdroid rewritemeta` job fails a recipe it would
+reformat. fdroidserver 2.4.5 requires ruamel.yaml below 0.17.22, whose writer
+keeps long values such as `Binaries` on the key line, so recipes written with it
+failed that job. A tooling test checks that rendered recipes pass rewritemeta
+unchanged; refresh both pins together when fdroiddata's CI moves on.
+
+A newly created merge request uses fdroiddata's *App inclusion* template
+(`merge_request_description` in `fdroid_metadata.py`). The pipeline checklist
+items stay unticked until the pipeline result is known; an existing merge
+request's description is never rewritten.
 
 ## GitHub Actions setup
 

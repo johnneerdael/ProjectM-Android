@@ -1,1 +1,5 @@
-fdroidserver==2.4.5
+# Match fdroiddata merge-request CI: fdroidserver master with Debian trixie's ruamel.yaml.
+# fdroidserver 2.4.5 caps ruamel.yaml below 0.17.22, whose writer keeps long values on the
+# key line; fdroiddata's `fdroid rewritemeta` job (ruamel.yaml 0.18) moves them and fails.
+fdroidserver @ git+https://gitlab.com/fdroid/fdroidserver.git@5806784d0d43bed7b938fd4b327162da68927060
+ruamel.yaml==0.18.10

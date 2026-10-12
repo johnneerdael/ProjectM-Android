@@ -1,6 +1,7 @@
 import base64
 import importlib.util
 import json
+import re
 from pathlib import Path
 import sys
 import unittest
@@ -126,6 +127,12 @@ class SyncTests(unittest.TestCase):
         result = self.sync()
         self.assertEqual(len(result), 2)
         self.assertEqual(len(self.api.mrs), 2)
+        created = [write[2] for write in self.api.writes
+                   if len(write) == 3 and write[1] == 'POST' and write[0].endswith('/merge_requests')]
+        self.assertTrue(created)
+        for payload in created:
+            self.assertIn('## Checklist', payload['description'])
+            self.assertIn(f"metadata/{payload['source_branch']}.yml", payload['description'])
         self.api.writes.clear()
         self.sync()
         self.assertFalse(self.api.writes)
@@ -146,7 +153,9 @@ class SyncTests(unittest.TestCase):
         newer = dict(RELEASE, version='2.4.11', tag='v2.4.11', version_code=121, source_sha='b' * 40)
         self.sync(newer, lambda: newer)
         self.assertIn('Keep this decision', self.api.files[appid])
-        self.api.files[appid] = self.api.files[appid].replace('UpdateCheckMode: HTTP', 'UpdateCheckMode: None')
+        edited = re.sub(r'^UpdateCheckMode: .*$', 'UpdateCheckMode: None', self.api.files[appid], flags=re.M)
+        self.assertNotEqual(edited, self.api.files[appid])
+        self.api.files[appid] = edited
         self.api.writes.clear()
         with self.assertRaisesRegex(ValueError, 'maintainer'):
             self.sync(newer, lambda: newer)
@@ -243,6 +252,38 @@ class SyncTests(unittest.TestCase):
         for token in ['', 'private\nsecret', 'secret with space']:
             with self.subTest(token=bool(token)), self.assertRaisesRegex(ValueError, 'missing or contains invalid'):
                 self.module.GitLabAPI(token)
+
+
+class LatestReleaseTests(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location('fdroid_sync', SCRIPT)
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+        self.metadata = dict(RELEASE, version='2.3.42', tag='v2.3.42', version_code=91)
+        self.body = json.dumps(self.metadata).encode()
+
+    def latest(self, properties):
+        import publish_release
+        names = ['release-version.json', 'checksums.txt', 'cream-of-the-crop-2.3.42.zip',
+                 'projectM-TV-FDroid-2.3.42.apk', 'projectM-Android-FDroid-2.3.42.apk']
+        responses = {
+            'repos/johnneerdael/ProjectM-Android/releases/latest': {
+                'tag_name': 'v2.3.42', 'assets': [{'name': name} for name in names]},
+            'repos/johnneerdael/ProjectM-Android/git/ref/tags/v2.3.42': {
+                'object': {'type': 'commit', 'sha': RELEASE['source_sha']}},
+            f"repos/johnneerdael/ProjectM-Android/contents/gradle.properties?ref={RELEASE['source_sha']}": {
+                'content': base64.b64encode(properties.encode()).decode()},
+        }
+        with patch.object(publish_release, 'github_api', side_effect=lambda endpoint, *a, **k: responses[endpoint]), \
+                patch('urllib.request.urlopen', return_value=__import__('io').BytesIO(self.body)):
+            return self.module.latest_release()
+
+    def test_tagged_source_must_declare_the_published_version(self):
+        declared = 'org.gradle.jvmargs=-Xmx2g\nprojectmReleaseVersion=2.3.42\nprojectmReleaseVersionCode=91\n'
+        self.assertEqual(self.latest(declared), self.metadata)
+        for properties in ['org.gradle.jvmargs=-Xmx2g\n', declared.replace('=91', '=90')]:
+            with self.subTest(properties=properties), self.assertRaisesRegex(ValueError, 'does not declare'):
+                self.latest(properties)
 
 
 if __name__ == '__main__':
