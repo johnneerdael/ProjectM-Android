@@ -161,6 +161,33 @@ class SyncTests(unittest.TestCase):
             self.sync(newer, lambda: newer)
         self.assertFalse(self.api.writes)
 
+    def test_maintainer_edit_matching_the_generator_is_adopted(self):
+        # The branch was synced by an older generator; a reviewer then applied a suggestion
+        # (fdroiddata!52248) that equals the current generator's output.
+        original = self.module.recipes.generate_metadata
+
+        def older(*args, **kwargs):
+            app = original(*args, **kwargs)
+            app.UpdateCheckData = app.UpdateCheckData.replace('|.|', '|gradle.properties|')
+            return app
+
+        appid = 'nl.neerdael.projectm'
+        with patch.object(self.module.recipes, 'generate_metadata', side_effect=older):
+            self.sync()
+        self.assertIn('|gradle.properties|projectmReleaseVersion=', self.api.files[appid])
+        self.api.files[appid] = self.api.files[appid].replace('|gradle.properties|projectmReleaseVersion=',
+                                                              '|.|projectmReleaseVersion=')
+        newer = dict(RELEASE, version='2.4.11', tag='v2.4.11', version_code=121, source_sha='b' * 40)
+        self.api.writes.clear()
+        with patch.object(self.module.recipes, 'generate_metadata', side_effect=older):
+            with self.assertRaisesRegex(ValueError, 'maintainer'):
+                self.sync(newer, lambda: newer)
+        # TV (unedited) still updates first; the edited phone branch is left alone.
+        self.assertFalse([write for write in self.api.writes if appid in write])
+        self.sync(newer, lambda: newer)
+        self.assertIn('CurrentVersionCode: 121', self.api.files[appid])
+        self.assertIn('|.|projectmReleaseVersion=', self.api.files[appid])
+
     def test_accepted_listing_keeps_build_history(self):
         self.sync()
         self.api.accepted.update(self.api.files)

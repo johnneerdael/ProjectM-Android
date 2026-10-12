@@ -73,6 +73,20 @@ def automation_checkpoint(comparison, head):
     return None
 
 
+def matches_generator(current, target):
+    """Adopt a maintainer edit (such as an applied review suggestion) that equals this
+    generator's own output for the same build; any other managed edit is preserved."""
+    builds = current.get('Builds') or []
+    try:
+        identity = recipes.validate_release({
+            'schema_version': 1, 'version': str(current.CurrentVersion),
+            'version_code': current.CurrentVersionCode, 'tag': 'v' + str(current.CurrentVersion),
+            'source_sha': builds[-1].commit, 'collection_id': '0' * 64})
+        return fingerprint(recipes.generate_metadata(identity, target, current)) == fingerprint(current)
+    except (AttributeError, IndexError, KeyError, TypeError, ValueError):
+        return False
+
+
 def synchronize(release, fork, api, publisher, latest):
     recipes.validate_release(release)
     if not re.fullmatch(r'[\w.-]+/[\w.-]+', fork) or fork == UPSTREAM:
@@ -134,7 +148,8 @@ def synchronize(release, fork, api, publisher, latest):
             if checkpoint:
                 expected = re.search(r'^Managed-Metadata-SHA256: ([0-9a-f]{64})$', checkpoint, re.M)
                 base = re.search(r'^Target-Master: ([0-9a-f]{40})$', checkpoint, re.M)
-                if not expected or not base or fingerprint(current) != expected[1]:
+                if not expected or not base or (fingerprint(current) != expected[1] and
+                                                not matches_generator(current, target)):
                     raise ValueError('Managed recipe fields have maintainer edits; refusing overwrite')
                 previous_master = base[1]
             else:
