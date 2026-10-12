@@ -1059,6 +1059,29 @@ def _blur_bank(image,controls=None):
     return textures,uniforms
 
 
+def _texture_lookup(source,coordinates,*,wrap,linear):
+    """GL texture lookup of (N, 2) normalised coordinates (row 0 at v=0).
+
+    linear: bilinear between the four nearest texel centres. Otherwise GL_NEAREST: the texel
+    floor(u*size), so a point sampler reads exactly one texel (no float-error weights on others).
+    Wrap repeats; otherwise coordinates clamp to the edge texels.
+    """
+    th,tw=source.shape[:2]
+    if not linear:
+        x=np.floor(np.where(np.isfinite(coordinates[:,0]),coordinates[:,0],0.)*tw).astype(np.int64)
+        y=np.floor(np.where(np.isfinite(coordinates[:,1]),coordinates[:,1],0.)*th).astype(np.int64)
+        x,y=(np.mod(x,tw),np.mod(y,th)) if wrap else (np.clip(x,0,tw-1),np.clip(y,0,th-1))
+        return source[y,x].astype(np.float32)
+    u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
+    u=np.where(np.isfinite(u),u,0.);v=np.where(np.isfinite(v),v,0.)
+    if wrap:u=np.mod(u,tw);v=np.mod(v,th)
+    else:u=np.clip(u,0,tw-1);v=np.clip(v,0,th-1)
+    x0=np.floor(u).astype(int);y0=np.floor(v).astype(int);fx=(u-x0)[:,None];fy=(v-y0)[:,None]
+    fix=(lambda i,n:np.mod(i,n)) if wrap else (lambda i,n:np.clip(i,0,n-1))
+    x1=fix(x0+1,tw);y1=fix(y0+1,th);x0=fix(x0,tw);y0=fix(y0,th)
+    return ((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
+
+
 def _sampler_wraps(policy,controls=None):
     """Resolved wrap addressing of an exported sampling policy.
 
@@ -1194,16 +1217,8 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
             # Named images: the bundled texture file (declared asset); unknown names keep a noise stand-in.
             named=_named_texture(texture)
             source=named if named is not None else _noise_texture('noise_mq')
-        wrap=_sampler_wraps(detail.get('sampling_policy'),controls)
-        th,tw=source.shape[:2]
-        u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
-        u=np.where(np.isfinite(u),u,0.);v=np.where(np.isfinite(v),v,0.)
-        if wrap:u=np.mod(u,tw);v=np.mod(v,th)
-        else:u=np.clip(u,0,tw-1);v=np.clip(v,0,th-1)
-        x0=np.floor(u).astype(int);y0=np.floor(v).astype(int);fx=(u-x0)[:,None];fy=(v-y0)[:,None]
-        fix=(lambda i,n:np.mod(i,n)) if wrap else (lambda i,n:np.clip(i,0,n-1))
-        x1=fix(x0+1,tw);y1=fix(y0+1,th);x0=fix(x0,tw);y0=fix(y0,th)
-        values=((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
+        policy=detail.get('sampling_policy') or {}
+        values=_texture_lookup(source,coordinates,wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     fitted=_fit_inputs(program,inputs,controls)
     value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample),np.float32)
@@ -1268,15 +1283,8 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
         if str(texture).startswith('noise'):source=_noise_texture(str(texture))
         elif texture.startswith('blur'):
             source=blurred[min(3,max(1,int(texture[4:] or 1)))]
-        wrap=_sampler_wraps(detail.get('sampling_policy'),_TERM_CONTEXT.get('bands'))
-        th,tw=source.shape[:2]
-        u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
-        if wrap:u=np.mod(u,tw);v=np.mod(v,th)
-        else:u=np.clip(u,0,tw-1);v=np.clip(v,0,th-1)
-        x0=np.floor(u).astype(int);y0=np.floor(v).astype(int);fx=(u-x0)[:,None];fy=(v-y0)[:,None]
-        fix=(lambda i,n:np.mod(i,n)) if wrap else (lambda i,n:np.clip(i,0,n-1))
-        x1=fix(x0+1,tw);y1=fix(y0+1,th);x0=fix(x0,tw);y0=fix(y0,th)
-        values=((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
+        policy=detail.get('sampling_policy') or {}
+        values=_texture_lookup(source,coordinates,wrap=_sampler_wraps(policy,_TERM_CONTEXT.get('bands')),linear=policy.get('linear') is not False)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     if coordinates is not None:
         value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample),np.float32).reshape(height,width,-1)

@@ -306,3 +306,19 @@ def test_alpha_blended_dots_converge_to_their_colour():
     image = _draw_points(np.zeros((36, 64, 3), np.float32), record, 1., to_pixels)
     lit = image[image.max(axis=-1) > 0]
     assert len(lit) == 4 and np.allclose(lit, [1., .5, 0.], atol=1e-4)
+
+
+def test_point_samplers_read_exactly_one_texel():
+    # A one-texel offset from each texel centre (shader arithmetic in float32) must read exactly the
+    # neighbour: bilinear weights of ~1e-7 on the texel two away would satisfy a strict "> 0" test.
+    from prediction_illustration import _texture_lookup
+    width = 480
+    source = np.zeros((1, width, 3), np.float32); source[0, 240, 1] = 1.
+    centres = (np.arange(width, dtype=np.float32) + np.float32(.5)) / np.float32(width)
+    for offset in (-1, 1):
+        coordinates = np.stack([centres + np.float32(offset) / np.float32(width), np.full(width, .5, np.float32)], axis=1)
+        values = _texture_lookup(source, coordinates, wrap=True, linear=False)[:, 1]
+        assert np.flatnonzero(values).tolist() == [240 - offset] and values[240 - offset] == 1.
+    # Linear sampling between two texel centres still interpolates.
+    halfway = np.array([[241 / width, .5]], np.float32)
+    assert abs(_texture_lookup(source, halfway, wrap=True, linear=True)[0, 1] - .5) < 1e-4

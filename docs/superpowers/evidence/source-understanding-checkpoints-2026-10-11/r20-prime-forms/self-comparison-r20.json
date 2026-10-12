@@ -34,6 +34,81 @@
    "next": "represent fixed-count EEL loops and global megabuf memory in the exported frame/shape programs (or describe them as a parametric point set), then re-check"
   }
  ],
- "status": "not understood (v1): loop/megabuf-driven geometry unsupported",
- "uses_rendered_images_for_classification": false
+ "status": "understood (v3): gmegabuf prime-form walk dots seed a Conway-like excitable medium in the warp; composite colours its edges cyan; luma 0.532 vs 0.567, blurred correlation 0.85",
+ "uses_rendered_images_for_classification": false,
+ "review_measurements_v2_after_general_fixes": {
+  "prediction_luma": 0.653,
+  "screenshot_luma": 0.567,
+  "mean_rgb_prediction": [
+   0.472,
+   0.713,
+   0.817
+  ],
+  "mean_rgb_screenshot": [
+   0.346,
+   0.649,
+   0.721
+  ],
+  "saturation": [
+   0.454,
+   0.534
+  ],
+  "blurred_luma_correlation": -0.044
+ },
+ "general_fixes_v2": {
+  "commit": "bee2a2ba",
+  "fixes": [
+   "fixed-count EEL loop(n, body) lowered to a plan with projectm-eval count semantics (read once, truncated, capped at 1048576)",
+   "megabuf/gmegabuf as versioned zero-initialised buffers (item int32(index+0.0001), valid [0, 128*65536)); never-written buffers read 0",
+   "buffer contents are frame state (init starts them, the frame block updates them); state discovery follows memory-update inputs (here the loop count 1024*c reads the previous frame c)",
+   "shape/wave controls read the end-of-frame buffers; readonly aspectx/aspecty/pixelsx/pixelsy/meshx/meshy supplied from the declared context"
+  ]
+ },
+ "diagnostic_canvas_v2": {
+  "kind": "controlled diagnostic (native ruler, identity composite variant); calibration/diagnosis only, never a feature",
+  "green_coverage_prediction": 0.312,
+  "green_coverage_ruler": 0.253,
+  "finding": "seed geometry (dot cloud circle, spiral, chaotic centre) lands at the same places; with loud synthetic audio q5 saturates, so births are not threshold-limited; the remaining v2 difference was the point-sampling defect fixed in v3; texelOffset is 0 in the engine (neighbour samples land on texel centres)"
+ },
+ "misses_v2": [
+  {
+   "size": "large",
+   "observed": "v2 blurred luma correlation -0.04: fronts reached and wrapped the right edge, the capture keeps dark bands at both edges",
+   "cause": "point samplers evaluated bilinearly (fixed in v3)",
+   "next": "done"
+  }
+ ],
+ "review_measurements_v3_after_general_fixes": {
+  "prediction_luma": 0.532,
+  "screenshot_luma": 0.567,
+  "mean_rgb_prediction": [
+   0.383,
+   0.583,
+   0.666
+  ],
+  "mean_rgb_screenshot": [
+   0.346,
+   0.649,
+   0.721
+  ],
+  "saturation": [
+   0.369,
+   0.534
+  ],
+  "blurred_luma_correlation": 0.848
+ },
+ "general_fixes_v3": {
+  "fixes": [
+   "point samplers (sampling_policy linear=false, e.g. sampler_pw_main) read exactly the GL_NEAREST texel floor(u*size); bilinear float-error weights of ~1e-7 on the texel two away satisfied the automaton's strict conway > 0 birth test and made fronts run 1.67 px/frame to the right instead of 1"
+  ],
+  "diagnostic": "one excited pixel through the exported warp: before, births at x+2 on the right only; after, exactly the 8 neighbours. Identity-composite canvas vs native ruler: front extents within 1 px and green coverage 0.0981 vs 0.0985 at frame 59 (pixel-level phase differs with sub-pixel dot rasterisation)"
+ },
+ "misses_v3": [
+  {
+   "size": "small",
+   "observed": "luma 0.532 vs 0.567; pixel-level stripe phase differs",
+   "cause": "sub-pixel shape dots rasterise to slightly different seed pixels, which the automaton amplifies; statistics (coverage, front speed, extents) match",
+   "next": "none required for understanding"
+  }
+ ]
 }
