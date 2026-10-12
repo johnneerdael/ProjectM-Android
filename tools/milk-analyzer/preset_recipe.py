@@ -190,9 +190,24 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
         'mood':describe(summary,rules,profiles),'uses_rendered_images':False,
         'limitations':['Engine-neutral approximate recipe; drawn content, audio and native rounding make real frames differ',
                        'Mood values are editable research assumptions, not calibrated preferences']}
+    display=_display_estimate(summary)
+    if display is not None:recipe['display_estimate']=display
     recipe['intent']=intent(recipe)
     if source is not None and include_program:recipe['program']=_program(source)
     return recipe
+
+
+def _display_estimate(summary):
+    """Source-calibrated display statistics and activity bands (additive; None without a model)."""
+    from calibrated_display import load,predict
+    model=load()
+    if model is None:return None
+    values=predict(summary,model)
+    from display_activity import classify
+    activity=classify({k:{'value':v['value'],'interval':v['interval']} for k,v in values.items()})
+    return {'policy':'source-calibrated-display-estimate-v1','statistics':values,'activity':activity,
+            'reference':'engine ruler: pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, frames 60-299',
+            'note':'Calibrated from static source facts; intervals are the 10th-90th percentile out-of-fold residuals; not a rendered measurement of this preset'}
 
 
 def main(argv=None):

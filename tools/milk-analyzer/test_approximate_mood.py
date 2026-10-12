@@ -111,3 +111,23 @@ def test_explosive_zoom_is_clamped_not_overflowing():
     result=approximate_mood(summary(zoom(-1e186,-1e180)))
     assert all(math.isfinite(d['value']) and d['value']<=10 for d in result['drivers'])
     assert math.isfinite(result['activity_estimate'])
+
+
+def test_narrow_calibrated_display_activity_decides_the_band(tmp_path, monkeypatch):
+    import json, display_activity
+    directory = tmp_path / 'ruler';directory.mkdir()
+    for i in range(300):
+        level = i / 299
+        (directory / f'{i}.json').write_text(json.dumps({'status': 'measured', 'mean_abs_frame_difference': level * .05,
+            'mean_flow_screen_widths_per_s': level * .4, 'global_brightness_jumps_per_10s': level * 20}))
+    table = tmp_path / 'table.json';display_activity.build([directory], table)
+    monkeypatch.setattr(display_activity, 'DEFAULT_TABLE', table);display_activity._CACHE.clear()
+    quiet = {name: {'value': v, 'interval': [v * .9, v * 1.1], 'evidence': 'source-calibrated'}
+             for name, v in (('mean_abs_frame_difference', .002), ('mean_flow_screen_widths_per_s', .02), ('global_brightness_jumps_per_10s', 0.))}
+    mood = approximate_mood(summary(), display=quiet)
+    assert mood['bands'] == ['Chill'] and mood['band_source'] == 'source-calibrated-display' and not mood['abstained']
+    assert mood['display_activity']['evidence'] == ['source-calibrated']
+    vague = {name: {'value': v, 'interval': [0., v * 40], 'evidence': 'source-calibrated'} for name, v in
+             (('mean_abs_frame_difference', .002), ('mean_flow_screen_widths_per_s', .02), ('global_brightness_jumps_per_10s', .5))}
+    assert approximate_mood(summary(), display=vague)['band_source'] != 'source-calibrated-display'
+    display_activity._CACHE.clear()

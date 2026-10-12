@@ -35,6 +35,9 @@ RULES={
     'audio_brightness_element_reference':1.0,'audio_brightness_element_cap':6.0,
     'advection_typical_fraction':0.25,
     'prior_flash_hz_contrast':0.15,
+    # Source-calibrated display activity decides the band when its interval is at most this wide
+    # (activity percentile units); wider intervals leave the source-model estimate in charge.
+    'display_activity_max_width':0.5,
 }
 STATIC='/analysis/visual_description/static_behaviour'
 
@@ -286,8 +289,27 @@ def _drivers(summary,rules,fps,scale,radius=.5):
     return drivers
 
 
-def approximate_mood(summary,rules=None):
-    """Return an approximate activity estimate with labelled drivers and confidence."""
+def _display_activity(display,rules):
+    """Activity bands from a display estimate (calibrated_display.predict output), or None."""
+    if not display:return None
+    from display_activity import classify
+    estimate={name:{'value':entry.get('value'),'interval':entry.get('interval')} for name,entry in display.items() if isinstance(entry,dict)}
+    result=classify(estimate)
+    if result is None:return None
+    evidence={entry.get('evidence') for entry in display.values() if isinstance(entry,dict)}
+    width=result['activity_interval'][1]-result['activity_interval'][0]
+    result.update(evidence=sorted(e for e in evidence if e),interval_width=round(width,4),
+                  decides=width<=rules['display_activity_max_width'])
+    return result
+
+
+def approximate_mood(summary,rules=None,display=None):
+    """Return an approximate activity estimate with labelled drivers and confidence.
+
+    display (optional) is a source-calibrated display estimate ({metric: {'value','interval',
+    'evidence'}}, calibrated_display.predict). Its activity percentile (display_activity) decides the
+    band when its interval is narrow enough; otherwise the source-model estimate below is used.
+    """
     if not isinstance(summary,dict) or summary.get('policy')!='preset-understanding-v1':
         raise ValueError('preset-understanding-v1 summary required')
     rules=validate_rules(rules)
@@ -331,8 +353,14 @@ def approximate_mood(summary,rules=None):
     possible=[name for name,a,b in BANDS if interval[0]<=b and interval[1]>=a]
     # Low confidence abstains: no band is assigned, only possible bands.
     bands=[] if confidence=='low' else [name for name,a,b in BANDS if a<=estimate<=b]
+    band_source='source-model' if bands else None
+    calibrated=_display_activity(display,rules)
+    if calibrated and calibrated['decides']:
+        bands=calibrated['bands'];possible=calibrated['possible_bands'];band_source='source-calibrated-display'
+        confidence='high' if calibrated['interval_width']<=rules['display_activity_max_width']/2 else 'medium'
     return {'policy':POLICY,'activity_estimate':round(estimate,1),'activity_interval':[round(v,1) for v in interval],
         'bands':bands,'possible_bands':possible,'confidence':confidence,'prior_driver_share':round(prior_share,3),
+        'band_source':band_source,'display_activity':calibrated,
         'abstained':not bands,'unresolved_driver_count':sum(1 for d in drivers if d['kind']=='unresolved'),
         'components':{k:round(v,3) for k,v in components.items()},'drivers':drivers,'rules':rules,
         'strict_eligible_bands':next((v.get('eligible_bands') for _,p,v in _facts(summary) if p==STATIC+'/classification'),None),

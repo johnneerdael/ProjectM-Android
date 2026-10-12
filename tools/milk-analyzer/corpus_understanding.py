@@ -53,7 +53,8 @@ def work(path,options,expected_models):
             row.update(status=record.get('status','error'),error=record.get('error'))
             return row
         summary=summarize_preset(record)
-        mood=approximate_mood(summary,options.get('rules'))
+        display=_display_estimate(summary,options.get('display_model'))
+        mood=approximate_mood(summary,options.get('rules'),display)
         # Compressed SDK summary allows offline rescoring without re-export.
         packed=base64.b64encode(gzip.compress(json.dumps(summary,separators=(',',':')).encode(),compresslevel=6)).decode()
         row['preference']=_preference_row(summary,options.get('rules'))
@@ -69,6 +70,13 @@ def work(path,options,expected_models):
         except _Timeout:pass
         row['elapsed_seconds']=round(time.perf_counter()-started,3)
     return row
+
+
+def _display_estimate(summary,model_path=None):
+    """Source-calibrated display estimate when a calibrated display model is available."""
+    from calibrated_display import load,predict
+    model=load(model_path)
+    return predict(summary,model) if model is not None else None
 
 
 def _star_work(arguments):
@@ -89,11 +97,12 @@ def _preference_row(summary,rules=None):
 
 
 def _mood_row(mood):
-    return {k:mood[k] for k in ('activity_estimate','activity_interval','bands','possible_bands','confidence',
-                                'prior_driver_share','components','strict_eligible_bands','abstained','unresolved_driver_count')}
+    return {k:mood.get(k) for k in ('activity_estimate','activity_interval','bands','possible_bands','confidence',
+                                    'prior_driver_share','components','strict_eligible_bands','abstained','unresolved_driver_count',
+                                    'band_source','display_activity')}
 
 
-def rescore(output,rules=None):
+def rescore(output,rules=None,display_model=None):
     """Recompute approximate moods from saved summaries; rows keep their identity."""
     _initialize()
     from approximate_mood import approximate_mood
@@ -101,7 +110,7 @@ def rescore(output,rules=None):
         row=json.loads(path.read_text())
         if row.get('status')!='computed' or 'summary_gzip_base64' not in row:continue
         summary=json.loads(gzip.decompress(base64.b64decode(row['summary_gzip_base64'])))
-        mood=approximate_mood(summary,rules)
+        mood=approximate_mood(summary,rules,_display_estimate(summary,display_model))
         row['approximate_mood']=_mood_row(mood)
         row['preference']=_preference_row(summary,rules)
         row['drivers']=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']]
@@ -155,18 +164,21 @@ def main(argv=None):
     parser.add_argument('--limit',type=int)
     parser.add_argument('--report-only',action='store_true')
     parser.add_argument('--rescore',action='store_true',help='recompute approximate moods from saved summaries')
+    parser.add_argument('--display-model',type=Path,help='source-calibrated display model (calibrated_display JSON tree model)')
     args=parser.parse_args(argv)
+    display_model=str(args.display_model.resolve()) if args.display_model else None
     if args.report_only:
         print(json.dumps(report(args.output),indent=2));return
     if args.rescore:
         rules=json.loads(args.rules.read_text()) if args.rules else None
-        print(json.dumps(rescore(args.output,rules),indent=2));return
+        print(json.dumps(rescore(args.output,rules,display_model),indent=2));return
     from effect_family_export import loaded_model_hashes
     models=loaded_model_hashes()
     options={'reader':str(args.reader.resolve()),'timeout':args.timeout,
              'input_scenario':json.loads(args.input_scenario.read_text()) if args.input_scenario else None,
              'behaviour_context':json.loads(args.behaviour_context.read_text()) if args.behaviour_context else None,
-             'rules':json.loads(args.rules.read_text()) if args.rules else None}
+             'rules':json.loads(args.rules.read_text()) if args.rules else None,
+             **({'display_model':display_model} if display_model else {})}
     (args.output/'results').mkdir(parents=True,exist_ok=True)
     manifest_path=args.output/'run-manifest.json'
     manifest={'policy':POLICY,'model_modules':models,'options':{k:v for k,v in options.items() if k!='timeout'},
