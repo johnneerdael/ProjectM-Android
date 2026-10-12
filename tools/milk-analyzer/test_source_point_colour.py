@@ -104,3 +104,18 @@ def test_point_colours_resolve_wave_state_through_the_recurrence():
     record = point_colour_distribution(programs, 16, {'bass': [0., 2.]}, recurrence=recurrence)
     assert record['status'] == 'closed_form_point_colours' and record['frame_recurrence'] is recurrence
     assert record['mean_alpha'] > 0
+
+
+def test_per_point_state_alternates_point_by_point():
+    from source_point_colour import point_state_series
+    prefix = 'state:wave_0_per_point:'
+    # flip = (flip+1) * below(flip+1, 2): alternates 1, 0, 1, ... starting from 0
+    plus = [name(prefix + 'flip'), constant(1.), {'op': 'add', 'args': [0, 1], 'detail': {}}, constant(2.),
+            {'op': 'less', 'args': [2, 3], 'detail': {}}, {'op': 'multiply', 'args': [2, 4], 'detail': {}}]
+    recurrence = {'state_input_prefix': prefix, 'state': {'flip': {'initial': graph([constant(0.)]), 'update': graph(plus)}}}
+    series, carry = point_state_series(recurrence, {'flip': 0.}, lambda j: {} if j < 4 else None)
+    assert [row['flip'] for row in series] == [0., 1., 0., 1.] and carry == {'flip': 0.}
+    alpha = graph([name(prefix + 'flip')])
+    programs = {'r': graph([constant(1.)]), 'g': graph([constant(1.)]), 'b': graph([constant(1.)]), 'a': alpha}
+    record = point_colour_distribution(programs, 4, {}, point_recurrence=recurrence)
+    assert record['status'] == 'closed_form_point_colours' and abs(record['mean_alpha'] - .5) < 1e-9

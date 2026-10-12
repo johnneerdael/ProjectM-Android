@@ -1,0 +1,6 @@
+LLM look description from the SDK recipe (before capture, r14 v1):
+A fast-fading feedback picture (history half-life ~4 frames) drawn by several custom waves (point
+clouds and lines whose colours are dynamic and broad), an orange stereo X-Y built-in trace and a small
+pentagon shape; colour pulses with the bass. Calibrated display estimate: Chill (activity 0.21;
+luminance ~0.15, saturation ~0.46, slightly warm). Expected: a darkish picture of short-lived,
+colourful dots and lines with an orange trace; calm overall.

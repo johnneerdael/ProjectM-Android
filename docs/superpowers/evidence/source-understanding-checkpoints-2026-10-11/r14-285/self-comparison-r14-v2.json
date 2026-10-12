@@ -1,0 +1,60 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "285.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r14-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "4670d449f8f0e3a8c7c9c9fd16b5389202661a5b668629e3bb96514024f4195d",
+  "description-v2-before-capture.json": "77af7daca96eb8994a76c135d7ea014f5fa89fbb27f9ac2ee071db85d2c017f6",
+  "recipe-v2-before-capture.json": "5d38de3edafa552df6d22de7722550e1757423565a6f2d18b162cfdc480c95d4",
+  "prediction-v2.png": "590ab26a4c0c8a0ac5e1ee0aab99e5fbf086e477061fd38e41f5828db2d72800",
+  "llm-look-description-v2.txt": "d398807cf3a8d5bab8784b38b8ab67846fe3027a107f743f640e115c099ff721"
+ },
+ "capture_result_sha256": "37cbf71068b7a7784ca24711d9037bb2f5af969ab6e4ee4ce1e88beedd3fe78c",
+ "review_measurements": {
+  "prediction_luma": 0.034,
+  "screenshot_luma": 0.042,
+  "p10_p50_p90_prediction": [
+   0.0,
+   0.0,
+   0.094
+  ],
+  "p10_p50_p90_screenshot": [
+   0.0,
+   0.0,
+   0.114
+  ],
+  "mean_rgb_prediction": [
+   0.054,
+   0.028,
+   0.011
+  ],
+  "mean_rgb_screenshot": [
+   0.066,
+   0.035,
+   0.014
+  ],
+  "saturation": [
+   0.458,
+   0.415
+  ],
+  "blurred_luma_correlation": 0.9
+ },
+ "agreements": [
+  "Same warm orange spiral of swept tiles in the same place; dark background; colour and saturation match"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "~20% dimmer",
+   "cause": "not localised",
+   "next": "none required for understanding"
+  }
+ ],
+ "general_fixes": [
+  "per-point persistent variables (state:<wave>_per_point:<name>) exported as point recurrences and evaluated point by point, carrying from the last point of a frame into the next"
+ ],
+ "status": "understood"
+}

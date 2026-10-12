@@ -1,0 +1,36 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "285.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r14-v1",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "1b8cf9aa2474a9d90d5bfedc72f04309085047d087900d09de32341b54068b91",
+  "description-v1-before-capture.json": "e37f3298b0d3503a576be6dc1e84cae4a13a9a2e7e58a9d8e0c8d744cb1e55ba",
+  "recipe-v1-before-capture.json": "83d21b74a90647e44565003dee04d7d1de77280f1c4c4dac26dc1275829282a0",
+  "prediction-v1.png": "98e9ba6c58806b0f8a88b98cfe022888d068bf5f5be9816580021acfc87d9726",
+  "llm-look-description-v1.txt": "f823fdd0aa723ab6ced6b7de90d16e9a584d7abba5c0c628df6e2a0c6836334a"
+ },
+ "capture_result_sha256": "6de10915c15824064d712dcfd01b9dc7fe004283c20094c5143bf7dd608b8db5",
+ "review_measurements": {
+  "prediction_luma": 0.001,
+  "screenshot_luma": 0.042,
+  "screenshot_mean_rgb": [
+   0.066,
+   0.035,
+   0.014
+  ]
+ },
+ "agreements": [
+  "Calibrated estimate Chill, dark and warm, matched the capture"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Warm orange swept spirals of tiles; illustration nearly black",
+   "cause": "all four custom waves were skipped: their point graphs read a per-point persistent variable (flip toggles point by point), which was not exported",
+   "next": "per-point state recurrences"
+  }
+ ]
+}

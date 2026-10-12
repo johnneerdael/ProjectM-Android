@@ -1471,6 +1471,21 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                         entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**inputs},(entry['frame']+1)/fps,entry['frame'])
                         entry['frame']+=1
                     inputs.update(state_inputs(recurrence,entry['state']))
+                points=record.get('point_recurrence')
+                if points:
+                    # Per-point state: evaluated point by point; the last point's value carries into the next frame.
+                    from source_point_colour import point_state_series,initial_state
+                    count=int(record['sample_count']);entry=wave_states.setdefault(index,{})
+                    if 'point' not in entry:entry['point']=initial_state({'state':points['state']},{**record.get('held_inputs',{}),**inputs})
+                    base={**record.get('held_inputs',{}),**{k:v for k,v in inputs.items() if np.ndim(v)==0},'time':frame_time}
+                    def point_inputs(j):
+                        if j>=count:return None
+                        values={**base,'sample':j/(count-1) if count>1 else 0.}
+                        for name in ('value1','value2'):
+                            if name in inputs and np.ndim(inputs[name]):values[name]=float(inputs[name][j])
+                        return values
+                    series,entry['point']=point_state_series(points,entry['point'],point_inputs)
+                    for name in points['state']:inputs[points['state_input_prefix']+name]=np.array([row[name] for row in series])
                 image=_draw_points(image,record,frame_time,to_pixels,canvas,inputs)
                 if recurrence:
                     # End of frame: this frame's per-frame update gives the next frame's start state.

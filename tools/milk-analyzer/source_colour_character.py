@@ -257,6 +257,38 @@ def _wave_recurrence(frame_prefix,init,frame,programs):
                           'initial graphs read init-time inputs; stepping evaluates authored equations over declared inputs']}
 
 
+def _point_recurrence(point_prefix,init,controls,programs):
+    """Per-point persistent variables read by the point graphs ('state:<wave>_per_point:<name>').
+
+    MilkDrop keeps per-point variables from point to point (and frame to frame): a point graph
+    reads the previous point's end value. Each variable gets its end-of-point update graph (in
+    terms of its start value and the point inputs) and its initial value (wave init code, else 0).
+    """
+    from effect_families import Field
+    from source_appearance import _expression
+    from time_expression import input_names
+    marker='state:'+point_prefix+':'
+    def states_of(expression):
+        names=input_names(expression) if expression else None
+        return {n[len(marker):] for n in (names or ()) if isinstance(n,str) and n.startswith(marker)}
+    pending=set()
+    for expression in programs.values():pending|=states_of(expression)
+    if not pending:return None
+    state={};done=set()
+    while pending:
+        name=pending.pop()
+        if name in done:continue
+        done.add(name)
+        update=_expression(controls.get(name,Field('unknown')))
+        initial=_expression(init.environment.get(name,Field('constant',detail={'value':0.})))
+        if update is None or initial is None:return None
+        state[name]={'initial':initial,'update':update}
+        pending|=states_of(update)-done
+    return {'policy':'source-custom-wave-point-recurrence-v1','state_input_prefix':marker,'state':state,
+            'conditions':['points are evaluated in order; point j reads the end value of point j-1',
+                          'the value carries from the last point of one frame to the first point of the next']}
+
+
 def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     """Closed-form per-point colour distribution over the authored sample grid."""
     from effect_families import Field
@@ -269,17 +301,19 @@ def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     programs={name:_expression(controls.get(name,Field('unknown'))) for name in 'rgba'}
     held={name:span for name,span in domains.items() if name!='sample'}
     positions={name:_expression(controls.get(name,Field('unknown'))) for name in 'xy'}
-    recurrence=None
+    recurrence=None;point_recurrence=None
     if init is not None:
         identity='wave_'+prefix.removeprefix('wavecode_').rstrip('_')
         recurrence=_wave_recurrence(identity+'_per_frame',init,frame,{**programs,**positions})
+        point_recurrence=_point_recurrence(identity+'_per_point',init,controls,{**programs,**positions})
     waveform=None
     if not _scalar(analysis.values,prefix+'bSpectrum',0,'float'):
         params={'scaling':_scalar(analysis.values,prefix+'scaling',1,'float'),'smoothing':_scalar(analysis.values,prefix+'smoothing',.5,'float'),
                 'sep':_scalar(analysis.values,prefix+'sep',0,'float'),'wave_scale':_scalar(analysis.values,'fWaveScale',1,'float')}
         if all(type(v) in (int,float) and math.isfinite(v) for v in params.values()):
             waveform={'params':{**{k:float(v) for k,v in params.items()},'sep':int(params['sep'])}}
-    record=point_colour_distribution(programs,count,held,positions=positions,recurrence=recurrence,waveform=waveform)
+    record=point_colour_distribution(programs,count,held,positions=positions,recurrence=recurrence,waveform=waveform,
+                                     point_recurrence=point_recurrence)
     flags={}
     for name,key in (('dots','bUseDots'),('thick','bDrawThick'),('additive','bAdditive'),('spectrum','bSpectrum')):
         value=_scalar(analysis.values,prefix+key,0,'float')

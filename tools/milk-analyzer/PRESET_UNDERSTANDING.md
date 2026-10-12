@@ -846,4 +846,12 @@ repeated on correctly oriented frames. Probes and results:
   about 69 brightness jumps per 10 s) matched the capture before any fix. v2 also
   reproduces the strobe: white flashes at the same frames as the engine and
   pastel blob edges (frame luma 0.904 vs 0.885).
+- **Per-point state.** Custom-wave per-point variables persist from point to
+  point and from frame to frame (for example a toggle that alternates points
+  between two rails). Point records carry `point_recurrence`: each variable's
+  end-of-point update and its initial value. Point j reads point j−1's end value,
+  and the illustrator carries the last point's value into the next frame.
+- **r14 (`285.milk`) v1 → v2.** v1 was black because all four arm-like waves were
+  blocked by a per-point toggle. v2 matches the emulator: a warm orange spiral of
+  swept tiles, blurred correlation 0.90.
 

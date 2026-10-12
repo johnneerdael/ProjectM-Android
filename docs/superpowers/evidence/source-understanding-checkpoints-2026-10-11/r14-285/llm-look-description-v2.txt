@@ -1,0 +1,8 @@
+LLM look description from the SDK recipe (before capture, r14 v2):
+Four custom waves each trace an articulated "arm" (a chain of rotations: wrist, forearm, upper-arm
+twist and swing) whose joint angles follow q1 = 0.4*time; a per-point toggle alternates points between
+two offset rails, so each wave draws a ladder of short bars. Two are thick additive dot waves with
+broad, bass-modulated colours, two are line waves. The custom warp shader keeps 83% of the previous
+frame with small sinusoidal per-pixel shifts, so the moving arms leave fading, swept trails of
+tiles. Calibrated display estimate: Chill (activity 0.21; luminance ~0.15, warm). Expected: a dark
+picture with warm orange swept spirals of small tiles around the left-centre; calm.
