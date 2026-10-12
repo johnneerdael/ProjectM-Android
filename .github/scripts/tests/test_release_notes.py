@@ -209,7 +209,7 @@ Co-Authored-By: Agent <agent@example.org>
             "releases/download/v2.1.5/projectM-TV-2.1.5.apk",
             "releases/download/v2.1.5/projectM-TV-core-2.1.5.aar",
             "releases/download/v2.1.5/checksums.txt",
-            "https://johnneerdael.github.io/ProjectM-TV/",
+            "https://johnneerdael.github.io/ProjectM-Android/",
             "compare/v2.1.4...v2.1.5",
         ):
             self.assertIn(url, result)

@@ -44,7 +44,8 @@ Capture stops on pause, leaving no background microphone or playback recording. 
 | Cut on loud beats | Off, On | Off | Lets projectM cut to the next preset on a loud beat, as MilkDrop does |
 | Skip slow presets | Off, On | On | In Auto resolution, permanently skips presets that stay below half the target frame rate even at the lowest resolution, or that a lower resolution does not help |
 | Skip blank presets | Off, On | On | Moves on from presets that stay black while music plays; skips one permanently the second time |
-| Auto-update | Off, On; *Via F-Droid* | Off | Checks GitHub for new stable releases. See [Updates](getting-started.md#updates) |
+| Auto-update | Off, On; *Via F-Droid* | On in GitHub editions | Checks GitHub for stable app releases; preserves a previously saved Off. F-Droid editions update through F-Droid. See [Updates](getting-started.md#updates) |
+| Cream of the Crop (F-Droid only) | Download, Cancel, Remove collection | 20 starters | Optional full preset collection, stored offline after installation. See [Collection setup](getting-started.md#optional-collection-in-f-droid-editions) |
 | Custom preset pack | *Upload ZIP ›* | No pack | Upload your own presets from a phone or computer. See [Custom preset packs](custom-packs.md) |
 | Skipped presets | *None*, or *N · Reset* | | Shows how many presets this device skips; select it to clear the list |
 | Background compile | Off, On | On | Compiles the shaders of the next, random and previous presets on a second thread with its own OpenGL context, so switches do not pause. *Off* compiles them at the switch instead: the picture can hold for a second or two at each change. Troubleshooting only, see [The app closes at preset changes](troubleshooting.md#the-app-closes-at-preset-changes) |

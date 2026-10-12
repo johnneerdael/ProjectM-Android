@@ -22,6 +22,7 @@ final class OfficialCollection {
     private boolean resumed;
     private long resumedAt;
     private AlertDialog dialog;
+    private boolean showingProgress;
 
     OfficialCollection(Activity activity,SharedPreferences prefs,Handler handler,VisualizerView view) {
         this.activity=activity;this.prefs=prefs;this.handler=handler;download=OfficialPresetDownload.get(activity);
@@ -65,19 +66,20 @@ final class OfficialCollection {
         if(status.busy())return status.phase.equals("downloading")?"Downloading: "+size(status.bytes)+" of "+size(status.total)+"\n\nCancel to keep the current presets.":"Collection: "+status.phase+"…";
         String text=status.identity.isEmpty()?"20 starter presets are ready to use offline. Download the full "+d.presetCount+"-preset collection for more variety, including all preset moods.":"The full collection is installed and available offline.";
         if(!status.identity.isEmpty()&&!status.identity.equals(d.identity))text+="\n\nA newer collection is available.";
-        text+="\n\nDownload: "+size(d.bytes)+". Installed: "+size(d.expandedBytes)+".\n\nHosted on GitHub, outside F-Droid's build checks.";
+        text+="\n\nDownload: "+size(d.bytes)+". Unpacked: "+size(d.expandedBytes)+".\nAllow "+size(d.bytes+d.expandedBytes+16L*1024*1024)+" of free storage to install.\n\nHosted on GitHub, outside F-Droid's build checks.";
         if(status.error!=null)text+="\n\n"+status.error;
         return text;
     }
     void open() {
         if(!resumed||dialog!=null||activity.isFinishing())return;
         OfficialPresetDownload.Status status=download.status();OfficialPresetPack.Descriptor d=download.descriptor();
+        showingProgress=status.busy();
         AlertDialog.Builder builder=new AlertDialog.Builder(activity,android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle("Cream of the Crop").setMessage(message(status));
         if(status.busy())builder.setNegativeButton("Cancel",(v,which)->download.cancel());
         else {
-            builder.setNegativeButton(status.identity.isEmpty()?"Continue with starter presets":"Close",(v,which)->{});
-            if(d!=null&&!d.identity.equals(status.identity))builder.setPositiveButton("Download Cream of the Crop — recommended",(v,which)->download.start(d,nativeIndex));
+            builder.setNegativeButton(status.identity.isEmpty()?"Use 20 starters":"Close",(v,which)->{});
+            if(d!=null&&!d.identity.equals(status.identity))builder.setPositiveButton("Download (recommended)",(v,which)->download.start(d,nativeIndex));
             if(!status.identity.isEmpty())builder.setNeutralButton("Remove collection",(v,which)->download.remove(nativeIndex));
         }
         dialog=builder.create();
@@ -89,8 +91,8 @@ final class OfficialCollection {
     }
     private void changed(OfficialPresetDownload.Status status) {
         if(!resumed)return;
-        row.setActionValue(status.busy()?status.phase+" ›":status.identity.isEmpty()?"20 starter presets ›":"Full collection ›");
-        if(dialog!=null){dialog.setMessage(message(status));if(!status.busy())close();}
+        row.setActionValue(status.busy()?status.phase+" ›":status.phase.equals("error")?"Download failed ›":status.phase.equals("canceled")?"Canceled ›":status.identity.isEmpty()?"20 starter presets ›":"Full collection ›");
+        if(dialog!=null){dialog.setMessage(message(status));if(showingProgress&&!status.busy())close();}
         maybeOffer();
     }
     private void close(){AlertDialog old=dialog;dialog=null;if(old!=null)old.dismiss();}

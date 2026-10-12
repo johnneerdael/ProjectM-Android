@@ -123,7 +123,15 @@ def synchronize(release, fork, api, publisher, latest):
                 raise ValueError('Upstream master changed during synchronization; retry')
             message = (f"Sync ProjectM F-Droid {release['tag']} ({release['source_sha']})\n\n"
                        f'Managed-Metadata-SHA256: {fingerprint(desired)}\nTarget-Master: {master}\n')
-            publisher(fork, appid, head, master, 'metadata/' + appid + '.yml', text, message)
+            def before_write():
+                # Repository preparation may take minutes. Revalidate immediately before push.
+                if latest() != release:
+                    raise ValueError('A newer latest release appeared during repository preparation')
+                if api(f'projects/{uid}/repository/branches/master')['commit']['id'] != master:
+                    raise ValueError('Upstream master changed during repository preparation; retry')
+                if read_file(api, uid, appid, master) is not None:
+                    raise ValueError('Listing was accepted during repository preparation; preserve history')
+            publisher(fork, appid, head, master, 'metadata/' + appid + '.yml', text, message, before_write)
         if mr is None:
             if latest() != release:
                 raise ValueError('A newer latest release appeared before merge request creation')
@@ -185,7 +193,7 @@ class GitPublisher:
     def __exit__(self, *args):
         self.workspace.cleanup()
 
-    def __call__(self, fork, branch, expected_sha, master_sha, path, content, message):
+    def __call__(self, fork, branch, expected_sha, master_sha, path, content, message, before_write=lambda: None):
         root = Path(self.workspace.name)
         askpass = root / 'askpass.sh'
         askpass.write_text('#!/bin/sh\ncase "$1" in\n*Username*) printf "%s\\n" oauth2;;\n*) printf "%s\\n" "$FDROID_GITLAB_TOKEN";;\nesac\n')
@@ -216,6 +224,7 @@ class GitPublisher:
         tree = git('--git-dir=repo.git', 'write-tree')
         commit = git('--git-dir=repo.git', 'commit-tree', tree, '-p', master_sha, stdin=message)
         lease = f'--force-with-lease=refs/heads/{branch}:{expected_sha or ""}'
+        before_write()
         git('--git-dir=repo.git', 'push', lease, 'https://gitlab.com/' + fork + '.git',
             commit + ':refs/heads/' + branch)
 

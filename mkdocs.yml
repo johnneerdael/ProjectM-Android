@@ -1,8 +1,8 @@
 site_name: ProjectM TV and Android
 site_description: MilkDrop visuals for Android TV, phones and tablets, the ProjectM TV Engine, and a source-level guide to writing presets.
-site_url: https://johnneerdael.github.io/ProjectM-TV/
-repo_url: https://github.com/johnneerdael/ProjectM-TV
-repo_name: johnneerdael/ProjectM-TV
+site_url: https://johnneerdael.github.io/ProjectM-Android/
+repo_url: https://github.com/johnneerdael/ProjectM-Android
+repo_name: johnneerdael/ProjectM-Android
 edit_uri: blob/main/docs/user-guide/
 docs_dir: docs/user-guide
 site_dir: build/user-guide-site

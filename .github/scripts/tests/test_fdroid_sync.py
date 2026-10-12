@@ -71,7 +71,8 @@ class FakeGitLab:
             return mr
         raise AssertionError(endpoint)
 
-    def publish(self, fork, branch, expected_sha, master_sha, path, content, message):
+    def publish(self, fork, branch, expected_sha, master_sha, path, content, message, before_write=lambda: None):
+        before_write()
         self.writes.append(('push', branch, expected_sha, master_sha))
         if self.branches.get(branch) != expected_sha:
             raise ValueError('branch head conflict')
@@ -155,6 +156,16 @@ class SyncTests(unittest.TestCase):
         self.api.writes.clear()
         with self.assertRaisesRegex(ValueError, 'merge request'):
             self.sync()
+        self.assertFalse(self.api.writes)
+
+    def test_new_release_during_repository_preparation_cannot_push(self):
+        current=[RELEASE]
+        newer=dict(RELEASE,version='2.4.11',tag='v2.4.11',version_code=121,source_sha='b'*40)
+        def prepare(*args):
+            current[0]=newer
+            self.api.publish(*args)
+        with self.assertRaisesRegex(ValueError,'during repository preparation'):
+            self.module.synchronize(RELEASE,'johnneerdael/fdroiddata',self.api,prepare,lambda:current[0])
         self.assertFalse(self.api.writes)
 
     def test_closed_submission_is_not_reopened_or_duplicated(self):

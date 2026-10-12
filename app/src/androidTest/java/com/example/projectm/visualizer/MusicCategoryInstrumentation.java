@@ -47,6 +47,7 @@ public final class MusicCategoryInstrumentation extends Instrumentation {
     @Override public void onStart() {
         if (setupCase != null) {
             if ("tv_menu".equals(setupCase)) TvMenuSetupTest.run(this);
+            else if (setupCase.startsWith("fdroid_")) DistributionSetupTest.run(this, setupCase);
             else if ("phone_audio".equals(setupCase)) PhoneAudioSetupTest.run(this);
             else if ("touchscreen".equals(setupCase)) TouchscreenSetupTest.run(this);
             else if ("custom_pack".equals(setupCase)) CustomPackSetupTest.run(this, false);

@@ -86,4 +86,65 @@ public class OfficialPresetDownloadTest {
             assertTrue("cancel must release a blocked network socket",connection.disconnected);
         }finally{release.countDown();Thread.sleep(50);CustomPresetPack.delete(root);}
     }
+
+    @Test public void finalFailureIsAnnouncedOnlyAfterCleanupAllowsRetry()throws Exception {
+        File parent=Files.createTempDirectory("official-retry").toFile(),root=new File(parent,"store");
+        java.util.concurrent.CountDownLatch cleanup=new java.util.concurrent.CountDownLatch(1),release=new java.util.concurrent.CountDownLatch(1);
+        try {
+            OfficialPresetPackTest fixture=new OfficialPresetPackTest();
+            File archive=fixture.archive(parent,false,false);
+            OfficialPresetPack.Descriptor d=(OfficialPresetPack.Descriptor)fixture.descriptor(OfficialPresetPack.class,archive,fixture.expanded(archive),null);
+            byte[] bytes=Files.readAllBytes(archive.toPath());
+            OfficialPresetDownload download=new OfficialPresetDownload(root,url->new Connection(url,200,null,bytes));
+            download.start(d,new OfficialPresetDownload.NativeIndex(){
+                public long prepare(String p){return 1;}public int status(long r){return 1;}
+                public boolean commit(long r){return false;}public void discard(long r){}
+                public boolean inUse(String p){cleanup.countDown();try{release.await(5,java.util.concurrent.TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();}return false;}
+            });
+            assertTrue(cleanup.await(5,java.util.concurrent.TimeUnit.SECONDS));
+            assertTrue("retry must wait until failed generation cleanup completes",download.status().busy());
+            release.countDown();
+            long deadline=System.currentTimeMillis()+5000;
+            while(download.status().busy()&&System.currentTimeMillis()<deadline)Thread.sleep(10);
+            assertEquals("error",download.status().phase);
+        }finally{release.countDown();Thread.sleep(50);CustomPresetPack.delete(parent);}
+    }
+
+    @Test public void cancelBeforePublicationRollsBackAndFinalPublicationFinishes()throws Exception {
+        File parent=Files.createTempDirectory("official-commit-cancel").toFile();
+        try {
+            OfficialPresetPackTest fixture=new OfficialPresetPackTest();File archive=fixture.archive(parent,false,false);
+            OfficialPresetPack.Descriptor d=(OfficialPresetPack.Descriptor)fixture.descriptor(OfficialPresetPack.class,archive,fixture.expanded(archive),null);
+            byte[] bytes=Files.readAllBytes(archive.toPath());
+            for(boolean duringCommit:new boolean[]{false,true}){
+                File root=new File(parent,"store-"+duringCommit);
+                CustomPresetPack.Pack previous=OfficialPresetPack.prepare(root,archive,d,()->false,n->{});CustomPresetPack.activate(root,previous);
+                OfficialPresetDownload download=new OfficialPresetDownload(root,url->new Connection(url,200,null,bytes));
+                AtomicInteger commits=new AtomicInteger();
+                download.start(d,new OfficialPresetDownload.NativeIndex(){
+                    public long prepare(String p){return 1;}
+                    public int status(long r){if(!duringCommit)download.cancel();return 1;}
+                    public boolean commit(long r){commits.incrementAndGet();download.cancel();return true;}
+                    public void discard(long r){}public boolean inUse(String p){return false;}
+                });
+                long until=System.currentTimeMillis()+5000;while(download.status().busy()&&System.currentTimeMillis()<until)Thread.sleep(10);
+                assertEquals(duringCommit?"installed":"canceled",download.status().phase);
+                assertEquals(duringCommit?1:0,commits.get());
+                File current=OfficialPresetPack.current(root);assertNotNull(current);
+                if(duringCommit)assertNotEquals(previous.directory,current);else assertEquals(previous.directory,current);
+                assertFalse(new File(root,"download.zip").exists());
+            }
+        }finally{CustomPresetPack.delete(parent);}
+    }
+
+    @Test public void truncatedTransferNeverLeavesAnArchive()throws Exception {
+        File file=Files.createTempFile("official-truncated",".zip").toFile();byte[] bytes={1,2,3};
+        try{
+            Class<?> c=component(),f=Class.forName(c.getName()+"$ConnectionFactory");
+            Object factory=Proxy.newProxyInstance(getClass().getClassLoader(),new Class<?>[]{f},(proxy,method,args)->new Connection((URL)args[0],200,null,bytes));
+            try{transfer(c,descriptor(bytes,4),file,factory,false);fail("truncated archive accepted");}
+            catch(InvocationTargetException expected){assertTrue(expected.getCause().getMessage().contains("ended early"));}
+            assertFalse(file.exists());
+        }finally{file.delete();}
+    }
 }

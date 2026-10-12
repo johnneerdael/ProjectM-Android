@@ -23,7 +23,7 @@ public class OfficialPresetPackTest {
         for (byte b : MessageDigest.getInstance("SHA-256").digest(bytes)) out.append(String.format(Locale.ROOT, "%02x", b & 255));
         return out.toString();
     }
-    private Object descriptor(Class<?> c, File archive, long expanded, String override) throws Exception {
+    Object descriptor(Class<?> c, File archive, long expanded, String override) throws Exception {
         String json = "{\"schema_version\":1,\"collection_id\":\"" + sha("collection".getBytes()) + "\","
                 + "\"archive_url\":\"https://github.com/example/collection.zip\",\"archive_sha256\":\""
                 + (override == null ? sha(Files.readAllBytes(archive.toPath())) : override) + "\",\"compressed_bytes\":" + archive.length()
@@ -31,7 +31,7 @@ public class OfficialPresetPackTest {
         Class<?> d = Class.forName(c.getName() + "$Descriptor");
         return d.getDeclaredMethod("read", InputStream.class).invoke(null, new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     }
-    private File archive(File parent, boolean badMetadata, boolean extra) throws Exception {
+    File archive(File parent, boolean badMetadata, boolean extra) throws Exception {
         Map<String,byte[]> files = new LinkedHashMap<>();
         files.put("presets/one.milk", "[preset00]\nper_frame_1=q1=bass;\n".getBytes());
         files.put("presets/two.milk", "[preset00]\nper_frame_1=q1=mid;\n".getBytes());
@@ -55,7 +55,7 @@ public class OfficialPresetPackTest {
         }
         return archive;
     }
-    private long expanded(File archive)throws Exception {
+    long expanded(File archive)throws Exception {
         try(ZipFile zip=new ZipFile(archive)){long sum=0;Enumeration<? extends ZipEntry> entries=zip.entries();while(entries.hasMoreElements())sum+=entries.nextElement().getSize();return sum;}
     }
     private CustomPresetPack.Pack prepare(Class<?> c,File root,File zip,Object descriptor)throws Exception {
@@ -122,6 +122,37 @@ public class OfficialPresetPackTest {
             Files.write(new File(pack.directory,"official-presets.idx").toPath(),"corrupt".getBytes());
             assertNull(OfficialPresetPack.current(root));
             assertFalse(new File(parent,"custom/current").exists());
+        }finally{CustomPresetPack.delete(parent);}
+    }
+
+    @Test public void missingOrChangedInstalledPresetFallsBack()throws Exception {
+        Class<?> c=component();File parent=Files.createTempDirectory("official-files").toFile();
+        try {
+            for(boolean remove:new boolean[]{false,true}) {
+                File zip=archive(parent,false,false),root=new File(parent,"root-"+remove);
+                CustomPresetPack.Pack pack=prepare(c,root,zip,descriptor(c,zip,expanded(zip),null));CustomPresetPack.activate(root,pack);
+                File preset=new File(pack.directory,"0/0.milk");
+                if(remove)assertTrue(preset.delete());else Files.write(preset.toPath(),"corrupt".getBytes(StandardCharsets.UTF_8));
+                assertNull("restore must validate native preset files",OfficialPresetPack.current(root));
+            }
+        }finally{CustomPresetPack.delete(parent);}
+    }
+
+    @Test public void diskFailureAndExtractionCancellationKeepPreviousCollection()throws Exception {
+        File parent=Files.createTempDirectory("official-faults").toFile(),root=new File(parent,"store");
+        try {
+            File zip=archive(parent,false,false);
+            OfficialPresetPack.Descriptor d=(OfficialPresetPack.Descriptor)descriptor(OfficialPresetPack.class,zip,expanded(zip),null);
+            CustomPresetPack.Pack previous=OfficialPresetPack.prepare(root,zip,d,()->false,n->{});CustomPresetPack.activate(root,previous);
+            File lowSpace=new File(root.getPath()){@Override public long getUsableSpace(){return 0;}};
+            try{OfficialPresetPack.prepare(lowSpace,zip,d,()->false,n->{});fail("insufficient space accepted");}
+            catch(IOException expected){assertTrue(expected.getMessage().contains("storage"));}
+            assertEquals(previous.directory,OfficialPresetPack.current(root));
+            java.util.concurrent.atomic.AtomicBoolean canceled=new java.util.concurrent.atomic.AtomicBoolean();
+            try{OfficialPresetPack.prepare(root,zip,d,canceled::get,n->canceled.set(true));fail("canceled extraction accepted");}
+            catch(IOException expected){assertTrue(expected.getMessage().contains("canceled"));}
+            assertEquals(previous.directory,OfficialPresetPack.current(root));
+            assertEquals(1,Arrays.stream(root.listFiles()).filter(File::isDirectory).count());
         }finally{CustomPresetPack.delete(parent);}
     }
 }

@@ -31,6 +31,28 @@ def packaging_scripts(release):
 
 
 class ArtifactPackagingTests(unittest.TestCase):
+    def test_packaged_identity_checks_include_the_ci_version_suffix(self):
+        block=WORKFLOW.read_text().split('      - name: Verify all packaged distributions and the staged full core\n',1)[1].split('\n      - uses:',1)[0]
+        body=block.split('        run: |\n',1)[1]
+        script='\n'.join(line[10:] for line in body.splitlines() if line.startswith('          '))
+        for release,suffix in [('true',''),('false','-ci.42')]:
+            with self.subTest(release=release),tempfile.TemporaryDirectory() as directory:
+                root=Path(directory);tool=root/'python3'
+                tool.write_text(f'#!{sys.executable}\n'+'''import os,sys
+assert sys.argv[sys.argv.index('--version')+1] == os.environ['BUILT_VERSION_NAME'],sys.argv
+assert ('--require-qualified' in sys.argv) == (os.environ['RELEASE']=='true'),sys.argv
+with open(os.environ['CHECK_CALLS'],'a') as out:out.write('checked\\n')
+''');tool.chmod(0o755)
+                env=dict(os.environ,PATH=str(root)+os.pathsep+os.environ['PATH'],PROJECTM_RELEASE_VERSION='2.3.39',
+                         PROJECTM_RELEASE_VERSION_CODE='88',VERSION_SUFFIX=suffix,BUILT_VERSION_NAME='2.3.39'+suffix,
+                         RELEASE=release,TV_APK='tv.apk',ANDROID_APK='android.apk',FDROID_TV_APK='ftv.apk',
+                         FDROID_ANDROID_APK='fandroid.apk',CORE_AAR='core.aar',CHECK_CALLS=str(root/'calls'))
+                # Qualification is required only for the two F-Droid checks.
+                tool.write_text(tool.read_text().replace("assert ('--require-qualified' in sys.argv) == (os.environ['RELEASE']=='true'),sys.argv", "assert ('--require-qualified' in sys.argv) == (os.environ['RELEASE']=='true' and sys.argv[sys.argv.index('--distribution')+1]=='fdroid'),sys.argv"))
+                checked=subprocess.run(['bash','-eu','-c',script],cwd=root,env=env,capture_output=True,text=True)
+                self.assertEqual(checked.returncode,0,checked.stderr)
+                self.assertEqual((root/'calls').read_text().splitlines(),['checked']*4)
+
     def test_one_native_core_is_staged_under_canonical_name(self):
         for release in (True, False):
             with self.subTest(release=release), tempfile.TemporaryDirectory() as directory:

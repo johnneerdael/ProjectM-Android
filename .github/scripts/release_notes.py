@@ -205,7 +205,7 @@ Install on your TV with the Downloader app: code `{downloader_code(readme)}`. Th
 - Latest: [Android TV APK]({latest}/projectM-TV.apk) · [Touchscreen Android APK]({latest}/projectM-Android.apk) · [Native core AAR]({latest}/projectM-TV-core.aar)
 - Version {version}: [Android TV APK]({release}/projectM-TV-{version}.apk) · [Touchscreen Android APK]({release}/projectM-Android-{version}.apk) · [Native core AAR]({release}/projectM-TV-core-{version}.aar){fdroid_downloads}
 - [SHA-256 checksums]({release}/checksums.txt)
-- [User guide](https://johnneerdael.github.io/ProjectM-TV/)
+- [User guide](https://johnneerdael.github.io/ProjectM-Android/)
 - [Full changelog]({changelog})
 
 The canonical core AAR includes Native rendering for Milkbeat and existing integrations."""

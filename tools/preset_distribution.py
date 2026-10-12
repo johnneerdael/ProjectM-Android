@@ -181,7 +181,7 @@ def build_distribution(root, selection, output, release_tag, build_archive=False
     starters = starter_files(files, json.loads(selection.read_text()))
     descriptor = {k: v for k, v in lock.items() if k != 'builder'}
     archive_name = 'cream-of-the-crop-' + release_tag[1:] + '.zip'
-    descriptor['archive_url'] = 'https://github.com/johnneerdael/ProjectM-TV/releases/download/' + release_tag + '/' + archive_name
+    descriptor['archive_url'] = 'https://github.com/johnneerdael/ProjectM-Android/releases/download/' + release_tag + '/' + archive_name
     starters['official-pack.json'] = canonical(descriptor)
     assets = output / 'starter-assets'
     output.mkdir(parents=True, exist_ok=True)

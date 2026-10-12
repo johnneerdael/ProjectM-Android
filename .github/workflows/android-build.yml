@@ -275,19 +275,19 @@ jobs:
           RELEASE: ${{ steps.version.outputs.release }}
         run: |
           python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$TV_APK" \
-            --distribution github --target tv --version "$PROJECTM_RELEASE_VERSION" \
+            --distribution github --target tv --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
             --version-code "$PROJECTM_RELEASE_VERSION_CODE" --core-aar "dist-aar/$CORE_AAR"
           python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$ANDROID_APK" \
-            --distribution github --target android --version "$PROJECTM_RELEASE_VERSION" \
+            --distribution github --target android --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
             --version-code "$PROJECTM_RELEASE_VERSION_CODE"
-          QUALIFICATION=()
-          if [ "$RELEASE" = "true" ]; then QUALIFICATION=(--require-qualified); fi
+          QUALIFICATION=""
+          if [ "$RELEASE" = "true" ]; then QUALIFICATION="--require-qualified"; fi
           python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$FDROID_TV_APK" \
-            --distribution fdroid --target tv --version "$PROJECTM_RELEASE_VERSION" \
-            --version-code "$PROJECTM_RELEASE_VERSION_CODE" "${QUALIFICATION[@]}"
+            --distribution fdroid --target tv --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE" ${QUALIFICATION:+"$QUALIFICATION"}
           python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$FDROID_ANDROID_APK" \
-            --distribution fdroid --target android --version "$PROJECTM_RELEASE_VERSION" \
-            --version-code "$PROJECTM_RELEASE_VERSION_CODE" "${QUALIFICATION[@]}"
+            --distribution fdroid --target android --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE" ${QUALIFICATION:+"$QUALIFICATION"}
 
       - uses: actions/upload-artifact@v4
         with:

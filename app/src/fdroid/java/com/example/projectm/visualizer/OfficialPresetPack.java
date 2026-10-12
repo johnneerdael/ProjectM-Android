@@ -51,10 +51,15 @@ final class OfficialPresetPack {
         return value;
     }
     static String sha256(InputStream input, CustomPresetPack.Cancellation cancellation) throws IOException {
+        return sha256(input, cancellation, MAX_ARCHIVE);
+    }
+    private static String sha256(InputStream input, CustomPresetPack.Cancellation cancellation, long maximum) throws IOException {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256"); byte[] buffer = new byte[32768]; int n;
+            MessageDigest digest = MessageDigest.getInstance("SHA-256"); byte[] buffer = new byte[32768]; int n; long bytes = 0;
             while ((n = input.read(buffer)) != -1) {
-                canceled(cancellation); digest.update(buffer, 0, n);
+                canceled(cancellation); bytes += n;
+                if (bytes > maximum) throw new IOException("Collection file exceeds expected size");
+                digest.update(buffer, 0, n);
             }
             StringBuilder result = new StringBuilder(64);
             for (byte b : digest.digest()) result.append(String.format(Locale.ROOT, "%02x", b & 255));
@@ -120,7 +125,7 @@ final class OfficialPresetPack {
                 JSONObject record = expected.get(path);
                 if (record == null || record.getLong("bytes") != entry.getSize()) throw new IOException("Unexpected collection file");
                 try (InputStream input = zip.getInputStream(entry)) {
-                    if (!sha256(input, cancellation).equals(record.getString("sha256"))) throw new IOException("Collection file checksum differs");
+                    if (!sha256(input, cancellation, entry.getSize()).equals(record.getString("sha256"))) throw new IOException("Collection file checksum differs");
                 }
                 if (path.startsWith("presets/")) {
                     if (!path.endsWith(".milk") || path.substring(8).contains("/") || entry.getSize() > 8L*1024*1024) throw new IOException("Invalid official preset");
@@ -141,6 +146,7 @@ final class OfficialPresetPack {
             pack = CustomPresetPack.prepare(root, archive, cancellation, progress);
             File sourceIndex = new File(pack.directory, "presets.idx");
             File officialIndex = new File(pack.directory, "official-presets.idx");
+            JSONObject hashes = new JSONObject();
             try (BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(sourceIndex), StandardCharsets.UTF_8));
                  Writer output = new OutputStreamWriter(new FileOutputStream(officialIndex), StandardCharsets.UTF_8)) {
                 String row; int count = 0;
@@ -149,13 +155,14 @@ final class OfficialPresetPack {
                     if (parts.length != 2 || !parts[1].startsWith("presets/")) throw new IOException("Invalid installed preset index");
                     String name = parts[1].substring(8); Integer weight = weights.get(name);
                     if (weight == null) throw new IOException("Missing official preset weight");
+                    hashes.put(parts[0], expected.get(parts[1]).getString("sha256"));
                     output.write(parts[0]+"\t"+name+"\t"+weight+"\n"); count++;
                 }
                 if (count != descriptor.presetCount) throw new IOException("Installed preset count differs");
             }
-            JSONObject hashes = new JSONObject();
             for (String name : expected.keySet()) {
-                if (name.startsWith("presets/") || name.startsWith("textures/")) continue;
+                if (name.startsWith("presets/")) continue;
+                if (name.startsWith("textures/")) { hashes.put(name, expected.get(name).getString("sha256")); continue; }
                 String storage = name.equals("presets.idx") ? "source-presets.idx" : name;
                 File target = new File(pack.directory, storage);
                 if (!target.getParentFile().isDirectory() && !target.getParentFile().mkdirs()) throw new IOException("Cannot create collection metadata directory");
@@ -166,9 +173,10 @@ final class OfficialPresetPack {
                 hashes.put(storage, expected.get(name).getString("sha256"));
             }
             try (InputStream input = new FileInputStream(officialIndex)) { hashes.put("official-presets.idx",sha256(input,cancellation)); }
+            try (InputStream input = new FileInputStream(sourceIndex)) { hashes.put("presets.idx",sha256(input,cancellation)); }
             JSONObject marker = new JSONObject();
             marker.put("schema_version",1); marker.put("collection_id",descriptor.identity);marker.put("archive_sha256",descriptor.sha256);
-            marker.put("preset_count",descriptor.presetCount);marker.put("texture_count",descriptor.textureCount);marker.put("indexes",hashes);
+            marker.put("preset_count",descriptor.presetCount);marker.put("texture_count",descriptor.textureCount);marker.put("files",hashes);
             try (FileOutputStream out = new FileOutputStream(new File(pack.directory,"installed.json"))) {
                 out.write(marker.toString().getBytes(StandardCharsets.UTF_8));out.getFD().sync();
             }
@@ -183,7 +191,9 @@ final class OfficialPresetPack {
     private static Map<String,Integer> weights(ZipFile zip,String path,int expectedCount)throws IOException {
         HashMap<String,Integer> result = new HashMap<>(); ZipEntry entry=zip.getEntry(path);
         if(entry==null||entry.getSize()>MAX_MANIFEST)throw new IOException("Missing collection index");
-        try(BufferedReader reader=new BufferedReader(new InputStreamReader(zip.getInputStream(entry),StandardCharsets.UTF_8))) {
+        byte[] bytes;
+        try(InputStream input=zip.getInputStream(entry)){bytes=readBytes(input,MAX_MANIFEST);}
+        try(BufferedReader reader=new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes),StandardCharsets.UTF_8))) {
             String row;
             while((row=reader.readLine())!=null) {
                 String[] parts=row.split("\t",-1);
@@ -199,13 +209,19 @@ final class OfficialPresetPack {
         try(InputStream input=new FileInputStream(new File(directory,"installed.json"))) {
             JSONObject marker=new JSONObject(new String(readBytes(input,MAX_MANIFEST),StandardCharsets.UTF_8));
             integer(marker,"schema_version",1,1);hash(marker.getString("collection_id"));hash(marker.getString("archive_sha256"));
-            JSONObject indexes=marker.getJSONObject("indexes");
-            if(!indexes.has("official-presets.idx"))return null;
-            Iterator<String> names=indexes.keys();
+            JSONObject files=marker.getJSONObject("files");
+            if(!files.has("official-presets.idx")||!files.has("presets.idx")||files.length()>60000)return null;
+            int presets=0,textures=0;long expanded=0;
+            Iterator<String> names=files.keys();
             while(names.hasNext()) {
                 String name=safe(names.next());
-                try(InputStream file=new FileInputStream(new File(directory,name))) { if(!sha256(file,()->false).equals(hash(indexes.getString(name))))return null; }
+                File stored=new File(directory,name);long bytes=stored.length();expanded+=bytes;
+                if(bytes>64L*1024*1024||expanded>MAX_EXPANDED)return null;
+                if(name.endsWith(".milk"))presets++;
+                if(name.startsWith("textures/"))textures++;
+                try(InputStream file=new FileInputStream(stored)) { if(!sha256(file,()->false,bytes).equals(hash(files.getString(name))))return null; }
             }
+            if(presets!=integer(marker,"preset_count",1,50000)||textures!=integer(marker,"texture_count",0,5000))return null;
             return directory;
         }catch(Exception corrupt){return null;}
     }

@@ -1,8 +1,10 @@
 # ProjectM TV
 
-[![Android CI](https://github.com/johnneerdael/ProjectM-TV/actions/workflows/android.yml/badge.svg)](https://github.com/johnneerdael/ProjectM-TV/actions/workflows/android.yml)
+[![Android CI](https://github.com/johnneerdael/ProjectM-Android/actions/workflows/android.yml/badge.svg)](https://github.com/johnneerdael/ProjectM-Android/actions/workflows/android.yml)
 
 ProjectM TV and ProjectM Android turn sound into MilkDrop visuals using 9,606 presets from Jason Fletcher's *Cream of the Crop* collection. **ProjectM TV** listens to a music app on your Android TV or Google TV. **ProjectM Android** runs on touchscreen phones and tablets and uses microphone input or music played locally by another app. Both render in landscape and use the same engine; neither is a music player.
+
+GitHub editions bundle the complete collection. The smaller F-Droid editions start offline with **20 curated presets** and offer an optional, verified download of the full collection.
 
 It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualizer/projectm), the open-source reimplementation of Winamp's MilkDrop, based on unreleased projectM 4.2 master (commit `6f6480746`) plus 35 ordered patches. The patches restore MilkDrop 2's behaviour where projectM differs, keep presets at their authored scale on 4K screens, and make preset changes smooth on TV hardware.
 
@@ -25,23 +27,23 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 
 ## User guide
 
-**[johnneerdael.github.io/ProjectM-TV](https://johnneerdael.github.io/ProjectM-TV/)** covers:
+**[johnneerdael.github.io/ProjectM-Android](https://johnneerdael.github.io/ProjectM-Android/)** covers:
 
-- **Using the app:** installation on TV or phones, remote and touchscreen controls, audio input, every setting, [preset moods](https://johnneerdael.github.io/ProjectM-TV/predictive-collections/), custom packs, picture quality and troubleshooting.
-- **[ProjectM TV Engine](https://johnneerdael.github.io/ProjectM-TV/engine/):** the patch catalog with before/after proof images and measured benefits, how 4K rendering keeps the authored look (including the resolution-scaling part of [projectM #682](https://github.com/projectM-visualizer/projectm/issues/682)), and how a frame reaches the TV.
-- **[Writing presets](https://johnneerdael.github.io/ProjectM-TV/authoring/):** a source-level guide to how `.milk` presets execute, drawn from MilkDrop 2's code and the analysis of thousands of presets.
+- **Using the app:** installation on TV or phones, remote and touchscreen controls, audio input, every setting, [preset moods](https://johnneerdael.github.io/ProjectM-Android/predictive-collections/), custom packs, picture quality and troubleshooting.
+- **[ProjectM TV Engine](https://johnneerdael.github.io/ProjectM-Android/engine/):** the patch catalog with before/after proof images and measured benefits, how 4K rendering keeps the authored look (including the resolution-scaling part of [projectM #682](https://github.com/projectM-visualizer/projectm/issues/682)), and how a frame reaches the TV.
+- **[Writing presets](https://johnneerdael.github.io/ProjectM-Android/authoring/):** a source-level guide to how `.milk` presets execute, drawn from MilkDrop 2's code and the analysis of thousands of presets.
 
 ## Highlights
 
 - **9,606 MilkDrop presets** with smooth blends, shuffled within the mood you choose.
-- **Preset moods (beta):** **All**, **Chill**, **Normal** and **Intense**, from a measured activity score; [predicting presets from their source](https://johnneerdael.github.io/ProjectM-TV/predictor/) is in development.
-- **Presets that work as on MilkDrop 2:** equation code MilkDrop tolerated, HLSL its compiler accepted, Direct3D pixel and texel rules, live per-frame waveform and display controls, legacy colour shading and spirals, huge rotations and negative zoom. [Patch catalog](https://johnneerdael.github.io/ProjectM-TV/engine/patches/).
+- **Preset moods (beta):** **All**, **Chill**, **Normal** and **Intense**, from a measured activity score; [predicting presets from their source](https://johnneerdael.github.io/ProjectM-Android/predictor/) is in development.
+- **Presets that work as on MilkDrop 2:** equation code MilkDrop tolerated, HLSL its compiler accepted, Direct3D pixel and texel rules, live per-frame waveform and display controls, legacy colour shading and spirals, huge rotations and negative zoom. [Patch catalog](https://johnneerdael.github.io/ProjectM-Android/engine/patches/).
 - **4K without the darkness:** lines, blur and texel steps scale with resolution; Native trails keeps feedback at an authored-scale canvas with sharp native geometry on top.
 - **No freezes at preset changes:** upcoming presets are compiled in the background.
 - **Adaptive quality:** resolution follows the target frame rate and live memory headroom, up to the panel's native size.
 - **Track titles:** cover, artist and title of the playing track, from the music app's media session.
 - **Custom preset packs:** upload up to 50,000 presets and textures from a phone by scanning a QR code.
-- **Private:** audio is analysed in memory only. Network use is the opt-in auto-update and the temporary local upload page.
+- **Private:** audio is analysed in memory only. GitHub app updates can be switched off; F-Droid collection downloads require your choice. Custom uploads use a temporary local page.
 - **Remote and touchscreen controls** with a settings panel and live status.
 
 ## Remote control
@@ -96,14 +98,15 @@ In ProjectM Android, swipe right for a random preset and left for the previous p
 | Cut on loud beats | Lets projectM cut to the next preset on a loud beat | Off |
 | Skip slow presets | In Auto resolution, skips presets that cannot reach half the target frame rate | On |
 | Skip blank presets | Moves on from presets that stay black while music plays; skips them for good the second time | On |
-| Auto-update | Checks GitHub for new stable releases; *Via F-Droid* for F-Droid installs | Off |
+| Auto-update | GitHub editions check for new stable releases; F-Droid editions update through F-Droid | On for GitHub; preserves an explicit Off |
+| Cream of the Crop (F-Droid only) | Download or remove the full collection; custom packs stay separate | 20 starters |
 | Custom preset pack | Upload one ZIP from a phone or computer on the same network | No pack |
 | Skipped presets | Count of skipped presets; select to reset | – |
 | Background compile | Prepares upcoming presets' shaders on a second thread; *Off* compiles at the switch (longer pause). Troubleshooting only | On |
 | Shader binary cache | Reuses compiled shaders as driver binaries; *Off* always compiles from source. Troubleshooting only | On |
 | Last exit | Why the app last closed while on screen (Android 11+); select for recent exits and what the engine was doing | – |
 
-On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory status, panel and UI size, frame rate, Native trails state, blend, audio source and level, track display, update status, device tier and GPU. The [settings reference](https://johnneerdael.github.io/ProjectM-TV/settings/) explains every value.
+On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory status, panel and UI size, frame rate, Native trails state, blend, audio source and level, track display, update status, device tier and GPU. The [settings reference](https://johnneerdael.github.io/ProjectM-Android/settings/) explains every value.
 
 ## Requirements and limits
 
@@ -120,8 +123,8 @@ On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory
 | Permission | Why | When |
 |---|---|---|
 | Record audio | TV: the player's audio session. Android: microphone input or approved phone playback capture | First launch |
-| Internet | Auto-update (off by default) and the local custom-pack upload page while its dialog is open | Granted at install |
-| Install apps | Only for auto-update: hands a downloaded update to Android's installer | The first time you install an update |
+| Internet | GitHub app updates, an explicitly requested F-Droid collection download, and the local custom-pack upload page | Granted at install |
+| Install apps (GitHub only) | Hands a downloaded app update to Android's installer | The first time you install an update |
 | Notification access | Only to read the music app's media session for track titles; no notifications are read | Optional, via *Track display › Track info* |
 
 Nothing the app hears or reads leaves the device.
@@ -133,7 +136,7 @@ Nothing the app hears or reads leaves the device.
 1. Install *Downloader* by AFTVnews from the TV's app store and allow it to install apps.
 2. Open Downloader, enter **4821216** and confirm the installation.
 
-The code links to https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk. Every version is under [Releases](https://github.com/johnneerdael/ProjectM-TV/releases).
+The code links to https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-TV.apk. Every version is under [Releases](https://github.com/johnneerdael/ProjectM-Android/releases).
 
 **On a phone or tablet, with Downloader**
 
@@ -141,34 +144,46 @@ The code links to https://github.com/johnneerdael/ProjectM-TV/releases/latest/do
 2. Open Downloader and enter **6565691**.
 3. Allow Downloader to install apps when Android asks, then confirm installation of **ProjectM Android**.
 
-You can also download the [touchscreen Android APK directly](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk). The stable filenames are `projectM-TV.apk` for TV and `projectM-Android.apk` for phones/tablets. The two apps have separate app IDs and settings; auto-update selects the matching APK.
+You can also download the [touchscreen Android APK directly](https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-Android.apk). The stable filenames are `projectM-TV.apk` for TV and `projectM-Android.apk` for phones/tablets. The two apps have separate app IDs and settings; auto-update selects the matching APK.
+
+**F-Droid editions**
+
+| Device | Stable APK | Presets | App updates |
+|---|---|---|---|
+| TV | `projectM-TV-FDroid.apk` | 20 starters; optional full collection | F-Droid |
+| Phone/tablet | `projectM-Android-FDroid.apk` | 20 starters; optional full collection | F-Droid |
+
+These APKs are separate release artifacts. F-Droid listings remain subject to its maintainers' acceptance. On first launch, choose **Download (recommended)** or **Use 20 starters**. Reopen **Advanced › Cream of the Crop** to download or remove it later. The download is 38.7 MiB, with 129.5 MiB of unpacked collection contents; allow at least 184.2 MiB of free storage during installation. After installation the collection works offline. Downloading requires the app to stay in the foreground. Custom packs survive collection removal. [Setup and updates](https://johnneerdael.github.io/ProjectM-Android/getting-started/).
 
 **From a computer**
 
 ```bash
-curl -LO https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk
+curl -LO https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-TV.apk
 adb install -r projectM-TV.apk
 ```
 
-Start music on the TV, open ProjectM TV and allow audio recording. On phones, choose **Audio input** in the menu: **Microphone** (default) or **Phone playback**. Playback capture requires Android 10+, Android's capture consent each session, and a player that permits capture; protected or opted-out audio is silent. Capture stops when the visualizer leaves the foreground. The [getting-started guide](https://johnneerdael.github.io/ProjectM-TV/getting-started/) walks through permissions and track titles with screenshots. Releases are signed with one permanent key; a build signed with your own debug key must be uninstalled before installing a release.
+Start music on the TV, open ProjectM TV and allow audio recording. On phones, choose **Audio input** in the menu: **Microphone** (default) or **Phone playback**. Playback capture requires Android 10+, Android's capture consent each session, and a player that permits capture; protected or opted-out audio is silent. Capture stops when the visualizer leaves the foreground. The [getting-started guide](https://johnneerdael.github.io/ProjectM-Android/getting-started/) walks through permissions and track titles with screenshots. Releases are signed with one permanent key; a build signed with your own debug key must be uninstalled before installing a release.
 
-<a id="track-titles"></a>For troubleshooting audio, track titles, stutter and black presets, see the [troubleshooting guide](https://johnneerdael.github.io/ProjectM-TV/troubleshooting/).
+<a id="track-titles"></a>For troubleshooting audio, track titles, stutter and black presets, see the [troubleshooting guide](https://johnneerdael.github.io/ProjectM-Android/troubleshooting/).
 
 ## For developers
 
 ```bash
-git clone --recurse-submodules https://github.com/johnneerdael/ProjectM-TV.git
+git clone --recurse-submodules https://github.com/johnneerdael/ProjectM-Android.git
 ./gradlew assembleRelease                    # APK + core AAR (signed with your local debug key)
 ./gradlew :app:assembleRelease -PandroidTouchscreen=true # touchscreen APK (same output path)
+./gradlew :app:assembleFdroidTvRelease -PprojectmDistribution=fdroid
+./gradlew :app:assembleFdroidAndroidRelease -PprojectmDistribution=fdroid -PandroidTouchscreen=true
 ./gradlew testDebugUnitTest                  # JVM tests
 core/src/test/native/run_native_tests.sh     # native engine and projectM regression controls
 ```
 
 - **Engine:** the `:core` module builds projectM from the submodule `third_party/projectm`, pinned to `6f64807467e312034883a4389e6aa80a675458bc`, and applies [`tools/projectm-patches/`](tools/projectm-patches) at configure time. Never edit the submodule; add a patch. CMake reports `4.2.0`, but upstream has not released this snapshot as 4.2. `ProjectMJNI.getVersion()` reports that upstream number; identify a build by release version, source revision and artifact checksum.
 - **Core library:** each release publishes `projectM-TV-core-<version>.aar` (and the alias `projectM-TV-core.aar`), which [Milkbeat](https://github.com/johnneerdael/Milkbeat) consumes.
+- **F-Droid:** [recipe and synchronization tooling](tools/fdroid/README.md) uses the same source/version for both devices. The canonical core AAR keeps all 9,606 presets and 74 textures.
 - **Contributing:** pull requests to `main` run the full build after a completed review of their latest commit. Each tested merge publishes a new version automatically, with release notes from the PR's `## Release notes` section.
 
-Further reading: [build and test guide](https://johnneerdael.github.io/ProjectM-TV/development/), [architecture](docs/ARCHITECTURE.md), [patch assessment](docs/UPSTREAM_PATCH_VALUE.md), [releasing](docs/RELEASING.md), [diagnostics](docs/DIAGNOSTICS.md), [profiling](docs/PROFILING.md).
+Further reading: [build and test guide](https://johnneerdael.github.io/ProjectM-Android/development/), [architecture](docs/ARCHITECTURE.md), [patch assessment](docs/UPSTREAM_PATCH_VALUE.md), [releasing](docs/RELEASING.md), [diagnostics](docs/DIAGNOSTICS.md), [profiling](docs/PROFILING.md).
 
 ## Credits and third-party content
 

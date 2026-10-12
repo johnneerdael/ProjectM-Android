@@ -1,9 +1,9 @@
 {
   "source_commit": "8238b86b9dfdc2f2f80bc494671798e2ac1a8ad0",
-  "selection_basis": "16 existing corpus presets present in Butterchurn minimal.js, plus four texture-light additions from its nonMinimal.js; this is curated selection, not measured worldwide popularity.",
+  "selection_basis": "15 existing corpus presets present in Butterchurn minimal.js, plus five texture-free additions from its nonMinimal.js; curated selection, not measured worldwide popularity.",
   "curation_source_commit": "c10e2616762f262de898e5d4c1f162a3e01340c1",
-  "static_checks": "Existing check-presets.problems passes with an empty external-texture set; no randNN sampler found. This is not a complete renderer proof.",
-  "total_preset_bytes": 221494,
+  "static_checks": "Conservative sampler/texsize dependency analysis finds no external textures or random-image pools. Runtime qualification remains required.",
+  "total_preset_bytes": 220276,
   "presets": [
     {
       "name": "$$$ Royal - Mashup (197).milk",
@@ -137,14 +137,14 @@
       "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
     },
     {
-      "name": "shifter - liquid circuitry - conjugoth.milk",
-      "asset_path": "core/src/main/assets/presets/shifter - liquid circuitry - conjugoth.milk",
-      "sha256": "00cd9e3c70b49cdd2b7fb08bc53e7a2bcddcf271afb3d2e0c47143c3260a6ca5",
-      "bytes": 8319,
+      "name": "Geiss - Spiral Artifact.milk",
+      "asset_path": "core/src/main/assets/presets/Geiss - Spiral Artifact.milk",
+      "sha256": "9d58386d45de6134c39304bb58ce135d878bf4f84003d29c40672030fd4b86b4",
+      "bytes": 7101,
       "genres": [
         "normal"
       ],
-      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
     },
     {
       "name": "suksma - uninitialized variabowl (hydroponic chronic).milk",
@@ -205,6 +205,14 @@
   ],
   "selection_notes": "Design candidates; static checks only. Runtime qualification and asset-rights verification remain required before shipping.",
   "schema_version": 1,
-  "status": "candidate",
-  "qualification_evidence": null
+  "status": "qualified",
+  "qualification_evidence": "docs/superpowers/evidence/fdroid-distribution/README.md",
+  "qualification_changes": [
+    {
+      "removed": "shifter - liquid circuitry - conjugoth.milk",
+      "replacement": "Geiss - Spiral Artifact.milk",
+      "reason": "Conservative sampler analysis requires rose.jpg, whose MegaPack source has no explicit texture license. Replacement is texture-free and preserves Normal membership.",
+      "provenance": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
+    }
+  ]
 }

@@ -1,0 +1,2 @@
+INSTRUMENTATION_RESULT: distribution=PASS: fdroid_pack_removed, phone touch
+INSTRUMENTATION_CODE: -1

@@ -16,7 +16,9 @@
       "fdroid_build_sha256": "8d78b56383e2fd960520edce4b26d6c1291bc85331788c1fa6adfc82862951f9",
       "reference_bytes": 2176949,
       "fdroid_bytes": 2176949,
-      "signature_transfer": "passed"
+      "signature_transfer": "passed",
+      "raw_gradle_output_sha256": "8d78b56383e2fd960520edce4b26d6c1291bc85331788c1fa6adfc82862951f9",
+      "raw_gradle_output_bytes": 2176949
     },
     {
       "target": "Android",
@@ -25,7 +27,9 @@
       "fdroid_build_sha256": "01b5870cc7c0aac357ba97e3048b1195dfb2f2dc5bffc6b0e7fc89d88d892dd5",
       "reference_bytes": 2181752,
       "fdroid_bytes": 2181752,
-      "signature_transfer": "passed"
+      "signature_transfer": "passed",
+      "raw_gradle_output_sha256": "01b5870cc7c0aac357ba97e3048b1195dfb2f2dc5bffc6b0e7fc89d88d892dd5",
+      "raw_gradle_output_bytes": 2181752
     }
   ]
 }

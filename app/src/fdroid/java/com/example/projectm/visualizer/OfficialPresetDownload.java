@@ -57,10 +57,12 @@ final class OfficialPresetDownload {
         if(handler!=null&&callback!=null)handler.post(()->{synchronized(OfficialPresetDownload.this){if(generation!=listenerGeneration||callback!=listener)return;}callback.onStatus(value);});
     }
     private void publish(String phase,long bytes,long total,String identity,String error){status=new Status(phase,bytes,total,identity,error);announce(status);}
+    private synchronized void finish(Status value){running=false;status=value;announce(value);}
     private void restore(Context context) {
         synchronized(this){running=true;publish("restoring",0,0,"",null);}
         worker.execute(()->{
             String identity="";
+            Status outcome=new Status("error",0,0,"","Collection restore failed");
             try {
                 try(InputStream in=context.getAssets().open("official-pack.json")){descriptor=OfficialPresetPack.Descriptor.read(in);}
                 File current=OfficialPresetPack.current(root);
@@ -69,10 +71,10 @@ final class OfficialPresetDownload {
                     long request=ProjectMJNI.setOfficialPresetPack(current.getAbsolutePath());
                     CustomPresetPack.awaitStatus(request,2,ProjectMJNI::getOfficialPresetPackStatus,()->false,30000);
                 }else if(CustomPresetPack.current(root)!=null)CustomPresetPack.restore(root,null);
-                publish(identity.isEmpty()?"idle":"installed",0,0,identity,null);
+                outcome=new Status(identity.isEmpty()?"idle":"installed",0,0,identity,null);
                 CustomPresetPack.scheduleCleanup(root,d->ProjectMJNI.isOfficialPresetPackInUse(d.getAbsolutePath()));
-            }catch(Exception error){publish("error",0,0,identity,message(error));}
-            finally{synchronized(this){running=false;}}
+            }catch(Exception error){outcome=new Status("error",0,0,identity,message(error));}
+            finally{finish(outcome);}
         });
     }
     synchronized void start(OfficialPresetPack.Descriptor next,NativeIndex index) {
@@ -90,6 +92,7 @@ final class OfficialPresetDownload {
     private void install(OfficialPresetPack.Descriptor next,NativeIndex index,String previousIdentity) {
         File archive=new File(root,"download.zip");CustomPresetPack.Pack pack=null;long request=0;boolean committed=false;
         File previous=OfficialPresetPack.current(root);
+        Status outcome=new Status("error",0,0,previousIdentity,"Collection installation failed");
         try {
             if(!root.isDirectory()&&!root.mkdirs())throw new IOException("Cannot create collection storage");
             if(root.getUsableSpace()<next.bytes+next.expandedBytes+16L*1024*1024)throw new IOException("Not enough storage for the collection");
@@ -112,15 +115,16 @@ final class OfficialPresetDownload {
                     committed=true;
                 }finally{if(!committed)CustomPresetPack.restore(root,previous);}
             }
-            publish("installed",next.bytes,next.bytes,next.identity,null);
-        }catch(Exception error){publish(canceled.get()?"canceled":"error",0,0,previousIdentity,message(error));}
+            outcome=new Status("installed",next.bytes,next.bytes,next.identity,null);
+        }catch(Exception error){outcome=new Status(canceled.get()?"canceled":"error",0,0,previousIdentity,message(error));}
         finally {
-            activeConnection=null;
-            archive.delete();
-            if(!committed&&request!=0)index.discard(request);
-            if(!committed&&pack!=null&&!index.inUse(pack.directory.getAbsolutePath()))CustomPresetPack.delete(pack.directory);
-            CustomPresetPack.scheduleCleanup(root,d->index.inUse(d.getAbsolutePath()));
-            synchronized(this){running=false;}
+            try {
+                activeConnection=null;
+                archive.delete();
+                if(!committed&&request!=0)index.discard(request);
+                if(!committed&&pack!=null&&!index.inUse(pack.directory.getAbsolutePath()))CustomPresetPack.delete(pack.directory);
+                CustomPresetPack.scheduleCleanup(root,d->index.inUse(d.getAbsolutePath()));
+            }finally{finish(outcome);}
         }
     }
     synchronized void remove(NativeIndex index) {
@@ -128,6 +132,7 @@ final class OfficialPresetDownload {
         publish("indexing",0,0,identity,null);
         worker.execute(()->{
             long request=0;boolean committed=false;File previous=OfficialPresetPack.current(root);
+            Status outcome=new Status("error",0,0,identity,"Collection removal failed");
             try {
                 request=index.prepare("");CustomPresetPack.awaitStatus(request,1,index::status,canceled::get,30000);
                 synchronized(this){OfficialPresetPack.canceled(canceled::get);publish("committing",0,0,identity,null);}
@@ -136,9 +141,9 @@ final class OfficialPresetDownload {
                     try{if(!index.commit(request))throw new IOException("Collection changed while removing; retry");committed=true;}
                     finally{if(!committed)CustomPresetPack.restore(root,previous);}
                 }
-                publish("idle",0,0,"",null);
-            }catch(Exception error){publish(canceled.get()?"canceled":"error",0,0,identity,message(error));}
-            finally{if(!committed&&request!=0)index.discard(request);CustomPresetPack.scheduleCleanup(root,d->index.inUse(d.getAbsolutePath()));synchronized(this){running=false;}}
+                outcome=new Status("idle",0,0,"",null);
+            }catch(Exception error){outcome=new Status(canceled.get()?"canceled":"error",0,0,identity,message(error));}
+            finally{try{if(!committed&&request!=0)index.discard(request);CustomPresetPack.scheduleCleanup(root,d->index.inUse(d.getAbsolutePath()));}finally{finish(outcome);}}
         });
     }
     static void downloadArchive(OfficialPresetPack.Descriptor descriptor,File target,ConnectionFactory factory,
