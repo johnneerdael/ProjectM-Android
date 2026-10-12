@@ -1081,3 +1081,27 @@ repeated on correctly oriented frames. Probes and results:
   precision. The SDK text expected a small figure on a dark screen. It read the
   wave footprint as coverage, while the composite maps the whole canvas
   through the `seaweed` texture: an open SDK gap.
+- **Whole-pack re-export r7 (loops, memory, stochastic waves).** The refit
+  on r7 summaries matches the previous fit within ±0.004 on every statistic
+  and facet group. The per-preset fixes are real, but they do not move
+  whole-pack averages.
+- **Negative result: control time series.** Columns summarising the authored
+  per-frame controls (zoom, rot, warp, dx/dy, decay and so on) over the
+  declared band sequence correlate weakly with the measured motion
+  (|ρ| ≤ 0.27). Adding them left every out-of-fold score within ±0.004, so
+  they were removed again (evidence: `fit-report-r7-control-series-negative.json`).
+- **Stage transfers.** `stage_transfer` now binds the frame clock, readonly
+  render values and the stepped frame program. Before, it lost the transfer of
+  about 43% of custom warps and 47% of custom composites in a sample,
+  because their programs inline per-frame graphs.
+- **Offline compile evidence for the whole pack.** The translator plus the
+  GLSL ES 3.00 validator accept 7,745 of 7,776 custom warps and 7,800 of
+  7,826 custom composites. Per-preset manifests feed `corpus_understanding.py
+  --compile-manifests`, which removes the "native selection unresolved"
+  conditional from about 7,800 presets.
+- **Still presets.** The ruler measures 483 presets as still (frame
+  difference < 0.003, no brightness jumps): 314 black, 35 white and 134
+  frozen. These are the largest block of Energy over-estimates. On a sampled
+  black preset the shaders compile and the illustrator also predicts black,
+  but the calibrated model predicts activity. Encoding that a preset is
+  provably dark is the next Energy lever.
