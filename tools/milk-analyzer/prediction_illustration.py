@@ -1303,6 +1303,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             held.pop('instance',None)
             for index,(_,record) in enumerate(clouds):
                 inputs=dict(bands or {})
+                if record.get('waveform_inputs'):
+                    # value1/value2: this frame's declared reference PCM window, prepared as CustomWaveform does.
+                    from source_point_colour import waveform_point_values
+                    value1,value2=waveform_point_values(record['waveform_inputs'],int(record['sample_count']),max(0,int(round(frame_time*fps))-1))
+                    inputs.update(value1=value1,value2=value2)
                 recurrence=record.get('frame_recurrence')
                 if recurrence:
                     from source_point_colour import initial_state,step_state,state_inputs
@@ -1350,11 +1355,14 @@ def main(argv=None):
     data=args.summary.read_bytes();summary=json.loads(data)
     if summary.get('policy')!='preset-understanding-v1':parser.error('preset-understanding-v1 summary required')
     fps=float(_facts(summary).get('/analysis/visual_description/static_behaviour/context',{}).get('feedback_fps',30))
-    image,used,limitations=illustrate(summary,time=args.time,fps=fps,history_steps=args.history_steps)
-    if not used:
-        audio=declared_audio(args.audio) if args.audio else None
-        image,used,limitations=illustrate_field(summary,time=args.time,fps=fps,history_steps=args.history_steps,audio=audio)
-        if audio:limitations.append('audio-driven controls use the declared per-frame bands (audio report sha256 %s)'%audio['sha256'][:16])
+    # The per-pixel field simulation covers feedback, shaders, shapes and waves; the closed-form orbit
+    # illustrator is the fallback when the field or decay is not described.
+    audio=declared_audio(args.audio) if args.audio else None
+    image,used,limitations=illustrate_field(summary,time=args.time,fps=fps,history_steps=args.history_steps,audio=audio)
+    if audio:limitations.append('audio-driven controls use the declared per-frame bands (audio report sha256 %s)'%audio['sha256'][:16])
+    if any(l.startswith('per-pixel field or decay not fully described') for l in limitations):
+        fallback=illustrate(summary,time=args.time,fps=fps,history_steps=args.history_steps)
+        if fallback[1]:image,used,limitations=fallback
     rgb=(np.clip(image,0,1)*255+.5).astype(np.uint8)
     cv2.imwrite(str(args.output),cv2.cvtColor(rgb,cv2.COLOR_RGB2BGR))
     identity={'policy':POLICY,'summary_sha256':hashlib.sha256(data).hexdigest(),

@@ -733,3 +733,18 @@ repeated on correctly oriented frames. Probes and results:
   0.602, mean RGB within 0.05, blurred correlation 0.951. It shows the same
   left-right symmetric green/yellow/red reaction-diffusion strands, and the
   canvas follows the ruler in all three channels within about 3%.
+- **Waveform-driven custom waves.** Per-point `value1`/`value2` are resolved from
+  the declared reference PCM windows, prepared as `CustomWaveform` does: the
+  first 480 samples, a centred window shifted by ±sep/2 (or resampled when more
+  than 480 points are requested), forward-then-backward IIR smoothing with
+  `mix1 = sqrt(0.98·smoothing)`, then scaling by `scaling·fWaveScale·0.004`.
+  Spectrum waves stay unresolved. The point record carries `waveform_inputs`.
+- **Illustrator order.** The CLI runs the per-pixel field simulation first. The
+  closed-form orbit illustrator is used only when the field or decay is not
+  described.
+- **r9 (`Our Destiny`) v1 → v2.** v1 drew only the fresh ring. v2 shows the
+  zooming tunnel of concentric rings, the blue disc and the magenta star
+  (flipped textured triangle). Luma is 0.396 against 0.459, display correlation
+  0.89, and the canvas follows the ruler at 0.92–0.98. The rings and the disc
+  centre are less green than native (display green 0.41 vs 0.51); this is still
+  being investigated.

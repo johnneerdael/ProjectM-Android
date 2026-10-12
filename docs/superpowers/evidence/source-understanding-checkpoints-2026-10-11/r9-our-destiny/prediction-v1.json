@@ -1,0 +1,23 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "34c08257a74422f588cdbaa37989cfe9f2157480e2446567faf17a8c0abedcca",
+  "illustrator_sha256": "e6928a6096609e1885543741d3b9c9f93ebd663837606ed32decb1728ce1cf78",
+  "image_sha256": "78dc6e7f78462b6b88630ca1cf9479abc416b808d96b01bd10e9dab61991fdc0",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [
+    "wave_1"
+  ],
+  "limitations": [
+    "no qualified radial feedback plus decay orbit: only the fresh curve is drawn",
+    "wave_1: channels b lack affine coefficients and are drawn at full level",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed",
+  "declared_audio_sha256": null
+}

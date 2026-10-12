@@ -79,11 +79,27 @@ def recurrence_trajectory(recurrence,held,times,fps=FPS):
     return {t:out[max(0,int(round(t*fps))-1)] for t in times}
 
 
-def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,positions=None,recurrence=None):
+def waveform_point_values(waveform,count,frame):
+    """value1/value2 per point for one frame from the declared reference PCM windows."""
+    from builtin_wave_geometry import custom_wave_values,reference_windows
+    windows=_WINDOWS.get('data')
+    if windows is None:windows=_WINDOWS['data']=reference_windows()
+    window=windows[int(frame)%len(windows)]
+    params=waveform['params']
+    return custom_wave_values(window,sample_count=count,scaling=params['scaling'],wave_scale=params['wave_scale'],
+                              smoothing=params['smoothing'],sep=params['sep'])
+
+
+_WINDOWS={}
+
+
+def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,positions=None,recurrence=None,waveform=None):
     """Return the distribution record for serialised per-point r,g,b,a graphs.
 
     recurrence (optional) is the wave's per-frame state recurrence; its state inputs are then
     resolved by stepping it from t=0 under the held inputs, and the record keeps it for SDKs.
+    waveform (optional) {'params': scaling/wave_scale/smoothing/sep} resolves value1/value2 from the
+    declared reference PCM windows (oscilloscope mode); the record keeps the parameters.
     """
     result={'policy':POLICY,'status':'unknown','sample_count':None,'times_s':None,'held_inputs':{},
             'depends_on_sample':None,'depends_on_time':None,'mean_rgb':None,'alpha_weighted_mean_rgb':None,
@@ -116,19 +132,23 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
                 if found:names|=found
         held={name:(float(span[0])+float(span[1]))/2 for name,span in held_inputs.items()
               if name in names and isinstance(span,(list,tuple)) and len(span)==2}
-        blocked=sorted(map(str,names-{'sample','time'}-set(held)-state_names))
+        wave_names={'value1','value2'} if waveform else set()
+        blocked=sorted(map(str,names-{'sample','time'}-set(held)-state_names-wave_names))
         if blocked:
             result['unresolved_inputs']=blocked
             raise ValueError('per-point colour depends on unresolved inputs')
         trajectory=recurrence_trajectory(recurrence,held,times) if state_names else None
         result['held_inputs']=held;result['sample_count']=count
         result['depends_on_sample']='sample' in names;result['depends_on_time']='time' in names
-        grid=times if 'time' in names or state_names else (0.,)
+        uses_wave=bool(wave_names&names)
+        grid=times if 'time' in names or state_names or uses_wave else (0.,)
         result['times_s']=list(grid)
         points=[]
         for time in grid:
+            wave=waveform_point_values(waveform,count,max(0,int(round(time*FPS))-1)) if uses_wave else None
             for j in range(count):
                 values={**held,**(trajectory[time] if trajectory else {}),'time':time,'sample':j/(count-1) if count>1 else 0.}
+                if wave:values.update(value1=float(wave[0][j]),value2=float(wave[1][j]))
                 rgba=[_native(evaluate_inputs(programs[name],values)) for name in 'rgba']
                 points.append(rgba)
         total=len(points);alpha=sum(p[3] for p in points)
@@ -143,8 +163,11 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
         stride=max(1,total//MAX_REPRESENTATIVE)
         result['representative_points']=[[round(v,4) for v in p] for p in points[::stride][:MAX_REPRESENTATIVE]]
         result['status']='closed_form_point_colours'
-        result.update(_positions(positions,count,held,grid,trajectory))
+        result.update(_positions(positions,count,held,grid,trajectory,waveform if uses_wave or wave_names else None))
         if result['positions_closed_form']:result['programs']={**programs,**positions}
+        if result['positions_closed_form'] and waveform and (uses_wave or (wave_names&_names(positions))):
+            result['waveform_inputs']={**waveform,'source':'declared reference PCM windows (oscilloscope value1/value2)'}
+            result['conditions'].append('value1/value2 from the declared reference PCM windows, frame index wrapped')
         if state_names:
             result['frame_recurrence']=recurrence
             result['conditions'].append('wave per-frame state stepped from t=0 at 30 fps under the held inputs')
@@ -153,7 +176,15 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
     return result
 
 
-def _positions(positions,count,held,grid,trajectory=None):
+def _names(graphs):
+    found=set()
+    for graph in (graphs or {}).values():
+        names=input_names(graph) if graph else None
+        if names:found|=names
+    return found
+
+
+def _positions(positions,count,held,grid,trajectory=None,waveform=None):
     """Source x/y bounds when the per-point position graphs are closed-form."""
     if not positions or any(positions.get(name) is None for name in 'xy'):return {}
     names=set()
@@ -162,12 +193,16 @@ def _positions(positions,count,held,grid,trajectory=None):
         if inputs is None:return {}
         names|=inputs
     state=set(next(iter(trajectory.values()))) if trajectory else set()
-    if names-{'sample','time'}-set(held)-state:return {}
+    wave_names={'value1','value2'} if waveform else set()
+    if names-{'sample','time'}-set(held)-state-wave_names:return {}
+    uses_wave=bool(names&wave_names)
     try:
         xs=[];ys=[]
-        for time in (grid if 'time' in names or state else (0.,)):
+        for time in (grid if 'time' in names or state or uses_wave else (0.,)):
+            wave=waveform_point_values(waveform,count,max(0,int(round(time*FPS))-1)) if uses_wave else None
             for j in range(count):
                 values={**held,**(trajectory[time] if trajectory else {}),'time':time,'sample':j/(count-1) if count>1 else 0.}
+                if wave:values.update(value1=float(wave[0][j]),value2=float(wave[1][j]))
                 xs.append(evaluate_inputs(positions['x'],values));ys.append(evaluate_inputs(positions['y'],values))
     except ValueError:return {}
     return {'positions_closed_form':True,'position_bounds':{'x':[min(xs),max(xs)],'y':[min(ys),max(ys)]}}

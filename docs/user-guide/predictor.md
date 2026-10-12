@@ -97,7 +97,9 @@ whose points depend on the wave's own per-frame counters (for example a star
 field that advances with the bass) are now stepped frame by frame. On the r8
 checkpoint (`River of Petals`), the illustrated picture matches the emulator
 capture: the same bright, mirrored green/yellow/red pattern, with brightness
-0.608 vs 0.602. On r7 (`The Waving Shaker`) the brightness is 0.342 vs 0.314.
+0.608 vs 0.602. On r7 (`The Waving Shaker`) the brightness is 0.342 vs 0.314, and
+on r9 (`Our Destiny`) the zooming ring tunnel and central star appear, slightly
+less green than the engine.
 This describes how presets move and blend; it is not a renderer, and fine
 detail in chaotic feedback still differs.
 

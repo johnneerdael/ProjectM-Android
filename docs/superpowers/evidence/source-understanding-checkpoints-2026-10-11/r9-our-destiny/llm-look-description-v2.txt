@@ -1,0 +1,9 @@
+LLM look description from the SDK recipe (before capture, r9 v2):
+A zooming tunnel: the feedback zooms in by 1.1 per frame with a bass-driven radial exponent and
+flips top-bottom every step (sy=-1), so a centred yellow-white ring (custom wave 1) leaves a series
+of concentric rings that expand outward and fade (decay 0.725). A textured triangle at the centre
+redraws a minified copy of the picture with a colour-cycling magenta/purple thick outline, which
+the flips turn into a six-pointed star inside a blue disc. Waveform-driven dots on the left edge
+add drifting colour. The composite brightens strongly (gamma 8) and adds a left-right mirrored
+echo, so the picture is bright, four-fold symmetric and dominated by pale yellow-green rings around
+a blue disc with a magenta star; the rings pulse with the bass.

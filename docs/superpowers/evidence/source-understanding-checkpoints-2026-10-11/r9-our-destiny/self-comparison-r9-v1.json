@@ -1,0 +1,37 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r9-v1",
+ "preset": "InCUbuS - Our Destiny.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "a768d0ab2a3aa009c4597f09dd0432ee32ffd46b97f7a6ba00ba54af9e74caf5",
+  "description-v1-before-capture.json": "34c08257a74422f588cdbaa37989cfe9f2157480e2446567faf17a8c0abedcca",
+  "recipe-v1-before-capture.json": "b5feed36602c3a2fbdc779edd2cf417b62068436427bc9624e2ab5bf334510d3",
+  "prediction-v1.png": "78dc6e7f78462b6b88630ca1cf9479abc416b808d96b01bd10e9dab61991fdc0",
+  "llm-look-description-v1.txt": "afc0061e15ecfed4167c4baa15cdaf8751cfbbca30e1eff59adaf519af70de9f"
+ },
+ "capture_result_sha256": "518d758be6fb520cb82f8430c80425e7d3258cc3d059e6d1436a1c5c7091f980",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.003,
+  "screenshot_luma": 0.459,
+  "screenshot_mean_rgb": [
+   0.37,
+   0.51,
+   0.431
+  ]
+ },
+ "agreements": [
+  "Centred ring (wave_1) at the right radius",
+  "The SDK description's four-fold mirror symmetry and gamma brightening"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Bright zooming tunnel of concentric rings around a cyan disc with a magenta star; prediction showed only the fresh ring",
+   "cause": "the CLI ran the closed-form orbit illustrator first and used the field simulation only when it drew nothing; waveform-driven custom-wave dots (value1/value2) were unresolved",
+   "next": "prefer the field illustrator; value1/value2 from the declared reference PCM"
+  }
+ ],
+ "uses_rendered_images_for_classification": false
+}

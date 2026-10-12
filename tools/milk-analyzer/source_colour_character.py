@@ -269,7 +269,13 @@ def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     if init is not None:
         identity='wave_'+prefix.removeprefix('wavecode_').rstrip('_')
         recurrence=_wave_recurrence(identity+'_per_frame',init,frame,{**programs,**positions})
-    record=point_colour_distribution(programs,count,held,positions=positions,recurrence=recurrence)
+    waveform=None
+    if not _scalar(analysis.values,prefix+'bSpectrum',0,'float'):
+        params={'scaling':_scalar(analysis.values,prefix+'scaling',1,'float'),'smoothing':_scalar(analysis.values,prefix+'smoothing',.5,'float'),
+                'sep':_scalar(analysis.values,prefix+'sep',0,'float'),'wave_scale':_scalar(analysis.values,'fWaveScale',1,'float')}
+        if all(type(v) in (int,float) and math.isfinite(v) for v in params.values()):
+            waveform={'params':{**{k:float(v) for k,v in params.items()},'sep':int(params['sep'])}}
+    record=point_colour_distribution(programs,count,held,positions=positions,recurrence=recurrence,waveform=waveform)
     flags={}
     for name,key in (('dots','bUseDots'),('thick','bDrawThick'),('additive','bAdditive'),('spectrum','bSpectrum')):
         value=_scalar(analysis.values,prefix+key,0,'float')

@@ -1,0 +1,83 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r9-v2",
+ "preset": "InCUbuS - Our Destiny.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "5d4db73c931fee09baefa951f6cd74c79e38a05c28aeaac756ba45f99e33d7b2",
+  "description-v2-before-capture.json": "8e0e40423af35c1818e5c46626121369b4ec1e0f413ed16ee3e83b863f8f2d30",
+  "recipe-v2-before-capture.json": "50c0d450b13adc5539e37dfeae284eef2cd9a0144c2652a42a67ea2705969fe1",
+  "prediction-v2.png": "b7740504e808a6f28d1e9a82b1101f987cd61ab02b6f1bafd5b5bf79c9a3f509",
+  "llm-look-description-v2.txt": "bf6434c1591051f2a1b6cf40ca4e3695d9cf5ac4d5fa8e4e85fece1acaf570e7"
+ },
+ "capture_result_sha256": "ac610481f127f20d74f481729b79dd71cd82d60a438daeadab02918f6af4db86",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.396,
+  "screenshot_luma": 0.459,
+  "p10_p50_p90_prediction": [
+   0.115,
+   0.312,
+   0.885
+  ],
+  "p10_p50_p90_screenshot": [
+   0.127,
+   0.417,
+   0.916
+  ],
+  "mean_rgb_prediction": [
+   0.37,
+   0.41,
+   0.389
+  ],
+  "mean_rgb_screenshot": [
+   0.37,
+   0.51,
+   0.431
+  ],
+  "saturation": [
+   0.34,
+   0.393
+  ],
+  "blurred_luma_correlation": 0.89,
+  "feedback_canvas_vs_native_ruler_passthrough": {
+   "blurred_correlation_frames_2_20_60_149": [
+    0.984,
+    0.98,
+    0.968,
+    0.916
+   ],
+   "mean_rgb_frame_149": [
+    [
+     0.056,
+     0.061,
+     0.059
+    ],
+    [
+     0.054,
+     0.073,
+     0.067
+    ]
+   ]
+  }
+ },
+ "agreements": [
+  "Zooming tunnel of concentric rings expanding from a centred ring",
+  "Blue disc with a magenta six-pointed star from the flipped textured triangle and its outline",
+  "Four-fold symmetry; bright gamma-boosted composite; canvas follows the engine frame by frame"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Rings pale yellow-grey instead of teal-green; centre of the disc dark instead of a green-cyan glow (display green 0.41 vs 0.51)",
+   "cause": "canvas green/blue fall behind after ~100 frames in the disc centre (colour cycling dots copied by the textured shapes); under investigation",
+   "next": "teacher-forced per-step comparison around frames 100-149"
+  }
+ ],
+ "general_fixes": [
+  "CLI prefers the per-pixel field illustrator (closed-form orbit illustrator only when the field or decay is not described)",
+  "custom-wave value1/value2 from the declared reference PCM (projectM CustomWaveform window, separation, forward/backward smoothing and scaling)"
+ ],
+ "status": "structure understood; colour tint partially",
+ "uses_rendered_images_for_classification": false
+}

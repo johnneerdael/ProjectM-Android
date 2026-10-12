@@ -116,3 +116,30 @@ def reference_windows(path=None):
     from pathlib import Path
     data=np.load(Path(path) if path else Path(__file__).with_name('fixtures')/'reference-waveform-windows-2026-10-12.npy')
     return (data.astype(np.float64)-128.)
+
+
+def custom_wave_values(left,right=None,*,sample_count,scaling=1.,wave_scale=1.,smoothing=.5,sep=0):
+    """Custom-wave per-point value1/value2 from waveform data (projectM CustomWaveform, oscilloscope mode).
+
+    The first 480 waveform samples are resampled when more points are requested, otherwise read from
+    a centred window shifted by -sep/2 (left) and +sep/2 (right); both channels are IIR-smoothed
+    forward then backward with mix1 = sqrt(0.98*smoothing) and scaled by scaling*wave_scale*0.004.
+    """
+    count=int(sample_count)
+    if not 1<=count<=512:raise ValueError('custom wave sample count 1..512 required')
+    left=np.asarray(left,np.float64)[:WAVEFORM_SAMPLES];right=left if right is None else np.asarray(right,np.float64)[:WAVEFORM_SAMPLES]
+    step=WAVEFORM_SAMPLES/count if count>WAVEFORM_SAMPLES else 1.
+    offset_left=offset_right=0
+    if count<=WAVEFORM_SAMPLES:
+        centre=(WAVEFORM_SAMPLES-count)//2;half=int(sep/2)
+        lo,hi=centre-half,centre+half;limit=WAVEFORM_SAMPLES-count
+        if 0<=lo<=limit and 0<=hi<=limit:offset_left,offset_right=lo,hi
+    mix1=math.sqrt(max(0.,smoothing*.98));mix2=1-mix1
+    out=[]
+    for data,offset in ((left,offset_left),(right,offset_right)):
+        values=np.zeros(count)
+        values[0]=data[offset]
+        for i in range(1,count):values[i]=data[int(i*step)+offset]*mix2+values[i-1]*mix1
+        for i in range(count-2,-1,-1):values[i]=values[i]*mix2+values[i+1]*mix1
+        out.append(values*scaling*wave_scale*.004)
+    return out[0],out[1]

@@ -24,3 +24,18 @@ def test_unmodelled_modes_raise():
         vertices(8, left=np.zeros(544))
     with pytest.raises(ValueError):
         vertices(12, left=np.zeros(544))
+
+
+def test_custom_wave_values_follow_projectm_window_and_smoothing():
+    import numpy as np
+    from builtin_wave_geometry import custom_wave_values
+    data = np.arange(576, dtype=float) - 288
+    # no smoothing: centred 100-sample window of the first 480 samples, scaled by scaling*wave_scale*0.004
+    v1, v2 = custom_wave_values(data, sample_count=100, scaling=2., wave_scale=.5, smoothing=0., sep=0)
+    assert np.allclose(v1, (data[190:290]) * .004) and np.allclose(v1, v2)
+    # separation shifts the channels in opposite directions
+    a, b = custom_wave_values(data, sample_count=100, smoothing=0., sep=20)
+    assert np.allclose(a, data[180:280] * .004) and np.allclose(b, data[200:300] * .004)
+    # more points than waveform samples resample the 480 inputs
+    c, _ = custom_wave_values(data, sample_count=512, smoothing=0.)
+    assert np.isclose(c[511], data[int(511 * 480 / 512)] * .004)

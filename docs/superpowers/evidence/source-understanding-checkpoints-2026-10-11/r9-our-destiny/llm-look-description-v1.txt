@@ -1,0 +1,10 @@
+LLM look description from the SDK recipe (before capture, r9 v1):
+A gamma-brightened (up to 8x) feedback picture with strong mirror structure: every feedback step
+flips the image top-bottom, and the composite adds a left-right mirrored, 1.01x magnified echo at
+50%, giving a four-fold kaleidoscope-like symmetry. Seeds: a mostly yellow circle (custom wave 1,
+radius ~72 px at the centre), a grayscale/cyan/blue/purple point or line wave, a blue built-in
+X-Y waveform and two large shapes (a square bigger than the screen, a triangle). Feedback decays
+fast (stored level halves within 3 steps), bass drives a slight radial zoom and rotation.
+Expected: a bright, symmetric centred pattern around a yellow ring with bluish-purple accents,
+brightness boosted by gamma; motion mostly pulsing zoom/rotation with the bass.
+The frozen illustration shows only the fresh ring (the field illustrator was not used).
