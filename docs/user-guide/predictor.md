@@ -43,6 +43,25 @@ preferences, not calibrated moods; all weights can be edited and the whole pack
 can be rescored without re-running the analysis. The strict source eligibility
 described below remains separate.
 
+### Calibrated activity groups (2026-10-12)
+
+The activity group now comes from a source-calibrated estimate. The static
+description of each preset predicts how much the picture changes, how fast it
+moves and how often its brightness jumps. These predictions come from a model
+fitted to measurements of the pinned engine rendering every bundled preset
+offline, with one 10-second synthetic track at 480×270. The measurements only
+train and check the model; a preset's group is never read from its own render.
+Activity is placed against the whole pack: Chill is the calmest 35%, Normal the
+middle half, Intense the most active 30%, and the groups overlap at their
+edges.
+
+Every preset now gets a group; before, 839 presets got none. Each group carries
+a confidence level. On presets the model never saw during fitting, the main
+group was right 64% of the time overall (chance is 33%), 85% for high-confidence
+presets, and 72% on the 90 presets checked against emulator captures. A calm
+preset was placed in Intense, or the reverse, 1.4% of the time. Real music, other
+render sizes and TV GPUs can behave differently.
+
 ## Source behaviour work in progress
 
 The experimental branch now joins conditional flashing, movement-speed, prominence

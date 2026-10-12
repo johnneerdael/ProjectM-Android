@@ -770,3 +770,45 @@ repeated on correctly oriented frames. Probes and results:
   shows the dark scene of wobbly overlapping rings with violet beat sparks. The
   ring layout differs from the emulator frame because the preset's init code
   draws `rand()` for its beat counters, so even two native runs differ.
+
+### Source-calibrated display estimates (2026-10-12)
+
+- **Labels.** The engine ruler (pinned patched projectM-TV rendered offline,
+  macOS GLES + SwiftShader, 480×270, 300 frames at 30 fps, checkpoint audio,
+  statistics over frames 60–299) measured all 9,606 bundled presets. These
+  measurements are calibration targets only, never classification inputs.
+- **Model.** `fit_display_calibration.py` fits gradient-boosted trees from the
+  `static_descriptor` columns of the r6 whole-pack summaries (analyzer
+  `ad44ce53`) to six display statistics. The 90 emulator-validated presets are
+  excluded from fitting. `fixtures/calibrated-display-model.json.gz` holds the
+  trees; `calibrated_display.predict` needs only the standard library.
+
+  | Statistic | Out-of-fold Spearman | Held-out 90 |
+  |---|---|---|
+  | Luminance | 0.583 | 0.574 |
+  | Frame difference | 0.693 | 0.733 |
+  | Flow | 0.665 | 0.729 |
+  | Brightness jumps | 0.757 | 0.734 |
+  | Saturation | 0.593 | 0.556 |
+  | Warm/cool | 0.498 | 0.468 |
+
+- **Activity.** `display_activity.py` takes the percentile of the mean
+  percentile rank of frame difference, flow and brightness jumps, measured
+  against frozen ruler quantiles (`fixtures/display-activity-reference-v1.json`).
+  Source-calibrated estimates are first remapped through the frozen out-of-fold
+  calibrated-activity distribution, a monotone map that keeps the band shares.
+  Bands follow the Mood facets definition: Chill ≤ 0.35, Normal 0.25–0.75,
+  Intense ≥ 0.70.
+- **Grouping.** `approximate_mood(summary, display=...)` assigns bands from the
+  calibrated activity, with confidence from the interval width: high ≤ 0.6,
+  medium ≤ 0.8. Out-of-fold, against measured activity:
+  - activity Spearman 0.735 (0.784 on the held-out 90);
+  - primary band accuracy 0.64 overall, 0.85 at high confidence, 0.72 on the
+    held-out set;
+  - Chill/Intense swaps 1.4%.
+
+  The whole-pack rescore (`corpus_understanding.py --rescore --display-model`)
+  gives no abstentions (previously 839): Chill 3,480, Normal 4,503, Intense
+  2,971. Recipes gain an additive `display_estimate` block. Evidence:
+  `docs/superpowers/evidence/source-calibrated-display-2026-10-12/`.
+

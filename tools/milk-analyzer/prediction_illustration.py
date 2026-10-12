@@ -237,14 +237,17 @@ def _terms_field(terms,x,y,time):
             inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'ang':-np.arctan2(y-.5,x-.5),'time':time,**_TERM_CONTEXT.get('bands',{})}
             total+=term.get('sign',1)*_evaluate_np(term['expression'],inputs,_TERM_CONTEXT['rng'])
         elif kind=='nonlinear_coordinate_term':
+            # Not evaluable here (unsupported operation or input): held at its range midpoint, or zero,
+            # like other unresolved terms, so the rest of the field is still illustrated.
             expression=term.get('expression')
-            if not expression:raise ValueError('nonlinear term without expression not illustrated')
             from time_expression import input_names
-            names=input_names(expression)
-            if names is None:raise ValueError('nonlinear term uses unsupported operations')
-            inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'time':time,**{n:1.0 for n in ('bass','mid','treb','bass_att','mid_att','treb_att')}}
-            if names-set(inputs):raise ValueError('nonlinear term inputs not illustrated: '+', '.join(sorted(map(str,names-set(inputs)))))
-            total+=term.get('sign',1)*_evaluate_np(expression,inputs)
+            names=input_names(expression) if expression else None
+            inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'ang':-np.arctan2(y-.5,x-.5),'time':time,
+                    **{n:1.0 for n in ('bass','mid','treb','bass_att','mid_att','treb_att')}}
+            if names is None or names-set(inputs):
+                value=_mid(term.get('value_range'));total+=0. if value is None else value
+                _UNRESOLVED_TERMS.add('nonlinear term '+('operation' if names is None else 'inputs '+','.join(sorted(map(str,names-set(inputs))))))
+            else:total+=term.get('sign',1)*_evaluate_np(expression,inputs)
         elif kind=='coordinate_gated':
             coordinate={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'ang':-np.arctan2(y-.5,x-.5)}.get(term['coordinate'])
             if coordinate is None:_UNRESOLVED_TERMS.add('gate on '+str(term['coordinate']));continue
@@ -313,8 +316,12 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
     rad=2*np.hypot(x-.5,y-.5)
     def sample(time):
         values={name:_terms_field(controls[name]['terms'] or [],x,y,time) for name in names}
-        if np.any(values['zoom']<=0) or np.any(values['zoomexp']<=0):raise ValueError('nonpositive zoom/zoomexp not illustrated')
-        zoom=np.power(values['zoom'],np.power(values['zoomexp'],2*rad-1))
+        # Negative zoom with zoomexp exactly 1 is the zoom itself (patch 0047's CPU path: a point
+        # reflection of the sample); other nonpositive bases have no defined power and are not illustrated.
+        positive=values['zoom']>0
+        unsupported=(values['zoom']==0)|(values['zoomexp']<=0)|((~positive)&(values['zoomexp']!=1))
+        if np.any(unsupported):raise ValueError('nonpositive zoom with zoomexp != 1 (or zero zoom) not illustrated')
+        zoom=np.where(positive,np.power(np.where(positive,values['zoom'],1.),np.power(values['zoomexp'],2*rad-1)),values['zoom'])
         u=.5+(x-.5)/zoom;v=.5+(y-.5)/zoom
         # Stretch near zero would sample at infinity; keep its sign with a 1e-3 magnitude floor.
         stretch=lambda value:np.where(np.abs(value)<1e-3,np.where(value<0,-1e-3,1e-3),value)
@@ -547,7 +554,9 @@ def _motion_vector_marks(facts,sample,time,width,height):
 
 
 _UNARY_NP={'sin':np.sin,'cos':np.cos,'tan':np.tan,'abs':np.abs,'negate':np.negative,'sqr':np.square,'floor':np.floor,
-           'ceil':np.ceil,'int':np.floor,'sign':np.sign,'exp':np.exp,'atan':np.arctan}
+           'ceil':np.ceil,'int':np.floor,'sign':np.sign,'exp':np.exp,'atan':np.arctan,
+           'log':lambda v:np.where(v>0,np.log(np.where(v>0,v,1.)),0.),'log10':lambda v:np.where(v>0,np.log10(np.where(v>0,v,1.)),0.),
+           'asin':lambda v:np.where(np.abs(v)<=1,np.arcsin(np.clip(v,-1,1)),0.),'acos':lambda v:np.where(np.abs(v)<=1,np.arccos(np.clip(v,-1,1)),0.)}
 
 
 _STOCHASTIC={'rand'}
@@ -581,6 +590,9 @@ def _evaluate_np(expression,inputs,rng=None):
             elif op=='remainder':
                 divisor=np.trunc(args[1]);result=np.where(divisor==0,0.,np.fmod(np.trunc(args[0]),np.where(divisor==0,1.,divisor)))
             elif op=='eel_equal':result=(np.abs(args[0]-args[1])<1e-5).astype(np.float64)
+            elif op=='atan2':result=np.arctan2(args[0],args[1])
+            elif op=='sigmoid':
+                t=1+np.exp(np.minimum(700.,-args[0]*args[1]));result=np.where(np.abs(t)>1e-5,1/t,0.)
             elif op=='bnot':result=(np.abs(args[0])<1e-5).astype(np.float64)
             elif op=='band':result=((np.abs(args[0])>1e-5)&(np.abs(args[1])>1e-5)).astype(np.float64)
             elif op=='bor':result=((np.abs(args[0])>1e-5)|(np.abs(args[1])>1e-5)).astype(np.float64)
@@ -709,6 +721,35 @@ def _sprite_operators(facts,width,height):
         if alpha is None or alpha[0]!=alpha[1] or any(c is None or c[0]!=c[1] for c in rgb):continue
         mask=((extent>=band[0])&(extent<=band[1])).astype(np.float32)
         operators.append((mask*min(1.,alpha[0]),np.array([c[0] for c in rgb],np.float32)))
+    return operators
+
+
+def _dynamic_border_operators(facts,width,height,values):
+    """Per-frame border blends for active borders whose colour/alpha/size vary: stepped per-frame
+    ob_*/ib_* values (frame program outputs), else the fact's range midpoints. Bands are square
+    annuli in NDC: outer [1-ob_size, 1], inner [1-ob_size-ib_size, 1-ob_size]."""
+    record=facts.get('/analysis/visual_description/static_behaviour/borders') or {}
+    if record.get('status')!='described':return []
+    ranges=record.get('control_ranges') or {}
+    def control(name):
+        value=values.get(name)
+        if type(value) in (int,float):return float(value)
+        span=ranges.get(name)
+        return (span[0]+span[1])/2 if isinstance(span,list) and len(span)==2 and None not in span else None
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width*2-1,(np.arange(height)+.5)/height*2-1)
+    extent=np.maximum(np.abs(columns),np.abs(rows))
+    operators=[]
+    for row in record.get('borders') or []:
+        rgb=row.get('rgb_ranges') or [];alpha=row.get('alpha_range')
+        static=alpha is not None and alpha[0]==alpha[1] and rgb and all(c is not None and c[0]==c[1] for c in rgb)
+        if not row.get('active') or static or row.get('inverted_inner_radius'):continue
+        prefix='ob_' if row.get('border')=='outer' else 'ib_'
+        size_outer=control('ob_size');size=control(prefix+'size');a=control(prefix+'a')
+        colour=[control(prefix+c) for c in 'rgb']
+        if None in (size_outer,size,a) or None in colour:continue
+        low,high=(1-size_outer,1.) if prefix=='ob_' else (1-size_outer-size,1-size_outer)
+        mask=((extent>=low)&(extent<=high)).astype(np.float32)
+        operators.append((mask*min(1.,max(0.,a)),np.clip(np.array(colour,np.float32),0,1)))
     return operators
 
 
@@ -1282,7 +1323,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     textured=_textured_shapes(facts,held)
     wrap=True
     if textured:limitations.append('textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)')
-    if sprites:limitations.append('borders and darken-centre blended into the feedback canvas every frame')
+    if sprites or _dynamic_border_operators(facts,8,8,{}):limitations.append('borders and darken-centre blended into the feedback canvas every frame (time-varying border colours from the per-frame program)')
     if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (declared per-frame audio when given, else midpoints; wave per-frame state stepped from its exported recurrence; long-side square projection)')
     for path,(colour,note) in colours.items():limitations.append(path+': '+note)
     wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths+dynamic_waves}
@@ -1425,7 +1466,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     # End of frame: this frame's per-frame update gives the next frame's start state.
                     entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**(bands or {})},frame_time,entry['frame'])
                     entry['frame']+=1
-            for alpha,colour in sprites:
+            for alpha,colour in sprites+_dynamic_border_operators(facts,width,height,held):
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
             for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):

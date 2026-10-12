@@ -1,0 +1,41 @@
+{
+ "policy": "whole-pack-grouping-r6-display",
+ "presets": 9606,
+ "analyzer_snapshot": "ad44ce53 (export) + calibrated display rescore (working tree after 6271efe9)",
+ "source_model_only": {
+  "band_counts": {
+   "Normal": 6953,
+   "Chill": 1198,
+   "Intense": 1498
+  },
+  "abstained": 839
+ },
+ "with_source_calibrated_display": {
+  "band_counts": {
+   "Normal": 4503,
+   "Chill": 3480,
+   "Intense": 2971
+  },
+  "confidence_counts": {
+   "low": 4045,
+   "medium": 3272,
+   "high": 2289
+  },
+  "abstained": 0
+ },
+ "honest_accuracy_out_of_fold": {
+  "activity_spearman": 0.735,
+  "primary_band_accuracy_remapped": 0.64,
+  "heldout_emulator_sets_primary_accuracy_remapped": 0.722,
+  "high_confidence_primary_accuracy": 0.848,
+  "medium_or_better_primary_accuracy": 0.69,
+  "opposite_extreme_swaps": 0.0144,
+  "chance": 0.333
+ },
+ "label_source": "engine ruler: pinned patched projectM-TV source34, macOS GLES + SwiftShader, 480x270, 300 frames at 30 fps, checkpoint audio; statistics frames 60-299; calibration targets only",
+ "notes": [
+  "Bands assigned from source-calibrated display estimates (static source facts through gradient-boosted trees fitted to engine-ruler labels); ruler measurements are not classification inputs",
+  "Whole-pack bands use the final model, which saw these presets during fitting; the out-of-fold numbers above are the honest accuracy estimate",
+  "Activity follows the Mood facets definition: percentile of the mean percentile rank of frame difference, flow speed and brightness jumps; Chill <= 0.35, Normal 0.25-0.75, Intense >= 0.70 (overlapping)"
+ ]
+}

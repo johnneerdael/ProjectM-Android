@@ -133,6 +133,15 @@ required. Use a native file-read tool to inspect JSON and the summary.
    value. State uncalibrated rules and missing contributors. For aesthetic
    interpretations such as hypnotic or psychedelic, tie the hypothesis to
    recognized constructions and label it an approximate interpretation.
+   When a recipe carries `display_estimate`, it is a source-calibrated
+   prediction of display statistics (luminance, frame difference, flow speed,
+   brightness jumps, saturation, warm/cool) with 10th–90th percentile
+   intervals, fitted to engine-ruler measurements of the bundled pack. Its
+   `activity` gives the pack-relative activity percentile and bands (Chill ≤
+   0.35, Normal 0.25–0.75, Intense ≥ 0.70). An approximate mood with
+   `band_source: source-calibrated-display` uses it, with confidence from the
+   interval width (out-of-fold primary-band accuracy 0.85 high, 0.64 overall).
+   Report it as a calibrated estimate, not a rendered measurement of the preset.
 
 ## Write the explanation
 

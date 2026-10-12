@@ -1,0 +1,110 @@
+{
+ "all_oof": {
+  "n": 9516,
+  "activity_spearman": 0.735,
+  "primary_band_accuracy": 0.597,
+  "bands_compatible": 0.737,
+  "opposite_extremes": 0.0077,
+  "width_sweep": [
+   {
+    "max_width": 0.2,
+    "coverage": 0.01,
+    "primary_accuracy": 0.969,
+    "compatible": 0.99
+   },
+   {
+    "max_width": 0.3,
+    "coverage": 0.047,
+    "primary_accuracy": 0.93,
+    "compatible": 0.946
+   },
+   {
+    "max_width": 0.4,
+    "coverage": 0.115,
+    "primary_accuracy": 0.854,
+    "compatible": 0.88
+   },
+   {
+    "max_width": 0.5,
+    "coverage": 0.249,
+    "primary_accuracy": 0.728,
+    "compatible": 0.821
+   },
+   {
+    "max_width": 0.6,
+    "coverage": 0.53,
+    "primary_accuracy": 0.663,
+    "compatible": 0.774
+   },
+   {
+    "max_width": 0.7,
+    "coverage": 0.999,
+    "primary_accuracy": 0.598,
+    "compatible": 0.738
+   },
+   {
+    "max_width": 0.8,
+    "coverage": 1.0,
+    "primary_accuracy": 0.597,
+    "compatible": 0.737
+   },
+   {
+    "max_width": 1.01,
+    "coverage": 1.0,
+    "primary_accuracy": 0.597,
+    "compatible": 0.737
+   }
+  ]
+ },
+ "heldout_emulator_sets": {
+  "n": 90,
+  "activity_spearman": 0.784,
+  "primary_band_accuracy": 0.667,
+  "bands_compatible": 0.811,
+  "opposite_extremes": 0.0111,
+  "width_sweep": [
+   {
+    "max_width": 0.3,
+    "coverage": 0.033,
+    "primary_accuracy": 1.0,
+    "compatible": 1.0
+   },
+   {
+    "max_width": 0.4,
+    "coverage": 0.111,
+    "primary_accuracy": 1.0,
+    "compatible": 1.0
+   },
+   {
+    "max_width": 0.5,
+    "coverage": 0.256,
+    "primary_accuracy": 0.87,
+    "compatible": 0.913
+   },
+   {
+    "max_width": 0.6,
+    "coverage": 0.489,
+    "primary_accuracy": 0.818,
+    "compatible": 0.841
+   },
+   {
+    "max_width": 0.7,
+    "coverage": 1.0,
+    "primary_accuracy": 0.667,
+    "compatible": 0.811
+   },
+   {
+    "max_width": 0.8,
+    "coverage": 1.0,
+    "primary_accuracy": 0.667,
+    "compatible": 0.811
+   },
+   {
+    "max_width": 1.01,
+    "coverage": 1.0,
+    "primary_accuracy": 0.667,
+    "compatible": 0.811
+   }
+  ]
+ }
+}

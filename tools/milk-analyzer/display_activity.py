@@ -57,14 +57,18 @@ def bands(value):
     return [name for name,low,high in BANDS if low<=value<=high]
 
 
-def classify(estimate,table=None):
+def classify(estimate,table=None,remap=False):
     """Bands for a display estimate {metric: {'value', 'interval'?}} or {metric: value}.
 
-    Returns {'activity','activity_interval','bands','possible_bands','certain'}; an interval
+    Returns {'activity','activity_interval','bands','possible_bands','certain_bands'}; an interval
     combines the metrics' interval ends (all low, all high), which bounds the monotone activity.
+    remap=True (source-calibrated estimates) places the activity within the frozen out-of-fold
+    calibrated-activity distribution, a monotone map that keeps the reference band shares
+    (calibrated regression shrinks estimates toward the middle).
     """
     table=table or load()
     if table is None:return None
+    mapping=table.get('calibrated_activity') if remap else None
     point={};low={};high={}
     for name in METRICS:
         entry=estimate.get(name)
@@ -75,11 +79,12 @@ def classify(estimate,table=None):
     value=activity(point,table)
     if value is None:return None
     a,b=activity(low,table),activity(high,table)
+    if mapping:value,a,b=(_rank(mapping,v) for v in (value,a,b))
     interval=[min(a,b,value),max(a,b,value)]
     possible=[name for name,lo,hi in BANDS if interval[0]<=hi and interval[1]>=lo]
     certain=[name for name,lo,hi in BANDS if lo<=interval[0] and interval[1]<=hi]
     return {'policy':POLICY,'activity':round(value,4),'activity_interval':[round(v,4) for v in interval],
-            'bands':bands(value),'possible_bands':possible,'certain_bands':certain}
+            'bands':bands(value),'possible_bands':possible,'certain_bands':certain,'remapped':bool(mapping)}
 
 
 def build(directories,output):

@@ -20,13 +20,17 @@ SATURATION_FLOOR=.08
 VALUE_FLOOR=.02
 UNARY={'sin':math.sin,'cos':math.cos,'tan':math.tan,'abs':abs,'negate':lambda v:-v,
        'sqr':lambda v:v*v,'floor':math.floor,'ceil':math.ceil,'int':math.floor,
-       'sign':lambda v:(v>0)-(v<0),'exp':math.exp,'atan':math.atan}
+       'sign':lambda v:(v>0)-(v<0),'exp':math.exp,'atan':math.atan,
+       # projectm-eval guards: log/log10 of x <= 0 give 0; asin/acos outside [-1, 1] give 0.
+       'log':lambda v:math.log(v) if v>0 else 0.,'log10':lambda v:math.log10(v) if v>0 else 0.,
+       'asin':lambda v:math.asin(v) if -1<=v<=1 else 0.,'acos':lambda v:math.acos(v) if -1<=v<=1 else 0.}
 
 
 # projectm-eval boolean functions (COMPARE_CLOSEFACTOR 1e-5): bnot(x)=|x|<1e-5, band/bor on |x|>1e-5.
 BOOLEAN={'bnot','band','bor'}
+BINARY_FUNCTIONS={'atan2','sigmoid'}
 SUPPORTED={'constant','input','add','subtract','multiply','divide','eel_divide','min','max','pow','sqrt',
-           'less','greater','less_equal','greater_equal','select','remainder','eel_equal',*UNARY,*BOOLEAN}
+           'less','greater','less_equal','greater_equal','select','remainder','eel_equal',*UNARY,*BOOLEAN,*BINARY_FUNCTIONS}
 STOCHASTIC={'rand'}
 
 
@@ -82,6 +86,9 @@ def evaluate_inputs(expression,inputs,rng=None):
         elif op=='remainder':result=_remainder(args[0],args[1])
         elif op=='rand':result=rng.random()*max(1.,math.floor(args[0]))
         elif op=='eel_equal':result=float(abs(args[0]-args[1])<1e-5)
+        elif op=='atan2':result=math.atan2(args[0],args[1])
+        elif op=='sigmoid':
+            t=1+math.exp(min(700.,-args[0]*args[1]));result=1/t if abs(t)>1e-5 else 0.
         elif op=='bnot':result=float(abs(args[0])<1e-5)
         elif op=='band':result=float(abs(args[0])>1e-5 and abs(args[1])>1e-5)
         elif op=='bor':result=float(abs(args[0])>1e-5 or abs(args[1])>1e-5)

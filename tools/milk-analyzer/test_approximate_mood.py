@@ -129,5 +129,7 @@ def test_narrow_calibrated_display_activity_decides_the_band(tmp_path, monkeypat
     assert mood['display_activity']['evidence'] == ['source-calibrated']
     vague = {name: {'value': v, 'interval': [0., v * 40], 'evidence': 'source-calibrated'} for name, v in
              (('mean_abs_frame_difference', .002), ('mean_flow_screen_widths_per_s', .02), ('global_brightness_jumps_per_10s', .5))}
-    assert approximate_mood(summary(), display=vague)['band_source'] != 'source-calibrated-display'
+    wide = approximate_mood(summary(), display=vague)
+    assert wide['band_source'] == 'source-calibrated-display' and wide['confidence'] == 'low' and wide['bands']
+    assert approximate_mood(summary(), rules={'display_activity_max_width': .3}, display=vague)['band_source'] != 'source-calibrated-display'
     display_activity._CACHE.clear()

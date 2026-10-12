@@ -204,7 +204,7 @@ def _display_estimate(summary):
     if model is None:return None
     values=predict(summary,model)
     from display_activity import classify
-    activity=classify({k:{'value':v['value'],'interval':v['interval']} for k,v in values.items()})
+    activity=classify({k:{'value':v['value'],'interval':v['interval']} for k,v in values.items()},remap=True)
     return {'policy':'source-calibrated-display-estimate-v1','statistics':values,'activity':activity,
             'reference':'engine ruler: pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, frames 60-299',
             'note':'Calibrated from static source facts; intervals are the 10th-90th percentile out-of-fold residuals; not a rendered measurement of this preset'}
