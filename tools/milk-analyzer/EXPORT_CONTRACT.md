@@ -317,6 +317,18 @@ and `profile.eligible=false`. These are explicit preference assumptions, not
 verified descriptions of scene topology. See [SOURCE_SCORING.md](SOURCE_SCORING.md)
 for exact formulas, aliases, thresholds and requirements.
 
+### Custom warp persistence (`render.feedback.warp_transfer`)
+
+When the decay control does not reach the canvas (a custom warp shader:
+projectM returns the shader's colour unchanged), `render.feedback.decay` is null
+and `warp_transfer` holds the exported warp shader evaluated on flat colours
+(levels 0–1, neutral bands, times 2/5/8 s): `levels`, mean output `rgb` per
+level, `gain_rgb` = W(1) − W(0), `offset_rgb` = W(0) and `halving_frames` =
+ln 0.5 / ln(mean gain) for uniform content (null when the gain is not in
+(0, 1)). The `trails` intent entry uses it when decay is null. It is the
+shader's arithmetic on uniform inputs, not a measured trail length; image
+structure, blur and injected terms can change local persistence.
+
 ### Mood facets block (`facets`, policy `preset-facets-v1`)
 
 `preset_recipe.py` adds a `facets` block to every recipe, and

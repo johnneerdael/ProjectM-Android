@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r22-v1",
+ "preset": "Rovastar - Cosmic Tornado - mash0000 - stargate, ministry of silly gates.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "8a629c5245e64e9ac0a581c24ba2e4b5ef7374653b986be74f6dc396a86f6f90",
+  "prediction.json": "faec9bb3460061a0ce25fcea81ce01bbc8a5dbb01907070f41f3e5dea47e6459",
+  "description.json": "eb3b443550c5eb1908e27c32c7c150fd1a266d9e8b511bd0264fb499cab3ada8",
+  "recipe.json": "f9458e196e57db7c9e08bdb4d4590ddc5e74f79d52ee9eaa52f3319a160c26a0",
+  "llm-look-description-v1.txt": "ee6e05c2afc29c384f9933a5c2938ee4aba8b024d3af8a31f6c84c10690d1126"
+ },
+ "capture_result_sha256": "98ac446c6e594b3c2e6af9f23b95da8b18563a3e8976f8289b207bdd06973854",
+ "review_measurements_v1": {
+  "prediction_luma": 0.217,
+  "screenshot_luma": 0.212,
+  "mean_rgb_prediction": [
+   0.246,
+   0.209,
+   0.176
+  ],
+  "mean_rgb_screenshot": [
+   0.245,
+   0.203,
+   0.173
+  ],
+  "saturation": [
+   0.173,
+   0.19
+  ],
+  "blurred_luma_correlation": 0.996
+ },
+ "agreements": [
+  "prediction image: the same vortex tube, bright yellow audio ring, pastel trails and dark upper-left as the capture",
+  "SDK text: dark screen, bright multicoloured audio-wobbled ring at the centre, smooth bass-modulated swirl and zoom into spiral trails, calm, no flashes"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "SDK text called trail persistence unresolved (decay null)",
+   "cause": "with a custom warp shader projectM does not apply decay; the recipe exposed no replacement",
+   "next": "done: render.feedback.warp_transfer gives the warp shader flat-colour gain (here 0.977 per frame, about 30 frames to halve) and the SKILL reads it"
+  }
+ ],
+ "status": "understood (v1): luma 0.217 vs 0.212, blurred correlation 0.996",
+ "uses_rendered_images_for_classification": false
+}

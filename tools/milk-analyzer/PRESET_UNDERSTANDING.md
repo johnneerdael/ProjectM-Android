@@ -1040,3 +1040,11 @@ repeated on correctly oriented frames. Probes and results:
   `1 − 0.01·equal(frame%6, 0)` has a closed-form mean, but the range analysis
   leaves it unresolved. It has no effect here, because projectM does not apply
   decay to custom warp shader output.
+- **r22 (`Rovastar - Cosmic Tornado - mash0000 …`) v1.** Understood on the
+  first prediction: a centred audio ring, swirled and zoomed into a vortex tube
+  with pastel trails (luma 0.217 vs 0.212, blurred correlation 0.996). The SDK
+  text matched as well, except that it called trail persistence unresolved:
+  with a custom warp shader the decay control is null. The recipe now carries
+  `render.feedback.warp_transfer`, the exported warp evaluated on flat colours
+  (here gain 0.977 per frame, about 30 frames to halve), and the SKILL reads
+  it.

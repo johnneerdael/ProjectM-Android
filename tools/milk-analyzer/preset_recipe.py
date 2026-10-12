@@ -134,6 +134,24 @@ def _layer(facts,index):
 AUDIO_NAMES={1:'bass',2:'mid',3:'treb',4:'bass_att',5:'mid_att',6:'treb_att',7:'vol',8:'vol_att'}
 
 
+def _warp_transfer(facts):
+    """Per-frame persistence of a custom warp shader, which the decay control does not reach.
+
+    projectM returns the warp shader's ret unchanged (decay only feeds _vDiffuse), so trails follow
+    the shader itself: its flat-colour transfer W(c) (feedback_equilibrium.stage_transfer) gives
+    gain W(1)-W(0) and offset W(0) per channel, and uniform content halves in ln 0.5 / ln gain frames.
+    """
+    from feedback_equilibrium import stage_transfer
+    table=stage_transfer(facts,'warp')
+    if table is None:return None
+    low,high=table['rgb'][0],table['rgb'][-1]
+    gain=[round(high[i]-low[i],6) for i in range(3)];offset=[round(low[i],6) for i in range(3)]
+    mean=sum(gain)/3
+    halving=math.log(.5)/math.log(mean) if 0<mean<1 else None
+    return {'gain_rgb':gain,'offset_rgb':offset,'halving_frames':halving,'levels':table['levels'],'rgb':table['rgb'],
+            'source':'exported warp shader evaluated on flat colours'}
+
+
 def _render(facts):
     persistence=facts.get(STATIC+'/feedback_persistence') or {}
     mesh=facts.get(STATIC+'/mesh_field') or {}
@@ -150,6 +168,7 @@ def _render(facts):
                          for name,row in (mesh.get('controls') or {}).items() if row.get('status')=='described'},
         'shader_advection':advection,
         'flat_field':{k:flat.get(k) for k in ('state_rgb','flat_region_behaviour','settle_seconds','composite_rgb_at_state') if flat.get(k) is not None} or None,
+        'warp_transfer':_warp_transfer(facts) if persistence.get('decay_gain') is None else None,
         'evidence':[p for p in (STATIC+'/feedback_persistence',STATIC+'/mesh_field',BASE+'/nonlinear_texture_colour_bounds/flat_field') if p in facts]}
     composite={}
     for path,value in facts.items():
@@ -460,7 +479,10 @@ def intent(recipe):
     effects=[]
     fb=render['feedback']
     half=features.get('feedback.half_life_s',{}).get('value')
-    effects.append({'effect':'trails','half_life_s':half,'decay_per_frame':fb.get('decay'),
+    warp=fb.get('warp_transfer') or {}
+    decay=fb.get('decay') if fb.get('decay') is not None else (sum(warp['gain_rgb'])/3 if warp.get('gain_rgb') else None)
+    if half is None and warp.get('halving_frames'):half=warp['halving_frames']/30
+    effects.append({'effect':'trails','half_life_s':half,'decay_per_frame':decay,
                     'faint_residue':bool(fb.get('stored_level_floor') and max(fb['stored_level_floor'])>0)})
     for pattern in fb['warp_patterns']:
         kind=pattern.get('pattern');row={'effect':None,'region':pattern.get('region') or None}

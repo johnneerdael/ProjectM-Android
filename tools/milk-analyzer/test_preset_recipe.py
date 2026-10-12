@@ -132,3 +132,21 @@ def test_possible_options_are_those_not_constant_across_the_intervals():
     assert {'vivid','drifting','no_strobe','normal'}<=set(options)
     assert not {'vivid','drifting','no_strobe','normal','warm','cool'}&set(possible)
     assert unresolved==['monochrome','pastel']
+
+
+def test_custom_warp_persistence_comes_from_the_warp_flat_colour_transfer(monkeypatch):
+    # A custom warp keeps 90% of uniform content and adds nothing: decay does not apply, the
+    # exported warp transfer gives the per-frame gain and the halving time.
+    import math
+    import feedback_equilibrium
+    import preset_recipe as R
+    monkeypatch.setattr(feedback_equilibrium, 'stage_transfer',
+                        lambda facts, stage, **_: {'levels': [0., .5, 1.], 'rgb': [[0.] * 3, [.45] * 3, [.9] * 3]} if stage == 'warp' else None)
+    facts = {'/analysis/visual_description/static_behaviour/feedback_persistence': {'decay_gain': None},
+             '/analysis/visual_description/stage_programs': {'stages': {'warp': {'status': 'exported'}}}}
+    feedback = R._render(facts)['feedback']
+    assert feedback['decay'] is None
+    transfer = feedback['warp_transfer']
+    assert transfer['gain_rgb'] == [.9, .9, .9] and transfer['offset_rgb'] == [0., 0., 0.]
+    assert abs(transfer['halving_frames'] - math.log(.5) / math.log(.9)) < 1e-9
+    assert transfer['source'] == 'exported warp shader evaluated on flat colours'

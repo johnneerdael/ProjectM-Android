@@ -75,7 +75,12 @@ required. Use a native file-read tool to inspect JSON and the summary.
    marker ceiling visible speed.
    Read `static_behaviour.feedback_persistence` for the conditional RGBA8
    stored-level decay orbit: half-level and floor steps, and the largest level
-   that never decays. A nonzero floor means faint content can persist instead
+   that never decays. With a custom warp shader the decay control does not
+   apply (projectM returns the shader's colour unchanged), so `decay` is null.
+   Then read the recipe's `render.feedback.warp_transfer`: the exported warp
+   evaluated on flat colours gives the per-frame `gain_rgb`, `offset_rgb` and
+   `halving_frames` of uniform content. Report that as the trail persistence
+   instead of calling it unresolved. A nonzero floor means faint content can persist instead
    of returning to black. Use the profile intervals, not one orbit. With a
    curve relation, `persistence_layer_sweep` says whether retained layers cross
    whole inter-turn gaps before the floor; if so, state a conditional
