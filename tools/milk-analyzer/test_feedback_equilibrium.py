@@ -82,3 +82,23 @@ def test_random_shape_colour_uses_the_expected_value_of_its_distribution():
                                   {'op': 'constant', 'args': [], 'detail': {'value': 1.}}, {'op': 'constant', 'args': [], 'detail': {'value': .1}}]}
     assert abs(E._formula_mean(red) - .5) < .02
     assert abs(E._formula_mean(green) - .25) < .01
+
+
+def test_stage_transfer_supplies_render_inputs_and_stepped_frame_state(monkeypatch):
+    # Shader programs inline per-frame graphs: time, frame and Q state must be bound, or the
+    # transfer of about half of all custom shaders is lost.
+    import prediction_illustration as P
+    seen = []
+    def fake(program, image, uv, time, fps, bands, controls=None, stage='warp', **_):
+        seen.append(dict(controls));import numpy as np;return np.full(image.shape, .5, np.float32)
+    monkeypatch.setattr(P, '_evaluate_stage', fake)
+    q1 = {'root': 0, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'time'}}], 'plans': []}
+    facts = {'/analysis/visual_description/stage_programs': {
+        'stages': {'warp': {'status': 'exported', 'program': {'root': 0, 'nodes': []}}},
+        'frame': {'status': 'exported', 'state': {}, 'outputs': {'q1': q1}, 'unsupported': {}}},
+        '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    table = E.stage_transfer(facts, 'warp', levels=(0., 1.), times=(2.,))
+    assert table['rgb'][0] == [.5, .5, .5]
+    controls = seen[0]
+    assert abs(controls['time'] - 2.) < 1e-6 and controls['frame'] == 59. and controls['fps'] == 30.
+    assert abs(controls['q1'] - 2.) < 1e-6 and controls['aspecty'] > 1.

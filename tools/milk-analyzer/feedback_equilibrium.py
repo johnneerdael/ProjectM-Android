@@ -62,19 +62,44 @@ def stage_transfer(facts,stage,levels=LEVELS,times=TIMES,size=(48,27)):
     columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
     uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
     bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
+    controls=_stage_controls(facts,bands,times)
     table=[]
     for level in levels:
         image=np.full((height,width,3),level,np.float32)
         outputs=[]
         for time in times:
             try:
-                out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,controls=dict(bands),stage=stage)
+                out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,controls=dict(controls[time]),stage=stage)
             except Exception:  # noqa: BLE001 - an unevaluable program leaves the transfer unknown
                 return None
             out=np.where(np.isfinite(out),out,0.)
             outputs.append(np.clip(out,0,1).reshape(-1,3).mean(0))
         table.append([float(v) for v in np.mean(outputs,axis=0)])
     return {'levels':list(levels),'rgb':table}
+
+
+def _stage_controls(facts,bands,times,fps=30.):
+    """Inputs a stage program reads at each declared time: bands, the engine frame clock, readonly
+    render values and the per-frame state (exported frame program stepped under the same bands).
+
+    Frame k renders at time (k+1)/fps; shader programs inline per-frame graphs over the start-of-frame
+    state, as the illustrator binds them.
+    """
+    import numpy as np
+    import prediction_illustration as P
+    constants=P._render_constants(facts.get('/analysis/visual_description/static_behaviour/context') or {})
+    frame=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
+    stepper=P._FrameStepper(frame,constants=constants) if frame.get('status')=='exported' and (frame.get('state') or frame.get('outputs')) else None
+    result={};k=0;out={}
+    for time in sorted(times):
+        target=max(0,int(round(time*fps))-1)
+        base={**bands,**constants,'time':float(np.float32(time)),'fps':float(fps),'frame':float(target),'progress':0.}
+        if stepper is not None:
+            while k<=target:
+                out=stepper.step(float(np.float32((k+1)/fps)),fps,bands,k);k+=1
+            base.update({name:value for name,value in {**out,**stepper.start}.items() if isinstance(value,(int,float))})
+        result[time]=base
+    return result
 
 
 def _apply_transfer(transfer,rgb):

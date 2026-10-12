@@ -57,6 +57,7 @@ def descriptor(summary):
             path=INDEX.sub('/*',str(row.get('path','')))
             _walk(row.get('value'),group+':'+path,0,leaves)
     columns=_equilibrium_columns(summary)
+    columns.update(_control_series_columns(summary))
     for key,values in leaves.items():
         if key.endswith('=') or not values:continue
         if '=' in key.rsplit('/',1)[-1]:
@@ -66,6 +67,63 @@ def descriptor(summary):
         if len(values)>1:
             columns[key+'#mean']=sum(values)/len(values)
             columns[key+'#count']=float(len(values))
+    return columns
+
+
+# Per-frame motion/visibility controls and their neutral values.
+SERIES_CONTROLS={'zoom':1.,'zoomexp':1.,'rot':0.,'warp':0.,'dx':0.,'dy':0.,'sx':1.,'sy':1.,'cx':.5,'cy':.5,'decay':1.,
+                 'wave_a':0.,'echo_alpha':0.,'mv_a':0.,'ob_a':0.,'ib_a':0.}
+SERIES_FRAMES=300
+SERIES_BUDGET_SECONDS=4.
+_BANDS={}
+
+
+def _control_series_columns(summary,frames=SERIES_FRAMES,fps=30.):
+    """Time statistics of the authored per-frame controls over the declared reference band sequence.
+
+    The exported frame program (stage_programs.frame) is stepped for frames/fps seconds at the
+    engine's frame clock with the declared per-frame bands (fixtures/reference-band-sequence): a
+    scalar evaluation of the authored equations, with no pixels drawn. For each control: mean,
+    mean absolute deviation from its neutral value, spread and mean absolute frame-to-frame change.
+    """
+    import json
+    import math
+    import time
+    from pathlib import Path
+    facts={}
+    for rows in summary.get('facts',{}).values():
+        for row in rows:facts[row.get('path')]=row.get('value')
+    frame=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
+    outputs=[name for name in (frame.get('outputs') or {}) if name in SERIES_CONTROLS]
+    if frame.get('status')!='exported' or not outputs:return {}
+    try:
+        import numpy as np
+        from prediction_illustration import _FrameStepper,_render_constants
+        if 'frames' not in _BANDS:
+            path=Path(__file__).with_name('fixtures')/'reference-band-sequence-2026-10-12.json'
+            _BANDS['frames']=json.loads(path.read_text())['frames']
+        bands=_BANDS['frames']
+        stepper=_FrameStepper(frame,constants=_render_constants(facts.get('/analysis/visual_description/static_behaviour/context') or {}))
+        series={name:[] for name in outputs};started=time.perf_counter()
+        for k in range(frames):
+            out=stepper.step(float(np.float32((k+1)/fps)),fps,bands[min(k,len(bands)-1)],k)
+            for name in outputs:
+                value=out.get(name)
+                series[name].append(float(value) if isinstance(value,(int,float)) and math.isfinite(value) else None)
+            if time.perf_counter()-started>SERIES_BUDGET_SECONDS:break
+    except Exception:  # noqa: BLE001 - a descriptor never fails on one derived group
+        return {}
+    columns={};changing=0
+    for name,values in series.items():
+        values=[v for v in values if v is not None]
+        if len(values)<2:continue
+        neutral=SERIES_CONTROLS[name];mean=sum(values)/len(values)
+        spread=(sum((v-mean)**2 for v in values)/len(values))**.5
+        change=sum(abs(b-a) for a,b in zip(values,values[1:]))/(len(values)-1)
+        columns.update({f'series:{name}#mean':mean,f'series:{name}#mean_abs_deviation_from_neutral':sum(abs(v-neutral) for v in values)/len(values),
+                        f'series:{name}#spread':spread,f'series:{name}#mean_abs_frame_change':change})
+        changing+=spread>1e-9
+    if columns:columns['series:changing_controls']=float(changing)
     return columns
 
 
