@@ -1,0 +1,39 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r20-v1",
+ "preset": "amandio c - prime forms 2 nz+ adam kreighble' youtube user-allseeingeye93#p-u-1-Ew6_tqnPYoU 2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "fc8b56d84480f1d3f1aeffd56e04c19c21e95cceaeccc2e7f7ed1b18fbf91d92",
+  "description-v1-before-capture.json": "00b909b9f45a2cd5ea8342d0298e262bf6653e4a0258919ab873d0fc00bd320a",
+  "recipe-v1-before-capture.json": "c4f2ebe7d377d6eb6677225088386cb263e1bd44a3d868a3e7669dcaa6910132",
+  "prediction-v1.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "llm-look-description-v1.txt": "014b63543285aab4da29cc1369d1ef99851da8b5046910d5cea1a408b269b493"
+ },
+ "capture_result_sha256": "c54b988f27a53667344999eb8ddd7a31fc3a44d4edf7b3f145ba8121a51571b0",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.567,
+  "mean_rgb_screenshot": [
+   0.346,
+   0.649,
+   0.721
+  ],
+  "saturation_screenshot": 0.534,
+  "engine_ruler_mean_luminance": 0.539
+ },
+ "agreements": [
+  "SDK text expected a medium-bright, colourful, softly flowing field without hard flashes; the capture is bright cyan with stripes radiating from a chaotic centre (luma 0.57 vs estimate 0.28)"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "prediction entirely black; capture a bright cyan striped field with a chaotic centre",
+   "cause": "shape 0 is drawn as 1024 instances placed along a 2D trigonometric walk that per-frame code writes into gmegabuf inside loop(1024*c, ...); the warp shader runs a Conway life automaton (green) seeded by those dots and subtracts 1-q2 (q2=0.005) each frame, and decay clears the screen every 10 s. The exporter cannot represent EEL loop() or gmegabuf, so the drawn content (the source of all brightness) is absent; the SDK description also missed the shape entirely",
+   "scope": "410 of 9606 bundled presets use megabuf; 205 use loop(); 269 read megabuf from wave/shape code",
+   "next": "represent fixed-count EEL loops and global megabuf memory in the exported frame/shape programs (or describe them as a parametric point set), then re-check"
+  }
+ ],
+ "status": "not understood (v1): loop/megabuf-driven geometry unsupported",
+ "uses_rendered_images_for_classification": false
+}

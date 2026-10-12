@@ -1,0 +1,12 @@
+LLM look description from the SDK recipe, source parts only (before capture, r20 v1; the recipe's
+engine-measured facets block was deliberately not used):
+A shader-driven scene with no drawn waves or shapes reported: the warp shader applies a periodic
+spatial displacement (ripples or wobble) to the feedback image, and the composite self-advects
+(image content steering its own sampling: flowing, smeared, fluid-like structure). Colour comes from
+the shaders and is unresolved from source; the RGB of the warp/composite colour terms follows bass,
+mid and treble, so colours pulse with the music. A thin white outer border is blended every frame.
+The composite has a slow brightness cycle (~0.08 Hz, about one swell every 12 s).
+Calibrated display estimate: Normal (activity 0.41, interval 0.02-0.87); luminance ~0.28,
+saturation ~0.45, frame difference ~0.07, flow ~0.09 screen widths/s, jumps ~2 per 10 s.
+Expected: a medium-bright, colourful, softly flowing marbled/rippled field that shifts colour with
+the music and slowly brightens and dims, without hard flashes.
