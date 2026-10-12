@@ -80,7 +80,7 @@ Native trails works only above 1330p. On a 1080p TV, Diagnostics shows *inactive
 
 F-Droid editions start with 20 presets, so Mood counts are small. Open **Advanced › Cream of the Crop** to download the complete library. [Collection setup](getting-started.md#optional-collection-in-f-droid-editions).
 
-The Mood panel counts only presets this device can play, so skipped presets reduce it. Options that would leave no presets are dimmed. If every match in your mix is skipped, the header reads *No presets left in your mix; playing All*. Custom-pack presets are not played while an option is active; choose *Custom* in the Collection row. A full-collection download made before attributes existed offers only the Collection choice; download it again. See [Preset moods](predictive-collections.md).
+The Mood panel counts only presets this device can play, so skipped presets reduce it. Options that would leave no presets are dimmed. If no preset matches your mix, because every match is skipped or a deselection leaves no preset that fits every group, the header reads *No presets match your mix; playing All*. Custom-pack presets are not played while an option is active; choose *Custom* in the Collection row. A full-collection download made before attributes existed offers only the Collection choice, and the header asks you to download the full collection again (Settings › Advanced › Cream of the Crop). See [Preset moods](predictive-collections.md).
 
 ## The collection download failed or disappeared
 

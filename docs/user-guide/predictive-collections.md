@@ -9,11 +9,11 @@ Open the settings panel and choose **Preset mood** (Settings › Preset mood) to
 
 ## Attributes
 
-Each group is one row; each option shows the number of presets you would have if you toggled it (*→ N*).
+Each group is one row; each option shows the number of presets you would have if you toggled it (*→ N*; for a selected option, the mix without it).
 
 | Group | Options | Measured from |
 |---|---|---|
-| **Energy** | Chill, Normal, Intense | An activity percentile combining frame-to-frame change, motion speed and brightness jumps |
+| **Energy** | Chill, Normal, Intense | An activity percentile combining frame-to-frame change, motion speed and brightness jumps, ranked against a reference frozen from the 9,606 bundled presets |
 | **Brightness** | Dark, Balanced, Bright | Mean luminance |
 | **Colour** | Monochrome, Pastel, Vivid, Warm, Cool | Coloured share, saturation, luminance and warm/cool balance |
 | **Movement** | Still, Drifting, Fast | Motion speed in screen widths per second |
@@ -26,20 +26,20 @@ The exact thresholds are in `tools/milk-analyzer/facets/facets-v1.json`. Ranges 
 
 - Options in the **same group** combine as OR: **Vivid** and **Warm** play presets that are either.
 - **Different groups** combine as AND: **Chill** and **Dark** play presets that are both.
-- Nothing selected plays all presets. **Clear all** returns to that.
+- Nothing selected plays all presets. **Clear all** returns to that (it rests while Custom plays, keeping your options).
 - Options that would leave no presets are dimmed and skipped by Left and Right.
-- The header shows *N presets in your mix*. Under 20 it adds *few presets: some repetition*. If every match is skipped on this TV it shows *No presets left in your mix; playing All* and plays All.
+- The header always shows a count: *N presets in your mix*, all available presets when nothing is selected, or *Custom pack: N presets* while Custom plays. Under 20 it adds *few presets: some repetition*. If no preset is left, because every match is skipped on this TV or a deselection leaves no preset that fits every group, it shows *No presets match your mix; playing All* and plays All.
 - Counts exclude presets this TV has skipped. Automatic changes, **Random** and **Previous** stay inside the mix, and your choice is saved.
 - A **Chill**, **Normal** or **Intense** choice saved by an earlier version becomes the matching **Energy** option.
 - Presets from a [custom pack](custom-packs.md) have no attributes, so they are not played while any option is active. The **Collection** row (*Built-in* or *Custom*) appears when a pack exists or Custom is chosen; choose *Custom* to play the pack.
 
 ## Which presets have attributes
 
-GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none, and then the Mood panel offers only the Collection choice; download the collection again to get the attributes.
+GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none: the Mood header then reads *Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)* and only the Collection choice is offered. Downloading, replacing or removing the collection updates the Mood panel and the mix immediately; no restart is needed.
 
 ## How the attributes are measured
 
-Energy, Brightness, Colour, Movement and Comfort come from engine-ruler measurements of every bundled preset. Each preset is rendered once for 10 seconds at 480x270 and 30 fps; the statistics use frames 60-299 and one synthetic audio track, on macOS GLES under SwiftShader (see `tools/native-ruler/`). Style comes from facts read from the preset source: its equations and shapes, not a render.
+Energy, Brightness, Colour, Movement and Comfort come from engine-ruler measurements of every bundled preset. Energy's activity percentile is looked up in a reference frozen once from those 9,606 measurements, so a later collection does not shift what Chill or Intense means. Each preset is rendered once for 10 seconds at 480x270 and 30 fps; the statistics use frames 60-299 and one synthetic audio track, on macOS GLES under SwiftShader (see `tools/native-ruler/`). Style comes from facts read from the preset source: its equations and shapes, not a render.
 
 ## Limits
 

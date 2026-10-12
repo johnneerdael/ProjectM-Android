@@ -60,10 +60,10 @@ On TV, when the panel opens, focus starts on the **Random** button, or on **Inst
 
 ![Mood panel: Energy, Brightness, Colour, Movement, Style and Comfort rows with preset counts](images/setup/mood.png)
 
-- The header reads *N presets in your mix* (with *few presets: some repetition* under 20, and *No presets left in your mix; playing All* if every match is skipped on this device).
+- The header always counts the mix: *N presets in your mix* (all available presets when nothing is selected), with *few presets: some repetition* under 20, or *Custom pack: N presets* while Custom plays. *No presets match your mix; playing All* appears when every match is skipped on this device or a deselection leaves no preset that fits every group.
 - A **Collection** row (*Built-in* or *Custom*) appears when a [custom pack](custom-packs.md) exists or Custom is chosen.
-- Each group (**Energy**, **Brightness**, **Colour**, **Movement**, **Style**, **Comfort**) is one row. Left and Right move between its options, Center (or a tap on phones) switches the highlighted option on or off. Every option shows *→ N*: the presets you would have if you toggled it. Options that would leave no presets are dimmed and skipped.
-- **Clear all** removes every selection (all presets play). Back returns to the main panel; the panel hides after 10 seconds without input.
+- Each group (**Energy**, **Brightness**, **Colour**, **Movement**, **Style**, **Comfort**) is one row. Left and Right move between its options, Center (or a tap on phones) switches the highlighted option on or off. Every option shows *→ N*: the presets you would have if you toggled it (for a selected option, the mix without it). Options that would leave no presets are dimmed and skipped.
+- **Clear all** removes every selection (all presets play). It rests, dimmed, while Custom plays, so your saved options are kept. Back returns to the main panel; the panel hides after 10 seconds without input.
 
 Changing the mix keeps the current preset if it is still in the mix. Otherwise it cuts to a member. Previous-preset history restarts with the new mix. See [Preset moods](predictive-collections.md).
 

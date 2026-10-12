@@ -20,7 +20,8 @@ The app's [Mood panel](predictive-collections.md) reads a measured bundle in `co
 | File | Content |
 |---|---|
 | `facets.json` | The definition (`schema: projectm-tv-mood-facets`, `version: 1`): groups, option ids and labels, threshold rules, and the combination rule (OR within a group, AND across groups). Source: `tools/milk-analyzer/facets/facets-v1.json` |
-| `attributes.tsv` | Header lines `#projectm-tv-preset-attributes<TAB>1`, `#definition<TAB><sha256 of facets.json>`, one `#group<TAB>id<TAB>label` and `#option<TAB>group<TAB>id<TAB>label` line per group and option, then `#columns<TAB>name<TAB>options<TAB>luminance<TAB>saturation<TAB>coloured_share<TAB>warm_cool<TAB>flow<TAB>frame_difference<TAB>jumps<TAB>activity`. Each data row is the preset file name, its comma-separated option ids and the eight measured values (activity is a 0-1 percentile) |
+| `attributes.tsv` | Header lines `#projectm-tv-preset-attributes<TAB>1`, `#definition<TAB><sha256 of facets.json>`, one `#group<TAB>id<TAB>label` and `#option<TAB>group<TAB>id<TAB>label` line per group and option, then `#columns<TAB>name<TAB>options<TAB>luminance<TAB>saturation<TAB>coloured_share<TAB>warm_cool<TAB>flow<TAB>frame_difference<TAB>jumps<TAB>activity`. Each data row is the preset file name, its comma-separated option ids and the eight measured values (activity is a 0-1 percentile against the frozen activity reference) |
+| Activity reference (tools only) | `tools/milk-analyzer/facets/activity-reference-v1.json`, named with its SHA-256 by the definition's `activity_reference`: 1001-point quantile tables of `mean_abs_frame_difference`, `mean_flow_screen_widths_per_s`, `global_brightness_jumps_per_10s` and of their mean rank, frozen once from the 9,606 ruler results (provenance: ruler identity, preset count, ruler results manifest SHA-256). Activity is the mid-rank of the mean of the three metric mid-ranks, each looked up in these tables; it is not recomputed per release. Write it once per definition version with `--freeze-activity-reference <file> --ruler <dir> --ruler-manifest <file>` |
 | `manifest.json` | `schema`, `version`, `preset_count`, `measured_count`, per-option `option_counts`, SHA-256 of `attributes.tsv`, `facets.json`, `presets.idx`, the ruler results manifest and the style facts, plus the ruler conditions (`size` 480x270, `frames` 300, audio and engine identity) |
 
 Build and verify (standard library only; CI runs `--check`):
@@ -30,7 +31,7 @@ python3 tools/milk-analyzer/attribute_bundle.py --ruler <ruler results dir> --st
 python3 tools/milk-analyzer/attribute_bundle.py --check
 ```
 
-`--check` verifies the bundle against `presets.idx`, the definition and the manifest, and recomputes every option membership from the stored values and style options. `tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
+`--check` verifies the bundle against `presets.idx`, the definition, the activity reference's SHA-256 and the manifest, and recomputes every option membership from the stored values and style options. `tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
 
 ## Static source-description contract
 
