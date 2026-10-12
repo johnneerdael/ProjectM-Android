@@ -1,21 +1,28 @@
 """Facet style facts (kaleidoscope, tunnel, liquid, geometric, particles, fractal) from source summaries.
 
 Mechanisms are proven program constructions; structure scores are the approximate mood features.
-Rules are the Mood facets definition's style_rules; no rendered image or simulation is used.
+Rules (narrowed from the Mood facets style_rules to discriminating constructions):
+  kaleidoscope: mechanism angular_mirror_fold, or structure.symmetry >= .55
+  tunnel:       mechanism polar_radial_sampling
+  liquid:       (image_driven_advection or gradient_driven_advection) AND structure.organic >= .6
+  geometric:    structure.geometric >= .6
+  particles:    mechanism point_cloud_primitive or procedural_point_motion
+  fractal:      mechanism nonlinear_feedback_map or complex_quadratic_recurrence, or structure.fractal >= .6
+No rendered image or simulation is used.
 """
 import argparse, base64, gzip, json, subprocess
 from pathlib import Path
 
 STYLES = ('kaleidoscope', 'tunnel', 'liquid', 'geometric', 'particles', 'fractal')
 MECHANISMS = {
-    'kaleidoscope': {'angular_mirror_fold', 'cartesian_mirror_fold'},
-    'tunnel': {'polar_radial_sampling', 'radial_feedback_transform'},
+    'kaleidoscope': {'angular_mirror_fold'},
+    'tunnel': {'polar_radial_sampling'},
     'liquid': {'image_driven_advection', 'gradient_driven_advection'},
     'geometric': set(),
     'particles': {'point_cloud_primitive', 'procedural_point_motion'},
     'fractal': {'nonlinear_feedback_map', 'complex_quadratic_recurrence'},
 }
-SCORES = {'kaleidoscope': ('structure.symmetry', .55), 'liquid': ('structure.organic', .6),
+SCORES = {'kaleidoscope': ('structure.symmetry', .55),
           'geometric': ('structure.geometric', .6), 'fractal': ('structure.fractal', .6)}
 
 
@@ -31,16 +38,26 @@ def _features(summary):
     return feature_vector(summary)
 
 
+def _score(features, name):
+    value = (features.get(name) or {}).get('value')
+    return value if type(value) in (int, float) else None
+
+
 def style_facts(summary):
     mechanisms = _mechanisms(summary)
     features = _features(summary)
     found = []
     for style in STYLES:
+        if style == 'liquid':
+            organic = _score(features, 'structure.organic')
+            if mechanisms & MECHANISMS['liquid'] and organic is not None and organic >= .6:
+                found.append(style)
+            continue
         hit = bool(mechanisms & MECHANISMS[style])
         if not hit and style in SCORES:
             name, threshold = SCORES[style]
-            value = (features.get(name) or {}).get('value')
-            hit = type(value) in (int, float) and value >= threshold
+            value = _score(features, name)
+            hit = value is not None and value >= threshold
         if hit:
             found.append(style)
     return found
@@ -51,7 +68,8 @@ def main(argv=None):
     parser.add_argument('results', type=Path, help='whole-pack results directory (corpus_understanding)')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args(argv)
-    sha = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True).stdout.strip()
+    sha = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True,
+                         cwd=Path(__file__).resolve().parent).stdout.strip()
     rows = []
     for path in sorted(args.results.glob('*.json')):
         row = json.loads(path.read_text())
