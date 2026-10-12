@@ -188,4 +188,131 @@ public class OfficialPresetDownloadTest {
             assertEquals(pack.directory,OfficialPresetPack.current(root));assertTrue(new File(pack.directory,"official-presets.idx").isFile());
         }finally{CustomPresetPack.delete(parent);}
     }
+
+    // The Mood attribute source follows committed(): the generation the native engine has actually
+    // committed, never the durable pointer alone.
+    private static java.util.concurrent.Callable<InputStream> descriptorSource()throws Exception {
+        String json="{\"schema_version\":1,\"collection_id\":\""+OfficialPresetPackTest.sha("collection".getBytes())+"\",\"archive_sha256\":\""+OfficialPresetPackTest.sha(new byte[]{1})+"\",\"archive_url\":\"https://github.com/collection.zip\",\"compressed_bytes\":1,\"expanded_bytes\":1,\"preset_count\":2,\"texture_count\":0}";
+        return ()->new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+    }
+    /** Scripted auto-apply restore: status() reports the native request state. */
+    private abstract static class Restore implements OfficialPresetDownload.RestoreIndex {
+        final AtomicInteger discards=new AtomicInteger();final java.util.List<String> applied=new java.util.ArrayList<>();
+        volatile boolean pending;
+        public long apply(String directory){applied.add(directory);return 7;}
+        public void discard(long request){discards.incrementAndGet();}
+        public boolean inUse(String directory){return false;}
+        public void pending(boolean value){pending=value;}
+    }
+    private static void settle(OfficialPresetDownload download)throws Exception {
+        long until=System.currentTimeMillis()+5000;
+        while(download.status().busy()&&System.currentTimeMillis()<until)Thread.sleep(10);
+        assertFalse("operation did not settle",download.status().busy());
+    }
+    private static File installed(File parent,File root)throws Exception {
+        OfficialPresetPackTest fixture=new OfficialPresetPackTest();File archive=fixture.archive(parent,false,false);
+        OfficialPresetPack.Descriptor d=(OfficialPresetPack.Descriptor)fixture.descriptor(OfficialPresetPack.class,archive,fixture.expanded(archive),null);
+        CustomPresetPack.Pack pack=OfficialPresetPack.prepare(root,archive,d,()->false,n->{});CustomPresetPack.activate(root,pack);
+        return pack.directory;
+    }
+    @Test public void restoreTimeoutOrFailureWithAValidPointerFallsBackToBundledAttributes()throws Exception {
+        for(boolean timeout:new boolean[]{true,false}) {
+            File parent=Files.createTempDirectory("official-restore-failed").toFile(),root=new File(parent,"store");
+            try {
+                File generation=installed(parent,root);
+                OfficialPresetDownload download=new OfficialPresetDownload(root,url->{throw new IOException("no transfer");});
+                Restore index=new Restore(){
+                    public int status(long request){return timeout?(discards.get()==0?0:-1):-1;}
+                };
+                download.restore(descriptorSource(),index,timeout?100:5000);
+                settle(download);
+                assertEquals(java.util.Collections.singletonList(generation.getAbsolutePath()),index.applied);
+                assertEquals("the unapplied request is discarded",1,index.discards.get());
+                assertFalse("restore-pending cleared",index.pending);
+                assertEquals("error",download.status().phase);
+                assertEquals("nothing committed: the status names no collection","",download.status().identity);
+                assertNull("the engine keeps the starters",download.committed());
+                assertNull("Mood uses the bundled starter attributes",OfficialCollection.attributesFile(download.committed()));
+                assertEquals("the durable pointer remains for the next start",generation,OfficialPresetPack.current(root));
+            }finally{CustomPresetPack.delete(parent);}
+        }
+    }
+    @Test public void restoreCommittedOnlyWhenTheEngineAppliedTheRequest()throws Exception {
+        for(boolean late:new boolean[]{false,true}) {
+            File parent=Files.createTempDirectory("official-restore-ok").toFile(),root=new File(parent,"store");
+            try {
+                File generation=installed(parent,root);
+                OfficialPresetDownload download=new OfficialPresetDownload(root,url->{throw new IOException("no transfer");});
+                // late: the engine committed after the wait expired; discard is then a no-op and the
+                // request still reports applied, so the pack is the committed one.
+                Restore index=new Restore(){
+                    public int status(long request){return !late||discards.get()>0?2:0;}
+                };
+                download.restore(descriptorSource(),index,late?100:5000);
+                settle(download);
+                assertEquals("installed",download.status().phase);
+                assertEquals(OfficialPresetPackTest.sha("collection".getBytes()),download.status().identity);
+                assertEquals(generation,download.committed());
+                assertEquals(new File(generation,"preset-attributes/attributes.tsv"),OfficialCollection.attributesFile(download.committed()));
+            }finally{CustomPresetPack.delete(parent);}
+        }
+    }
+    @Test public void pendingRestoreKeepsTheBundledSourceUntilItSettles()throws Exception {
+        File parent=Files.createTempDirectory("official-restore-pending").toFile(),root=new File(parent,"store");
+        java.util.concurrent.CountDownLatch release=new java.util.concurrent.CountDownLatch(1),waiting=new java.util.concurrent.CountDownLatch(1);
+        try {
+            File generation=installed(parent,root);
+            OfficialPresetDownload download=new OfficialPresetDownload(root,url->{throw new IOException("no transfer");});
+            Restore index=new Restore(){
+                public int status(long request){
+                    waiting.countDown();
+                    try{return release.await(5,java.util.concurrent.TimeUnit.SECONDS)?2:0;}
+                    catch(InterruptedException e){Thread.currentThread().interrupt();return 0;}
+                }
+            };
+            download.restore(descriptorSource(),index,10000);
+            assertTrue(waiting.await(5,java.util.concurrent.TimeUnit.SECONDS));
+            assertTrue(download.status().busy());
+            assertNull("no switch while the restore is pending",download.committed());
+            release.countDown();settle(download);
+            assertEquals(generation,download.committed());
+        }finally{release.countDown();Thread.sleep(50);CustomPresetPack.delete(parent);}
+    }
+    @Test public void installAndRemoveMoveTheCommittedGenerationOnlyOnNativeCommit()throws Exception {
+        File parent=Files.createTempDirectory("official-install-committed").toFile(),root=new File(parent,"store");
+        try {
+            File previous=installed(parent,root);
+            OfficialPresetPackTest fixture=new OfficialPresetPackTest();File archive=fixture.archive(new File(parent,"next-archive"){{mkdirs();}},false,false);
+            OfficialPresetPack.Descriptor d=(OfficialPresetPack.Descriptor)fixture.descriptor(OfficialPresetPack.class,archive,fixture.expanded(archive),null);
+            byte[] bytes=Files.readAllBytes(archive.toPath());
+            OfficialPresetDownload download=new OfficialPresetDownload(root,url->new Connection(url,200,null,bytes));
+            download.restore(descriptorSource(),new Restore(){public int status(long r){return 2;}},5000);
+            settle(download);assertEquals(previous,download.committed());
+            java.util.concurrent.CountDownLatch committing=new java.util.concurrent.CountDownLatch(1),release=new java.util.concurrent.CountDownLatch(1);
+            java.util.concurrent.atomic.AtomicBoolean accept=new java.util.concurrent.atomic.AtomicBoolean();
+            java.util.concurrent.atomic.AtomicReference<File> pendingObserved=new java.util.concurrent.atomic.AtomicReference<>();
+            OfficialPresetDownload.NativeIndex index=new OfficialPresetDownload.NativeIndex(){
+                public long prepare(String p){return 1;}public int status(long r){return 1;}
+                public boolean commit(long r){
+                    pendingObserved.set(download.committed());committing.countDown();
+                    try{release.await(5,java.util.concurrent.TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();}
+                    return accept.get();
+                }
+                public void discard(long r){}public boolean inUse(String p){return false;}
+            };
+            // Failed commit: the engine keeps the previous collection, and so does Mood.
+            download.start(d,index);assertTrue(committing.await(5,java.util.concurrent.TimeUnit.SECONDS));
+            assertEquals("pending install keeps the previous source",previous,pendingObserved.get());
+            release.countDown();settle(download);
+            assertEquals("error",download.status().phase);assertEquals(previous,download.committed());
+            // Successful commit: the new generation.
+            accept.set(true);download.start(d,index);settle(download);
+            assertEquals("installed",download.status().phase);
+            File next=download.committed();assertNotNull(next);assertNotEquals(previous,next);
+            assertEquals(OfficialPresetPack.current(root),next);
+            // Removal: bundled starters once the engine committed the empty collection.
+            download.remove(index);settle(download);
+            assertEquals("idle",download.status().phase);assertNull(download.committed());
+        }finally{CustomPresetPack.delete(parent);}
+    }
 }

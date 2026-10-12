@@ -74,19 +74,18 @@ final class OfficialCollection {
         return previous==null||!previous.equals(identity);
     }
     /**
-     * The installed official pack's preset attributes; null without a committed pack (the bundled
-     * starter table applies). A committed pack from an archive without attributes yields the
-     * expected path although it does not exist, so the starter table never describes a full library.
-     * Reads the committed-generation pointer only: {@link OfficialPresetPack#current} re-hashes every
-     * file of the pack, too slow for the UI thread; the engine verifies the pack when it restores it.
+     * The preset attributes of the official generation committed in the native engine; null while
+     * the engine uses the bundled starters (no collection, a pending first restore, or a failed or
+     * timed-out restore whose durable pointer remains), so the starter table applies. A pending
+     * install or removal keeps the previous source; the settled report reloads Mood. A committed
+     * pack from an archive without attributes yields the expected path although it does not exist,
+     * so the starter table never describes a full library. No file is read or hashed here.
      */
     static java.io.File attributesFile(Context context) {
-        return attributesFile(new java.io.File(context.getNoBackupFilesDir(),"official-presets"));
+        return attributesFile(OfficialPresetDownload.get(context).committed());
     }
-    static java.io.File attributesFile(java.io.File root) {
-        java.io.File generation=CustomPresetPack.current(root);
-        if(generation==null||!new java.io.File(generation,"installed.json").isFile())return null;
-        return new java.io.File(generation,"preset-attributes/attributes.tsv");
+    static java.io.File attributesFile(java.io.File committedGeneration) {
+        return committedGeneration==null?null:new java.io.File(committedGeneration,"preset-attributes/attributes.tsv");
     }
     static boolean shouldOffer(boolean seen,boolean resumed,boolean focus,boolean ready,String phase,String identity) {
         return !seen&&resumed&&focus&&ready&&identity.isEmpty()&&(phase.equals("idle")||phase.equals("error"));
