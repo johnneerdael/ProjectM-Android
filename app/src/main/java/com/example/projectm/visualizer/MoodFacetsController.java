@@ -79,6 +79,20 @@ final class MoodFacetsController {
         apply();
     }
 
+    /**
+     * The "-> N" of an option's chip: the presets left if it were toggled. Removing the only selected
+     * option selects the engine's All category (which Custom joins), so that count comes from the engine.
+     */
+    int optionCount(String optionId) {
+        PresetFacets.Selection current = selection();
+        if (current == null) return 0;
+        if (selected.size() == 1 && selected.contains(optionId)) {
+            int all = engine.count("all");
+            if (all > 0) return all;
+        }
+        return current.countIfToggled(optionId);
+    }
+
     void clearAll() {
         validateCollection();
         if (!canClear()) return;

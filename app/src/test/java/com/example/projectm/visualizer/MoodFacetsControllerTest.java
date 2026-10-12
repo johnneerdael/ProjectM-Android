@@ -44,6 +44,25 @@ public class MoodFacetsControllerTest {
                 () -> skipped, outdatedDownload);
     }
 
+    @Test public void optionCountOfOnlySelectedOptionIsEngineAllCount() {
+        store.put("mood_facets", "chill");
+        MoodFacetsController c = controller(facets);
+        assertEquals(9606, c.optionCount("chill"));
+    }
+
+    @Test public void optionCountWithTwoSelectedUsesTable() {
+        store.put("mood_facets", "chill,no_strobe");
+        MoodFacetsController c = controller(facets);
+        assertEquals(c.selection().countIfToggled("chill"), c.optionCount("chill"));
+        assertNotEquals(9606, c.optionCount("chill"));
+    }
+
+    @Test public void optionCountOfUnselectedUsesTable() {
+        store.put("mood_facets", "chill");
+        MoodFacetsController c = controller(facets);
+        assertEquals(c.selection().countIfToggled("intense"), c.optionCount("intense"));
+    }
+
     @Test public void toggleAppliesPoolThenFacetsCategoryAndPersists() {
         MoodFacetsController c = controller(facets);
         c.toggle("chill");

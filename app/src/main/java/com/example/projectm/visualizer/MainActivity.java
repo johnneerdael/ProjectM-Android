@@ -993,7 +993,7 @@ public class MainActivity extends Activity {
             for (PresetFacets.Group group : moodFacets.groups()) {
                 for (PresetFacets.Option option : group.options) {
                     // "→ N": the presets left if this option were toggled (for a selected one, without it).
-                    int count = selection.countIfToggled(option.id);
+                    int count = mood.optionCount(option.id);
                     counts.put(option.id, count);
                     if (!selected.contains(option.id) && count == 0) dimmed.add(option.id);
                 }
