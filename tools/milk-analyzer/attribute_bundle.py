@@ -122,16 +122,22 @@ def verify_against_manifest(ruler_dir, ruler_manifest, presets_idx, presets_dir=
     """Two-way check of the ruler results against the evidence manifest, then of the measured bytes.
 
     Every measured result file must be a row of the manifest (same preset, result and preset hashes);
-    every manifest row marked measured must have exactly one measured result file; and every preset in
+    every manifest row marked measured must have exactly one measured result file; neither may name a
+    preset absent from presets.idx; and every preset in
     presets.idx with a measured row must still have the measured bytes in presets_dir (default:
     presets/ next to presets.idx)."""
     entries = _manifest_entries(ruler_manifest)
-    problems = []; consumed = {}
+    indexed = set(_index_names(presets_idx))
+    problems = ['%s: manifest row is not in presets.idx' % n for n, e in sorted(entries.items())
+                if e.get('status') == 'measured' and n not in indexed]
+    consumed = {}
     for path in sorted(Path(ruler_dir).glob('*.json')):
         raw = path.read_bytes(); row = json.loads(raw)
         if row.get('status') != 'measured':
             continue
         name = row.get('preset'); consumed[name] = consumed.get(name, 0) + 1
+        if name not in indexed:
+            problems.append('%s: measured result is not in presets.idx' % name)
         entry = entries.get(name)
         if entry is None:
             problems.append('%s: not in the evidence manifest' % name)

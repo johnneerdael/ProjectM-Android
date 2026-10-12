@@ -209,6 +209,31 @@ class BundleTest(unittest.TestCase):
                 self.freeze(t)
             self.assertFalse((t / 'reference.json').exists())
 
+    def test_build_and_freeze_reject_ruler_rows_outside_the_preset_index(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            (t / 'presets' / 'gone.milk').write_text('[preset00]\n// gone\n')
+            digest = hashlib.sha256((t / 'presets' / 'gone.milk').read_bytes()).hexdigest()
+            base = json.loads((t / 'ruler' / 'a.milk.json').read_text())
+            base.update(preset='gone.milk', preset_sha256=digest)
+            (t / 'ruler' / 'gone.milk.json').write_text(json.dumps(base))
+            write_manifest(t)  # the manifest row and the result are consistent; only presets.idx lacks the preset
+            with self.assertRaisesRegex(ValueError, 'gone.milk.*not in presets.idx'):
+                self.build(t)
+            self.assertFalse((t / 'out').exists())
+            with self.assertRaisesRegex(ValueError, 'gone.milk.*not in presets.idx'):
+                self.freeze(t)
+            self.assertFalse((t / 'reference.json').exists())
+
+    def test_build_rejects_a_manifest_row_outside_the_preset_index_without_a_result(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            manifest = json.loads((t / 'ruler-manifest.json').read_text())
+            manifest['rows'].append({'preset': 'gone.milk', 'preset_sha256': 'e' * 64, 'result_sha256': 'f' * 64, 'status': 'measured'})
+            (t / 'ruler-manifest.json').write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError, 'gone.milk.*not in presets.idx'):
+                self.build(t)
+
     def test_build_requires_a_manifest(self):
         with tempfile.TemporaryDirectory() as tmp:
             t = make_inputs(tmp)
