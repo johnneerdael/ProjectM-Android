@@ -10,7 +10,11 @@
 "frames": 300,
 "audio": "checkpoint synthetic PCM, U8 ingress"
 },
-"archive": "ruler-results-2026-10-12.tar.gz (outside the repository; sha256 below)",
+"archive": {
+"name": "ProjectM-TV-ruler-results-2026-10-12.tar.gz",
+"location": "outside the repository (owner's Downloads)",
+"sha256": "3ad37ffbc8b719d8e1cb23bc8583df7e260951ab7cf49e4f2985638084ba0818"
+},
 "rows": [
 {
 "preset": "$$$ Royal - Mashup (1).milk",
