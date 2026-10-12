@@ -22,7 +22,12 @@ detail]}; inputs named time/bass/mid/treb/... are runtime inputs, other inputs
 are persistent preset variables whose update equations live in ``program``.
 Every record keeps ``evidence`` JSON pointers into the source export.
 """
+import bisect
 import copy
+import hashlib
+import json
+import math
+from pathlib import Path
 
 POLICY='preset-visual-recipe-v1'
 BASE='/analysis/visual_description'
@@ -192,6 +197,7 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
                        'Mood values are editable research assumptions, not calibrated preferences']}
     display=_display_estimate(summary)
     if display is not None:recipe['display_estimate']=display
+    recipe['facets']=facets_block(summary,display)
     recipe['intent']=intent(recipe)
     if source is not None and include_program:recipe['program']=_program(source)
     return recipe
@@ -208,6 +214,174 @@ def _display_estimate(summary):
     return {'policy':'source-calibrated-display-estimate-v1','statistics':values,'activity':activity,
             'reference':'engine ruler: pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, frames 60-299',
             'note':'Calibrated from static source facts; intervals are the 10th-90th percentile out-of-fold residuals; not a rendered measurement of this preset'}
+
+
+FACETS_POLICY='preset-facets-v1'
+ROOT=Path(__file__).resolve().parents[2]
+ATTRIBUTES=ROOT/'core/src/main/assets/preset-attributes/attributes.tsv'
+BUNDLED_PRESETS=ROOT/'core/src/main/assets/presets'
+# facet metric -> calibrated display statistic (the same engine-ruler fields the attribute bundle stores)
+FACET_STATISTICS={'luminance':'mean_luminance','saturation':'mean_saturation','warm_cool':'warm_cool',
+                  'flow':'mean_flow_screen_widths_per_s','frame_difference':'mean_abs_frame_difference',
+                  'jumps':'global_brightness_jumps_per_10s'}
+ATTRIBUTE_COLUMNS=('luminance','saturation','coloured_share','warm_cool','flow','frame_difference','jumps','activity')
+ACTIVITY_METRICS=(('frame_difference','mean_abs_frame_difference'),('flow','mean_flow_screen_widths_per_s'),
+                  ('jumps','global_brightness_jumps_per_10s'))
+_FACET_CACHE={}
+
+
+def _sha256(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def _definition(definition_path=None):
+    import preset_facets
+    path=Path(definition_path or preset_facets.DEFINITION)
+    key=('definition',str(path))
+    if key not in _FACET_CACHE:
+        data=path.read_bytes();definition=json.loads(data)
+        reference=(path.parent/definition['activity_reference']['file']).read_bytes()
+        if _sha256(reference)!=definition['activity_reference']['sha256']:
+            raise ValueError('facet activity reference differs from the hash in the definition')
+        _FACET_CACHE[key]=(definition,_sha256(data),json.loads(reference))
+    return _FACET_CACHE[key]
+
+
+def _attributes(path=None):
+    """Measured bundle rows {name: (options, {column: value or None})}; empty when the bundle is absent."""
+    path=Path(path or ATTRIBUTES)
+    key=('attributes',str(path))
+    if key not in _FACET_CACHE:
+        rows={};digest=None
+        if path.exists():
+            data=path.read_bytes();digest=_sha256(data)
+            for line in data.decode().splitlines():
+                if line.startswith('#') or not line:continue
+                fields=line.split('\t')
+                values=dict(zip(ATTRIBUTE_COLUMNS,(None if v=='-' else float(v) for v in fields[2:])))
+                if all(v is None for v in values.values()):continue  # unmeasured preset: no row to use
+                rows[fields[0]]=([o for o in fields[1].split(',') if o],values)
+        _FACET_CACHE[key]=(rows,digest)
+    return _FACET_CACHE[key]
+
+
+def _mid_rank(sorted_values,value):
+    low=bisect.bisect_left(sorted_values,value);high=bisect.bisect_right(sorted_values,value)
+    return (low+high)/2/len(sorted_values)
+
+
+def facet_activity(values,definition_path=None):
+    """Facet activity of {frame_difference, flow, jumps} against the frozen facet activity reference.
+
+    Same mid-rank lookups as the attribute bundle (attribute_bundle.activity_values): the mean of the
+    three metric mid-ranks, placed in the frozen mean-rank table. None when a metric is missing."""
+    _,_,reference=_definition(definition_path)
+    if any(type(values.get(name)) not in (int,float) for name,_ in ACTIVITY_METRICS):return None
+    mean=sum(_mid_rank(reference['metrics'][field],float(values[name])) for name,field in ACTIVITY_METRICS)/len(ACTIVITY_METRICS)
+    return _mid_rank(reference['mean_rank'],mean)
+
+
+_BOUNDS={'<':('upper',False),'<=':('upper',True),'>':('lower',False),'>=':('lower',True)}
+
+
+def _accepted(conditions):
+    """Acceptable value set of a conjunction of threshold conditions on one metric: (lower, upper) bounds."""
+    lower=(-math.inf,True);upper=(math.inf,True)
+    for condition in conditions:
+        side,inclusive=_BOUNDS[condition['op']];value=float(condition['value'])
+        if side=='lower' and (value>lower[0] or (value==lower[0] and not inclusive)):lower=(value,inclusive)
+        if side=='upper' and (value<upper[0] or (value==upper[0] and not inclusive)):upper=(value,inclusive)
+    return lower,upper
+
+
+def _metric_state(conditions,span):
+    """'always', 'never' or 'maybe' for the conditions over the closed interval span."""
+    (lv,li),(uv,ui)=_accepted(conditions);lo,hi=span
+    low=(lv,li) if lv>lo else (lo,True);high=(uv,ui) if uv<hi else (hi,True)
+    if low[0]>high[0] or (low[0]==high[0] and not (low[1] and high[1])):return 'never'
+    inside_low=lo>lv or (lo==lv and li);inside_high=hi<uv or (hi==uv and ui)
+    return 'always' if inside_low and inside_high else 'maybe'
+
+
+def facet_options(values,style,definition):
+    """(options, possible_options, unresolved_options) for facet values {metric: {'value','interval'?}}.
+
+    options: memberships of the point values (preset_facets.memberships), minus unresolved options.
+    possible_options: options whose rule is not constant across the reported intervals (it holds for
+    some values inside them and fails for others), members and non-members alike.
+    unresolved_options: options whose rule needs a value that is not available (directly or through
+    not_option), never guessed."""
+    import preset_facets
+    point={k:v.get('value') for k,v in values.items() if type(v.get('value')) in (int,float)}
+    spans={k:sorted([min(list(v.get('interval') or [point[k]])+[point[k]]),max(list(v.get('interval') or [point[k]])+[point[k]])])
+           for k,v in values.items() if k in point}
+    states={};unresolved=[]
+    for group in definition['groups']:
+        for option in group['options']:
+            metrics={}
+            for condition in option['all']:
+                if 'metric' in condition:metrics.setdefault(condition['metric'],[]).append(condition)
+            missing=[m for m in metrics if m not in point]
+            dependencies=[c['not_option'] for c in option['all'] if 'not_option' in c]
+            if missing or any(d in unresolved for d in dependencies):
+                unresolved.append(option['id']);continue
+            parts=[_metric_state(conditions,spans[name]) for name,conditions in metrics.items()]
+            parts+=['always' if c['style'] in style else 'never' for c in option['all'] if 'style' in c]
+            parts+=[{'always':'never','never':'always'}.get(states[d],'maybe') for d in dependencies]
+            states[option['id']]='never' if 'never' in parts else 'always' if all(p=='always' for p in parts) else 'maybe'
+    members=[o for o in preset_facets.memberships(point,set(style),definition) if o not in unresolved]
+    possible=[o for o,state in states.items() if state=='maybe']
+    return members,possible,unresolved
+
+
+def facets_block(summary,display=None,*,attributes_path=None,definition_path=None,presets_dir=None):
+    """Mood facet memberships for one preset (policy preset-facets-v1).
+
+    A bundled preset whose name has a measured row in the facet attribute bundle (and whose bytes
+    match the bundled preset when a hash is known) uses the engine-ruler measured values and the
+    bundle's options unchanged. Any other preset uses the source-calibrated display estimate
+    (display_estimate statistics) with intervals and source style facts. No simulation output or
+    rendered image is read."""
+    from facet_style_facts import style_facts
+    definition,definition_sha,_=_definition(definition_path)
+    preset=summary.get('preset') or {}
+    name=preset.get('name');digest=preset.get('sha256')
+    rows,attributes_sha=_attributes(attributes_path)
+    block={'policy':FACETS_POLICY,'definition_sha256':definition_sha}
+    note=None
+    if name in rows:
+        bundled=Path(presets_dir or BUNDLED_PRESETS)/name
+        if digest and bundled.exists() and _sha256(bundled.read_bytes())!=digest:
+            note='bundled preset bytes differ from this preset; the measured bundle row is not used'
+        else:
+            options,measured=rows[name]
+            style_ids={o['id'] for g in definition['groups'] if g['id']=='style' for o in g['options']}
+            block.update(evidence='engine-ruler-measured',style_evidence='source-structure-facts',options=list(options),
+                possible_options=[],unresolved_options=[],style=[o for o in options if o in style_ids],
+                values={k:{'value':v,'evidence':'engine-ruler-measured'} for k,v in measured.items()},
+                activity_source='engine-ruler-measured-bundle',
+                bundle={'file':'core/src/main/assets/preset-attributes/attributes.tsv','sha256':attributes_sha},
+                measurement=definition.get('measurement'))
+            return block
+    statistics=((display if display is not None else _display_estimate(summary)) or {}).get('statistics')
+    style=style_facts(summary)
+    values={}
+    for metric,field in FACET_STATISTICS.items():
+        row=(statistics or {}).get(field)
+        if row is not None and type(row.get('value')) in (int,float):
+            values[metric]={'value':row['value'],'interval':list(row['interval']),'evidence':'source-calibrated'}
+    if all(m in values for m,_ in ACTIVITY_METRICS):
+        ends=[facet_activity({m:values[m]['interval'][i] for m,_ in ACTIVITY_METRICS},definition_path) for i in (0,1)]
+        point=facet_activity({m:values[m]['value'] for m,_ in ACTIVITY_METRICS},definition_path)
+        values['activity']={'value':round(point,4),'interval':[round(min(ends+[point]),4),round(max(ends+[point]),4)],
+                            'evidence':'source-calibrated'}
+    values['coloured_share']={'value':None,'evidence':'not-estimated'}
+    options,possible,unresolved=facet_options(values,style,definition)
+    block.update(evidence='source-calibrated' if statistics else 'unavailable',style_evidence='source-structure-facts',
+        options=options,possible_options=possible,unresolved_options=unresolved,style=style,values=values,
+        activity_source='frozen-facet-reference-from-calibrated-statistics' if 'activity' in values else None)
+    if note:block['note']=note
+    return block
 
 
 def main(argv=None):

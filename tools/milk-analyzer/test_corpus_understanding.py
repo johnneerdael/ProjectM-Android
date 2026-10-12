@@ -41,3 +41,29 @@ def test_rescore_recomputes_mood_from_saved_summary(tmp_path):
     saved=json.loads((tmp_path/'results'/'z.json').read_text())
     assert saved['approximate_mood']['activity_estimate']>5
     assert result['presets']==1
+
+
+def test_preference_index_carries_facets(tmp_path):
+    (tmp_path/'results').mkdir()
+    value=row('a.milk',20,['Chill'])
+    facets={'policy':'preset-facets-v1','options':['chill'],'evidence':'source-calibrated'}
+    value['preference']={'scores':{},'tags':[],'possible_tags':[],'activity_bands':[],'confidence':'medium','profiles':{},
+                         'features':{},'facets':facets}
+    (tmp_path/'results'/'a.json').write_text(json.dumps(value))
+    report(tmp_path)
+    index=json.loads((tmp_path/'preference-index.json').read_text())
+    assert index['presets'][0]['facets']==facets
+
+
+def test_rescore_writes_source_calibrated_facets_into_the_index(tmp_path):
+    import base64,gzip
+    from corpus_understanding import rescore
+    (tmp_path/'results').mkdir()
+    summary={'policy':'preset-understanding-v1','preset':{'name':'not-bundled.milk','sha256':'1'*64},
+        'facts':{'context':[{'path':'/analysis/visual_description/static_behaviour/context','value':{'viewport':[480,270],'feedback_fps':30}}]}}
+    value=row('not-bundled.milk',0,[]);value['summary_gzip_base64']=base64.b64encode(gzip.compress(json.dumps(summary).encode())).decode()
+    (tmp_path/'results'/'n.json').write_text(json.dumps(value))
+    rescore(tmp_path)
+    facets=json.loads((tmp_path/'preference-index.json').read_text())['presets'][0]['facets']
+    assert facets['policy']=='preset-facets-v1' and facets['evidence']=='source-calibrated'
+    assert {'monochrome','pastel'}<=set(facets['unresolved_options'])

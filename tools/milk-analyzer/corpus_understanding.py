@@ -57,7 +57,7 @@ def work(path,options,expected_models):
         mood=approximate_mood(summary,options.get('rules'),display)
         # Compressed SDK summary allows offline rescoring without re-export.
         packed=base64.b64encode(gzip.compress(json.dumps(summary,separators=(',',':')).encode(),compresslevel=6)).decode()
-        row['preference']=_preference_row(summary,options.get('rules'))
+        row['preference']=_preference_row(summary,options.get('rules'),display)
         row.update(status='computed',description=summary['description'],summary_gzip_base64=packed,
             approximate_mood=_mood_row(mood),
             drivers=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']],
@@ -83,11 +83,15 @@ def _star_work(arguments):
     return work(*arguments)
 
 
-def _preference_row(summary,rules=None):
-    """Compact multi-axis record for preference selection (approximate_features)."""
+def _preference_row(summary,rules=None,display=None):
+    """Compact multi-axis record for preference selection (approximate_features) with Mood facets.
+
+    Facets use the measured facet bundle row for a bundled preset, otherwise the source-calibrated
+    display statistics passed in (preset_recipe.facets_block); no simulation output is read."""
     from approximate_features import describe
+    from preset_recipe import facets_block
     record=describe(summary,rules)
-    return {'scores':{k:v['value'] for k,v in record['scores'].items()},
+    return {'facets':facets_block(summary,{'statistics':display} if display is not None else {}),'scores':{k:v['value'] for k,v in record['scores'].items()},
             'score_intervals':{k:v['interval'] for k,v in record['scores'].items()},
             'features':{k:{'value':v['value'],'interval':v['interval'],'evidence':v['evidence']} for k,v in record['features'].items()},
             'tags':[t['tag'] for t in record['tags']],'possible_tags':[t['tag'] for t in record['possible_tags']],
@@ -110,9 +114,10 @@ def rescore(output,rules=None,display_model=None):
         row=json.loads(path.read_text())
         if row.get('status')!='computed' or 'summary_gzip_base64' not in row:continue
         summary=json.loads(gzip.decompress(base64.b64decode(row['summary_gzip_base64'])))
-        mood=approximate_mood(summary,rules,_display_estimate(summary,display_model))
+        display=_display_estimate(summary,display_model)
+        mood=approximate_mood(summary,rules,display)
         row['approximate_mood']=_mood_row(mood)
-        row['preference']=_preference_row(summary,rules)
+        row['preference']=_preference_row(summary,rules,display)
         row['drivers']=[{k:d[k] for k in ('dimension','kind','value','reason','evidence_path')} for d in mood['drivers']]
         temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(row)+'\n');temporary.replace(path)
     return report(output)
@@ -139,6 +144,7 @@ def report(output):
                  'Confidence reflects the share of prior-only drivers; low-confidence presets need more source mathematics']}
     index={'policy':'preset-preference-index-v1','presets':[
         {'name':r['name'],'sha256':r['sha256'],**{k:r['preference'].get(k) for k in ('scores','tags','possible_tags','activity_bands','confidence','profiles')},
+         **({'facets':r['preference']['facets']} if r['preference'].get('facets') is not None else {}),
          'features':{k:v['value'] for k,v in r['preference']['features'].items()},
          'evidence':{k:v['evidence'] for k,v in r['preference']['features'].items()}}
         for r in computed if 'preference' in r],'calibrated':False}

@@ -12,6 +12,7 @@ preference JSON, and returns ranked presets with reasons. Example preference:
      "min_confidence": "medium",                  # "low", "medium" or "high"
      "feedback": {"liked": ["A.milk"], "disliked": ["B.milk"],
                   "too_fast": ["C.milk"], "too_flashy": [], "too_dark": [], "too_bright": []},
+     "facets": ["chill", "no_strobe"],            # Mood facet option ids (OR within a group, AND across groups)
      "limit": 50}
 
 Feedback works directly on the feature vectors: liked/disliked presets give a
@@ -19,6 +20,12 @@ similarity bonus/penalty (standardised feature distance, so it works even
 where activity estimates are imperfect), and complaints tighten comfort rules
 relative to the named preset (too_fast caps speed below it, too_flashy
 enables no_flashing, too_dark/too_bright bound the display luma).
+
+Facets select with the Mood facet semantics (preset_facets.select: OR within a
+group, AND across groups, unknown option ids ignored) over each index entry's
+``facets.options``; the facet pool is intersected with every other filter, and
+the facet counts (option_counts, dimmed) are computed over the presets those
+other filters keep. An entry without a facets block matches no facet request.
 
 Comfort rules are hard filters. A preset whose evidence for a comfort rule is
 unknown or only assumed is excluded under "no_flashing"; for numeric limits an
@@ -35,7 +42,7 @@ TAG_WEIGHT=8.0
 
 def validate(preference):
     if not isinstance(preference,dict):raise ValueError('preference must be a JSON object')
-    allowed={'profiles','activity','comfort','palette','prefer_tags','avoid_tags','min_confidence','limit','feedback'}
+    allowed={'profiles','activity','comfort','palette','prefer_tags','avoid_tags','min_confidence','limit','feedback','facets'}
     unknown=set(preference)-allowed
     if unknown:raise ValueError('unknown preference fields: '+', '.join(sorted(unknown)))
     activity=preference.get('activity')
@@ -43,6 +50,9 @@ def validate(preference):
         raise ValueError('activity must be [low, high] within 1..100')
     if preference.get('palette') not in (None,'warm','cold'):raise ValueError('palette must be warm, cold or null')
     if preference.get('min_confidence','low') not in CONFIDENCE:raise ValueError('min_confidence must be low, medium or high')
+    facets=preference.get('facets')
+    if facets is not None and (not isinstance(facets,list) or not all(isinstance(f,str) for f in facets)):
+        raise ValueError('facets must be a list of facet option ids')
     return preference
 
 
@@ -164,9 +174,22 @@ def select(index,preference):
             if dislike>.5:why.append('similar to a disliked preset (%.2f)'%dislike)
         ranked.append({'name':entry['name'],'score':round(score,1),'intensity':intensity,
                        'smoothness':entry['scores'].get('smoothness'),'tags':entry['tags'],'confidence':entry.get('confidence'),'reasons':why})
+    facets=None
+    if preference.get('facets') is not None:
+        import preset_facets
+        definition=preset_facets.load_definition()
+        kept={r['name'] for r in ranked}
+        rows=[{'name':e['name'],'options':list((e.get('facets') or {}).get('options') or [])} for e in index['presets']]
+        result=preset_facets.select(rows,preference['facets'],definition,excluded=[r['name'] for r in rows if r['name'] not in kept])
+        pool=set(result['pool'])
+        missed=sum(1 for r in ranked if r['name'] not in pool)
+        if missed:excluded['not in the facet selection']=missed
+        ranked=[r for r in ranked if r['name'] in pool]
+        facets={k:result[k] for k in ('selected','ignored','count','option_counts','dimmed')}
     ranked.sort(key=lambda r:(-r['score'],r['name']))
     limit=preference.get('limit',50)
-    return {'policy':POLICY,'preference':preference,'feedback_applied':feedback_notes,'effective_comfort':comfort,
+    extra={'facets':facets} if facets is not None else {}
+    return {'policy':POLICY,**extra,'preference':preference,'feedback_applied':feedback_notes,'effective_comfort':comfort,
             'candidates':len(index['presets']),'matched':len(ranked),
             'excluded':dict(sorted(excluded.items(),key=lambda item:-item[1])),'selected':ranked[:limit],
             'calibrated':False,'note':'Approximate source-based preferences; strict certified eligibility is separate'}

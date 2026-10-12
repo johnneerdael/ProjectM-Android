@@ -49,3 +49,86 @@ def test_program_is_optional_and_off_by_default():
     source={'sections':{'per_frame_':{'active':True,'source':'zoom=1;','tree':{'function':'sequence'},'status':'parsed'}},'values':{'fDecay':'0.9'}}
     assert 'program' not in build_recipe(record(),source)
     assert build_recipe(record(),source,include_program=True)['program']['sections']['per_frame_']['source']=='zoom=1;'
+
+
+# Mood facets block: measured bundle values by name, otherwise source-calibrated estimates; never simulation output.
+import hashlib
+from pathlib import Path
+
+import preset_facets
+from preset_recipe import facets_block
+
+ATTRIBUTES=Path(__file__).resolve().parents[2]/'core/src/main/assets/preset-attributes/attributes.tsv'
+PRESETS=Path(__file__).resolve().parents[2]/'core/src/main/assets/presets'
+
+
+def _row(name):
+    for line in ATTRIBUTES.read_text().splitlines():
+        if line.startswith(name+'\t'):return line.split('\t')
+
+
+def test_recipe_facets_block_uses_calibrated_values_and_marks_unresolved():
+    recipe=build_recipe(record())
+    facets=recipe['facets']
+    definition=preset_facets.load_definition()
+    assert facets['policy']=='preset-facets-v1'
+    assert facets['definition_sha256']==hashlib.sha256(preset_facets.DEFINITION.read_bytes()).hexdigest()
+    assert facets['evidence']=='source-calibrated' and facets['style_evidence']=='source-structure-facts'
+    assert facets['activity_source']=='frozen-facet-reference-from-calibrated-statistics'
+    assert {'monochrome','pastel'}<=set(facets['unresolved_options'])
+    assert set(facets['options'])<=set(preset_facets.option_ids(definition))
+    assert not set(facets['options'])&set(facets['unresolved_options'])
+    assert 'kaleidoscope' in facets['options']  # angular_mirror_fold mechanism in the fixture
+    for name in ('luminance','saturation','warm_cool','flow','frame_difference','jumps','activity'):
+        value=facets['values'][name]
+        assert value['evidence']=='source-calibrated' and value['interval'][0]<=value['interval'][1]
+    assert facets['values']['coloured_share']=={'value':None,'evidence':'not-estimated'}
+    point={k:v['value'] for k,v in facets['values'].items() if v['value'] is not None}
+    expected=[o for o in preset_facets.memberships(point,facets['style'],definition) if o not in facets['unresolved_options']]
+    assert facets['options']==expected
+    assert recipe['display_estimate']['statistics']['mean_luminance']['value']==facets['values']['luminance']['value']
+    json.dumps(facets,allow_nan=False)
+
+
+def test_facets_block_uses_measured_bundle_row_by_name():
+    name='404.milk'
+    measured=summary();measured['preset']={'name':name,'sha256':hashlib.sha256((PRESETS/name).read_bytes()).hexdigest()}
+    facets=facets_block(measured)
+    row=_row(name)
+    assert facets['evidence']=='engine-ruler-measured'
+    assert facets['options']==row[1].split(',')
+    assert facets['unresolved_options']==[] and facets['possible_options']==[]
+    assert facets['values']['luminance']=={'value':float(row[2]),'evidence':'engine-ruler-measured'}
+    assert facets['values']['activity']['value']==float(row[9])
+
+
+def test_facets_block_ignores_bundle_row_when_preset_bytes_differ():
+    renamed=summary();renamed['preset']={'name':'404.milk','sha256':'0'*64}
+    facets=facets_block(renamed)
+    assert facets['evidence']=='source-calibrated'
+    assert 'bundled preset bytes differ' in facets['note']
+
+
+def test_facet_activity_reproduces_bundled_activity_from_the_frozen_reference():
+    from preset_recipe import facet_activity
+    lines=[l.split('\t') for l in ATTRIBUTES.read_text().splitlines() if not l.startswith('#')]
+    measured=[l for l in lines if l[9]!='-'][::997]
+    assert len(measured)>=9
+    for row in measured:
+        value=facet_activity({'frame_difference':float(row[7]),'flow':float(row[6]),'jumps':float(row[8])})
+        assert abs(value-float(row[9]))<.005,row[0]
+
+
+def test_possible_options_are_those_not_constant_across_the_intervals():
+    from preset_recipe import facet_options
+    definition=preset_facets.load_definition()
+    values={'luminance':{'value':.17,'interval':[0.,.43]},'saturation':{'value':.6,'interval':[.55,.7]},
+            'warm_cool':{'value':0.,'interval':[-.1,.1]},'flow':{'value':.1,'interval':[.07,.2]},
+            'jumps':{'value':0.,'interval':[0.,.5]},'activity':{'value':.5,'interval':[.4,.6]},
+            'coloured_share':{'value':None}}
+    options,possible,unresolved=facet_options(values,[],definition)
+    assert 'balanced' in options and {'dark','balanced','bright'}<=set(possible)
+    assert 'dark' not in options and 'bright' not in options
+    assert {'vivid','drifting','no_strobe','normal'}<=set(options)
+    assert not {'vivid','drifting','no_strobe','normal','warm','cool'}&set(possible)
+    assert unresolved==['monochrome','pastel']

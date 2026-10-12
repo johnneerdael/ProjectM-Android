@@ -58,3 +58,34 @@ def test_feedback_likes_dislikes_and_complaints():
     assert any('similar to a liked' in reason for reason in result['selected'][0]['reasons'])
     dark=select(index,{'feedback':{'too_dark':['liquid1.milk']}})
     assert 'liquid1.milk' not in [r['name'] for r in dark['selected']]
+
+
+def faceted(name,options,**kwargs):
+    e=entry(name,30,85,suit=70,**kwargs);e['facets']={'options':list(options)}
+    return e
+
+
+def test_preference_select_filters_by_facets():
+    index={'presets':[faceted('a.milk',['chill','no_strobe']),faceted('b.milk',['intense']),faceted('c.milk',['chill','dark'])]}
+    result=select(index,{'facets':['chill','no_strobe','unknown_option']})
+    assert [p['name'] for p in result['selected']]==['a.milk']
+    assert result['facets']['selected']==['chill','no_strobe'] and result['facets']['ignored']==['unknown_option']
+    assert result['facets']['count']==1
+    assert result['facets']['option_counts']['intense']==1  # chill OR intense, AND no_strobe
+    assert result['facets']['option_counts']['dark']==0 and 'dark' in result['facets']['dimmed']
+
+
+def test_facet_pool_is_intersected_with_comfort_rules():
+    index={'presets':[faceted('a.milk',['chill']),faceted('fast.milk',['chill'],speed=.9),faceted('b.milk',['intense'])]}
+    result=select(index,{'facets':['chill'],'comfort':{'max_speed_vp_s':.3}})
+    assert [p['name'] for p in result['selected']]==['a.milk']
+    assert result['facets']['count']==1 and result['facets']['option_counts']['intense']==2
+    assert result['excluded']=={'speed comfort rule':1,'not in the facet selection':1}
+
+
+def test_without_facets_request_selection_is_unchanged_and_entries_without_facets_never_match():
+    index={'presets':[faceted('a.milk',['chill']),entry('plain.milk',30,85,suit=70)]}
+    assert sorted(p['name'] for p in select(index,{})['selected'])==['a.milk','plain.milk']
+    assert 'facets' not in select(index,{})
+    assert [p['name'] for p in select(index,{'facets':['chill']})['selected']]==['a.milk']
+    with pytest.raises(ValueError):validate({'facets':'chill'})
