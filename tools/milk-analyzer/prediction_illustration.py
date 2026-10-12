@@ -424,7 +424,8 @@ def _wave_alpha(facts,path,limitations):
     gate=(material.get('native_draw_gate') or {}).get('threshold')
     additive='additive' in str(material.get('blend_mode'))
     if not isinstance(envelope,list) or len(envelope)!=2 or None in envelope:
-        if _frame_wave_alpha(material,{'bass':1.,'mid':1.,'treb':1.}) is not None:
+        mode=(facts.get(path) or {}).get('effective_mode') if isinstance(facts.get(path),dict) else None
+        if _frame_wave_alpha(material,{'bass':1.,'mid':1.,'treb':1.},mode,480) is not None:
             limitations.append(path+': alpha follows the declared per-frame volume ramp');return 1.0,additive
         limitations.append(path+': alpha unresolved; drawn at alpha 1');return 1.0,additive
     if type(gate) in (int,float) and envelope[1]<gate:
@@ -432,17 +433,25 @@ def _wave_alpha(facts,path,limitations):
     return min(1.,max(0.,(envelope[0]+envelope[1])/2)),additive
 
 
-def _frame_wave_alpha(material,values):
+def _frame_wave_alpha(material,values,mode=None,texsize=None):
     """Per-frame built-in wave alpha from the alpha recipe: mode-adjusted authored alpha (wave_a from the
-    frame program when stepped), times the volume ramp (vol = 0.333*(bass+mid+treb)) when enabled, then
-    clamped to [0, 1]. None when the recipe lacks a resolved mode-adjusted alpha."""
+    frame program when stepped), or for mode 3 the reference alpha (by MaximizeColorsTextureSize) * 1.3 *
+    treb^2; then times the volume ramp (vol = 0.333*(bass+mid+treb)) when enabled, clamped to [0, 1].
+    None when the recipe lacks a resolved mode-adjusted alpha."""
     recipe=(material or {}).get('alpha_recipe') or {}
     base=recipe.get('alpha_envelope_without_volume_modulation')
-    if not isinstance(base,list) or len(base)!=2 or None in base or base[0]!=base[1] and type(values.get('wave_a')) not in (int,float):
+    table=recipe.get('reference_table')
+    if mode is not None and int(mode)%16==3 and recipe.get('mode3_formula') and isinstance(table,list) and texsize:
+        if type(values.get('treb')) not in (int,float):return None
+        row=next((r for r in table if r.get('maximum_size') is None or texsize<=r['maximum_size']),None)
+        if row is None or type(row.get('mode3_base_alpha')) not in (int,float):return None
+        alpha=float(np.float32(row['mode3_base_alpha'])*np.float32(1.3)*np.float32(values['treb'])**2)
+    elif not isinstance(base,list) or len(base)!=2 or None in base or base[0]!=base[1] and type(values.get('wave_a')) not in (int,float):
         return None
-    alpha=float(base[0])
-    if type(values.get('wave_a')) in (int,float) and type(recipe.get('mode_gain')) in (int,float):
-        alpha=float(values['wave_a'])*float(recipe['mode_gain'])
+    else:
+        alpha=float(base[0])
+        if type(values.get('wave_a')) in (int,float) and type(recipe.get('mode_gain')) in (int,float):
+            alpha=float(values['wave_a'])*float(recipe['mode_gain'])
     ramp=recipe.get('volume_ramp') or {}
     if ramp.get('enabled'):
         if any(type(values.get(k)) not in (int,float) for k in ('bass','mid','treb')):return None
@@ -1462,7 +1471,8 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 alpha,additive=wave_alpha[path]
                 if alpha is None:continue
                 material=facts.get(path.rsplit('/',1)[0]+'/wave_material') or {}
-                frame_alpha=_frame_wave_alpha(material,held)
+                # MaximizeColorsTextureSize: the viewport's long side unless lines are scaled above the reference.
+                frame_alpha=_frame_wave_alpha(material,held,recipe.get('effective_mode'),max(width,height))
                 if frame_alpha is not None:
                     gate=(material.get('native_draw_gate') or {}).get('threshold')
                     if type(gate) in (int,float) and frame_alpha<gate:continue

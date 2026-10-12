@@ -1,0 +1,8 @@
+LLM look description from the SDK recipe (before capture, r16 v1):
+A fast, violent zoom: the whole picture expands from the centre by 12-304% per frame (strongly
+radius-dependent through zoomexp) with a tiny rotation, so anything drawn is flung outward within a
+few frames. Seeds: two large 99-sided circle shapes (radius 0.5 and 0.3, colours unresolved), a blue
+custom wave and a stereo X-Y built-in trace whose alpha follows treble squared. A warp shader and a
+composite shader shape the result. Calibrated display estimate: Intense (activity 0.93, certain;
+frame difference ~0.17, flow ~0.40 screen widths/s, saturation ~0.53, luminance ~0.20). Expected: a
+medium-dark, saturated, rapidly streaming radial explosion of colour from the centre.

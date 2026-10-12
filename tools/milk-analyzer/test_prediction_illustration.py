@@ -200,3 +200,13 @@ def test_named_textures_load_bundled_images_with_their_size():
     assert _named_texture('fw_devboxb') is image
     assert list(_texsize('devboxb', 480, 270)[:2]) == [image.shape[1], image.shape[0]]
     assert _named_texture('no_such_texture_name') is None
+
+
+def test_mode3_wave_alpha_uses_reference_alpha_and_treble_squared():
+    from prediction_illustration import _frame_wave_alpha
+    material = {'alpha_recipe': {'alpha_envelope_without_volume_modulation': [.1, .9], 'mode3_formula': 'x',
+                                 'reference_table': [{'maximum_size': 256, 'mode3_base_alpha': .075}, {'maximum_size': 512, 'mode3_base_alpha': .15},
+                                                     {'maximum_size': None, 'mode3_base_alpha': .44}], 'volume_ramp': {'enabled': False}}}
+    alpha = _frame_wave_alpha(material, {'treb': 1.5, 'bass': 1., 'mid': 1.}, 3, 480)
+    assert abs(alpha - .15 * 1.3 * 2.25) < 1e-6
+    assert _frame_wave_alpha(material, {'treb': 1.5}, 3, 4000) == 1.0  # .44*1.3*2.25 clamps

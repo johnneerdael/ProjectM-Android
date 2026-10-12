@@ -867,4 +867,12 @@ repeated on correctly oriented frames. Probes and results:
 - **r15 (`Spotted Blob_2 … could-scape`) v1 → v2.** v2 matches the emulator
   (blurred correlation 0.994, identical luma and colour). It shows the dark
   smoke from the blended `devboxb` image and the random-walker spotted blobs.
+- **Mode-3 wave alpha.** A mode-3 built-in wave uses the reference alpha
+  (`MaximizeColorsTextureSize` table) × 1.3 × treb², then the volume ramp and
+  the clamp; it was previously drawn at alpha 1.
+- **r16 (`BrainStain-radioactive`).** The calibrated estimate is Intense
+  (certain), and v1 already matched the chaotic green/magenta field (blurred
+  correlation 0.81). The centre blob is blue instead of magenta: a tinted
+  textured shape copies the centre onto itself, so the first colour to reach it
+  becomes a fixed point.
 
