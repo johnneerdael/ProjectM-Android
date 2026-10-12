@@ -2712,7 +2712,13 @@ JNIEXPORT void JNICALL JNI_FN(setPresetPool)(JNIEnv* env, jclass, jobjectArray n
         auto item = static_cast<jstring>(env->GetObjectArrayElement(names, i));
         if (!item) continue;
         const char* text = env->GetStringUTFChars(item, nullptr);
-        if (text) { pool.emplace_back(text); env->ReleaseStringUTFChars(item, text); }
+        if (!text) {
+            // Out of memory: an exception is pending. Never apply a partial pool.
+            env->DeleteLocalRef(item);
+            return;
+        }
+        pool.emplace_back(text);
+        env->ReleaseStringUTFChars(item, text);
         env->DeleteLocalRef(item);
     }
     g_library.SetPool(std::move(pool));
