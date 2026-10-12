@@ -88,6 +88,18 @@ fold count. Inner and outer borders and the darken-centre spot are treated as
 per-frame fades of the picture. A screen-wide inner border, for example, can
 make trails fade in about a second even when the decay is 0.999.
 
+The prediction illustrator now follows the engine's own motion rules. The rules
+were checked one at a time against the pinned engine with small probe presets:
+rotation direction, the vertical centre and shift, per-pixel `y` and `ang`, the
+two procedural-warp formulas, the 48×32 motion mesh, the engine blur filter and
+its one-frame delay, and wrap modes that depend on a per-frame value. Several of
+these were vertically mirrored before. On the r7 checkpoint
+(`The Waving Shaker`), the illustrated feedback picture now follows the engine
+frame by frame, and the final brightness matches the emulator capture (0.334
+vs 0.314). This describes how presets move and blend; it is not a renderer, and
+waveform phase still differs because projectM's waveform alignment is not
+modelled.
+
 ## What the static JSON can describe
 
 The static producer is `effect_family_export.py`. Its `analysis.visual_description`

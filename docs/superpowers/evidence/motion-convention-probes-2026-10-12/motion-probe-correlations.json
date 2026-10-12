@@ -1,0 +1,34 @@
+{
+ "dx": {
+  "previous": 1.0,
+  "engine_frame_mesh": 1.0
+ },
+ "dy": {
+  "previous": -0.0504,
+  "engine_frame_mesh": 1.0
+ },
+ "rot-cy25": {
+  "previous": 0.0446,
+  "engine_frame_mesh": 1.0
+ },
+ "rot-cx25": {
+  "previous": 0.042,
+  "engine_frame_mesh": 1.0
+ },
+ "sy-cy25": {
+  "previous": -0.0576,
+  "engine_frame_mesh": 1.0
+ },
+ "pp-dx-y": {
+  "previous": 0.705,
+  "engine_frame_mesh": 1.0
+ },
+ "pp-dy-x": {
+  "previous": 0.3,
+  "engine_frame_mesh": 1.0
+ },
+ "pp-rot-ang": {
+  "previous": 1.0,
+  "engine_frame_mesh": 1.0
+ }
+}

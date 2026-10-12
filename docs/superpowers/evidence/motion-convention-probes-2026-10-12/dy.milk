@@ -1,0 +1,36 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=2
+PSVERSION_COMP=3
+[preset00]
+fDecay=1.000
+nWaveMode=0
+fWaveAlpha=0.000
+bTexWrap=1
+fWarpAnimSpeed=1.000
+fWarpScale=1.000
+fZoomExponent=1.00000
+fShader=1.000
+zoom=1.00000
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00000
+sx=1.00000
+sy=1.00000
+ob_size=0.000
+ob_a=0.000
+ib_size=0.000
+ib_a=0.000
+per_frame_1=dy=0.01;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    ret = tex2D(sampler_main, uv).xyz;
+warp_4=`    if (time < 0.07) ret = tex2D(sampler_noise_hq, uv_orig*float2(3,2)).xyz;
+warp_5=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`    ret = tex2D(sampler_main, uv).xyz;
+comp_4=`}

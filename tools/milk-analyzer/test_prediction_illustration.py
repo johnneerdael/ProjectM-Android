@@ -110,3 +110,25 @@ def test_fit_inputs_trims_vector_width_to_declared_dtype():
     expression = {'nodes': [{'op': 'input', 'dtype': 'float2', 'args': [], 'detail': {'name': '_uv'}}]}
     fitted = _fit_inputs(expression, {'_uv': np.zeros((3, 4), np.float32)})
     assert fitted['_uv'].shape == (3, 2)
+
+
+def test_engine_blur_bank_keeps_top_down_orientation_and_range_uniforms():
+    import numpy as np
+    from prediction_illustration import _blur_bank
+    image=np.zeros((90,160,3),np.float32);image[:20,:30]=1
+    textures,uniforms=_blur_bank(image,{'blur1_edge_darken':0.})
+    for level,texture in textures.items():
+        h,w=texture.shape[:2]
+        assert texture[:h//4,:w//4].mean()>4*texture[-h//4:,:w//4].mean()+.05
+    assert np.allclose(uniforms['_c5'],[1,0,1,0]) and np.allclose(uniforms['_c6'],[1,0,0,1])
+    _,narrow=_blur_bank(image,{'blur1_min':.2,'blur1_max':.8})
+    assert np.allclose(narrow['_c5'][:2],[.6,.2]) and np.allclose(narrow['_c6'][2:],[.2,.8])
+
+
+def test_conditional_wrap_follows_per_frame_wrap_value():
+    from prediction_illustration import _sampler_wraps
+    conditional={'texture':'main','wrap':None,'wrap_condition':'frame_wrap > 0.0001'}
+    assert _sampler_wraps(conditional,{'wrap':1.}) is True
+    assert _sampler_wraps(conditional,{'wrap':0.}) is False
+    assert _sampler_wraps(conditional,None) is True
+    assert _sampler_wraps({'wrap':False},{'wrap':1.}) is False

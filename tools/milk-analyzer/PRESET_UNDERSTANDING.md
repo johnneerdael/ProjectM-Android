@@ -631,8 +631,8 @@ tint hue placement remain unmodelled.
   the summary) are applied as the sum of matrix x texture(coordinates) plus
   offset lanes. They are evaluated with the grid evaluator using the shader
   low-level uniforms (`_c0`/`_c5`/`_c6`/`_c7`/`_c13`, `texsize_main`) and
-  per-pixel `_rad_ang`. Blur levels are Gaussians and noise textures are
-  deterministic stand-ins.
+  per-pixel `_rad_ang`. Blur levels come from the engine blur bank (see
+  below) and noise textures are deterministic stand-ins.
 - Whole-pack run r5 (analyzer `72b11bea`): all 9,606 presets computed.
   Approximate bands are Chill 1,194, Normal 6,953 and Intense 1,498, with 843
   abstentions (8.8%).
@@ -645,7 +645,7 @@ tint hue placement remain unmodelled.
   the SDK summary). The illustrator rebuilds the graph (`shader_fields.Field`,
   `LoopPlan`) and evaluates it per pixel with `grid_math.evaluate_grid`, binding
   the `shader_uniforms` layout from a declared render state (Q values 0), `_uv`,
-  `_rad_ang`, blur levels (Gaussian stand-ins) and noise stand-ins. Any
+  `_rad_ang`, engine blur levels and noise stand-ins. Any
   translated shader — nonlinear, image-dependent or looping — now drives the
   feedback and display instead of falling back to a gain model.
 - `builtin_wave_geometry.py` implements projectM 4.1.7 built-in waveform modes
@@ -668,3 +668,46 @@ tint hue placement remain unmodelled.
 - r7 v3: swirl and streak structure now matches. A controlled passthrough-
   composite variant shows the remaining 4x darkness is in the feedback canvas
   (0.029 vs native 0.08), not the composite gain (×3.0 vs ×4.1).
+
+### Engine conventions verified with native-ruler probes (r7 v4–v5)
+
+Each convention below was checked on the pinned engine (native ruler) with an
+isolated probe preset. Each probe seeds texture, isolates one motion term, then
+applies the illustrator's map to native frame 6 and compares the result with
+native frame 7. Probes and results:
+`docs/superpowers/evidence/motion-convention-probes-2026-10-12/`.
+
+- **Motion frame.** Per-pixel `x`/`y` and the warp's `u`/`v` use long-side units
+  with y pointing up. In top-down screen terms: `u_src = u - dx`,
+  `v_src = v + dy`, rotation is clockwise for `rot > 0` about
+  `(cx, 1 - cy)`, per-pixel `y` is 1 at the top, and `ang = atan2(y_down - .5,
+  x - .5)`. All 8 probes reach single-step correlation 1.000. The previous map
+  reached only −0.06…0.71 on the dy, cy, rotation, stretch and y-dependent
+  probes; the `ang` probe passed only because two sign errors cancelled.
+- **Procedural warp.** Presets without a warp shader compile
+  `PROJECTM_LEGACY_WARP`, which enters `pos.y` with the opposite sign. Each path
+  reaches 0.9987 with its own formula and 0.46 with the other.
+- **Mesh.** Motion is evaluated at the production 48×32 mesh vertices
+  (`native-lib` defaults; ruler `SetMeshSize`) and interpolated over the engine
+  triangulation: the anti-diagonal split with a warp shader, the legacy
+  diagonal without. A context `mesh_grid` overrides the size.
+- **Blur bank.** `blur.blur_bank` (8-tap passes at engine pass sizes, unorm
+  storage, range normalisation, blur1 edge darkening) replaces Gaussian stand-ins
+  in warp, composite and injection evaluation. It reads its source in GL row
+  order (bottom row first) and returns rows top-down; a `GetBlur1` probe matches
+  to 1e-4 mean absolute error.
+- **Blur timing.** Blur textures are built from the previous frame's buffer.
+  The composite therefore blurs the previous canvas, and a warp shader that
+  samples blur reads last frame's update, made from the canvas two frames back.
+- **Conditional wrap.** A main sampler exported as `wrap: null` with
+  `wrap_condition: frame_wrap > 0.0001` follows the per-frame `wrap` value. It
+  used to clamp, which wiped the canvas on high-amplitude warp frames.
+- **Thick lines.** Main-wave and shape-outline thick passes are blended one at a
+  time, so pixels that two passes cover get the blend twice.
+- **History.** The loop renders exactly `history_steps` frames ending at the
+  declared time (native frame k renders at (k+1)/fps).
+- **r7 v5.** The feedback canvas follows the native ruler frame by frame (mean
+  luma over frames 40–149: 0.0759 vs 0.0779). The display reads 0.334 against the
+  emulator's 0.314, with percentiles within 0.04. The remaining differences are
+  waveform phase (projectM's waveform aligner is not modelled) and chaotic
+  detail on frames where `pow(bass, treb)` reaches about 200.

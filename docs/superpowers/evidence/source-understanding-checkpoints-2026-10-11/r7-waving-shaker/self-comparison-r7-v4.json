@@ -1,0 +1,46 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r7-v4",
+ "preset": "suksma - Aderrasi - The Waving Shaker - unbelievable talk - i'd k him now if.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v4.json": "d8e43d1ff22a5918583588fe6cd13a854475d68118410b8ae9cac4eedeff1bcd",
+  "description-v4-before-capture.json": "8696409cc3b876344c5017923cae49ed3f7bc0f736b3c23fd41828db4b4d17d5",
+  "recipe-v4-before-capture.json": "f529bdd01b1e240739303fd6d866ab99477e5b4509a58e7672a39e1c4ac73f90",
+  "prediction-v4.png": "1a3844e8cea2689b6961b0d120e61dabe604473ac0149bf38e5a8465df48d288"
+ },
+ "capture_result_sha256": "422cb02da40fd12ebbe50a98a2b956abf5037e0b32b7f1e08907f556c120cbc2",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.274,
+  "screenshot_luma": 0.314,
+  "clip_luma_frames_60_149_240": [
+   0.336,
+   0.308,
+   0.329
+  ],
+  "p10_p90_prediction": [
+   0.031,
+   0.655
+  ],
+  "p10_p90_screenshot": [
+   0.125,
+   0.545
+  ]
+ },
+ "agreements": [
+  "Mean brightness close (0.274 vs 0.314) and similar edge orientation balance (1.15 vs 1.13)"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Agreement was accidental: a smooth saturated fan at the left and an empty lower canvas; contrast too high",
+   "cause": "engine blur bank read upside down (the illustrator flipped blur_bank output); the warp gain 2.5*|blur2-.5| exceeds 1 where blur2 is dark, so content grew where blur belonged elsewhere",
+   "next": "fix blur orientation; per-frame canvas comparison against the native ruler (passthrough composite variant)"
+  }
+ ],
+ "general_fixes": [
+  "engine blur bank (8-tap passes at engine pass sizes, unorm storage, range normalisation, blur1 edge darkening) replaces Gaussian stand-ins in warp/composite/injection evaluation"
+ ],
+ "uses_rendered_images_for_classification": false
+}

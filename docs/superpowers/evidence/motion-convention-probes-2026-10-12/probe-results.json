@@ -1,0 +1,68 @@
+{
+ "policy": "native-ruler-motion-convention-probes-v1",
+ "renderer": "pinned patched projectM-TV source34, macOS GLES + SwiftShader (native ruler), 480x270, mesh 48x32, checkpoint PCM",
+ "method": "each probe seeds texture in the first frames, then isolates one motion term; the illustrator's backward map (from the exported mesh_field facts) is applied to native frame 6 and correlated with native frame 7 (20 px margin)",
+ "single_step_correlation": {
+  "dx": {
+   "previous": 1.0,
+   "engine_frame_mesh": 1.0
+  },
+  "dy": {
+   "previous": -0.0504,
+   "engine_frame_mesh": 1.0
+  },
+  "rot-cy25": {
+   "previous": 0.0446,
+   "engine_frame_mesh": 1.0
+  },
+  "rot-cx25": {
+   "previous": 0.042,
+   "engine_frame_mesh": 1.0
+  },
+  "sy-cy25": {
+   "previous": -0.0576,
+   "engine_frame_mesh": 1.0
+  },
+  "pp-dx-y": {
+   "previous": 0.705,
+   "engine_frame_mesh": 1.0
+  },
+  "pp-dy-x": {
+   "previous": 0.3,
+   "engine_frame_mesh": 1.0
+  },
+  "pp-rot-ang": {
+   "previous": 1.0,
+   "engine_frame_mesh": 1.0
+  }
+ },
+ "procedural_warp_formula": {
+  "warp-legacy (no warp shader)": {
+   "shader_formula": 0.4574,
+   "legacy_formula": 0.9987
+  },
+  "warp-shader": {
+   "shader_formula": 0.9987,
+   "legacy_formula": 0.4625
+  }
+ },
+ "blur_orientation": {
+  "probe": "blur-comp: composite ret=GetBlur1(uv) over a seeded top-left patch",
+  "result": "patch stays top-left; blur_bank fed GL row order reproduces the native GetBlur1 profile to 1e-4 mean abs error (illustrator previous orientation 2.2e-3)"
+ },
+ "blur_timing": {
+  "probe": "blur-warp: warp ret=GetBlur1(uv)",
+  "result": "warp output changes every second frame (blur made from the previous buffer, updated after a blur-sampling warp); composite shows blur from frame 1 (previous canvas)"
+ },
+ "builtin_wave_orientation": {
+  "probe": "wave-y08: mode 4 at wave_y=0.8",
+  "result": "wave near the bottom in both; per-frame light 469 vs 470 luma units; frames match a reference PCM window exactly only when the waveform aligner's offset is zero"
+ },
+ "conventions_top_down_screen": {
+  "dx": "u_src = u - dx",
+  "dy": "v_src = v + dy (v down)",
+  "rotation": "clockwise on screen for rot>0 about (cx, 1-cy)",
+  "per_pixel_y": "1 at the top (aspect-scaled, long-side units)",
+  "per_pixel_ang": "atan2(y_down-0.5, x-0.5)"
+ }
+}

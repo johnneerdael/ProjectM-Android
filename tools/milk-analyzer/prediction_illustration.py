@@ -263,15 +263,53 @@ def _terms_field(terms,x,y,time):
     return total
 
 
-def _backward_map(mesh,width,height):
-    """Closure computing per-pixel source coordinates from mesh-field facts."""
+MESH_GRID=(48,32)  # production per-pixel mesh (native-lib meshWidth/meshHeight defaults; ruler SetMeshSize)
+
+
+def _mesh_interpolator(grid,width,height,shader_topology):
+    """Pixel-centre interpolation of per-vertex values over projectM's warp mesh triangles.
+
+    Vertices sit at NDC (gx/GX*2-1, gy/GY*2-1), gy upward. Each quad is split along the
+    anti-diagonal (indices 0,1,stride / 1,stride,stride+1) when the preset has a warp shader,
+    otherwise along the legacy diagonal (0,1,stride+1 / 0,stride,stride+1).
+    """
+    gx,gy=grid
+    columns,rows=np.meshgrid(np.arange(width)+.5,np.arange(height)+.5)
+    X=columns/width*gx;Y=(1-rows/height)*gy
+    i=np.clip(np.floor(X).astype(int),0,gx-1);j=np.clip(np.floor(Y).astype(int),0,gy-1)
+    s=(X-i).astype(np.float32);t=(Y-j).astype(np.float32)
+    def interpolate(values):
+        v00=values[j,i];v10=values[j,i+1];v01=values[j+1,i];v11=values[j+1,i+1]
+        if shader_topology:
+            low=s+t<=1
+            return np.where(low,v00+s*(v10-v00)+t*(v01-v00),v11+(1-s)*(v01-v11)+(1-t)*(v10-v11))
+        upper=s>=t
+        return np.where(upper,v00+(s-t)*(v10-v00)+t*(v11-v00),v00+(t-s)*(v01-v00)+s*(v11-v00))
+    return interpolate
+
+
+def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
+    """Closure computing per-pixel source coordinates from mesh-field facts.
+
+    Like the engine, the motion equations are evaluated at the mesh vertices and the source
+    coordinates are interpolated linearly over the mesh triangles (grid None: per pixel).
+    """
     controls=(mesh or {}).get('controls') or {}
     warp_params=(mesh or {}).get('procedural_warp_parameters')
     names=('zoom','zoomexp','rot','warp','cx','cy','dx','dy','sx','sy')
     if any(controls.get(name,{}).get('status')!='described' for name in names):return None
     long=max(width,height)
-    columns,rows=np.meshgrid(np.arange(width)+.5,np.arange(height)+.5)
-    x=.5+(columns-width/2)/long;y=.5+(rows-height/2)/long
+    if grid:
+        gx,gy=int(grid[0]),int(grid[1])
+        columns,rows=np.meshgrid(np.arange(gx+1)/gx*width,(1-np.arange(gy+1)/gy)*height)
+        interpolate=_mesh_interpolator((gx,gy),width,height,shader_topology)
+    else:
+        columns,rows=np.meshgrid(np.arange(width)+.5,np.arange(height)+.5);interpolate=None
+    # Engine frame (PresetWarpVertexShader): per-pixel x/y and u/v in long-side units with y UP
+    # (y=1 above the centre); cx/cy, dy, rotation and ang all live in this frame. Verified on the
+    # native ruler with isolated rot/cx/cy/sy/dx/dy and per-pixel x/y/ang probes: rotation is
+    # counter-clockwise in y-up (clockwise on screen) about (cx, 1-cy from the top), dy>0 samples below.
+    x=.5+(columns-width/2)/long;y=.5-(rows-height/2)/long
     rad=2*np.hypot(x-.5,y-.5)
     def sample(time):
         values={name:_terms_field(controls[name]['terms'] or [],x,y,time) for name in names}
@@ -282,23 +320,25 @@ def _backward_map(mesh,width,height):
         stretch=lambda value:np.where(np.abs(value)<1e-3,np.where(value<0,-1e-3,1e-3),value)
         u=values['cx']+(u-values['cx'])/stretch(values['sx']);v=values['cy']+(v-values['cy'])/stretch(values['sy'])
         if warp_params is not None and np.any(values['warp']!=0):
-            # projectM PresetWarpVertexShader procedural warp in aspect-corrected units; pos is NDC (y up),
-            # the illustrator's v grows downward, so the vertical term changes sign.
+            # Procedural warp; pos is the vertex NDC (y up).
             speed=float(warp_params.get('warp_anim_speed') or 1.);scale=float(warp_params.get('warp_scale') or 1.)
             wt=time*speed;wsi=1./scale if scale else 1.
             f0=11.68+4.0*np.cos(wt*1.413+10);f1=8.77+3.0*np.cos(wt*1.113+7)
             f2=10.54+3.0*np.cos(wt*1.233+3);f3=11.49+4.0*np.cos(wt*0.933+5)
-            px=(x-.5)*2*long/width;py=(.5-y)*2*long/height
+            px=(x-.5)*2*long/width;py=(y-.5)*2*long/height
             w=values['warp']*.0035
-            du=w*np.sin(wt*.333+wsi*(px*f0-py*f3))+w*np.cos(wt*.753-wsi*(px*f1-py*f2))
-            dv=w*np.cos(wt*.375-wsi*(px*f2+py*f1))+w*np.sin(wt*.825+wsi*(px*f0+py*f3))
-            u=u+du;v=v-dv
+            # The built-in warp (no warp shader) compiles PROJECTM_LEGACY_WARP: py enters with the opposite sign.
+            qy=py if shader_topology else -py
+            du=w*np.sin(wt*.333+wsi*(px*f0-qy*f3))+w*np.cos(wt*.753-wsi*(px*f1-qy*f2))
+            dv=w*np.cos(wt*.375-wsi*(px*f2+qy*f1))+w*np.sin(wt*.825+wsi*(px*f0+qy*f3))
+            u=u+du;v=v+dv
         cos,sin=np.cos(values['rot']),np.sin(values['rot'])
         du,dv=u-values['cx'],v-values['cy']
-        # Engine formula; per-pixel u/v share the flipped main-texture frame.
         u=du*cos-dv*sin+values['cx'];v=du*sin+dv*cos+values['cy']
         u=u-values['dx'];v=v-values['dy']
-        return ((u-.5)*long+width/2-.5).astype(np.float32),((v-.5)*long+height/2-.5).astype(np.float32)
+        if interpolate is not None:u=interpolate(u);v=interpolate(v)
+        # Back to top-down image rows: row = height/2 - (v-.5)*long.
+        return ((u-.5)*long+width/2-.5).astype(np.float32),(height/2-(v-.5)*long-.5).astype(np.float32)
     return sample
 
 
@@ -716,13 +756,14 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
         aspect_y=min(1.,height/width)
         angles=np.arange(shape['sides'])/shape['sides']*2*math.pi+angle+math.pi/4
         px=(x+radius*aspect_y*.5*np.cos(angles))*width;py=(1-(y-radius*.5*np.sin(angles)))*height
-        layer=np.zeros(image.shape[:2],np.float32)
         points=np.stack([px,py],axis=-1)
+        # Each thick pass is blended on its own (pixels two passes cover are blended twice).
         for dx,dy in ([(0,0),(1,0),(1,1),(0,1)] if shape.get('thick_outline') else [(0,0)]):
+            layer=np.zeros(image.shape[:2],np.float32)
             cv2.polylines(layer,[np.round((points+[dx,dy])*16).astype(np.int32)],True,1.0,1,cv2.LINE_8,4)
-        a=layer*border[3]
-        image=image*(1-a[...,None])+a[...,None]*np.array(border[:3],np.float32)
-        if canvas is not None:canvas['alpha']=a*a+canvas['alpha']*(1-a)
+            a=layer*border[3]
+            image=image*(1-a[...,None])+a[...,None]*np.array(border[:3],np.float32)
+            if canvas is not None:canvas['alpha']=a*a+canvas['alpha']*(1-a)
     return image,True
 
 
@@ -778,6 +819,43 @@ def _lowlevel_uniforms(width,height):
     return {'_c0':np.array([aspect_x,aspect_y,1/aspect_x,1/aspect_y],np.float32),'_c1':np.zeros(4,np.float32),
             '_c5':np.array([1,0,1,0],np.float32),'_c6':np.array([1,0,0,1],np.float32),'_c7':size,'texsize_main':size,
             '_c13':np.array([0,1,0,1],np.float32)}
+
+
+def _blur_bank(image,controls=None):
+    """Engine blur textures and their decode uniforms (blur.blur_bank, patched-core range policy).
+
+    Each level is an 8-tap separable pass at the engine's reduced pass size, stored range-normalised
+    in unorm8 with blur1 edge darkening; the shader decodes GetBlurN with _c5/_c6. Blur ranges and
+    edge darkening come from the per-frame controls (header defaults 0/1/0.25). Returns
+    ({1,2,3: top-down RGB}, {'_c5','_c6'}).
+    """
+    from blur import blur_bank,native_ranges
+    from engine_profiles import CORE_2315_BLUR
+    controls=controls or {}
+    low=[float(controls.get(f'blur{i}_min',0.)) for i in (1,2,3)];high=[float(controls.get(f'blur{i}_max',1.)) for i in (1,2,3)]
+    lo,hi=native_ranges(low,high,policy=CORE_2315_BLUR)
+    # blur_bank reads its source in GL row order (bottom first) and, like the engine's flipVertical first
+    # pass, returns texture rows top-down. Native-ruler probe: a seeded patch blurred by GetBlur1 matches
+    # to 1e-4 mean absolute error (the first pass's one-texel offset makes the orientation observable).
+    bank=blur_bank(np.ascontiguousarray(np.flipud(np.clip(np.nan_to_num(image),0,1))).astype(np.float32),levels=3,minimum=low,maximum=high,
+                   edge_darken=float(controls.get('blur1_edge_darken',.25)),policy=CORE_2315_BLUR)
+    textures={level:np.ascontiguousarray(value) for level,value in bank.items()}
+    uniforms={'_c5':np.array([hi[0]-lo[0],lo[0],hi[1]-lo[1],lo[1]],np.float32),'_c6':np.array([hi[2]-lo[2],lo[2],lo[0],hi[0]],np.float32)}
+    return textures,uniforms
+
+
+def _sampler_wraps(policy,controls=None):
+    """Resolved wrap addressing of an exported sampling policy.
+
+    A null wrap with condition 'frame_wrap > 0.0001' follows the per-frame wrap value (the warp pass
+    binds unit 0 with the preset's wrap setting); MilkDrop's default bTexWrap is 1.
+    """
+    policy=policy or {}
+    if type(policy.get('wrap')) is bool:return policy['wrap']
+    if policy.get('wrap_condition')=='frame_wrap > 0.0001':
+        value=(controls or {}).get('wrap',1.)
+        return float(value)>.0001 if type(value) in (int,float) else True
+    return True
 
 
 _NOISE={}
@@ -837,25 +915,26 @@ def _declared_uniforms(width,height,time,fps,bands):
     return values
 
 
-def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None):
-    """Evaluate an exported stage program per pixel with the shared grid evaluator (source_stage_program)."""
+def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,controls=None,blur_image=None):
+    """Evaluate an exported stage program per pixel with the shared grid evaluator (source_stage_program).
+
+    blur_image is the canvas the engine's blur textures were made from (default: image).
+    """
     from grid_math import evaluate_grid
     height,width=image.shape[:2]
+    blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,controls)
     inputs={'_uv':uv.astype(np.float32),'_uv_orig':uv[...,2:].astype(np.float32),'_rad_ang':_rad_ang(width,height),
-            **_lowlevel_uniforms(width,height),**_declared_uniforms(width,height,time,fps,bands),
+            **_lowlevel_uniforms(width,height),**blur_uniforms,**_declared_uniforms(width,height,time,fps,bands),
             'rand_frame':np.asarray(rand if rand is not None else [.5]*4,np.float32),'rand_preset':np.full(4,.5,np.float32)}
     if diffuse is not None:inputs['_vDiffuse']=np.asarray(diffuse,np.float32)
-    blurred={}
     def sample(detail,coordinates):
         texture=str(detail.get('canonical_texture','main'))
         source=image
         if texture.startswith('noise'):source=_noise_texture(texture)
         elif texture.startswith('blur'):
-            level=int(texture[4:] or 1)
-            if level not in blurred:blurred[level]=cv2.GaussianBlur(image,(0,0),2.**level)
-            source=blurred[level]
+            source=blurred[min(3,max(1,int(texture[4:] or 1)))]
         elif texture!='main':source=_noise_texture('noise_mq')  # named images: deterministic stand-in
-        wrap=(detail.get('sampling_policy') or {}).get('wrap',True)
+        wrap=_sampler_wraps(detail.get('sampling_policy'),controls)
         th,tw=source.shape[:2]
         u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
         u=np.where(np.isfinite(u),u,0.);v=np.where(np.isfinite(v),v,0.)
@@ -888,11 +967,11 @@ def _main_coordinate_field(transfer):
     except (KeyError,TypeError,IndexError):return None
 
 
-def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=None,bands=None):
+def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=None,bands=None,blur_image=None):
     """Evaluate injected warp terms over the pixel grid with the shared grid evaluator.
 
     _uv.xy is the per-pixel warped sample position and _uv.zw the pixel position (MilkDrop shader
-    UV, origin top-left); main/blur samples read the illustrated previous image (blur by a Gaussian);
+    UV, origin top-left); main/blur samples read the illustrated previous image (blur by the engine blur bank);
     rand_frame is a seeded per-frame stand-in for the engine's random vector.
     """
     from grid_math import evaluate_grid
@@ -901,18 +980,16 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
     uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,columns,rows],axis=-1).astype(np.float32)
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
     rng=np.random.default_rng(1000003+frame_index)
-    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**{k:np.float32(v) for k,v in (bands or {}).items()},
+    blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,_TERM_CONTEXT.get('bands'))
+    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**blur_uniforms,**{k:np.float32(v) for k,v in (bands or {}).items()},
             'rand_frame':rng.random(4).astype(np.float32),':native-render-time-f32':np.float32(time)}
-    blurred={}
     def sample(detail,coordinates):
         texture=detail.get('canonical_texture','main')
         source=image
         if str(texture).startswith('noise'):source=_noise_texture(str(texture))
         elif texture.startswith('blur'):
-            level=int(texture[4:] or 1)
-            if level not in blurred:blurred[level]=cv2.GaussianBlur(image,(0,0),2.**level)
-            source=blurred[level]
-        wrap=(detail.get('sampling_policy') or {}).get('wrap',True)
+            source=blurred[min(3,max(1,int(texture[4:] or 1)))]
+        wrap=_sampler_wraps(detail.get('sampling_policy'),_TERM_CONTEXT.get('bands'))
         th,tw=source.shape[:2]
         u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
         if wrap:u=np.mod(u,tw);v=np.mod(v,th)
@@ -946,7 +1023,7 @@ def declared_audio(path):
     return {'frames':rows,'sha256':hashlib.sha256(Path(path).read_bytes()).hexdigest(),'pcm_sha256':report.get('pcm_sha256')}
 
 
-def _affine_composite(image,facts,time,fps):
+def _affine_composite(image,facts,time,fps,blur_image=None):
     """Display = sum of matrix x texture(coordinates) + offsets, from texture_colour_transfer.stages.composite."""
     stage=((facts.get('/analysis/visual_description/texture_colour_transfer') or {}).get('stages') or {}).get('composite') or {}
     if stage.get('source_model')!='affine_sample_colour' or not stage.get('sample_contributions'):return None
@@ -955,14 +1032,14 @@ def _affine_composite(image,facts,time,fps):
     columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
     uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
-    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),
+    blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,_TERM_CONTEXT.get('bands'))
+    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**blur_uniforms,
             ':native-render-time-f32':np.float32(time),'rand_frame':np.full(4,.5,np.float32)}
-    sources={'main':image}
     def texture(name):
-        if name not in sources:
-            if not name.startswith('blur'):raise ValueError('composite texture not illustrated: '+name)
-            sources[name]=cv2.GaussianBlur(image,(0,0),2.**int(name[4:] or 1))
-        return sources[name]
+        if name=='main':return image
+        if not name.startswith('blur'):raise ValueError('composite texture not illustrated: '+name)
+        # Stored (range-normalised) blur: the exported affine matrix already contains the GetBlurN decode.
+        return cv2.resize(blurred[min(3,max(1,int(name[4:] or 1)))],(width,height),interpolation=cv2.INTER_LINEAR)
     try:
         out=np.zeros((height,width,3),np.float32)
         for site in stage['sample_contributions']:
@@ -980,23 +1057,27 @@ def _affine_composite(image,facts,time,fps):
         return None
 
 
-def _display(image,facts,time,fps,limitations):
-    """Composite the canvas for display: affine custom composite, scalar palette or the legacy model."""
+def _display(image,facts,time,fps,limitations,blur_image=None):
+    """Composite the canvas for display: affine custom composite, scalar palette or the legacy model.
+
+    The engine's composite reads blur textures made from the previous frame's canvas (blur_image).
+    """
     program=((facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}).get('composite') or {}
     if program.get('status')=='exported':
         try:
             height,width=image.shape[:2]
             columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
             uv=np.stack([columns,rows,columns,rows],axis=-1)
-            shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'))
-            limitations.append('composite shader evaluated per pixel from its exported program (Q uniforms 0, blur by Gaussians, noise stand-ins)')
+            shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'),controls=_TERM_CONTEXT.get('bands'),
+                                 blur_image=blur_image)
+            limitations.append('composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
             return np.clip(shown,0,1)
         except Exception as error:  # noqa: BLE001 - fall back to the affine/legacy display
             limitations.append('composite program not evaluated: '+str(error)[:120])
-    composite_image=_affine_composite(image,facts,time,fps)
+    composite_image=_affine_composite(image,facts,time,fps,blur_image)
     palette_image=None if composite_image is not None else _palette_display(image,facts,limitations)
     if composite_image is not None:
-        limitations.append('custom composite applied from its exported affine texture transfer (blur levels approximated by Gaussians)')
+        limitations.append('custom composite applied from its exported affine texture transfer (engine blur bank)')
         return composite_image
     if palette_image is not None:return palette_image
     for path,value in facts.items():
@@ -1043,7 +1124,6 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     flat=facts.get('/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field')
     if isinstance(flat,dict) and isinstance(flat.get('state_rgb'),list):
         image[:]=np.array(flat['state_rgb'],np.float32);limitations.append('feedback content starts from the flat-field steady state')
-    sample=_backward_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'),width,height)
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None
     frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
@@ -1055,6 +1135,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     custom_warp=((facts.get('/analysis/visual_description/native_warp_recipe') or {}).get('shader_branch') not in (None,'legacy','unknown')
                  or (facts.get('/analysis/visual_description/feedback_transfer') or {}).get('source_model','').startswith('affine_previous'))
     transfer=facts.get('/analysis/visual_description/feedback_transfer') or {}
+    context=facts.get('/analysis/visual_description/static_behaviour/context') or {}
+    grid=context.get('mesh_grid') if isinstance(context.get('mesh_grid'),list) and len(context['mesh_grid'])==2 else MESH_GRID
+    sample=_backward_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'),width,height,grid,
+                         shader_topology=warp_program is not None or custom_warp)
+    if sample is not None:limitations.append('motion evaluated at the %dx%d mesh vertices and interpolated over its triangles'%tuple(grid))
     if type(decay) not in (int,float) and type(transfer.get('uniform_content_gain')) in (int,float):
         # Custom warp: uniform-content gain of all previous-image sample sites plus the known constant
         # offset; blur sites are approximated by the same pixel and injected fields are omitted.
@@ -1067,7 +1152,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                            ('; injected spatial fields evaluated per frame (seeded rand_frame stand-in)' if injection else '; injected spatial fields omitted'))
     if warp_program is not None and sample is not None:
         decay=1.  # the exported warp program supplies the full colour transfer below
-        limitations.append('warp shader evaluated per pixel from its exported program (Q uniforms 0, blur by Gaussians, noise stand-ins)')
+        limitations.append('warp shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
     if sample is None or type(decay) not in (int,float):
         limitations.append('per-pixel field or decay not fully described: only the fresh drawing is shown');history_steps=0
     paths,wave_limits=_builtin_wave_paths(facts,aspect);limitations+=wave_limits
@@ -1090,8 +1175,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)')
     for path,(colour,note) in colours.items():limitations.append(path+': '+note)
     wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths+dynamic_waves}
+    warp_samples_blur='"canonical_texture": "blur' in json.dumps(warp_program) if warp_program is not None else False
+    previous=image
     try:
-        for frame in range(history_steps,-1,-1):
+        # history_steps rendered frames ending at the declared time (native frame k renders at (k+1)/fps).
+        for frame in range(max(history_steps-1,0),-1,-1):
             frame_time=time-frame/fps
             bands=None
             if audio is not None:
@@ -1099,7 +1187,9 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 # per frame instead of at band midpoints (E[f(bands)] differs from f(E[bands])).
                 index=min(len(audio['frames'])-1,max(0,int(round(frame_time*fps))-1))
                 bands=audio['frames'][index];held.update(bands)
-            previous=image;canvas['previous_alpha']=canvas['alpha']
+            # Blur timing (MilkdropPreset::RenderFrame): blur textures are made from the previous frame's
+            # buffer; a warp shader that samples blur reads last frame's update (two canvases back).
+            older=previous;previous=image;canvas['previous_alpha']=canvas['alpha']
             if stepper is not None:
                 held.update(stepper.step(frame_time,fps,{k:held[k] for k in BANDS if k in held},int(round(frame_time*fps))))
             _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
@@ -1116,7 +1206,8 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 if warp_program is not None:
                     try:
                         uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,*np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)],axis=-1)
-                        warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},diffuse)
+                        warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},diffuse,
+                                                controls=held,blur_image=older if warp_samples_blur else previous)
                         image=np.clip(warped,0,1)
                         image=np.round(image*255)/255
                         canvas['alpha']=np.ones_like(canvas['alpha'])
@@ -1157,22 +1248,23 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                                                        {k:held[k] for k in BANDS if k in held},(width,height))
                 except ValueError:continue
                 colour=_wave_colour_at(facts,path,frame_time) or _wave_colour(facts,path)[0]
-                layer=np.zeros_like(image)
-                for points in polylines:
-                    # Same pipeline as custom waves: column=(1+x)/2*W, row=(1+y)/2*H.
-                    px=(points[:,0]+1)/2*width;py=(points[:,1]+1)/2*height
-                    pixel=np.round(np.stack([px,py],-1)*16).astype(np.int32)
-                    offsets=[(0,0),(16,0),(16,16),(0,16)] if recipe.get('thick') else [(0,0)]
-                    for ox,oy in offsets:
+                # Thick: LineRenderer draws four 1 px passes offset by one pixel (as is, +x, +x+y, +y), each
+                # blended on its own, so pixels two passes cover receive the blend twice.
+                for ox,oy in ([(0,0),(16,0),(16,16),(0,16)] if recipe.get('thick') else [(0,0)]):
+                    layer=np.zeros_like(image)
+                    for points in polylines:
+                        # Same pipeline as custom waves: column=(1+x)/2*W, row=(1+y)/2*H.
+                        px=(points[:,0]+1)/2*width;py=(points[:,1]+1)/2*height
+                        pixel=np.round(np.stack([px,py],-1)*16).astype(np.int32)
                         if recipe.get('dots'):
                             for x,y in ((pixel+[ox,oy])//16):
                                 if 0<=x<width and 0<=y<height:layer[y,x]=colour
                         else:
                             cv2.polylines(layer,[pixel+[ox,oy]],bool(loop),tuple(float(c) for c in colour),1,cv2.LINE_8,4)
-                coverage=layer.max(axis=-1,keepdims=True)
-                image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
-                a=coverage[...,0]*alpha
-                canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
+                    coverage=layer.max(axis=-1,keepdims=True)
+                    image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
+                    a=coverage[...,0]*alpha
+                    canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
             rng=np.random.default_rng(7919+int(round(frame_time*fps)))
             for shape in textured:
@@ -1186,7 +1278,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
             for start,end,shade in _motion_vector_marks(facts,sample,frame_time,width,height):
                 cv2.line(image,tuple(int(round(v)) for v in start),tuple(int(round(v)) for v in end),shade,1,cv2.LINE_AA)
-            if frame_callback is not None:frame_callback(frame_time,_display(image,facts,frame_time,fps,[]))
+            if frame_callback is not None:frame_callback(frame_time,_display(image,facts,frame_time,fps,[],previous))
         if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
     except ValueError as error:
         limitations.append('field illustration stopped: '+str(error))
@@ -1196,7 +1288,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
         limitations.append('legacy procedural warp (amplitude 0.0035*warp per step) omitted')
     if _UNRESOLVED_TERMS:
         limitations.append('mesh terms held at range midpoint or zero: '+', '.join(sorted(_UNRESOLVED_TERMS)));_UNRESOLVED_TERMS.clear()
-    image=_display(image,facts,time,fps,limitations)
+    image=_display(image,facts,time,fps,limitations,previous)
     limitations.append('closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted')
     return image,[path for path,_ in paths]+[str(identity) for identity,_ in clouds],limitations
 

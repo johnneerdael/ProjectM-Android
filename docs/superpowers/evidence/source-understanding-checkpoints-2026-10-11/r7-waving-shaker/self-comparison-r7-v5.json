@@ -1,0 +1,76 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r7-v5",
+ "preset": "suksma - Aderrasi - The Waving Shaker - unbelievable talk - i'd k him now if.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v5.json": "23a3f0b0f378e974db43ee3a1cc5fdd4f80b0d3025a59de3b4b6072ddb314bd0",
+  "description-v5-before-capture.json": "8696409cc3b876344c5017923cae49ed3f7bc0f736b3c23fd41828db4b4d17d5",
+  "recipe-v5-before-capture.json": "f529bdd01b1e240739303fd6d866ab99477e5b4509a58e7672a39e1c4ac73f90",
+  "prediction-v5.png": "722b0882a073b52509cc47f5ee0b1770d7924cbe943f04115163bcde5dd5b889"
+ },
+ "capture_result_sha256": "4c9d736f8f5310d99de5f10603f298527d9b8f5baa899d21756dfd3a60441410",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.334,
+  "screenshot_luma": 0.314,
+  "clip_luma_frames_60_149_240": [
+   0.336,
+   0.308,
+   0.329
+  ],
+  "p10_p50_p90_prediction": [
+   0.118,
+   0.31,
+   0.58
+  ],
+  "p10_p50_p90_screenshot": [
+   0.125,
+   0.286,
+   0.545
+  ],
+  "gradient_ratio_x_y": [
+   1.05,
+   1.13
+  ],
+  "saturation": [
+   0.0,
+   0.0
+  ],
+  "feedback_canvas_vs_native_ruler_passthrough": {
+   "mean_canvas_luma_frames_40_149": [
+    0.0759,
+    0.0779
+   ],
+   "canvas_luma_frame_149": [
+    0.0812,
+    0.0859
+   ],
+   "teacher_forced_warp_step": "lit-pixel native/ours ratio median 1.000 (quartiles 1.000); single-step correlation median 0.95"
+  }
+ },
+ "agreements": [
+  "Grayscale; vertical bright streaks, curling swirl background and horizontal waveform traces",
+  "Brightness and contrast distribution (luma 0.334 vs 0.314, percentiles within 0.04)",
+  "Feedback canvas evolution matches the native ruler frame by frame in structure and density (frames 40, 90, 149)"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "Exact strand positions and waveform phase differ",
+   "cause": "projectM waveform alignment omitted; chaotic frames (pow(bass,treb) up to ~200) amplify small differences",
+   "next": "model the waveform aligner from the declared PCM"
+  }
+ ],
+ "general_fixes": [
+  "motion map in the engine frame (y up): rotation sense, cx/cy (cy measured from the bottom), dy sign, per-pixel y/ang inputs; verified with 8 isolated native-ruler probes (correlation 1.000 each; previous map -0.06..0.71 on dy/cy/rot/sy/y probes)",
+  "legacy procedural warp formula for presets without a warp shader (PROJECTM_LEGACY_WARP), verified 0.9987 on both paths",
+  "motion evaluated at the 48x32 mesh vertices and interpolated over the engine triangulation (anti-diagonal with a warp shader, legacy diagonal otherwise)",
+  "engine blur bank orientation verified with a GetBlur1 probe (1e-4 mean abs error); blur timing: composite blurs the previous canvas, a blur-sampling warp reads the update from two canvases back",
+  "conditional main wrap (wrap_condition frame_wrap > 0.0001) follows the per-frame wrap value instead of clamping",
+  "thick main-wave and shape-outline passes blended separately (pixels covered twice receive the blend twice)",
+  "history loop renders exactly history_steps frames ending at the declared time"
+ ],
+ "status": "understood: structure, brightness, contrast and colour match; remaining differences are phase/detail",
+ "uses_rendered_images_for_classification": false
+}
