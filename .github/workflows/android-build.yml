@@ -74,6 +74,7 @@ jobs:
           python3 -m unittest discover -s tools/milk-analyzer -p 'test_*facet*.py' -v
           python3 -m unittest discover -s tools/milk-analyzer -p 'test_attribute_bundle.py' -v
           python3 -m unittest discover -s tools -p test_preset_distribution.py -v
+          python3 -m unittest discover -s tools/native-ruler -p 'test_ruler.py' -v
       - uses: actions/setup-java@v5
         with:
           distribution: temurin

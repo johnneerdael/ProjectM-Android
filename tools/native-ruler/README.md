@@ -27,7 +27,11 @@ Verified on macOS with SwiftShader (Android SDK `emulator/lib64/gles_angle`). Li
 python3 tools/native-ruler/ruler.py --pcm <checkpoint synthetic.f32> --output <dir>
 ```
 
-Python needs `numpy` and `opencv-python-headless`. Options: `--swiftshader DIR` (default `~/Library/Android/sdk/emulator/lib64/gles_angle`), `--presets DIR` (default the bundled presets), `--workers N` (default 6), and `--preset NAME` (repeatable, limits the run to those preset file names). Output is `<dir>/results/<preset>.json` (one per preset, existing files are kept), plus `thumbs/`. Each result holds `status`, `mean_luminance`, `mean_abs_frame_difference`, `mean_flow_screen_widths_per_s`, `global_brightness_jumps_per_10s`, `mean_saturation`, `coloured_share`, `warm_cool`, `preset` and `preset_sha256`.
+Python needs `numpy` and `opencv-python-headless`. Options: `--swiftshader DIR` (default `~/Library/Android/sdk/emulator/lib64/gles_angle`), `--presets DIR` (default the bundled presets), `--workers N` (default 6), and `--preset NAME` (repeatable, limits the run to those preset file names). Output is `<dir>/results/<preset>.json` (one per preset, a cached result is reused only when its recorded identity matches the current run, otherwise the preset is rendered again), plus `thumbs/`. Each result holds `status`, `mean_luminance`, `mean_abs_frame_difference`, `mean_flow_screen_widths_per_s`, `global_brightness_jumps_per_10s`, `mean_saturation`, `coloured_share`, `warm_cool`, `preset`, `preset_sha256` and `identity`.
+
+### Cache semantics
+
+Each result records `identity`: the preset sha256, the PCM file sha256, the `native-ruler` binary sha256, a hash of the SwiftShader directory (file names, sizes and contents), and the configuration (size, frames, measurement window, measurement version). A rerun into the same output directory reuses a result only when every part matches; a changed preset, PCM, engine build, SwiftShader or setting re-renders it, and results written before identities existed are always re-rendered. Bump `MEASURE_VERSION` in `ruler.py` when the measurement code changes. Run `python3 -m unittest discover -s tools/native-ruler -v` for the cache tests (standard library only).
 
 ## Conditions
 

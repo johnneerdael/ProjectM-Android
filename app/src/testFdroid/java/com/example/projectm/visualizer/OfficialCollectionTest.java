@@ -25,6 +25,13 @@ public class OfficialCollectionTest {
         assertTrue("replaced",OfficialCollection.settledChange("a",false,"b"));
         assertTrue("removed",OfficialCollection.settledChange("a",false,""));
     }
+    @Test public void coldStartRestoreThatSettlesOnNoPackReloadsTheTableMoodLoadedFromThePointer() {
+        assertTrue("initial busy restore settles to starters: reload",OfficialCollection.settledChange(null,false,"",true));
+        assertTrue("initial busy restore settles to a pack: reload is keyed and harmless",OfficialCollection.settledChange(null,false,"a",true));
+        assertFalse("no initial busy period: Mood already matches disk",OfficialCollection.settledChange(null,false,"",false));
+        assertFalse("still busy",OfficialCollection.settledChange(null,true,"",true));
+        assertFalse("already settled once",OfficialCollection.settledChange("",false,"",true));
+    }
     @Test public void attributesComeFromTheCommittedGenerationOnly() throws Exception {
         java.io.File root=java.nio.file.Files.createTempDirectory("official").toFile();
         try {

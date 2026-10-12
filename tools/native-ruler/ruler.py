@@ -5,12 +5,15 @@ import argparse,colorsys,hashlib,json,os,subprocess,sys,tempfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import cv2,numpy as np
+import ruler_cache
 ROOT=Path(__file__).resolve().parents[2]
 RULER=ROOT/'build/native-ruler/native-ruler'
 SWIFTSHADER=Path.home()/'Library/Android/sdk/emulator/lib64/gles_angle'
 PCM=None
 TEXTURES=ROOT/'core/src/main/assets/textures'
 W,H,FRAMES=480,270,300
+MEASURE_VERSION=1  # bump when measure() changes
+IDENT={}  # pcm/binary/swiftshader identities, set once in main
 HUES=('red','orange','yellow','green','cyan','blue','purple','pink')
 EDGES=(15,45,75,165,195,255,285,345)
 
@@ -50,7 +53,10 @@ def measure(path):
 
 def one(preset,out):
     target=out/'results'/(preset.stem+'.json')
-    if target.exists():return preset.name,'cached'
+    identity=ruler_cache.run_identity(hashlib.sha256(preset.read_bytes()).hexdigest(),IDENT['pcm'],IDENT['binary'],IDENT['swiftshader'],
+        {'size':[W,H],'frames':FRAMES,'window':60,'measure_version':MEASURE_VERSION})
+    if ruler_cache.can_reuse(target,identity):return preset.name,'cached'
+    # a missing result, or one whose recorded inputs differ (or that predates identities), is re-rendered
     with tempfile.TemporaryDirectory(dir=out/'tmp') as work:
         prefix=Path(work)/'r'
         try:
@@ -69,7 +75,7 @@ def one(preset,out):
                         cv2.imwrite(str(out/'thumbs'/f'{preset.stem}.{tag}.jpg'),cv2.cvtColor(cv2.resize(img,(160,90),interpolation=cv2.INTER_AREA),cv2.COLOR_RGB2BGR),[cv2.IMWRITE_JPEG_QUALITY,80])
         except subprocess.TimeoutExpired:row={'status':'timeout'}
         except Exception as error:row={'status':'error','error':str(error)[:300]}
-    row.update(preset=preset.name,preset_sha256=hashlib.sha256(preset.read_bytes()).hexdigest(),
+    row.update(identity=identity,preset=preset.name,preset_sha256=hashlib.sha256(preset.read_bytes()).hexdigest(),
                ruler={'engine':'pinned patched source34 (macOS GLES, SwiftShader)','size':[W,H],'frames':FRAMES,'audio':'checkpoint synthetic PCM, U8 ingress'},
                scope='calibration target; never a source-classification input')
     target.write_text(json.dumps(row))
@@ -86,6 +92,7 @@ if __name__=='__main__':
     ap.add_argument('--preset',action='append',default=[],help='limit to this preset file name (repeatable)')
     args=ap.parse_args()
     PCM=args.pcm.resolve();SWIFTSHADER=args.swiftshader;out=args.output;presets=args.presets;workers=args.workers
+    IDENT.update(pcm=ruler_cache.file_sha256(PCM),binary=ruler_cache.file_sha256(RULER),swiftshader=ruler_cache.tree_identity(SWIFTSHADER))
     for sub in ('results','thumbs','tmp'):(out/sub).mkdir(parents=True,exist_ok=True)
     names=sorted(p for p in presets.iterdir() if p.suffix=='.milk' and (not args.preset or p.name in args.preset))
     counts={};done=0
