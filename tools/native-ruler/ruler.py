@@ -13,7 +13,7 @@ PCM=None
 TEXTURES=ROOT/'core/src/main/assets/textures'
 W,H,FRAMES=480,270,300
 MEASURE_VERSION=1  # bump when measure() changes
-IDENT={}  # pcm/binary/swiftshader identities, set once in main
+IDENT={}  # pcm/binary/swiftshader/texture-tree identities, set once in main
 HUES=('red','orange','yellow','green','cyan','blue','purple','pink')
 EDGES=(15,45,75,165,195,255,285,345)
 
@@ -53,7 +53,7 @@ def measure(path):
 
 def one(preset,out):
     target=out/'results'/(preset.stem+'.json')
-    identity=ruler_cache.run_identity(hashlib.sha256(preset.read_bytes()).hexdigest(),IDENT['pcm'],IDENT['binary'],IDENT['swiftshader'],
+    identity=ruler_cache.run_identity(hashlib.sha256(preset.read_bytes()).hexdigest(),IDENT['pcm'],IDENT['binary'],IDENT['swiftshader'],IDENT['textures'],
         {'size':[W,H],'frames':FRAMES,'window':60,'measure_version':MEASURE_VERSION})
     if ruler_cache.can_reuse(target,identity):return preset.name,'cached'
     # a missing result, or one whose recorded inputs differ (or that predates identities), is re-rendered
@@ -92,7 +92,7 @@ if __name__=='__main__':
     ap.add_argument('--preset',action='append',default=[],help='limit to this preset file name (repeatable)')
     args=ap.parse_args()
     PCM=args.pcm.resolve();SWIFTSHADER=args.swiftshader;out=args.output;presets=args.presets;workers=args.workers
-    IDENT.update(pcm=ruler_cache.file_sha256(PCM),binary=ruler_cache.file_sha256(RULER),swiftshader=ruler_cache.tree_identity(SWIFTSHADER))
+    IDENT.update(pcm=ruler_cache.file_sha256(PCM),binary=ruler_cache.file_sha256(RULER),swiftshader=ruler_cache.tree_identity(SWIFTSHADER),textures=ruler_cache.tree_identity(TEXTURES))
     for sub in ('results','thumbs','tmp'):(out/sub).mkdir(parents=True,exist_ok=True)
     names=sorted(p for p in presets.iterdir() if p.suffix=='.milk' and (not args.preset or p.name in args.preset))
     counts={};done=0

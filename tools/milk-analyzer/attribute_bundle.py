@@ -166,7 +166,10 @@ def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, r
     return manifest
 
 
-def check(bundle_dir, presets_idx, definition_path=None):
+DEFAULT_RULER_MANIFEST = Path('docs/superpowers/evidence/mood-facets-ruler-2026-10-12/ruler-results-manifest.json')
+
+
+def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None):
     bundle = Path(bundle_dir); problems = []
     definition_path = Path(definition_path or preset_facets.DEFINITION)
     try:
@@ -185,6 +188,17 @@ def check(bundle_dir, presets_idx, definition_path=None):
         problems.append('manifest definition hash is stale')
     if manifest.get('presets_idx_sha256') != _sha(Path(presets_idx).read_bytes()):
         problems.append('presets.idx changed since the bundle was built')
+    recorded = manifest.get('ruler_results_manifest_sha256')
+    if not recorded:
+        problems.append('manifest records no ruler results manifest hash')
+    if ruler_manifest is None:
+        problems.append('ruler results manifest evidence path is required')
+    else:
+        try:
+            if recorded and _sha(Path(ruler_manifest).read_bytes()) != recorded:
+                problems.append('ruler results manifest evidence differs from the bundle manifest hash')
+        except OSError as error:
+            problems.append('ruler results manifest evidence unreadable: %s' % error)
     if manifest.get('attributes_sha256') != _sha(attributes):
         problems.append('attributes.tsv does not match its manifest hash')
     definition = json.loads(shipped)
@@ -214,7 +228,7 @@ def check(bundle_dir, presets_idx, definition_path=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--ruler', type=Path); parser.add_argument('--style', type=Path)
-    parser.add_argument('--ruler-manifest', type=Path, help='committed engine-ruler results manifest (evidence)')
+    parser.add_argument('--ruler-manifest', type=Path, help='committed engine-ruler results manifest (evidence); --check defaults to %s' % DEFAULT_RULER_MANIFEST)
     parser.add_argument('--presets-idx', type=Path, default=Path('core/src/main/assets/presets.idx'))
     parser.add_argument('--bundle', type=Path, default=Path('core/src/main/assets/preset-attributes'))
     parser.add_argument('--check', action='store_true')
@@ -227,7 +241,7 @@ def main(argv=None):
         print(freeze_activity_reference(args.ruler, args.freeze_activity_reference, args.ruler_manifest))
         return
     if args.check:
-        problems = check(args.bundle, args.presets_idx)
+        problems = check(args.bundle, args.presets_idx, ruler_manifest=args.ruler_manifest or DEFAULT_RULER_MANIFEST)
         for problem in problems:
             print(problem)
         raise SystemExit(1 if problems else 0)

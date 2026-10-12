@@ -31,7 +31,7 @@ python3 tools/milk-analyzer/attribute_bundle.py --ruler <ruler results dir> --st
 python3 tools/milk-analyzer/attribute_bundle.py --check
 ```
 
-`--check` verifies the bundle against `presets.idx`, the definition, the activity reference's SHA-256 and the manifest, and recomputes every option membership from the stored values and style options. `tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
+`--check` verifies the bundle against `presets.idx`, the definition, the activity reference's SHA-256 and the manifest, compares the committed ruler results manifest (`--ruler-manifest`, default `docs/superpowers/evidence/mood-facets-ruler-2026-10-12/ruler-results-manifest.json`) with the SHA-256 recorded in the bundle manifest (a missing or changed file fails), and recomputes every option membership from the stored values and style options. `tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
 
 ## Static source-description contract
 

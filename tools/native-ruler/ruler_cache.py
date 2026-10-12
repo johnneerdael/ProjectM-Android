@@ -19,9 +19,9 @@ def tree_identity(directory):
     return h.hexdigest()
 
 
-def run_identity(preset_sha256,pcm_sha256,binary_sha256,swiftshader,config):
+def run_identity(preset_sha256,pcm_sha256,binary_sha256,swiftshader,textures,config):
     return {'preset_sha256':preset_sha256,'pcm_sha256':pcm_sha256,'binary_sha256':binary_sha256,
-            'swiftshader':swiftshader,'config':config}
+            'swiftshader':swiftshader,'textures':textures,'config':config}
 
 
 def can_reuse(target,identity):
