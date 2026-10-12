@@ -34,9 +34,9 @@
       {"id": "no_strobe", "label": "No strobe", "all": [{"metric": "jumps", "op": "<", "value": 1.0}]}]}
   ],
   "style_rules": {
-    "kaleidoscope": "mechanism angular_mirror_fold or cartesian_mirror_fold, or structure.symmetry >= 0.55",
-    "tunnel": "mechanism polar_radial_sampling or radial_feedback_transform, or a radial zoom profile contracting/expanding about the centre",
-    "liquid": "mechanism image_driven_advection or gradient_driven_advection, or structure.organic >= 0.6",
+    "kaleidoscope": "mechanism angular_mirror_fold, or structure.symmetry >= 0.55",
+    "tunnel": "mechanism polar_radial_sampling (polar or log-polar tunnel sampling)",
+    "liquid": "mechanism image_driven_advection or gradient_driven_advection, and structure.organic >= 0.6",
     "geometric": "structure.geometric >= 0.6 (polygon/instanced shapes)",
     "particles": "mechanism point_cloud_primitive or procedural_point_motion",
     "fractal": "mechanism nonlinear_feedback_map or complex_quadratic_recurrence, or structure.fractal >= 0.6"
