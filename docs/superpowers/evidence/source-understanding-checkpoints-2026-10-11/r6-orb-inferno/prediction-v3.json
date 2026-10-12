@@ -1,0 +1,28 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "fb7ac1352bedcee4c6c5a08b5c29689ba3333c71b20e1b92aa16899dba2cc894",
+  "illustrator_sha256": "a4307389ab5a1e73ec44ccd1144f3ebc01a8fcf1adecc470fe404ba93b3b496c",
+  "image_sha256": "3ac1192476243c8824f6fee35199047ee350f690f3d82882b395b903e6f24c49",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [],
+  "limitations": [
+    "feedback content starts from the flat-field steady state",
+    "main feedback sample uses the exported shader coordinate expression (image-driven displacement included)",
+    "custom warp approximated as uniform gain 1 plus constant offset; blur sites read the same pixel; injected spatial fields omitted",
+    "/analysis/visual_description/elements/1/waveform_recipe: built-in waveform form two_channel_parallel_traces is not illustrated",
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "legacy procedural warp (amplitude 0.0035*warp per step) omitted",
+    "custom composite applied from its exported affine texture transfer (blur levels approximated by Gaussians)",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "audio-driven controls use the declared per-frame bands (audio report sha256 4c76bd9cb3ed46b3)",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed",
+  "declared_audio_sha256": "4c76bd9cb3ed46b3e31e315d882d0d66edaa2332f8e6a7b4c106084f3408918b"
+}

@@ -25,14 +25,19 @@ UNARY={'sin':math.sin,'cos':math.cos,'tan':math.tan,'abs':abs,'negate':lambda v:
 
 SUPPORTED={'constant','input','add','subtract','multiply','divide','eel_divide','min','max','pow','sqrt',
            'less','greater','less_equal','greater_equal','select','remainder','eel_equal',*UNARY}
+STOCHASTIC={'rand'}
 
 
-def input_names(expression):
-    """Input names of a supported serialised graph, or None when an operation is unsupported."""
+def input_names(expression,*,stochastic=False):
+    """Input names of a supported serialised graph, or None when an operation is unsupported.
+
+    With stochastic=True, projectm-eval rand calls are accepted (they need an rng when evaluated).
+    """
     if not isinstance(expression,dict) or not isinstance(expression.get('nodes'),list):return None
     names=set()
+    allowed=SUPPORTED|STOCHASTIC if stochastic else SUPPORTED
     for node in expression['nodes']:
-        if node.get('op') not in SUPPORTED:return None
+        if node.get('op') not in allowed:return None
         if node.get('op')=='input':names.add(node.get('detail',{}).get('name'))
     return names
 
@@ -51,9 +56,13 @@ def _remainder(a,b):
     return float(int(math.fmod(dividend,divisor)))
 
 
-def evaluate_inputs(expression,inputs):
-    """Evaluate a supported serialised graph with every input named in ``inputs``."""
-    names=input_names(expression)
+def evaluate_inputs(expression,inputs,rng=None):
+    """Evaluate a supported serialised graph with every input named in ``inputs``.
+
+    With rng (random.Random), rand(x) is sampled uniformly on [0, max(1, floor(x))) as projectm-eval
+    does; one draw per rand node per evaluation.
+    """
+    names=input_names(expression,stochastic=rng is not None)
     if names is None:raise ValueError('expression contains an unsupported operation')
     missing=names-set(inputs)
     if missing:raise ValueError('expression inputs not supplied: '+', '.join(sorted(map(str,missing))))
@@ -69,6 +78,7 @@ def evaluate_inputs(expression,inputs):
         elif op=='eel_divide':result=0.0 if abs(args[1])<1e-5 else args[0]/args[1]
         elif op=='divide':result=0.0 if args[1]==0 else args[0]/args[1]
         elif op=='remainder':result=_remainder(args[0],args[1])
+        elif op=='rand':result=rng.random()*max(1.,math.floor(args[0]))
         elif op=='eel_equal':result=float(abs(args[0]-args[1])<1e-5)
         elif op=='min':result=min(args)
         elif op=='max':result=max(args)

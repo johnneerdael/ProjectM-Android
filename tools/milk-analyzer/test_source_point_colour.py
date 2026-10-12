@@ -62,3 +62,14 @@ def test_closed_form_positions_are_kept_with_bounds():
     assert record['positions_closed_form']
     assert record['position_bounds']['x'] == [0.0, 1.0]
     assert set(record['programs']) == set('rgbaxy')
+
+
+def test_seeded_rand_in_stdlib_evaluator():
+    import random
+    import pytest
+    program = graph([constant(3.9), {'op': 'rand', 'args': [0], 'detail': {}}])
+    with pytest.raises(ValueError):
+        evaluate_inputs(program, {})  # no rng: rand is not a closed-form value
+    rng = random.Random(1)
+    values = [evaluate_inputs(program, {}, rng) for _ in range(100)]
+    assert 0 <= min(values) and max(values) < 3

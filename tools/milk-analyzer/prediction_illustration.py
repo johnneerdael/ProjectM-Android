@@ -187,6 +187,15 @@ def _mid(span):
 
 
 _UNRESOLVED_TERMS=set()
+# Per-frame context for mesh terms: seeded rng and declared bands (set by illustrate_field).
+_TERM_CONTEXT={}
+
+
+def _terms_evaluable(expression):
+    from time_expression import input_names
+    plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
+    names=input_names(plain)
+    return names is not None and names<={'x','y','rad','time','bass','mid','treb','bass_att','mid_att','treb_att'}
 
 
 def _terms_field(terms,x,y,time):
@@ -195,6 +204,10 @@ def _terms_field(terms,x,y,time):
     for term in terms:
         kind=term.get('kind')
         if kind=='constant':total+=term['value']
+        elif kind=='uniform' and term.get('expression') and _TERM_CONTEXT.get('bands') and _terms_evaluable(term['expression']):
+            # Declared per-frame bands replace the range midpoint for audio/time-driven uniform terms.
+            inputs={'time':time,**_TERM_CONTEXT['bands']}
+            total+=term.get('sign',1)*float(np.asarray(_evaluate_np(term['expression'],inputs,_TERM_CONTEXT.get('rng'))).reshape(-1)[0])
         elif kind=='uniform':
             value=_mid(term.get('value_range'))
             if value is None:raise ValueError('unbounded uniform term')
@@ -211,6 +224,10 @@ def _terms_field(terms,x,y,time):
                       osc['coordinate_coefficients'].get('rad',0)*2*np.hypot(x-.5,y-.5)+
                       osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
             total+=amplitude*(np.sin(argument) if osc['function']=='sin' else np.cos(argument))
+        elif kind in ('nonlinear_coordinate_term','unresolved_inputs') and term.get('expression') and _TERM_CONTEXT.get('rng') is not None \
+                and _terms_evaluable(term['expression']):
+            inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'time':time,**_TERM_CONTEXT.get('bands',{})}
+            total+=term.get('sign',1)*_evaluate_np(term['expression'],inputs,_TERM_CONTEXT['rng'])
         elif kind=='nonlinear_coordinate_term':
             expression=term.get('expression')
             if not expression:raise ValueError('nonlinear term without expression not illustrated')
@@ -253,7 +270,9 @@ def _backward_map(mesh,width,height):
         # The legacy procedural warp (amplitude 0.0035*warp) is omitted; see limitations.
         zoom=np.power(values['zoom'],np.power(values['zoomexp'],2*rad-1))
         u=.5+(x-.5)/zoom;v=.5+(y-.5)/zoom
-        u=values['cx']+(u-values['cx'])/values['sx'];v=values['cy']+(v-values['cy'])/values['sy']
+        # Stretch near zero would sample at infinity; keep its sign with a 1e-3 magnitude floor.
+        stretch=lambda value:np.where(np.abs(value)<1e-3,np.where(value<0,-1e-3,1e-3),value)
+        u=values['cx']+(u-values['cx'])/stretch(values['sx']);v=values['cy']+(v-values['cy'])/stretch(values['sy'])
         cos,sin=np.cos(values['rot']),np.sin(values['rot'])
         du,dv=u-values['cx'],v-values['cy']
         # Engine formula; per-pixel u/v share the flipped main-texture frame.
@@ -875,6 +894,8 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None):
                 index=min(len(audio['frames'])-1,max(0,int(round(frame_time*fps))-1))
                 bands=audio['frames'][index];held.update(bands)
             previous=image;canvas['previous_alpha']=canvas['alpha']
+            _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
+                                 bands={k:held[k] for k in BANDS if k in held})
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
                 main_x,main_y=map_x,map_y

@@ -830,6 +830,14 @@ def _description(summary):
             text+=', displayed as '+hue_family(display)+' '+str([round(v,2) for v in display])
         start=row.get('composite_rgb_at_start')
         if isinstance(start,list) and len(start)==3:text+=' (black start displays as '+hue_family(start)+')'
+        facts_all={i['path']:i['value'] for rows in summary['facts'].values() for i in rows}
+        transfer=facts_all.get(BASE+'/feedback_transfer') or {}
+        gain=transfer.get('uniform_content_gain')
+        if type(gain) not in (int,float):gain=(facts_all.get(STATIC+'/feedback_persistence') or {}).get('decay_gain')
+        drawing=any(p.startswith('/analysis/families/') and isinstance(v,dict) and v.get('stage')=='drawing' for p,v in facts_all.items())
+        if drawing and (gain is None or gain>=.99):
+            text+=('; feedback keeps %s of retained content per frame and elements are drawn, so drawn content accumulates and '
+                   'this empty-canvas state does not describe the displayed picture'%('an unknown share' if gain is None else format(gain,'.3g')))
         sentences.append(text+'; edges, drawn elements and advection make real content differ.')
     markers=[]
     for item in summary['facts']['motion']:

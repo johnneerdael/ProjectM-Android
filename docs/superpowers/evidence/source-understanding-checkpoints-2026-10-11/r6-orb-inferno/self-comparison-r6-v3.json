@@ -1,0 +1,31 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r6-v3",
+ "preset": "orb - inferno - burnt to a crisp - ngdothz.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v3.json": "c889b4656b8850631f3c659172eadda68966d001aa816e1db60b97d41dcb9dc1",
+  "description-v3-before-capture.json": "fb7ac1352bedcee4c6c5a08b5c29689ba3333c71b20e1b92aa16899dba2cc894",
+  "recipe-v3-before-capture.json": "71ecfdde7d070a12111c336b30c3a11723ca1468968c1443ad2b428398c4cafc",
+  "prediction-v3.png": "3ac1192476243c8824f6fee35199047ee350f690f3d82882b395b903e6f24c49"
+ },
+ "capture_result_sha256": "8a76e2e95ce6aacd26e36f30c2e9a806c543b691aea74acdccbc817ae8223cf3",
+ "calibrated_score": null,
+ "agreements": [
+  "Bright pastel chaotic washes; tags Psychedelic/Geometric/Organic (no longer Dark); saturation 0.26 vs native 0.14-0.30"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Native smooth large washes, white bloom peaks and jagged tearing; illustration shows distinct blobs",
+   "cause": "per-frame rand everywhere: structure is stochastic; blur/noise stand-ins"
+  }
+ ],
+ "general_fixes": [
+  "flat-field background not used for brightness/prose when feedback gain >= 0.99 with active drawing",
+  "shape colours driven by rand/audio sampled for palette features",
+  "uniform audio/time and unresolved mesh terms evaluated per frame (declared bands, seeded rand)"
+ ],
+ "status": "character understood (bright, pastel, chaotic, psychedelic); fine structure stochastic",
+ "uses_rendered_images_for_classification": false
+}

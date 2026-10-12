@@ -74,6 +74,33 @@ def _audio_coupled(summary):
     return paths
 
 
+def _material_colour_samples(material,draws=24):
+    """Shape vertex colours sampled from closed-form channel graphs (audio over the declared band
+    sequence, rand by a seeded draw); None when the colours are constants or not evaluable."""
+    import random
+    from time_expression import evaluate_inputs,input_names
+    if not isinstance(material,dict):return None
+    channels=(material.get('channel_expressions') or {}).get('centre') or {}
+    programs=[channels.get(name) for name in 'rgb']
+    if any(p is None for p in programs):return None
+    names=set().union(*[(input_names(p,stochastic=True) or {None}) for p in programs])
+    if None in names or not (names-{'time'}):return None
+    if names-{'time','instance','bass','mid','treb','bass_att','mid_att','treb_att'}:return None
+    try:
+        from audio_series import load_sequence
+        frames=load_sequence()['frames']
+    except (OSError,ValueError):return None
+    rng=random.Random(4242);rows=[]
+    period=256/255
+    for k in range(draws):
+        bands=frames[(k*37)%len(frames)]
+        inputs={**{n:float(bands[n]) for n in bands},'time':(k+1)/30.,'instance':float(k%4)}
+        try:rgb=[evaluate_inputs(p,inputs,rng) for p in programs]
+        except ValueError:return None
+        rows.append([min(1.,max(0.,math.fmod(math.fmod(v,period)+period,period))) for v in rgb])
+    return rows
+
+
 def _colour_samples(summary):
     """Representative colours with weights from palettes, flat fields, wave colours and anchors."""
     from time_expression import wave_colour
@@ -108,6 +135,11 @@ def _colour_samples(summary):
                     sample=index/32
                     rgb=[min(1.,max(0.,math.fmod(c['constant']+c['sample']*sample,period))) for c in coefficients]
                     samples.append((rgb,1/33))
+                paths.append(path)
+        elif path.endswith('/material') and '/elements/' in path:
+            rows=_material_colour_samples(value)
+            if rows:
+                for rgb in rows:samples.append((rgb,.5/len(rows)))
                 paths.append(path)
         elif '/colour/components/' in path:
             points=(value.get('source_palette') or {}).get('point_colour_distribution') or {}
@@ -228,7 +260,16 @@ def feature_vector(summary,rules=None):
     for _,path,value in _facts(summary):
         if path.endswith('/flat_field') and isinstance(value,dict) and isinstance(value.get('composite_rgb_at_state'),list):
             r,g,b=value['composite_rgb_at_state'];luma=(.2126*r+.7152*g+.0722*b,path)
-    vector['brightness.mean_encoded_luma']=_feature(luma[0],evidence='source-estimate',paths=[luma[1]],note='flat-field display colour') if luma else _feature()
+    transfer=next((v for _,p,v in _facts(summary) if p.endswith('/visual_description/feedback_transfer') and isinstance(v,dict)),{}) or {}
+    persistence=next((v for _,p,v in _facts(summary) if p.endswith('/static_behaviour/feedback_persistence') and isinstance(v,dict)),{}) or {}
+    gain=transfer.get('uniform_content_gain') if type(transfer.get('uniform_content_gain')) in (int,float) else persistence.get('decay_gain')
+    drawing=any(p.startswith('/analysis/families/') and isinstance(v,dict) and v.get('stage')=='drawing' for _,p,v in _facts(summary))
+    if luma and drawing and (gain is None or gain>=.99):
+        # Without decay, drawn content accumulates: the empty flat-field state is not the displayed background.
+        vector['brightness.mean_encoded_luma']=_feature(note='flat-field state not representative: feedback gain %s with active drawing'%(
+            'unknown' if gain is None else format(gain,'.3g')))
+    else:
+        vector['brightness.mean_encoded_luma']=_feature(luma[0],evidence='source-estimate',paths=[luma[1]],note='flat-field display colour') if luma else _feature()
     half=None
     for _,path,value in _facts(summary):
         if path.endswith('/feedback_persistence') and isinstance(value,dict):

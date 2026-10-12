@@ -215,7 +215,11 @@ def _classify(sign,node,domains,scale,aspect,depth):
     deps=_dependencies(node)
     row={'sign':sign,'kind':'unclassified','dependencies':{key:sorted(value) for key,value in deps.items() if value}}
     if deps['other'] or deps['unsupported_ops']:
-        row['kind']='unresolved_inputs';return row
+        row['kind']='unresolved_inputs'
+        # Keep the bounded graph (random calls, state or unsupported inputs remain explicit in it).
+        from source_appearance import _expression
+        row['expression']=_expression(node)
+        return row
     linear=_linear(node)
     if not deps['coordinates']:
         value=_envelope(node,domains)
@@ -223,6 +227,10 @@ def _classify(sign,node,domains,scale,aspect,depth):
             row.update(kind='constant',value=sign*float(linear['const']))
         else:
             row.update(kind='uniform',value_range=None if value is None else sorted([sign*value[0],sign*value[1]]))
+            if deps['audio'] or deps['time']:
+                # Per-frame audio/time value: keep the bounded graph for declared-input evaluation.
+                from source_appearance import _expression
+                row['expression']=_expression(node)
         return row
     if linear is not None and all(value==0 for key,value in linear.items() if key!='const'):
         row.update(kind='constant',value=sign*float(linear.get('const',Fraction(0))))
