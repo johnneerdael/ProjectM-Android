@@ -11,4 +11,5 @@
     <color name="pill">#B3101218</color>
     <color name="track_title">#CCFFFFFF</color>
     <color name="track_cover">#1AFFFFFF</color>
+    <color name="facet_dimmed">#4DFFFFFF</color>
 </resources>
