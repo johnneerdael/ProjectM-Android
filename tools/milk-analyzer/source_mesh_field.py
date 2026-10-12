@@ -278,6 +278,8 @@ def _classify(sign,node,domains,scale,aspect,depth):
             if key=='const' or value==0 or scale_range is None:continue
             ends=[sign*float(value)*scale_range[0],sign*float(value)*scale_range[1]]
             coefficients[key]=[min(ends),max(ends)]
+        from source_appearance import _expression
+        row['expression']=_expression(node)
         row.update(kind='uniform_scaled_coordinate_affine',coefficient_ranges=coefficients if scale_range else None,
             scale_dependencies=sorted(set().union(*(_dependencies(f)['audio']|_dependencies(f)['time']|_dependencies(f)['q']
                                                      for f in factors if f is not affine[0]))))
@@ -484,6 +486,9 @@ def mesh_field_structure(analysis,context=None):
             for region in row.get('regions') or []:
                 region['axis_motion']=_axis_summary(control,region,domains,scale,fps,result['controls'])
         result['patterns']=_patterns({**result['controls'],'_rad_max':domains['rad'][1]},scale,fps)
+        # projectM PerPixelMesh: warpTime=time*fWarpAnimSpeed, warpScaleInverse=1/fWarpScale.
+        result['procedural_warp_parameters']={'warp_anim_speed':_scalar(analysis.values,'fWarpAnimSpeed',1,'float'),
+            'warp_scale':_scalar(analysis.values,'fWarpScale',1,'float'),'amplitude_per_warp_unit':.0035}
         result['status']='described' if all(r['status']=='described' for r in result['controls'].values()) else 'partial'
     except (ValueError,TypeError,KeyError) as error:
         result['unknown_reasons'].append(str(error))

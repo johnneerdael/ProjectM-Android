@@ -916,6 +916,8 @@ class _Analysis:
             **{f'q{i}':init.environment.get(f'q{i}',_constant(0)) for i in range(1,33)}}
         frame = self.equation('per_frame_',self.frame_environment('per_frame_',init.environment,resets))
         self.main = frame.environment
+        # Kept for the frame-program export (state recurrence over declared inputs).
+        self.frame_init = init.environment
         # PerPixelContext is a separate evaluator. Readonly values are copied
         # before main frame code; warp controls reload each vertex. Q values
         # copy once after main code and may then evolve across vertices.

@@ -50,6 +50,52 @@ def serialise(field):
     return {'root':root,'nodes':nodes,'plans':plans}
 
 
+def frame_program(analysis):
+    """Per-frame equation recurrence as graphs: state initial/update programs and per-frame outputs.
+
+    Persistent per-frame variables read before being written appear as inputs named after the
+    variable (initially 0) or as 'state:per_frame_:<name>' (initialised by per_frame_init); the
+    update program is the variable's end-of-frame value. Outputs are Q1..Q32 and the native
+    per-frame controls. Inputs are the engine bands/time (and 'init:per_frame_init_:<band>' for
+    init). Stepping this program is evaluating authored equations over declared inputs.
+    """
+    from scene_equations import MAIN,READONLY
+    from shader_fields import Field
+    main=getattr(analysis,'main',None) or {};init=getattr(analysis,'frame_init',None) or {}
+    readonly=set(READONLY)|{'meshx','meshy','pixelsx','pixelsy','aspectx','aspecty'}
+    outputs=[f'q{i}' for i in range(1,33)]+[name for name in MAIN if name in main]
+    result={'status':'exported','state':{},'outputs':{},'unsupported':{}}
+    def inputs_of(field,seen=None):
+        found=set();pending=[field];seen=set()
+        while pending:
+            node=pending.pop()
+            if id(node) in seen:continue
+            seen.add(id(node))
+            if node.op=='input':found.add(node.detail.get('name'))
+            pending.extend(node.args)
+        return found
+    referenced=set()
+    for name in outputs:
+        if name in main:referenced|=inputs_of(main[name])
+    pending=list(referenced);states=set()
+    while pending:
+        name=pending.pop()
+        base=name.split(':',2)[-1] if isinstance(name,str) and name.startswith('state:per_frame_:') else name
+        if not isinstance(base,str) or base in readonly or base in states or base not in main:continue
+        states.add(base)
+        pending.extend(inputs_of(main[base]))
+    for name in sorted(states):
+        try:
+            initial=init.get(name,Field('constant',detail={'value':0.}))
+            result['state'][name]={'initial':serialise(initial),'update':serialise(main[name])}
+        except (ValueError,RecursionError) as error:result['unsupported'][name]=str(error)
+    for name in outputs:
+        if name not in main:continue
+        try:result['outputs'][name]=serialise(main[name])
+        except (ValueError,RecursionError) as error:result['unsupported'][name]=str(error)
+    return result
+
+
 def stage_programs(analysis):
     from source_appearance import _data_return
     result={'policy':POLICY,'stages':{},'uses_shader_execution':False,'uses_rendered_images':False,
@@ -68,4 +114,7 @@ def stage_programs(analysis):
             except (ValueError,RecursionError) as error:
                 row.update(status='unsupported',unknown_reasons=[str(error)])
         result['stages'][stage]=row
+    try:result['frame']=frame_program(analysis)
+    except Exception as error:  # noqa: BLE001 - optional structural export
+        result['frame']={'status':'unsupported','unknown_reasons':[str(error)[:200]]}
     return result

@@ -198,7 +198,7 @@ def _terms_evaluable(expression):
     from time_expression import input_names
     plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
     names=input_names(plain)
-    return names is not None and names<={'x','y','rad','time','bass','mid','treb','bass_att','mid_att','treb_att'}
+    return names is not None and names<={'x','y','rad','ang','time',*_TERM_CONTEXT.get('bands',{})}
 
 
 def _terms_field(terms,x,y,time):
@@ -232,9 +232,9 @@ def _terms_field(terms,x,y,time):
                       osc['coordinate_coefficients'].get('ang',0)*-np.arctan2(y-.5,x-.5)+
                       osc['time_coefficient_radians_per_second']*time+osc['phase_radians'])
             total+=amplitude*(np.sin(argument) if osc['function']=='sin' else np.cos(argument))
-        elif kind in ('nonlinear_coordinate_term','unresolved_inputs') and term.get('expression') and _TERM_CONTEXT.get('rng') is not None \
-                and _terms_evaluable(term['expression']):
-            inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'time':time,**_TERM_CONTEXT.get('bands',{})}
+        elif kind in ('nonlinear_coordinate_term','unresolved_inputs','uniform_scaled_coordinate_affine') and term.get('expression') \
+                and _TERM_CONTEXT.get('rng') is not None and _terms_evaluable(term['expression']):
+            inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'ang':-np.arctan2(y-.5,x-.5),'time':time,**_TERM_CONTEXT.get('bands',{})}
             total+=term.get('sign',1)*_evaluate_np(term['expression'],inputs,_TERM_CONTEXT['rng'])
         elif kind=='nonlinear_coordinate_term':
             expression=term.get('expression')
@@ -266,6 +266,7 @@ def _terms_field(terms,x,y,time):
 def _backward_map(mesh,width,height):
     """Closure computing per-pixel source coordinates from mesh-field facts."""
     controls=(mesh or {}).get('controls') or {}
+    warp_params=(mesh or {}).get('procedural_warp_parameters')
     names=('zoom','zoomexp','rot','warp','cx','cy','dx','dy','sx','sy')
     if any(controls.get(name,{}).get('status')!='described' for name in names):return None
     long=max(width,height)
@@ -275,12 +276,23 @@ def _backward_map(mesh,width,height):
     def sample(time):
         values={name:_terms_field(controls[name]['terms'] or [],x,y,time) for name in names}
         if np.any(values['zoom']<=0) or np.any(values['zoomexp']<=0):raise ValueError('nonpositive zoom/zoomexp not illustrated')
-        # The legacy procedural warp (amplitude 0.0035*warp) is omitted; see limitations.
         zoom=np.power(values['zoom'],np.power(values['zoomexp'],2*rad-1))
         u=.5+(x-.5)/zoom;v=.5+(y-.5)/zoom
         # Stretch near zero would sample at infinity; keep its sign with a 1e-3 magnitude floor.
         stretch=lambda value:np.where(np.abs(value)<1e-3,np.where(value<0,-1e-3,1e-3),value)
         u=values['cx']+(u-values['cx'])/stretch(values['sx']);v=values['cy']+(v-values['cy'])/stretch(values['sy'])
+        if warp_params is not None and np.any(values['warp']!=0):
+            # projectM PresetWarpVertexShader procedural warp in aspect-corrected units; pos is NDC (y up),
+            # the illustrator's v grows downward, so the vertical term changes sign.
+            speed=float(warp_params.get('warp_anim_speed') or 1.);scale=float(warp_params.get('warp_scale') or 1.)
+            wt=time*speed;wsi=1./scale if scale else 1.
+            f0=11.68+4.0*np.cos(wt*1.413+10);f1=8.77+3.0*np.cos(wt*1.113+7)
+            f2=10.54+3.0*np.cos(wt*1.233+3);f3=11.49+4.0*np.cos(wt*0.933+5)
+            px=(x-.5)*2*long/width;py=(.5-y)*2*long/height
+            w=values['warp']*.0035
+            du=w*np.sin(wt*.333+wsi*(px*f0-py*f3))+w*np.cos(wt*.753-wsi*(px*f1-py*f2))
+            dv=w*np.cos(wt*.375-wsi*(px*f2+py*f1))+w*np.sin(wt*.825+wsi*(px*f0+py*f3))
+            u=u+du;v=v-dv
         cos,sin=np.cos(values['rot']),np.sin(values['rot'])
         du,dv=u-values['cx'],v-values['cy']
         # Engine formula; per-pixel u/v share the flipped main-texture frame.
@@ -780,14 +792,47 @@ def _noise_texture(name):
     return _NOISE[name]
 
 
+class _FrameStepper:
+    """Steps the exported per-frame recurrence (stage_programs.frame) under declared bands."""
+    def __init__(self,frame,rng_seed=8191):
+        self.state_programs=(frame or {}).get('state') or {}
+        self.output_programs=(frame or {}).get('outputs') or {}
+        self.values=None;self.failed=set();self.rng=np.random.default_rng(rng_seed)
+    def _eval(self,program,inputs):
+        return float(np.asarray(_evaluate_np(program,inputs,self.rng)).reshape(-1)[0])
+    def step(self,time,fps,bands,frame_index):
+        base={**{k:float(v) for k,v in bands.items()},'time':float(time),'fps':float(fps),'frame':float(frame_index),'progress':0.}
+        if self.values is None:
+            init_inputs={**base,**{'init:per_frame_init_:'+k:v for k,v in base.items()}}
+            self.values={}
+            for name,programs in self.state_programs.items():
+                try:self.values[name]=self._eval(programs['initial'],init_inputs)
+                except Exception:self.values[name]=0.;self.failed.add(name)  # noqa: BLE001
+        inputs={**base,**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()}}
+        updated={}
+        for name,programs in self.state_programs.items():
+            try:value=self._eval(programs['update'],inputs)
+            except Exception:value=self.values.get(name,0.);self.failed.add(name)  # noqa: BLE001
+            updated[name]=value if math.isfinite(value) else 0.
+        outputs={}
+        for name,program in self.output_programs.items():
+            try:
+                value=self._eval(program,inputs)
+                if math.isfinite(value):outputs[name]=value
+            except Exception:self.failed.add(name)  # noqa: BLE001
+        self.values=updated
+        return {**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()},**outputs}
+
+
 def _declared_uniforms(width,height,time,fps,bands):
     """Packed shader uniforms from a declared render state (shader_uniforms layout; Q values unknown -> 0)."""
     from shader_uniforms import source_uniforms
     bands={name:float((bands or {}).get(name,1.)) for name in BANDS}
     render={'time':float(time),'fps':float(fps),'frame':int(round(time*fps)),'progress':0.,**bands}
-    scene={'frames':[{'render_inputs':render,'main':{f'q{i}':0. for i in range(1,33)}}],'viewport':[width,height]}
+    q={f'q{i}':float((bands or {}).get(f'q{i}',0.)) for i in range(1,33)}
+    scene={'frames':[{'render_inputs':render,'main':q}],'viewport':[width,height]}
     values={k:np.asarray(v,np.float32) for k,v in source_uniforms(scene,0).items()}
-    values.update({k:np.float32(v) for k,v in bands.items()})
+    values.update({k:np.float32(bands[k]) for k in BANDS})
     values[':native-render-time-f32']=np.float32(time)
     return values
 
@@ -1001,6 +1046,8 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     sample=_backward_map(facts.get('/analysis/visual_description/static_behaviour/mesh_field'),width,height)
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None
+    frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
+    stepper=_FrameStepper(frame_record) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
     programs=(facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}
     warp_program=(programs.get('warp') or {}).get('program') if (programs.get('warp') or {}).get('status')=='exported' else None
     composite_program=(programs.get('composite') or {}).get('program') if (programs.get('composite') or {}).get('status')=='exported' else None
@@ -1053,8 +1100,10 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 index=min(len(audio['frames'])-1,max(0,int(round(frame_time*fps))-1))
                 bands=audio['frames'][index];held.update(bands)
             previous=image;canvas['previous_alpha']=canvas['alpha']
+            if stepper is not None:
+                held.update(stepper.step(frame_time,fps,{k:held[k] for k in BANDS if k in held},int(round(frame_time*fps))))
             _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
-                                 bands={k:held[k] for k in BANDS if k in held})
+                                 bands={k:v for k,v in held.items() if isinstance(v,(int,float))})
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
                 main_x,main_y=map_x,map_y
@@ -1067,7 +1116,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 if warp_program is not None:
                     try:
                         uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,*np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)],axis=-1)
-                        warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:held[k] for k in BANDS if k in held},diffuse)
+                        warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},diffuse)
                         image=np.clip(warped,0,1)
                         image=np.round(image*255)/255
                         canvas['alpha']=np.ones_like(canvas['alpha'])
@@ -1143,7 +1192,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
         limitations.append('field illustration stopped: '+str(error))
     mesh=facts.get('/analysis/visual_description/static_behaviour/mesh_field') or {}
     warp=((mesh.get('controls') or {}).get('warp') or {}).get('value_range')
-    if isinstance(warp,list) and warp!=[0.0,0.0]:
+    if isinstance(warp,list) and warp!=[0.0,0.0] and not mesh.get('procedural_warp_parameters'):
         limitations.append('legacy procedural warp (amplitude 0.0035*warp per step) omitted')
     if _UNRESOLVED_TERMS:
         limitations.append('mesh terms held at range midpoint or zero: '+', '.join(sorted(_UNRESOLVED_TERMS)));_UNRESOLVED_TERMS.clear()

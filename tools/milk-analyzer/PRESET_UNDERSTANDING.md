@@ -657,3 +657,14 @@ tint hue placement remain unmodelled.
 - r7 (`The Waving Shaker`): v1 black → v2 grayscale web of blurred streaking
   lines around a moving horizontal waveform, luma 0.185 against native 0.31–0.34
   (Q uniforms held at 0 explain part of the gap).
+- `stage_programs.frame` exports the per-frame recurrence: every persistent
+  per-frame variable's initial (per_frame_init or 0) and end-of-frame update
+  graphs, plus Q1..Q32 and the native controls as outputs. The illustrator steps
+  it under the declared bands, so Q uniforms, smoothed audio accumulators,
+  zoom/rot/cx and the like follow the authored equations instead of midpoints.
+- The mesh field record carries `procedural_warp_parameters` (fWarpAnimSpeed,
+  fWarpScale), and the illustrator applies projectM's procedural warp
+  displacement. Uniform-scaled coordinate-affine terms also export their graphs.
+- r7 v3: swirl and streak structure now matches. A controlled passthrough-
+  composite variant shows the remaining 4x darkness is in the feedback canvas
+  (0.029 vs native 0.08), not the composite gain (×3.0 vs ×4.1).

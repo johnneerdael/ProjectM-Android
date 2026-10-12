@@ -1,0 +1,1 @@
+{"passthrough-composite.milk": "d0fb914b82e857ce74e4bdf72890d697e7208d81e3b9f924e7f1569e05cdd38d", "construction": "original preset with comp_ lines replaced by ret = tex2D(sampler_main, uv).xyz"}

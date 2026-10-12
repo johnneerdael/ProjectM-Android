@@ -1,0 +1,50 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r7-v3",
+ "preset": "suksma - Aderrasi - The Waving Shaker - unbelievable talk - i'd k him now if.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v3.json": "5650c1bde1a423ebe8a918e08d6a0172d70eeeb0b5c4f648c7ba3dbd972776a2",
+  "description-v3-before-capture.json": "8696409cc3b876344c5017923cae49ed3f7bc0f736b3c23fd41828db4b4d17d5",
+  "recipe-v3-before-capture.json": "f529bdd01b1e240739303fd6d866ab99477e5b4509a58e7672a39e1c4ac73f90",
+  "prediction-v3.png": "d8c6c2a382c30d5c34d591d32ae57468fb739c8ea4c47ef9e79e297e82a43e6b"
+ },
+ "capture_result_sha256": "afb3946e89cf971cc47818b5387066474b47c5f5a39ccffd63b2019e30ce94d2",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.086,
+  "native_luma_frames_60_149_240": [
+   0.343,
+   0.314,
+   0.336
+  ],
+  "controlled_passthrough_composite": {
+   "native_canvas_luma": [
+    0.073,
+    0.086,
+    0.076
+   ],
+   "illustrated_canvas_luma": 0.029,
+   "native_composite_gain": 4.1,
+   "illustrated_composite_gain": 3.0
+  }
+ },
+ "agreements": [
+  "Vertical bright streaks, curling swirls and horizontal waveform now present (procedural warp and full mesh-term graphs)",
+  "Grayscale"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "About 4x too dark",
+   "cause": "feedback canvas 2.8x dim (warp gain balance ret*.5*|blur2-.5|*5-.01 and drawn waveform energy); composite gain similar",
+   "next": "controlled variants on blur2 stand-in and waveform alpha/thickness"
+  }
+ ],
+ "general_fixes": [
+  "frame program: per-frame state recurrence (Q, controls, persistent variables) exported and stepped under declared bands",
+  "procedural warp displacement (projectM warpFactors/warpTime/warpScale)",
+  "graphs for uniform-scaled coordinate-affine mesh terms evaluated per pixel"
+ ],
+ "uses_rendered_images_for_classification": false
+}
