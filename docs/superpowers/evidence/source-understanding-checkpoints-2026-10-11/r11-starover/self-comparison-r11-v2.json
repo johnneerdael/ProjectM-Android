@@ -1,0 +1,75 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Rozzor & Neuro - Starover (Semicolon Mix).milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r11-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "803dac644427646bcc7b860e4e61d407fe7fe219f00110f3f6b3e170e4349784",
+  "description-v2-before-capture.json": "ea7f9a3821e84f335c85b1301d1e8dcdee292456a497f6af69fb84b29ef74ff2",
+  "recipe-v2-before-capture.json": "e46e7648249e4fdf4c8f43fa7ee4f5bb303a8bc3c8b42eb7b848670fbd164717",
+  "prediction-v2.png": "895dcd09e61805b4e350630bbbd51fc05ea21dc30725887a0a8d88d010074eb6",
+  "llm-look-description-v2.txt": "fe927ccfe270015ff2d741334a9cdd138fda29ada604c5b7511b1e82bf1a8920"
+ },
+ "capture_result_sha256": "4ef0ce4657b848a14842669065af238c3ccd575a203acb6d2a050366b2a9edf1",
+ "review_measurements": {
+  "prediction_luma": 0.525,
+  "screenshot_luma": 0.465,
+  "mean_rgb_prediction": [
+   0.74,
+   0.514,
+   0.022
+  ],
+  "mean_rgb_screenshot": [
+   0.557,
+   0.504,
+   0.022
+  ],
+  "saturation": [
+   0.973,
+   0.965
+  ],
+  "blurred_luma_correlation": 0.08,
+  "display_estimate_vs_ruler": {
+   "luma": [
+    0.379,
+    0.37
+   ],
+   "frame_difference": [
+    0.044,
+    0.066
+   ],
+   "flow": [
+    0.194,
+    0.219
+   ],
+   "jumps_per_10s": [
+    1.276,
+    0
+   ],
+   "saturation": [
+    0.532,
+    0.782
+   ]
+  }
+ },
+ "agreements": [
+  "Dense, saturated red/yellow/green nested swirls with a bright border frame",
+  "Brightness and saturation close"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Perfectly left-right symmetric; native drifts asymmetrically",
+   "cause": "the per-frame spring on dy read 'cyyspeed' (a never-written variable from MilkDrop's joining of a split line) and failed, freezing dx/dy",
+   "next": "never-written variables read 0"
+  }
+ ],
+ "general_fixes": [
+  "EEL log/log10 (x<=0 -> 0), asin/acos (outside [-1,1] -> 0), atan2, sigmoid",
+  "unevaluable nonlinear mesh terms held at the range midpoint instead of aborting",
+  "negative zoom with zoomexp 1 (point reflection, patch 0047 path)",
+  "per-frame border colour/alpha/size from the frame program"
+ ]
+}

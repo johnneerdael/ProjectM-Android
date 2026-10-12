@@ -1,0 +1,9 @@
+LLM look description from the SDK recipe (before capture, r11 v1):
+A slowly fading feedback picture (decay 0.97, half-life ~23 frames) seeded by an audio-deformed
+circle (built-in wave) whose colour drifts smoothly through green, pink, blue, cyan and yellow over
+5-8 s periods. The circle is pushed around horizontally and vertically by the bass/mid/treble, and the
+per-pixel zoom varies with radius (a radial zoom profile), so trails stream outward or inward from the
+centre. A legacy composite brightens with gamma and adds an echo; a corner tint (fShader) colours the
+edges. Expected: a medium-dark picture of colourful, smeared circle trails drifting with the music.
+The frozen illustration shows only a faint fresh frame because a per-pixel zoom term uses operations the
+illustrator did not evaluate.

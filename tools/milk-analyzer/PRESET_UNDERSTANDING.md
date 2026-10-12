@@ -811,4 +811,13 @@ repeated on correctly oriented frames. Probes and results:
   gives no abstentions (previously 839): Chill 3,480, Normal 4,503, Intense
   2,971. Recipes gain an additive `display_estimate` block. Evidence:
   `docs/superpowers/evidence/source-calibrated-display-2026-10-12/`.
+- **Never-written variables.** projectm-eval reads a variable that is never
+  written as 0. The frame stepper does the same: for example `cyyspeed`, which
+  MilkDrop's joining of a line split across numbered records produces. It also
+  exposes these variables to mesh terms.
+- **r11 (`Starover (Semicolon Mix)`) v1 → v3.** v1 was black: a `log()` zoom term
+  aborted the field. v2 and v3 show the dense red/yellow/green nested-swirl field
+  with its bright border (luma 0.546 vs 0.465, saturation 0.98 vs 0.97), and in v3
+  it drifts asymmetrically as in the engine. The rendering is still redder than
+  native (red 0.76 vs 0.56).
 

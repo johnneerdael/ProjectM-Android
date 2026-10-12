@@ -174,3 +174,18 @@ def test_frame_wave_alpha_applies_volume_ramp_and_clamp():
     assert quiet == 0.0 and abs(loud - min(1., .2 * (3 * .999 - .75) / .42)) < 1e-6
     assert _frame_wave_colour(material, {'wave_r': .2, 'wave_g': .1, 'wave_b': .4}) == [.5, .25, 1.]
     assert _frame_wave_colour(material, {}) is None
+
+
+def test_frame_stepper_reads_never_written_variables_as_zero():
+    from prediction_illustration import _FrameStepper
+    # speed = speed + 1 - ghost   (ghost is never written: projectm-eval reads 0)
+    update = {'root': 4, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'state:per_frame_:speed'}},
+                                   {'op': 'constant', 'args': [], 'detail': {'value': 1.}},
+                                   {'op': 'add', 'args': [0, 1], 'detail': {}},
+                                   {'op': 'input', 'args': [], 'detail': {'name': 'ghost'}},
+                                   {'op': 'subtract', 'args': [2, 3], 'detail': {}}]}
+    stepper = _FrameStepper({'state': {'speed': {'initial': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': 0.}}]},
+                                                 'update': update}}, 'outputs': {}})
+    for frame in range(3):
+        values = stepper.step(frame / 30, 30, {'bass': 1.}, frame)
+    assert values['speed'] == 3. and values['ghost'] == 0. and not stepper.failed

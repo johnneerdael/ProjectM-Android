@@ -1,0 +1,10 @@
+LLM look description from the SDK recipe (before capture, r11 v2):
+A bright, saturated warm picture. Every frame draws a 2% outer border whose colour cycles through
+reds/yellows/greens/blues (ob_r/g/b = 0.5 + 0.4 sin) and a 2% cream inner border, and the feedback
+(decay 0.97) carries them inward through a strange per-pixel zoom: zoom shrinks with radius and turns
+negative near the edges (log(sqrt(2) - rad) - 0.25), which point-reflects the outer region and folds
+the borders into nested, mirrored swirling bands. A colour-cycling audio-deformed circle adds thin
+rings that wander with the music (bass/treble springs on dx/dy). The composite brightens (gamma 1.7)
+and adds a 3.5x zoomed echo, and bDarken darkens it. Expected: a dense, high-saturation red/yellow
+swirl filling the screen with a bright frame-like border, luma around 0.5; motion drifting and
+swirling rather than flashing.

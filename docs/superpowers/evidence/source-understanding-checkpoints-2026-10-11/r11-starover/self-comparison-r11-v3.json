@@ -1,0 +1,60 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Rozzor & Neuro - Starover (Semicolon Mix).milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r11-v3",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v3.json": "743521670c4695834e513af75023de90dad23535a505b510892c2f98b44f8cab",
+  "description-v3-before-capture.json": "ea7f9a3821e84f335c85b1301d1e8dcdee292456a497f6af69fb84b29ef74ff2",
+  "recipe-v3-before-capture.json": "e46e7648249e4fdf4c8f43fa7ee4f5bb303a8bc3c8b42eb7b848670fbd164717",
+  "prediction-v3.png": "4558759b8c787d6dc40a77cdba37d497107a08e967fda1b6198d12aceb3fa088"
+ },
+ "capture_result_sha256": "ba50060dd0dbfc6251de6cda017ea7144fb2352de5d021ce5ade261e7028cc9d",
+ "review_measurements": {
+  "prediction_luma": 0.546,
+  "screenshot_luma": 0.465,
+  "p10_p50_p90_prediction": [
+   0.295,
+   0.505,
+   0.839
+  ],
+  "p10_p50_p90_screenshot": [
+   0.295,
+   0.416,
+   0.756
+  ],
+  "mean_rgb_prediction": [
+   0.76,
+   0.54,
+   0.02
+  ],
+  "mean_rgb_screenshot": [
+   0.557,
+   0.504,
+   0.022
+  ],
+  "saturation": [
+   0.978,
+   0.965
+  ],
+  "blurred_luma_correlation": 0.221
+ },
+ "agreements": [
+  "Asymmetric drifting swirl field of nested red/yellow/green bands with a bright border",
+  "Saturation and percentiles close"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Redder and brighter than native (red 0.76 vs 0.56)",
+   "cause": "not yet localised (legacy composite: gamma 1.7, 3.5x echo at 0.46, bDarken)",
+   "next": "ruler canvas vs display comparison"
+  }
+ ],
+ "general_fixes": [
+  "never-written per-frame variables read 0 (projectm-eval) in the frame stepper and are exposed to mesh terms"
+ ],
+ "status": "structure and palette family understood; red balance off"
+}

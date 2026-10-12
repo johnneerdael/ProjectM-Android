@@ -1000,8 +1000,15 @@ class _FrameStepper:
     def __init__(self,frame,rng_seed=8191):
         self.state_programs=(frame or {}).get('state') or {}
         self.output_programs=(frame or {}).get('outputs') or {}
-        self.values=None;self.start={};self.failed=set();self.rng=np.random.default_rng(rng_seed)
+        self.values=None;self.start={};self.failed=set();self.zero_inputs=set();self.rng=np.random.default_rng(rng_seed)
     def _eval(self,program,inputs):
+        # projectm-eval reads a variable that is never written as 0 (for example 'cyyspeed' produced by
+        # MilkDrop's joining of a line split across numbered records).
+        from time_expression import input_names
+        plain={'root':program['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in program['nodes']]}
+        missing=(input_names(plain) or set())-set(inputs)
+        if missing:
+            self.zero_inputs|=missing;inputs={**inputs,**{name:0. for name in missing}}
         return float(np.asarray(_evaluate_np(program,inputs,self.rng)).reshape(-1)[0])
     def step(self,time,fps,bands,frame_index):
         base={**{k:float(v) for k,v in bands.items()},'time':float(time),'fps':float(fps),'frame':float(frame_index),'progress':0.}
@@ -1026,7 +1033,7 @@ class _FrameStepper:
                 if math.isfinite(value):outputs[name]=value
             except Exception:self.failed.add(name)  # noqa: BLE001
         self.values=updated
-        return {**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()},**outputs}
+        return {**{name:0. for name in self.zero_inputs},**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()},**outputs}
 
 
 def _declared_uniforms(width,height,time,fps,bands):

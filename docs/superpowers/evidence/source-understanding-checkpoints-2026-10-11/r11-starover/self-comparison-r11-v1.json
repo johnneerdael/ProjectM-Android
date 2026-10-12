@@ -1,0 +1,34 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Rozzor & Neuro - Starover (Semicolon Mix).milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r11-v1",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "7b9f617130101eb5de4f8a5ea78adb7b97375a22d169f36240a815d0ccc205ea",
+  "description-v1-before-capture.json": "ea7f9a3821e84f335c85b1301d1e8dcdee292456a497f6af69fb84b29ef74ff2",
+  "recipe-v1-before-capture.json": "5996d42d4ceb68620efc642a27dc9ca203bab3f05e0736b0d51ca0ff84c0481d",
+  "prediction-v1.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "llm-look-description-v1.txt": "8a06f47b6b694a3a5aa38676053cac03f2f63dbfcf8492988765d0f54e122d23"
+ },
+ "capture_result_sha256": "663d5c57ed6ca21274782ac9aa0135a3a4cb1ff1b8d5cd79923971544e44b1bf",
+ "review_measurements": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.464,
+  "screenshot_mean_rgb": [
+   0.557,
+   0.504,
+   0.022
+  ]
+ },
+ "agreements": [],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Bright saturated red/yellow/green swirl filling the frame; prediction black",
+   "cause": "a per-pixel zoom term used log(); the unsupported operation aborted the whole field illustration",
+   "next": "EEL log/asin/acos/atan2/sigmoid; hold unevaluable terms instead of aborting"
+  }
+ ]
+}
