@@ -144,12 +144,29 @@ def _warp_transfer(facts):
     from feedback_equilibrium import stage_transfer
     table=stage_transfer(facts,'warp')
     if table is None:return None
-    low,high=table['rgb'][0],table['rgb'][-1]
+    levels=table['levels'];rgb=table['rgb']
+    low,high=rgb[0],rgb[-1]
     gain=[round(high[i]-low[i],6) for i in range(3)];offset=[round(low[i],6) for i in range(3)]
-    mean=sum(gain)/3
-    halving=math.log(.5)/math.log(mean) if 0<mean<1 else None
-    return {'gain_rgb':gain,'offset_rgb':offset,'halving_frames':halving,'levels':table['levels'],'rgb':table['rgb'],
-            'source':'exported warp shader evaluated on flat colours'}
+    mean=[sum(row)/3 for row in rgb]
+    affine=[mean[0]+(mean[-1]-mean[0])*level for level in levels]
+    linear=max(abs(a-b) for a,b in zip(mean,affine))<.02
+    def step(x):
+        # Piecewise-linear transfer of the channel-mean level (uniform content).
+        k=1
+        while k<len(levels)-1 and x>levels[k]:k+=1
+        a,b=levels[k-1],levels[k];t=(x-a)/(b-a) if b>a else 0.
+        return mean[k-1]*(1-t)+mean[k]*t
+    x=float(levels[-1]);halving=None;steady=None
+    for frame in range(1,601):
+        nxt=step(x)
+        if halving is None and nxt<=.5*levels[-1]:halving=frame
+        if abs(nxt-x)<1e-5:steady=round(nxt,3);break
+        x=nxt
+    if linear and halving is not None:
+        g=sum(gain)/3;halving=math.log(.5)/math.log(g) if 0<g<1 else halving
+    return {'gain_rgb':gain,'offset_rgb':offset,'linear':linear,'halving_frames':halving,'steady_level_from_full':steady,
+            'retention_by_level':[{'level':level,'retention':round(value/level,3)} for level,value in zip(levels,mean) if level>0],
+            'levels':levels,'rgb':rgb,'source':'exported warp shader evaluated on flat colours'}
 
 
 def _render(facts):
@@ -179,6 +196,11 @@ def _render(facts):
                                'alpha':ranges.get('echo_alpha'),'zoom':ranges.get('echo_zoom'),'orientation':ranges.get('echo_orient')}
             composite.setdefault('evidence',[]).append(path)
             break
+    from feedback_equilibrium import stage_transfer
+    flat=stage_transfer(facts,'composite')
+    if flat is not None:
+        # Displayed colour for each flat canvas level: the custom composite's palette (texture lookups included).
+        composite['flat_transfer']={**flat,'source':'exported composite shader evaluated on flat canvas colours'}
     palette=facts.get(BASE+'/nonlinear_texture_colour_bounds/stages/composite/scalar_palette')
     if isinstance(palette,dict):
         composite['scalar_palette']={'ramp':[{'scalar':row['scalar'],'rgb':row['clamped_rgb']} for row in palette.get('samples') or []],

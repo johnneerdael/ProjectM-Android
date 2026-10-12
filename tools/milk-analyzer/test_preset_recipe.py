@@ -150,3 +150,28 @@ def test_custom_warp_persistence_comes_from_the_warp_flat_colour_transfer(monkey
     assert transfer['gain_rgb'] == [.9, .9, .9] and transfer['offset_rgb'] == [0., 0., 0.]
     assert abs(transfer['halving_frames'] - math.log(.5) / math.log(.9)) < 1e-9
     assert transfer['source'] == 'exported warp shader evaluated on flat colours'
+
+
+def test_nonlinear_warp_transfer_reports_retention_per_level_and_iterated_halving(monkeypatch):
+    # Dim content is kept whole (0.25 -> 0.25), bright content is cut: W(1)-W(0) alone would claim
+    # almost instant fading. Iterating the table from full level gives the true halving time.
+    import feedback_equilibrium
+    import preset_recipe as R
+    table = {'levels': [0., .25, .5, .75, 1.], 'rgb': [[0.] * 3, [.25] * 3, [.41] * 3, [.34] * 3, [.45] * 3]}
+    monkeypatch.setattr(feedback_equilibrium, 'stage_transfer', lambda facts, stage, **_: table if stage == 'warp' else None)
+    facts = {'/analysis/visual_description/static_behaviour/feedback_persistence': {'decay_gain': None}}
+    transfer = R._render(facts)['feedback']['warp_transfer']
+    assert transfer['linear'] is False
+    assert transfer['retention_by_level'][0] == {'level': .25, 'retention': 1.}
+    assert transfer['halving_frames'] == 1  # 1.0 -> 0.45 in one frame
+    assert transfer['steady_level_from_full'] == .25  # 0.45 -> ... converges onto the identity segment
+
+
+def test_custom_composite_flat_transfer_is_the_displayed_palette(monkeypatch):
+    import feedback_equilibrium
+    import preset_recipe as R
+    table = {'levels': [0., .5, 1.], 'rgb': [[0., 0., 0.], [.6, .4, .1], [.9, .7, .2]]}
+    monkeypatch.setattr(feedback_equilibrium, 'stage_transfer', lambda facts, stage, **_: table if stage == 'composite' else None)
+    composite = R._render({})['composite']
+    assert composite['flat_transfer']['rgb'] == table['rgb']
+    assert composite['flat_transfer']['source'] == 'exported composite shader evaluated on flat canvas colours'

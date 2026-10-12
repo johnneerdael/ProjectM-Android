@@ -80,7 +80,13 @@ required. Use a native file-read tool to inspect JSON and the summary.
    Then read the recipe's `render.feedback.warp_transfer`: the exported warp
    evaluated on flat colours gives the per-frame `gain_rgb`, `offset_rgb` and
    `halving_frames` of uniform content. Report that as the trail persistence
-   instead of calling it unresolved. A nonzero floor means faint content can persist instead
+   instead of calling it unresolved. When `linear` is false, read
+   `retention_by_level` and `steady_level_from_full`: dim content can be kept
+   whole while bright content is cut, so the canvas settles at that level
+   instead of fading to black. For a custom composite,
+   `render.composite.flat_transfer` gives the displayed colour for each flat
+   canvas level (texture lookups included). That is the palette the whole
+   canvas is shown through, so do not infer coverage from drawn elements alone. A nonzero floor means faint content can persist instead
    of returning to black. Use the profile intervals, not one orbit. With a
    curve relation, `persistence_layer_sweep` says whether retained layers cross
    whole inter-turn gaps before the floor; if so, state a conditional

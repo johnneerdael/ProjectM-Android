@@ -325,9 +325,17 @@ and `warp_transfer` holds the exported warp shader evaluated on flat colours
 (levels 0–1, neutral bands, times 2/5/8 s): `levels`, mean output `rgb` per
 level, `gain_rgb` = W(1) − W(0), `offset_rgb` = W(0) and `halving_frames` =
 ln 0.5 / ln(mean gain) for uniform content (null when the gain is not in
-(0, 1)). The `trails` intent entry uses it when decay is null. It is the
-shader's arithmetic on uniform inputs, not a measured trail length; image
-structure, blur and injected terms can change local persistence.
+(0, 1)). The `trails` intent entry uses it when decay is null. `linear` says
+whether the table is affine within 0.02. For a nonlinear table,
+`retention_by_level` lists W(c)/c, `halving_frames` counts the iterations of
+the channel-mean table from full level down to half, and
+`steady_level_from_full` is where that iteration settles. It is the shader's
+arithmetic on uniform inputs, not a measured trail length; image structure,
+blur and injected terms can change local persistence.
+
+`render.composite.flat_transfer` (custom composites) holds the composite shader
+evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the
+displayed palette, including texture lookups.
 
 ### Mood facets block (`facets`, policy `preset-facets-v1`)
 
