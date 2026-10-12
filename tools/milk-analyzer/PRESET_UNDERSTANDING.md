@@ -1104,10 +1104,10 @@ repeated on correctly oriented frames. Probes and results:
   conditional from about 7,800 presets.
 - **Still presets.** The ruler measures 483 presets as still (frame
   difference < 0.003, no brightness jumps): 314 black, 35 white and 134
-  frozen. These are the largest block of Energy over-estimates. On a sampled
-  black preset the shaders compile and the illustrator also predicts black,
-  but the calibrated model predicts activity. Encoding that a preset is
-  provably dark is the next Energy lever.
+  frozen. They dominate the largest individual Energy over-estimates, but most
+  are already predicted calm (median predicted activity percentile 0.10 with
+  r8c). Only about 50 of the 483 are predicted above the median, so they are
+  a small lever for whole-pack Energy agreement.
 - **r8c whole-pack export (shipped model).** It combines offline compile
   evidence with stage transfers that bind the per-frame state. Facet
   agreement with remap rises on every group: Energy 0.537, Brightness 0.585,
