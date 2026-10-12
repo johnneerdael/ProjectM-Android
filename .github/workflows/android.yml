@@ -71,10 +71,22 @@ jobs:
           --checkout . --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA"
           --version "$VERSION" --previous-tag "$PREVIOUS_TAG" --output notes.md --with-fdroid
 
+      # The tag points at the version-declaring commit the artifacts were built from.
+      # It is rebuilt here byte-for-byte from main and never pushed to a branch.
+      - name: Tag the version-declaring release source
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          VERSION_CODE: ${{ needs.build.outputs.version_code }}
+          RELEASE_SHA: ${{ needs.build.outputs.release_sha }}
+        run: >-
+          python3 .github/scripts/release_commit.py tag --repo . --source "$GITHUB_SHA"
+          --version "$VERSION" --version-code "$VERSION_CODE" --expected "$RELEASE_SHA"
+
       - name: Publish complete signed artifacts
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.build.outputs.version }}
+          RELEASE_SHA: ${{ needs.build.outputs.release_sha }}
           APK_NAME: ${{ needs.build.outputs.apk_name }}
           ANDROID_APK_NAME: ${{ needs.build.outputs.android_apk_name }}
           FDROID_TV_APK_NAME: ${{ needs.build.outputs.fdroid_tv_apk_name }}
@@ -87,7 +99,7 @@ jobs:
           cp "dist/$FDROID_ANDROID_APK_NAME" dist/projectM-Android-FDroid.apk
           cp "dist/$AAR_NAME" dist/projectM-TV-core.aar
           python3 .github/scripts/publish_release.py publish --repo "$GITHUB_REPOSITORY" \
-            --version "$VERSION" --sha "$GITHUB_SHA" --notes notes.md --assets-dir dist --with-touchscreen --with-fdroid
+            --version "$VERSION" --sha "$RELEASE_SHA" --notes notes.md --assets-dir dist --with-touchscreen --with-fdroid
 
   fdroid:
     name: Keep F-Droid submissions current

@@ -21,6 +21,8 @@ on:
     outputs:
       version:
         value: ${{ jobs.apk.outputs.version }}
+      version_code:
+        value: ${{ jobs.apk.outputs.version_code }}
       tag:
         value: ${{ jobs.apk.outputs.tag }}
       release:
@@ -37,6 +39,10 @@ on:
         value: ${{ jobs.apk.outputs.aar_name }}
       previous_tag:
         value: ${{ jobs.apk.outputs.previous_tag }}
+      release_sha:
+        value: ${{ jobs.apk.outputs.release_sha }}
+      source_sha:
+        value: ${{ jobs.apk.outputs.source_sha }}
 
 permissions:
   contents: read
@@ -84,6 +90,7 @@ jobs:
     timeout-minutes: 45
     outputs:
       version: ${{ steps.version.outputs.version }}
+      version_code: ${{ steps.version.outputs.version_code }}
       tag: ${{ steps.version.outputs.tag }}
       release: ${{ steps.version.outputs.release }}
       apk_name: ${{ steps.apk.outputs.name }}
@@ -92,6 +99,8 @@ jobs:
       fdroid_android_apk_name: ${{ steps.fdroid_android_apk.outputs.name }}
       aar_name: ${{ steps.aar.outputs.name }}
       previous_tag: ${{ steps.version.outputs.previous_tag }}
+      release_sha: ${{ steps.release_source.outputs.release_sha }}
+      source_sha: ${{ steps.release_source.outputs.source_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -110,6 +119,18 @@ jobs:
           python3 .github/scripts/release_version.py
           --repo . --sha "$SOURCE_SHA" --event "$SOURCE_EVENT" --ref "$GITHUB_REF"
           --run-number "$GITHUB_RUN_NUMBER" --output "$GITHUB_OUTPUT" --env "$GITHUB_ENV"
+
+      # Build from the commit the release tag will point at: main plus gradle.properties
+      # declaring this version and code, so the tagged source states its own version.
+      - name: Check out the version-declaring release source
+        id: release_source
+        env:
+          SOURCE_SHA: ${{ inputs.source_ref || github.sha }}
+        run: |
+          python3 .github/scripts/release_commit.py create --repo . --source "$SOURCE_SHA" \
+            --version "$PROJECTM_RELEASE_VERSION" --version-code "$PROJECTM_RELEASE_VERSION_CODE" \
+            --checkout --output "$GITHUB_OUTPUT"
+          echo "PROJECTM_SOURCE_SHA=$(git rev-parse HEAD^)" >> "$GITHUB_ENV"
 
       - uses: actions/setup-java@v5
         with:
@@ -154,7 +175,7 @@ jobs:
       - name: Name APK
         id: apk
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
+          SHORT_SHA=$(git rev-parse --short "$PROJECTM_SOURCE_SHA")
           if [ "${{ steps.version.outputs.release }}" = "true" ]; then
             NAME="projectM-TV-${{ steps.version.outputs.version }}.apk"
           else
@@ -172,7 +193,7 @@ jobs:
         id: aar
         run: |
           # Stage the same Native core embedded by the APK under canonical integration names.
-          SHORT_SHA=$(git rev-parse --short HEAD)
+          SHORT_SHA=$(git rev-parse --short "$PROJECTM_SOURCE_SHA")
           if [ "${{ steps.version.outputs.release }}" = "true" ]; then
             NAME="projectM-TV-core-${{ steps.version.outputs.version }}.aar"
           else
@@ -196,7 +217,7 @@ jobs:
       - name: Name Android APK
         id: android_apk
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
+          SHORT_SHA=$(git rev-parse --short "$PROJECTM_SOURCE_SHA")
           if [ "${{ steps.version.outputs.release }}" = "true" ]; then
             NAME="projectM-Android-${{ steps.version.outputs.version }}.apk"
           else
@@ -216,7 +237,7 @@ jobs:
             --release-tag "v${STABLE_VERSION}" --archive
           cp "dist-collection/cream-of-the-crop-${STABLE_VERSION}.zip" dist/
           python3 .github/scripts/publish_release.py manifest --version "$STABLE_VERSION" \
-            --version-code "$PROJECTM_RELEASE_VERSION_CODE" --sha "$(git rev-parse HEAD)" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE" --sha "${{ steps.release_source.outputs.release_sha }}" \
             --collection-lock tools/preset-distribution/official-archive.json --output dist/release-version.json
 
       - name: JVM unit tests for F-Droid TV
@@ -232,7 +253,7 @@ jobs:
       - name: Name F-Droid TV APK
         id: fdroid_tv_apk
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
+          SHORT_SHA=$(git rev-parse --short "$PROJECTM_SOURCE_SHA")
           if [ "${{ steps.version.outputs.release }}" = "true" ]; then
             NAME="projectM-TV-FDroid-${{ steps.version.outputs.version }}.apk"
           else
@@ -255,7 +276,7 @@ jobs:
       - name: Name F-Droid Android APK
         id: fdroid_android_apk
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
+          SHORT_SHA=$(git rev-parse --short "$PROJECTM_SOURCE_SHA")
           if [ "${{ steps.version.outputs.release }}" = "true" ]; then
             NAME="projectM-Android-FDroid-${{ steps.version.outputs.version }}.apk"
           else

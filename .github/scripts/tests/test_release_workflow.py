@@ -30,6 +30,27 @@ def packaging_scripts(release):
         yield name, script
 
 
+class TaggedReleaseSourceTests(unittest.TestCase):
+    def test_artifacts_are_built_from_and_published_on_the_release_commit(self):
+        build = WORKFLOW.read_text()
+        version = build.index('      - name: Determine version\n')
+        checkout = build.index('      - name: Check out the version-declaring release source\n')
+        first_gradle = build.index('./gradlew')
+        self.assertLess(version, checkout)
+        self.assertLess(checkout, first_gradle)
+        self.assertIn('release_commit.py create', build[checkout:first_gradle])
+        self.assertIn('--checkout', build[checkout:first_gradle])
+        self.assertIn('--sha "${{ steps.release_source.outputs.release_sha }}"', build)
+        release = (WORKFLOW.parent / 'android.yml').read_text()
+        tag = release.index('      - name: Tag the version-declaring release source\n')
+        publish = release.index('      - name: Publish complete signed artifacts\n')
+        self.assertLess(tag, publish)
+        self.assertIn('release_commit.py tag', release[tag:publish])
+        self.assertIn('--expected "$RELEASE_SHA"', release[tag:publish])
+        self.assertIn('--sha "$RELEASE_SHA"', release[publish:])
+        self.assertNotIn('--sha "$GITHUB_SHA" --notes', release)
+
+
 class ArtifactPackagingTests(unittest.TestCase):
     def test_packaged_identity_checks_include_the_ci_version_suffix(self):
         block=WORKFLOW.read_text().split('      - name: Verify all packaged distributions and the staged full core\n',1)[1].split('\n      - uses:',1)[0]
@@ -89,7 +110,8 @@ if fdroid:
                 (fake_bin / "git").write_text("#!/bin/sh\nprintf '%s\\n' abc1234\n")
                 (fake_bin / "git").chmod(0o755)
                 env = dict(os.environ, PATH=str(fake_bin) + os.pathsep + os.environ["PATH"],
-                           GITHUB_OUTPUT=str(root / "outputs.txt"), GITHUB_RUN_NUMBER="42")
+                           GITHUB_OUTPUT=str(root / "outputs.txt"), GITHUB_RUN_NUMBER="42",
+                           PROJECTM_SOURCE_SHA="a" * 40)
                 for name, script in packaging_scripts(release):
                     subprocess.run(["bash", "-eu", "-c", script], cwd=root, env=env,
                                    check=True, capture_output=True, text=True)
