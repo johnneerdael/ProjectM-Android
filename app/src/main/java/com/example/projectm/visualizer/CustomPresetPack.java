@@ -44,20 +44,28 @@ final class CustomPresetPack {
     static Pack prepare(File root, InputStream input, Cancellation cancellation, Progress progress) throws IOException {
         if (!root.isDirectory() && !root.mkdirs()) throw new IOException("Cannot create pack storage");
         File archive = new File(root, "incoming.zip");
-        File directory = new File(root, UUID.randomUUID().toString());
-        boolean success = false;
         byte[] buffer = new byte[32768];
         try {
             try (FileOutputStream out = new FileOutputStream(archive)) {
-                long length = 0;
-                int n;
+                long length = 0; int n;
                 while ((n = input.read(buffer)) != -1) {
-                    checkCanceled(cancellation);
-                    length += n;
+                    checkCanceled(cancellation); length += n;
                     if (length > MAX_ZIP_BYTES) throw new IOException("ZIP exceeds 2 GiB");
                     out.write(buffer, 0, n);
                 }
             }
+            return prepare(root, archive, cancellation, progress);
+        } finally { archive.delete(); }
+    }
+
+    /** Caller owns the immutable archive; extraction never removes it. */
+    static Pack prepare(File root, File archive, Cancellation cancellation, Progress progress) throws IOException {
+        if (!root.isDirectory() && !root.mkdirs()) throw new IOException("Cannot create pack storage");
+        if (archive.length() > MAX_ZIP_BYTES) throw new IOException("ZIP exceeds 2 GiB");
+        File directory = new File(root, UUID.randomUUID().toString());
+        boolean success = false;
+        byte[] buffer = new byte[32768];
+        try {
             checkCanceled(cancellation);
             try (ZipFile zip = new ZipFile(archive)) {
                 ArrayList<ZipEntry> presets = new ArrayList<>();
@@ -132,7 +140,6 @@ final class CustomPresetPack {
                 return new Pack(directory, presets.size(), textures.size());
             }
         } finally {
-            archive.delete();
             if (!success) delete(directory);
         }
     }

@@ -29,6 +29,10 @@ on:
         value: ${{ jobs.apk.outputs.apk_name }}
       android_apk_name:
         value: ${{ jobs.apk.outputs.android_apk_name }}
+      fdroid_tv_apk_name:
+        value: ${{ jobs.apk.outputs.fdroid_tv_apk_name }}
+      fdroid_android_apk_name:
+        value: ${{ jobs.apk.outputs.fdroid_android_apk_name }}
       aar_name:
         value: ${{ jobs.apk.outputs.aar_name }}
       previous_tag:
@@ -53,6 +57,10 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/fdroid-venv"
           "$RUNNER_TEMP/fdroid-venv/bin/pip" install -r tools/fdroid/requirements.txt
           "$RUNNER_TEMP/fdroid-venv/bin/python" -m unittest discover -s .github/scripts/tests -v
+      - name: Lint both F-Droid recipes without credentials
+        working-directory: tools/fdroid
+        run: >-
+          "$RUNNER_TEMP/fdroid-venv/bin/fdroid" lint -f nl.neerdael.projectmtv nl.neerdael.projectm
       - name: Test diagnostics options
         run: python3 -m unittest discover -s tools -p test_tv_diagnostics.py -v
       - uses: actions/setup-java@v5
@@ -80,6 +88,8 @@ jobs:
       release: ${{ steps.version.outputs.release }}
       apk_name: ${{ steps.apk.outputs.name }}
       android_apk_name: ${{ steps.android_apk.outputs.name }}
+      fdroid_tv_apk_name: ${{ steps.fdroid_tv_apk.outputs.name }}
+      fdroid_android_apk_name: ${{ steps.fdroid_android_apk.outputs.name }}
       aar_name: ${{ steps.aar.outputs.name }}
       previous_tag: ${{ steps.version.outputs.previous_tag }}
     steps:
@@ -196,10 +206,93 @@ jobs:
           cp app/build/outputs/mapping/release/mapping.txt "dist-mapping/${NAME%.apk}-mapping.txt"
           echo "name=${NAME}" >> "$GITHUB_OUTPUT"
 
+      - name: Generate verified official collection and release metadata
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          STABLE_VERSION="${VERSION%%-*}"
+          python3 tools/preset_distribution.py build --root . \
+            --selection tools/preset-distribution/starter-presets.json --output dist-collection \
+            --release-tag "v${STABLE_VERSION}" --archive
+          cp "dist-collection/cream-of-the-crop-${STABLE_VERSION}.zip" dist/
+          python3 .github/scripts/publish_release.py manifest --version "$STABLE_VERSION" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE" --sha "$(git rev-parse HEAD)" \
+            --collection-lock tools/preset-distribution/official-archive.json --output dist/release-version.json
+
+      - name: JVM unit tests for F-Droid TV
+        run: ./gradlew :app:testFdroidTvReleaseUnitTest -PprojectmDistribution=fdroid --no-daemon
+
+      - name: Build release APK for F-Droid TV
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: ./gradlew :app:assembleFdroidTvRelease -PprojectmDistribution=fdroid --no-daemon --stacktrace
+
+      - name: Name F-Droid TV APK
+        id: fdroid_tv_apk
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          if [ "${{ steps.version.outputs.release }}" = "true" ]; then
+            NAME="projectM-TV-FDroid-${{ steps.version.outputs.version }}.apk"
+          else
+            NAME="projectM-TV-FDroid-${{ steps.version.outputs.version }}-ci.${GITHUB_RUN_NUMBER}-${SHORT_SHA}.apk"
+          fi
+          cp app/build/outputs/apk/fdroidTv/release/app-fdroidTv-release.apk "dist/${NAME}"
+          cp app/build/outputs/mapping/fdroidTvRelease/mapping.txt "dist-mapping/${NAME%.apk}-mapping.txt"
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: JVM unit tests for F-Droid Android
+        run: ./gradlew :app:testFdroidAndroidReleaseUnitTest -PprojectmDistribution=fdroid -PandroidTouchscreen=true --no-daemon
+
+      - name: Build release APK for F-Droid Android
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: ./gradlew :app:assembleFdroidAndroidRelease -PprojectmDistribution=fdroid -PandroidTouchscreen=true --no-daemon --stacktrace
+
+      - name: Name F-Droid Android APK
+        id: fdroid_android_apk
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          if [ "${{ steps.version.outputs.release }}" = "true" ]; then
+            NAME="projectM-Android-FDroid-${{ steps.version.outputs.version }}.apk"
+          else
+            NAME="projectM-Android-FDroid-${{ steps.version.outputs.version }}-ci.${GITHUB_RUN_NUMBER}-${SHORT_SHA}.apk"
+          fi
+          cp app/build/outputs/apk/fdroidAndroid/release/app-fdroidAndroid-release.apk "dist/${NAME}"
+          cp app/build/outputs/mapping/fdroidAndroidRelease/mapping.txt "dist-mapping/${NAME%.apk}-mapping.txt"
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify all packaged distributions and the staged full core
+        env:
+          TV_APK: ${{ steps.apk.outputs.name }}
+          ANDROID_APK: ${{ steps.android_apk.outputs.name }}
+          FDROID_TV_APK: ${{ steps.fdroid_tv_apk.outputs.name }}
+          FDROID_ANDROID_APK: ${{ steps.fdroid_android_apk.outputs.name }}
+          CORE_AAR: ${{ steps.aar.outputs.name }}
+          RELEASE: ${{ steps.version.outputs.release }}
+        run: |
+          python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$TV_APK" \
+            --distribution github --target tv --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE" --core-aar "dist-aar/$CORE_AAR"
+          python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$ANDROID_APK" \
+            --distribution github --target android --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE"
+          QUALIFICATION=""
+          if [ "$RELEASE" = "true" ]; then QUALIFICATION="--require-qualified"; fi
+          python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$FDROID_TV_APK" \
+            --distribution fdroid --target tv --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE" ${QUALIFICATION:+"$QUALIFICATION"}
+          python3 .github/scripts/check_distribution_artifacts.py --apk "dist/$FDROID_ANDROID_APK" \
+            --distribution fdroid --target android --version "${PROJECTM_RELEASE_VERSION}${VERSION_SUFFIX}" \
+            --version-code "$PROJECTM_RELEASE_VERSION_CODE" ${QUALIFICATION:+"$QUALIFICATION"}
+
       - uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: dist/*.apk
+          path: dist/*
           retention-days: 30
           if-no-files-found: error
 

@@ -11,6 +11,8 @@ hide:
 # ProjectM TV and Android
 MilkDrop visuals on your TV, phone or tablet, with 9,606 presets and the same ProjectM TV Engine. Use a music app on the TV, or choose microphone input or phone playback on touchscreen Android.
 
+GitHub editions include the full collection. F-Droid editions start with **20 curated presets** and offer the full collection as an optional download. [Choose your edition](getting-started.md#choose-an-edition).
+
 [Get started](getting-started.md){ .md-button .md-button--primary } [Write presets](authoring/index.md){ .md-button } [Explore the engine](engine/index.md){ .md-button }
 </div>
 </div>
@@ -75,7 +77,7 @@ MilkDrop visuals on your TV, phone or tablet, with 9,606 presets and the same Pr
 
 </div>
 
-ProjectM TV listens to the music app's own audio session. The separate [ProjectM Android touchscreen build](getting-started.md#install-on-a-phone-or-tablet) supports microphone input and consented phone playback capture. Neither stores audio. Network use is limited to opt-in auto-update and the temporary local custom-pack upload page.
+ProjectM TV listens to the music app's own audio session. [ProjectM Android](getting-started.md#install-on-a-phone-or-tablet) supports microphone input and consented phone playback capture. Neither stores audio. Network use covers GitHub app updates when enabled, optional F-Droid collection downloads when requested, and the temporary local custom-pack upload page.
 
 ## What makes it different
 
@@ -123,4 +125,4 @@ A source-level guide to how `.milk` presets really execute, built from MilkDrop 
 
 ---
 
-ProjectM TV is open source (LGPL-2.1), and its presets and textures are CC0. Its engine also powers **[Milkbeat](https://github.com/johnneerdael/Milkbeat)**, a music player for Android TV by the same author. [Project on GitHub](https://github.com/johnneerdael/ProjectM-TV) · [Releases](https://github.com/johnneerdael/ProjectM-TV/releases) · [Report an issue](https://github.com/johnneerdael/ProjectM-TV/issues) · [Build and test](development.md)
+ProjectM TV is open source (LGPL-2.1), and its presets and textures are CC0. Its engine also powers **[Milkbeat](https://github.com/johnneerdael/Milkbeat)**, a music player for Android TV by the same author. [Project on GitHub](https://github.com/johnneerdael/ProjectM-Android) · [Releases](https://github.com/johnneerdael/ProjectM-Android/releases) · [Report an issue](https://github.com/johnneerdael/ProjectM-Android/issues) · [Build and test](development.md)

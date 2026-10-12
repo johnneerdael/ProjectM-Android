@@ -7,8 +7,8 @@ ProjectM TV is an Android app (`:app`) and an engine library (`:core`). The engi
 Requirements: JDK 21, Android SDK platform 34, NDK 27.3.13750724, CMake 3.22.1, and a `local.properties` file with `sdk.dir`.
 
 ```sh
-git clone --recursive https://github.com/johnneerdael/ProjectM-TV.git
-cd ProjectM-TV
+git clone --recursive https://github.com/johnneerdael/ProjectM-Android.git
+cd ProjectM-Android
 ./gradlew assembleDebug          # debug APK
 ./gradlew assembleRelease        # release APK + core AAR
 ./gradlew assembleProfile        # release build that profilers can attach to
@@ -31,6 +31,21 @@ adb -s SERIAL shell am instrument -w -e setup_case touchscreen nl.neerdael.proje
 
 For phone audio, run the same instrumentation with `-e setup_case phone_audio` on Android 10+. It checks microphone recorder reads, denied/granted playback consent, synthetic local playback reaching the engine, and pause cleanup. Dismiss Android's first-launch fullscreen tutorial before pointer tests.
 
+## F-Droid builds
+
+The default GitHub build is unflavored and bundles all 9,606 presets and 74 textures. `-PprojectmDistribution=fdroid` selects one named flavor for the requested device, with generated 20-preset assets and the app updater excluded from compilation:
+
+```sh
+./gradlew :app:assembleFdroidTvRelease :app:testFdroidTvReleaseUnitTest -PprojectmDistribution=fdroid
+./gradlew :app:assembleFdroidAndroidRelease :app:testFdroidAndroidReleaseUnitTest -PprojectmDistribution=fdroid -PandroidTouchscreen=true
+```
+
+F-Droid listings live under `src/fdroidTv/fastlane/` and `src/fdroidAndroid/fastlane/`. The pinned importer selects the recipe's flavor. The former root listing was moved after an importer check exposed TV screenshots leaking into the phone listing.
+
+For isolated runtime checks, use the matching `assembleFdroidTvDebug` / `assembleFdroidTvDebugAndroidTest` tasks, or the `fdroidAndroid` equivalents with `-PandroidTouchscreen=true`, and add `-PsetupScreenshotTest`. Cases `fdroid_starters`, `fdroid_pack`, `fdroid_pack_restart` and `fdroid_pack_removed` check consent, actual GL output/audio, installation, independent custom packs, restart and removal. The pack case reads a host-pushed `official-test.zip` from external files through a test-only response adapter; public HTTPS delivery remains a separate post-publication check.
+
+Use `-PprojectmReleaseVersion=VERSION -PprojectmReleaseVersionCode=CODE` for a controlled build identity. Release CI derives both values from the same source; F-Droid HTTP discovery uses its published `release-version.json`. [Recipe/sync setup](https://github.com/johnneerdael/ProjectM-Android/blob/main/tools/fdroid/README.md) documents the GitLab secret, validation and recovery workflow.
+
 Use a task-owned phone emulator/device. The framework instrumentation checks actual tap/swipe input, preset history, scroll isolation, persisted settings, touch navigation and retained D-pad controls. It writes `touch-menu.png` to the target's external cache. Profile and test suffixes also apply to the touchscreen app ID.
 
 ## Run the tests
@@ -43,9 +58,9 @@ Use a task-owned phone emulator/device. The framework instrumentation checks act
 | `tools/check-patch-series.sh` | The patch series applies cleanly to the pinned commit |
 | `tools/check-presets.py`, `tools/gen-preset-index.py --check` | Bundled presets react to audio, reference only bundled textures, and match the index |
 | `python -m pytest tools/preset-lab/tests` | Preset Lab |
-| `python3 -m unittest discover -s .github/scripts/tests -v` | Release tooling |
+| `.venv-fdroid/bin/python -m unittest discover -s .github/scripts/tests -v` | Release tooling and pinned F-Droid generation/import/discovery/synchronization; install `tools/fdroid/requirements.txt` in that environment first |
 
-[Validation and evidence](engine/validation.md) describes what the native controls check, including the legacy compatibility controls for `fShader` shading and mode-1 waveforms ([BrainStain investigation](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/brainstain-dark-output/README.md)). Negative-power controls also verify CPU-defined nested exponents, attribute 9 uploads, unchanged equation parameters, nonfinite preservation, resize and prepared replay ([power-domain evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/tulip-negative-zoom-power/README.md)). Invalid fractional-domain sampling remains backend-bound and does not establish portable source-only appearance.
+[Validation and evidence](engine/validation.md) describes what the native controls check, including the legacy compatibility controls for `fShader` shading and mode-1 waveforms ([BrainStain investigation](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/brainstain-dark-output/README.md)). Negative-power controls also verify CPU-defined nested exponents, attribute 9 uploads, unchanged equation parameters, nonfinite preservation, resize and prepared replay ([power-domain evidence](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/tulip-negative-zoom-power/README.md)). Invalid fractional-domain sampling remains backend-bound and does not establish portable source-only appearance.
 
 ## Test on a TV without replacing the release
 
@@ -68,8 +83,8 @@ Other cases: `tv_menu` checks D-pad focus/scrolling across all shared panels and
 ### Profiling and diagnostics
 
 - Pin one preset for measurements: `adb shell setprop debug.projectmtv.preset '<filename prefix>'`, and clear it afterwards.
-- `tools/tv-diagnostics.sh <tv-ip>:5555 --no-install --duration 180` collects logs and frame statistics ([DIAGNOSTICS.md](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/DIAGNOSTICS.md)).
-- CPU profiling with the profile build and simpleperf: [PROFILING.md](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/PROFILING.md).
+- `tools/tv-diagnostics.sh <tv-ip>:5555 --no-install --duration 180` collects logs and frame statistics ([DIAGNOSTICS.md](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/DIAGNOSTICS.md)).
+- CPU profiling with the profile build and simpleperf: [PROFILING.md](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/PROFILING.md).
 
 ## Use the engine in another app
 
@@ -85,12 +100,12 @@ The public API lives in `nl.neerdael.projectm.core`:
 | `QualityController` | Automatic resolution from frame rate and live memory headroom; `setResolutionMode` for fixed or Native sizes |
 | `DeviceProfile`, `DisplayInfo` | Device tier and physical panel detection |
 
-Engine defaults differ slightly from the app's: for example, blank-preset skipping is off in the core and switched on by the app. `ProjectMJNI.getVersion()` reports the upstream numeric projectM version (`4.2.0`), not the release version. Releasing and publishing are described in [RELEASING.md](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/RELEASING.md).
+Engine defaults differ slightly from the app's: for example, blank-preset skipping is off in the core and switched on by the app. `ProjectMJNI.getVersion()` reports the upstream numeric projectM version (`4.2.0`), not the release version. Releasing and publishing are described in [RELEASING.md](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md).
 
 ## Offline preset tools
 
-- [Preset Lab](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/preset-lab): offline rendering, static audio tracing and bass-response screening with a private desktop build of the engine.
-- [milk-analyzer](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/milk-analyzer): source parsing, equation-domain proofs, shader lowering and the mood scorer.
+- [Preset Lab](https://github.com/johnneerdael/ProjectM-Android/tree/main/tools/preset-lab): offline rendering, static audio tracing and bass-response screening with a private desktop build of the engine.
+- [milk-analyzer](https://github.com/johnneerdael/ProjectM-Android/tree/main/tools/milk-analyzer): source parsing, equation-domain proofs, shader lowering and the mood scorer.
 
 See [Test and predict presets](authoring/testing.md) for what each tool can tell you.
 
@@ -109,4 +124,4 @@ Reviewed pull requests build the site, and every merge to `main` publishes it af
 
 ## Contributing
 
-Changes go through a pull request to `main`. Claude and Codex review the initial ready PR; for follow-up commits, choose one reviewer by posting exactly `@claude review` or `@codex review`. A PR runs the full build only after a clean signoff for its latest full commit SHA, with every review thread resolved and no outstanding review requests or changes requested. See the [review gate and reviewer setup](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/RELEASING.md#review-gate) for permissions, completion signals and manual triggers. Every PR needs a `## Release notes` section written for people using the app (see the PR template). Each successfully tested merge publishes a new versioned APK and core library automatically.
+Changes go through a pull request to `main`. Claude and Codex review the initial ready PR; for follow-up commits, choose one reviewer by posting exactly `@claude review` or `@codex review`. A PR runs the full build only after a clean signoff for its latest full commit SHA, with every review thread resolved and no outstanding review requests or changes requested. See the [review gate and reviewer setup](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md#review-gate) for permissions, completion signals and manual triggers. Every PR needs a `## Release notes` section written for people using the app (see the PR template). Each successfully tested merge publishes a new versioned APK and core library automatically.

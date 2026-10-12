@@ -6,7 +6,28 @@ if (renderingPolicy != 'native') {
     throw new GradleException("projectmCoreRenderingPolicy must be 'native' (got '${renderingPolicy}')")
 }
 
+def distribution = providers.gradleProperty('projectmDistribution').getOrElse('github')
+if (!(distribution in ['github', 'fdroid'])) throw new GradleException('projectmDistribution must be github or fdroid')
 apply plugin: 'com.android.library'
+def generatedDistribution = layout.buildDirectory.dir('generated/preset-distribution')
+def starterTask
+if (distribution == 'fdroid') {
+    def releaseTag = providers.provider { project(':app').projectmResolvedReleaseTag.get() }
+    starterTask = tasks.register('generateStarterPresets', Exec) {
+        inputs.files(rootProject.fileTree('core/src/main/assets'), rootProject.fileTree('tools/preset-distribution'))
+        inputs.files(rootProject.file('tools/preset_distribution.py'), rootProject.file('tools/gen-preset-index.py'),
+                rootProject.file('tools/check-presets.py'), rootProject.file('LICENSE'),
+                rootProject.file('LICENSES/CC0-1.0.txt'), rootProject.file('docs/THIRD_PARTY.md'))
+        inputs.property('releaseTag', releaseTag)
+        outputs.dir(generatedDistribution)
+        workingDir rootProject.projectDir
+        doFirst {
+            commandLine 'python3', rootProject.file('tools/preset_distribution.py'), 'build', '--root', rootProject.projectDir,
+                    '--selection', rootProject.file('tools/preset-distribution/starter-presets.json'),
+                    '--output', generatedDistribution.get().asFile, '--release-tag', releaseTag.get()
+        }
+    }
+}
 
 android {
     namespace = "nl.neerdael.projectm.core"
@@ -14,6 +35,9 @@ android {
     ndkVersion = "27.3.13750724"
     buildFeatures {
         buildConfig = true
+    }
+    if (distribution == 'fdroid') {
+        sourceSets.main.assets.setSrcDirs([generatedDistribution.get().dir('starter-assets').asFile])
     }
     defaultConfig {
         minSdk = 21
@@ -48,6 +72,8 @@ android {
         }
     }
 }
+
+if (starterTask != null) tasks.named('preBuild').configure { dependsOn(starterTask) }
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'

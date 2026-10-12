@@ -1,7 +1,7 @@
 # Preset moods (beta)
 
 !!! warning "Beta"
-    Preset moods are an early version of ProjectM TV's predictive preset engine. The current scores come from one short measurement of each preset, and they will be heavily improved in future releases. Better measurements are already being researched, along with [prediction from preset source code](authoring/testing.md#5-predicting-a-preset-from-its-source). Use the moods as a starting point. If a preset feels wrong for its mood, please [report it](https://github.com/johnneerdael/ProjectM-TV/issues).
+    Preset moods are an early version of ProjectM TV's predictive preset engine. The current scores come from one short measurement of each preset, and they will be heavily improved in future releases. Better measurements are already being researched, along with [prediction from preset source code](authoring/testing.md#5-predicting-a-preset-from-its-source). Use the moods as a starting point. If a preset feels wrong for its mood, please [report it](https://github.com/johnneerdael/ProjectM-Android/issues).
 
 Open the settings panel and change **Preset mood**:
 
@@ -14,6 +14,8 @@ Open the settings panel and change **Preset mood**:
 | **Custom** | — | your pack | Only your [uploaded presets](custom-packs.md) |
 
 The ranges overlap on purpose: a preset scoring 28 is in both Chill and Normal. Your choice is saved. Automatic changes, **Random** and **Previous** all stay inside the mood. The count shown in the panel excludes presets this TV has skipped. A mood with no eligible presets is not offered.
+
+Those counts describe the full collection, bundled in GitHub editions or installed through the optional F-Droid download. Before downloading, F-Droid editions have **20 All**, **7 Chill**, **10 Normal** and **2 Intense** starters. Some belong to more than one mood, and two are in All only. Downloading the full collection restores its original memberships and scores. A custom pack remains separate. [Collection setup](getting-started.md#optional-collection-in-f-droid-editions).
 
 | Chill | Normal | Intense |
 |---|---|---|
@@ -101,4 +103,4 @@ Verify the bundle with:
 python tools/milk-analyzer/beta_export.py --check --bundle core/src/main/assets/preset-genres
 ```
 
-The checker recomputes every rank and membership from the recorded measurements and refuses stale source or texture hashes, a different runtime, or a wrong frame schedule. Producing new scores needs an Android emulator and the pinned core library; see the [analyzer README](https://github.com/johnneerdael/ProjectM-TV/blob/main/tools/milk-analyzer/README.md). The app never renders the library itself: it reads the prebuilt indexes.
+The checker recomputes every rank and membership from the recorded measurements and refuses stale source or texture hashes, a different runtime, or a wrong frame schedule. Producing new scores needs an Android emulator and the pinned core library; see the [analyzer README](https://github.com/johnneerdael/ProjectM-Android/blob/main/tools/milk-analyzer/README.md). The app never renders the library itself: it reads the prebuilt indexes.

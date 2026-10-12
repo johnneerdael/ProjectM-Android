@@ -16,7 +16,7 @@ ProjectM TV visualizes another app's music without using the microphone. Project
 3. Allow Android to install apps from Downloader when asked.
 4. Confirm installation of the downloaded APK.
 
-The code points to the [latest signed APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk). Every version is available under [Releases](https://github.com/johnneerdael/ProjectM-TV/releases).
+The code points to the [latest signed APK](https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-TV.apk). Every version is available under [Releases](https://github.com/johnneerdael/ProjectM-Android/releases).
 
 ## Install on a phone or tablet
 
@@ -25,32 +25,53 @@ The code points to the [latest signed APK](https://github.com/johnneerdael/Proje
 3. Allow Android to install apps from Downloader when asked.
 4. Confirm installation of **ProjectM Android**.
 
-The code points to the [latest signed touchscreen APK](https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk). You can also download that APK in a browser and allow installation from the browser when Android asks. ProjectM Android appears in the regular app launcher and renders in landscape. The TV and touchscreen apps have separate settings and can coexist.
+The code points to the [latest signed touchscreen APK](https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-Android.apk). You can also download that APK in a browser and allow installation from the browser when Android asks. ProjectM Android appears in the regular app launcher and renders in landscape. The TV and touchscreen apps have separate settings and can coexist.
 
 | Device | App | Downloader code | Stable APK filename |
 |---|---|---|---|
 | Android TV / Google TV | ProjectM TV | **4821216** | `projectM-TV.apk` |
 | Touchscreen phone / tablet | ProjectM Android | **6565691** | `projectM-Android.apk` |
 
+## Choose an edition
+
+Downloader installs the full GitHub edition for your device. The smaller F-Droid editions use the same app IDs and signing key, with a different preset bundle and update path:
+
+| Edition | Stable APK | Included presets | App updates |
+|---|---|---|---|
+| GitHub TV | `projectM-TV.apk` | 9,606 with textures | GitHub updater, enabled by default |
+| GitHub phone/tablet | `projectM-Android.apk` | 9,606 with textures | GitHub updater, enabled by default |
+| F-Droid TV | `projectM-TV-FDroid.apk` | 20 starters | F-Droid |
+| F-Droid phone/tablet | `projectM-Android-FDroid.apk` | 20 starters | F-Droid |
+
+The F-Droid APKs are published as separate GitHub release assets. Availability in F-Droid itself depends on its maintainers accepting each listing. These editions have no built-in app installer or updater, including when sideloaded.
+
 ## Install from a computer
 
 **TV:**
 
 ```sh
-curl -LO https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-TV.apk
+curl -LO https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-TV.apk
 adb install -r projectM-TV.apk
 ```
 
 **Phone or tablet:**
 
 ```sh
-curl -LO https://github.com/johnneerdael/ProjectM-TV/releases/latest/download/projectM-Android.apk
+curl -LO https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-Android.apk
 adb install -r projectM-Android.apk
 ```
 
 All production releases use the same permanent signing key. An APK you build yourself with a debug key cannot update a production installation.
 
 ## First launch: allow the music visualizer
+
+### Optional collection in F-Droid editions
+
+The F-Droid edition starts with 20 curated presets that work offline. On first launch, choose **Download (recommended)** for the complete Cream of the Crop collection or **Use 20 starters** to continue immediately. The choice is also available later under **Settings › Advanced › Cream of the Crop**.
+
+The verified download comes from GitHub. It contains 9,606 presets, their textures and the existing mood metadata. Download size is **38.7 MiB**; the archive contains **129.5 MiB** unpacked. Keep at least **184.2 MiB** free for the archive, extraction and installation overhead. Keep the visualizer in the foreground while it downloads and prepares the collection. Leaving during that work cancels it and keeps the current presets; an installation already completing may finish. Retry from the same setting.
+
+After installation it works offline and survives restarts. **Remove collection** returns to the 20 starters and leaves your custom pack available. Clearing app data or uninstalling removes downloaded packs. New collection contents require another explicit download; app updates do not automatically replace an installed collection.
 
 ### Android TV / Google TV
 
@@ -131,7 +152,7 @@ Open the panel and move to **Preset mood**:
 
 | Mood | What plays |
 |---|---|
-| **All** (default) | The complete bundled library of 9,606 presets, plus your custom pack if you uploaded one |
+| **All** (default) | The available library: 9,606 in GitHub editions or after the full download; 20 starters otherwise, plus your custom pack |
 | **Chill** | Calmer presets: predicted activity 1–30 |
 | **Normal** | Moderate presets: 25–75 |
 | **Intense** | Strong movement and brightness changes: 70–100 |
@@ -157,8 +178,10 @@ If playback stutters, see [Picture quality and performance](picture-quality.md).
 
 ## Updates
 
-**Settings › Advanced › Auto-update** is off by default. When on, the app checks GitHub about 10 s after launch and every six hours while open. It downloads a newer stable release, verifies that it is this app with a higher version and the same signing key, and then shows an **Install** row at the top of the panel. Android asks you to confirm, and the first time it may ask you to allow installs from the visualizer. Auto-update keeps the installed edition: TV downloads `projectM-TV-<version>.apk`; phones download `projectM-Android-<version>.apk`. Turning the setting off deletes any downloaded update. Installations from F-Droid show *Via F-Droid* and update through F-Droid.
+In GitHub editions, **Settings › Advanced › Auto-update** is on by default. An explicitly saved Off stays off after upgrading. When on, the app checks GitHub about 10 s after launch and every six hours while open. It downloads a newer stable release, verifies the app ID, higher version and signing key, then shows an **Install** row. Android asks you to confirm installation and may ask you to allow installs from the visualizer. TV downloads `projectM-TV-<version>.apk`; phones download `projectM-Android-<version>.apk`. Turning the setting off deletes a downloaded update.
+
+F-Droid editions show *Via F-Droid* and receive app updates through F-Droid. The optional collection download is separate from app updates.
 
 ## Privacy
 
-Audio is analysed in memory and never stored or sent anywhere. For the [exit report](settings.md#exit-report), the app keeps two short lines about what the engine was last doing (preset names and switch states) in its own storage; they never leave the device. The app makes network connections only for the opt-in auto-update, and while the [custom pack upload](custom-packs.md) dialog is open, a temporary listener on your local network.
+Audio is analysed in memory and never stored or sent anywhere. For the [exit report](settings.md#exit-report), the app keeps two short lines about the last presets and switch states in its own storage. Network use covers GitHub app updates when enabled, F-Droid collection downloads when requested, and the temporary [custom-pack upload](custom-packs.md) listener on your local network.

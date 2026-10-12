@@ -1,0 +1,3 @@
+INSTRUMENTATION_RESULT: delivery=synthetic file-backed HTTPS adapter; real checksum/extraction/consent/native publication
+INSTRUMENTATION_RESULT: distribution=PASS: fdroid_pack, TV D-pad
+INSTRUMENTATION_CODE: -1

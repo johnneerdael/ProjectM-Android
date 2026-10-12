@@ -78,11 +78,19 @@ Native trails works only above 1330p. On a 1080p TV, Diagnostics shows *inactive
 
 ## A mood has fewer presets than listed
 
+F-Droid editions start with 20 presets: All 20, Chill 7, Normal 10 and Intense 2. Open **Advanced › Cream of the Crop** to download the complete library. [Collection setup](getting-started.md#optional-collection-in-f-droid-editions).
+
 The panel counts only presets this device can play, so skipped presets reduce it. A mood with no eligible presets is not offered and the app uses All. See [Preset moods](predictive-collections.md).
+
+## The collection download failed or disappeared
+
+Keep the visualizer open while downloading. Leaving during download/preparation cancels it; retry from **Advanced › Cream of the Crop**. Allow at least 184.2 MiB free during installation. The archive is fetched from GitHub, so a network block or unavailable release can prevent downloading; the 20 starters remain usable offline.
+
+An incomplete or corrupted collection is rejected. After a restart, missing or changed installed files cause the app to use the starters. Download it again from the same setting. Removing the collection keeps your custom pack. Clearing app data, reinstalling or restoring on another device requires downloading again.
 
 ## A mood feels wrong
 
-Moods are beta predictions from a short measurement and will improve. Report the preset name (shown at the top of the settings panel), the mood, the song and your device in a [GitHub issue](https://github.com/johnneerdael/ProjectM-TV/issues).
+Moods are beta predictions from a short measurement and will improve. Report the preset name (shown at the top of the settings panel), the mood, the song and your device in a [GitHub issue](https://github.com/johnneerdael/ProjectM-Android/issues).
 
 ## A legacy preset looks dark or sparse
 
@@ -113,4 +121,4 @@ Include the preset name, your device and the app version when you report a diffe
 - Keep the dialog open in the visualizer; closing it or leaving the app stops the upload page. Use another device to upload to the phone version.
 - A new QR code is generated each time the dialog opens. Scan the current one.
 
-For anything else, open a [GitHub issue](https://github.com/johnneerdael/ProjectM-TV/issues) with the app version, device model, Android version and a screenshot of the settings or exit report. Include TV Diagnostics lines when available.
+For anything else, open a [GitHub issue](https://github.com/johnneerdael/ProjectM-Android/issues) with the app version, device model, Android version and a screenshot of the settings or exit report. Include TV Diagnostics lines when available.

@@ -177,7 +177,7 @@ def android_downloader_code(readme: str, required: bool = False) -> str | None:
     return None
 
 
-def install_footer(repo: str, version: str, previous_tag: str | None, readme: str) -> str:
+def install_footer(repo: str, version: str, previous_tag: str | None, readme: str, *, with_fdroid: bool = False) -> str:
     base = f"https://github.com/{repo}"
     release = f"{base}/releases/download/v{version}"
     latest = f"{base}/releases/latest/download"
@@ -191,14 +191,21 @@ def install_footer(repo: str, version: str, previous_tag: str | None, readme: st
         "(https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en). "
         "This code downloads the newest stable touchscreen APK."
     ) if android_code else ""
+    fdroid_downloads = (
+        f"\n- F-Droid editions: [TV APK]({release}/projectM-TV-FDroid-{version}.apk) · "
+        f"[Phone/tablet APK]({release}/projectM-Android-FDroid-{version}.apk)\n"
+        f"- Latest F-Droid editions: [TV APK]({latest}/projectM-TV-FDroid.apk) · "
+        f"[Phone/tablet APK]({latest}/projectM-Android-FDroid.apk)\n"
+        f"- [Optional Cream of the Crop collection]({release}/cream-of-the-crop-{version}.zip)"
+    ) if with_fdroid else ""
     return f"""## Install and downloads
 
 Install on your TV with the Downloader app: code `{downloader_code(readme)}`. The code downloads the newest stable TV APK.{phone_install}
 
 - Latest: [Android TV APK]({latest}/projectM-TV.apk) · [Touchscreen Android APK]({latest}/projectM-Android.apk) · [Native core AAR]({latest}/projectM-TV-core.aar)
-- Version {version}: [Android TV APK]({release}/projectM-TV-{version}.apk) · [Touchscreen Android APK]({release}/projectM-Android-{version}.apk) · [Native core AAR]({release}/projectM-TV-core-{version}.aar)
+- Version {version}: [Android TV APK]({release}/projectM-TV-{version}.apk) · [Touchscreen Android APK]({release}/projectM-Android-{version}.apk) · [Native core AAR]({release}/projectM-TV-core-{version}.aar){fdroid_downloads}
 - [SHA-256 checksums]({release}/checksums.txt)
-- [User guide](https://johnneerdael.github.io/ProjectM-TV/)
+- [User guide](https://johnneerdael.github.io/ProjectM-Android/)
 - [Full changelog]({changelog})
 
 The canonical core AAR includes Native rendering for Milkbeat and existing integrations."""
@@ -206,7 +213,7 @@ The canonical core AAR includes Native rendering for Milkbeat and existing integ
 
 def render_release_notes(repo: str, version: str, previous_tag: str | None, readme: str,
                          commits: list[Commit], pull_requests: PullLookup,
-                         required_shas: set[str] | None = None) -> str:
+                         required_shas: set[str] | None = None, *, with_fdroid: bool = False) -> str:
     parts = [f"# ProjectM TV {version}", "## Changes"]
     seen = set()
     for commit in commits:
@@ -233,7 +240,7 @@ def render_release_notes(repo: str, version: str, previous_tag: str | None, read
                 parts.append(nested_markdown(body))
     if not commits:
         parts.append("No commits in this release range.")
-    parts.append(install_footer(repo, version, previous_tag, readme))
+    parts.append(install_footer(repo, version, previous_tag, readme, with_fdroid=with_fdroid))
     return "\n\n".join(parts) + "\n"
 
 
@@ -335,6 +342,7 @@ def main() -> int:
     generate.add_argument("--version", required=True)
     generate.add_argument("--previous-tag", help="Previous-release hint; verify publication and first-parent ancestry")
     generate.add_argument("--output", type=Path, required=True)
+    generate.add_argument("--with-fdroid", action="store_true")
     args = parser.parse_args()
     try:
         if args.command == "validate":
@@ -354,7 +362,8 @@ def main() -> int:
             required_shas = required_note_commits(args.checkout, args.sha)
             readme = (args.checkout / "README.md").read_text(encoding="utf-8")
             result = render_release_notes(args.repo, args.version, previous_tag, readme, commits,
-                                          lambda sha: associated_pull_requests(args.repo, sha), required_shas)
+                                          lambda sha: associated_pull_requests(args.repo, sha), required_shas,
+                                          with_fdroid=args.with_fdroid)
             args.output.write_text(result, encoding="utf-8")
             print(f"Release notes written to {args.output}")
     except (ValueError, OSError, subprocess.CalledProcessError) as error:

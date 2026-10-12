@@ -1,0 +1,3 @@
+INSTRUMENTATION_RESULT: distribution=PASS: fdroid_starters, phone touch
+INSTRUMENTATION_RESULT: rendered_starters=20
+INSTRUMENTATION_CODE: -1

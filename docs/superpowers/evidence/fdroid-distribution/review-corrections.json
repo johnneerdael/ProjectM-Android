@@ -1,0 +1,49 @@
+{
+  "cold_restore_fixture": {
+    "custom_generation": "05a85843-a5ed-4efa-88ce-a82f94847e28",
+    "saved_category": "intense",
+    "skipped_starters": [
+      "martin - reflections on black tiles.milk",
+      "Milk Artist At our Best - FED - SlowFast Ft AdamFX n Martin - HD CosmoFX.milk"
+    ]
+  },
+  "cold_restore_result": {
+    "menu_labels": [
+      "PRESET",
+      "suksma - foolish mash",
+      "2,793 presets in rotation  \u00b7  2 skipped",
+      "Audio",
+      "No sound",
+      "Auto change",
+      "Off",
+      "Preset mood",
+      "Intense",
+      "Preset duration",
+      "30 s",
+      "Track display",
+      "\u203a",
+      "Advanced",
+      "\u203a",
+      " 29.9 fps  \u00b7  720p fixed",
+      "v2.3.39-setuptest \u00b7 ProjectM TV Engine\nBased on unreleased projectM 4.2 master\nUpstream 4.2.0 \u00b7 6f6480746",
+      "\u2191\u2193 select   \u2039 \u203a change   BACK close"
+    ],
+    "saved_category_after_startup": "intense"
+  },
+  "native_renderer_controls": {
+    "failed": 0,
+    "local_skip": "standalone EGL transition overlay",
+    "passed": 64,
+    "sanitizers": "ASan/UBSan"
+  },
+  "setup_artifacts_sha256": {
+    "app/build/outputs/apk/androidTest/fdroidTv/debug/app-fdroidTv-debug-androidTest.apk": "85a65f3a15a449692d9f42da7e12383a4a977db08fdde1652b82c1e0281964c8",
+    "app/build/outputs/apk/fdroidTv/debug/app-fdroidTv-debug.apk": "67dc32cc1c43dc637711e4a316757846c93b15c3a7ef8040b44300b7a54a1103"
+  },
+  "source_files_sha256": {
+    "app/src/fdroid/java/com/example/projectm/visualizer/OfficialPresetDownload.java": "58a613ddcc0128ac6fdba0aca54f134d7d1cf2b6e9ef836886c3674a996f237c",
+    "core/src/main/cpp/native-lib.cpp": "cfc928124617c6b037ce32845cdf170206872336a93b7844c9da747681ed66e9",
+    "core/src/main/java/nl/neerdael/projectm/core/ProjectMJNI.java": "3d94691a48466b413620bba934ba60cf18390f1e8711756dc97bfeeae0435631"
+  },
+  "tv_installer": "PASS: fdroid_pack with checksum/extraction/native publication and custom coexistence"
+}

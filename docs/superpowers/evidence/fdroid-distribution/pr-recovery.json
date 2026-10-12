@@ -1,0 +1,36 @@
+{
+  "apk_bytes": {
+    "android": 2097501,
+    "tv": 2092643
+  },
+  "artifacts_sha256": {
+    "/tmp/projectm-fdroid-artifacts/pr-recovery/projectM-Android-FDroid.apk": "de9ecaafe8e8ab8e755148e07a0413b870cfc07c06dd332a6c5b97c6a1954dda",
+    "/tmp/projectm-fdroid-artifacts/pr-recovery/projectM-TV-FDroid.apk": "eacfedeb959479be5e571a1f1ec399adc8f546694e7693ff6227242cfea1b5ad",
+    "app/build/outputs/apk/androidTest/fdroidTv/debug/app-fdroidTv-debug-androidTest.apk": "85a65f3a15a449692d9f42da7e12383a4a977db08fdde1652b82c1e0281964c8",
+    "app/build/outputs/apk/fdroidTv/debug/app-fdroidTv-debug.apk": "c3be01d72e7cde4a675155ee3dee6675a1fb1fc992f4b39d6813e694fb8c1c79"
+  },
+  "local_release_identity": {
+    "version": "2.3.40",
+    "version_code": 89
+  },
+  "regressions_red_then_green": [
+    "timeoutCannotCommitBetweenStatusCheckAndDiscard",
+    "startedCommitFinishesBeforeTimeoutReportsFailure",
+    "startupRecoveryRemovesInterruptedFilesAndPreservesActiveGeneration"
+  ],
+  "runtime_recovery": {
+    "active_generation_preserved": "54e59f28-14d9-4759-abab-37ee471ff485",
+    "injected_archive_bytes": 1310720,
+    "injected_temporary_pointer": true,
+    "recovery": "partial files removed; active full/custom catalog preserved",
+    "storage_entries_after_restart": [
+      "54e59f28-14d9-4759-abab-37ee471ff485",
+      "current"
+    ]
+  },
+  "source_files_sha256": {
+    "app/src/fdroid/java/com/example/projectm/visualizer/OfficialCollection.java": "958a71de376f4e050adc9c50e566c94aad62cc42f26250e5d6d01274a00847f6",
+    "app/src/fdroid/java/com/example/projectm/visualizer/OfficialPresetDownload.java": "430fdfd80e8ba93a0932c4feafd4696d3555b3cb9761f6c99908e0e2df5ff0ea"
+  },
+  "tv_runtime": "PASS: fdroid_pack_restart, All9608/Custom2"
+}

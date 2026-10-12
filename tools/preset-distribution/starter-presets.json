@@ -1,0 +1,218 @@
+{
+  "source_commit": "8238b86b9dfdc2f2f80bc494671798e2ac1a8ad0",
+  "selection_basis": "15 existing corpus presets present in Butterchurn minimal.js, plus five texture-free additions from its nonMinimal.js; curated selection, not measured worldwide popularity.",
+  "curation_source_commit": "c10e2616762f262de898e5d4c1f162a3e01340c1",
+  "static_checks": "Conservative sampler/texsize dependency analysis finds no external textures or random-image pools. Runtime qualification remains required.",
+  "total_preset_bytes": 220276,
+  "presets": [
+    {
+      "name": "$$$ Royal - Mashup (197).milk",
+      "asset_path": "core/src/main/assets/presets/$$$ Royal - Mashup (197).milk",
+      "sha256": "adf8a514b003410d9f1ce91de8ea8be62b647d6dc0babb13d5d0507850394c74",
+      "bytes": 11925,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "An AdamFX n Martin Infusion 2 flexi - Why The Sky Looks Diffrent Today - AdamFx n Martin Infusion - Tack Tile Disfunction B.milk",
+      "asset_path": "core/src/main/assets/presets/An AdamFX n Martin Infusion 2 flexi - Why The Sky Looks Diffrent Today - AdamFx n Martin Infusion - Tack Tile Disfunction B.milk",
+      "sha256": "69595c7027833e63539e282db2ff323e2d1abe98c6d5b199b3db79c9e7827c45",
+      "bytes": 21718,
+      "genres": [
+        "chill"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "flexi - bouncing balls [double mindblob neon mix].milk",
+      "asset_path": "core/src/main/assets/presets/flexi - bouncing balls [double mindblob neon mix].milk",
+      "sha256": "c3ee9742905e241f6ce1a97cd1643ccc9d28e4f018f0fad0fd5790da55182451",
+      "bytes": 18231,
+      "genres": [
+        "chill",
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Flexi - mindblob [shiny mix].milk",
+      "asset_path": "core/src/main/assets/presets/Flexi - mindblob [shiny mix].milk",
+      "sha256": "f0d0a68c72ffebcbb4aa98d34a542844a0f000d38f3125208d22ea3994ee3b21",
+      "bytes": 13712,
+      "genres": [
+        "chill"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Flexi, fishbrain, Geiss + Martin - tokamak witchery.milk",
+      "asset_path": "core/src/main/assets/presets/Flexi, fishbrain, Geiss + Martin - tokamak witchery.milk",
+      "sha256": "b8587377d141f875e15ba677356bafda28b068232711b22dcb324f24061ebad5",
+      "bytes": 8892,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Geiss - Cauldron - painterly 2 (saturation remix).milk",
+      "asset_path": "core/src/main/assets/presets/Geiss - Cauldron - painterly 2 (saturation remix).milk",
+      "sha256": "86e2909b970d6bb429b044f55f6f7a0fdfe60f77611109cf4c5c0800ada3c5f6",
+      "bytes": 5638,
+      "genres": [
+        "chill"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Geiss - Reaction Diffusion 2.milk",
+      "asset_path": "core/src/main/assets/presets/Geiss - Reaction Diffusion 2.milk",
+      "sha256": "765c4d61eb559c7091498d733866d1af258e40e4be97496d5da10c6702581f99",
+      "bytes": 6378,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Halfbreak - Funny Madness.milk",
+      "asset_path": "core/src/main/assets/presets/Halfbreak - Funny Madness.milk",
+      "sha256": "7aaca0ac03369d16860ea002d419423f4fff7dc8c20fa329f0cabcaa6d644128",
+      "bytes": 12036,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "martin - chain breaker.milk",
+      "asset_path": "core/src/main/assets/presets/martin - chain breaker.milk",
+      "sha256": "ef70adfe227eb985d1837284a451496d6ec45e5afde32d9ec9710f8291c62cef",
+      "bytes": 10169,
+      "genres": [
+        "chill"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "martin - reflections on black tiles.milk",
+      "asset_path": "core/src/main/assets/presets/martin - reflections on black tiles.milk",
+      "sha256": "2f2b52dadc6de14de4fb6e2e6dfea122bcc569e0f7878ac7a4a196d57ad5c42c",
+      "bytes": 10829,
+      "genres": [
+        "intense"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "martin - witchcraft reloaded.milk",
+      "asset_path": "core/src/main/assets/presets/martin - witchcraft reloaded.milk",
+      "sha256": "779529d02ed310ae84c194a917ff5b8997fd8a504dd2e3da7253a9d803116de1",
+      "bytes": 14216,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Milk Artist At our Best - FED - SlowFast Ft AdamFX n Martin - HD CosmoFX.milk",
+      "asset_path": "core/src/main/assets/presets/Milk Artist At our Best - FED - SlowFast Ft AdamFX n Martin - HD CosmoFX.milk",
+      "sha256": "43aa1ca309749eafbcc9ae33a397e5f313c850644245d76d49ea1db26c328e2c",
+      "bytes": 6177,
+      "genres": [
+        "intense"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "ShadowHarlequin - LovelyShinySquares [ liquid starburst rmx ] - unchained + rovaster - luckless - martin - starfield sector.milk",
+      "asset_path": "core/src/main/assets/presets/ShadowHarlequin - LovelyShinySquares [ liquid starburst rmx ] - unchained + rovaster - luckless - martin - starfield sector.milk",
+      "sha256": "ce722a848c26dc28ada4f0968588405fa4d082f5cdcf9a3aa837fa3e3166b9ef",
+      "bytes": 17588,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Geiss - Spiral Artifact.milk",
+      "asset_path": "core/src/main/assets/presets/Geiss - Spiral Artifact.milk",
+      "sha256": "9d58386d45de6134c39304bb58ce135d878bf4f84003d29c40672030fd4b86b4",
+      "bytes": 7101,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
+    },
+    {
+      "name": "suksma - uninitialized variabowl (hydroponic chronic).milk",
+      "asset_path": "core/src/main/assets/presets/suksma - uninitialized variabowl (hydroponic chronic).milk",
+      "sha256": "4cfb76ea14daecf3fe9dbd2e7766c29061bd62b8c621aee49b9e764c3353bec6",
+      "bytes": 16202,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "yin - 191 - Temporal singularities.milk",
+      "asset_path": "core/src/main/assets/presets/yin - 191 - Temporal singularities.milk",
+      "sha256": "67ec237f20ef872bdc2cf005ff0cd80e14e252295163d0bf863703f5297c2d7b",
+      "bytes": 3963,
+      "genres": [],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/minimal.js"
+    },
+    {
+      "name": "Aderrasi - Potion of Spirits.milk",
+      "asset_path": "core/src/main/assets/presets/Aderrasi - Potion of Spirits.milk",
+      "sha256": "1af8832fa9ddf9b6ed214b8a5f026dd444ea72e6ca70742f68c93a1f2bf22c67",
+      "bytes": 5945,
+      "genres": [],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
+    },
+    {
+      "name": "Cope - The Neverending Explosion of Red Liquid Fire.milk",
+      "asset_path": "core/src/main/assets/presets/Cope - The Neverending Explosion of Red Liquid Fire.milk",
+      "sha256": "ec4a844e75a8c8a8d4a41890495841b670960186988f29797799929a3b5d34d8",
+      "bytes": 6989,
+      "genres": [
+        "chill"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
+    },
+    {
+      "name": "cope + martin - mother-of-pearl.milk",
+      "asset_path": "core/src/main/assets/presets/cope + martin - mother-of-pearl.milk",
+      "sha256": "abe49652a36c41a96c4323ccdda63a7a760cfc4a16f74654c6078581df4d7169",
+      "bytes": 7252,
+      "genres": [
+        "normal"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
+    },
+    {
+      "name": "Flexi - smashing fractals [acid etching mix].milk",
+      "asset_path": "core/src/main/assets/presets/Flexi - smashing fractals [acid etching mix].milk",
+      "sha256": "2d7fd99e77ae79e06cd8af4b4221347a2e9088bbac63822421b1c2ac1cc55a79",
+      "bytes": 15315,
+      "genres": [
+        "chill"
+      ],
+      "selection_source": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
+    }
+  ],
+  "selection_notes": "Design candidates; static checks only. Runtime qualification and asset-rights verification remain required before shipping.",
+  "schema_version": 1,
+  "status": "qualified",
+  "qualification_evidence": "docs/superpowers/evidence/fdroid-distribution/README.md",
+  "qualification_changes": [
+    {
+      "removed": "shifter - liquid circuitry - conjugoth.milk",
+      "replacement": "Geiss - Spiral Artifact.milk",
+      "reason": "Conservative sampler analysis requires rose.jpg, whose MegaPack source has no explicit texture license. Replacement is texture-free and preserves Normal membership.",
+      "provenance": "https://github.com/jberg/butterchurn-presets/blob/c10e2616762f262de898e5d4c1f162a3e01340c1/nonMinimal.js"
+    }
+  ]
+}

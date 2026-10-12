@@ -89,6 +89,19 @@ public final class ProjectMJNI {
     public static native void discardCustomPresetPack(long request);
     /** Live rendering/transition or prewarming can still need an immutable generation's images. */
     public static native boolean isCustomPresetPackInUse(String directory);
+    /** Official base collection replaces bundled starters, preserving moods and the custom slot. */
+    /** Hold startup category application/persistence while the host validates its stored collection.
+     * Call before asynchronous validation starts and clear in finally after restore or failure. */
+    public static native void setOfficialPresetRestorePending(boolean pending);
+    public static native long setOfficialPresetPack(String directory);
+    public static native long prepareOfficialPresetPack(String directory);
+    /** Same request-scoped 0/1/2/-1 contract as custom-pack status. */
+    public static native int getOfficialPresetPackStatus(long request);
+    public static native boolean commitOfficialPresetPack(long request);
+    public static native void discardOfficialPresetPack(long request);
+    public static native boolean isOfficialPresetPackPending();
+    /** Includes indexing, rendering, texture lookup and background compilation ownership. */
+    public static native boolean isOfficialPresetPackInUse(String directory);
     public static native void setSoftCutDuration(int seconds);
     public static native void setAutoChange(boolean enabled);
     /** projectM's hard cut to the next preset on a loud beat (off: presets only change by blending). */

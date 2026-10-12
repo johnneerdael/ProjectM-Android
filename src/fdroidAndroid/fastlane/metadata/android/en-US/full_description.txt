@@ -1,0 +1,9 @@
+ProjectM Android renders audio-reactive MilkDrop presets using the open-source ProjectM TV Engine.
+
+Choose microphone input or visualize local playback from another app. Phone playback requires Android 10 or later, Android screen/audio capture consent and a player that permits capture. Both audio inputs stop when the app leaves the foreground.
+
+Start offline with 20 bundled starter presets. On first launch, choose whether to download the recommended Cream of the Crop collection from GitHub, or continue with the starters. You can download or remove the collection later in Advanced settings. The optional download contains 9,606 presets and their textures; it uses additional network data and device storage. Custom preset packs can be imported separately.
+
+This F-Droid edition has no built-in app updater. App updates are managed by F-Droid. The optional preset collection download is separate from app updates.
+
+Use touch gestures on phones/tablets, or a remote on TVs, to change presets and settings. No account, advertising or analytics. Android 5.0 or later and OpenGL ES 3.0 are required.

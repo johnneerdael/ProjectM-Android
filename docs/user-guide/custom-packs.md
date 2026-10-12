@@ -2,6 +2,8 @@
 
 Upload your own MilkDrop presets and textures to either visualizer from another device on the same network. No file picker, USB stick or storage permission is needed.
 
+In F-Droid editions, your custom pack is separate from the optional Cream of the Crop download. Downloading or removing that collection leaves Custom available. All combines Custom with the currently available starter or full library; the scored moods use that library's original memberships.
+
 ## Upload a pack
 
 1. Put your `.milk` files and any texture images in one ZIP. Folders inside the ZIP are fine.
@@ -33,7 +35,7 @@ Presets refer to images by name without extension, ignoring case (`sampler_cloud
 
 - **One pack at a time.** A successful upload replaces the previous pack.
 - **Custom** plays only the pack's presets and becomes the selected mood. **All** plays bundled and custom presets together. **Chill**, **Normal** and **Intense** keep using only the scored bundled library.
-- **Textures:** a custom preset uses its pack's images first and falls back to the bundled textures. Bundled presets keep using bundled images. During a blend from one pack to another, each preset keeps its own images. This needs an [engine change](engine/patches.md#0010-each-preset-keeps-its-own-textures), because MilkDrop only ever had one texture folder.
+- **Textures:** a custom preset uses its pack's images first and falls back to the available base collection's textures. The texture-free F-Droid starters supply none; download the full collection or include required images in your ZIP. Base presets keep their own images. During a blend, each preset retains its source images. This needs an [engine change](engine/patches.md#0010-each-preset-keeps-its-own-textures), because MilkDrop only ever had one texture folder.
 - **Skips** for presets that fail to load, stay black or run too slowly apply to custom presets as well.
 - **Persistence.** The pack and the Custom selection survive restarts and app updates. Packs are excluded from Android backup, so upload the ZIP again after reinstalling, clearing app data or restoring onto another device.
 - **Safety.** An invalid ZIP, cancellation or insufficient storage leaves the previous pack in place. Replacing a pack temporarily needs room for the old pack, the incoming ZIP and the new pack.
