@@ -18,19 +18,17 @@ public class OfficialCollectionTest {
         assertEquals(false,offer.invoke(null,false,true,true,true,"installed","previous-collection"));
     }
     @Test public void moodReloadsOnlyWhenTheInstalledCollectionSettlesOnANewIdentity() {
-        assertFalse("first report: Mood already loaded what is on disk",OfficialCollection.settledChange(null,false,"a"));
+        assertTrue("first settled report always reloads: attach may have missed the busy restore",OfficialCollection.settledChange(null,false,"a"));
         assertFalse("still downloading",OfficialCollection.settledChange("",true,""));
         assertFalse("unchanged",OfficialCollection.settledChange("a",false,"a"));
         assertTrue("installed",OfficialCollection.settledChange("",false,"a"));
         assertTrue("replaced",OfficialCollection.settledChange("a",false,"b"));
         assertTrue("removed",OfficialCollection.settledChange("a",false,""));
     }
-    @Test public void coldStartRestoreThatSettlesOnNoPackReloadsTheTableMoodLoadedFromThePointer() {
-        assertTrue("initial busy restore settles to starters: reload",OfficialCollection.settledChange(null,false,"",true));
-        assertTrue("initial busy restore settles to a pack: reload is keyed and harmless",OfficialCollection.settledChange(null,false,"a",true));
-        assertFalse("no initial busy period: Mood already matches disk",OfficialCollection.settledChange(null,false,"",false));
-        assertFalse("still busy",OfficialCollection.settledChange(null,true,"",true));
-        assertFalse("already settled once",OfficialCollection.settledChange("",false,"",true));
+    @Test public void firstSettledReportReloadsEvenWithoutAnObservedBusyPeriod() {
+        assertTrue("restore cleared a corrupt pointer before attach",OfficialCollection.settledChange(null,false,""));
+        assertFalse("still busy",OfficialCollection.settledChange(null,true,""));
+        assertFalse("already settled once",OfficialCollection.settledChange("",false,""));
     }
     @Test public void attributesComeFromTheCommittedGenerationOnly() throws Exception {
         java.io.File root=java.nio.file.Files.createTempDirectory("official").toFile();
