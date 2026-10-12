@@ -10,6 +10,8 @@ import nl.neerdael.projectm.core.VisualizerView;
 final class OfficialCollection {
     OfficialCollection(Activity activity,SharedPreferences preferences,Handler handler,VisualizerView view) { }
     static void restore(Context context) { }
+    /** GitHub editions read preset attributes from the bundled assets. */
+    static java.io.File attributesFile(Context context) { return null; }
     void onResume() { }
     void onPause() { }
     void onDestroy() { }

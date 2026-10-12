@@ -8,6 +8,7 @@ final class MusicCategories {
     private static final String[] LABELS = {"All", "Chill", "Normal", "Intense", "Custom"};
 
     static String normalize(String id) {
+        if ("facets".equals(id)) return id;  // the Mood panel's facet pool
         for (String candidate : IDS) if (candidate.equals(id)) return id;
         return "all";
     }

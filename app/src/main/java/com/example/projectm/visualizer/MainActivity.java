@@ -32,6 +32,8 @@ import android.widget.Toast;
 
 import nl.neerdael.projectm.core.DeviceProfile;
 import nl.neerdael.projectm.core.DisplayInfo;
+import nl.neerdael.projectm.core.PresetFacets;
+import nl.neerdael.projectm.core.ProjectMCore;
 import nl.neerdael.projectm.core.ProjectMJNI;
 import nl.neerdael.projectm.core.QualityController;
 import nl.neerdael.projectm.core.VisualizerRenderer;
@@ -41,8 +43,13 @@ import java.text.NumberFormat;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends Activity {
     private static final String TAG = "ProjectMTV";
@@ -95,7 +102,7 @@ public class MainActivity extends Activity {
     private static final int[] TRACK_SECONDS = {10, 20, 30, 60, 0};  // 0 = always
     private static final int MAX_TRANSITION = 10;
 
-    private enum Menu { NONE, MAIN, ADVANCED, TRACK }
+    private enum Menu { NONE, MAIN, ADVANCED, TRACK, MOOD }
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final NumberFormat numberFormat = NumberFormat.getIntegerInstance(Locale.getDefault());
@@ -135,6 +142,15 @@ public class MainActivity extends Activity {
     private View mainMenu;
     private View advancedMenu;
     private View trackMenu;
+    private View moodMenu;
+    private TextView moodHeader;
+    private OptionRow moodCollectionRow;
+    private LinearLayout moodRows;
+    private final List<FacetRow> facetRows = new ArrayList<>();
+    private PresetFacets moodFacets;
+    private MoodFacetsController mood;
+    private String moodSource;  // where the facet table came from; a change reloads it
+    private int moodRevision;   // bumped on every Mood change, refreshes the main row's summary
     private View diagnosticsPanel;
     private TextView presetName;
     private TextView presetMeta;
@@ -148,7 +164,6 @@ public class MainActivity extends Activity {
     private OptionRow musicCategoryRow;
     private OptionRow nativeTrailsRow;
     private String requestedMusicCategory = "all";
-    private String[] musicCategoryIds = new String[]{"all"};
     private String displayedMusicCategory = "";
     private View nowPlaying;
     private ImageView nowPlayingIcon;
@@ -219,7 +234,8 @@ public class MainActivity extends Activity {
         ProjectMJNI.setMeshSize(mesh[0], mesh[1]);
         ProjectMJNI.setAutoChange(prefs.getBoolean(PREF_AUTO_CHANGE, true));
         requestedMusicCategory = MusicCategories.normalize(prefs.getString(PREF_MUSIC_CATEGORY, "all"));
-        ProjectMJNI.setMusicCategory(requestedMusicCategory);
+        reloadMood();
+        mood.apply();  // the facet pool and the category (facets, all or custom)
         ProjectMJNI.setBeatCuts(prefs.getBoolean(PREF_BEAT_CUTS, false));
         ProjectMJNI.setPresetDuration(prefs.getInt(PREF_PRESET_DURATION, 30));
         ProjectMJNI.setBlankDetection(prefs.getBoolean(PREF_BLANK_DETECTION, true));
@@ -405,6 +421,10 @@ public class MainActivity extends Activity {
         mainMenu = findViewById(R.id.overlay_menu);
         advancedMenu = findViewById(R.id.advanced_menu);
         trackMenu = findViewById(R.id.track_menu);
+        moodMenu = findViewById(R.id.mood_menu);
+        moodHeader = findViewById(R.id.mood_header);
+        moodCollectionRow = findViewById(R.id.row_mood_collection);
+        moodRows = findViewById(R.id.mood_rows);
         diagnosticsPanel = findViewById(R.id.diagnostics_panel);
         presetName = findViewById(R.id.preset_name);
         presetMeta = findViewById(R.id.preset_meta);
@@ -460,7 +480,16 @@ public class MainActivity extends Activity {
                 });
 
         musicCategoryRow = findViewById(R.id.row_music_category);
+        musicCategoryRow.setupAction("Preset mood", "›", () -> showMenu(Menu.MOOD));
         refreshMusicCategory();
+
+        // Mood panel
+        OptionRow moodClear = findViewById(R.id.row_mood_clear);
+        moodClear.setupAction("Clear all", "", () -> {
+            mood.clearAll();
+            renderMood();
+        });
+        buildMoodRows();
 
         String[] durations = new String[PRESET_DURATIONS.length];
         for (int i = 0; i < durations.length; i++) durations[i] = PRESET_DURATIONS[i] + " s";
@@ -627,6 +656,7 @@ public class MainActivity extends Activity {
         mainMenu.setVisibility(View.GONE);
         advancedMenu.setVisibility(View.GONE);
         trackMenu.setVisibility(View.GONE);
+        moodMenu.setVisibility(View.GONE);
         diagnosticsPanel.setVisibility(View.GONE);
     }
 
@@ -637,7 +667,7 @@ public class MainActivity extends Activity {
             // The visualizer can fill the window; menus stay clear of transient phone system bars.
             int end = view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
                     ? insets.getStableInsetLeft() : insets.getStableInsetRight();
-            for (View panel : new View[]{mainMenu, advancedMenu, trackMenu}) {
+            for (View panel : new View[]{mainMenu, advancedMenu, trackMenu, moodMenu}) {
                 android.view.ViewGroup.MarginLayoutParams params =
                         (android.view.ViewGroup.MarginLayoutParams) panel.getLayoutParams();
                 int top = dp(12) + insets.getStableInsetTop();
@@ -702,6 +732,7 @@ public class MainActivity extends Activity {
         touchNavigation(R.id.menu_close, "Close menu", Menu.NONE);
         touchNavigation(R.id.advanced_back, "Back to menu", Menu.MAIN);
         touchNavigation(R.id.track_back, "Back to menu", Menu.MAIN);
+        touchNavigation(R.id.mood_back, "Back to menu", Menu.MAIN);
     }
 
     private void touchNavigation(int id, String text, Menu target) {
@@ -739,6 +770,7 @@ public class MainActivity extends Activity {
             case MAIN: return mainMenu;
             case ADVANCED: return advancedMenu;
             case TRACK: return trackMenu;
+            case MOOD: return moodMenu;
             default: return null;
         }
     }
@@ -767,18 +799,26 @@ public class MainActivity extends Activity {
                 slide(panel(previous), false);
                 if (previous == Menu.ADVANCED) fade(diagnosticsPanel, false);
                 fade(mainMenu, true);
-                findViewById(previous == Menu.ADVANCED ? R.id.row_advanced : R.id.row_track_display).requestFocus();
+                findViewById(previous == Menu.ADVANCED ? R.id.row_advanced
+                        : previous == Menu.MOOD ? R.id.row_music_category : R.id.row_track_display).requestFocus();
             } else {
                 slide(mainMenu, true);
                 (installRow.getVisibility() == View.VISIBLE ? installRow
                         : findViewById(R.id.random_preset_button)).requestFocus();
             }
         } else {
+            if (target == Menu.MOOD) {
+                reloadMood();  // picks up an official collection installed meanwhile
+                renderMood();
+            }
             fade(mainMenu, false);
             slide(panel(target), true);
             if (target == Menu.ADVANCED) {
                 if (!BuildConfig.TOUCHSCREEN) fade(diagnosticsPanel, true);
                 findViewById(R.id.row_resolution).requestFocus();
+            } else if (target == Menu.MOOD) {
+                (moodCollectionRow.getVisibility() == View.VISIBLE ? moodCollectionRow
+                        : !facetRows.isEmpty() ? facetRows.get(0) : findViewById(R.id.row_mood_clear)).requestFocus();
             } else {
                 trackInfoRow.requestFocus();
             }
@@ -817,8 +857,13 @@ public class MainActivity extends Activity {
         if (!text.toString().contentEquals(view.getText())) view.setText(text);
     }
 
+    /**
+     * Keeps the Preset mood row's summary current. When the engine fell back to All (no eligible
+     * preset left in the pool, e.g. all skipped), only the category is updated: the Mood panel's
+     * stored facets stay, so a later change or launch can use them again.
+     */
     private void refreshMusicCategory() {
-        if (musicCategoryRow == null || customPackCommitting) return;
+        if (musicCategoryRow == null || customPackCommitting || mood == null) return;
         String applied = MusicCategories.appliedSelection(requestedMusicCategory,
                 ProjectMJNI.getMusicCategory(), ProjectMJNI.isMusicCategoryPending());
         if (!ProjectMJNI.isMusicCategoryPending() && !applied.equals(requestedMusicCategory)) {
@@ -826,16 +871,126 @@ public class MainActivity extends Activity {
             prefs.edit().putString(PREF_MUSIC_CATEGORY, applied).apply();
             Toast.makeText(this, "No eligible presets in that category; using All", Toast.LENGTH_SHORT).show();
         }
-        String[] ids = MusicCategories.available(ProjectMJNI::getCategoryPresetCount);
-        if (java.util.Arrays.equals(ids, musicCategoryIds) && applied.equals(displayedMusicCategory)) return;
-        musicCategoryIds = ids;
-        displayedMusicCategory = applied;
-        String[] labels = new String[ids.length];
-        for (int i = 0; i < ids.length; i++) labels[i] = MusicCategories.label(ids[i]);
-        musicCategoryRow.setup("Preset mood", labels, MusicCategories.selectedIndex(ids, applied), true, index -> {
-            requestedMusicCategory = musicCategoryIds[index];
-            prefs.edit().putString(PREF_MUSIC_CATEGORY, requestedMusicCategory).apply();
-            ProjectMJNI.setMusicCategory(requestedMusicCategory);
+        String key = applied + "|" + ProjectMJNI.getSkippedCount() + "|" + moodRevision;
+        if (key.equals(displayedMusicCategory)) return;
+        displayedMusicCategory = key;
+        musicCategoryRow.setActionValue(moodSummary(applied) + "  ›");
+    }
+
+    /** The Preset mood row's value: Custom, All or the size of the facet pool. */
+    private String moodSummary(String applied) {
+        if ("facets".equals(applied)) {
+            PresetFacets.Selection selection = mood.selection();
+            return selection == null ? "All" : numberFormat.format(selection.poolSize()) + " presets";
+        }
+        return MusicCategories.label(applied);
+    }
+
+    /** Loads the facet table (official collection first, else the bundled one) when its source changed. */
+    private void reloadMood() {
+        File official = OfficialCollection.attributesFile(this);
+        String source = official == null ? "assets" : official.getAbsolutePath() + "@" + official.lastModified();
+        if (mood != null && source.equals(moodSource)) return;
+        boolean replacing = mood != null;
+        moodSource = source;
+        moodFacets = official == null ? PresetFacets.load(getAssets()) : parseFacets(official);
+        mood = new MoodFacetsController(moodFacets, new MoodFacetsController.Prefs() {
+            @Override public String get(String key, String fallback) { return prefs.getString(key, fallback); }
+            @Override public void put(String key, String value) { prefs.edit().putString(key, value).apply(); }
+        }, new MoodFacetsController.Engine() {
+            @Override public void setPresetPool(String[] names) { ProjectMJNI.setPresetPool(names); }
+            @Override public void setMusicCategory(String id) {
+                requestedMusicCategory = id;
+                ProjectMJNI.setMusicCategory(id);
+            }
+            @Override public int customCount() { return ProjectMJNI.getCategoryPresetCount("custom"); }
+        }, this::skippedPresets);
+        moodRevision++;
+        if (replacing) {
+            buildMoodRows();
+            mood.apply();  // the pool from the new table
+        }
+    }
+
+    private static PresetFacets parseFacets(File file) {
+        try (java.io.Reader reader = new java.io.InputStreamReader(new java.io.FileInputStream(file),
+                java.nio.charset.StandardCharsets.UTF_8)) {
+            return PresetFacets.parse(reader);
+        } catch (IOException | RuntimeException unreadable) {
+            Log.w(TAG, "Preset attributes unreadable: " + file, unreadable);
+            return null;
+        }
+    }
+
+    /** Names in the engine's skip list (one per line); none when the file does not exist. */
+    private Set<String> skippedPresets() {
+        File file = ProjectMCore.skipListFile(this);
+        if (!file.isFile()) return Collections.emptySet();
+        Set<String> names = new HashSet<>();
+        try (java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(
+                new java.io.FileInputStream(file), java.nio.charset.StandardCharsets.UTF_8))) {
+            for (String line; (line = in.readLine()) != null; ) if (!line.isEmpty()) names.add(line);
+        } catch (IOException unreadable) {
+            Log.w(TAG, "Skip list unreadable", unreadable);
+        }
+        return names;
+    }
+
+    /** One FacetRow per facet group; none without a facet table. */
+    private void buildMoodRows() {
+        if (moodRows == null) return;
+        moodRows.removeAllViews();
+        facetRows.clear();
+        if (moodFacets == null) return;
+        for (PresetFacets.Group group : moodFacets.groups()) {
+            FacetRow row = new FacetRow(this);
+            row.bind(group.label, group.options, id -> {
+                mood.toggle(id);
+                renderMood();
+            });
+            moodRows.addView(row, new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            facetRows.add(row);
+        }
+        renderMood();
+    }
+
+    /** Shows the Mood state: selected options, live counts, dimmed options, header and collection. */
+    private void renderMood() {
+        if (moodMenu == null || mood == null) return;
+        moodRevision++;
+        boolean bundled = "bundled".equals(mood.collection());
+        PresetFacets.Selection selection = mood.selection();
+        if (selection != null) {
+            Set<String> selected = mood.selected();
+            Map<String, Integer> counts = new HashMap<>();
+            Set<String> dimmed = new HashSet<>();
+            for (PresetFacets.Group group : moodFacets.groups()) {
+                for (PresetFacets.Option option : group.options) {
+                    boolean on = selected.contains(option.id);
+                    int count = on ? selection.poolSize() : selection.countIfToggled(option.id);
+                    counts.put(option.id, count);
+                    if (!on && count == 0) dimmed.add(option.id);
+                }
+            }
+            for (FacetRow row : facetRows) row.update(selected, counts, dimmed, bundled);
+        }
+        setText(moodHeader, mood.header());
+        refreshMoodCollectionRow();
+        refreshMusicCategory();
+    }
+
+    /** The collection choice appears only while a custom pack is installed. */
+    private void refreshMoodCollectionRow() {
+        boolean available = ProjectMJNI.getCategoryPresetCount("custom") > 0;
+        int visibility = available ? View.VISIBLE : View.GONE;
+        boolean custom = "custom".equals(mood.collection());
+        if (moodCollectionRow.getVisibility() == visibility && Boolean.valueOf(custom).equals(moodCollectionRow.getTag())) return;
+        moodCollectionRow.setVisibility(visibility);
+        moodCollectionRow.setTag(custom);
+        moodCollectionRow.setup("Collection", new String[]{"Built-in", "Custom"}, custom ? 1 : 0, true, index -> {
+            mood.setCollection(index == 1 ? "custom" : "bundled");
+            renderMood();
         });
     }
 
@@ -865,13 +1020,14 @@ public class MainActivity extends Activity {
                             throw new IOException("Preset library changed during import; previous pack retained. Try again.");
                         }
                         prefs.edit().putString(PREF_MUSIC_CATEGORY, "custom")
+                                .putString(MoodFacetsController.PREF_COLLECTION, "custom")
                                 .putString("custom_pack_generation", pack.directory.getName()).apply();
                         CustomPresetPack.scheduleCleanup(root, directory -> ProjectMJNI.isCustomPresetPackInUse(directory.getAbsolutePath()));
                         committed = true;
                         handler.post(() -> {
-                            requestedMusicCategory = "custom";
                             customPackCommitting = false;
-                            refreshMusicCategory();
+                            mood.setCollection("custom");
+                            renderMood();
                             if (customPackDialog != null)
                                 message.setText("Imported " + numberFormat.format(pack.count) + " presets and "
                                         + numberFormat.format(pack.textureCount) + " textures. Custom is now selected.\n\n"
@@ -985,6 +1141,8 @@ public class MainActivity extends Activity {
                     renderer.getCurrentFps(), heightLabel(quality.currentHeight()), mode));
         } else if (menu == Menu.TRACK) {
             refreshTrackInfoRow();  // access may have been granted meanwhile
+        } else if (menu == Menu.MOOD) {
+            refreshMoodCollectionRow();  // a custom pack may have finished indexing meanwhile
         } else {
             skippedRow.setActionValue(skipped > 0 ? numberFormat.format(skipped) + "  ·  Reset" : "None");
             lastExitRow.setActionValue(lastExitSummary());  // keeps its age current

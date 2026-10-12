@@ -60,6 +60,17 @@ final class OfficialCollection {
         }
     }
     static void restore(Context context){OfficialPresetDownload.get(context);}
+    /**
+     * The installed official pack's preset attributes, or null without a committed pack. Reads the
+     * committed-generation pointer only: {@link OfficialPresetPack#current} re-hashes every file of
+     * the pack, too slow for the UI thread; the engine verifies the pack when it restores it.
+     */
+    static java.io.File attributesFile(Context context) {
+        java.io.File generation=CustomPresetPack.current(new java.io.File(context.getNoBackupFilesDir(),"official-presets"));
+        if(generation==null||!new java.io.File(generation,"installed.json").isFile())return null;
+        java.io.File attributes=new java.io.File(generation,"preset-attributes/attributes.tsv");
+        return attributes.isFile()?attributes:null;
+    }
     static boolean shouldOffer(boolean seen,boolean resumed,boolean focus,boolean ready,String phase,String identity) {
         return !seen&&resumed&&focus&&ready&&identity.isEmpty()&&(phase.equals("idle")||phase.equals("error"));
     }

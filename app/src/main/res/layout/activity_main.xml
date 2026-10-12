@@ -397,6 +397,86 @@
         </LinearLayout>
     </ScrollView>
 
+    <!-- Mood panel: slides over the main panel like the advanced one; BACK returns -->
+    <ScrollView
+        android:id="@+id/mood_menu"
+        android:layout_width="@dimen/panel_width"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="@dimen/safe_vertical"
+        android:layout_marginBottom="@dimen/safe_vertical"
+        android:layout_marginEnd="@dimen/safe_horizontal"
+        android:background="@drawable/bg_overlay_panel"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:paddingStart="12dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
+
+            <TextView
+                style="@style/Overlay.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="Settings  ›  Preset mood" />
+
+            <TextView
+                android:id="@+id/mood_header"
+                style="@style/Overlay.Meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="10dp"
+                android:accessibilityLiveRegion="polite" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="6dp"
+                android:background="@drawable/divider" />
+
+            <com.example.projectm.visualizer.OptionRow
+                android:id="@+id/row_mood_collection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/mood_rows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <com.example.projectm.visualizer.OptionRow
+                android:id="@+id/row_mood_clear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/divider" />
+
+            <TextView
+                android:id="@+id/mood_back"
+                style="@style/Overlay.Meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginTop="10dp"
+                android:text="↑↓ select   ‹ › move   OK toggle   BACK return" />
+        </LinearLayout>
+    </ScrollView>
+
     <!-- Track display panel: slides over the main panel like the advanced one; BACK returns -->
     <ScrollView
         android:id="@+id/track_menu"
