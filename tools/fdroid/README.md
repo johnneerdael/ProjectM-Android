@@ -69,3 +69,17 @@ After F-Droid accepts a listing, synchronization checks distribution/discovery
 compatibility and leaves F-Droid's build history to its own auto updater.
 Upstream acceptance, pipeline results and the first public collection delivery
 must be verified separately from local/mock tests.
+
+## Pending branch ownership
+
+Find the latest managed checkpoint on the validated head's first-parent
+ancestry using the complete `commits` graph returned by the existing
+repository comparison. A second path-filtered 100-commit request traversed
+fdroiddata's large history and timed out twice during the first live run.
+Reject missing head/history, malformed parents and cycles. Retain the
+metadata-only diff, maintainer-field fingerprint and atomic expected-head
+push checks.
+
+GitLab documents comparison commit lists as complete independently of diff
+timeouts; the existing diff timeout/incompleteness guards still apply. See
+[Repositories API](https://docs.gitlab.com/api/repositories/#compare-branches-tags-or-commits).

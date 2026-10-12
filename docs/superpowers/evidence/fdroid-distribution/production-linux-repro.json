@@ -1,0 +1,59 @@
+{
+  "allowed_signer_sha256": "ee51370f485325d703adbca4d811989d90e044da6181f7629965e6add03cfcef",
+  "build_command": "ANDROID_HOME=/opt/android-sdk ANDROID_SDK_ROOT=/opt/android-sdk CMAKE_BUILD_PARALLEL_LEVEL=4 /work/fdroid-venv/bin/fdroid build --verbose --stop --no-tarball APPID:89",
+  "builds": [
+    {
+      "app_id": "nl.neerdael.projectmtv",
+      "checkout": "/work/build/nl.neerdael.projectmtv",
+      "duration": "4m5s",
+      "log": "tv-build.log",
+      "result": "PASS"
+    },
+    {
+      "app_id": "nl.neerdael.projectm",
+      "checkout": "/work/build/nl.neerdael.projectm",
+      "duration": "4m4s",
+      "log": "android-build.log",
+      "result": "PASS"
+    },
+    {
+      "app_id": "nl.neerdael.projectmtv",
+      "checkout": "/work/repeat/build/nl.neerdael.projectmtv",
+      "duration": "3m29s",
+      "log": "tv-repeat-build.log",
+      "result": "PASS"
+    }
+  ],
+  "container": "projectm-fdroid-linux-20261012",
+  "cross_host_mac_discrepancy": "Both native ABIs differ only in ELF .comment and .note.gnu.build-id section contents. All remaining ELF section contents, including .text and .rodata, are identical. Mac compiler contributes +pgo,-bolt,+lto,-mlgo comment; public/Linux compiler uses +pgo,+bolt,+lto,+mlgo.",
+  "image": "registry.gitlab.com/fdroid/fdroidserver@sha256:9cb68105642ca4e7b295f0ceab10f069f5b3247dc18fa7c36046e9d81aa469a8",
+  "platform": "linux/amd64",
+  "preparation_notes": [
+    "SDK platforms34, build-tools34, NDK27.3.13750724 and CMake3.22.1 installed with Linux sdkmanager; AGP downloaded build-tools35 and platform-tools37.0.1.",
+    "All3 checkouts fetched public source into task-owned Linux volume, filtered blobs and sparse evidence READMEs; metadata prescribed deletion removed entire evidence directory before scanner.",
+    "Recipe sudo CMake install is skipped by direct container fdroid build; exact package was preinstalled explicitly.",
+    "Container quota/affinity4 CPUs; Gradle workers4 and parallel=false; original Linux Ninja wrapped with global -j4. Gradle VFS watcher disabled for Docker emulation.",
+    "No app source, signing verification, metadata recipes, active workspace, or public remote was edited. Config SDK/tool paths adapted to Linux.",
+    "Validation is local direct-build execution in official buildserver container; no live F-Droid service submission or emulator runtime test was performed."
+  ],
+  "same_host_tv_unsigned_apk_sha256": "008062fac219cf6ed077aa610c6e45e425d49dda2e713efdf9734bfa149c21cd",
+  "same_host_tv_unsigned_apks_identical": true,
+  "source_commit": "7f232d1a0139a858f4c0231adac93080f9cd6511",
+  "source_repository": "https://github.com/johnneerdael/ProjectM-Android.git",
+  "tools": {
+    "agp": "8.12.0",
+    "apksigner": "34.0.0 / 0.9",
+    "clang": "18.0.4 Android13691557 +pgo +bolt +lto +mlgo",
+    "cmake": "3.22.1-g37088a8",
+    "compile_build_tools": "35.0.0",
+    "fdroidserver": "2.4.5",
+    "gradle": "8.14.2",
+    "jdk": "21.0.12.1 Debian",
+    "ndk": "27.3.13750724 Linux x86_64",
+    "ninja": "1.10.2 with -j4 wrapper"
+  },
+  "verification": "Each standard source scanner/build downloaded public Binaries, successfully verified transferred production APK signatures, and enforced AllowedAPKSigningKeys.",
+  "version_code": 89,
+  "version_name": "2.3.40",
+  "volume": "projectm-fdroid-linux-20261012"
+}
