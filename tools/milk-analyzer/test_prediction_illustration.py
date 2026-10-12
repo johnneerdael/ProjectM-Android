@@ -189,3 +189,14 @@ def test_frame_stepper_reads_never_written_variables_as_zero():
     for frame in range(3):
         values = stepper.step(frame / 30, 30, {'bass': 1.}, frame)
     assert values['speed'] == 3. and values['ghost'] == 0. and not stepper.failed
+
+
+def test_named_textures_load_bundled_images_with_their_size():
+    from prediction_illustration import _named_texture, _texsize, TEXTURE_DIRECTORY
+    if not (TEXTURE_DIRECTORY / 'devboxb.jpg').exists():
+        pytest.skip('bundled textures not present')
+    image = _named_texture('devboxb')
+    assert image is not None and image.ndim == 3 and image.shape[2] == 3 and 0 <= image.min() and image.max() <= 1
+    assert _named_texture('fw_devboxb') is image
+    assert list(_texsize('devboxb', 480, 270)[:2]) == [image.shape[1], image.shape[0]]
+    assert _named_texture('no_such_texture_name') is None

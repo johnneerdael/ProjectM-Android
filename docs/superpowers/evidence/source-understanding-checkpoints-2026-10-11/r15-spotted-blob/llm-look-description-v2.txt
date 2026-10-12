@@ -1,0 +1,8 @@
+LLM look description from the SDK recipe (before capture, r15 v2):
+A dark indigo scene. The warp blends 4% of a bundled image texture (devboxb, a dark red smoky
+picture) into the feedback every frame at a slowly roaming offset, so the canvas fills with drifting
+red smoke; the composite shader recolours it to deep blue-violet with darker smoke shapes and paler
+patches. Two random-walker shapes run their per-frame code once per instance (512 and more per
+frame), leaving trails of small, randomly coloured circles along wandering paths that curl into the
+spotted blobs, plus grey parallel traces. Calibrated display estimate: Normal. Expected: a dark
+blue-violet smoky field with a few curled spotted blobs and faint trails; slow drift.

@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Stahlregen & Flexi + Geiss + ORB - Spotted Blob_2 - usheriah colobot - could-scape.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r15-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "3f08e6f34a5c4a2c30643bb406b88813abe5b74af820fbe61077063375f90a29",
+  "description-v2-before-capture.json": "5e48ea134f3829e8f848705e6a91c2d643a266f462bc73c124077cfde24602a7",
+  "recipe-v2-before-capture.json": "36c8f2298dd42d917f177678e095383a599dde1babb5384187dcb7c5cacab805",
+  "prediction-v2.png": "1c33615695253e146590d523dbbf04c1c2108ebb82b72c47fc5c797ba112f053",
+  "llm-look-description-v2.txt": "b2a219a96a5c9a4a4a8627fa6d1bd6c17777b19fb28475b240a9e8fb523bd7a0"
+ },
+ "capture_result_sha256": "01f27c37d711a6b4a2bb0880bd9f6ef10c9df1059f8d87b97de72ad6747dfc74",
+ "review_measurements": {
+  "prediction_luma": 0.068,
+  "screenshot_luma": 0.068,
+  "p10_p50_p90_prediction": [
+   0.0,
+   0.039,
+   0.179
+  ],
+  "p10_p50_p90_screenshot": [
+   0.0,
+   0.043,
+   0.183
+  ],
+  "mean_rgb_prediction": [
+   0.061,
+   0.061,
+   0.122
+  ],
+  "mean_rgb_screenshot": [
+   0.061,
+   0.061,
+   0.123
+  ],
+  "saturation": [
+   0.46,
+   0.462
+  ],
+  "blurred_luma_correlation": 0.994,
+  "composite_check": "our composite on the native canvas reproduces the native display (0.061,0.061,0.123)"
+ },
+ "agreements": [
+  "Same dark smoke shapes, pale patches and curled spotted blobs in the same places; colour, brightness and distribution match"
+ ],
+ "misses": [],
+ "general_fixes": [
+  "named image textures load the bundled file (corpus_inputs.texture_index over core/src/main/assets/textures; sampler prefixes stripped) with texsize from the image",
+  "custom-shape per-frame recurrences (frame_recurrence on shape elements) stepped once per instance with persistent state across instances and frames; random calls evaluated stochastically",
+  "shape drawing restricted to the polygon bounding box (512-instance shapes)"
+ ],
+ "status": "understood"
+}

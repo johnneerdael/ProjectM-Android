@@ -489,6 +489,8 @@ def appearance_from_analysis(analysis):
         if any('instance' in _deps(controls[name]) for name in ('x','y','rad','ang','sides')):
             from source_instances import shape_instance_motion
             elements[identity]['instance_motion']=shape_instance_motion(controls,elements[identity]['parameters']['instances'])
+        recurrence=_shape_recurrence(identity,controls,getattr(analysis,'component_init',{}).get(identity) or {})
+        if recurrence is not None:elements[identity]['frame_recurrence']=recurrence
         elements[identity]['motion_controls']=[motion_control(controls[name],*SHAPE_CONTROLS[name],
             application='shape geometry parameter',input_scenario=getattr(analysis,'input_scenario',None)) for name in ('x','y','rad','ang') if name in controls]
         for name,(control,unit) in SHAPE_CONTROLS.items():
@@ -588,3 +590,46 @@ def appearance_from_analysis(analysis):
     result['static_behaviour']=static_behaviour(analysis,result,getattr(analysis,'behaviour_context',None))
     result['record_sha256']=_digest(result)
     return result
+
+
+def _shape_recurrence(identity,controls,init):
+    """Persistent per-frame variables of a custom shape read by its drawn controls.
+
+    The shape's per-frame code runs once per instance and its variables persist from instance to
+    instance and frame to frame (projectM CustomShape / ShapePerFrameContext). A variable read
+    before being written appears as an input named after it (start value 0) or as
+    'state:<shape>_per_frame:<name>' when the init code sets it. Each gets its end-of-run update
+    graph and its initial value; graphs with random calls are kept (stochastic evaluation).
+    """
+    from effect_families import Field
+    from scene_equations import SHAPE,READONLY
+    from time_expression import input_names
+    marker='state:'+identity+'_per_frame:'
+    standard=set(SHAPE)|set(READONLY)|{'instance','thick',*(f'q{i}' for i in range(1,33)),*(f't{i}' for i in range(1,9))}
+    def states_of(expression):
+        names=input_names(expression,stochastic=True) if expression else None
+        found=set()
+        for name in names or ():
+            if not isinstance(name,str):continue
+            if name.startswith(marker):found.add(name[len(marker):])
+            elif name not in standard and name in controls and ':' not in name:found.add(name)
+        return found
+    drawn=[controls.get(name) for name in ('x','y','rad','ang','r','g','b','a','r2','g2','b2','a2','border_r','border_g','border_b','border_a','tex_zoom','tex_ang')]
+    pending=set()
+    for field in drawn:
+        if field is not None:pending|=states_of(_expression(field))
+    if not pending:return None
+    state={};done=set()
+    while pending:
+        name=pending.pop()
+        if name in done:continue
+        done.add(name)
+        update=_expression(controls.get(name,Field('unknown')))
+        initial=_expression(init.get(name,Field('constant',detail={'value':0.})))
+        if update is None or initial is None:return None
+        state[name]={'initial':initial,'update':update,'inputs':[name,marker+name]}
+        pending|=states_of(update)-done
+    return {'policy':'source-custom-shape-frame-recurrence-v1','state':state,
+            'conditions':['per-frame code runs once per instance; variables persist across instances and frames',
+                          'inputs list the plain and init-prefixed names that both read the start value']}
+

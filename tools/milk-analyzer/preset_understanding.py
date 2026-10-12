@@ -229,6 +229,9 @@ def summarize_preset(record):
         for key in ("colour", "material", "wave_material"):
             if key in element:
                 fact("colour", path + "/" + key, element[key], "Source colour/material ingredients before final displayed composition")
+        if "frame_recurrence" in element:
+            fact("motion", path + "/frame_recurrence", element["frame_recurrence"],
+                 "Per-frame state recurrence of the shape (per instance, persistent); stepping evaluates authored equations")
         for key, group in (("audio_routes", "audio"), ("motion_controls", "motion")):
             if key in element:
                 for row_index, row in enumerate(_rows(element[key], path + "/" + key)):

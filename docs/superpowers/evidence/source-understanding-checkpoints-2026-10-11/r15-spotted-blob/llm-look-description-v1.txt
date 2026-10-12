@@ -1,0 +1,7 @@
+LLM look description from the SDK recipe (before capture, r15 v1):
+A shader-driven feedback scene seeded by many small audio-reactive shapes (a 14-sided shape drawn as
+512 instances, plus a 23-sided shape) whose position, radius, opacity and colour follow
+bass/mid/treble (bass -> red, treble -> green, mid -> blue), and greyscale parallel traces. A warp
+shader carries and smears the feedback; a composite shader colours the display; time-varying borders
+are blended in. Calibrated display estimate: Normal (activity 0.38; luminance ~0.21, saturation ~0.47,
+cool). Expected: a medium-dark, cool-toned field of smeared blob trails; moderate motion.

@@ -950,6 +950,7 @@ class _Analysis:
 
     def primitives(self):
         self.component_controls={}
+        self.component_init={}
         from native_values import live_wave_mode
         from source_waveform import builtin_wave_possible
         alpha = self.main['wave_a']; raw_mode = _number(self.main['wave_mode'])
@@ -1034,6 +1035,7 @@ class _Analysis:
                         self.unknowns.append({'section': f'shape_{index}_per_frame', 'reason': 'shape geometry is statically unresolved'})
                         continue
                     self.component_controls[f'shape_{index}']=env
+                    self.component_init[f'shape_{index}']=init.environment
                     self.add('polygon_shape_primitive', f'shape_{index}_per_frame', geometry,
                              'enabled shape with possible fill/border and nonzero radius', component=f'shape_{index}',
                              parameters={'sides': _number(env['sides']), 'instances': count},

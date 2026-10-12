@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "Stahlregen & Flexi + Geiss + ORB - Spotted Blob_2 - usheriah colobot - could-scape.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r15-v1",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "bab54195ce4602d981418fcab4b2d9774ed0ddad5a3d373c59c0627ada5f4f13",
+  "description-v1-before-capture.json": "9d0e659536a050baa23fe8890bcec7f629a93c8f70232eb276e7278f30685631",
+  "recipe-v1-before-capture.json": "36c8f2298dd42d917f177678e095383a599dde1babb5384187dcb7c5cacab805",
+  "prediction-v1.png": "32b02595cafdfc5ec00db255b3b31edef80e9ba9e273e72af372884e3bc9a4f1",
+  "llm-look-description-v1.txt": "f6642c6056b295daab4e2599a0521f1233e13ba83bf79119e0ba368283d1ecd3"
+ },
+ "capture_result_sha256": "cb735bbf2be26d9710fb9ebb9c5605b92ee2c1436e9ea2903ba1512641483e11",
+ "review_measurements": {
+  "prediction_luma": 0.126,
+  "screenshot_luma": 0.068,
+  "mean_rgb_prediction": [
+   0.113,
+   0.113,
+   0.226
+  ],
+  "mean_rgb_screenshot": [
+   0.061,
+   0.061,
+   0.123
+  ],
+  "blurred_luma_correlation": -0.473
+ },
+ "agreements": [
+  "Blue-violet palette from the composite"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Dark smoky indigo field with spotted blobs; illustration a bright streaky texture without blobs",
+   "cause": "(1) a named image texture (devboxb) was replaced by a noise stand-in, injecting multicolour noise instead of red smoke; (2) random-walker shapes were skipped: their controls read persistent per-frame state that steps once per instance",
+   "next": "load bundled named textures; export and step custom-shape per-frame recurrences per instance"
+  }
+ ]
+}

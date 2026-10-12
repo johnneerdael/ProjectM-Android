@@ -854,4 +854,17 @@ repeated on correctly oriented frames. Probes and results:
 - **r14 (`285.milk`) v1 → v2.** v1 was black because all four arm-like waves were
   blocked by a per-point toggle. v2 matches the emulator: a warm orange spiral of
   swept tiles, blurred correlation 0.90.
+- **Named image textures.** Samplers that name a bundled image (for example
+  `sampler_devboxb`) read the actual texture file. `corpus_inputs.texture_index`
+  resolves it over `core/src/main/assets/textures`, with sampler prefixes
+  stripped, and `texsize_<name>` takes the image's size. Unknown names keep a
+  deterministic stand-in.
+- **Shape state.** A custom shape's per-frame code runs once per instance, and
+  its variables persist across instances and frames. Shape elements now carry
+  `frame_recurrence` (plain and init-prefixed input names, initial value,
+  end-of-run update, random calls kept). The illustrator steps it per instance,
+  drawing only each polygon's bounding box.
+- **r15 (`Spotted Blob_2 … could-scape`) v1 → v2.** v2 matches the emulator
+  (blurred correlation 0.994, identical luma and colour). It shows the dark
+  smoke from the blended `devboxb` image and the random-walker spotted blobs.
 

@@ -753,6 +753,15 @@ def _dynamic_border_operators(facts,width,height,values):
     return operators
 
 
+def _eval_filled(expression,inputs,rng=None):
+    """Scalar value of an EEL graph; inputs it reads but nobody supplies are 0 (projectm-eval)."""
+    from time_expression import input_names
+    plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
+    missing=(input_names(plain) or set())-set(inputs)
+    value=float(np.asarray(_evaluate_np(expression,{**inputs,**{n:0. for n in missing}},rng)).reshape(-1)[0])
+    return value if math.isfinite(value) else 0.
+
+
 def _value_at(record,key,expression_key,held,time,rng=None):
     """Constant or closed-form value of a control/texture field at a declared time."""
     if record is None:return None
@@ -781,7 +790,8 @@ def _textured_shapes(facts,held):
                        'textured':texture.get('role')=='previous_main',
                        'channels':material.get('channel_expressions') or {},'blend':material.get('blend_mode'),
                        'rgb':(material.get('centre_vertex_rgba') or [1,1,1,None])[:3],
-                       'thick_outline':bool(material.get('thick_outline')),'held':held,'instances':int(instances)})
+                       'thick_outline':bool(material.get('thick_outline')),'held':held,'instances':int(instances),
+                       'frame_recurrence':facts.get(element+'/frame_recurrence')})
     return shapes
 
 
@@ -813,7 +823,14 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
     centre_rgb=[channel('centre',c) for c in 'rgb'];edge_rgb=[channel('perimeter',c+'2') for c in 'rgb']
     border=[channel('border','border_'+c) for c in 'rgba']
     if None in (x,y,radius,angle,zoom,tex_angle) or None in alphas or zoom==0 or radius<=0:return image,False
-    columns,rows=np.meshgrid((np.arange(width)+.5)/width,1-(np.arange(height)+.5)/height)
+    # Only the polygon's bounding box can be covered: |dx| <= radius*aspect/2, |dy| <= radius/2 (screen fractions).
+    full_image=image;orig_canvas=canvas;full_alpha=canvas['alpha'] if canvas is not None else None
+    x0=max(0,int(math.floor((x-radius*aspect*.5)*width))-1);x1=min(width,int(math.ceil((x+radius*aspect*.5)*width))+2)
+    y0=max(0,int(math.floor((1-y-radius*.5)*height))-1);y1=min(height,int(math.ceil((1-y+radius*.5)*height))+2)
+    if x0>=x1 or y0>=y1:return image,True
+    image=full_image[y0:y1,x0:x1]
+    if canvas is not None:canvas={**canvas,'alpha':full_alpha[y0:y1,x0:x1]}
+    columns,rows=np.meshgrid((np.arange(x0,x1)+.5)/width,1-(np.arange(y0,y1)+.5)/height)
     # (ux, sn) = s*(cos t, sin t) of the vertex parameterisation; screen up is -sin t.
     ux=(columns-x)/(radius*aspect*.5);sn=-(rows-y)/(radius*.5)
     delta=tex_angle-angle;cos,sin=math.cos(delta),math.sin(delta)
@@ -822,18 +839,18 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
     edge=math.cos(math.pi/shape['sides'])/np.cos(phi-math.pi/shape['sides'])
     fraction=np.hypot(ux,sn)/edge
     inside=fraction<=1
-    if not inside.any():return image,True
+    if not inside.any():return full_image,True
     map_x=(u*width-.5).astype(np.float32);map_y=((1-v)*height-.5).astype(np.float32)
     wrap_mode=cv2.BORDER_WRAP if wrap else cv2.BORDER_REPLICATE
     t=np.clip(fraction,0,1)[...,None]
     if shape.get('textured',True):
-        sampled=cv2.remap(image if source is None else source,map_x,map_y,cv2.INTER_LINEAR,borderMode=wrap_mode)
+        sampled=cv2.remap(full_image if source is None else source,map_x,map_y,cv2.INTER_LINEAR,borderMode=wrap_mode)
         # Textured fill = texture * interpolated vertex colour (centre r,g,b to perimeter r2,g2,b2).
         tint_centre=np.array([c if c is not None else 1. for c in centre_rgb],np.float32)
         tint_edge=np.array([c if c is not None else 1. for c in edge_rgb],np.float32)
         sampled=sampled*(tint_centre*(1-t)+tint_edge*t)
     else:
-        if None in centre_rgb or None in edge_rgb:return image,False
+        if None in centre_rgb or None in edge_rgb:return full_image,False
         sampled=(np.array(centre_rgb,np.float32)*(1-t)+np.array(edge_rgb,np.float32)*t).astype(np.float32)
     alpha=np.where(inside,alphas[0]+(alphas[1]-alphas[0])*np.clip(fraction,0,1),0.)[...,None].astype(np.float32)
     if canvas is not None:
@@ -846,6 +863,9 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
         canvas['alpha']=np.clip(canvas['alpha']+a*a if shape['blend']=='source_alpha_additive' else a*a+canvas['alpha']*(1-a),0,1)
     if shape['blend']=='source_alpha_additive':image=np.clip(image+sampled*alpha,0,1)
     else:image=image*(1-alpha)+sampled*alpha
+    full_image=full_image.copy();full_image[y0:y1,x0:x1]=image;image=full_image
+    if canvas is not None:full_alpha[y0:y1,x0:x1]=canvas['alpha']
+    canvas=orig_canvas
     if None not in border and border[3]>.0001:
         # Outline: the polygon edge in the border colour, alpha-blended over (thick: MilkDrop's 4 offsets).
         aspect_y=min(1.,height/width)
@@ -916,9 +936,34 @@ def _fit_inputs(expression,inputs,controls=None):
 NOISE_SIZES={'noise_lq':(256,1),'noise_lq_lite':(32,1),'noise_mq':(256,4),'noise_hq':(256,8)}  # (size, zoom) MilkdropNoise
 
 
+TEXTURE_DIRECTORY=Path(__file__).resolve().parents[2]/'core/src/main/assets/textures'
+_NAMED={}
+
+
+def _named_texture(name):
+    """Bundled image texture by name (RGB float32, rows top-down as uploaded at v=0), or None."""
+    key=str(name).lower()
+    if key.startswith(('fw_','fc_','pw_','pc_','wf_','cf_','wp_','cp_')):key=key[3:]
+    if key not in _NAMED:
+        image=None
+        try:
+            from corpus_inputs import texture_index
+            index=_NAMED.setdefault('__index__',texture_index(TEXTURE_DIRECTORY) if TEXTURE_DIRECTORY.is_dir() else {})
+            row=index.get(key)
+            if row is not None:
+                loaded=cv2.imread(row['path'],cv2.IMREAD_COLOR)
+                if loaded is not None:image=np.ascontiguousarray(loaded[...,::-1]).astype(np.float32)/255.
+        except (OSError,ValueError):image=None
+        _NAMED[key]=image
+    return _NAMED[key]
+
+
 def _texsize(name,width,height):
-    """texsize_<name> uniform (w, h, 1/w, 1/h): engine noise sizes, blur pass sizes, 256 for other stand-ins."""
-    if name in NOISE_SIZES:w=h=NOISE_SIZES[name][0]
+    """texsize_<name> uniform (w, h, 1/w, 1/h): engine noise sizes, blur pass sizes, bundled image sizes,
+    256 for other stand-ins."""
+    named=_named_texture(name) if name not in NOISE_SIZES and name not in ('main','blur1','blur2','blur3') else None
+    if named is not None:h,w=named.shape[:2]
+    elif name in NOISE_SIZES:w=h=NOISE_SIZES[name][0]
     elif name in ('blur1','blur2','blur3'):
         from blur import pass_dimensions
         w,h=pass_dimensions(width,height)[2*int(name[4])-1]
@@ -1072,7 +1117,10 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
         if texture.startswith('noise'):source=_noise_texture(texture)
         elif texture.startswith('blur'):
             source=blurred[min(3,max(1,int(texture[4:] or 1)))]
-        elif texture!='main':source=_noise_texture('noise_mq')  # named images: deterministic stand-in
+        elif texture!='main':
+            # Named images: the bundled texture file (declared asset); unknown names keep a noise stand-in.
+            named=_named_texture(texture)
+            source=named if named is not None else _noise_texture('noise_mq')
         wrap=_sampler_wraps(detail.get('sampling_policy'),controls)
         th,tw=source.shape[:2]
         u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
@@ -1336,7 +1384,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths+dynamic_waves}
     _TERM_CONTEXT.pop('stage',None)
     warp_samples_blur='"canonical_texture": "blur' in json.dumps(warp_program) if warp_program is not None else False
-    wave_states={}
+    wave_states={};shape_states={}
     previous=image
     try:
         # history_steps rendered frames ending at the declared time (native frame k renders at (k+1)/fps).
@@ -1448,9 +1496,19 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
             rng=np.random.default_rng(7919+int(round(frame_time*fps)))
-            for shape in textured:
+            for shape_index,shape in enumerate(textured):
+                recurrence=shape.get('frame_recurrence')
                 for instance in range(shape.get('instances',1)):
                     held['instance']=float(instance)
+                    if recurrence:
+                        # Shape per-frame code runs once per instance; its variables persist across instances
+                        # and frames. Controls read the start values; the update gives the next run's start.
+                        state=shape_states.get(shape_index)
+                        if state is None:state=shape_states[shape_index]={n:_eval_filled(e['initial'],{**held,'time':frame_time},rng) for n,e in recurrence['state'].items()}
+                        for name,entry in recurrence['state'].items():
+                            for alias in entry.get('inputs') or [name]:held[alias]=state[name]
+                        values={**held,'time':frame_time}
+                        shape_states[shape_index]={n:_eval_filled(e['update'],values,rng) for n,e in recurrence['state'].items()}
                     image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous,canvas,rng)
             held.pop('instance',None)
             for index,(_,record) in enumerate(clouds):
