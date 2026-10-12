@@ -1,8 +1,10 @@
 """Mood facet attribute bundle: engine-ruler measurements + source style facts -> Android assets.
 
 build() writes preset-attributes/{facets.json, attributes.tsv, manifest.json}; check() verifies the
-bundle against presets.idx, the definition and its manifest, and recomputes every membership from
-the stored values and style options. Standard library only.
+bundle against presets.idx, the definition, its frozen activity reference and its manifest, and
+recomputes every membership from the stored values and style options. Activity is scored against the
+frozen reference (facets/activity-reference-v1.json, written once by --freeze-activity-reference),
+never against the corpus of the current build. Standard library only.
 """
 import argparse, bisect, hashlib, json, shutil
 from pathlib import Path
@@ -16,6 +18,8 @@ RULER_FIELDS = {'luminance': 'mean_luminance', 'saturation': 'mean_saturation', 
 ACTIVITY_METRICS = ('mean_abs_frame_difference', 'mean_flow_screen_widths_per_s', 'global_brightness_jumps_per_10s')
 STYLES = {'kaleidoscope', 'tunnel', 'liquid', 'geometric', 'particles', 'fractal'}
 SCHEMA = 'projectm-tv-preset-attributes'
+REFERENCE_SCHEMA = 'projectm-tv-activity-reference'
+QUANTILES = 1001
 
 
 def _sha(data):
@@ -27,12 +31,70 @@ def _mid_rank(sorted_values, value):
     return (low + high) / 2 / len(sorted_values)
 
 
-def activity_values(rows):
-    """Percentile of the mean percentile rank of the three activity metrics within these rows."""
-    tables = {m: sorted(float(r[m]) for r in rows) for m in ACTIVITY_METRICS}
-    raw = {r['preset']: sum(_mid_rank(tables[m], float(r[m])) for m in ACTIVITY_METRICS) / len(ACTIVITY_METRICS) for r in rows}
-    order = sorted(raw.values())
-    return {name: _mid_rank(order, value) for name, value in raw.items()}
+def _quantiles(values, count=QUANTILES):
+    """count evenly spaced quantiles (0..1) with linear interpolation between order statistics."""
+    ordered = sorted(float(v) for v in values)
+    last = len(ordered) - 1; table = []
+    for i in range(count):
+        h = last * i / (count - 1); low = int(h); high = min(low + 1, last)
+        table.append(ordered[low] + (h - low) * (ordered[high] - ordered[low]))
+    return table
+
+
+def _mean_rank(reference, row):
+    return sum(_mid_rank(reference['metrics'][m], float(row[m])) for m in ACTIVITY_METRICS) / len(ACTIVITY_METRICS)
+
+
+def make_activity_reference(rows, provenance):
+    """The frozen activity reference: quantile tables of the three metrics and of their mean rank."""
+    reference = {'schema': REFERENCE_SCHEMA, 'version': 1, 'quantiles': QUANTILES,
+                 'description': 'activity = mid-rank of the mean of the three metric mid-ranks, each looked up in these '
+                                'frozen quantile tables; not recomputed per release',
+                 'provenance': provenance,
+                 'metrics': {m: _quantiles(float(r[m]) for r in rows) for m in ACTIVITY_METRICS}}
+    reference['mean_rank'] = _quantiles(_mean_rank(reference, r) for r in rows)
+    return reference
+
+
+def activity_values(rows, reference):
+    """Activity percentile of each row against the frozen reference (independent of the other rows)."""
+    return {r['preset']: _mid_rank(reference['mean_rank'], _mean_rank(reference, r)) for r in rows}
+
+
+def _reference_path(definition, definition_path):
+    return Path(definition_path).parent / definition['activity_reference']['file']
+
+
+def load_activity_reference(definition, definition_path):
+    """Reads the reference the definition names; raises ValueError when its hash differs."""
+    data = _reference_path(definition, definition_path).read_bytes()
+    if _sha(data) != definition['activity_reference']['sha256']:
+        raise ValueError('activity reference differs from the hash in the definition')
+    return json.loads(data)
+
+
+def _measured_rows(ruler_dir):
+    rows = {}; ruler = None
+    for path in sorted(Path(ruler_dir).glob('*.json')):
+        row = json.loads(path.read_text())
+        if row.get('status') != 'measured':
+            continue
+        # warm_cool is None (undefined) when a preset shows no coloured pixels; every other field is required
+        missing = [f for f in RULER_FIELDS.values() if type(row.get(f)) not in (int, float) and not (f == 'warm_cool' and row.get(f) is None and f in row)]
+        if missing:
+            raise ValueError('ruler result %s lacks %s' % (row.get('preset'), missing))
+        rows[row['preset']] = row; ruler = ruler or row.get('ruler')
+    return rows, ruler
+
+
+def freeze_activity_reference(ruler_dir, output, ruler_manifest):
+    """Writes the activity reference once from the measured corpus; returns its sha256."""
+    rows, ruler = _measured_rows(ruler_dir)
+    provenance = {'ruler': ruler, 'preset_count': len(rows),
+                  'ruler_results_manifest_sha256': _sha(Path(ruler_manifest).read_bytes())}
+    data = (json.dumps(make_activity_reference(list(rows.values()), provenance), indent=1, sort_keys=True) + '\n').encode()
+    Path(output).write_bytes(data)
+    return _sha(data)
 
 
 def _index_names(presets_idx):
@@ -72,21 +134,12 @@ def _header(definition, definition_sha):
 def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, ruler_manifest=None):
     definition_path = Path(definition_path or preset_facets.DEFINITION)
     definition_bytes = definition_path.read_bytes(); definition = json.loads(definition_bytes)
+    reference = load_activity_reference(definition, definition_path)
     names = _index_names(presets_idx)
-    rows = {}
-    ruler = None
-    for path in sorted(Path(ruler_dir).glob('*.json')):
-        row = json.loads(path.read_text())
-        if row.get('status') != 'measured':
-            continue
-        # warm_cool is None (undefined) when a preset shows no coloured pixels; every other field is required
-        missing = [f for f in RULER_FIELDS.values() if type(row.get(f)) not in (int, float) and not (f == 'warm_cool' and row.get(f) is None and f in row)]
-        if missing:
-            raise ValueError('ruler result %s lacks %s' % (row.get('preset'), missing))
-        rows[row['preset']] = row; ruler = ruler or row.get('ruler')
+    rows, ruler = _measured_rows(ruler_dir)
     style_header, styles = _read_style(style_tsv)
     measured = [rows[n] for n in names if n in rows]
-    activity = activity_values(measured) if measured else {}
+    activity = activity_values(measured, reference)
     lines = _header(definition, _sha(definition_bytes))
     counts = {o: 0 for o in preset_facets.option_ids(definition)}
     for name in sorted(names):
@@ -124,6 +177,10 @@ def check(bundle_dir, presets_idx, definition_path=None):
         return ['bundle unreadable: %s' % error]
     if shipped != definition_path.read_bytes():
         problems.append('facets.json differs from the definition')
+    try:
+        load_activity_reference(json.loads(definition_path.read_bytes()), definition_path)
+    except (OSError, KeyError, ValueError) as error:
+        problems.append('activity reference unusable: %s' % error)
     if manifest.get('definition_sha256') != _sha(shipped):
         problems.append('manifest definition hash is stale')
     if manifest.get('presets_idx_sha256') != _sha(Path(presets_idx).read_bytes()):
@@ -161,7 +218,14 @@ def main(argv=None):
     parser.add_argument('--presets-idx', type=Path, default=Path('core/src/main/assets/presets.idx'))
     parser.add_argument('--bundle', type=Path, default=Path('core/src/main/assets/preset-attributes'))
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--freeze-activity-reference', type=Path, metavar='OUTPUT',
+                        help='write the frozen activity reference from --ruler and --ruler-manifest (once per definition version)')
     args = parser.parse_args(argv)
+    if args.freeze_activity_reference:
+        if not args.ruler or not args.ruler_manifest:
+            parser.error('--ruler and --ruler-manifest are required to freeze the activity reference')
+        print(freeze_activity_reference(args.ruler, args.freeze_activity_reference, args.ruler_manifest))
+        return
     if args.check:
         problems = check(args.bundle, args.presets_idx)
         for problem in problems:

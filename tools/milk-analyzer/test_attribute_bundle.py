@@ -37,9 +37,49 @@ class BundleTest(unittest.TestCase):
     def test_activity_is_the_percentile_of_the_mean_metric_rank(self):
         rows = [{'preset': n, 'mean_abs_frame_difference': d, 'mean_flow_screen_widths_per_s': f, 'global_brightness_jumps_per_10s': j}
                 for n, d, f, j in (('x', .01, .01, 0), ('y', .05, .1, 1), ('z', .2, .5, 30))]
-        a = B.activity_values(rows)
+        a = B.activity_values(rows, B.make_activity_reference(rows, {'test': 1}))
         self.assertLess(a['x'], a['y']); self.assertLess(a['y'], a['z'])
         self.assertTrue(all(0 <= v <= 1 for v in a.values()))
+
+    def test_activity_scores_against_the_frozen_reference_not_the_current_rows(self):
+        reference_rows = [{'preset': 'r%d' % i, 'mean_abs_frame_difference': i / 100, 'mean_flow_screen_widths_per_s': i / 50,
+                           'global_brightness_jumps_per_10s': i % 7} for i in range(200)]
+        reference = B.make_activity_reference(reference_rows, {'test': 1})
+        self.assertEqual(len(reference['mean_rank']), 1001)
+        self.assertTrue(all(len(reference['metrics'][m]) == 1001 for m in B.ACTIVITY_METRICS))
+        row = {'preset': 'q', 'mean_abs_frame_difference': 1.0, 'mean_flow_screen_widths_per_s': 2.0, 'global_brightness_jumps_per_10s': 3}
+        others = [{'preset': 'h', 'mean_abs_frame_difference': 9, 'mean_flow_screen_widths_per_s': 9, 'global_brightness_jumps_per_10s': 99}]
+        alone = B.activity_values([row], reference)['q']
+        self.assertEqual(alone, B.activity_values([row] + others, reference)['q'])
+        self.assertNotEqual(alone, 0.5)  # a one-row corpus percentile would be 0.5
+        self.assertAlmostEqual(alone, 0.5, delta=0.1)  # the median-ish reference preset
+
+    def test_the_committed_reference_matches_the_definition(self):
+        definition = json.loads(B.preset_facets.DEFINITION.read_text())
+        entry = definition['activity_reference']
+        data = (B.preset_facets.DEFINITION.parent / entry['file']).read_bytes()
+        self.assertEqual(B._sha(data), entry['sha256'])
+        reference = json.loads(data)
+        self.assertEqual(reference['provenance']['preset_count'], 9606)
+        self.assertEqual(reference['provenance']['ruler_results_manifest_sha256'],
+                         'f7ccb0ca37ca86bd3252a72226ba30b547a03f964182884bef145815049db1e3')
+
+    def test_check_fails_when_the_activity_reference_changes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            (t / 'facets').mkdir()
+            definition = json.loads(B.preset_facets.DEFINITION.read_text())
+            source = B.preset_facets.DEFINITION.parent / definition['activity_reference']['file']
+            (t / 'facets' / definition['activity_reference']['file']).write_bytes(source.read_bytes())
+            (t / 'facets' / 'facets-v1.json').write_bytes(B.preset_facets.DEFINITION.read_bytes())
+            B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out', definition_path=t / 'facets' / 'facets-v1.json')
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', definition_path=t / 'facets' / 'facets-v1.json'), [])
+            reference = t / 'facets' / definition['activity_reference']['file']
+            reference.write_text(reference.read_text().replace('"mean_rank"', '"mean_rank" ', 1))
+            problems = B.check(t / 'out', t / 'presets.idx', definition_path=t / 'facets' / 'facets-v1.json')
+            self.assertTrue(any('activity reference' in p for p in problems), problems)
+            with self.assertRaises(ValueError):
+                B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out', definition_path=t / 'facets' / 'facets-v1.json')
 
     def test_check_detects_stale_index_definition_and_tampered_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
