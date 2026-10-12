@@ -2,6 +2,17 @@ import json,tempfile,unittest
 from pathlib import Path
 import ruler_cache as rc
 
+class ResolveTest(unittest.TestCase):
+    def test_relative_inputs_are_absolute_before_the_renderer_changes_cwd(self):
+        import os
+        old=os.getcwd();d=Path(tempfile.mkdtemp()).resolve()
+        try:
+            os.chdir(d)
+            sw,pr,out=rc.resolve_paths('sw','presets/x','out')
+        finally:os.chdir(old)
+        self.assertEqual((sw,pr,out),(d/'sw',d/'presets'/'x',d/'out'))
+        self.assertTrue(all(p.is_absolute() for p in (sw,pr,out)))
+
 class CacheTest(unittest.TestCase):
     base=dict(preset_sha256='p',pcm_sha256='a',binary_sha256='b',swiftshader='s',textures='t',config={'size':[480,270],'frames':300,'window':60,'version':1})
     def ident(self,**kw):return rc.run_identity(**{**self.base,**kw})

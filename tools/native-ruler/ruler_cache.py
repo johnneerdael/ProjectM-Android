@@ -29,3 +29,8 @@ def can_reuse(target,identity):
     try:row=json.loads(Path(target).read_text())
     except (OSError,ValueError):return False
     return isinstance(row,dict) and row.get('identity')==identity
+
+
+def resolve_paths(swiftshader,presets,output):
+    """Absolute renderer inputs: the renderer subprocess runs with cwd set to a temporary directory."""
+    return Path(swiftshader).resolve(),Path(presets).resolve(),Path(output).resolve()

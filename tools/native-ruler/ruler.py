@@ -91,7 +91,7 @@ if __name__=='__main__':
     ap.add_argument('--workers',type=int,default=6)
     ap.add_argument('--preset',action='append',default=[],help='limit to this preset file name (repeatable)')
     args=ap.parse_args()
-    PCM=args.pcm.resolve();SWIFTSHADER=args.swiftshader;out=args.output;presets=args.presets;workers=args.workers
+    PCM=args.pcm.resolve();SWIFTSHADER,presets,out=ruler_cache.resolve_paths(args.swiftshader,args.presets,args.output);workers=args.workers
     IDENT.update(pcm=ruler_cache.file_sha256(PCM),binary=ruler_cache.file_sha256(RULER),swiftshader=ruler_cache.tree_identity(SWIFTSHADER),textures=ruler_cache.tree_identity(TEXTURES))
     for sub in ('results','thumbs','tmp'):(out/sub).mkdir(parents=True,exist_ok=True)
     names=sorted(p for p in presets.iterdir() if p.suffix=='.milk' and (not args.preset or p.name in args.preset))

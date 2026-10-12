@@ -87,6 +87,26 @@ def _measured_rows(ruler_dir):
     return rows, ruler
 
 
+def verify_against_manifest(ruler_dir, ruler_manifest):
+    """Every measured result file must be a row of the evidence manifest (same preset, result and preset hashes)."""
+    manifest = json.loads(Path(ruler_manifest).read_text())
+    entries = {r['preset']: r for r in manifest.get('rows', [])}
+    problems = []
+    for path in sorted(Path(ruler_dir).glob('*.json')):
+        raw = path.read_bytes(); row = json.loads(raw)
+        if row.get('status') != 'measured':
+            continue
+        entry = entries.get(row.get('preset'))
+        if entry is None:
+            problems.append('%s: not in the evidence manifest' % row.get('preset'))
+        elif entry.get('result_sha256') != _sha(raw):
+            problems.append('%s: result differs from the manifest result_sha256' % row['preset'])
+        elif entry.get('preset_sha256') != row.get('preset_sha256'):
+            problems.append('%s: preset_sha256 differs from the manifest' % row['preset'])
+    if problems:
+        raise ValueError('ruler results do not match the evidence manifest (%d): %s' % (len(problems), '; '.join(problems[:5])))
+
+
 def freeze_activity_reference(ruler_dir, output, ruler_manifest):
     """Writes the activity reference once from the measured corpus; returns its sha256."""
     rows, ruler = _measured_rows(ruler_dir)
@@ -132,6 +152,9 @@ def _header(definition, definition_sha):
 
 
 def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, ruler_manifest=None):
+    if ruler_manifest is None:
+        raise ValueError('a ruler results manifest (evidence) is required to build')
+    verify_against_manifest(ruler_dir, ruler_manifest)
     definition_path = Path(definition_path or preset_facets.DEFINITION)
     definition_bytes = definition_path.read_bytes(); definition = json.loads(definition_bytes)
     reference = load_activity_reference(definition, definition_path)
@@ -160,7 +183,7 @@ def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, r
                 'presets_idx_sha256': _sha(Path(presets_idx).read_bytes()), 'attributes_sha256': _sha(attributes),
                 'preset_count': len(names), 'measured_count': len(measured), 'ruler': ruler,
                 'style_facts': {'header': style_header, 'sha256': _sha(Path(style_tsv).read_bytes())},
-                'ruler_results_manifest_sha256': _sha(Path(ruler_manifest).read_bytes()) if ruler_manifest else None,
+                'ruler_results_manifest_sha256': _sha(Path(ruler_manifest).read_bytes()),
                 'option_counts': counts}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=1, sort_keys=True) + '\n')
     return manifest
@@ -245,8 +268,8 @@ def main(argv=None):
         for problem in problems:
             print(problem)
         raise SystemExit(1 if problems else 0)
-    if not args.ruler or not args.style:
-        parser.error('--ruler and --style are required to build')
+    if not args.ruler or not args.style or not args.ruler_manifest:
+        parser.error('--ruler, --style and --ruler-manifest are required to build')
     print(json.dumps({k: v for k, v in build(args.ruler, args.style, args.presets_idx, args.bundle, ruler_manifest=args.ruler_manifest).items() if k != 'option_counts'}))
 
 

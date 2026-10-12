@@ -1,4 +1,4 @@
-import json, tempfile, unittest
+import hashlib, json, tempfile, unittest
 from pathlib import Path
 
 import attribute_bundle as B
@@ -6,9 +6,19 @@ import attribute_bundle as B
 RULER = {'engine': 'test', 'size': [480, 270], 'frames': 300, 'audio': 'test'}
 
 
+def write_manifest(tmp, skip=()):
+    """An evidence manifest matching the result files in tmp/ruler (rows for names in skip are left out)."""
+    rows = []
+    for path in sorted((tmp / 'ruler').glob('*.json')):
+        row = json.loads(path.read_text())
+        if row['preset'] not in skip:
+            rows.append({'preset': row['preset'], 'preset_sha256': row['preset_sha256'],
+                         'result_sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'status': row['status']})
+    (tmp / 'ruler-manifest.json').write_text(json.dumps({'policy': 'test', 'rows': rows}, indent=1) + '\n')
+
+
 def make_inputs(tmp):
     tmp = Path(tmp)
-    (tmp / 'ruler-manifest.json').write_text('{"evidence": 1}\n')
     (tmp / 'ruler').mkdir()
     stats = {'a.milk': (.05, .1, .05, .0, .01, .005, 0.), 'b.milk': (.3, .6, .8, .3, .2, .05, 3.), 'c.milk': (.5, .2, .4, -.3, .5, .2, 30.)}
     for name, (lum, sat, col, wc, flow, diff, jumps) in stats.items():
@@ -16,6 +26,7 @@ def make_inputs(tmp):
             'status': 'measured', 'preset': name, 'preset_sha256': name * 2, 'ruler': RULER, 'mean_luminance': lum, 'mean_saturation': sat,
             'coloured_share': col, 'warm_cool': wc, 'mean_flow_screen_widths_per_s': flow, 'mean_abs_frame_difference': diff,
             'global_brightness_jumps_per_10s': jumps}))
+    write_manifest(tmp)
     (tmp / 'style.tsv').write_text('#projectm-tv-facet-style-facts\t1\tabc\na.milk\tx\ttunnel\nb.milk\tx\t\nc.milk\tx\tkaleidoscope,fractal\n')
     (tmp / 'presets.idx').write_text('a.milk\t0\nb.milk\t2\nc.milk\t0\nd.milk\t0\n')
     return tmp
@@ -40,7 +51,7 @@ class BundleTest(unittest.TestCase):
             t = make_inputs(tmp)
             B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out', ruler_manifest=t / 'ruler-manifest.json')
             self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json'), [])
-            (t / 'ruler-manifest.json').write_text('{"evidence": 2}\n')
+            (t / 'ruler-manifest.json').write_text('{"evidence": 2, "rows": []}\n')
             self.assertTrue(any('ruler' in p for p in B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')))
             self.assertTrue(any('ruler' in p for p in B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'missing.json')))
             self.assertTrue(any('ruler' in p for p in B.check(t / 'out', t / 'presets.idx')))
@@ -48,8 +59,44 @@ class BundleTest(unittest.TestCase):
     def test_check_fails_when_the_bundle_records_no_ruler_manifest(self):
         with tempfile.TemporaryDirectory() as tmp:
             t = make_inputs(tmp)
-            B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out')
+            self.build(t)
+            manifest = json.loads((t / 'out' / 'manifest.json').read_text()); manifest['ruler_results_manifest_sha256'] = None
+            (t / 'out' / 'manifest.json').write_text(json.dumps(manifest))
             self.assertTrue(any('ruler' in p for p in B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')))
+
+    def build(self, t):
+        return B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out', ruler_manifest=t / 'ruler-manifest.json')
+
+    def test_build_rejects_a_result_altered_after_the_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            path = t / 'ruler' / 'b.milk.json'
+            path.write_text(path.read_text().replace('"mean_luminance": 0.3', '"mean_luminance": 0.31'))
+            with self.assertRaisesRegex(ValueError, 'b.milk'):
+                self.build(t)
+
+    def test_build_rejects_a_result_missing_from_the_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            write_manifest(t, skip=('c.milk',))
+            with self.assertRaisesRegex(ValueError, 'c.milk'):
+                self.build(t)
+
+    def test_build_rejects_a_preset_hash_that_differs_from_the_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            manifest = json.loads((t / 'ruler-manifest.json').read_text())
+            manifest['rows'][0]['preset_sha256'] = 'f' * 64
+            (t / 'ruler-manifest.json').write_text(json.dumps(manifest))
+            with self.assertRaises(ValueError):
+                self.build(t)
+
+    def test_build_requires_a_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            with self.assertRaises(ValueError):
+                B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out')
+            self.assertFalse((t / 'out').exists())
 
     def test_activity_is_the_percentile_of_the_mean_metric_rank(self):
         rows = [{'preset': n, 'mean_abs_frame_difference': d, 'mean_flow_screen_widths_per_s': f, 'global_brightness_jumps_per_10s': j}
