@@ -14,7 +14,7 @@ Each successfully tested merge to `main` publishes versioned TV and touchscreen 
 - Preserve upstream attribution when describing backported fixes.
 - Do not bump versions in routine PRs. The base version/code/commit in `app/build.gradle` define the automatic release sequence. Change them together only for a planned new release line; follow `docs/RELEASING.md`.
 
-For release tooling changes, run `python3 -m unittest discover -s .github/scripts/tests -v`. Review factual accuracy of the PR release notes: CI validates their presence and placeholders, not the truth of English prose.
+For release tooling changes, run `python3 -m unittest discover -s .github/scripts/tests -v`. CI runs these checks in a virtual environment with `tools/fdroid/requirements.txt` installed. Reviewed PR builds reuse workflow definitions from trusted `main`; introduce new test dependencies there before PR sources require them. Review factual accuracy of the PR release notes: CI validates their presence and placeholders, not the truth of English prose.
 
 ## Maintaining this file
 

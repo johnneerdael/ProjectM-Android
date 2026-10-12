@@ -91,6 +91,13 @@ The main Android pipeline and manually dispatched **User guide** workflow both c
 
 The read-only `docs-build.yml` reusable workflow supplies the Pages artifact for main, manual and reviewed-PR builds. PR validation never calls the deployer or receives Pages/ID-token write permissions. Run **User guide** manually on `main` to build and publish the guide without publishing another APK/AAR. A manual run on another branch skips the build and deployment.
 
+The release-tooling job installs `tools/fdroid/requirements.txt` (fdroidserver
+2.4.5) in a temporary Python virtual environment before running its tests.
+Reviewed PR validation uses trusted workflow definitions from `main`, even
+when its source checkout is a PR merge commit. Land prerequisite test-tooling
+setup before a follow-up PR depends on it; changing a workflow in that follow-up
+cannot change the trusted workflow used to validate itself.
+
 ## Writing PR release notes
 
 Use `.github/pull_request_template.md` and `AGENTS.md`. Include a substantive `## Release notes` section describing concrete changes, their effects and material limits for app users. Keep it aligned with the final diff. Put tests and implementation process in `## Validation`, outside public notes.
