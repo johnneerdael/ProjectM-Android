@@ -63,6 +63,8 @@ jobs:
           "$RUNNER_TEMP/fdroid-venv/bin/fdroid" lint -f nl.neerdael.projectmtv nl.neerdael.projectm
       - name: Test diagnostics options
         run: python3 -m unittest discover -s tools -p test_tv_diagnostics.py -v
+      - name: Test mood facets (definition, selection vectors, attribute bundle)
+        run: python3 -m unittest discover -s tools/milk-analyzer -p 'test_*facet*.py' -v
       - uses: actions/setup-java@v5
         with:
           distribution: temurin

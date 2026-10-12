@@ -1,0 +1,48 @@
+{
+  "schema": "projectm-tv-mood-facets",
+  "version": 1,
+  "combination": "OR within a group, AND across groups; no selection in a group means any",
+  "measurement": "engine ruler: pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, statistics over frames 60-299",
+  "activity": "percentile of the mean percentile rank of mean_abs_frame_difference, mean_flow_screen_widths_per_s and global_brightness_jumps_per_10s within the measured bundled corpus",
+  "groups": [
+    {"id": "energy", "label": "Energy", "options": [
+      {"id": "chill", "label": "Chill", "all": [{"metric": "activity", "op": "<=", "value": 0.35}]},
+      {"id": "normal", "label": "Normal", "all": [{"metric": "activity", "op": ">=", "value": 0.25}, {"metric": "activity", "op": "<=", "value": 0.75}]},
+      {"id": "intense", "label": "Intense", "all": [{"metric": "activity", "op": ">=", "value": 0.70}]}]},
+    {"id": "brightness", "label": "Brightness", "options": [
+      {"id": "dark", "label": "Dark", "all": [{"metric": "luminance", "op": "<", "value": 0.12}]},
+      {"id": "balanced", "label": "Balanced", "all": [{"metric": "luminance", "op": ">=", "value": 0.12}, {"metric": "luminance", "op": "<=", "value": 0.40}]},
+      {"id": "bright", "label": "Bright", "all": [{"metric": "luminance", "op": ">", "value": 0.40}]}]},
+    {"id": "colour", "label": "Colour", "options": [
+      {"id": "monochrome", "label": "Monochrome", "all": [{"metric": "coloured_share", "op": "<", "value": 0.10}]},
+      {"id": "pastel", "label": "Pastel", "all": [{"metric": "luminance", "op": ">", "value": 0.35}, {"metric": "saturation", "op": "<", "value": 0.30}, {"not_option": "monochrome"}]},
+      {"id": "vivid", "label": "Vivid", "all": [{"metric": "saturation", "op": ">=", "value": 0.50}]},
+      {"id": "warm", "label": "Warm", "all": [{"metric": "warm_cool", "op": ">=", "value": 0.25}]},
+      {"id": "cool", "label": "Cool", "all": [{"metric": "warm_cool", "op": "<=", "value": -0.25}]}]},
+    {"id": "movement", "label": "Movement", "options": [
+      {"id": "still", "label": "Still", "all": [{"metric": "flow", "op": "<", "value": 0.05}]},
+      {"id": "drifting", "label": "Drifting", "all": [{"metric": "flow", "op": ">=", "value": 0.05}, {"metric": "flow", "op": "<=", "value": 0.25}]},
+      {"id": "fast", "label": "Fast", "all": [{"metric": "flow", "op": ">", "value": 0.25}]}]},
+    {"id": "style", "label": "Style", "options": [
+      {"id": "kaleidoscope", "label": "Kaleidoscope", "all": [{"style": "kaleidoscope"}]},
+      {"id": "tunnel", "label": "Tunnel", "all": [{"style": "tunnel"}]},
+      {"id": "liquid", "label": "Liquid", "all": [{"style": "liquid"}]},
+      {"id": "geometric", "label": "Geometric", "all": [{"style": "geometric"}]},
+      {"id": "particles", "label": "Particles", "all": [{"style": "particles"}]},
+      {"id": "fractal", "label": "Fractal", "all": [{"style": "fractal"}]}]},
+    {"id": "comfort", "label": "Comfort", "options": [
+      {"id": "no_strobe", "label": "No strobe", "all": [{"metric": "jumps", "op": "<", "value": 1.0}]}]}
+  ],
+  "style_rules": {
+    "kaleidoscope": "mechanism angular_mirror_fold or cartesian_mirror_fold, or structure.symmetry >= 0.55",
+    "tunnel": "mechanism polar_radial_sampling or radial_feedback_transform, or a radial zoom profile contracting/expanding about the centre",
+    "liquid": "mechanism image_driven_advection or gradient_driven_advection, or structure.organic >= 0.6",
+    "geometric": "structure.geometric >= 0.6 (polygon/instanced shapes)",
+    "particles": "mechanism point_cloud_primitive or procedural_point_motion",
+    "fractal": "mechanism nonlinear_feedback_map or complex_quadratic_recurrence, or structure.fractal >= 0.6"
+  },
+  "provenance": {
+    "energy": "engine-ruler-measured", "brightness": "engine-ruler-measured", "colour": "engine-ruler-measured",
+    "movement": "engine-ruler-measured", "comfort": "engine-ruler-measured", "style": "source-structure-facts"
+  }
+}
