@@ -269,13 +269,14 @@ MESH_GRID=(48,32)  # production per-pixel mesh (native-lib meshWidth/meshHeight 
 def _mesh_interpolator(grid,width,height,shader_topology):
     """Pixel-centre interpolation of per-vertex values over projectM's warp mesh triangles.
 
-    Vertices sit at NDC (gx/GX*2-1, gy/GY*2-1), gy upward. Each quad is split along the
-    anti-diagonal (indices 0,1,stride / 1,stride,stride+1) when the preset has a warp shader,
-    otherwise along the legacy diagonal (0,1,stride+1 / 0,stride,stride+1).
+    Vertex (gx, gy) has pos = (gx/GX*2-1, gy/GY*2-1); on screen pos.y grows downward (native-ruler
+    probes), so mesh row 0 is the top edge. Each quad is split along indices 0,1,stride /
+    1,stride,stride+1 when the preset has a warp shader, otherwise along the legacy diagonal
+    0,1,stride+1 / 0,stride,stride+1.
     """
     gx,gy=grid
     columns,rows=np.meshgrid(np.arange(width)+.5,np.arange(height)+.5)
-    X=columns/width*gx;Y=(1-rows/height)*gy
+    X=columns/width*gx;Y=rows/height*gy
     i=np.clip(np.floor(X).astype(int),0,gx-1);j=np.clip(np.floor(Y).astype(int),0,gy-1)
     s=(X-i).astype(np.float32);t=(Y-j).astype(np.float32)
     def interpolate(values):
@@ -301,15 +302,14 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
     long=max(width,height)
     if grid:
         gx,gy=int(grid[0]),int(grid[1])
-        columns,rows=np.meshgrid(np.arange(gx+1)/gx*width,(1-np.arange(gy+1)/gy)*height)
+        columns,rows=np.meshgrid(np.arange(gx+1)/gx*width,np.arange(gy+1)/gy*height)
         interpolate=_mesh_interpolator((gx,gy),width,height,shader_topology)
     else:
         columns,rows=np.meshgrid(np.arange(width)+.5,np.arange(height)+.5);interpolate=None
-    # Engine frame (PresetWarpVertexShader): per-pixel x/y and u/v in long-side units with y UP
-    # (y=1 above the centre); cx/cy, dy, rotation and ang all live in this frame. Verified on the
-    # native ruler with isolated rot/cx/cy/sy/dx/dy and per-pixel x/y/ang probes: rotation is
-    # counter-clockwise in y-up (clockwise on screen) about (cx, 1-cy from the top), dy>0 samples below.
-    x=.5+(columns-width/2)/long;y=.5-(rows-height/2)/long
+    # Engine frame: per-pixel x/y and u/v in long-side units with y DOWN on screen (MilkDrop's y=0 at
+    # the top); rotation, cx/cy, dx/dy and the per-pixel inputs follow PresetWarpVertexShader in this
+    # frame (verified on the native ruler with isolated motion probes, single-step correlation 1.000).
+    x=.5+(columns-width/2)/long;y=.5+(rows-height/2)/long
     rad=2*np.hypot(x-.5,y-.5)
     def sample(time):
         values={name:_terms_field(controls[name]['terms'] or [],x,y,time) for name in names}
@@ -320,14 +320,15 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
         stretch=lambda value:np.where(np.abs(value)<1e-3,np.where(value<0,-1e-3,1e-3),value)
         u=values['cx']+(u-values['cx'])/stretch(values['sx']);v=values['cy']+(v-values['cy'])/stretch(values['sy'])
         if warp_params is not None and np.any(values['warp']!=0):
-            # Procedural warp; pos is the vertex NDC (y up).
             speed=float(warp_params.get('warp_anim_speed') or 1.);scale=float(warp_params.get('warp_scale') or 1.)
             wt=time*speed;wsi=1./scale if scale else 1.
             f0=11.68+4.0*np.cos(wt*1.413+10);f1=8.77+3.0*np.cos(wt*1.113+7)
             f2=10.54+3.0*np.cos(wt*1.233+3);f3=11.49+4.0*np.cos(wt*0.933+5)
+            # Procedural warp on the vertex pos (pos.y grows downward on screen, like v). The built-in
+            # warp (no warp shader) compiles PROJECTM_LEGACY_WARP, where pos.y enters with the opposite
+            # sign; probes: 0.9987 with the matching formula, 0.46 with the other.
             px=(x-.5)*2*long/width;py=(y-.5)*2*long/height
             w=values['warp']*.0035
-            # The built-in warp (no warp shader) compiles PROJECTM_LEGACY_WARP: py enters with the opposite sign.
             qy=py if shader_topology else -py
             du=w*np.sin(wt*.333+wsi*(px*f0-qy*f3))+w*np.cos(wt*.753-wsi*(px*f1-qy*f2))
             dv=w*np.cos(wt*.375-wsi*(px*f2+qy*f1))+w*np.sin(wt*.825+wsi*(px*f0+qy*f3))
@@ -337,8 +338,7 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
         u=du*cos-dv*sin+values['cx'];v=du*sin+dv*cos+values['cy']
         u=u-values['dx'];v=v-values['dy']
         if interpolate is not None:u=interpolate(u);v=interpolate(v)
-        # Back to top-down image rows: row = height/2 - (v-.5)*long.
-        return ((u-.5)*long+width/2-.5).astype(np.float32),(height/2-(v-.5)*long-.5).astype(np.float32)
+        return ((u-.5)*long+width/2-.5).astype(np.float32),((v-.5)*long+height/2-.5).astype(np.float32)
     return sample
 
 
@@ -392,7 +392,8 @@ def _builtin_wave_paths(facts,aspect):
                 points=[]
                 for t in np.linspace(-1.5,1.5,240):
                     ndc=(direction[0]*t+normal[0]*sign*offset,direction[1]*t+normal[1]*sign*offset)
-                    points.append((.5+.5*ndc[0]*aspect[0],.5-.5*ndc[1]*aspect[1]))
+                    # Built-in wave NDC y points up on screen (native-ruler probe: wave_y .8 renders near the top).
+                    points.append((.5+.5*ndc[0]*aspect[0],.5+.5*ndc[1]*aspect[1]))
                 paths.append((path,points))
         else:limitations.append(path+': built-in waveform form '+str(form)+' is not illustrated')
     return paths,limitations
@@ -798,11 +799,28 @@ def _fit_inputs(expression,inputs):
     for node in expression.get('nodes',[]):
         if node.get('op')!='input':continue
         name=node.get('detail',{}).get('name');dtype=node.get('dtype','')
+        if isinstance(name,str) and name.startswith('texsize_') and name not in fitted:
+            main=np.asarray(inputs.get('texsize_main',[480,270,1/480,1/270]),np.float32)
+            fitted[name]=_texsize(name[8:],int(main[0]),int(main[1]))
         value=fitted.get(name)
         if isinstance(value,np.ndarray) and dtype[-1:].isdigit() and dtype.startswith('float'):
             width=int(dtype[-1])
             if value.shape[-1]>width:fitted[name]=value[...,:width]
     return fitted
+
+
+NOISE_SIZES={'noise_lq':(256,1),'noise_lq_lite':(32,1),'noise_mq':(256,4),'noise_hq':(256,8)}  # (size, zoom) MilkdropNoise
+
+
+def _texsize(name,width,height):
+    """texsize_<name> uniform (w, h, 1/w, 1/h): engine noise sizes, blur pass sizes, 256 for other stand-ins."""
+    if name in NOISE_SIZES:w=h=NOISE_SIZES[name][0]
+    elif name in ('blur1','blur2','blur3'):
+        from blur import pass_dimensions
+        w,h=pass_dimensions(width,height)[2*int(name[4])-1]
+    elif name=='main':w,h=width,height
+    else:w=h=256
+    return np.array([w,h,1/w,1/h],np.float32)
 
 
 def _rad_ang(width,height):
@@ -834,12 +852,13 @@ def _blur_bank(image,controls=None):
     controls=controls or {}
     low=[float(controls.get(f'blur{i}_min',0.)) for i in (1,2,3)];high=[float(controls.get(f'blur{i}_max',1.)) for i in (1,2,3)]
     lo,hi=native_ranges(low,high,policy=CORE_2315_BLUR)
-    # blur_bank reads its source in GL row order (bottom first) and, like the engine's flipVertical first
-    # pass, returns texture rows top-down. Native-ruler probe: a seeded patch blurred by GetBlur1 matches
-    # to 1e-4 mean absolute error (the first pass's one-texel offset makes the orientation observable).
-    bank=blur_bank(np.ascontiguousarray(np.flipud(np.clip(np.nan_to_num(image),0,1))).astype(np.float32),levels=3,minimum=low,maximum=high,
+    # blur_bank emulates the engine's flipVertical first pass, so its rows come out in the opposite
+    # vertical order to its top-down source; one flip restores screen rows. Native-ruler probe: a seeded
+    # patch blurred by GetBlur1 matches to 6e-5 mean absolute error (the first pass's one-texel offset
+    # makes the orientation observable).
+    bank=blur_bank(np.clip(np.nan_to_num(image),0,1).astype(np.float32),levels=3,minimum=low,maximum=high,
                    edge_darken=float(controls.get('blur1_edge_darken',.25)),policy=CORE_2315_BLUR)
-    textures={level:np.ascontiguousarray(value) for level,value in bank.items()}
+    textures={level:np.ascontiguousarray(np.flipud(value)) for level,value in bank.items()}
     uniforms={'_c5':np.array([hi[0]-lo[0],lo[0],hi[1]-lo[1],lo[1]],np.float32),'_c6':np.array([hi[2]-lo[2],lo[2],lo[0],hi[0]],np.float32)}
     return textures,uniforms
 
@@ -862,11 +881,13 @@ _NOISE={}
 
 
 def _noise_texture(name):
-    """Deterministic stand-in for projectM noise textures (lq/mq/hq: coarse to fine), values in [0,1]."""
+    """Deterministic stand-in for projectM noise textures at the engine sizes (lq finest, hq smoothest), values in [0,1]."""
     if name not in _NOISE:
-        cells={'noise_lq':32,'noise_lq_lite':32,'noise_mq':64,'noise_hq':256}.get(name,64)
-        rng=np.random.default_rng(abs(hash(name))%(2**32))
-        _NOISE[name]=cv2.resize(rng.random((cells,cells,3)).astype(np.float32),(256,256),interpolation=cv2.INTER_CUBIC).clip(0,1)
+        # MilkdropNoise: random texels every `zoom` texels, cubic in between (lq: every texel; hq: every 8th).
+        size,zoom=NOISE_SIZES.get(name,(256,4))
+        rng=np.random.default_rng(sum(map(ord,name)))
+        cells=rng.random((size//zoom,size//zoom,3)).astype(np.float32)
+        _NOISE[name]=cells if zoom==1 else cv2.resize(cells,(size,size),interpolation=cv2.INTER_CUBIC).clip(0,1)
     return _NOISE[name]
 
 
@@ -913,6 +934,11 @@ def _declared_uniforms(width,height,time,fps,bands):
     values.update({k:np.float32(bands[k]) for k in BANDS})
     values[':native-render-time-f32']=np.float32(time)
     return values
+
+
+def _frame_rand(time,fps):
+    """Seeded per-frame stand-in for the engine's rand_frame (a new uniform vector every frame)."""
+    return np.random.default_rng(7340033+int(round(time*fps))).random(4).astype(np.float32)
 
 
 def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,controls=None,blur_image=None):
@@ -1034,7 +1060,7 @@ def _affine_composite(image,facts,time,fps,blur_image=None):
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
     blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,_TERM_CONTEXT.get('bands'))
     inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**blur_uniforms,
-            ':native-render-time-f32':np.float32(time),'rand_frame':np.full(4,.5,np.float32)}
+            ':native-render-time-f32':np.float32(time),'rand_frame':_frame_rand(time,fps)}
     def texture(name):
         if name=='main':return image
         if not name.startswith('blur'):raise ValueError('composite texture not illustrated: '+name)
@@ -1068,7 +1094,8 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
             height,width=image.shape[:2]
             columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
             uv=np.stack([columns,rows,columns,rows],axis=-1)
-            shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'),controls=_TERM_CONTEXT.get('bands'),
+            shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'),rand=_frame_rand(time,fps),
+                                  controls=_TERM_CONTEXT.get('bands'),
                                  blur_image=blur_image)
             limitations.append('composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
             return np.clip(shown,0,1)
@@ -1172,10 +1199,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     wrap=True
     if textured:limitations.append('textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)')
     if sprites:limitations.append('borders and darken-centre blended into the feedback canvas every frame')
-    if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)')
+    if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (declared per-frame audio when given, else midpoints; wave per-frame state stepped from its exported recurrence; long-side square projection)')
     for path,(colour,note) in colours.items():limitations.append(path+': '+note)
     wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths+dynamic_waves}
     warp_samples_blur='"canonical_texture": "blur' in json.dumps(warp_program) if warp_program is not None else False
+    wave_states={}
     previous=image
     try:
         # history_steps rendered frames ending at the declared time (native frame k renders at (k+1)/fps).
@@ -1207,7 +1235,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     try:
                         uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,*np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)],axis=-1)
                         warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},diffuse,
-                                                controls=held,blur_image=older if warp_samples_blur else previous)
+                                                rand=_frame_rand(frame_time,fps),controls=held,blur_image=older if warp_samples_blur else previous)
                         image=np.clip(warped,0,1)
                         image=np.round(image*255)/255
                         canvas['alpha']=np.ones_like(canvas['alpha'])
@@ -1248,13 +1276,14 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                                                        {k:held[k] for k in BANDS if k in held},(width,height))
                 except ValueError:continue
                 colour=_wave_colour_at(facts,path,frame_time) or _wave_colour(facts,path)[0]
-                # Thick: LineRenderer draws four 1 px passes offset by one pixel (as is, +x, +x+y, +y), each
-                # blended on its own, so pixels two passes cover receive the blend twice.
-                for ox,oy in ([(0,0),(16,0),(16,16),(0,16)] if recipe.get('thick') else [(0,0)]):
+                # Thick: LineRenderer draws four 1 px passes offset by one pixel (as is, +x, +x+y, +y in NDC,
+                # y up on screen), each blended on its own, so pixels two passes cover receive the blend twice.
+                for ox,oy in ([(0,0),(16,0),(16,-16),(0,-16)] if recipe.get('thick') else [(0,0)]):
                     layer=np.zeros_like(image)
                     for points in polylines:
-                        # Same pipeline as custom waves: column=(1+x)/2*W, row=(1+y)/2*H.
-                        px=(points[:,0]+1)/2*width;py=(points[:,1]+1)/2*height
+                        # Built-in wave NDC: column=(1+x)/2*W, row=(1-y)/2*H (y up on screen; native-ruler
+                        # probe at wave_y .8 matches to the pixel).
+                        px=(points[:,0]+1)/2*width;py=(1-points[:,1])/2*height
                         pixel=np.round(np.stack([px,py],-1)*16).astype(np.int32)
                         if recipe.get('dots'):
                             for x,y in ((pixel+[ox,oy])//16):
@@ -1272,7 +1301,24 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     held['instance']=float(instance)
                     image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous,canvas,rng)
             held.pop('instance',None)
-            for _,record in clouds:image=_draw_points(image,record,frame_time,to_pixels,canvas,bands)
+            for index,(_,record) in enumerate(clouds):
+                inputs=dict(bands or {})
+                recurrence=record.get('frame_recurrence')
+                if recurrence:
+                    from source_point_colour import initial_state,step_state,state_inputs
+                    frame_index=max(0,int(round(frame_time*fps))-1);entry=wave_states.setdefault(index,{})
+                    if 'state' not in entry:
+                        entry['state']=initial_state(recurrence,{**record.get('held_inputs',{}),**inputs});entry['frame']=0
+                        if frame_index>0:limitations.append('custom-wave state pre-rolled with the first declared frame inputs')
+                    while entry['frame']<frame_index:
+                        entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**inputs},(entry['frame']+1)/fps,entry['frame'])
+                        entry['frame']+=1
+                    inputs.update(state_inputs(recurrence,entry['state']))
+                image=_draw_points(image,record,frame_time,to_pixels,canvas,inputs)
+                if recurrence:
+                    # End of frame: this frame's per-frame update gives the next frame's start state.
+                    entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**(bands or {})},frame_time,entry['frame'])
+                    entry['frame']+=1
             for alpha,colour in sprites:
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)

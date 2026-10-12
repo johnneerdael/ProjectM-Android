@@ -1,0 +1,86 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r7-v6",
+ "preset": "suksma - Aderrasi - The Waving Shaker - unbelievable talk - i'd k him now if.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v6.json": "9195d41ae3efda5cc087618f762e57235ba78eab34d2c230f5f36235ef9cecdb",
+  "description-v6-before-capture.json": "8696409cc3b876344c5017923cae49ed3f7bc0f736b3c23fd41828db4b4d17d5",
+  "recipe-v6-before-capture.json": "f529bdd01b1e240739303fd6d866ab99477e5b4509a58e7672a39e1c4ac73f90",
+  "prediction-v6.png": "f112f9c765b2afcd85e1f5f7bcc990ccf7959f230e0cc9b41a74433e787760e5"
+ },
+ "capture_result_sha256": "3a8398950242efe2b27752f1ad3ecbd5126b41a5be0f29a4b18360916d3cca99",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.342,
+  "screenshot_luma": 0.314,
+  "p10_p50_p90_prediction": [
+   0.145,
+   0.314,
+   0.584
+  ],
+  "p10_p50_p90_screenshot": [
+   0.125,
+   0.286,
+   0.545
+  ],
+  "saturation": [
+   0.0,
+   0.0
+  ],
+  "row_thirds_prediction": [
+   0.37,
+   0.341,
+   0.315
+  ],
+  "row_thirds_screenshot": [
+   0.326,
+   0.309,
+   0.307
+  ],
+  "blurred_luma_correlation": 0.376,
+  "feedback_canvas_vs_native_ruler_passthrough_true_orientation": {
+   "canvas_luma_frames_5_40_149": [
+    [
+     0.0296,
+     0.0298
+    ],
+    [
+     0.0799,
+     0.0807
+    ],
+    [
+     0.0832,
+     0.0859
+    ]
+   ],
+   "blurred_correlation_frames_5_40_149": [
+    0.788,
+    0.473,
+    0.35
+   ]
+  }
+ },
+ "agreements": [
+  "Grayscale; vertical bright streaks, swirl background and horizontal waveform traces at the engine's rows",
+  "Brightness and contrast distribution (luma 0.342 vs 0.314, percentiles within 0.04)",
+  "Feedback canvas brightness follows the native ruler frame by frame; S-curve sweep and strand layout match"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "Individual strand positions drift from the engine (blurred correlation 0.35-0.79)",
+   "cause": "chaotic feedback (warp gain above 1 in dark areas, pow(bass,treb) frames up to ~200) amplifies small differences such as the omitted waveform aligner",
+   "next": "model projectM's waveform aligner"
+  }
+ ],
+ "general_fixes": [
+  "procedural warp: y-down vertex pos with v+=dv, and the PROJECTM_LEGACY_WARP formula for presets without a warp shader (0.9987 on both probes; previously 0.53/0.41)",
+  "motion evaluated at the 48x32 mesh vertices (row 0 at the top) over the engine triangulation",
+  "engine blur bank orientation flipud(blur_bank(image)) verified to 6e-5",
+  "built-in waves drawn at row (1-y)/2*H (wave_y probe matches to the pixel)",
+  "per-frame rand_frame stand-in for warp and composite programs"
+ ],
+ "status": "understood: structure, brightness, contrast and colour match; remaining differences are strand placement in chaotic feedback",
+ "uses_rendered_images_for_classification": false
+}

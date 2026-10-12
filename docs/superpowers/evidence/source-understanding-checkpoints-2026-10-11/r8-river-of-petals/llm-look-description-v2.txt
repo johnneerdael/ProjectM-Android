@@ -1,0 +1,10 @@
+LLM look description from the SDK recipe (before capture, r8 v2):
+A reaction-diffusion feedback field. The green channel sharpens itself every frame
+(g + 0.1*(g - blur1(g)) - 0.015), so thin seeds grow into dense, worm-like Turing strands that
+fill the screen within a few seconds. The red channel is pushed along blur-gradient flow with a
+moving per-pixel dither, which turns into soft red glows. Blue decays and stays faint. The seeds
+are a 3D star field of orange points (custom dot waves whose depth advances with bass_att² and
+wraps every 2 units), drawn in perspective as a petal-like cloud, plus thin blue line waves.
+The composite takes the max of the picture and its left-right mirror and adds blur glows, giving
+a left-right symmetric, bright, saturated green/yellow/red pattern (illustrated mean RGB about
+0.65/0.68/0.12). Motion: strands churn and drift continuously rather than flashing.

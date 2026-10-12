@@ -37,8 +37,54 @@ def _native(value):
     return min(1.,max(0.,math.fmod(math.fmod(value,PERIOD)+PERIOD,PERIOD)))
 
 
-def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,positions=None):
-    """Return the distribution record for serialised per-point r,g,b,a graphs."""
+FPS=30.
+
+
+def _complete(expression,values,base):
+    # 'init:<section>:<name>' reads the init-time value of <name>; any other absent input is 0.
+    missing=(input_names(expression) or set())-set(values)
+    return {**values,**{name:float(base.get(str(name).rsplit(':',1)[-1],0.)) for name in missing}}
+
+
+def initial_state(recurrence,inputs):
+    """Wave state after its init code, from init-time inputs (bands, time 0)."""
+    base={**inputs,'time':0.,'frame':0.}
+    return {name:evaluate_inputs(entry['initial'],_complete(entry['initial'],base,base)) for name,entry in recurrence['state'].items()}
+
+
+def step_state(recurrence,state,inputs,time,frame):
+    """End-of-frame state from the start-of-frame state and this frame's inputs."""
+    prefix=recurrence['state_input_prefix']
+    values={**inputs,'time':float(time),'frame':float(frame),**{prefix+n:v for n,v in state.items()}}
+    return {name:evaluate_inputs(entry['update'],_complete(entry['update'],values,values)) for name,entry in recurrence['state'].items()}
+
+
+def state_inputs(recurrence,state):
+    """Point-graph inputs for a start-of-frame state."""
+    return {recurrence['state_input_prefix']+n:v for n,v in state.items()}
+
+
+def recurrence_trajectory(recurrence,held,times,fps=FPS):
+    """Start-of-frame state values at the given source times, stepping the recurrence from t=0.
+
+    Frame k (k>=0) renders at source time (k+1)/fps; the state read by frame k is the value after
+    k updates. Inputs other than the wave's own state, time and frame are taken from held.
+    """
+    state=initial_state(recurrence,held)
+    frames=sorted({max(0,int(round(t*fps))-1) for t in times});out={};k=0
+    for target in frames:
+        while k<target:
+            state=step_state(recurrence,state,held,(k+1)/fps,k);k+=1
+        out[target]=state_inputs(recurrence,state)
+    return {t:out[max(0,int(round(t*fps))-1)] for t in times}
+
+
+def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,positions=None,recurrence=None):
+    """Return the distribution record for serialised per-point r,g,b,a graphs.
+
+    recurrence (optional) is the wave's per-frame state recurrence; its state inputs are then
+    resolved by stepping it from t=0 under the held inputs, and the record keeps it for SDKs.
+    """
     result={'policy':POLICY,'status':'unknown','sample_count':None,'times_s':None,'held_inputs':{},
             'depends_on_sample':None,'depends_on_time':None,'mean_rgb':None,'alpha_weighted_mean_rgb':None,
             'mean_alpha':None,'mean_saturation':None,'hue_family_shares':{},'representative_points':[],
@@ -57,20 +103,32 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
             inputs=input_names(program)
             if inputs is None:raise ValueError(name+' graph contains an unsupported operation')
             names|=inputs
+        state_names=set()
+        if recurrence:
+            prefix=recurrence['state_input_prefix'];state_names={prefix+n for n in recurrence['state']}
+            for entry in recurrence['state'].values():
+                for graph in (entry['initial'],entry['update']):
+                    found=input_names(graph)
+                    if found is None:raise ValueError('wave recurrence contains an unsupported operation')
+                    names|={n for n in found if not (isinstance(n,str) and n.startswith('init:'))}-{'frame'}
+            for name in (positions or {}).values():
+                found=input_names(name) if name else None
+                if found:names|=found
         held={name:(float(span[0])+float(span[1]))/2 for name,span in held_inputs.items()
               if name in names and isinstance(span,(list,tuple)) and len(span)==2}
-        blocked=sorted(map(str,names-{'sample','time'}-set(held)))
+        blocked=sorted(map(str,names-{'sample','time'}-set(held)-state_names))
         if blocked:
             result['unresolved_inputs']=blocked
             raise ValueError('per-point colour depends on unresolved inputs')
+        trajectory=recurrence_trajectory(recurrence,held,times) if state_names else None
         result['held_inputs']=held;result['sample_count']=count
         result['depends_on_sample']='sample' in names;result['depends_on_time']='time' in names
-        grid=times if 'time' in names else (0.,)
+        grid=times if 'time' in names or state_names else (0.,)
         result['times_s']=list(grid)
         points=[]
         for time in grid:
             for j in range(count):
-                values={**held,'time':time,'sample':j/(count-1) if count>1 else 0.}
+                values={**held,**(trajectory[time] if trajectory else {}),'time':time,'sample':j/(count-1) if count>1 else 0.}
                 rgba=[_native(evaluate_inputs(programs[name],values)) for name in 'rgba']
                 points.append(rgba)
         total=len(points);alpha=sum(p[3] for p in points)
@@ -85,14 +143,17 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
         stride=max(1,total//MAX_REPRESENTATIVE)
         result['representative_points']=[[round(v,4) for v in p] for p in points[::stride][:MAX_REPRESENTATIVE]]
         result['status']='closed_form_point_colours'
-        result.update(_positions(positions,count,held,grid))
+        result.update(_positions(positions,count,held,grid,trajectory))
         if result['positions_closed_form']:result['programs']={**programs,**positions}
+        if state_names:
+            result['frame_recurrence']=recurrence
+            result['conditions'].append('wave per-frame state stepped from t=0 at 30 fps under the held inputs')
     except (ValueError,KeyError,TypeError,RecursionError) as error:
         result['unknown_reasons'].append(str(error))
     return result
 
 
-def _positions(positions,count,held,grid):
+def _positions(positions,count,held,grid,trajectory=None):
     """Source x/y bounds when the per-point position graphs are closed-form."""
     if not positions or any(positions.get(name) is None for name in 'xy'):return {}
     names=set()
@@ -100,12 +161,13 @@ def _positions(positions,count,held,grid):
         inputs=input_names(positions[name])
         if inputs is None:return {}
         names|=inputs
-    if names-{'sample','time'}-set(held):return {}
+    state=set(next(iter(trajectory.values()))) if trajectory else set()
+    if names-{'sample','time'}-set(held)-state:return {}
     try:
         xs=[];ys=[]
-        for time in (grid if 'time' in names else (0.,)):
+        for time in (grid if 'time' in names or state else (0.,)):
             for j in range(count):
-                values={**held,'time':time,'sample':j/(count-1) if count>1 else 0.}
+                values={**held,**(trajectory[time] if trajectory else {}),'time':time,'sample':j/(count-1) if count>1 else 0.}
                 xs.append(evaluate_inputs(positions['x'],values));ys.append(evaluate_inputs(positions['y'],values))
     except ValueError:return {}
     return {'positions_closed_form':True,'position_bounds':{'x':[min(xs),max(xs)],'y':[min(ys),max(ys)]}}

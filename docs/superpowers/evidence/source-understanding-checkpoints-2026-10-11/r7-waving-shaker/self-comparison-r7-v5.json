@@ -71,6 +71,18 @@
   "thick main-wave and shape-outline passes blended separately (pixels covered twice receive the blend twice)",
   "history loop renders exactly history_steps frames ending at the declared time"
  ],
- "status": "understood: structure, brightness, contrast and colour match; remaining differences are phase/detail",
- "uses_rendered_images_for_classification": false
+ "status": "superseded: vertically mirrored (see correction)",
+ "uses_rendered_images_for_classification": false,
+ "correction": {
+  "found_in": "r8 checkpoint (2026-10-12)",
+  "issue": "the native-ruler frames used for the canvas comparison and the motion probes were read upside down; the v5 illustrator's motion frame, built-in wave rows and blur orientation were therefore vertically mirrored, and the frozen v5 prediction is the vertical mirror of the engine (its waveform sits at row ~157 against ~113 in the emulator screenshot)",
+  "unaffected": [
+   "blur bank values and timing",
+   "conditional wrap",
+   "thick passes",
+   "history step count",
+   "mean luminance agreement"
+  ],
+  "superseded_by": "self-comparison-r7-v6.json"
+ }
 }

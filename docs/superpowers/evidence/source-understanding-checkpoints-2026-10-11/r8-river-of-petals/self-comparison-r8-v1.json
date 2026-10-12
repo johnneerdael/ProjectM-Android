@@ -1,0 +1,48 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r8-v1",
+ "preset": "The NG - River of Petals.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "b07323cd17b6dec2e772c2ae95adbeb9bcfea2398ecba59be9f0b5ecf4ec457f",
+  "description-v1-before-capture.json": "08e1f114c7975f93e82257090859c7c98d1ba260783dcdd07b34bb3343d6f666",
+  "recipe-v1-before-capture.json": "477a90cda74e02aec3c05db441d9526b99438a3650eaa4e976b5c5c27c7501c1",
+  "prediction-v1.png": "d7af79683577a19cc4cdd150573b7d3d7efa818b6629b0edf0f7d32753aa62f8",
+  "llm-look-description-v1.txt": "ae016780ae7f4d74f696ef244a47eff739b69e14b08fc94887291f2b78c3854b"
+ },
+ "capture_result_sha256": "63c32d4b64b884e189f7aa5b24eb61ddc6de7cce6942dacd261bbd0b223d9d57",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.024,
+  "screenshot_luma": 0.612,
+  "prediction_mean_rgb": [
+   0.08,
+   0.0,
+   0.0
+  ],
+  "screenshot_mean_rgb": [
+   0.635,
+   0.693,
+   0.133
+  ],
+  "screenshot_saturation": 0.83
+ },
+ "agreements": [
+  "Warm accents; self-advecting feedback"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Bright, saturated green/yellow/red, left-right symmetric organic strands filling the screen; prediction nearly black with a red glow",
+   "cause": "the star-field custom waves were not drawn: their per-point graphs read the wave's own per-frame accumulator (state:wave_0_per_frame:advance), which was not exported; without seeds the green reaction-diffusion channel never starts. Also: warp program failed on texsize_noise_lq; noise stand-ins had the wrong sizes and a per-process random seed; rand_frame was constant",
+   "next": "export the custom-wave per-frame recurrence; texsize uniforms; engine noise sizes; per-frame rand_frame"
+  },
+  {
+   "size": "large",
+   "observed": "orientation check against the emulator",
+   "cause": "native-ruler frames are stored top-down; earlier probe analysis had flipped them, inverting the vertical conventions adopted for r7 v5",
+   "next": "repeat all probes on correctly oriented frames"
+  }
+ ],
+ "uses_rendered_images_for_classification": false
+}

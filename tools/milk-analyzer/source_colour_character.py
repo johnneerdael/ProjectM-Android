@@ -212,14 +212,48 @@ def _custom_wave_palette(analysis,identity):
     if not invalid and _colour(Field('components',tuple(controls[name] for name in 'rgb'),'float3')).get('mode_code')==1:
         palette.update(hue_families_possible=['grayscale'],temperature_candidates=['neutral'],model='correlated_native_shared_scalar_rgb')
     palette['channel_domain_evidence']=reports
-    palette['point_colour_distribution']=_point_distribution(analysis,prefix,frame,controls,domains)
+    palette['point_colour_distribution']=_point_distribution(analysis,prefix,frame,controls,domains,init)
     palette['known_invalid_native_domain']=invalid
     palette['provably_inactive']=not invalid and alpha is not None and alpha[1]==0
     status='known_source_colour' if all(v is not None for v in values) else 'dynamic_source_colour'
     return palette,status,reasons
 
 
-def _point_distribution(analysis,prefix,frame,controls,domains):
+def _wave_recurrence(frame_prefix,init,frame,programs):
+    """Persistent per-frame variables of one custom wave read by its per-point graphs.
+
+    A variable the per-frame code reads before writing appears in point graphs as
+    'state:<wave>_per_frame:<name>' (its start-of-frame value). Each such variable gets its
+    initial graph (wave init code, else 0) and end-of-frame update graph; update graphs may read
+    further state of the same wave, which is collected transitively. Returns None when no state
+    is read or a graph cannot be serialised.
+    """
+    from effect_families import Field
+    from source_appearance import _expression
+    from time_expression import input_names
+    marker='state:'+frame_prefix+':'
+    def states_of(expression):
+        names=input_names(expression) if expression else None
+        return {n[len(marker):] for n in (names or ()) if isinstance(n,str) and n.startswith(marker)}
+    pending=set()
+    for expression in programs.values():pending|=states_of(expression)
+    if not pending:return None
+    state={};done=set()
+    while pending:
+        name=pending.pop()
+        if name in done:continue
+        done.add(name)
+        update=_expression(frame.environment.get(name,Field('unknown')))
+        initial=_expression(init.environment.get(name,Field('constant',detail={'value':0.})))
+        if update is None or initial is None:return None
+        state[name]={'initial':initial,'update':update}
+        pending|=states_of(update)-done
+    return {'policy':'source-custom-wave-frame-recurrence-v1','state_input_prefix':marker,'state':state,
+            'conditions':['update graphs give the end-of-frame value; point graphs read the start-of-frame value',
+                          'initial graphs read init-time inputs; stepping evaluates authored equations over declared inputs']}
+
+
+def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     """Closed-form per-point colour distribution over the authored sample grid."""
     from effect_families import Field
     from scene_equations import _scalar
@@ -231,7 +265,11 @@ def _point_distribution(analysis,prefix,frame,controls,domains):
     programs={name:_expression(controls.get(name,Field('unknown'))) for name in 'rgba'}
     held={name:span for name,span in domains.items() if name!='sample'}
     positions={name:_expression(controls.get(name,Field('unknown'))) for name in 'xy'}
-    record=point_colour_distribution(programs,count,held,positions=positions)
+    recurrence=None
+    if init is not None:
+        identity='wave_'+prefix.removeprefix('wavecode_').rstrip('_')
+        recurrence=_wave_recurrence(identity+'_per_frame',init,frame,{**programs,**positions})
+    record=point_colour_distribution(programs,count,held,positions=positions,recurrence=recurrence)
     flags={}
     for name,key in (('dots','bUseDots'),('thick','bDrawThick'),('additive','bAdditive'),('spectrum','bSpectrum')):
         value=_scalar(analysis.values,prefix+key,0,'float')

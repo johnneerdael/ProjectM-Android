@@ -1,0 +1,9 @@
+LLM look description from the SDK recipe (before capture, r8 v1):
+A dark feedback field that steers its own sampling (self-advection), so content smears and flows
+rather than zooming. A triangle (shape_0, grayscale/red) and a pentagon (shape_1, multi-colour,
+nominal 15.9 Hz brightness cycle) are drawn into the feedback, plus a stereo X-Y point waveform
+and custom line/point waves in orange whose x position follows bass/mid/treble. Slow rotation
+control (0.3 rad/s). Expected: mostly dark with warm (red/orange) smeared highlights, a bright
+central element and flickering coloured shapes; motion moderate (speed p95 ~0.23 viewport/s).
+The frozen illustration renders a red central glow on a dark red-black field with red bursts
+at the left and right edges; the orange waves and multi-colour pentagon are not visible in it.

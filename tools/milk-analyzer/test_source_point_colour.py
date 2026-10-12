@@ -73,3 +73,34 @@ def test_seeded_rand_in_stdlib_evaluator():
     rng = random.Random(1)
     values = [evaluate_inputs(program, {}, rng) for _ in range(100)]
     assert 0 <= min(values) and max(values) < 3
+
+
+def accumulator_recurrence():
+    # advance = advance + bass*0.1 (per frame), init 0; point alpha = start-of-frame advance
+    state_name = 'state:wave_0_per_frame:advance'
+    update = graph([name(state_name), name('bass'), constant(.1), {'op': 'multiply', 'args': [1, 2], 'detail': {}},
+                    {'op': 'add', 'args': [0, 3], 'detail': {}}])
+    return {'state_input_prefix': 'state:wave_0_per_frame:', 'state': {'advance': {'initial': graph([constant(0.)]), 'update': update}}}
+
+
+def test_wave_recurrence_trajectory_counts_updates_per_frame():
+    from source_point_colour import recurrence_trajectory, initial_state, step_state
+    recurrence = accumulator_recurrence()
+    # frame k renders at (k+1)/30 and reads the state after k updates
+    trajectory = recurrence_trajectory(recurrence, {'bass': 1.}, (1 / 30, 1., 2.))
+    assert trajectory[1 / 30]['state:wave_0_per_frame:advance'] == 0.
+    assert math.isclose(trajectory[1.]['state:wave_0_per_frame:advance'], 2.9)
+    assert math.isclose(trajectory[2.]['state:wave_0_per_frame:advance'], 5.9)
+    state = initial_state(recurrence, {'bass': 2.})
+    assert math.isclose(step_state(recurrence, state, {'bass': 2.}, 1 / 30, 0)['advance'], .2)
+
+
+def test_point_colours_resolve_wave_state_through_the_recurrence():
+    recurrence = accumulator_recurrence()
+    alpha = graph([name('state:wave_0_per_frame:advance'), constant(.01), {'op': 'multiply', 'args': [0, 1], 'detail': {}}])
+    programs = {'r': graph([constant(1.)]), 'g': graph([constant(.5)]), 'b': graph([constant(.1)]), 'a': alpha}
+    blocked = point_colour_distribution(programs, 16, {'bass': [0., 2.]})
+    assert blocked['status'] == 'unknown' and blocked['unresolved_inputs'] == ['state:wave_0_per_frame:advance']
+    record = point_colour_distribution(programs, 16, {'bass': [0., 2.]}, recurrence=recurrence)
+    assert record['status'] == 'closed_form_point_colours' and record['frame_recurrence'] is recurrence
+    assert record['mean_alpha'] > 0

@@ -1,0 +1,32 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "95ade04a657f57881d67c4b433511a82562c5f32d5ffaadb211098bc1dbdaf8c",
+  "illustrator_sha256": "c199dc3565c0eadc1c42e8ee1046c4c3280bd466322b57e26de17db8e0f393e4",
+  "image_sha256": "66ac6af28d8a78b3090deff1119c64b0e7cd127de303afe39cfbe301b4679a69",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [
+    "wave_0",
+    "wave_2",
+    "wave_3"
+  ],
+  "limitations": [
+    "motion evaluated at the 48x32 mesh vertices and interpolated over its triangles",
+    "warp shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)",
+    "built-in waveforms drawn per frame from the declared reference PCM (projectM modes 0-9; wave alignment omitted)",
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "closed-form custom-wave point clouds drawn per frame (audio held at midpoints; projection uses the long-side square convention)",
+    "/analysis/visual_description/elements/0/waveform_recipe: final alpha below the native draw gate; not drawn",
+    "composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "audio-driven controls use the declared per-frame bands (audio report sha256 4c76bd9cb3ed46b3)",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed",
+  "declared_audio_sha256": "4c76bd9cb3ed46b3e31e315d882d0d66edaa2332f8e6a7b4c106084f3408918b"
+}

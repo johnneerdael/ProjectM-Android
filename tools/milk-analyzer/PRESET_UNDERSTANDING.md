@@ -669,45 +669,67 @@ tint hue placement remain unmodelled.
   composite variant shows the remaining 4x darkness is in the feedback canvas
   (0.029 vs native 0.08), not the composite gain (×3.0 vs ×4.1).
 
-### Engine conventions verified with native-ruler probes (r7 v4–v5)
+### Engine conventions verified with native-ruler probes (r7, r8)
 
 Each convention below was checked on the pinned engine (native ruler) with an
-isolated probe preset. Each probe seeds texture, isolates one motion term, then
-applies the illustrator's map to native frame 6 and compares the result with
-native frame 7. Probes and results:
+isolated probe preset. Each probe seeds texture, isolates one term, then applies
+the illustrator's map to native frame 6 and compares the result with native
+frame 7. Native-ruler frames are stored top-down: the harness reverses the
+`glReadPixels` rows, and a full r8 render matches the emulator screenshot at
+correlation 0.969 as stored. An earlier pass (commit `e45e6959`) flipped these
+frames by mistake, which inverted its vertical conclusions; every probe was
+repeated on correctly oriented frames. Probes and results:
 `docs/superpowers/evidence/motion-convention-probes-2026-10-12/`.
 
-- **Motion frame.** Per-pixel `x`/`y` and the warp's `u`/`v` use long-side units
-  with y pointing up. In top-down screen terms: `u_src = u - dx`,
-  `v_src = v + dy`, rotation is clockwise for `rot > 0` about
-  `(cx, 1 - cy)`, per-pixel `y` is 1 at the top, and `ang = atan2(y_down - .5,
-  x - .5)`. All 8 probes reach single-step correlation 1.000. The previous map
-  reached only −0.06…0.71 on the dy, cy, rotation, stretch and y-dependent
-  probes; the `ang` probe passed only because two sign errors cancelled.
-- **Procedural warp.** Presets without a warp shader compile
+- **Motion frame.** Per-pixel `x`/`y` and the warp's `u`/`v` use long-side
+  units with y pointing down (MilkDrop's y = 0 at the top). Rotation, `cx`/`cy`,
+  `dx`/`dy`, stretch, and the per-pixel `y`/`ang` inputs follow
+  `PresetWarpVertexShader` in this frame. All 8 motion probes reach single-step
+  correlation 1.000 (unchanged from the earlier map).
+- **Procedural warp.** The vertex `pos.y` grows downward like `v`, and the
+  displacement adds to `v`. Presets without a warp shader compile
   `PROJECTM_LEGACY_WARP`, which enters `pos.y` with the opposite sign. Each path
-  reaches 0.9987 with its own formula and 0.46 with the other.
+  reaches 0.9987 with its own formula and about 0.46 with the other; the earlier
+  map reached 0.53 and 0.41.
 - **Mesh.** Motion is evaluated at the production 48×32 mesh vertices
-  (`native-lib` defaults; ruler `SetMeshSize`) and interpolated over the engine
-  triangulation: the anti-diagonal split with a warp shader, the legacy
-  diagonal without. A context `mesh_grid` overrides the size.
+  (`native-lib` defaults; ruler `SetMeshSize`), with mesh row 0 at the top, and
+  interpolated over the engine triangulation (one diagonal with a warp shader,
+  the legacy diagonal without). A context `mesh_grid` overrides the size.
 - **Blur bank.** `blur.blur_bank` (8-tap passes at engine pass sizes, unorm
-  storage, range normalisation, blur1 edge darkening) replaces Gaussian stand-ins
-  in warp, composite and injection evaluation. It reads its source in GL row
-  order (bottom row first) and returns rows top-down; a `GetBlur1` probe matches
-  to 1e-4 mean absolute error.
+  storage, range normalisation, blur1 edge darkening) replaces the Gaussian
+  stand-ins in warp, composite and injection evaluation. Because the engine's
+  first pass flips vertically, the illustrator uses `flipud(blur_bank(image))`;
+  a `GetBlur1` probe matches to 6e-5 mean absolute error.
 - **Blur timing.** Blur textures are built from the previous frame's buffer.
   The composite therefore blurs the previous canvas, and a warp shader that
   samples blur reads last frame's update, made from the canvas two frames back.
+- **Waves and shapes.** Built-in wave NDC y points up on screen
+  (`row = (1 - y)/2·H`; a `wave_y` probe matches to the pixel). Custom-wave
+  points and shapes use y = 1 at the top: the r8 star field correlates 0.961
+  with this mapping and 0.058 mirrored.
 - **Conditional wrap.** A main sampler exported as `wrap: null` with
   `wrap_condition: frame_wrap > 0.0001` follows the per-frame `wrap` value. It
   used to clamp, which wiped the canvas on high-amplitude warp frames.
-- **Thick lines.** Main-wave and shape-outline thick passes are blended one at a
-  time, so pixels that two passes cover get the blend twice.
-- **History.** The loop renders exactly `history_steps` frames ending at the
+- **Textures and randomness.** `texsize_<name>` uniforms are supplied for noise
+  (engine sizes: `noise_lq` 256 with random texels, `noise_lq_lite` 32,
+  `noise_mq`/`noise_hq` 256 interpolated every 4th/8th texel), blur levels and
+  stand-in images. The noise seed is deterministic, so illustrations repeat.
+  `rand_frame` is a seeded new vector every frame.
+- **Thick lines and history.** Thick main-wave and outline passes are blended
+  one at a time. The loop renders exactly `history_steps` frames ending at the
   declared time (native frame k renders at (k+1)/fps).
-- **r7 v5.** The feedback canvas follows the native ruler frame by frame (mean
-  luma over frames 40–149: 0.0759 vs 0.0779). The display reads 0.334 against the
-  emulator's 0.314, with percentiles within 0.04. The remaining differences are
-  waveform phase (projectM's waveform aligner is not modelled) and chaotic
-  detail on frames where `pow(bass, treb)` reaches about 200.
+- **Custom-wave state.** When per-point graphs read a wave's persistent
+  per-frame variables (`state:<wave>_per_frame:<name>`), the point record carries
+  `frame_recurrence`: initial and end-of-frame update graphs. The analyzer steps
+  it from t = 0 at 30 fps under the held inputs for the colour distribution,
+  and the illustrator steps it per frame under the declared audio.
+- **r7 (`The Waving Shaker`) v6.** The waveform and streaks sit at the engine's
+  rows, luma is 0.342 against the emulator's 0.314, and the percentiles are
+  within 0.04. The canvas brightness follows the ruler frame by frame. Strand
+  placement drifts because the feedback is chaotic and the waveform aligner is
+  not modelled.
+- **r8 (`River of Petals`) v1 → v2.** v1 was nearly black: the star-field seeds
+  were blocked by their wave state. v2 matches the emulator: luma 0.608 vs
+  0.602, mean RGB within 0.05, blurred correlation 0.951. It shows the same
+  left-right symmetric green/yellow/red reaction-diffusion strands, and the
+  canvas follows the ruler in all three channels within about 3%.

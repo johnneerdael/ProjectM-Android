@@ -1,54 +1,60 @@
 {
- "policy": "native-ruler-motion-convention-probes-v1",
+ "policy": "native-ruler-motion-convention-probes-v2",
  "renderer": "pinned patched projectM-TV source34, macOS GLES + SwiftShader (native ruler), 480x270, mesh 48x32, checkpoint PCM",
+ "orientation": "native-ruler .rgb.u8 frames are written top-down (native-ruler.cpp reverses glReadPixels rows); the full r8 render matches the emulator screenshot at image correlation 0.969 as stored vs 0.761 flipped",
+ "correction": "policy v1 (commit e45e6959) read the ruler frames flipped vertically, which inverted every vertical conclusion; v2 repeats all probes on correctly oriented frames",
  "method": "each probe seeds texture in the first frames, then isolates one motion term; the illustrator's backward map (from the exported mesh_field facts) is applied to native frame 6 and correlated with native frame 7 (20 px margin)",
  "single_step_correlation": {
   "dx": {
-   "previous": 1.0,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
   },
   "dy": {
-   "previous": -0.0504,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
   },
   "rot-cy25": {
-   "previous": 0.0446,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
   },
   "rot-cx25": {
-   "previous": 0.042,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
   },
   "sy-cy25": {
-   "previous": -0.0576,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
   },
   "pp-dx-y": {
-   "previous": 0.705,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
   },
   "pp-dy-x": {
-   "previous": 0.3,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
   },
   "pp-rot-ang": {
-   "previous": 1.0,
-   "engine_frame_mesh": 1.0
+   "previous_b84200": 1.0,
+   "current": 1.0
+  },
+  "warp-legacy": {
+   "previous_b84200": 0.5346,
+   "current": 0.9987
+  },
+  "warp-shader": {
+   "previous_b84200": 0.411,
+   "current": 0.9987
   }
  },
  "procedural_warp_formula": {
-  "warp-legacy (no warp shader)": {
-   "shader_formula": 0.4574,
-   "legacy_formula": 0.9987
-  },
-  "warp-shader": {
-   "shader_formula": 0.9987,
-   "legacy_formula": 0.4625
-  }
+  "result": "in the y-down frame the warp shader path uses pos.y = +down with u+=du, v+=dv; presets without a warp shader compile PROJECTM_LEGACY_WARP (pos.y enters with the opposite sign). Each path reaches 0.9987 with its own formula and about 0.46 with the other; the pre-session map reached 0.53/0.41."
+ },
+ "mesh": {
+  "result": "motion evaluated at the 48x32 vertices, mesh row 0 at the top edge, interpolated over the engine triangulation (0.9987 vs 0.9966 for the mirrored row order on both warp probes)"
  },
  "blur_orientation": {
-  "probe": "blur-comp: composite ret=GetBlur1(uv) over a seeded top-left patch",
-  "result": "patch stays top-left; blur_bank fed GL row order reproduces the native GetBlur1 profile to 1e-4 mean abs error (illustrator previous orientation 2.2e-3)"
+  "probe": "blur-comp: composite ret=GetBlur1(uv) over a patch seeded at uv_orig.y>0.7 (the bottom-left of the screen)",
+  "result": "flipud(blur_bank(top-down image)) reproduces the native GetBlur1 display to 6e-5 mean abs error"
  },
  "blur_timing": {
   "probe": "blur-warp: warp ret=GetBlur1(uv)",
@@ -56,13 +62,15 @@
  },
  "builtin_wave_orientation": {
   "probe": "wave-y08: mode 4 at wave_y=0.8",
-  "result": "wave near the bottom in both; per-frame light 469 vs 470 luma units; frames match a reference PCM window exactly only when the waveform aligner's offset is zero"
+  "result": "wave near the top; screen row = (1-y)/2*H for built-in wave NDC y, matching to the pixel; per-frame light 469 vs 470 luma units"
+ },
+ "custom_wave_and_shape_orientation": {
+  "result": "custom-wave points (r8 star field) correlate 0.961 with the existing mapping (y=1 at the top) and 0.058 mirrored; a shape at y=0.8 renders 20% down from the top (shape-wave-orient probe)"
  },
  "conventions_top_down_screen": {
-  "dx": "u_src = u - dx",
-  "dy": "v_src = v + dy (v down)",
-  "rotation": "clockwise on screen for rot>0 about (cx, 1-cy)",
-  "per_pixel_y": "1 at the top (aspect-scaled, long-side units)",
-  "per_pixel_ang": "atan2(y_down-0.5, x-0.5)"
+  "motion": "y down (MilkDrop y=0 at the top): u_src=u-dx, v_src=v-dy, rotation u'=du*cos-dv*sin, v'=du*sin+dv*cos about (cx, cy); per-pixel y=0 at the top; ang=-atan2(y_down-0.5, x-0.5) (unchanged from the pre-session map, all 1.000)",
+  "builtin_waves": "row=(1-y)/2*H",
+  "custom_waves": "y=1 at the top",
+  "shapes": "y=1 at the top"
  }
 }

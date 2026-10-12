@@ -132,3 +132,25 @@ def test_conditional_wrap_follows_per_frame_wrap_value():
     assert _sampler_wraps(conditional,{'wrap':0.}) is False
     assert _sampler_wraps(conditional,None) is True
     assert _sampler_wraps({'wrap':False},{'wrap':1.}) is False
+
+
+def test_texsize_uniforms_follow_engine_texture_sizes():
+    from prediction_illustration import _texsize, _noise_texture
+    assert list(_texsize('noise_lq', 480, 270)[:2]) == [256, 256]
+    assert list(_texsize('noise_lq_lite', 480, 270)[:2]) == [32, 32]
+    assert list(_texsize('blur1', 480, 270)[:2]) == [112, 68]
+    assert list(_texsize('main', 480, 270)[:2]) == [480, 270]
+    a = _noise_texture('noise_hq');b = _noise_texture('noise_lq')
+    assert a.shape == (256, 256, 3) and b.shape == (256, 256, 3)
+    # hq is interpolated from 32 cells (smooth), lq has independent texels
+    assert np.abs(np.diff(a, axis=1)).mean() < np.abs(np.diff(b, axis=1)).mean() / 3
+
+
+def test_mesh_interpolation_is_exact_for_affine_fields_and_top_row_first():
+    from prediction_illustration import _mesh_interpolator
+    interpolate = _mesh_interpolator((48, 32), 96, 64, True)
+    gx, gy = np.meshgrid(np.arange(49), np.arange(33))
+    field = 2. * gx + 3. * gy  # vertex values; row 0 is the top edge
+    out = interpolate(field.astype(np.float32))
+    columns, rows = np.meshgrid(np.arange(96) + .5, np.arange(64) + .5)
+    assert np.allclose(out, 2 * columns / 96 * 48 + 3 * rows / 64 * 32, atol=1e-4)

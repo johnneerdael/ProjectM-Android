@@ -1,0 +1,85 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r8-v2",
+ "preset": "The NG - River of Petals.milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "2acee6c63c8d8305ddaf0b1efa647937c9618b2f9631bfd8a55bf2e26be07534",
+  "description-v2-before-capture.json": "95ade04a657f57881d67c4b433511a82562c5f32d5ffaadb211098bc1dbdaf8c",
+  "recipe-v2-before-capture.json": "d984c3752fb327e0d860f83a0f43682d02095ba974eeb506870b19e36d42d84b",
+  "prediction-v2.png": "66ac6af28d8a78b3090deff1119c64b0e7cd127de303afe39cfbe301b4679a69",
+  "llm-look-description-v2.txt": "c2f223a9308bcb95cedc50e8edafe0414ee5be792e282cca5093d224ccfcb948"
+ },
+ "capture_result_sha256": "00602ba8362c8dd4fb9a8d485b5fda99a3d8b36f603233c780fd10bf3189cfea",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.608,
+  "screenshot_luma": 0.602,
+  "p10_p50_p90_prediction": [
+   0.258,
+   0.648,
+   0.891
+  ],
+  "p10_p50_p90_screenshot": [
+   0.256,
+   0.649,
+   0.876
+  ],
+  "mean_rgb_prediction": [
+   0.649,
+   0.681,
+   0.123
+  ],
+  "mean_rgb_screenshot": [
+   0.602,
+   0.693,
+   0.133
+  ],
+  "saturation": [
+   0.841,
+   0.827
+  ],
+  "blurred_luma_correlation": 0.951,
+  "feedback_canvas_vs_native_ruler_passthrough": {
+   "mean_rgb_frame_149": [
+    [
+     0.199,
+     0.191,
+     0.028
+    ],
+    [
+     0.206,
+     0.196,
+     0.031
+    ]
+   ],
+   "blurred_correlation_frames_10_60_149": [
+    0.965,
+    0.946,
+    0.956
+   ]
+  }
+ },
+ "agreements": [
+  "Bright saturated green/yellow/red reaction-diffusion strands filling the screen",
+  "Left-right mirror symmetry from the composite max",
+  "Brightness, colour means, saturation and percentiles within 0.05",
+  "Star-field seeds, green strand growth and red glows follow the engine frame by frame"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "Exact strand placement",
+   "cause": "chaotic pattern growth",
+   "next": "none required for understanding"
+  }
+ ],
+ "general_fixes": [
+  "custom-wave per-frame recurrence exported with point programs (state:<wave>_per_frame:<var> initial/update graphs) and stepped per frame under declared audio",
+  "texsize_<name> uniforms for noise, blur and stand-in textures",
+  "engine noise texture sizes/zoom (lq per texel, hq every 8th) with a deterministic seed",
+  "per-frame rand_frame stand-in"
+ ],
+ "status": "understood: look, colour, symmetry, brightness and pattern dynamics match the emulator",
+ "uses_rendered_images_for_classification": false
+}

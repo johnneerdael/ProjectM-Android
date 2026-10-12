@@ -88,17 +88,18 @@ fold count. Inner and outer borders and the darken-centre spot are treated as
 per-frame fades of the picture. A screen-wide inner border, for example, can
 make trails fade in about a second even when the decay is 0.999.
 
-The prediction illustrator now follows the engine's own motion rules. The rules
+The prediction illustrator now follows the engine's own rendering rules. They
 were checked one at a time against the pinned engine with small probe presets:
-rotation direction, the vertical centre and shift, per-pixel `y` and `ang`, the
-two procedural-warp formulas, the 48×32 motion mesh, the engine blur filter and
-its one-frame delay, and wrap modes that depend on a per-frame value. Several of
-these were vertically mirrored before. On the r7 checkpoint
-(`The Waving Shaker`), the illustrated feedback picture now follows the engine
-frame by frame, and the final brightness matches the emulator capture (0.334
-vs 0.314). This describes how presets move and blend; it is not a renderer, and
-waveform phase still differs because projectM's waveform alignment is not
-modelled.
+motion and rotation, the two procedural-warp formulas, the 48×32 motion mesh,
+the engine blur filter and its one-frame delay, wrap modes that depend on a
+per-frame value, wave and shape placement, and noise texture sizes. Custom waves
+whose points depend on the wave's own per-frame counters (for example a star
+field that advances with the bass) are now stepped frame by frame. On the r8
+checkpoint (`River of Petals`), the illustrated picture matches the emulator
+capture: the same bright, mirrored green/yellow/red pattern, with brightness
+0.608 vs 0.602. On r7 (`The Waving Shaker`) the brightness is 0.342 vs 0.314.
+This describes how presets move and blend; it is not a renderer, and fine
+detail in chaotic feedback still differs.
 
 ## What the static JSON can describe
 
