@@ -129,3 +129,18 @@ def test_positions_with_main_frame_state_are_kept_with_their_frame_inputs():
     result = _positions({'x': graph('mtime'), 'y': graph('beat')}, 4, {}, (0.,))
     assert result == {'positions_closed_form': True, 'position_bounds': None, 'frame_inputs': ['beat', 'mtime']}
     assert _positions({'x': graph('state:wave_9_per_frame:t'), 'y': graph('beat')}, 4, {}, (0.,)) == {}
+
+
+def test_stochastic_point_series_draws_rand_from_the_given_generator():
+    import numpy as np
+    from source_point_colour import point_state_series
+    prefix = 'state:wave_0_per_point:'
+    # walk = walk + rand(2): increments uniform on [0, 2], mean 1 per point
+    update = graph([name(prefix + 'walk'), constant(2.), {'op': 'rand', 'args': [1], 'detail': {}},
+                    {'op': 'add', 'args': [0, 2], 'detail': {}}])
+    recurrence = {'state_input_prefix': prefix, 'state': {'walk': {'initial': graph([constant(0.)]), 'update': update}}, 'stochastic': True}
+    series, carry = point_state_series(recurrence, {'walk': 0.}, lambda j: {} if j < 400 else None, rng=np.random.default_rng(5))
+    steps = np.diff([row['walk'] for row in series])
+    assert len(series) == 400 and steps.min() >= 0. and steps.max() <= 2. and abs(steps.mean() - 1.) < .1
+    again, _ = point_state_series(recurrence, {'walk': 0.}, lambda j: {} if j < 400 else None, rng=np.random.default_rng(5))
+    assert again == series

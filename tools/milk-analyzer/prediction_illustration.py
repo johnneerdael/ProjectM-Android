@@ -622,14 +622,14 @@ def _motion_vector_marks(facts,sample,time,width,height,maps=None):
 from eel_memory import _UNARY_NP,STOCHASTIC as _STOCHASTIC,Memory  # noqa: E402 - shared projectm-eval numerics
 
 
-def _evaluate_np(expression,inputs,rng=None):
+def _evaluate_np(expression,inputs,rng=None,batch_shape=None):
     """Vectorised evaluation with projectm-eval semantics (eel_memory: loops and megabuf included).
 
     With an rng, projectm-eval rand(x) is sampled as uniform [0, max(1, floor(x))): a seeded
     Monte Carlo draw of the authored distribution, not the engine's random stream.
     """
     from eel_memory import evaluate_np
-    return evaluate_np(expression,inputs,rng)
+    return evaluate_np(expression,inputs,rng,batch_shape=batch_shape)
 
 
 def _point_clouds(facts):
@@ -656,10 +656,18 @@ def _point_pixels(px,py,size,height):
     return columns,rows
 
 
-def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
+def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,ends=None):
     count=int(record['sample_count']);programs=record['programs']
     inputs={**record.get('held_inputs',{}),**(audio or {}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
-    values={name:np.broadcast_to(_evaluate_np(programs[name],inputs),(count,)) for name in 'rgbaxy'}
+    stochastic=bool(record.get('stochastic')) and rng is not None
+    values={name:np.broadcast_to(_evaluate_np(programs[name],inputs,rng if stochastic else None,(count,) if stochastic else None),(count,)) for name in 'rgbaxy'}
+    # A channel written as a per-point state (x=mx after mx's update) takes that state's end-of-point
+    # value, so random steps are not drawn twice.
+    points=record.get('point_recurrence') or {}
+    for name in 'rgbaxy':
+        for state,entry in (points.get('state') or {}).items():
+            key=points['state_input_prefix']+state
+            if ends is not None and key in ends and entry.get('update')==programs[name]:values[name]=ends[key]
     period=256/255
     rgba=[np.clip(np.fmod(np.fmod(values[c],period)+period,period),0,1) for c in 'rgba']
     flags=record.get('draw_flags') or {}
@@ -1624,10 +1632,10 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     from source_point_colour import initial_state,step_state,state_inputs
                     frame_index=max(0,int(round(frame_time*fps))-1);entry=wave_states.setdefault(index,{})
                     if 'state' not in entry:
-                        entry['state']=initial_state(recurrence,{**record.get('held_inputs',{}),**inputs});entry['frame']=0
+                        entry['state']=initial_state(recurrence,{**record.get('held_inputs',{}),**inputs},rng);entry['frame']=0
                         if frame_index>0:limitations.append('custom-wave state pre-rolled with the first declared frame inputs')
                     while entry['frame']<frame_index:
-                        entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**inputs},float(np.float32((entry['frame']+1)/fps)),entry['frame'])
+                        entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**inputs},float(np.float32((entry['frame']+1)/fps)),entry['frame'],rng)
                         entry['frame']+=1
                     inputs.update(state_inputs(recurrence,entry['state']))
                 points=record.get('point_recurrence')
@@ -1635,7 +1643,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     # Per-point state: evaluated point by point; the last point's value carries into the next frame.
                     from source_point_colour import point_state_series,initial_state
                     count=int(record['sample_count']);entry=wave_states.setdefault(index,{})
-                    if 'point' not in entry:entry['point']=initial_state({'state':points['state']},{**record.get('held_inputs',{}),**inputs})
+                    if 'point' not in entry:entry['point']=initial_state({'state':points['state']},{**record.get('held_inputs',{}),**inputs},rng)
                     base={**record.get('held_inputs',{}),**{k:v for k,v in inputs.items() if np.ndim(v)==0},'time':frame_time}
                     def point_inputs(j):
                         if j>=count:return None
@@ -1643,12 +1651,14 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                         for name in ('value1','value2'):
                             if name in inputs and np.ndim(inputs[name]):values[name]=float(inputs[name][j])
                         return values
-                    series,entry['point']=point_state_series(points,entry['point'],point_inputs)
+                    series,entry['point']=point_state_series(points,entry['point'],point_inputs,rng)
                     for name in points['state']:inputs[points['state_input_prefix']+name]=np.array([row[name] for row in series])
-                image=_draw_points(image,record,frame_time,to_pixels,canvas,inputs)
+                    ends={points['state_input_prefix']+name:np.array([row[name] for row in series[1:]]+[entry['point'][name]]) for name in points['state']}
+                else:ends=None
+                image=_draw_points(image,record,frame_time,to_pixels,canvas,inputs,rng,ends)
                 if recurrence:
                     # End of frame: this frame's per-frame update gives the next frame's start state.
-                    entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**(bands or {})},frame_time,entry['frame'])
+                    entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**(bands or {})},frame_time,entry['frame'],rng)
                     entry['frame']+=1
             for alpha,colour in sprites+_dynamic_border_operators(facts,width,height,held):
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour

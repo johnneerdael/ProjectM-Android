@@ -1,0 +1,89 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r21-v1",
+ "preset": "LuxXx - squdgesquid ii.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "70fe14b37b35e99f92ad2816fc62d4f95c5649b4c95dcbb49127462a1ff45b2c",
+  "prediction.json": "59e386a87b1c40647937022fd82e4767b32f86c99f2d0db1347da76b0eb97100",
+  "description.json": "fa083aafb5c78b465606f05e988669181c331cc8ebc0c4dacb32aed216f02cc7",
+  "recipe.json": "9bff79bb9e2659f43a97ec5c4c70538e68505bedeeb32a84f20a819ea3e14135",
+  "llm-look-description-v1.txt": "eb3acbb3a691668d69ea9ab64e9cd919760f5b4085a6ca4521ff67652c0977b7"
+ },
+ "capture_result_sha256": "5a792266766818c9980a832bc4abb3db6feb369fb3e2588fa37097638ca1125b",
+ "display_model_note": "v1 description/recipe were made while the shipped calibration model was the interim equilibrium-v2 fit, evaluated with equilibrium-v3 descriptor columns",
+ "review_measurements_v1": {
+  "prediction_luma": 0.146,
+  "screenshot_luma": 0.082,
+  "mean_rgb_prediction": [
+   0.364,
+   0.053,
+   0.051
+  ],
+  "mean_rgb_screenshot": [
+   0.225,
+   0.005,
+   0.102
+  ],
+  "blurred_luma_correlation": -0.612,
+  "engine_ruler_mean_luminance": 0.154
+ },
+ "agreements_v1": [
+  "six-fold kaleidoscope symmetry with a dark purple centre (the composite fin fold) is predicted",
+  "SDK text: feedback-driven, smeared, saturated colour with pink/white point layers; activity Normal"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "v1 shows smooth red-orange hexagonal bands; the capture shows rings of discrete bright red/pink blobs on dark purple-red",
+   "cause": "the four custom waves draw 512-point random walks (per-point direction md=(md+rand(4))%4, step .002*bass or .002*treb, persistent mx/my with resets at the [.1,.9] bounds); positions read a per-point recurrence containing rand, so the recurrence was dropped and the waves were not drawn: no seeds for the red reaction field",
+   "scope": "any custom wave whose per-point state calls rand",
+   "next": "stochastic per-point recurrences (done in v2)"
+  },
+  {
+   "size": "small",
+   "observed": "SDK reports decay unknown",
+   "cause": "decay = 1 - 0.01*equal(frame%6,0) has a closed-form mean (0.99833) but the range analysis leaves it unresolved; for this preset decay has no effect because projectM does not apply decay to custom warp shader output (_return_value = float4(ret.xyz, 1.0))",
+   "next": "resolve periodic frame-index controls"
+  }
+ ],
+ "general_fixes_v2": {
+  "fixes": [
+   "stochastic per-point and per-frame wave recurrences: rand calls are kept, recurrences are collected with rand-aware input analysis, and rand is drawn from a seeded generator (projectm-eval: uniform on [0, max(1, floor(x))], one draw per call and point); exported statistics use a fixed seed, the illustrator a per-frame seed",
+   "a position channel identical to a state update (x=mx) takes the state end-of-point value, so random steps are not drawn twice"
+  ]
+ },
+ "diagnostics_v2": {
+  "kind": "controlled diagnostics (native ruler); calibration/diagnosis only, never features",
+  "canvas": "identity-composite variant: red>0.5 coverage at frame 149 is 0.74 (ours) vs 0.87 (ruler); same red blobs on green early and pink field with dark holes later",
+  "composite": "our exported composite applied to the ruler canvas at frame 149 gives mean red 0.53 vs the ruler display 0.51",
+  "chaos": "display luma swings between ~0.07 and ~0.23 as the red field grows and collapses; the emulator screenshot (frame 149, luma 0.082) caught a dark moment while the ruler was bright (0.170) at the same frame"
+ },
+ "review_measurements_v2": {
+  "prediction_luma": 0.213,
+  "screenshot_luma": 0.082,
+  "blurred_luma_correlation_single_frame": -0.124,
+  "luma_frames_60_149": {
+   "prediction": {
+    "mean": 0.152,
+    "p10": 0.066,
+    "p90": 0.222
+   },
+   "emulator": {
+    "mean": 0.136,
+    "p10": 0.072,
+    "p90": 0.23
+   }
+  }
+ },
+ "misses_v2": [
+  {
+   "size": "small",
+   "observed": "single-frame layout differs (v2 bright red field, capture dark blob rings)",
+   "cause": "chaotic red reaction field driven by random walks: frame-level layout is not reproducible; the brightness distribution over frames 60-149 matches",
+   "next": "none required for understanding"
+  }
+ ],
+ "status": "understood (v2): random-walk dot squiggles from four custom waves seed an anti-diffusive red field (green grows where red < 0.357, blue where red is high); the composite folds local peaks into six fins; luma over frames 60-149 0.152 vs 0.136 (p10-p90 0.066-0.222 vs 0.072-0.230)",
+ "uses_rendered_images_for_classification": false
+}

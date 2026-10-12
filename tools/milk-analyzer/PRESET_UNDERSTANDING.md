@@ -789,14 +789,18 @@ repeated on correctly oriented frames. Probes and results:
   excluded from fitting. `fixtures/calibrated-display-model.json.gz` holds the
   trees; `calibrated_display.predict` needs only the standard library.
 
+  Descriptor v2 adds the feedback-equilibrium columns (see *Feedback
+  equilibrium* below). Scores of the shipped model, with the previous
+  descriptor-v1 model in brackets:
+
   | Statistic | Out-of-fold Spearman | Held-out 90 |
   |---|---|---|
-  | Luminance | 0.583 | 0.574 |
-  | Frame difference | 0.693 | 0.733 |
-  | Flow | 0.665 | 0.729 |
-  | Brightness jumps | 0.757 | 0.734 |
-  | Saturation | 0.593 | 0.556 |
-  | Warm/cool | 0.498 | 0.468 |
+  | Luminance | 0.604 (0.583) | 0.668 (0.574) |
+  | Frame difference | 0.701 (0.693) | 0.743 (0.733) |
+  | Flow | 0.671 (0.665) | 0.760 (0.729) |
+  | Brightness jumps | 0.760 (0.757) | 0.756 (0.734) |
+  | Saturation | 0.618 (0.593) | 0.562 (0.556) |
+  | Warm/cool | 0.555 (0.498) | 0.630 (0.468) |
 
 - **Activity.** `display_activity.py` takes the percentile of the mean
   percentile rank of frame difference, flow and brightness jumps, measured
@@ -808,10 +812,11 @@ repeated on correctly oriented frames. Probes and results:
 - **Grouping.** `approximate_mood(summary, display=...)` assigns bands from the
   calibrated activity, with confidence from the interval width: high ≤ 0.6,
   medium ≤ 0.8. Out-of-fold, against measured activity:
-  - activity Spearman 0.735 (0.784 on the held-out 90);
-  - primary band accuracy 0.64 overall, 0.85 at high confidence, 0.72 on the
-    held-out set;
-  - Chill/Intense swaps 1.4%.
+  - activity Spearman 0.740 (0.793 on the held-out 90; descriptor v1: 0.735
+    and 0.784);
+  - primary band accuracy 0.64 overall, 0.84 at high confidence (24% of
+    presets), 0.73 on the held-out set (v1: 0.64, 0.85 on 22%, 0.72);
+  - Chill/Intense swaps 1.5% (v1: 1.4%).
 
   The whole-pack rescore (`corpus_understanding.py --rescore --display-model`)
   gives no abstentions (previously 839): Chill 3,480, Normal 4,503, Intense
@@ -949,3 +954,89 @@ repeated on correctly oriented frames. Probes and results:
   articulated arms of yellow, orange and teal dots wrapped by the polar
   composite, luma 0.108 vs 0.108 and a blurred correlation of 1.0. The
   regression on r8–r18 is unchanged or better (r14: 0.928 → 0.964).
+
+### Feedback equilibrium, EEL memory and point sampling (2026-10-12)
+
+- **Feedback equilibrium.** `feedback_equilibrium.py` estimates the
+  steady-state canvas from source. Each frame the warp maps the canvas through
+  a gain g and offset per channel, and drawn elements inject colour c with
+  alpha a. Additive elements converge to a·c/(1−g), alpha-blended ones to
+  a·c/(1−(1−a)·g). Shapes use their area-averaged radial gradient; borders,
+  waves and motion vectors are included. The gain and offset come from the
+  exported warp program evaluated on flat inputs (levels 0–1, times 2/5/8,
+  neutral bands), otherwise from the feedback matrix or decay. The composite
+  comes from its exported transfer table, then the legacy gamma, brighten,
+  darken, solarize and invert controls. A shape colour written as a formula
+  uses its average over 0.25–10 s and all instances (bands held at 1); `rand`
+  calls use the expectation of projectm-eval's uniform draws, estimated with a
+  fixed seed. This removes about 60% of the neutral-colour substitutions; the
+  calibration scores did not change measurably. `static_descriptor` exposes the local
+  and spread estimates as `equilibrium:*` columns; the fit above uses them.
+  Estimates are too dark when element colours are unknown (neutral colour
+  priors), so they serve as model inputs, not as display values.
+- **Facet agreement.** Against the bundled engine-ruler memberships, the
+  out-of-fold source-derived memberships with a cross-fitted quantile remap
+  agree per group: Energy 0.53, Brightness 0.57, Colour 0.47, Movement 0.63,
+  Comfort 0.81 (descriptor v1: 0.53, 0.56, 0.45, 0.63, 0.81). Evidence:
+  `facet-agreement-r6-eq3.json` in the calibrated-display evidence folder.
+- **Agreement ceiling and switch criterion.** Two measurements of the same 84
+  presets, emulator captures (other audio) and the engine ruler, agree on
+  Energy 0.86, Brightness 0.81, Movement 0.93 and Comfort 0.92. No source
+  estimate can be expected to beat that. Proposed criterion for building a
+  facet group's bundled values from source instead of renders: whole-pack
+  out-of-fold agreement with the ruler reaches 90% of this ceiling (Energy
+  0.77, Brightness 0.73, Movement 0.84, Comfort 0.83). Colour has no emulator
+  saturation or hue measurements yet, so its ceiling is open. Evidence:
+  `facet-agreement-ceiling.json`.
+- **EEL loops and memory.** `loop(n, body)` lowers to a plan (`eel_memory.py`)
+  with projectm-eval semantics: n is read once, truncated and capped at
+  1,048,576. `megabuf` (one buffer per preset, shared by all its equation
+  blocks) and `gmegabuf` (process-wide) are versioned, zero-initialised
+  buffers read through a `memory:<space>` input. Each write gives a new
+  version; an index addresses item int32(index + 0.0001), valid in
+  [0, 128·65536). A buffer that no block of the preset writes reads 0. The
+  frame program carries the buffers as frame state, so shape and wave code
+  read the frame's writes. `while` loops remain unresolved. Stims marks
+  memory-dependent outputs as unresolved, because other phases can write the
+  same cells.
+- **Readonly render values.** The illustrator supplies `aspectx`/`aspecty`
+  (RenderContext invAspectX/Y: 1 and long/short), `pixelsx`/`pixelsy` and
+  `meshx`/`meshy` from the declared context.
+- **Point samplers.** A sampling policy with `linear: false` (`sampler_pw_*`,
+  `sampler_pc_*`) reads the GL_NEAREST texel floor(u·size). Evaluating it
+  bilinearly left weights of about 1e-7 on the texel two away, which a strict
+  `> 0` test turns into real output.
+- **r20 (`amandio c - prime forms 2 …`) v1 → v3.** v1 was black: shape 0 draws
+  1,024 instances at positions that per-frame code writes into `gmegabuf`
+  inside `loop(1024*c, …)`. The loop count reads the previous frame's `c`. v2
+  draws the instances, which seed a Conway-like excitable medium in the warp
+  (green channel); the composite colours its edges cyan. In v2 the fronts ran
+  1.67 px/frame to the right because of the point-sampling defect. An
+  identity-composite variant against the native ruler located the defect
+  (diagnostic only). v3 matches the capture: luma 0.532 vs 0.567, blurred
+  correlation 0.85, and the canvas front extents agree within 1 px. The pixel
+  phase of the stripes differs, because sub-pixel dots rasterise to slightly
+  different seed pixels. Re-predicting r8–r19 gives unchanged results.
+
+- **Stochastic wave recurrences.** Custom-wave per-point and per-frame state
+  that calls `rand` is kept: the recurrence is collected with `rand`-aware
+  input analysis, and `rand` is drawn from a seeded generator
+  (projectm-eval: uniform on [0, max(1, floor(x))], one draw per call and
+  point). Exported statistics use a fixed seed; the illustrator uses a seed per
+  frame. These are draws from the authored distribution, not the engine's
+  random stream. A position channel that equals a state update (`x=mx`) takes
+  the state's end-of-point value, so each random step is drawn once.
+- **r21 (`LuxXx - squdgesquid ii`) v1 → v2.** v1 drew smooth red-orange
+  hexagonal bands. Four custom waves draw 512-point random walks, and those
+  waves were dropped, so the red reaction field had no seeds. v2 draws the
+  walks. The warp sharpens red against its blur; green grows where red is
+  below 0.357 and blue where it is high. The composite folds local peaks into
+  six fins. The field is chaotic: display luma swings between about 0.07 and
+  0.23, and the emulator screenshot caught a dark moment. Over frames 60–149
+  the predicted luma is 0.152 (10th–90th percentile 0.066–0.222) against the
+  capture's 0.136 (0.072–0.230). Diagnostics against the native ruler: the
+  canvas red coverage is 0.74 vs 0.87, and the exported composite applied to
+  the ruler canvas gives red 0.53 vs 0.51. Remaining gap: decay written as
+  `1 − 0.01·equal(frame%6, 0)` has a closed-form mean, but the range analysis
+  leaves it unresolved. It has no effect here, because projectM does not apply
+  decay to custom warp shader output.

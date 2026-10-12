@@ -41,23 +41,48 @@ def _native(value):
 FPS=30.
 
 
+# Seed of the generator that draws projectm-eval rand() calls in stochastic recurrences and point graphs
+# for the exported statistics: a seeded draw from the authored distribution, not the engine's stream.
+STOCHASTIC_SEED=20261012
+
+
+def _names_of(graph):
+    """Inputs of a graph, rand calls allowed (drawn from a generator); None for unsupported operations."""
+    from eel_memory import input_names as names
+    return names(graph,stochastic=True)
+
+
+def _stochastic(graph):
+    return isinstance(graph,dict) and any(node.get('op')=='rand' for node in graph.get('nodes') or [])
+
+
+def _evaluate(graph,values,rng=None):
+    """Scalar value of a graph; rand calls draw from rng (projectm-eval: uniform on [0, max(1, floor(x))])."""
+    if _stochastic(graph):
+        if rng is None:raise ValueError('random call needs a generator')
+        import numpy as np
+        from eel_memory import evaluate_np
+        return float(np.asarray(evaluate_np(graph,values,rng)).reshape(-1)[0])
+    return evaluate_inputs(graph,values)
+
+
 def _complete(expression,values,base):
     # 'init:<section>:<name>' reads the init-time value of <name>; any other absent input is 0.
-    missing=(input_names(expression) or set())-set(values)
+    missing=(_names_of(expression) or set())-set(values)
     return {**values,**{name:float(base.get(str(name).rsplit(':',1)[-1],0.)) for name in missing}}
 
 
-def initial_state(recurrence,inputs):
+def initial_state(recurrence,inputs,rng=None):
     """Wave state after its init code, from init-time inputs (bands, time 0)."""
     base={**inputs,'time':0.,'frame':0.}
-    return {name:evaluate_inputs(entry['initial'],_complete(entry['initial'],base,base)) for name,entry in recurrence['state'].items()}
+    return {name:_evaluate(entry['initial'],_complete(entry['initial'],base,base),rng) for name,entry in recurrence['state'].items()}
 
 
-def step_state(recurrence,state,inputs,time,frame):
+def step_state(recurrence,state,inputs,time,frame,rng=None):
     """End-of-frame state from the start-of-frame state and this frame's inputs."""
     prefix=recurrence['state_input_prefix']
     values={**inputs,'time':float(time),'frame':float(frame),**{prefix+n:v for n,v in state.items()}}
-    return {name:evaluate_inputs(entry['update'],_complete(entry['update'],values,values)) for name,entry in recurrence['state'].items()}
+    return {name:_evaluate(entry['update'],_complete(entry['update'],values,values),rng) for name,entry in recurrence['state'].items()}
 
 
 def state_inputs(recurrence,state):
@@ -65,17 +90,17 @@ def state_inputs(recurrence,state):
     return {recurrence['state_input_prefix']+n:v for n,v in state.items()}
 
 
-def recurrence_trajectory(recurrence,held,times,fps=FPS):
+def recurrence_trajectory(recurrence,held,times,fps=FPS,rng=None):
     """Start-of-frame state values at the given source times, stepping the recurrence from t=0.
 
     Frame k (k>=0) renders at source time (k+1)/fps; the state read by frame k is the value after
     k updates. Inputs other than the wave's own state, time and frame are taken from held.
     """
-    state=initial_state(recurrence,held)
+    state=initial_state(recurrence,held,rng)
     frames=sorted({max(0,int(round(t*fps))-1) for t in times});out={};k=0
     for target in frames:
         while k<target:
-            state=step_state(recurrence,state,held,(k+1)/fps,k);k+=1
+            state=step_state(recurrence,state,held,(k+1)/fps,k,rng);k+=1
         out[target]=state_inputs(recurrence,state)
     return {t:out[max(0,int(round(t*fps))-1)] for t in times}
 
@@ -94,10 +119,11 @@ def waveform_point_values(waveform,count,frame):
 _WINDOWS={}
 
 
-def point_state_series(point_recurrence,carry,inputs_at):
+def point_state_series(point_recurrence,carry,inputs_at,rng=None):
     """Start-of-point values for each point and the carry-out after the last point.
 
-    inputs_at(j) gives point j's inputs (sample, value1/2, time, bands, frame state).
+    inputs_at(j) gives point j's inputs (sample, value1/2, time, bands, frame state). rng draws the
+    rand calls of a stochastic recurrence, one draw per call and point as in the engine.
     """
     prefix=point_recurrence['state_input_prefix'];programs=point_recurrence['state']
     state=dict(carry);series=[]
@@ -106,7 +132,7 @@ def point_state_series(point_recurrence,carry,inputs_at):
         if values is None:break
         series.append(dict(state))
         current={**values,**{prefix+n:v for n,v in state.items()}}
-        state={name:evaluate_inputs(entry['update'],_complete(entry['update'],current,current)) for name,entry in programs.items()}
+        state={name:_evaluate(entry['update'],_complete(entry['update'],current,current),rng) for name,entry in programs.items()}
     return series,state
 
 
@@ -134,19 +160,27 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
         if any(p is None for p in programs.values()):raise ValueError('per-point colour graph unresolved')
         names=set()
         for name,program in programs.items():
-            inputs=input_names(program)
+            inputs=_names_of(program)
             if inputs is None:raise ValueError(name+' graph contains an unsupported operation')
             names|=inputs
+        graphs=[*programs.values(),*[g for g in (positions or {}).values() if g]]
+        for source in (recurrence,point_recurrence):
+            for entry in ((source or {}).get('state') or {}).values():graphs+=[entry['initial'],entry['update']]
+        stochastic=any(_stochastic(graph) for graph in graphs)
+        rng=None
+        if stochastic:
+            import numpy as np
+            rng=np.random.default_rng(STOCHASTIC_SEED)
         state_names=set()
         if recurrence:
             prefix=recurrence['state_input_prefix'];state_names={prefix+n for n in recurrence['state']}
             for entry in recurrence['state'].values():
                 for graph in (entry['initial'],entry['update']):
-                    found=input_names(graph)
+                    found=_names_of(graph)
                     if found is None:raise ValueError('wave recurrence contains an unsupported operation')
                     names|={n for n in found if not (isinstance(n,str) and n.startswith('init:'))}-{'frame'}
             for name in (positions or {}).values():
-                found=input_names(name) if name else None
+                found=_names_of(name) if name else None
                 if found:names|=found
         held={name:(float(span[0])+float(span[1]))/2 for name,span in held_inputs.items()
               if name in names and isinstance(span,(list,tuple)) and len(span)==2}
@@ -156,14 +190,14 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
             point_names={point_recurrence['state_input_prefix']+n for n in point_recurrence['state']}
             for entry in point_recurrence['state'].values():
                 for graph in (entry['initial'],entry['update']):
-                    found=input_names(graph)
+                    found=_names_of(graph)
                     if found is None:raise ValueError('point recurrence contains an unsupported operation')
                     names|={n for n in found if not (isinstance(n,str) and n.startswith('init:'))}
         blocked=sorted(map(str,names-{'sample','time'}-set(held)-state_names-wave_names-point_names))
         if blocked:
             result['unresolved_inputs']=blocked
             raise ValueError('per-point colour depends on unresolved inputs')
-        trajectory=recurrence_trajectory(recurrence,held,times) if state_names else None
+        trajectory=recurrence_trajectory(recurrence,held,times,rng=rng) if state_names else None
         result['held_inputs']=held;result['sample_count']=count
         result['depends_on_sample']='sample' in names;result['depends_on_time']='time' in names
         uses_wave=bool(wave_names&names)
@@ -179,12 +213,12 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
                 return values
             pstate=None
             if point_recurrence:
-                carry=initial_state({'state':point_recurrence['state']},held)
-                pstate,_=point_state_series(point_recurrence,carry,point_inputs)
+                carry=initial_state({'state':point_recurrence['state']},held,rng)
+                pstate,_=point_state_series(point_recurrence,carry,point_inputs,rng)
             for j in range(count):
                 values=point_inputs(j)
                 if pstate:values.update({point_recurrence['state_input_prefix']+n:v for n,v in pstate[j].items()})
-                rgba=[_native(evaluate_inputs(programs[name],values)) for name in 'rgba']
+                rgba=[_native(_evaluate(programs[name],values,rng)) for name in 'rgba']
                 points.append(rgba)
         total=len(points);alpha=sum(p[3] for p in points)
         result['mean_rgb']=[sum(p[i] for p in points)/total for i in range(3)]
@@ -198,7 +232,10 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
         stride=max(1,total//MAX_REPRESENTATIVE)
         result['representative_points']=[[round(v,4) for v in p] for p in points[::stride][:MAX_REPRESENTATIVE]]
         result['status']='closed_form_point_colours'
-        result.update(_positions(positions,count,held,grid,trajectory,waveform if uses_wave or wave_names else None,point_recurrence))
+        result.update(_positions(positions,count,held,grid,trajectory,waveform if uses_wave or wave_names else None,point_recurrence,rng))
+        result['stochastic']=stochastic
+        if stochastic:
+            result['conditions'].append('rand calls are seeded draws from projectm-eval\'s uniform distribution (one per call and point), not the engine\'s random stream')
         if result['positions_closed_form']:result['programs']={**programs,**positions}
         if result['positions_closed_form'] and waveform and (uses_wave or (wave_names&_names(positions))):
             result['waveform_inputs']={**waveform,'source':'declared reference PCM windows (oscilloscope value1/value2)'}
@@ -222,12 +259,12 @@ def _names(graphs):
     return found
 
 
-def _positions(positions,count,held,grid,trajectory=None,waveform=None,point_recurrence=None):
-    """Source x/y bounds when the per-point position graphs are closed-form."""
+def _positions(positions,count,held,grid,trajectory=None,waveform=None,point_recurrence=None,rng=None):
+    """Source x/y bounds when the per-point position graphs are closed-form (rand drawn from rng)."""
     if not positions or any(positions.get(name) is None for name in 'xy'):return {}
     names=set()
     for name in 'xy':
-        inputs=input_names(positions[name])
+        inputs=_names_of(positions[name])
         if inputs is None:return {}
         names|=inputs
     state=set(next(iter(trajectory.values()))) if trajectory else set()
@@ -250,10 +287,10 @@ def _positions(positions,count,held,grid,trajectory=None,waveform=None,point_rec
                 values={**held,**(trajectory[time] if trajectory else {}),'time':time,'sample':j/(count-1) if count>1 else 0.}
                 if wave:values.update(value1=float(wave[0][j]),value2=float(wave[1][j]))
                 return values
-            pstate=point_state_series(point_recurrence,initial_state({'state':point_recurrence['state']},held),point_inputs)[0] if point_names else None
+            pstate=point_state_series(point_recurrence,initial_state({'state':point_recurrence['state']},held,rng),point_inputs,rng)[0] if point_names else None
             for j in range(count):
                 values=point_inputs(j)
                 if pstate:values.update({point_recurrence['state_input_prefix']+n:v for n,v in pstate[j].items()})
-                xs.append(evaluate_inputs(positions['x'],values));ys.append(evaluate_inputs(positions['y'],values))
+                xs.append(_evaluate(positions['x'],values,rng));ys.append(_evaluate(positions['y'],values,rng))
     except ValueError:return {}
     return {'positions_closed_form':True,'position_bounds':{'x':[min(xs),max(xs)],'y':[min(ys),max(ys)]}}

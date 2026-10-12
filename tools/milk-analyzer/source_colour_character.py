@@ -234,10 +234,10 @@ def _wave_recurrence(frame_prefix,init,frame,programs):
     """
     from effect_families import Field
     from source_appearance import _expression
-    from time_expression import input_names
+    from eel_memory import input_names
     marker='state:'+frame_prefix+':'
     def states_of(expression):
-        names=input_names(expression) if expression else None
+        names=input_names(expression,stochastic=True) if expression else None
         return {n[len(marker):] for n in (names or ()) if isinstance(n,str) and n.startswith(marker)}
     pending=set()
     for expression in programs.values():pending|=states_of(expression)
@@ -266,10 +266,10 @@ def _point_recurrence(point_prefix,init,controls,programs):
     """
     from effect_families import Field
     from source_appearance import _expression
-    from time_expression import input_names
+    from eel_memory import input_names
     marker='state:'+point_prefix+':'
     def states_of(expression):
-        names=input_names(expression) if expression else None
+        names=input_names(expression,stochastic=True) if expression else None
         return {n[len(marker):] for n in (names or ()) if isinstance(n,str) and n.startswith(marker)}
     pending=set()
     for expression in programs.values():pending|=states_of(expression)

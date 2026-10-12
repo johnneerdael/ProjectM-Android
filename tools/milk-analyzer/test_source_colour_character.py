@@ -312,3 +312,15 @@ def test_random_fill_box_does_not_include_disabled_border():
         'r=rand(10)/100;g=rand(10)/100;b=rand(10)/100;'
         'r2=r;g2=g;b2=b;a=1;a2=1;border_a=0;border_r=1;\n')
     assert result['by_component']['shape_0']['source_palette']['rgb_component_intervals'][0][1]<.11
+
+
+def test_random_walk_wave_positions_are_a_stochastic_point_recurrence():
+    # Each point steps .01 left or right at random; the walk carries from point to point.
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_bUseDots=1\nwave_0_init1=mx=.5;\n'
+        'wave_0_per_point1=mx=mx+.01*(2*below(rand(2),1)-1);\nwave_0_per_point2=x=mx;y=.5;r=1;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['positions_closed_form'] is True and record['stochastic'] is True
+    assert set(record['point_recurrence']['state'])=={'mx'}
+    low,high=record['position_bounds']['x']
+    # 512 steps of .01 from .5: the walk stays far inside +-5.12 and moves off the start.
+    assert .5-1.<low<.5<high<.5+1. and high-low>.02
