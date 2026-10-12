@@ -233,7 +233,13 @@ def _positions(positions,count,held,grid,trajectory=None,waveform=None,point_rec
     state=set(next(iter(trajectory.values()))) if trajectory else set()
     wave_names={'value1','value2'} if waveform else set()
     point_names={point_recurrence['state_input_prefix']+n for n in point_recurrence['state']} if point_recurrence else set()
-    if names-{'sample','time'}-set(held)-state-wave_names-point_names:return {}
+    extra=names-{'sample','time'}-set(held)-state-wave_names-point_names
+    if extra:
+        # Inlined main per-frame graphs (Q values) leave plain per-frame state and audio names; they are
+        # resolved per frame by a consumer stepping the exported frame program (start-of-frame values;
+        # names never written read 0). Other scoped state is not resolvable here.
+        if any(not isinstance(n,str) or (':' in n and not n.startswith('state:per_frame_:')) for n in extra):return {}
+        return {'positions_closed_form':True,'position_bounds':None,'frame_inputs':sorted(extra)}
     uses_wave=bool(names&wave_names)
     try:
         xs=[];ys=[]

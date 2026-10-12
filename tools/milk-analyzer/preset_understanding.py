@@ -801,6 +801,7 @@ def _description(summary):
               ', mean saturation '+_fmt(row.get('mean_saturation'))+', mean alpha '+_fmt(row.get('mean_alpha')))
         bounds=row.get('position_bounds') if row.get('positions_closed_form') else None
         if bounds:text+='; positions are closed-form in sample/time within x '+_fmt(bounds['x'][0])+'-'+_fmt(bounds['x'][1])+', y '+_fmt(bounds['y'][0])+'-'+_fmt(bounds['y'][1])
+        elif row.get('positions_closed_form') and row.get('frame_inputs'):text+='; positions are closed-form in sample/time and the main per-frame state ('+', '.join(map(str,row['frame_inputs'][:6]))+(', ...' if len(row['frame_inputs'])>6 else '')+'), resolved by stepping the frame program'
         sentences.append(text+' (authored sample grid at declared times; audio held at midpoints; displayed coverage unresolved).')
     mechanisms=[]
     for item in summary['facts']['construction']:

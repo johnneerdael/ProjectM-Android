@@ -742,11 +742,20 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
                 a=(int(round((px[i]+ox)*16)),int(round((py[i]+oy)*16)));b=(int(round((px[i+1]+ox)*16)),int(round((py[i+1]+oy)*16)))
                 cv2.line(pass_layer,a,b,tuple(float(c) for c in colour[i]),1,cv2.LINE_8,4)
                 cv2.line(cover,a,b,float(alpha[i]),1,cv2.LINE_8,4)
+            if not flags.get('additive',True):
+                # Alpha blending: each thick pass is blended on its own (GL), so repeated passes converge
+                # to the line colour instead of summing past it.
+                pass_cover=np.zeros(image.shape[:2],np.float32)
+                for i in valid:
+                    a=(int(round((px[i]+ox)*16)),int(round((py[i]+oy)*16)));b=(int(round((px[i+1]+ox)*16)),int(round((py[i+1]+oy)*16)))
+                    cv2.line(pass_cover,a,b,float(alpha[i]),1,cv2.LINE_8,4)
+                image=np.clip(image*(1-pass_cover[...,None])+pass_layer,0,1)
+                if canvas is not None:canvas['alpha']=np.clip(pass_cover**2+canvas['alpha']*(1-pass_cover),0,1)
             layer+=pass_layer
+        if not flags.get('additive',True):return image
         if canvas is not None:
-            canvas['alpha']=np.clip(canvas['alpha']+cover**2 if flags.get('additive',True) else cover**2+canvas['alpha']*(1-cover),0,1)
-        if flags.get('additive',True):return np.clip(image+layer,0,1)
-        return np.clip(image*(1-cover[...,None])+layer,0,1)
+            canvas['alpha']=np.clip(canvas['alpha']+cover**2,0,1)
+        return np.clip(image+layer,0,1)
     finite=np.isfinite(px)&np.isfinite(py)
     # GL point coverage: a size-s point at window position w lights pixels whose centres lie in
     # [w - s/2, w + s/2) (native-ruler probe: x=0.5 lands on column 239, a point at x=0 is not drawn).
@@ -754,20 +763,28 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None):
     size=2 if flags.get('thick') else 1
     xs,ys=_point_pixels(px[finite],py[finite],size,height)
     colour=np.stack(rgba[:3],axis=-1)[finite];alpha=rgba[3][finite]*min(1.,_DRAW_SCALE[0]**2)
-    layer=np.zeros_like(image);cover=np.zeros(image.shape[:2],np.float32);alpha_sq=np.zeros(image.shape[:2],np.float32)
+    layer=np.zeros_like(image);alpha_sq=np.zeros(image.shape[:2],np.float32)
+    log_clear=np.zeros(image.shape[:2],np.float64);weight=np.zeros(image.shape[:2],np.float32)
     offsets=range(size)
     for dx in offsets:
         for dy in offsets:
             keep=(xs+dx>=0)&(xs+dx<width)&(ys+dy>=0)&(ys+dy<height)
-            np.add.at(layer,(ys[keep]+dy,xs[keep]+dx),colour[keep]*alpha[keep,None])
-            np.maximum.at(cover,(ys[keep]+dy,xs[keep]+dx),alpha[keep])
-            np.add.at(alpha_sq,(ys[keep]+dy,xs[keep]+dx),alpha[keep]**2)
+            where=(ys[keep]+dy,xs[keep]+dx)
+            np.add.at(layer,where,colour[keep]*alpha[keep,None])
+            np.add.at(alpha_sq,where,alpha[keep]**2)
+            np.add.at(log_clear,where,np.log(np.clip(1-alpha[keep],1e-6,1)))
+            np.add.at(weight,where,alpha[keep])
     additive=flags.get('additive',True)
-    if canvas is not None:
-        # GL applies the same blend factors to alpha: additive dst.a += src.a^2; over src.a^2 + dst.a(1-src.a).
-        canvas['alpha']=np.clip(canvas['alpha']+alpha_sq if additive else cover**2+canvas['alpha']*(1-cover),0,1)
-    if additive:return np.clip(image+layer,0,1)
-    return np.clip(image*(1-cover[...,None])+layer,0,1)
+    if additive:
+        # GL applies the same blend factors to alpha: additive dst.a += src.a^2.
+        if canvas is not None:canvas['alpha']=np.clip(canvas['alpha']+alpha_sq,0,1)
+        return np.clip(image+layer,0,1)
+    # Alpha blending composites overlapping points one after another: the background keeps the product
+    # of (1 - a) and the points' colours fill the rest (alpha-weighted mean colour; exact for one colour).
+    clear=np.exp(log_clear).astype(np.float32);cover=1-clear
+    mean=layer/np.maximum(weight,1e-9)[...,None]
+    if canvas is not None:canvas['alpha']=np.clip(cover**2+canvas['alpha']*clear,0,1)
+    return np.clip(image*clear[...,None]+mean*cover[...,None],0,1)
 
 
 def _sprite_operators(facts,width,height):
@@ -1040,11 +1057,20 @@ def _texsize(name,width,height):
     return np.array([w,h,1/w,1/h],np.float32)
 
 
-def _rad_ang(width,height):
-    """Per-pixel shader rad/ang: radius=hypot(x*aspectX, y*aspectY), angle=atan2(y*aspectY, x*aspectX), NDC with y up."""
+def _rad_ang(width,height,stage='warp'):
+    """Per-pixel shader rad/ang in the engine's frames; y is measured downward from the top in both.
+
+    Warp (PerPixelMesh): x, y in -1..1 with mesh row 0 (y=-1) at the top; rad=hypot(x*aspectX,
+    y*aspectY), ang=atan2(y*aspectY, x*aspectX) in (-pi, pi]. Composite (FinalComposite::UvToMathSpace):
+    the same p from u, v (v=0 at the top), rad normalised to 1 at the corners, ang wrapped to [0, 2pi).
+    """
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
-    columns,rows=np.meshgrid((np.arange(width)+.5)/width*2-1,1-(np.arange(height)+.5)/height*2)
-    return np.stack([np.hypot(columns*aspect_x,rows*aspect_y),np.arctan2(rows*aspect_y,columns*aspect_x)],axis=-1).astype(np.float32)
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width*2-1,(np.arange(height)+.5)/height*2-1)
+    px,py=columns*aspect_x,rows*aspect_y
+    rad=np.hypot(px,py);ang=np.arctan2(py,px)
+    if stage=='composite':
+        rad=rad/math.hypot(aspect_x,aspect_y);ang=np.where(ang<0,ang+2*math.pi,ang)
+    return np.stack([rad,ang],axis=-1).astype(np.float32)
 
 
 def _lowlevel_uniforms(width,height):
@@ -1167,7 +1193,7 @@ def _frame_rand(time,fps):
     return np.random.default_rng(7340033+int(round(time*fps))).random(4).astype(np.float32)
 
 
-def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,controls=None,blur_image=None):
+def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,controls=None,blur_image=None,stage='warp'):
     """Evaluate an exported stage program per pixel with the shared grid evaluator (source_stage_program).
 
     blur_image is the canvas the engine's blur textures were made from (default: image).
@@ -1175,7 +1201,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
     from grid_math import evaluate_grid
     height,width=image.shape[:2]
     blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,controls)
-    inputs={'_uv':uv.astype(np.float32),'_uv_orig':uv[...,2:].astype(np.float32),'_rad_ang':_rad_ang(width,height),
+    inputs={'_uv':uv.astype(np.float32),'_uv_orig':uv[...,2:].astype(np.float32),'_rad_ang':_rad_ang(width,height,stage),
             **_lowlevel_uniforms(width,height),**blur_uniforms,**_declared_uniforms(width,height,time,fps,bands),
             'rand_frame':np.asarray(rand if rand is not None else [.5]*4,np.float32),'rand_preset':np.full(4,.5,np.float32)}
     if diffuse is not None:inputs['_vDiffuse']=np.asarray(diffuse,np.float32)
@@ -1307,7 +1333,7 @@ def _affine_composite(image,facts,time,fps,blur_image=None):
     uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
     blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,_TERM_CONTEXT.get('bands'))
-    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**blur_uniforms,
+    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height,'composite'),**_lowlevel_uniforms(width,height),**blur_uniforms,
             ':native-render-time-f32':np.float32(time),'rand_frame':_frame_rand(time,fps)}
     def texture(name):
         if name=='main':return image
@@ -1344,7 +1370,7 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
             uv=np.stack([columns,rows,columns,rows],axis=-1)
             shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'),rand=_frame_rand(time,fps),
                                   controls=_TERM_CONTEXT.get('stage') or _TERM_CONTEXT.get('bands'),
-                                 blur_image=blur_image)
+                                 blur_image=blur_image,stage='composite')
             limitations.append('composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
             return np.clip(shown,0,1)
         except Exception as error:  # noqa: BLE001 - fall back to the affine/legacy display
@@ -1595,6 +1621,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             held.pop('instance',None)
             for index,(_,record) in enumerate(clouds):
                 inputs=dict(bands or {})
+                if record.get('frame_inputs'):
+                    # Positions inline main per-frame graphs: start-of-frame state and base inputs; never
+                    # written names read 0 (projectm-eval).
+                    inputs={**{name:0. for name in record['frame_inputs']},
+                            **{k:v for k,v in stage_controls.items() if isinstance(v,(int,float))},**inputs}
                 if record.get('waveform_inputs'):
                     # value1/value2: this frame's declared reference PCM window, prepared as CustomWaveform does.
                     from source_point_colour import waveform_point_values

@@ -280,3 +280,29 @@ def test_thick_custom_wave_flat_line_lights_one_row():
     image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., to_pixels)
     lit = np.nonzero(image[:, 20:460, 0].max(axis=1) > .5)[0]
     assert list(lit) == [135]
+
+
+def test_shader_rad_ang_follow_engine_frames():
+    from prediction_illustration import _rad_ang
+    warp = _rad_ang(480, 270)
+    comp = _rad_ang(480, 270, 'composite')
+    # y is measured downward from the top: the top-centre pixel has a negative warp angle and a composite
+    # angle near 1.5 pi (FinalComposite::UvToMathSpace wraps to [0, 2 pi)).
+    assert -np.pi / 2 - .05 < warp[0, 240, 1] < -np.pi / 2 + .05
+    assert 1.5 * np.pi - .05 < comp[0, 240, 1] < 1.5 * np.pi + .05
+    # Composite radius is 1 at the corners; the warp radius is hypot(x*aspectX, y*aspectY).
+    assert abs(comp[0, 0, 0] - 1) < .01 and abs(warp[0, 0, 0] - np.hypot(1, 270 / 480)) < .01
+
+
+def test_alpha_blended_dots_converge_to_their_colour():
+    from prediction_illustration import _draw_points
+    # 64 identical thick dots at one position, alpha .5, alpha blending: GL composites them in turn,
+    # so the pixel converges to the dot colour instead of summing past it.
+    constant = lambda v: {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': v}}]}
+    record = {'sample_count': 64, 'draw_flags': {'dots': True, 'thick': True, 'additive': False},
+              'programs': {'x': constant(.5), 'y': constant(.5), 'r': constant(1.), 'g': constant(.5), 'b': constant(0.), 'a': constant(.5)}}
+    def to_pixels(point):
+        return ((point[0] - .5) * 64 + 32, 18 - (point[1] - .5) * 64)
+    image = _draw_points(np.zeros((36, 64, 3), np.float32), record, 1., to_pixels)
+    lit = image[image.max(axis=-1) > 0]
+    assert len(lit) == 4 and np.allclose(lit, [1., .5, 0.], atol=1e-4)

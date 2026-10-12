@@ -1,0 +1,12 @@
+LLM look description from the SDK recipe (before capture, r19 v1):
+A slow, calm scene: the feedback image expands gently from the centre (0.2% per step) and decays
+through a custom warp (uniform gain about 0.88 per frame). Four custom waves are drawn as point
+clouds of 512 dots each at half alpha: two green and two orange, with positions moving with
+sample, time and audio. The composite resamples the canvas through angle/radius (polar or
+log-polar) coordinates, a tunnel-like mapping, so the dots and trails are likely seen wrapped into
+a tunnel or radial pattern around the centre. The built-in stereo X-Y wave is below the draw gate.
+Calibrated display estimate: Chill (activity 0.09, interval 0.00-0.63); luminance ~0.29,
+saturation ~0.46, frame difference ~0.03, flow ~0.05 screen widths/s, few brightness jumps
+(~0.4 per 10 s); warm-leaning colour.
+Expected: a calm, medium-dark tunnel or polar pattern of green and orange dotted streams slowly
+flowing outward, with no flashing.

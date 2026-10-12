@@ -29,5 +29,6 @@
    "simulation_alone": 0.429
   }
  },
- "conclusion": "the simulation adds information beyond the descriptor model for every statistic (largest for luminance and saturation)"
+ "conclusion": "diagnostic only: the source-only simulation recovers rank information the static descriptors miss (largest for luminance and saturation), which locates gaps in the static model (feedback equilibrium level, colour transfer through warp/composite)",
+ "use_policy": "owner decision 2026-10-12: simulation outputs are diagnostics, never measurements or grouping/calibration features; gaps are closed with derived mathematics and static analysis"
 }

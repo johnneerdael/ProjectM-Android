@@ -119,3 +119,13 @@ def test_per_point_state_alternates_point_by_point():
     programs = {'r': graph([constant(1.)]), 'g': graph([constant(1.)]), 'b': graph([constant(1.)]), 'a': alpha}
     record = point_colour_distribution(programs, 4, {}, point_recurrence=recurrence)
     assert record['status'] == 'closed_form_point_colours' and abs(record['mean_alpha'] - .5) < 1e-9
+
+
+def test_positions_with_main_frame_state_are_kept_with_their_frame_inputs():
+    from source_point_colour import _positions
+    graph = lambda name: {'root': 2, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'sample'}},
+                                               {'op': 'input', 'args': [], 'detail': {'name': name}},
+                                               {'op': 'add', 'args': [0, 1], 'detail': {}}]}
+    result = _positions({'x': graph('mtime'), 'y': graph('beat')}, 4, {}, (0.,))
+    assert result == {'positions_closed_form': True, 'position_bounds': None, 'frame_inputs': ['beat', 'mtime']}
+    assert _positions({'x': graph('state:wave_9_per_frame:t'), 'y': graph('beat')}, 4, {}, (0.,)) == {}

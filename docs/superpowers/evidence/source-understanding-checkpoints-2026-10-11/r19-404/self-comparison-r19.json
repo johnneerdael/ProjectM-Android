@@ -1,0 +1,84 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r19-v1/v2",
+ "preset": "404.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "17c41caa2a137807bd519fb66b94adeae3a83ca5a165a54e510ff677b5b462b6",
+  "description-v1-before-capture.json": "3e59841d2be4249c6ee727a63eaa6c56171a8f2d42c785a391714dfaabde5c3c",
+  "recipe-v1-before-capture.json": "e94ee2ed5de1242fbe2b9d9c9920cc2abe78619b67bf842a8f0bbc05510f4afd",
+  "prediction-v1.png": "d405c691e88ece093d8b4e3c62e489d3742afd20ed29229c14011d92b62eb35b",
+  "llm-look-description-v1.txt": "8d4803fa2c347cd16befe22cb0b2a2a8615591598fd575ffa9da5c6fbc207046"
+ },
+ "capture_result_sha256": "aca18c9a2c175f93de10f43f67984d86b6c6768a241b7c742f08f894f73d4199",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.108,
+  "mean_rgb_prediction": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.111,
+   0.12,
+   0.037
+  ],
+  "saturation": [
+   0.0,
+   0.389
+  ],
+  "blurred_luma_correlation": -0.04
+ },
+ "review_measurements_v2_after_general_fixes": {
+  "prediction_luma": 0.108,
+  "screenshot_luma": 0.108,
+  "mean_rgb_prediction": [
+   0.112,
+   0.119,
+   0.037
+  ],
+  "mean_rgb_screenshot": [
+   0.111,
+   0.12,
+   0.037
+  ],
+  "saturation": [
+   0.393,
+   0.389
+  ],
+  "blurred_luma_correlation": 1.0
+ },
+ "calibrated_display_estimate": {
+  "activity": 0.0919,
+  "bands": [
+   "Chill"
+  ],
+  "certain_bands": []
+ },
+ "agreements": [
+  "SDK text: calm (Chill), green and orange point waves, polar/tunnel composite, no flashing",
+  "Capture: four mirrored articulated arm structures (yellow/orange and teal dots) wrapped by the polar composite on black; calm"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "v1 prediction entirely black",
+   "cause": "(1) the point waves' positions inline main per-frame q1 over per-frame state (mtime, beat counters), which the point record treated as unresolved, so no positions were exported; (2) shader rad/ang used y up: the engine measures y downward in both stages, and the composite normalises rad to 1 at the corners and wraps ang to [0, 2pi), so the polar composite was mirrored; (3) overlapping alpha-blended dots (and thick line passes) were summed before one blend, overshooting toward white instead of converging to the dot colour",
+   "next": "fixed generally (v2): luma 0.108 vs 0.108, colour within 0.001, blurred correlation 1.0"
+  },
+  {
+   "size": "small",
+   "observed": "frozen text did not anticipate the articulated 3D arm shapes",
+   "cause": "the recipe states point colours and mechanisms but not the projected 3D geometry of the point programs",
+   "next": "describe point-program geometry (3D rotation/projection chains) in the recipe"
+  }
+ ],
+ "general_fixes_after_capture": [
+  "point positions depending on main per-frame state are exported with frame_inputs and resolved by stepping the frame program (start-of-frame values; never-written names read 0)",
+  "shader rad/ang per stage: warp (-pi, pi] with y down; composite rad normalised to the corners and ang in [0, 2pi) (FinalComposite::UvToMathSpace)",
+  "alpha-blended dots composite in turn (transmittance product, alpha-weighted colour); thick alpha-blended line passes blend separately"
+ ],
+ "status": "understood (v2 matches the capture: luma 0.108 vs 0.108, blurred correlation 1.0)",
+ "uses_rendered_images_for_classification": false
+}

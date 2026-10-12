@@ -115,7 +115,7 @@ def _layer(facts,index):
         if points.get('status')=='closed_form_point_colours':
             layer['point_cloud']={'points_per_frame':points.get('sample_count'),'sample_grid':'sample=j/(N-1)',
                 **{k:copy.deepcopy(points.get(k)) for k in ('hue_family_shares','mean_rgb','mean_alpha','mean_saturation',
-                   'held_inputs','positions_closed_form','position_bounds','programs')},
+                   'held_inputs','positions_closed_form','position_bounds','frame_inputs','programs')},
                 'coordinates':'MilkDrop source x right, y down, nominal [0,1]; colours native modulo 256/255 then clamp',
                 'evidence':colour_path}
         break

@@ -831,6 +831,13 @@ repeated on correctly oriented frames. Probes and results:
   difference), 0.51 (jumps) and 0.45 (saturation). Before today's fixes it was
   0.20 / 0.17 / 0.34 / 0.08. The calibrated model on the same presets reaches
   0.66 / 0.71 / 0.71 / 0.58.
+- **Simulation is a diagnostic only.** The simulation evaluates exported source
+  formulas frame by frame. It is never a measurement and never a grouping or
+  calibration feature (owner decision, 2026-10-12). Stacking it on the
+  calibrated estimate in a 2,400-preset pilot raised luminance from 0.56 to
+  0.68 and saturation from 0.58 to 0.69. That gain only locates gaps in the
+  static model: the level the feedback loop settles at, and how colour passes
+  through the warp and composite. These gaps are closed with derived formulas.
 - **Frame counter.** The per-frame `frame` variable is projectM's `m_frameCount`:
   0 on the first rendered frame, which renders at time 1/fps. Frame k therefore
   has `frame = k` at time (k+1)/fps; the illustrator had passed k+1. On r11,
@@ -916,3 +923,23 @@ repeated on correctly oriented frames. Probes and results:
   matches the native passthrough canvas within 0.001. The frozen text had
   expected a coloured disc. That disc is hidden, because its visibility needs
   64 beats, and the look comes from the composite's sun and ray terms.
+- **Point positions over per-frame state.** Custom-wave positions can inline
+  main per-frame Q graphs, such as an `mtime` accumulator or beat counters.
+  Their records keep closed-form positions and list the per-frame inputs those
+  positions read (`frame_inputs`). The illustrator resolves them by stepping the
+  exported frame program, using values from the start of the frame; names that
+  are never written read 0.
+- **Shader rad/ang.** Both stages measure y downward from the top. The warp mesh
+  uses `rad = hypot(x·aspectX, y·aspectY)` and `ang = atan2(y·aspectY,
+  x·aspectX)`. The composite (`FinalComposite::UvToMathSpace`) scales rad to 1
+  at the corners and wraps ang to [0, 2π). With y measured upward, polar
+  composites came out mirrored.
+- **Alpha-blended dots and thick passes.** GL composites overlapping
+  alpha-blended points one after another. The background keeps ∏(1 − a), and
+  the points' alpha-weighted colour fills the rest, so dense dots converge to
+  their colour. Summing them had pushed the result toward white. Each thick line
+  pass is blended on its own.
+- **r19 (`404.milk`) v1 → v2.** v1 was black. v2 matches the capture: four
+  articulated arms of yellow, orange and teal dots wrapped by the polar
+  composite, luma 0.108 vs 0.108 and a blurred correlation of 1.0. The
+  regression on r8–r18 is unchanged or better (r14: 0.928 → 0.964).
