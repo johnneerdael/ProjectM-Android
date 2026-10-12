@@ -16,6 +16,8 @@ SCRIPT = ROOT / "release_commit.py"
 def load(name):
     spec = importlib.util.spec_from_file_location(name, ROOT / f"{name}.py")
     module = importlib.util.module_from_spec(spec)
+    # Dataclasses resolve their module through sys.modules (required on Python 3.12).
+    sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
