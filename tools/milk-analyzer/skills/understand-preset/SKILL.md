@@ -143,6 +143,29 @@ required. Use a native file-read tool to inspect JSON and the summary.
    interval width (out-of-fold primary-band accuracy 0.85 high, 0.64 overall).
    Report it as a calibrated estimate, not a rendered measurement of the preset.
 
+## Select by facets
+
+A recipe's `facets` block (policy `preset-facets-v1`) and each
+`preference-index.json` entry give Mood facet memberships: Energy (chill,
+normal, intense), Brightness (dark, balanced, bright), Colour (monochrome,
+pastel, vivid, warm, cool), Movement (still, drifting, fast), Style
+(kaleidoscope, tunnel, liquid, geometric, particles, fractal) and Comfort
+(no_strobe).
+
+- Select by facets: pass option ids, e.g. `preference_select.py index.json
+  pref.json` with `{"facets": ["chill", "dark", "no_strobe"]}`. Options combine
+  OR within a group and AND across groups; unknown ids are ignored and reported.
+  The facet pool is intersected with the other preference filters, and the
+  response's `facets` gives `count`, `option_counts` and `dimmed`.
+- State the evidence: `engine-ruler-measured` values are the bundled table's
+  measurements for that exact bundled preset; `source-calibrated` values are
+  calibrated estimates with intervals. Report `possible_options` as options
+  whose membership changes inside those intervals, and `unresolved_options`
+  (Monochrome and Pastel for calibrated presets, because coloured share is not
+  estimated) as unknown, never as absent or present.
+- Style facets come from source mechanisms and structure scores, not from images.
+  No facet value comes from a simulation or rendered frame of the described preset.
+
 ## Write the explanation
 
 Start with the approximate look, then describe colours, source motion and audio

@@ -418,6 +418,91 @@ and `profile.eligible=false`. These are explicit preference assumptions, not
 verified descriptions of scene topology. See [SOURCE_SCORING.md](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-visual-loop/tools/milk-analyzer/SOURCE_SCORING.md)
 for exact formulas, aliases, thresholds and requirements.
 
+### Mood facets block (`facets`, policy `preset-facets-v1`)
+
+`preset_recipe.py` adds a `facets` block to every recipe, and
+`corpus_understanding.py` copies the same block into each entry of
+`preference-index.json` (`presets[].facets`). The facets, their thresholds and
+the combination rule come from the frozen definition
+`tools/milk-analyzer/facets/facets-v1.json`; `preset_facets.py` evaluates them
+(`memberships`, `select`), and `fixtures/facet-selection-vectors-v1.json` holds
+the selection vectors that the Android `PresetFacets` shares. An existing
+results directory gains facets with `corpus_understanding.py --rescore`.
+
+```json
+{"policy": "preset-facets-v1", "definition_sha256": "046aad75…",
+ "evidence": "source-calibrated", "style_evidence": "source-structure-facts",
+ "options": ["chill", "normal", "balanced", "still", "tunnel", "particles", "no_strobe"],
+ "possible_options": ["chill", "normal", "dark", "balanced", "bright", "vivid", "warm", "still", "drifting", "no_strobe"],
+ "unresolved_options": ["monochrome", "pastel"],
+ "style": ["tunnel", "particles"],
+ "values": {"luminance": {"value": 0.288, "interval": [0.086, 0.547], "evidence": "source-calibrated"},
+            "activity": {"value": 0.313, "interval": [0.006, 0.641], "evidence": "source-calibrated"},
+            "coloured_share": {"value": null, "evidence": "not-estimated"}, "…": "…"},
+ "activity_source": "frozen-facet-reference-from-calibrated-statistics"}
+```
+
+Where the values come from (no simulation output and no rendered frame of the
+described preset feeds any value):
+
+- **`engine-ruler-measured`**: the preset name has a measured row in the bundled
+  table `core/src/main/assets/preset-attributes/attributes.tsv`, and, when the
+  summary carries a preset hash, the bundled preset file has the same bytes.
+  `values` are the table's stored values (`warm_cool` is null when the table has
+  `-`, meaning no coloured pixels); `options` are the table's options column
+  unchanged; `possible_options` and `unresolved_options` are empty;
+  `activity_source` is `engine-ruler-measured-bundle`; `bundle` names the table
+  and its SHA-256. A name match with different bytes falls back to the
+  source-calibrated path and says so in `note`.
+- **`source-calibrated`**: any other preset. `luminance`, `saturation`,
+  `warm_cool`, `flow`, `frame_difference` and `jumps` are the recipe's
+  `display_estimate.statistics` (`mean_luminance`, `mean_saturation`,
+  `warm_cool`, `mean_flow_screen_widths_per_s`, `mean_abs_frame_difference`,
+  `global_brightness_jumps_per_10s`) with their 10th–90th percentile
+  out-of-fold intervals. `activity` is computed from the calibrated frame
+  difference, flow and jumps point values against the frozen facet activity
+  reference `facets/activity-reference-v1.json` (mean of the three metric
+  mid-ranks, placed in the frozen mean-rank table, as the bundle does); its
+  interval combines the all-low and all-high metric ends.
+  `display_estimate.activity.activity` is not used for facets: it is remapped
+  into the distribution of calibrated estimates, a different percentile scale.
+  `coloured_share` is not estimated, so Monochrome and Pastel (which depends on
+  "not Monochrome") are listed in `unresolved_options` and are never members.
+- **`unavailable`**: no calibrated display model is installed; metric options
+  are unresolved and only style facets can be members.
+
+Membership rules:
+
+- `options`: options whose rule holds for the point values (definition order),
+  minus unresolved options.
+- `possible_options`: options whose rule is not constant across the reported
+  intervals: it holds for some values inside them and fails for others. A
+  member can be listed (its interval straddles a threshold) and so can a
+  non-member that could hold inside the interval. Options absent from both
+  lists fail everywhere in the intervals.
+- `unresolved_options`: options whose rule needs a value that is not available,
+  directly or through `not_option`.
+- Style facets (`style`) come from `facet_style_facts.style_facts(summary)`:
+  proven source mechanisms and approximate structure scores
+  (`style_evidence: source-structure-facts`).
+
+The bundle format: header `#projectm-tv-preset-attributes\t1`, `#definition\t<sha256
+of facets-v1.json>`, `#group`/`#option` lines in definition order, then
+`#columns\tname\toptions\tluminance\tsaturation\tcoloured_share\twarm_cool\tflow\tframe_difference\tjumps\tactivity`.
+Each row is `name`, comma-separated options and eight values with four
+decimals; `-` marks an unmeasured preset (all values, no options) or an
+undefined `warm_cool`. The measurement is the engine ruler named in the
+definition's `measurement` field.
+
+`preference_select.py` accepts `"facets": ["chill", "no_strobe"]`: option ids
+combine OR within a group and AND across groups (`preset_facets.select`);
+unknown ids are reported in `facets.ignored`. The facet pool is intersected with
+all other filters (profiles, comfort, activity window, palette, confidence and
+feedback). The response gains `facets` with `selected`, `ignored`, `count`,
+`option_counts` (the pool size if that option were toggled) and `dimmed`
+(options that would leave nothing), computed over the presets the other
+filters keep. An index entry without a facets block matches no facet request.
+
 ## 6. Consume it for a native-4K adaptation
 
 A downstream renderer can build a **new scene guided by supported evidence**:

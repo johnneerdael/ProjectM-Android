@@ -474,12 +474,18 @@ the owner-chosen 70+ gentle default) and the research fit formula.
 ranks presets for an editable preference file: profiles, activity window,
 comfort rules (`no_flashing` excludes unknown or assumed flash evidence,
 `min_smoothness`, `max_speed_vp_s`), palette warm/cold, preferred and avoided
-tags (avoided possible tags also count), minimum confidence and limit. Every
-selected preset lists its reasons. These are assumption-based preferences, not
+tags (avoided possible tags also count), minimum confidence, Mood facets
+(`"facets": [option ids]`, OR within a group and AND across groups, intersected
+with the other filters) and limit. Every selected preset lists its reasons. These are assumption-based preferences, not
 calibrated taste; explicit user feedback should replace defaults.
 
 `preset_recipe.py` wraps the mood record with an engine-neutral render/intent
 description in one versioned JSON, so later consumers need no contract change.
+Its `facets` block (also copied into each preference-index entry) gives Mood
+facet memberships from the bundled engine-ruler measurements for bundled
+presets, otherwise from the source-calibrated display estimate with intervals,
+`possible_options` and `unresolved_options` (see EXPORT_CONTRACT.md, Mood facets
+block); no simulation output feeds it.
 
 Feedback (`feedback` in the preference file) works on the feature vectors:
 `liked`/`disliked` presets add a similarity bonus/penalty from standardised
