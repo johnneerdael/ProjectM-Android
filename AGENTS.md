@@ -14,7 +14,7 @@ Each successfully tested merge to `main` publishes GitHub and F-Droid APKs for T
 - Preserve upstream attribution when describing backported fixes.
 - Do not bump versions in routine PRs. The base version/code/commit in `app/build.gradle` define the automatic release sequence. Change them together only for a planned new release line; follow `docs/RELEASING.md`.
 
-For release tooling changes, install `tools/fdroid/requirements.txt` in a task-specific virtual environment, then run its Python with `-m unittest discover -s .github/scripts/tests -v` (includes pinned F-Droid importer/discovery/sync checks). Review factual accuracy of the PR release notes: CI validates their presence and placeholders, not the truth of English prose.
+For release tooling changes, install `tools/fdroid/requirements.txt` in a task-specific virtual environment, then run its Python with `-m unittest discover -s .github/scripts/tests -v` (includes pinned F-Droid importer/discovery/sync checks). CI uses the same pinned environment. Reviewed PR builds reuse workflow definitions from trusted `main`; introduce new test dependencies there before PR sources require them. Review factual accuracy of the PR release notes: CI validates their presence and placeholders, not the truth of English prose.
 
 ## Maintaining this file
 
