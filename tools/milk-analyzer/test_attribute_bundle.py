@@ -183,6 +183,32 @@ class BundleTest(unittest.TestCase):
             problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')
             self.assertTrue(any('a.milk' in p for p in problems), problems)
 
+    def test_check_requires_bundle_rows_to_match_the_manifest_measured_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            self.build(t)
+            mpath = t / 'ruler-manifest.json'
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=mpath), [])
+
+            def rerecord():
+                bm = json.loads((t / 'out' / 'manifest.json').read_text())
+                bm['ruler_results_manifest_sha256'] = hashlib.sha256(mpath.read_bytes()).hexdigest()
+                (t / 'out' / 'manifest.json').write_text(json.dumps(bm))
+            original = mpath.read_text()
+            data = json.loads(original)
+            for row in data['rows']:
+                if row['preset'] == 'a.milk':
+                    row['status'] = 'render_error'
+            mpath.write_text(json.dumps(data)); rerecord()
+            problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=mpath)
+            self.assertTrue(any('a.milk' in p and 'measured' in p for p in problems), problems)
+            data = json.loads(original)
+            data['rows'].append({'preset': 'd.milk', 'preset_sha256': hashlib.sha256((t / 'presets' / 'd.milk').read_bytes()).hexdigest(),
+                                 'result_sha256': '0' * 64, 'status': 'measured'})
+            mpath.write_text(json.dumps(data)); rerecord()
+            problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=mpath)
+            self.assertTrue(any('d.milk' in p and 'measured' in p for p in problems), problems)
+
     def freeze(self, t):
         return B.freeze_activity_reference(t / 'ruler', t / 'reference.json', t / 'ruler-manifest.json', t / 'presets.idx')
 

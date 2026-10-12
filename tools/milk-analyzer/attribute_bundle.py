@@ -287,13 +287,15 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
     recorded = manifest.get('ruler_results_manifest_sha256')
     if not recorded:
         problems.append('manifest records no ruler results manifest hash')
+    evidence = None
     if ruler_manifest is None:
         problems.append('ruler results manifest evidence path is required')
     else:
         try:
             if recorded and _sha(Path(ruler_manifest).read_bytes()) != recorded:
                 problems.append('ruler results manifest evidence differs from the bundle manifest hash')
-            problems += preset_asset_problems(_index_names(presets_idx), _manifest_entries(ruler_manifest),
+            evidence = _manifest_entries(ruler_manifest)
+            problems += preset_asset_problems(_index_names(presets_idx), evidence,
                                               _presets_dir(presets_idx, presets_dir))
         except (OSError, KeyError, ValueError) as error:
             problems.append('ruler results manifest evidence unreadable: %s' % error)
@@ -308,9 +310,15 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
     names = [r[0] for r in rows]
     if names != sorted(_index_names(presets_idx)):
         problems.append('attributes rows do not match presets.idx names')
+    state = []
     for row in rows:
         if len(row) != 2 + len(COLUMNS):
             problems.append('malformed row: ' + row[0]); continue
+        if evidence is not None:
+            in_evidence = (evidence.get(row[0]) or {}).get('status') == 'measured'
+            if in_evidence != (not all(v == '-' for v in row[2:])):
+                state.append('%s: bundle row is %s but the evidence manifest is %s' % (
+                    row[0], 'measured' if not in_evidence else 'unmeasured', 'not measured' if not in_evidence else 'measured'))
         if all(v == '-' for v in row[2:]):
             if row[1]:
                 problems.append('unmeasured preset has options: ' + row[0])
@@ -320,6 +328,8 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
         style = {o for o in options if o in {s['id'] for g in definition['groups'] if g['id'] == 'style' for s in g['options']}}
         if preset_facets.memberships(values, style, definition) != options:
             problems.append('attributes membership mismatch: ' + row[0])
+    if state:
+        problems.append('bundle rows differ from the evidence manifest measured state (%d): %s' % (len(state), '; '.join(state[:5])))
     return problems
 
 
