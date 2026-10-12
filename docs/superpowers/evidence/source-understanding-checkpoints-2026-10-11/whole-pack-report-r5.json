@@ -1,0 +1,52 @@
+{
+  "policy": "source-corpus-understanding-v1",
+  "presets": 9606,
+  "status": {
+    "computed": 9606
+  },
+  "approximate_band_counts": {
+    "Normal": 6953,
+    "Chill": 1194,
+    "Intense": 1498
+  },
+  "confidence_counts": {
+    "medium": 8740,
+    "low": 843,
+    "high": 23
+  },
+  "abstained_presets": 843,
+  "strict_eligible_presets": 0,
+  "activity_histogram": {
+    "0": 12,
+    "10": 557,
+    "20": 1131,
+    "30": 1654,
+    "40": 1521,
+    "50": 1302,
+    "60": 1929,
+    "70": 739,
+    "80": 404,
+    "90": 338,
+    "100": 19
+  },
+  "calibrated": false,
+  "uses_rendered_images": false,
+  "notes": [
+    "Approximate bands are editable assumption-based preference groups, not calibrated moods",
+    "Confidence reflects the share of prior-only drivers; low-confidence presets need more source mathematics"
+  ],
+  "tag_counts": {
+    "Organic / Liquid": 3927,
+    "Smooth": 3444,
+    "Geometric": 1930,
+    "Reactive": 1879,
+    "Flashing": 1512,
+    "Hypnotic": 1319,
+    "Warm": 952,
+    "Psychedelic": 887,
+    "Dark": 798,
+    "Cold": 695,
+    "Fractal": 123,
+    "Bright / Vibrant": 24
+  }
+}

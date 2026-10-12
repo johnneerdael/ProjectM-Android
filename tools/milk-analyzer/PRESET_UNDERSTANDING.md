@@ -618,3 +618,21 @@ tint hue placement remain unmodelled.
   `flash.coherent_transitions_hz` (evidence `source-estimate+declared-audio`).
   Feedback accumulation and the composite are excluded, and the sequence is a
   declared input, not music statistics.
+
+### Stochastic shapes and custom composites (r6 checkpoint)
+
+- The illustrator samples projectm-eval `rand(x)` (uniform on
+  `[0, max(1, floor(x)))`) with a seeded per-frame generator. This is a Monte
+  Carlo draw of the authored distribution, not the engine's random stream.
+  It also draws instanced shapes, binding `instance` from 0 to num_inst-1.
+- Mesh terms the export leaves unresolved are held at their range midpoint (or
+  zero), and the illustration continues instead of stopping.
+- Affine custom composites (`texture_colour_transfer.stages.composite`, now in
+  the summary) are applied as the sum of matrix x texture(coordinates) plus
+  offset lanes. They are evaluated with the grid evaluator using the shader
+  low-level uniforms (`_c0`/`_c5`/`_c6`/`_c7`/`_c13`, `texsize_main`) and
+  per-pixel `_rad_ang`. Blur levels are Gaussians and noise textures are
+  deterministic stand-ins.
+- Whole-pack run r5 (analyzer `72b11bea`): all 9,606 presets computed.
+  Approximate bands are Chill 1,194, Normal 6,953 and Intense 1,498, with 843
+  abstentions (8.8%).

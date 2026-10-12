@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "orb - inferno - burnt to a crisp - ngdothz.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r6-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "348f430a17677fa9678972be9fc5647432a9b9c8f25171a2d81e7ebefe3c9ae0",
+  "recipe-v2-before-capture.json": "b628a6d4e896bbed077728bd04a69e995c6be4a3416912abeff0e4deff2fcadb",
+  "description-v2-before-capture.json": "18a3715d4e845adc9cae9c624f23b9c6cc4cc426c3bf0999900337ac840ccdc7",
+  "prediction-v2.png": "74c6a668e831ee7db6255b9596624d00980201c97f8e1c21599fc0aea185a303"
+ },
+ "capture_result_sha256": "ac1a7d8c68eca37bef39b64d3592aa73dc9f8e53fedce6f06df52bc7b313fb1e",
+ "review_measurements": {
+  "prediction": {
+   "luma": 0.539,
+   "saturation": 0.292,
+   "mean_rgb": [
+    0.492,
+    0.55,
+    0.572
+   ]
+  },
+  "native_frames": {
+   "60": {
+    "luma": 0.636,
+    "saturation": 0.216
+   },
+   "149": {
+    "luma": 0.843,
+    "saturation": 0.141
+   },
+   "240": {
+    "luma": 0.781,
+    "saturation": 0.299
+   }
+  }
+ },
+ "agreements": [
+  "Bright pastel washes of lavender/pink/teal/yellow",
+  "Saturation in the native range"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Native white bloom peaks and yellow dominance; prediction teal/lavender and softer",
+   "cause": "blur levels approximated by Gaussians; display brightness peaks depend on audio-driven feedback"
+  },
+  {
+   "size": "medium",
+   "observed": "Jagged noise-advection tearing and diagonal tear lines missing",
+   "cause": "noise textures are smooth stand-ins; random sx/sy flips and 1 rad rotation jumps held at range midpoints in mesh terms"
+  }
+ ]
+}

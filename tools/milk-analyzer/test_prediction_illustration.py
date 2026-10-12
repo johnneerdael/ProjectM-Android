@@ -93,3 +93,20 @@ def test_declared_audio_requires_all_bands(tmp_path):
     (tmp_path / 'bad.json').write_text(json.dumps({'frames': [{'bass': 1}]}))
     with pytest.raises(ValueError):
         declared_audio(tmp_path / 'bad.json')
+
+
+def test_seeded_rand_samples_projectm_eval_range():
+    import numpy as np
+    from prediction_illustration import _evaluate_np
+    program = {'root': 1, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': 6.7}},
+                                    {'op': 'rand', 'args': [0], 'detail': {}}]}
+    values = [float(_evaluate_np(program, {}, np.random.default_rng(seed))) for seed in range(200)]
+    assert 0 <= min(values) and max(values) < 6 and max(values) > 5  # uniform on [0, floor(6.7))
+
+
+def test_fit_inputs_trims_vector_width_to_declared_dtype():
+    import numpy as np
+    from prediction_illustration import _fit_inputs
+    expression = {'nodes': [{'op': 'input', 'dtype': 'float2', 'args': [], 'detail': {'name': '_uv'}}]}
+    fitted = _fit_inputs(expression, {'_uv': np.zeros((3, 4), np.float32)})
+    assert fitted['_uv'].shape == (3, 2)

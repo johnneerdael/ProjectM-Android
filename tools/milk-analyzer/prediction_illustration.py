@@ -186,6 +186,9 @@ def _mid(span):
     return None if not isinstance(span,list) or len(span)!=2 or None in span else (span[0]+span[1])/2
 
 
+_UNRESOLVED_TERMS=set()
+
+
 def _terms_field(terms,x,y,time):
     """Vectorised sum of decomposed control terms over per-pixel coordinates."""
     total=np.zeros_like(x)
@@ -226,7 +229,12 @@ def _terms_field(terms,x,y,time):
                 if low is not None:mask&=coordinate>low
                 if high is not None:mask&=coordinate<high
                 total+=np.where(mask,_terms_field(branch['terms'],x,y,time),0.0)
-        else:raise ValueError(str(kind)+' term not illustrated')
+        else:
+            # Unresolved terms (random, state or unsupported inputs) are held at their range midpoint,
+            # or zero without a range; the illustration continues and records the substitution.
+            value=_mid(term.get('value_range'))
+            total+=0. if value is None else value
+            _UNRESOLVED_TERMS.add(str(kind))
     return total
 
 
@@ -391,17 +399,28 @@ _UNARY_NP={'sin':np.sin,'cos':np.cos,'tan':np.tan,'abs':np.abs,'negate':np.negat
            'ceil':np.ceil,'int':np.floor,'sign':np.sign,'exp':np.exp,'atan':np.arctan}
 
 
-def _evaluate_np(expression,inputs):
-    """Vectorised twin of time_expression.evaluate_inputs (same projectm-eval semantics)."""
+_STOCHASTIC={'rand'}
+
+
+def _evaluate_np(expression,inputs,rng=None):
+    """Vectorised twin of time_expression.evaluate_inputs (same projectm-eval semantics).
+
+    With an rng, projectm-eval rand(x) is sampled as uniform [0, max(1, floor(x))): a seeded
+    Monte Carlo draw of the authored distribution, not the engine's random stream.
+    """
     from time_expression import input_names
-    names=input_names(expression)
+    stochastic=rng is not None and any(n['op'] in _STOCHASTIC for n in expression['nodes'])
+    plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if stochastic and n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
+    names=input_names(plain)
     if names is None or names-set(inputs):raise ValueError('point program not evaluable')
     nodes=expression['nodes'];memo={}
     def value(index):
         if index in memo:return memo[index]
         node=nodes[index];op=node['op'];args=[value(a) for a in node['args']]
         with np.errstate(all='ignore'):
-            if op=='constant':result=np.float64(node['detail']['value'])
+            if op=='rand' and rng is not None:
+                limit=np.maximum(1.,np.floor(args[0]));result=rng.random(np.shape(limit))*limit
+            elif op=='constant':result=np.float64(node['detail']['value'])
             elif op=='input':result=np.asarray(inputs[node['detail']['name']],np.float64)
             elif op=='add':result=args[0]+args[1]
             elif op=='subtract':result=args[0]-args[1]
@@ -522,13 +541,13 @@ def _sprite_operators(facts,width,height):
     return operators
 
 
-def _value_at(record,key,expression_key,held,time):
+def _value_at(record,key,expression_key,held,time,rng=None):
     """Constant or closed-form value of a control/texture field at a declared time."""
     if record is None:return None
     constant=record.get(key)
     if type(constant) in (int,float):return float(constant)
     expression=record.get(expression_key)
-    try:return float(np.asarray(_evaluate_np(expression,{**held,'time':time})).reshape(-1)[0])
+    try:return float(np.asarray(_evaluate_np(expression,{**held,'time':time},rng)).reshape(-1)[0])
     except (ValueError,TypeError,KeyError,AttributeError):return None
 
 
@@ -544,16 +563,17 @@ def _textured_shapes(facts,held):
         controls={(v or {}).get('control'):v for p,v in facts.items() if p.startswith(element+'/motion_controls/') and isinstance(v,dict)}
         geometry=facts.get(element+'/geometry') or {}
         sides=geometry.get('effective_sides')
-        if type(sides) not in (int,float) or (geometry.get('configured_instances') or 1)!=1:continue
+        instances=geometry.get('configured_instances') or 1
+        if type(sides) not in (int,float) or type(instances) not in (int,float) or not 1<=instances<=1024:continue
         shapes.append({'id':facts.get(element+'/id'),'controls':controls,'texture':texture,'sides':int(sides),
                        'textured':texture.get('role')=='previous_main',
                        'channels':material.get('channel_expressions') or {},'blend':material.get('blend_mode'),
                        'rgb':(material.get('centre_vertex_rgba') or [1,1,1,None])[:3],
-                       'thick_outline':bool(material.get('thick_outline')),'held':held})
+                       'thick_outline':bool(material.get('thick_outline')),'held':held,'instances':int(instances)})
     return shapes
 
 
-def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None):
+def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None):
     """Exact affine fan mapping of a textured shape onto the previous frame.
 
     projectM CustomShape: vertex NDC = (2x-1 + rad*cos(t)*aspectY, 1-2y + rad*sin(t)); the
@@ -568,12 +588,12 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None):
     def control(name,default=None):
         record=shape['controls'].get(name)
         if record is None:return default
-        return _value_at(record,'constant_value','expression',held,time)
+        return _value_at(record,'constant_value','expression',held,time,rng)
     x=control('position_x');y=control('position_y');radius=control('radius');angle=control('rotation',0.)
-    zoom=_value_at(shape['texture'],'tex_zoom_source','tex_zoom_expression',held,time)
-    tex_angle=_value_at(shape['texture'],'tex_angle_source_rad','tex_angle_expression',held,time)
+    zoom=_value_at(shape['texture'],'tex_zoom_source','tex_zoom_expression',held,time,rng)
+    tex_angle=_value_at(shape['texture'],'tex_angle_source_rad','tex_angle_expression',held,time,rng)
     def channel(group,name):
-        value=_value_at({'expression':(shape['channels'].get(group) or {}).get(name)},'none','expression',held,time)
+        value=_value_at({'expression':(shape['channels'].get(group) or {}).get(name)},'none','expression',held,time,rng)
         if value is None:return None
         period=256/255  # projectM color_modulo, then [0,1]
         return min(1.,max(0.,math.fmod(math.fmod(value,period)+period,period)))
@@ -639,9 +659,53 @@ def _field_from_expression(expression):
         # The export keeps member fields but not the swizzle flag; xyzw/rgba fields are swizzles.
         if node['op']=='member' and isinstance(detail.get('field'),str) and detail['field'] and set(detail['field'])<=set('xyzwrgba'):
             detail['swizzle']=True
-        built[index]=Field(node['op'],tuple(build(a) for a in node['args']),node.get('dtype','float'),detail)
+        op=node['op']
+        # 'narrow' is the native double->float32 upload; the grid evaluator stores float32, so a cast suffices.
+        if op=='narrow':op='cast'
+        built[index]=Field(op,tuple(build(a) for a in node['args']),node.get('dtype','float'),detail)
         return built[index]
     return build(expression['root'])
+
+
+def _fit_inputs(expression,inputs):
+    """Trim vector inputs to the width each graph declares (composite _uv is float2, warp _uv float4)."""
+    fitted=dict(inputs)
+    for node in expression.get('nodes',[]):
+        if node.get('op')!='input':continue
+        name=node.get('detail',{}).get('name');dtype=node.get('dtype','')
+        value=fitted.get(name)
+        if isinstance(value,np.ndarray) and dtype[-1:].isdigit() and dtype.startswith('float'):
+            width=int(dtype[-1])
+            if value.shape[-1]>width:fitted[name]=value[...,:width]
+    return fitted
+
+
+def _rad_ang(width,height):
+    """Per-pixel shader rad/ang: radius=hypot(x*aspectX, y*aspectY), angle=atan2(y*aspectY, x*aspectX), NDC with y up."""
+    aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width*2-1,1-(np.arange(height)+.5)/height*2)
+    return np.stack([np.hypot(columns*aspect_x,rows*aspect_y),np.arctan2(rows*aspect_y,columns*aspect_x)],axis=-1).astype(np.float32)
+
+
+def _lowlevel_uniforms(width,height):
+    """Shader low-level uniforms as pipeline_fields binds them (blur ranges at their [0,1] defaults)."""
+    aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
+    size=np.array([width,height,1/width,1/height],np.float32)
+    return {'_c0':np.array([aspect_x,aspect_y,1/aspect_x,1/aspect_y],np.float32),'_c1':np.zeros(4,np.float32),
+            '_c5':np.array([1,0,1,0],np.float32),'_c6':np.array([1,0,0,1],np.float32),'_c7':size,'texsize_main':size,
+            '_c13':np.array([0,1,0,1],np.float32)}
+
+
+_NOISE={}
+
+
+def _noise_texture(name):
+    """Deterministic stand-in for projectM noise textures (lq/mq/hq: coarse to fine), values in [0,1]."""
+    if name not in _NOISE:
+        cells={'noise_lq':32,'noise_lq_lite':32,'noise_mq':64,'noise_hq':256}.get(name,64)
+        rng=np.random.default_rng(abs(hash(name))%(2**32))
+        _NOISE[name]=cv2.resize(rng.random((cells,cells,3)).astype(np.float32),(256,256),interpolation=cv2.INTER_CUBIC).clip(0,1)
+    return _NOISE[name]
 
 
 def _injection_lanes(transfer):
@@ -660,7 +724,7 @@ def _main_coordinate_field(transfer):
     except (KeyError,TypeError,IndexError):return None
 
 
-def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=None):
+def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=None,bands=None):
     """Evaluate injected warp terms over the pixel grid with the shared grid evaluator.
 
     _uv.xy is the per-pixel warped sample position and _uv.zw the pixel position (MilkDrop shader
@@ -673,23 +737,25 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
     uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,columns,rows],axis=-1).astype(np.float32)
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
     rng=np.random.default_rng(1000003+frame_index)
-    inputs={'_uv':uv,'_c0':np.array([aspect_x,aspect_y,1/aspect_x,1/aspect_y],np.float32),
+    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**{k:np.float32(v) for k,v in (bands or {}).items()},
             'rand_frame':rng.random(4).astype(np.float32),':native-render-time-f32':np.float32(time)}
     blurred={}
     def sample(detail,coordinates):
         texture=detail.get('canonical_texture','main')
         source=image
-        if texture.startswith('blur'):
+        if str(texture).startswith('noise'):source=_noise_texture(str(texture))
+        elif texture.startswith('blur'):
             level=int(texture[4:] or 1)
             if level not in blurred:blurred[level]=cv2.GaussianBlur(image,(0,0),2.**level)
             source=blurred[level]
         wrap=(detail.get('sampling_policy') or {}).get('wrap',True)
-        u=coordinates[:,0]*width-.5;v=coordinates[:,1]*height-.5
-        if wrap:u=np.mod(u,width);v=np.mod(v,height)
-        else:u=np.clip(u,0,width-1);v=np.clip(v,0,height-1)
+        th,tw=source.shape[:2]
+        u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
+        if wrap:u=np.mod(u,tw);v=np.mod(v,th)
+        else:u=np.clip(u,0,tw-1);v=np.clip(v,0,th-1)
         x0=np.floor(u).astype(int);y0=np.floor(v).astype(int);fx=(u-x0)[:,None];fy=(v-y0)[:,None]
         fix=(lambda i,n:np.mod(i,n)) if wrap else (lambda i,n:np.clip(i,0,n-1))
-        x1=fix(x0+1,width);y1=fix(y0+1,height);x0=fix(x0,width);y0=fix(y0,height)
+        x1=fix(x0+1,tw);y1=fix(y0+1,th);x0=fix(x0,tw);y0=fix(y0,th)
         values=((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     if coordinates is not None:
@@ -714,6 +780,40 @@ def declared_audio(path):
     rows=[{name:float(row[name]) for name in BANDS if type(row.get(name)) in (int,float)} for row in frames]
     if any(set(row)!=set(BANDS) for row in rows):raise ValueError('audio report frames need all six bands')
     return {'frames':rows,'sha256':hashlib.sha256(Path(path).read_bytes()).hexdigest(),'pcm_sha256':report.get('pcm_sha256')}
+
+
+def _affine_composite(image,facts,time,fps):
+    """Display = sum of matrix x texture(coordinates) + offsets, from texture_colour_transfer.stages.composite."""
+    stage=((facts.get('/analysis/visual_description/texture_colour_transfer') or {}).get('stages') or {}).get('composite') or {}
+    if stage.get('source_model')!='affine_sample_colour' or not stage.get('sample_contributions'):return None
+    from grid_math import evaluate_grid
+    height,width=image.shape[:2]
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+    uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
+    aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
+    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),
+            ':native-render-time-f32':np.float32(time),'rand_frame':np.full(4,.5,np.float32)}
+    sources={'main':image}
+    def texture(name):
+        if name not in sources:
+            if not name.startswith('blur'):raise ValueError('composite texture not illustrated: '+name)
+            sources[name]=cv2.GaussianBlur(image,(0,0),2.**int(name[4:] or 1))
+        return sources[name]
+    try:
+        out=np.zeros((height,width,3),np.float32)
+        for site in stage['sample_contributions']:
+            source=texture(site.get('canonical_texture','main'))
+            expression=site['coordinate_expression']
+            coordinates=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs)),np.float32).reshape(height,width,-1)
+            u=np.mod(coordinates[...,0]*width-.5,width).astype(np.float32);v=np.mod(coordinates[...,1]*height-.5,height).astype(np.float32)
+            sampled=cv2.remap(source,u,v,cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)
+            rgba=np.concatenate([sampled,np.ones((height,width,1),np.float32)],axis=-1)
+            out+=np.einsum('ij,hwj->hwi',np.asarray(site['matrix_rgb_rgba'],np.float32),rgba)
+        for lane,expression in enumerate(stage.get('offset_expressions') or []):
+            if expression:out[...,lane]+=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs)),np.float32).reshape(height,width)
+        return np.clip(out,0,1)
+    except Exception:  # noqa: BLE001 - fall back to the legacy display model
+        return None
 
 
 def illustrate_field(summary,*,time,fps,history_steps,audio=None):
@@ -779,12 +879,14 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None):
                 map_x,map_y=sample(frame_time)
                 main_x,main_y=map_x,map_y
                 if main_coordinates is not None:
-                    try:main_x,main_y=_evaluate_injection(None,image,map_x,map_y,frame_time,int(round(frame_time*fps)),main_coordinates)
+                    try:main_x,main_y=_evaluate_injection(None,image,map_x,map_y,frame_time,int(round(frame_time*fps)),main_coordinates,
+                                                          {k:held[k] for k in BANDS if k in held})
                     except Exception as error:  # noqa: BLE001 - fall back to the mesh map
                         limitations.append('shader sample coordinates not evaluated: '+str(error)[:120]);main_coordinates=None
                 warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)*decay+offset
                 if injection is not None:
-                    try:warped=warped+_evaluate_injection(injection,image,map_x,map_y,frame_time,int(round(frame_time*fps)))
+                    try:warped=warped+_evaluate_injection(injection,image,map_x,map_y,frame_time,int(round(frame_time*fps)),None,
+                                                          {k:held[k] for k in BANDS if k in held})
                     except Exception as error:  # noqa: BLE001 - illustration degrades to the gain model
                         limitations.append('injected warp field not evaluated: '+str(error)[:120]);injection=None
                 image=warped
@@ -808,7 +910,12 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None):
                 a=coverage[...,0]*alpha
                 canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
-            for shape in textured:image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous,canvas)
+            rng=np.random.default_rng(7919+int(round(frame_time*fps)))
+            for shape in textured:
+                for instance in range(shape.get('instances',1)):
+                    held['instance']=float(instance)
+                    image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous,canvas,rng)
+            held.pop('instance',None)
             for _,record in clouds:image=_draw_points(image,record,frame_time,to_pixels,canvas,bands)
             for alpha,colour in sprites:
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour
@@ -822,8 +929,14 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None):
     warp=((mesh.get('controls') or {}).get('warp') or {}).get('value_range')
     if isinstance(warp,list) and warp!=[0.0,0.0]:
         limitations.append('legacy procedural warp (amplitude 0.0035*warp per step) omitted')
-    palette_image=_palette_display(image,facts,limitations)
-    if palette_image is not None:image=palette_image
+    if _UNRESOLVED_TERMS:
+        limitations.append('mesh terms held at range midpoint or zero: '+', '.join(sorted(_UNRESOLVED_TERMS)));_UNRESOLVED_TERMS.clear()
+    composite_image=_affine_composite(image,facts,time,fps)
+    palette_image=None if composite_image is not None else _palette_display(image,facts,limitations)
+    if composite_image is not None:
+        image=composite_image
+        limitations.append('custom composite applied from its exported affine texture transfer (blur levels approximated by Gaussians)')
+    elif palette_image is not None:image=palette_image
     else:
         for path,value in facts.items():
             if path.endswith('/legacy_response') and isinstance(value,dict):value['_illustration_time']=time
