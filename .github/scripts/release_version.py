@@ -13,6 +13,9 @@ import subprocess
 import sys
 from typing import Collection, Mapping
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from release_commit import source_of  # noqa: E402
+
 
 ANDROID_CODE_LIMIT = 2100000000
 VERSION_PATTERN = r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
@@ -171,7 +174,8 @@ def historical_code(repo: Path, tag: str) -> int:
 def resolve_version(repo: Path, sha: str, event: str, ref: str, run_number: int) -> dict:
     commit = git(repo, "rev-parse", "--verify", "--end-of-options", sha + "^{commit}")
     names = git(repo, "for-each-ref", "--format=%(refname:strip=2)", "refs/tags").splitlines()
-    tags = {name: git(repo, "rev-parse", "--verify", f"refs/tags/{name}^{{commit}}")
+    # Release tags point at a version-declaring commit on top of the main commit they release.
+    tags = {name: source_of(repo, git(repo, "rev-parse", "--verify", f"refs/tags/{name}^{{commit}}"))
             for name in names if re.fullmatch("v" + VERSION_PATTERN, name)}
     content = (repo / "app/build.gradle").read_text(encoding="utf-8")
     base, base_code = parse_base_versions(content)
