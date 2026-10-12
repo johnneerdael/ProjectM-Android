@@ -73,6 +73,41 @@ def automation_checkpoint(comparison, head):
     return None
 
 
+def tagged_release(sha):
+    """Return the (version, code) that a release tag's gradle.properties declares, or None."""
+    from publish_release import github_api
+    from release_commit import declared_release
+    properties = github_api(f'repos/{REPOSITORY}/contents/gradle.properties?ref={sha}')
+    return declared_release(base64.b64decode(properties['content']).decode())
+
+
+def checkpoint_identity(checkpoint):
+    """Release identity of the last synchronization, from its message and tagged source."""
+    match = re.match(r'Sync ProjectM F-Droid v(\d+\.\d+\.\d+) \(([0-9a-f]{40})\)\n', checkpoint)
+    if not match:
+        return None
+    try:
+        declared = tagged_release(match[2])
+    except (KeyError, RuntimeError, TypeError, ValueError):
+        return None
+    if declared is None or declared[0] != match[1]:
+        return None
+    return {'schema_version': 1, 'version': match[1], 'version_code': declared[1],
+            'tag': 'v' + match[1], 'source_sha': match[2], 'collection_id': '0' * 64}
+
+
+def matches_generator(current, target, identity):
+    """Adopt a maintainer edit (such as an applied review suggestion) only when the recipe
+    equals this generator's output for the checkpointed release; edits to the release
+    identity itself or to any other managed field are preserved."""
+    if identity is None:
+        return False
+    try:
+        return fingerprint(recipes.generate_metadata(identity, target, current)) == fingerprint(current)
+    except (AttributeError, IndexError, KeyError, TypeError, ValueError):
+        return False
+
+
 def synchronize(release, fork, api, publisher, latest):
     recipes.validate_release(release)
     if not re.fullmatch(r'[\w.-]+/[\w.-]+', fork) or fork == UPSTREAM:
@@ -134,7 +169,8 @@ def synchronize(release, fork, api, publisher, latest):
             if checkpoint:
                 expected = re.search(r'^Managed-Metadata-SHA256: ([0-9a-f]{64})$', checkpoint, re.M)
                 base = re.search(r'^Target-Master: ([0-9a-f]{40})$', checkpoint, re.M)
-                if not expected or not base or fingerprint(current) != expected[1]:
+                if not expected or not base or (fingerprint(current) != expected[1] and not matches_generator(
+                        current, target, checkpoint_identity(checkpoint))):
                     raise ValueError('Managed recipe fields have maintainer edits; refusing overwrite')
                 previous_master = base[1]
             else:
@@ -279,9 +315,7 @@ def latest_release():
     if asset.get('digest') and asset['digest'] != 'sha256:' + hashlib.sha256(body).hexdigest():
         raise ValueError('Published metadata checksum differs')
     # F-Droid's tag update check reads the version from the tagged gradle.properties.
-    from release_commit import declared_release
-    properties = github_api(f"repos/{REPOSITORY}/contents/gradle.properties?ref={metadata['source_sha']}")
-    if declared_release(base64.b64decode(properties['content']).decode()) != (metadata['version'], metadata['version_code']):
+    if tagged_release(metadata['source_sha']) != (metadata['version'], metadata['version_code']):
         raise ValueError('Release tag source does not declare the published version and code')
     return metadata
 
