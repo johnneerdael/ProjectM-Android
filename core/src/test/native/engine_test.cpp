@@ -222,10 +222,17 @@ template<class T> void CheckOfficialPack(T& library, const std::string& root, co
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     CHECK(library.CustomPackStatus(customRequest) == 2);
     int customCount = library.CategoryCount("custom");
+    // Facet pool survives an official commit: re-intersected with the new bundled names.
+    CHECK(library.SetPool({"good 1.milk", "official unique.milk", "absent-in-official.milk"}) == 1);
+    CHECK(library.SetCategory("facets"));
     auto request = library.RequestOfficialPack(directory, false); await(request);
     CHECK(library.OfficialPackStatus(request) == 1);
     CHECK(library.CommitOfficialPack(request));
     CHECK(library.OfficialPackStatus(request) == 2);
+    CHECK(library.Category() == "facets" && library.CategoryCount("facets") == 2);
+    library.SetPool({});
+    CHECK(library.CategoryCount("facets") == 0);
+    CHECK(library.Category() == "all");
     CHECK(library.CategoryCount("all") == 2 + customCount);
     CHECK(library.CategoryCount("custom") == customCount);
     CHECK(library.CategoryCount("chill") == 1 && library.Weight("good 1.milk") == 17);
@@ -417,6 +424,22 @@ int main(int argc, char** argv) {
   CHECK(!g_library.SetCategory("unknown") && g_library.Category() == "all");
   CHECK(g_library.SetCategory("all"));
   CHECK(g_library.ActiveCount() == 13 && g_library.Weight("good 3.milk") == 40);
+
+  printf("facet pool plays through the facets category\n");
+  CHECK(g_library.SetPool({"good 1.milk", "good 1.milk", "missing.milk", "custom/x.milk"}) == 1);
+  CHECK(g_library.CategoryCount("facets") == 1);
+  CHECK(g_library.SetCategory("facets"));
+  CHECK(g_library.Category() == "facets");
+  for (int i = 0; i < 5; ++i) CHECK(g_library.Random("") == "good 1.milk");
+  g_library.MarkSkipped("good 1.milk", "test");
+  CHECK(g_library.CategoryCount("facets") == 0);
+  CHECK(!g_library.Next().empty());
+  CHECK(g_library.Category() == "all");
+  g_library.ResetSkipped();
+  g_library.MarkSkipped("preskipped.milk", "fixture initial skip");
+  CHECK(g_library.SetPool({}) == 0);
+  CHECK(!g_library.SetCategory("facets"));
+  CHECK(g_library.Category() == "all");
 
   printf("custom packs join All but never join scored categories\n");
   std::string pack = root + "/pack-generation-one";

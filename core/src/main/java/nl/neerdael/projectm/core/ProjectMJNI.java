@@ -70,6 +70,13 @@ public final class ProjectMJNI {
     public static native String getMusicCategory();
     public static native int getCategoryPresetCount(String genreId);
     public static native boolean isMusicCategoryPending();
+
+    /**
+     * Mood facet pool: bundled preset names (PresetFacets.Selection.presetNames()) that the
+     * "facets" music category plays. Null or empty clears it. Select it with
+     * setMusicCategory("facets"); names absent from the bundled library are ignored.
+     */
+    public static native void setPresetPool(String[] names);
     /**
      * Index an immutable host-owned preset directory on the native worker. An empty path removes
      * the pack. presets.idx contains generated relative storage paths, a tab, and display paths.
