@@ -505,6 +505,37 @@ int main(int argc, char** argv) {
   g_library.ResetSkipped();
   g_library.MarkSkipped("preskipped.milk", "fixture initial skip");
 
+  printf("a facet pool change during a staged (bundled-only) import keeps the import and no stale facet order\n");
+  CHECK(g_library.SetPool({"good 1.milk"}) == 1);
+  CHECK(g_library.SetCategory("facets") && g_library.Category() == "facets");
+  staged = g_library.RequestCustomPack(pack, false);  // new directory, not applied: bundled-only prepare
+  for (int i = 0; i < 1000 && g_library.CustomPackPending(); ++i) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  CHECK(g_library.CustomPackStatus(staged) == 1);
+  CHECK(g_library.SetPool({"good 2.milk", "good 3.milk"}) == 2);  // pool P2 while the pack is staged
+  CHECK(g_library.Category() == "facets");
+  for (int i = 0; i < 10; ++i) { std::string pick = g_library.Random(""); CHECK(pick == "good 2.milk" || pick == "good 3.milk"); }
+  CHECK(g_library.CommitCustomPack(staged));  // the staged import is not invalidated by the pool change
+  CHECK(g_library.Category() == "custom");    // a staged commit selects Custom; it never keeps a facet order
+  CHECK(g_library.CategoryCount("facets") == 2);
+  for (int i = 0; i < 10; ++i) {
+    std::string next = g_library.Next(); g_library.RecordShown(next);
+    CHECK(next.find("custom/pack-generation-one/") == 0);
+    std::string random = g_library.Random(next);
+    CHECK(random.find("custom/pack-generation-one/") == 0);
+  }
+  CHECK(g_library.SetCategory("facets"));     // re-selecting facets draws from the current pool P2
+  for (int i = 0; i < 10; ++i) {
+    std::string next = g_library.Next(); g_library.RecordShown(next);
+    CHECK(next == "good 2.milk" || next == "good 3.milk");
+    std::string random = g_library.Random(next);
+    CHECK(random == "good 2.milk" || random == "good 3.milk");
+  }
+  installPack("");
+  CHECK(g_library.SetPool({}) == 0);
+  CHECK(g_library.SetCategory("all") && g_library.CategoryCount("custom") == 0 && g_library.ActiveCount() == 13);
+  g_library.ResetSkipped();
+  g_library.MarkSkipped("preskipped.milk", "fixture initial skip");
+
   printf("indexing falls back to listing the folder without presets.idx\n");
   { std::string root2 = argv[2]; static AAssetManager am2{root2}; PresetLibrary& other = *new PresetLibrary();
     other.Start(&am2, root2 + "/skip.txt", "");  // never destroyed, like the app's library
