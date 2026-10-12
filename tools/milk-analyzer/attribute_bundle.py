@@ -171,14 +171,35 @@ def _read_style(path):
     lines = Path(path).read_text().splitlines()
     if not lines or not lines[0].startswith('#projectm-tv-facet-style-facts\t1'):
         raise ValueError('style facts header missing')
-    styles = {}
+    styles, digests, duplicates = {}, {}, []
     for line in lines[1:]:
-        name, _digest, found = line.split('\t')
+        name, digest, found = line.split('\t')
+        if name in styles:
+            duplicates.append(name)
+        digests[name] = digest
         values = {s for s in found.split(',') if s}
         if values - STYLES:
             raise ValueError('unknown style in %s: %s' % (name, sorted(values - STYLES)))
         styles[name] = values
-    return lines[0], styles
+    if duplicates:
+        raise ValueError('style facts list a preset more than once: %s' % sorted(set(duplicates))[:5])
+    return lines[0], styles, digests
+
+
+def style_problems(names, digests, presets_dir):
+    """Exactly one style row per indexed preset, each hashed from the preset bytes it was derived from."""
+    problems = []
+    for name in names:
+        if name not in digests:
+            problems.append('%s: no style facts row' % name); continue
+        try:
+            data = (Path(presets_dir) / name).read_bytes()
+        except OSError:
+            problems.append('%s: preset asset missing from %s' % (name, presets_dir)); continue
+        if _sha(data) != digests[name]:
+            problems.append('%s: style facts were derived from different preset bytes' % name)
+    problems += ['%s: style facts row for a preset not in presets.idx' % n for n in sorted(set(digests) - set(names))]
+    return problems
 
 
 def _format(value):
@@ -203,7 +224,10 @@ def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, r
     reference = load_activity_reference(definition, definition_path)
     names = _index_names(presets_idx)
     rows, ruler = _measured_rows(ruler_dir)
-    style_header, styles = _read_style(style_tsv)
+    style_header, styles, style_digests = _read_style(style_tsv)
+    problems = style_problems(names, style_digests, _presets_dir(presets_idx, presets_dir))
+    if problems:
+        raise ValueError('style facts do not match the current presets (%d): %s' % (len(problems), '; '.join(problems[:5])))
     measured = [rows[n] for n in names if n in rows]
     activity = activity_values(measured, reference)
     lines = _header(definition, _sha(definition_bytes))

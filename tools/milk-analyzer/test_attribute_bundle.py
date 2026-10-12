@@ -17,6 +17,15 @@ def write_manifest(tmp, skip=()):
     (tmp / 'ruler-manifest.json').write_text(json.dumps({'policy': 'test', 'rows': rows}, indent=1) + '\n')
 
 
+def write_style(tmp, styles, digests=None, extra=''):
+    """A style facts file with one row per name; each row carries the sha256 of tmp/presets/<name> unless overridden."""
+    lines = ['#projectm-tv-facet-style-facts\t1\tabc']
+    for name, found in styles.items():
+        digest = (digests or {}).get(name) or hashlib.sha256((tmp / 'presets' / name).read_bytes()).hexdigest()
+        lines.append('%s\t%s\t%s' % (name, digest, found))
+    (tmp / 'style.tsv').write_text('\n'.join(lines) + '\n' + extra)
+
+
 def make_inputs(tmp):
     tmp = Path(tmp)
     (tmp / 'ruler').mkdir(); (tmp / 'presets').mkdir()
@@ -30,7 +39,7 @@ def make_inputs(tmp):
             'coloured_share': col, 'warm_cool': wc, 'mean_flow_screen_widths_per_s': flow, 'mean_abs_frame_difference': diff,
             'global_brightness_jumps_per_10s': jumps}))
     write_manifest(tmp)
-    (tmp / 'style.tsv').write_text('#projectm-tv-facet-style-facts\t1\tabc\na.milk\tx\ttunnel\nb.milk\tx\t\nc.milk\tx\tkaleidoscope,fractal\n')
+    write_style(tmp, {'a.milk': 'tunnel', 'b.milk': '', 'c.milk': 'kaleidoscope,fractal', 'd.milk': ''})
     (tmp / 'presets.idx').write_text('a.milk\t0\nb.milk\t2\nc.milk\t0\nd.milk\t0\n')
     return tmp
 
@@ -127,6 +136,28 @@ class BundleTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'c.milk'):
                 self.build(t)
             self.assertFalse((t / 'out').exists())
+
+    def test_build_rejects_a_style_row_for_changed_preset_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            write_style(t, {'a.milk': 'tunnel', 'b.milk': '', 'c.milk': '', 'd.milk': ''}, digests={'a.milk': '0' * 64})
+            with self.assertRaisesRegex(ValueError, 'a.milk'):
+                self.build(t)
+            self.assertFalse((t / 'out').exists())
+
+    def test_build_rejects_a_missing_style_row(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            write_style(t, {'a.milk': 'tunnel', 'b.milk': '', 'd.milk': ''})
+            with self.assertRaisesRegex(ValueError, 'c.milk'):
+                self.build(t)
+
+    def test_build_rejects_a_duplicate_style_row(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            write_style(t, {'a.milk': 'tunnel', 'b.milk': '', 'c.milk': '', 'd.milk': ''}, extra='a.milk\t%s\t\n' % hashlib.sha256((t / 'presets' / 'a.milk').read_bytes()).hexdigest())
+            with self.assertRaisesRegex(ValueError, 'a.milk'):
+                self.build(t)
 
     def test_build_and_check_take_an_explicit_presets_directory(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -246,7 +277,7 @@ class BundleTest(unittest.TestCase):
     def test_rejects_missing_ruler_fields_and_unknown_style(self):
         with tempfile.TemporaryDirectory() as tmp:
             t = make_inputs(tmp)
-            (t / 'style.tsv').write_text('#projectm-tv-facet-style-facts\t1\tabc\na.milk\tx\tspirals\n')
+            write_style(t, {'a.milk': 'spirals', 'b.milk': '', 'c.milk': '', 'd.milk': ''})
             with self.assertRaises(ValueError):
                 B.build(t / 'ruler', t / 'style.tsv', t / 'presets.idx', t / 'out', ruler_manifest=t / 'ruler-manifest.json')
 
