@@ -29,7 +29,7 @@ the definition file (not recomputed per release). Ruler statistics are measured 
 
 | Group (id) | Option (id) | Rule |
 |---|---|---|
-| Energy (`energy`) | Chill (`chill`), Normal (`normal`), Intense (`intense`) | Activity = rank-average of frame difference, flow speed and brightness jumps; corpus tertiles with the same overlap as today (Chill ≤ 30th+5, Normal 25–75, Intense ≥ 70th percentile). Thresholds are stored as absolute activity values. |
+| Energy (`energy`) | Chill (`chill`), Normal (`normal`), Intense (`intense`) | Activity = rank-average of frame difference, flow speed and brightness jumps; Chill: activity percentile ≤ 0.35; Normal: 0.25–0.75; Intense: ≥ 0.70 (overlapping like today). The percentile cut points are converted once to absolute activity values and frozen in the definition. |
 | Brightness (`brightness`) | Dark (`dark`), Balanced (`balanced`), Bright (`bright`) | Mean luminance < 0.12 / 0.12–0.40 / > 0.40 |
 | Colour (`colour`) | Monochrome (`monochrome`), Pastel (`pastel`), Vivid (`vivid`), Warm (`warm`), Cool (`cool`) | Monochrome: coloured share < 0.10. Pastel: mean luminance > 0.35 and saturation < 0.30 and not monochrome. Vivid: saturation ≥ 0.50. Warm: warm-cool ≥ +0.25. Cool: ≤ −0.25. Options are independent (Vivid + Warm possible). |
 | Movement (`movement`) | Still (`still`), Drifting (`drifting`), Fast (`fast`) | Flow < 0.05 / 0.05–0.25 / > 0.25 screen widths per second |
