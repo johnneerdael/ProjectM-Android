@@ -10,6 +10,8 @@ import nl.neerdael.projectm.core.VisualizerView;
 final class OfficialCollection {
     OfficialCollection(Activity activity,SharedPreferences preferences,Handler handler,VisualizerView view) { }
     static void restore(Context context) { }
+    /** The bundled collection never changes while the app runs. */
+    void setOnCollectionChanged(Runnable listener) { }
     /** GitHub editions read preset attributes from the bundled assets. */
     static java.io.File attributesFile(Context context) { return null; }
     void onResume() { }

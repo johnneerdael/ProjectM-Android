@@ -145,6 +145,7 @@ public class MainActivity extends Activity {
     private View moodMenu;
     private TextView moodHeader;
     private OptionRow moodCollectionRow;
+    private OptionRow moodClearRow;
     private LinearLayout moodRows;
     private final List<FacetRow> facetRows = new ArrayList<>();
     private PresetFacets moodFacets;
@@ -450,6 +451,11 @@ public class MainActivity extends Activity {
         updater = Updater.get(this, prefs);
         updater.attach(handler, updateListener);
         officialCollection = new OfficialCollection(this, prefs, handler, visualizerView);
+        // An official collection installed or removed meanwhile replaces the facet table and the pool.
+        officialCollection.setOnCollectionChanged(() -> {
+            reloadMood();
+            renderMood();
+        });
 
         TextView versionInfo = findViewById(R.id.version_info);
         versionInfo.setText(getString(R.string.engine_version_info,
@@ -484,8 +490,8 @@ public class MainActivity extends Activity {
         refreshMusicCategory();
 
         // Mood panel
-        OptionRow moodClear = findViewById(R.id.row_mood_clear);
-        moodClear.setupAction("Clear all", "", () -> {
+        moodClearRow = findViewById(R.id.row_mood_clear);
+        moodClearRow.setupAction("Clear all", "", () -> {
             mood.clearAll();
             renderMood();
         });
@@ -879,7 +885,9 @@ public class MainActivity extends Activity {
             // A custom pack that is gone (or failed to restore) must not leave the facets disabled.
             if (mood.revalidateCollection()) renderMood();
         }
-        String key = applied + "|" + ProjectMJNI.getSkippedCount() + "|" + moodRevision;
+        // The facets count joins the key so the summary follows the engine once the pool is rebuilt.
+        String key = applied + "|" + ProjectMJNI.getSkippedCount() + "|" + moodRevision
+                + ("facets".equals(applied) ? "|" + ProjectMJNI.getCategoryPresetCount("facets") : "");
         if (key.equals(displayedMusicCategory)) return;
         displayedMusicCategory = key;
         musicCategoryRow.setActionValue(moodSummary(applied) + "  ›");
@@ -889,7 +897,10 @@ public class MainActivity extends Activity {
     private String moodSummary(String applied) {
         if ("all".equals(applied) && mood.exhausted()) return "All (mix empty)";
         if ("facets".equals(applied)) {
+            // The engine's count is the truth; the table's count stands in while the category is pending.
+            int engine = ProjectMJNI.isMusicCategoryPending() ? 0 : ProjectMJNI.getCategoryPresetCount("facets");
             PresetFacets.Selection selection = mood.selection();
+            if (engine > 0) return numberFormat.format(engine) + " presets";
             return selection == null ? "All" : numberFormat.format(selection.poolSize()) + " presets";
         }
         return MusicCategories.label(applied);
@@ -902,8 +913,10 @@ public class MainActivity extends Activity {
         if (mood != null && source.equals(moodSource)) return;
         boolean replacing = mood != null;
         moodSource = source;
-        // A committed official collection without attributes offers no facets (only the collection).
-        moodFacets = official == null ? PresetFacets.load(getAssets()) : official.isFile() ? parseFacets(official) : null;
+        // A committed official collection without attributes (downloaded before collections carried
+        // them) offers no facets, only the collection; the Mood header says how to get them.
+        boolean outdatedDownload = official != null && !official.isFile();
+        moodFacets = official == null ? PresetFacets.load(getAssets()) : outdatedDownload ? null : parseFacets(official);
         mood = new MoodFacetsController(moodFacets, new MoodFacetsController.Prefs() {
             @Override public String get(String key, String fallback) { return prefs.getString(key, fallback); }
             @Override public void put(String key, String value) { prefs.edit().putString(key, value).apply(); }
@@ -913,9 +926,9 @@ public class MainActivity extends Activity {
                 requestedMusicCategory = id;
                 ProjectMJNI.setMusicCategory(id);
             }
-            @Override public int customCount() { return ProjectMJNI.getCategoryPresetCount("custom"); }
+            @Override public int count(String category) { return ProjectMJNI.getCategoryPresetCount(category); }
             @Override public boolean customPending() { return ProjectMJNI.isCustomPresetPackPending(); }
-        }, this::skippedPresets);
+        }, this::skippedPresets, outdatedDownload);
         moodRevision++;
         if (replacing) {
             buildMoodRows();
@@ -978,15 +991,17 @@ public class MainActivity extends Activity {
             Set<String> dimmed = new HashSet<>();
             for (PresetFacets.Group group : moodFacets.groups()) {
                 for (PresetFacets.Option option : group.options) {
-                    boolean on = selected.contains(option.id);
-                    int count = on ? selection.poolSize() : selection.countIfToggled(option.id);
+                    // "→ N": the presets left if this option were toggled (for a selected one, without it).
+                    int count = selection.countIfToggled(option.id);
                     counts.put(option.id, count);
-                    if (!on && count == 0) dimmed.add(option.id);
+                    if (!selected.contains(option.id) && count == 0) dimmed.add(option.id);
                 }
             }
             for (FacetRow row : facetRows) row.update(selected, counts, dimmed, bundled);
         }
         setText(moodHeader, mood.header());
+        // Custom plays without facets: Clear all would wipe the hidden stored selection, so it rests.
+        if (moodClearRow != null) moodClearRow.setAlpha(mood.canClear() ? 1f : 0.4f);
         refreshMoodCollectionRow();
         refreshMusicCategory();
     }

@@ -23,6 +23,8 @@ final class OfficialCollection {
     private long resumedAt;
     private AlertDialog dialog;
     private boolean showingProgress;
+    private Runnable collectionChanged;
+    private String settledIdentity;  // the installed identity last reported to collectionChanged
 
     OfficialCollection(Activity activity,SharedPreferences prefs,Handler handler,VisualizerView view) {
         this.activity=activity;this.prefs=prefs;this.handler=handler;download=OfficialPresetDownload.get(activity);
@@ -60,6 +62,9 @@ final class OfficialCollection {
         }
     }
     static void restore(Context context){OfficialPresetDownload.get(context);}
+    /** Runs on the UI thread whenever the installed collection settles on a different identity (installed, replaced or removed). */
+    void setOnCollectionChanged(Runnable listener){collectionChanged=listener;}
+    static boolean settledChange(String previous,boolean busy,String identity){return !busy&&previous!=null&&!previous.equals(identity);}
     /**
      * The installed official pack's preset attributes; null without a committed pack (the bundled
      * starter table applies). A committed pack from an archive without attributes yields the
@@ -121,6 +126,9 @@ final class OfficialCollection {
     }
     private void changed(OfficialPresetDownload.Status status) {
         if(!resumed)return;
+        boolean settled=settledChange(settledIdentity,status.busy(),status.identity);
+        if(!status.busy())settledIdentity=status.identity;
+        if(settled&&collectionChanged!=null)collectionChanged.run();
         row.setActionValue(status.busy()?status.phase+" ›":status.phase.equals("error")?"Download failed ›":status.phase.equals("canceled")?"Canceled ›":status.identity.isEmpty()?"20 starter presets ›":"Full collection ›");
         if(dialog!=null){dialog.setMessage(message(status));if(showingProgress&&!status.busy())close();}
         maybeOffer();

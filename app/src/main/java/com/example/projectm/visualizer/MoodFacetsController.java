@@ -7,21 +7,30 @@ import nl.neerdael.projectm.core.PresetFacets;
 /** Mood panel state: facet selection, collection choice, persistence and engine pool. No views. */
 final class MoodFacetsController {
     interface Prefs { String get(String key, String fallback); void put(String key, String value); }
-    interface Engine { void setPresetPool(String[] names); void setMusicCategory(String id); int customCount(); boolean customPending(); }
+    /** count(category) is the engine's preset count for a category ("all", "custom", "facets"); 0 while unknown. */
+    interface Engine { void setPresetPool(String[] names); void setMusicCategory(String id); int count(String category); boolean customPending(); }
     interface SkipList { Set<String> names(); }
 
     static final String PREF_FACETS = "mood_facets", PREF_COLLECTION = "mood_collection", PREF_CATEGORY = "music_category";
     private static final int FEW = 20;
+    /** Header when the installed official collection predates preset attributes (F-Droid). */
+    static final String OUTDATED_DOWNLOAD = "Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)";
 
     private final PresetFacets facets;
     private final Prefs prefs;
     private final Engine engine;
     private final SkipList skips;
+    private final boolean outdatedDownload;
     private final LinkedHashSet<String> selected = new LinkedHashSet<>();
     private String collection;
 
-    MoodFacetsController(PresetFacets facets, Prefs prefs, Engine engine, SkipList skips) {
+    /**
+     * @param outdatedDownload the facet table is missing because the installed official collection
+     *                         was downloaded before collections carried preset attributes
+     */
+    MoodFacetsController(PresetFacets facets, Prefs prefs, Engine engine, SkipList skips, boolean outdatedDownload) {
         this.facets = facets; this.prefs = prefs; this.engine = engine; this.skips = skips;
+        this.outdatedDownload = facets == null && outdatedDownload;
         collection = "custom".equals(prefs.get(PREF_COLLECTION, "bundled")) ? "custom" : "bundled";
         String stored = prefs.get(PREF_FACETS, "");
         if (facets != null && !stored.isEmpty())
@@ -31,7 +40,7 @@ final class MoodFacetsController {
 
     /** A custom collection whose pack is gone, and not being restored, plays the bundled one again. */
     private void validateCollection() {
-        if ("custom".equals(collection) && engine.customCount() == 0 && !engine.customPending()) collection = "bundled";
+        if ("custom".equals(collection) && engine.count("custom") <= 0 && !engine.customPending()) collection = "bundled";
     }
 
     /** Re-checks the custom collection; returns true when it fell back to bundled (and applied that). */
@@ -43,12 +52,15 @@ final class MoodFacetsController {
         return true;
     }
 
-    /** A selection whose presets are all skipped: All plays, the selection stays stored. */
+    /** A selection that matches no playable preset (all skipped, or no preset fits every group): All plays, the selection stays stored. */
     boolean exhausted() {
         return facets != null && !selected.isEmpty() && "bundled".equals(collection) && selection().poolSize() == 0;
     }
 
     boolean facetsAvailable() { return facets != null; }
+    boolean outdatedDownload() { return outdatedDownload; }
+    /** Clear all applies only to the built-in collection; Custom keeps the stored facets untouched. */
+    boolean canClear() { return "bundled".equals(collection); }
     Set<String> selected() { return Collections.unmodifiableSet(selected); }
     String collection() { return collection; }
 
@@ -67,10 +79,15 @@ final class MoodFacetsController {
         apply();
     }
 
-    void clearAll() { selected.clear(); apply(); }
+    void clearAll() {
+        validateCollection();
+        if (!canClear()) return;
+        selected.clear();
+        apply();
+    }
 
     void setCollection(String id) {
-        collection = "custom".equals(id) && engine.customCount() > 0 ? "custom" : "bundled";
+        collection = "custom".equals(id) && engine.count("custom") > 0 ? "custom" : "bundled";
         apply();
     }
 
@@ -89,12 +106,22 @@ final class MoodFacetsController {
         engine.setMusicCategory(category);
     }
 
+    /** The pool size line: always a count when one is known. */
     String header() {
-        if ("custom".equals(collection)) return "Custom pack";
-        if (facets == null || selected.isEmpty()) return facets == null ? "All presets" : "All presets in your mix";
-        if (exhausted()) return "No presets left in your mix; playing All";
+        NumberFormat format = NumberFormat.getIntegerInstance();
+        if ("custom".equals(collection)) {
+            int custom = engine.count("custom");
+            return custom > 0 ? "Custom pack: " + format.format(custom) + " presets" : "Custom pack";
+        }
+        if (outdatedDownload) return OUTDATED_DOWNLOAD;
+        if (facets == null || selected.isEmpty()) {
+            int all = engine.count("all");
+            return all > 0 ? format.format(all) + " presets in your mix" : "All presets in your mix";
+        }
+        // Every selected preset is skipped, or deselecting left groups that no preset satisfies together.
+        if (exhausted()) return "No presets match your mix; playing All";
         int size = selection().poolSize();
-        String text = NumberFormat.getIntegerInstance(Locale.US).format(size) + " presets in your mix";
+        String text = format.format(size) + " presets in your mix";
         return size < FEW ? text + " · few presets: some repetition" : text;
     }
 }

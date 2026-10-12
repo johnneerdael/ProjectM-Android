@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import nl.neerdael.projectm.core.PresetFacets;
 import nl.neerdael.projectm.core.ProjectMCore;
@@ -76,8 +75,13 @@ final class MoodSetupTest {
     }
 
     private static String expectedHeader(int size) {
-        String text = NumberFormat.getIntegerInstance(Locale.US).format(size) + " presets in your mix";
+        String text = NumberFormat.getIntegerInstance().format(size) + " presets in your mix";
         return size < 20 ? text + " · few presets: some repetition" : text;
+    }
+
+    /** Nothing selected: the engine's All count. */
+    private static String allHeader() {
+        return NumberFormat.getIntegerInstance().format(ProjectMJNI.getCategoryPresetCount("all")) + " presets in your mix";
     }
 
     private static void awaitCategory(String expected) {
@@ -148,7 +152,7 @@ final class MoodSetupTest {
             openMood(test, target);
 
             // 2. Nothing chosen: every preset plays.
-            check("All presets in your mix".equals(header(test, target)), "initial header: " + header(test, target));
+            check(allHeader().equals(header(test, target)), "initial header: " + header(test, target) + ", expected " + allHeader());
 
             // 3. Energy › Chill with D-pad Center (the cursor starts on the first option).
             focusFacetRow(test, target, 0);
@@ -170,6 +174,13 @@ final class MoodSetupTest {
             check(expectedHeader(calm).equals(header(test, target)), "No strobe header: " + header(test, target));
             check("chill,no_strobe".equals(prefs.getString("mood_facets", "")),
                     "selection not saved: " + prefs.getString("mood_facets", ""));
+            // A selected chip's "→ N" is the mix without it: Chill selected shows No strobe alone.
+            int withoutChill = table.select(Collections.singletonList("no_strobe"), skipped(test)).poolSize();
+            onUi(test, () -> {
+                ViewGroup strip = (ViewGroup) ((ViewGroup) facetRows(target).get(0).getChildAt(1)).getChildAt(0);
+                String chip = ((TextView) strip.getChildAt(0)).getText().toString();
+                check(chip.endsWith("→ " + withoutChill), "selected Chill chip: " + chip + ", expected → " + withoutChill);
+            });
 
             // 5. An option without presets is dimmed and cannot be chosen (tap: the D-pad cursor skips it).
             String dimmedId = null;
@@ -218,7 +229,7 @@ final class MoodSetupTest {
             onUi(test, () -> target.findViewById(R.id.row_mood_clear).requestFocus());
             test.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);
             check("".equals(prefs.getString("mood_facets", "x")), "Clear all left " + prefs.getString("mood_facets", "x"));
-            check("All presets in your mix".equals(header(test, target)), "cleared header: " + header(test, target));
+            check(allHeader().equals(header(test, target)), "cleared header: " + header(test, target));
             awaitCategory("all");
 
             // Choose Chill again for the persistence check.
@@ -262,7 +273,7 @@ final class MoodSetupTest {
             SystemClock.sleep(300);
             test.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);  // reopen: the header reads the skip list
             SystemClock.sleep(400);
-            check("No presets left in your mix; playing All".equals(header(test, restarted)),
+            check("No presets match your mix; playing All".equals(header(test, restarted)),
                     "exhausted header: " + header(test, restarted));
             test.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
             SystemClock.sleep(300);

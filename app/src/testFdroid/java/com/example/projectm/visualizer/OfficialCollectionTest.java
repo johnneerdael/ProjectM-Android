@@ -17,6 +17,14 @@ public class OfficialCollectionTest {
         assertEquals(false,offer.invoke(null,false,true,true,true,"restoring",""));
         assertEquals(false,offer.invoke(null,false,true,true,true,"installed","previous-collection"));
     }
+    @Test public void moodReloadsOnlyWhenTheInstalledCollectionSettlesOnANewIdentity() {
+        assertFalse("first report: Mood already loaded what is on disk",OfficialCollection.settledChange(null,false,"a"));
+        assertFalse("still downloading",OfficialCollection.settledChange("",true,""));
+        assertFalse("unchanged",OfficialCollection.settledChange("a",false,"a"));
+        assertTrue("installed",OfficialCollection.settledChange("",false,"a"));
+        assertTrue("replaced",OfficialCollection.settledChange("a",false,"b"));
+        assertTrue("removed",OfficialCollection.settledChange("a",false,""));
+    }
     @Test public void attributesComeFromTheCommittedGenerationOnly() throws Exception {
         java.io.File root=java.nio.file.Files.createTempDirectory("official").toFile();
         try {

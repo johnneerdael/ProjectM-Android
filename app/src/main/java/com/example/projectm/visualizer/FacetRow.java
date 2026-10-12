@@ -66,6 +66,9 @@ public class FacetRow extends LinearLayout {
         scroller = new HorizontalScrollView(context);
         scroller.setHorizontalScrollBarEnabled(false);
         scroller.setFocusable(false);
+        // Clipped options fade out at the edge, so the strip visibly continues.
+        scroller.setHorizontalFadingEdgeEnabled(true);
+        scroller.setFadingEdgeLength(dp(32));
         chipStrip = new LinearLayout(context);
         chipStrip.setOrientation(HORIZONTAL);
         chipStrip.setGravity(Gravity.CENTER_VERTICAL);

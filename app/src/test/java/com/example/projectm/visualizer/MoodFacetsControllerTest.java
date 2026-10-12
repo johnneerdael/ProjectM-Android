@@ -3,6 +3,7 @@ package com.example.projectm.visualizer;
 import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.NumberFormat;
 import java.util.*;
 import nl.neerdael.projectm.core.PresetFacets;
 import org.junit.Before;
@@ -18,12 +19,17 @@ public class MoodFacetsControllerTest {
     private final List<String> calls = new ArrayList<>();
     private final Set<String> skipped = new HashSet<>();
     private int customCount = 0;
+    private int allCount = 9606;
     private boolean customPending = false;
     private PresetFacets facets;
 
     @Before public void setUp() throws IOException { facets = PresetFacets.parse(new StringReader(TABLE)); }
 
-    private MoodFacetsController controller(PresetFacets table) {
+    private MoodFacetsController controller(PresetFacets table) { return controller(table, false); }
+
+    private static String n(int value) { return NumberFormat.getIntegerInstance().format(value); }
+
+    private MoodFacetsController controller(PresetFacets table, boolean outdatedDownload) {
         return new MoodFacetsController(table,
                 new MoodFacetsController.Prefs() {
                     public String get(String k, String f) { return store.containsKey(k) ? store.get(k) : f; }
@@ -32,10 +38,10 @@ public class MoodFacetsControllerTest {
                 new MoodFacetsController.Engine() {
                     public void setPresetPool(String[] names) { calls.add("pool:" + (names == null ? "null" : String.join(",", names))); }
                     public void setMusicCategory(String id) { calls.add("category:" + id); }
-                    public int customCount() { return customCount; }
+                    public int count(String category) { return "custom".equals(category) ? customCount : "all".equals(category) ? allCount : -1; }
                     public boolean customPending() { return customPending; }
                 },
-                () -> skipped);
+                () -> skipped, outdatedDownload);
     }
 
     @Test public void toggleAppliesPoolThenFacetsCategoryAndPersists() {
@@ -53,7 +59,7 @@ public class MoodFacetsControllerTest {
         c.clearAll();
         assertEquals("", store.get("mood_facets"));
         assertTrue(calls.contains("category:all"));
-        assertEquals("All presets in your mix", c.header());
+        assertEquals(n(9606) + " presets in your mix", c.header());
     }
 
     @Test public void dimmedOptionsCannotBeToggledOn() {
@@ -98,7 +104,7 @@ public class MoodFacetsControllerTest {
         assertNull(c.selection());
         c.toggle("chill");
         assertTrue(calls.isEmpty());
-        assertEquals("All presets", c.header());
+        assertEquals(n(9606) + " presets in your mix", c.header());
     }
 
     @Test public void missingTableKeepsTheStoredSelection() {
@@ -146,7 +152,7 @@ public class MoodFacetsControllerTest {
         skipped.addAll(Arrays.asList("a.milk", "c.milk"));
         store.put("mood_facets", "chill");
         MoodFacetsController c = controller(facets);
-        assertEquals("No presets left in your mix; playing All", c.header());
+        assertEquals("No presets match your mix; playing All", c.header());
         c.apply();
         assertEquals("category:all", calls.get(calls.size() - 1));
         assertEquals("chill", store.get("mood_facets"));
@@ -155,5 +161,63 @@ public class MoodFacetsControllerTest {
         c.apply();
         assertEquals(Arrays.asList("pool:a.milk,c.milk", "category:facets"), calls);
         assertEquals("2 presets in your mix · few presets: some repetition", c.header());
+    }
+
+    @Test public void headerCountsUseTheDefaultLocaleAndTheEngineCounts() {
+        Locale previous = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.GERMANY);
+            MoodFacetsController c = controller(facets);
+            assertEquals("9.606 presets in your mix", c.header());
+        } finally {
+            Locale.setDefault(previous);
+        }
+    }
+
+    @Test public void headerFallsBackWithoutAnEngineCount() {
+        allCount = 0;  // the index is still being built
+        assertEquals("All presets in your mix", controller(facets).header());
+    }
+
+    @Test public void customHeaderShowsTheCustomPackCount() {
+        customCount = 1234;
+        MoodFacetsController c = controller(facets);
+        c.setCollection("custom");
+        assertEquals("Custom pack: " + n(1234) + " presets", c.header());
+    }
+
+    @Test public void outdatedOfficialDownloadExplainsHowToGetMoods() {
+        MoodFacetsController c = controller(null, true);
+        assertTrue(c.outdatedDownload());
+        assertEquals(MoodFacetsController.OUTDATED_DOWNLOAD, c.header());
+        assertTrue(c.header().contains("Settings › Advanced › Cream of the Crop"));
+        assertFalse(controller(null, false).outdatedDownload());
+    }
+
+    @Test public void clearAllDoesNothingWhileCustomPlays() {
+        customCount = 3;
+        store.put("mood_facets", "chill");
+        MoodFacetsController c = controller(facets);
+        c.setCollection("custom");
+        calls.clear();
+        c.clearAll();
+        assertTrue(calls.isEmpty());
+        assertEquals("chill", store.get("mood_facets"));
+        assertEquals(Collections.singleton("chill"), c.selected());
+        assertFalse(c.canClear());
+        c.setCollection("bundled");
+        assertTrue(c.canClear());
+    }
+
+    @Test public void deselectingCanEmptyTheMixAndPlaysAll() {
+        MoodFacetsController c = controller(facets);
+        c.toggle("chill");
+        c.toggle("intense");
+        c.toggle("no_strobe");  // (chill OR intense) AND no_strobe = a.milk
+        assertEquals(1, c.selection().poolSize());
+        c.toggle("chill");      // intense AND no_strobe: nothing
+        assertTrue(c.exhausted());
+        assertEquals("No presets match your mix; playing All", c.header());
+        assertEquals("category:all", calls.get(calls.size() - 1));
     }
 }
