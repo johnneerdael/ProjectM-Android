@@ -1,0 +1,29 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "6310e6ae03c2dcaff3e55dc0cd19fe9fe273de573441333570659ee0bcf70b91",
+  "illustrator_sha256": "7277fccfed761a8f670ee46b45bef514fe0378f2a9c1ebfb593a55cb82e56b25",
+  "image_sha256": "48fa10b15fd3610a2dc1bf30c2ff2f8221b21444150ff2d66f12a00fcd405fd1",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [],
+  "limitations": [
+    "motion evaluated at the 48x32 mesh vertices and interpolated over its triangles",
+    "warp shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)",
+    "built-in waveforms drawn per frame from the declared reference PCM (projectM modes 0-9; wave alignment omitted)",
+    "textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)",
+    "/analysis/visual_description/elements/1/waveform_recipe: alpha follows the declared per-frame volume ramp",
+    "warp program not evaluated: grid operation not implemented: rand",
+    "mesh terms held at range midpoint or zero: unresolved_inputs",
+    "composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "audio-driven controls use the declared per-frame bands (audio report sha256 4c76bd9cb3ed46b3)",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed",
+  "declared_audio_sha256": "4c76bd9cb3ed46b3e31e315d882d0d66edaa2332f8e6a7b4c106084f3408918b"
+}

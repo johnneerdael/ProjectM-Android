@@ -839,4 +839,11 @@ repeated on correctly oriented frames. Probes and results:
 - **r11 v4.** It matches the emulator: luma 0.468 vs 0.466, colour within 0.01,
   canvas correlation 0.82–0.96. Applying our composite to the native canvas
   reproduces the native display, so the composite model is exact.
+- **Random terms in shaders.** The grid evaluator implements projectm-eval's
+  `rand(x)` (uniform on [0, max(1, floor(x)))) for inlined per-frame graphs,
+  with one seeded draw per evaluation.
+- **r13 (`i am only here to die slowly…`).** The calibrated estimate (Intense,
+  about 69 brightness jumps per 10 s) matched the capture before any fix. v2 also
+  reproduces the strobe: white flashes at the same frames as the engine and
+  pastel blob edges (frame luma 0.904 vs 0.885).
 

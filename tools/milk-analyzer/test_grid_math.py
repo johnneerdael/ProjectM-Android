@@ -114,3 +114,14 @@ class GridMathTest(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+
+def test_grid_rand_follows_projectm_eval_range_and_draws_once_for_uniform_input():
+    import numpy as np
+    from grid_math import evaluate_grid
+    from shader_fields import Field
+    field = Field('rand', (Field('input', detail={'name': 'n'}, dtype='float'),), 'float')
+    uniform = np.asarray(evaluate_grid(field, batch_shape=(4, 4), inputs={'n': np.float32(6.)}), np.float32)
+    assert uniform.min() == uniform.max() and 0 <= uniform.min() < 6
+    small = np.asarray(evaluate_grid(field, batch_shape=(64,), inputs={'n': np.float32(.3)}), np.float32)
+    assert 0 <= small.min() and small.max() < 1

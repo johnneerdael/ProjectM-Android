@@ -12,6 +12,8 @@ from field_math import GLES_HIGHP_INFINITY,INFINITY_OPERATIONS,check_infinity_op
 from field_math import SEPARATE_ARITHMETIC,APPLE_MIX_FMA,mix_values
 from shader_fields import Field
 
+_GRID_RAND=np.random.default_rng(65537)
+
 
 def _layout(dtype):
     return numeric_layout(dtype)
@@ -393,6 +395,13 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
                 raw=np.where(small,0,a/np.where(small,1,b)).astype(np.result_type(a,b,np.float32))
             elif op=='eel_equal':
                 a,b=align(args);raw=np.asarray(np.abs(a-b)<1e-5,dtype=np.float32)
+            elif op=='rand':
+                # projectm-eval rand(x): uniform on [0, max(1, floor(x))). A uniform argument (an inlined
+                # per-frame graph) gets one draw per evaluation; this is a seeded Monte Carlo stand-in,
+                # not the engine's random stream.
+                limit=np.maximum(1.,np.floor(np.asarray(args[0],dtype=np.float64)))
+                if limit.size and np.all(limit==limit.flat[0]):raw=np.full(limit.shape,_GRID_RAND.random()*limit.flat[0],dtype=np.float32)
+                else:raw=(_GRID_RAND.random(limit.shape)*limit).astype(np.float32)
             elif op=='bnot':raw=np.asarray(np.abs(args[0])<1e-5,dtype=np.float32)
             elif op=='negate':raw=-args[0]
             elif op=='sqr':raw=args[0]*args[0]

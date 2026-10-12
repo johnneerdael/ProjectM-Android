@@ -1,0 +1,61 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "i am only here to die slowly in pain read plenitude by juliet schor.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r13-v2",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "a76d77fee55fa8080a756aee171813cb2fda7184bec45d1db9a73a61a3a87c56",
+  "description-v2-before-capture.json": "6310e6ae03c2dcaff3e55dc0cd19fe9fe273de573441333570659ee0bcf70b91",
+  "recipe-v2-before-capture.json": "070c22fa1d98e441657a9019b67b180510aeef34ca2602891f9d45530b501fd1",
+  "prediction-v2.png": "862113e6317420c4ffa2b49920e6c96639d261406e493d4998367920e1b1c6af",
+  "llm-look-description-v2.txt": "023c450e0081d5ba458e1fa250a1b7c92711f9f214a61c4335045d571201a5f4"
+ },
+ "capture_result_sha256": "895400e98e024c0f1311aef6dca8a66f8950b89f4e73e0878c9da72754231460",
+ "review_measurements": {
+  "prediction_luma": 0.904,
+  "screenshot_luma": 0.885,
+  "mean_rgb_prediction": [
+   0.869,
+   0.921,
+   0.911
+  ],
+  "mean_rgb_screenshot": [
+   0.882,
+   0.88,
+   0.918
+  ],
+  "saturation": [
+   0.17,
+   0.153
+  ],
+  "display_series_vs_native_ruler": {
+   "mean_luma_frames_60_149": [
+    0.646,
+    0.583
+   ],
+   "jumps_over_0.03_frames_60_149": [
+    63,
+    70
+   ],
+   "flash_peak_frames": "65-67 in both"
+  }
+ },
+ "agreements": [
+  "Washed-out flash frame with pastel pink/yellow/cyan edges at the same time point",
+  "Strobe timing and luma trajectory follow the engine (white flash at frames 65-67 in both)"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "Blob placement and colours differ in detail",
+   "cause": "randomised per-frame terms (seeded stand-in for the engine's random stream)",
+   "next": "none for understanding"
+  }
+ ],
+ "general_fixes": [
+  "projectm-eval rand() in the grid evaluator: uniform on [0, max(1, floor(x))), one draw per evaluation for uniform (per-frame) arguments"
+ ],
+ "status": "understood: strobe character, colours and timing match"
+}

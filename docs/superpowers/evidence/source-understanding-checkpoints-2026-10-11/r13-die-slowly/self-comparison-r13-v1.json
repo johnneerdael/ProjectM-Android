@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "preset": "i am only here to die slowly in pain read plenitude by juliet schor.milk",
+ "calibrated_score": null,
+ "uses_rendered_images_for_classification": false,
+ "checkpoint": "r13-v1",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "a9dfd198261d95ba80e4c14c50aedaa4a1ee555f4871e2cc6ff3fdedacddc0bc",
+  "description-v1-before-capture.json": "6310e6ae03c2dcaff3e55dc0cd19fe9fe273de573441333570659ee0bcf70b91",
+  "recipe-v1-before-capture.json": "070c22fa1d98e441657a9019b67b180510aeef34ca2602891f9d45530b501fd1",
+  "prediction-v1.png": "48fa10b15fd3610a2dc1bf30c2ff2f8221b21444150ff2d66f12a00fcd405fd1",
+  "llm-look-description-v1.txt": "2cdd9ced9cb4363552513715c707a79651410ea0fa9b4a41e978547c3474481a"
+ },
+ "capture_result_sha256": "c9a70a9f95bdd189f9f3f89fb2d9df848a14afe211d683f494890812e749bc66",
+ "review_measurements": {
+  "prediction_luma": 1.0,
+  "screenshot_luma": 0.885,
+  "clip_mean_luma_frames_60_299": 0.541,
+  "calibrated_display_estimate": {
+   "activity": 0.955,
+   "bands": [
+    "Intense"
+   ],
+   "jumps_per_10s": 68.7,
+   "luma": 0.446
+  },
+  "ruler_display_jumps_frames_60_149_over_0.03": 70
+ },
+ "agreements": [
+  "The SDK's calibrated estimate (Intense, strobe-like ~69 jumps/10 s) matched the capture"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Strobing saturated pink/green/blue/yellow blobs with white flashes; illustration saturated to white",
+   "cause": "warp program not evaluated: an inlined per-frame graph used projectm-eval rand(), missing in the grid evaluator; the fallback gain model ran away",
+   "next": "rand in the grid evaluator"
+  }
+ ]
+}

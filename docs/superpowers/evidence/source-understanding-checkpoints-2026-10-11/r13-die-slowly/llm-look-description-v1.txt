@@ -1,0 +1,8 @@
+LLM look description from the SDK recipe (before capture, r13 v1):
+A busy, strongly audio-reactive feedback picture. Polygon shapes (a 100-sided circle shape drawn as 7
+instances, plus other shapes) change radius, position, opacity and centre/perimeter colour with
+bass/mid/treble; built-in two-channel parallel traces change colour with the bands. A warp shader
+reshapes the feedback and a composite shader colours the display. Calibrated display estimate:
+Intense (activity percentile 0.96; predicted luminance ~0.45, frame difference ~0.13, flow ~0.22
+screen widths/s, ~69 global brightness jumps per 10 s, saturation ~0.48). Expected: a bright,
+flickering, fast-changing scene of pulsing circles and traces; strobe-like.

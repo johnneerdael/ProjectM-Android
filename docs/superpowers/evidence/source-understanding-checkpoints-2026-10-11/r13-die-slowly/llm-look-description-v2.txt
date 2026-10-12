@@ -1,0 +1,8 @@
+LLM look description from the SDK recipe (before capture, r13 v2):
+A strobing, saturated multicolour scene. Audio-driven circle shapes (a 100-sided shape drawn as 7
+instances and others) pulse in radius, position, opacity and colour with bass/mid/treble, and the
+built-in parallel traces take their colour from the bands. The warp shader (with randomised per-frame
+terms) smears them into soft blobs of pink, green, blue and yellow, and on loud passages the picture
+washes out to near-white flashes. Calibrated display estimate: Intense (activity 0.96, ~69 brightness
+jumps per 10 s). Expected: frequent white flashes alternating with saturated colour blobs; not
+strobe-safe.
