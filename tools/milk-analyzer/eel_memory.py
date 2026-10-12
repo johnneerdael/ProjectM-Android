@@ -72,10 +72,13 @@ class Memory:
         return Memory(self.items(), {})
 
 
-def _apply(op, node, args, rng):
+def _apply(op, node, args, rng, batch_shape=None):
     with np.errstate(all='ignore'):
         if op == 'rand' and rng is not None:
-            limit = np.maximum(1., np.floor(args[0]));return rng.random(np.shape(limit)) * limit
+            # projectm-eval rand(x): continuous uniform on [0, max(1, floor(x))], one draw per call.
+            limit = np.maximum(1., np.floor(args[0]))
+            shape = np.broadcast_shapes(np.shape(limit), tuple(batch_shape)) if batch_shape else np.shape(limit)
+            return rng.random(shape) * limit
         if op == 'add':return args[0] + args[1]
         if op == 'subtract':return args[0] - args[1]
         if op == 'multiply':return args[0] * args[1]
@@ -133,8 +136,12 @@ def input_names(expression, *, stochastic=False):
     return names
 
 
-def evaluate_np(expression, inputs, rng=None):
-    """Value of a serialised graph over declared inputs (vectorised; rand needs an rng)."""
+def evaluate_np(expression, inputs, rng=None, batch_shape=None):
+    """Value of a serialised graph over declared inputs (vectorised; rand needs an rng).
+
+    batch_shape: the shape of the evaluated batch, so every point gets its own rand draw (as every
+    instance or frame does in the engine) even when the rand argument is a constant.
+    """
     names = input_names(expression, stochastic=rng is not None)
     if names is None or names - set(inputs):raise ValueError('point program not evaluable')
     nodes = expression['nodes'];plans = expression.get('plans') or []
@@ -176,7 +183,7 @@ def evaluate_np(expression, inputs, rng=None):
         elif op == 'array_mem_read':result = _read(value(node['args'][0]), value(node['args'][1]))
         elif op == 'array_mem_write':result = _write(value(node['args'][0]), value(node['args'][1]), value(node['args'][2]))
         elif op == 'rand' and not stochastic:result = np.abs(value(node['args'][0]))
-        else:result = _apply(op, node, [value(arg) for arg in node['args']], rng)
+        else:result = _apply(op, node, [value(arg) for arg in node['args']], rng, batch_shape)
         table[index] = result
         return result
 

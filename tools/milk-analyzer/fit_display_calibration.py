@@ -29,6 +29,14 @@ def _transform(value,kind):
     return value
 
 
+def _descriptor_row(path):
+    """(name, descriptor) for one corpus result file, or None when it has no summary."""
+    from static_descriptor import descriptor
+    record=json.loads(Path(path).read_text())
+    if record.get('status')!='computed' or not record.get('summary_gzip_base64'):return None
+    return record['name'],descriptor(json.loads(gzip.decompress(base64.b64decode(record['summary_gzip_base64']))))
+
+
 def main(argv=None):
     import numpy as np
     from scipy.stats import spearmanr
@@ -43,6 +51,7 @@ def main(argv=None):
     parser.add_argument('--report',type=Path,required=True)
     parser.add_argument('--oof',type=Path,required=True)
     parser.add_argument('--min-share',type=float,default=.01)
+    parser.add_argument('--workers',type=int,default=4,help='processes computing descriptors')
     args=parser.parse_args(argv)
     labels={}
     for directory in args.ruler:
@@ -52,11 +61,11 @@ def main(argv=None):
     excluded=set()
     for path in args.exclude:
         data=json.loads(path.read_text());excluded|=set(data if isinstance(data,list) else data)
-    names=[];rows=[]
-    for name in sorted(os.listdir(args.corpus/'results')):
-        record=json.loads((args.corpus/'results'/name).read_text())
-        if record.get('status')!='computed' or not record.get('summary_gzip_base64'):continue
-        rows.append(descriptor(json.loads(gzip.decompress(base64.b64decode(record['summary_gzip_base64'])))));names.append(record['name'])
+    from concurrent.futures import ProcessPoolExecutor
+    paths=sorted(args.corpus/'results'/name for name in os.listdir(args.corpus/'results'))
+    with ProcessPoolExecutor(args.workers) as pool:
+        loaded=[row for row in pool.map(_descriptor_row,paths,chunksize=32) if row is not None]
+    names=[name for name,_ in loaded];rows=[row for _,row in loaded]
     counts={}
     for row in rows:
         for key in row:counts[key]=counts.get(key,0)+1

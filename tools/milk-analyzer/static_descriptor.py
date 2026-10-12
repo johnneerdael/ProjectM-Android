@@ -7,11 +7,15 @@ columns. The descriptor is a faithful, lossy flattening of the static analysis
 for calibration and model fitting: it reads no rendered frames and executes no
 preset code. Columns that are rare across a corpus should be pruned by the
 caller.
+
+v2 adds derived ``equilibrium:*`` columns from feedback_equilibrium: the feedback steady-state
+canvas and display colour (local and fully spread bounds), warp gain/offset and per-frame drawn
+energy, computed from the same facts by closed-form transfer evaluation (no frames stepped).
 """
 import math
 import re
 
-POLICY='static-summary-descriptor-v1'
+POLICY='static-summary-descriptor-v2'
 SKIP_GROUPS={'identity'}
 SKIP_KEYS={'conditions','unknown_reasons','evidence','limitations','scope','note','policy','source_locations',
            'source_keys','expression','expressions','programs','nodes','representative_points','lane_expressions_rgb',
@@ -52,7 +56,7 @@ def descriptor(summary):
         for row in rows:
             path=INDEX.sub('/*',str(row.get('path','')))
             _walk(row.get('value'),group+':'+path,0,leaves)
-    columns={}
+    columns=_equilibrium_columns(summary)
     for key,values in leaves.items():
         if key.endswith('=') or not values:continue
         if '=' in key.rsplit('/',1)[-1]:
@@ -63,3 +67,25 @@ def descriptor(summary):
             columns[key+'#mean']=sum(values)/len(values)
             columns[key+'#count']=float(len(values))
     return columns
+
+
+EQUILIBRIUM_MODELS=('identity','legacy','composite_transfer','affine_composite')
+
+
+def _equilibrium_columns(summary):
+    """Derived steady-state columns; empty when the equilibrium cannot be formed."""
+    try:
+        from feedback_equilibrium import equilibrium
+        e=equilibrium(summary)
+    except Exception:  # noqa: BLE001 - a descriptor never fails on one derived group
+        return {}
+    out={'equilibrium:display_local_luma':e['display_local_luma'],'equilibrium:display_spread_luma':e['display_spread_luma'],
+         'equilibrium:display_local_saturation':e['display_local_saturation'],'equilibrium:display_spread_saturation':e['display_spread_saturation'],
+         'equilibrium:drawn_area_fraction':e['drawn_area_fraction'],'equilibrium:elements':float(e['elements']),
+         'equilibrium:substitution_count':float(e['substitution_count'])}
+    for name in ('display_local_rgb','display_spread_rgb','canvas_local_rgb','gain_rgb','offset_rgb','energy_rgb_per_frame'):
+        for channel,value in zip('rgb',e[name]):out['equilibrium:'+name+'/'+channel]=float(value)
+    out['equilibrium:display_local_warm']=e['display_local_rgb'][0]-e['display_local_rgb'][2]
+    out['equilibrium:display_spread_warm']=e['display_spread_rgb'][0]-e['display_spread_rgb'][2]
+    for model in EQUILIBRIUM_MODELS:out['equilibrium:composite='+model]=1. if e['composite_model']==model else 0.
+    return out

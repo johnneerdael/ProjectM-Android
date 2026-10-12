@@ -1,0 +1,394 @@
+{
+ "policy": "facet-agreement-v1",
+ "scope": "out-of-fold source-derived facet memberships vs bundled engine-ruler memberships (attributes.tsv), style/monochrome/pastel excluded; remap = cross-fitted quantile remap of each OOF target onto the ruler distribution",
+ "descriptor_v1_oof_r6": {
+  "plain": {
+   "oof": "build/calibration-2026-10-12/oof-r6.json",
+   "groups": {
+    "energy": 0.475,
+    "brightness": 0.539,
+    "colour": 0.469,
+    "movement": 0.63,
+    "comfort": 0.789
+   },
+   "options": {
+    "chill": {
+     "precision": 0.857,
+     "recall": 0.316
+    },
+    "normal": {
+     "precision": 0.593,
+     "recall": 0.882
+    },
+    "intense": {
+     "precision": 0.732,
+     "recall": 0.664
+    },
+    "dark": {
+     "precision": 0.807,
+     "recall": 0.1
+    },
+    "balanced": {
+     "precision": 0.502,
+     "recall": 0.902
+    },
+    "bright": {
+     "precision": 0.685,
+     "recall": 0.36
+    },
+    "vivid": {
+     "precision": 0.74,
+     "recall": 0.681
+    },
+    "warm": {
+     "precision": 0.772,
+     "recall": 0.323
+    },
+    "cool": {
+     "precision": 0.814,
+     "recall": 0.176
+    },
+    "still": {
+     "precision": 0.773,
+     "recall": 0.193
+    },
+    "drifting": {
+     "precision": 0.591,
+     "recall": 0.898
+    },
+    "fast": {
+     "precision": 0.752,
+     "recall": 0.465
+    },
+    "no_strobe": {
+     "precision": 0.869,
+     "recall": 0.688
+    }
+   }
+  },
+  "remap": {
+   "oof": "build/calibration-2026-10-12/oof-r6.json",
+   "groups": {
+    "energy": 0.53,
+    "brightness": 0.558,
+    "colour": 0.448,
+    "movement": 0.628,
+    "comfort": 0.81
+   },
+   "options": {
+    "chill": {
+     "precision": 0.682,
+     "recall": 0.704
+    },
+    "normal": {
+     "precision": 0.68,
+     "recall": 0.657
+    },
+    "intense": {
+     "precision": 0.701,
+     "recall": 0.72
+    },
+    "dark": {
+     "precision": 0.559,
+     "recall": 0.561
+    },
+    "balanced": {
+     "precision": 0.552,
+     "recall": 0.548
+    },
+    "bright": {
+     "precision": 0.567,
+     "recall": 0.572
+    },
+    "vivid": {
+     "precision": 0.723,
+     "recall": 0.719
+    },
+    "warm": {
+     "precision": 0.586,
+     "recall": 0.586
+    },
+    "cool": {
+     "precision": 0.46,
+     "recall": 0.46
+    },
+    "still": {
+     "precision": 0.55,
+     "recall": 0.561
+    },
+    "drifting": {
+     "precision": 0.649,
+     "recall": 0.642
+    },
+    "fast": {
+     "precision": 0.645,
+     "recall": 0.649
+    },
+    "no_strobe": {
+     "precision": 0.812,
+     "recall": 0.814
+    }
+   }
+  }
+ },
+ "equilibrium_v2_oof_r6_eq": {
+  "plain": {
+   "oof": "build/calibration-2026-10-12/oof-r6-eq.json",
+   "groups": {
+    "energy": 0.483,
+    "brightness": 0.551,
+    "colour": 0.493,
+    "movement": 0.63,
+    "comfort": 0.786
+   },
+   "options": {
+    "chill": {
+     "precision": 0.853,
+     "recall": 0.33
+    },
+    "normal": {
+     "precision": 0.599,
+     "recall": 0.882
+    },
+    "intense": {
+     "precision": 0.732,
+     "recall": 0.668
+    },
+    "dark": {
+     "precision": 0.83,
+     "recall": 0.12
+    },
+    "balanced": {
+     "precision": 0.51,
+     "recall": 0.884
+    },
+    "bright": {
+     "precision": 0.681,
+     "recall": 0.416
+    },
+    "vivid": {
+     "precision": 0.746,
+     "recall": 0.694
+    },
+    "warm": {
+     "precision": 0.772,
+     "recall": 0.422
+    },
+    "cool": {
+     "precision": 0.75,
+     "recall": 0.241
+    },
+    "still": {
+     "precision": 0.777,
+     "recall": 0.198
+    },
+    "drifting": {
+     "precision": 0.59,
+     "recall": 0.901
+    },
+    "fast": {
+     "precision": 0.759,
+     "recall": 0.459
+    },
+    "no_strobe": {
+     "precision": 0.862,
+     "recall": 0.689
+    }
+   }
+  },
+  "remap": {
+   "oof": "build/calibration-2026-10-12/oof-r6-eq.json",
+   "groups": {
+    "energy": 0.53,
+    "brightness": 0.568,
+    "colour": 0.479,
+    "movement": 0.629,
+    "comfort": 0.812
+   },
+   "options": {
+    "chill": {
+     "precision": 0.676,
+     "recall": 0.712
+    },
+    "normal": {
+     "precision": 0.681,
+     "recall": 0.654
+    },
+    "intense": {
+     "precision": 0.711,
+     "recall": 0.725
+    },
+    "dark": {
+     "precision": 0.568,
+     "recall": 0.572
+    },
+    "balanced": {
+     "precision": 0.558,
+     "recall": 0.554
+    },
+    "bright": {
+     "precision": 0.583,
+     "recall": 0.586
+    },
+    "vivid": {
+     "precision": 0.732,
+     "recall": 0.727
+    },
+    "warm": {
+     "precision": 0.618,
+     "recall": 0.619
+    },
+    "cool": {
+     "precision": 0.511,
+     "recall": 0.512
+    },
+    "still": {
+     "precision": 0.552,
+     "recall": 0.559
+    },
+    "drifting": {
+     "precision": 0.649,
+     "recall": 0.643
+    },
+    "fast": {
+     "precision": 0.648,
+     "recall": 0.651
+    },
+    "no_strobe": {
+     "precision": 0.813,
+     "recall": 0.817
+    }
+   }
+  }
+ },
+ "shipped_equilibrium_v3_oof_r6_eq3": {
+  "plain": {
+   "oof": "build/calibration-2026-10-12/oof-r6-eq3.json",
+   "groups": {
+    "energy": 0.483,
+    "brightness": 0.549,
+    "colour": 0.491,
+    "movement": 0.628,
+    "comfort": 0.785
+   },
+   "options": {
+    "chill": {
+     "precision": 0.85,
+     "recall": 0.319
+    },
+    "normal": {
+     "precision": 0.598,
+     "recall": 0.882
+    },
+    "intense": {
+     "precision": 0.736,
+     "recall": 0.668
+    },
+    "dark": {
+     "precision": 0.829,
+     "recall": 0.123
+    },
+    "balanced": {
+     "precision": 0.508,
+     "recall": 0.883
+    },
+    "bright": {
+     "precision": 0.674,
+     "recall": 0.406
+    },
+    "vivid": {
+     "precision": 0.742,
+     "recall": 0.694
+    },
+    "warm": {
+     "precision": 0.769,
+     "recall": 0.428
+    },
+    "cool": {
+     "precision": 0.763,
+     "recall": 0.245
+    },
+    "still": {
+     "precision": 0.769,
+     "recall": 0.203
+    },
+    "drifting": {
+     "precision": 0.59,
+     "recall": 0.896
+    },
+    "fast": {
+     "precision": 0.749,
+     "recall": 0.456
+    },
+    "no_strobe": {
+     "precision": 0.862,
+     "recall": 0.686
+    }
+   }
+  },
+  "remap": {
+   "oof": "build/calibration-2026-10-12/oof-r6-eq3.json",
+   "groups": {
+    "energy": 0.528,
+    "brightness": 0.572,
+    "colour": 0.474,
+    "movement": 0.625,
+    "comfort": 0.813
+   },
+   "options": {
+    "chill": {
+     "precision": 0.677,
+     "recall": 0.709
+    },
+    "normal": {
+     "precision": 0.682,
+     "recall": 0.657
+    },
+    "intense": {
+     "precision": 0.704,
+     "recall": 0.723
+    },
+    "dark": {
+     "precision": 0.572,
+     "recall": 0.575
+    },
+    "balanced": {
+     "precision": 0.565,
+     "recall": 0.562
+    },
+    "bright": {
+     "precision": 0.583,
+     "recall": 0.586
+    },
+    "vivid": {
+     "precision": 0.729,
+     "recall": 0.727
+    },
+    "warm": {
+     "precision": 0.617,
+     "recall": 0.617
+    },
+    "cool": {
+     "precision": 0.501,
+     "recall": 0.502
+    },
+    "still": {
+     "precision": 0.55,
+     "recall": 0.558
+    },
+    "drifting": {
+     "precision": 0.645,
+     "recall": 0.639
+    },
+    "fast": {
+     "precision": 0.642,
+     "recall": 0.646
+    },
+    "no_strobe": {
+     "precision": 0.814,
+     "recall": 0.817
+    }
+   }
+  }
+ }
+}

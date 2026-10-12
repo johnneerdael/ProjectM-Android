@@ -128,3 +128,12 @@ def test_shape_code_reads_memory_written_by_frame_code():
     memory = M.Memory().write(4., .25)
     assert float(M.evaluate_np(expression, {'memory:global': memory, 'instance': 2.})) == .75
     assert M.input_names(expression) == {'memory:global', 'instance'}
+
+
+def test_rand_draws_independently_for_every_point_of_a_batch():
+    import numpy as np
+    graph = {'root': 0, 'nodes': [{'op': 'rand', 'args': [1], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': 100.}}]}
+    values = M.evaluate_np(graph, {}, np.random.default_rng(1), batch_shape=(4000,))
+    assert values.shape == (4000,) and len(set(values.tolist())) == 4000
+    # projectm-eval rand(x): continuous uniform on [0, max(1, floor(x))].
+    assert abs(values.mean() - 50.) < 2. and values.min() >= 0. and values.max() <= 100.

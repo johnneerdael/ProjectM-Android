@@ -1,0 +1,23 @@
+{
+ "policy": "facet-agreement-ceiling-v1",
+ "scope": "84 bundled presets with both emulator activity captures (validation sets, other audio, Android emulator) and engine-ruler memberships; colour and style excluded (the captures carry no saturation or hue)",
+ "emulator_vs_ruler": {
+  "energy": 0.857,
+  "brightness": 0.81,
+  "movement": 0.929,
+  "comfort": 0.917
+ },
+ "proposed_switch_criterion": "switch a facet group to source-derived values when whole-pack out-of-fold agreement with the ruler reaches 90% of the emulator-vs-ruler agreement",
+ "thresholds_at_90_percent": {
+  "energy": 0.771,
+  "brightness": 0.729,
+  "movement": 0.836,
+  "comfort": 0.825
+ },
+ "source_vs_ruler_same_presets_oof_r6_eq3": {
+  "energy": 0.512,
+  "brightness": 0.452,
+  "movement": 0.679,
+  "comfort": 0.798
+ }
+}

@@ -1,0 +1,142 @@
+{
+ "all_oof": {
+  "n": 9516,
+  "activity_spearman": 0.74,
+  "primary_band_accuracy": 0.603,
+  "bands_compatible": 0.74,
+  "opposite_extremes": 0.0069,
+  "width_sweep": [
+   {
+    "max_width": 0.2,
+    "coverage": 0.014,
+    "primary_accuracy": 0.955,
+    "compatible": 0.97
+   },
+   {
+    "max_width": 0.3,
+    "coverage": 0.05,
+    "primary_accuracy": 0.914,
+    "compatible": 0.931
+   },
+   {
+    "max_width": 0.4,
+    "coverage": 0.125,
+    "primary_accuracy": 0.84,
+    "compatible": 0.868
+   },
+   {
+    "max_width": 0.5,
+    "coverage": 0.264,
+    "primary_accuracy": 0.733,
+    "compatible": 0.825
+   },
+   {
+    "max_width": 0.6,
+    "coverage": 0.561,
+    "primary_accuracy": 0.668,
+    "compatible": 0.778
+   },
+   {
+    "max_width": 0.7,
+    "coverage": 1.0,
+    "primary_accuracy": 0.603,
+    "compatible": 0.74
+   },
+   {
+    "max_width": 0.8,
+    "coverage": 1.0,
+    "primary_accuracy": 0.603,
+    "compatible": 0.74
+   },
+   {
+    "max_width": 1.01,
+    "coverage": 1.0,
+    "primary_accuracy": 0.603,
+    "compatible": 0.74
+   }
+  ]
+ },
+ "heldout_emulator_sets": {
+  "n": 90,
+  "activity_spearman": 0.793,
+  "primary_band_accuracy": 0.711,
+  "bands_compatible": 0.833,
+  "opposite_extremes": 0.0111,
+  "width_sweep": [
+   {
+    "max_width": 0.3,
+    "coverage": 0.033,
+    "primary_accuracy": 1.0,
+    "compatible": 1.0
+   },
+   {
+    "max_width": 0.4,
+    "coverage": 0.133,
+    "primary_accuracy": 1.0,
+    "compatible": 1.0
+   },
+   {
+    "max_width": 0.5,
+    "coverage": 0.278,
+    "primary_accuracy": 0.88,
+    "compatible": 0.96
+   },
+   {
+    "max_width": 0.6,
+    "coverage": 0.522,
+    "primary_accuracy": 0.809,
+    "compatible": 0.872
+   },
+   {
+    "max_width": 0.7,
+    "coverage": 1.0,
+    "primary_accuracy": 0.711,
+    "compatible": 0.833
+   },
+   {
+    "max_width": 0.8,
+    "coverage": 1.0,
+    "primary_accuracy": 0.711,
+    "compatible": 0.833
+   },
+   {
+    "max_width": 1.01,
+    "coverage": 1.0,
+    "primary_accuracy": 0.711,
+    "compatible": 0.833
+   }
+  ]
+ },
+ "remap": {
+  "remapped_all_oof": {
+   "primary_accuracy": 0.639,
+   "compatible": 0.765,
+   "opposite_extremes": 0.015,
+   "primary_shares": {
+    "Chill": 0.3,
+    "Normal": 0.425,
+    "Intense": 0.274
+   }
+  },
+  "remapped_heldout": {
+   "primary_accuracy": 0.733,
+   "compatible": 0.822,
+   "opposite_extremes": 0.0111,
+   "primary_shares": {
+    "Chill": 0.344,
+    "Normal": 0.367,
+    "Intense": 0.289
+   }
+  },
+  "measured primary shares": {
+   "Chill": 0.299,
+   "Normal": 0.426,
+   "Intense": 0.275
+  },
+  "unremapped primary shares": {
+   "Chill": 0.084,
+   "Normal": 0.678,
+   "Intense": 0.239
+  }
+ }
+}
