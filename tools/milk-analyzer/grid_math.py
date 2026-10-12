@@ -387,6 +387,19 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
             elif op=='smoothstep':
                 a,b,x=align(args);t=np.clip((x-a)/(b-a),0,1);raw=t*t*(3-2*t)
             elif op=='fmod':raw=np.mod(*align(args))
+            elif op=='eel_divide':
+                # Inlined per-frame (projectm-eval) graphs: division by |b| < 1e-5 yields 0.
+                a,b=align(args);small=np.abs(b)<1e-5
+                raw=np.where(small,0,a/np.where(small,1,b)).astype(np.result_type(a,b,np.float32))
+            elif op=='eel_equal':
+                a,b=align(args);raw=np.asarray(np.abs(a-b)<1e-5,dtype=np.float32)
+            elif op=='bnot':raw=np.asarray(np.abs(args[0])<1e-5,dtype=np.float32)
+            elif op=='negate':raw=-args[0]
+            elif op=='sqr':raw=args[0]*args[0]
+            elif op=='int':raw=np.floor(args[0])  # time_expression's projectm-eval int
+            elif op in {'band','bor'}:
+                a,b=align(args);combine=np.logical_and if op=='band' else np.logical_or
+                raw=np.asarray(combine(np.abs(a)>1e-5,np.abs(b)>1e-5),dtype=np.float32)
             elif op in {'all','any'}:
                 function=np.all if op=='all' else np.any
                 raw=function(args[0],axis=tuple(range(1,args[0].ndim)))

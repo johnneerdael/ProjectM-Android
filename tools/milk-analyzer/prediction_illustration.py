@@ -417,10 +417,44 @@ def _wave_alpha(facts,path,limitations):
     gate=(material.get('native_draw_gate') or {}).get('threshold')
     additive='additive' in str(material.get('blend_mode'))
     if not isinstance(envelope,list) or len(envelope)!=2 or None in envelope:
+        if _frame_wave_alpha(material,{'bass':1.,'mid':1.,'treb':1.}) is not None:
+            limitations.append(path+': alpha follows the declared per-frame volume ramp');return 1.0,additive
         limitations.append(path+': alpha unresolved; drawn at alpha 1');return 1.0,additive
     if type(gate) in (int,float) and envelope[1]<gate:
         limitations.append(path+': final alpha below the native draw gate; not drawn');return None,additive
     return min(1.,max(0.,(envelope[0]+envelope[1])/2)),additive
+
+
+def _frame_wave_alpha(material,values):
+    """Per-frame built-in wave alpha from the alpha recipe: mode-adjusted authored alpha (wave_a from the
+    frame program when stepped), times the volume ramp (vol = 0.333*(bass+mid+treb)) when enabled, then
+    clamped to [0, 1]. None when the recipe lacks a resolved mode-adjusted alpha."""
+    recipe=(material or {}).get('alpha_recipe') or {}
+    base=recipe.get('alpha_envelope_without_volume_modulation')
+    if not isinstance(base,list) or len(base)!=2 or None in base or base[0]!=base[1] and type(values.get('wave_a')) not in (int,float):
+        return None
+    alpha=float(base[0])
+    if type(values.get('wave_a')) in (int,float) and type(recipe.get('mode_gain')) in (int,float):
+        alpha=float(values['wave_a'])*float(recipe['mode_gain'])
+    ramp=recipe.get('volume_ramp') or {}
+    if ramp.get('enabled'):
+        if any(type(values.get(k)) not in (int,float) for k in ('bass','mid','treb')):return None
+        vol=(values['bass']+values['mid']+values['treb'])*.333
+        denominator=float(ramp['end'])-float(ramp['start'])
+        if denominator==0:return None
+        alpha*=(vol-float(ramp['start']))/denominator
+    return min(1.,max(0.,alpha))
+
+
+def _frame_wave_colour(material,values):
+    """Built-in wave colour from the stepped per-frame wave_r/g/b, clamped, then maximised (largest
+    channel 1, above 0.01) when bMaximizeWaveColor normalisation is enabled; None without them."""
+    rgb=[values.get('wave_'+c) for c in 'rgb']
+    if any(type(v) not in (int,float) for v in rgb):return None
+    rgb=[min(1.,max(0.,float(v))) for v in rgb]
+    peak=max(rgb)
+    if (material or {}).get('normalization_enabled') and peak>.01:rgb=[v/peak for v in rgb]
+    return rgb
 
 
 def _wave_colour_at(facts,path,time):
@@ -547,6 +581,9 @@ def _evaluate_np(expression,inputs,rng=None):
             elif op=='remainder':
                 divisor=np.trunc(args[1]);result=np.where(divisor==0,0.,np.fmod(np.trunc(args[0]),np.where(divisor==0,1.,divisor)))
             elif op=='eel_equal':result=(np.abs(args[0]-args[1])<1e-5).astype(np.float64)
+            elif op=='bnot':result=(np.abs(args[0])<1e-5).astype(np.float64)
+            elif op=='band':result=((np.abs(args[0])>1e-5)&(np.abs(args[1])>1e-5)).astype(np.float64)
+            elif op=='bor':result=((np.abs(args[0])>1e-5)|(np.abs(args[1])>1e-5)).astype(np.float64)
             elif op=='min':result=np.minimum(args[0],args[1])
             elif op=='max':result=np.maximum(args[0],args[1])
             elif op=='pow':
@@ -810,9 +847,18 @@ def _field_from_expression(expression):
     return root
 
 
-def _fit_inputs(expression,inputs):
-    """Trim vector inputs to the width each graph declares (composite _uv is float2, warp _uv float4)."""
+def _fit_inputs(expression,inputs,controls=None):
+    """Trim vector inputs to the width each graph declares (composite _uv is float2, warp _uv float4).
+
+    Inputs the uniforms do not supply are taken from the stepped per-frame values (controls): inlined
+    Q graphs read persistent per-frame variables such as an accumulator or a beat counter.
+    """
     fitted=dict(inputs)
+    for node in expression.get('nodes',[]):
+        name=node.get('detail',{}).get('name') if node.get('op')=='input' else None
+        if isinstance(name,str) and name not in fitted and controls:
+            value=controls.get(name,controls.get('state:per_frame_:'+name))
+            if type(value) in (int,float):fitted[name]=np.float32(value)
     for node in expression.get('nodes',[]):
         if node.get('op')!='input':continue
         name=node.get('detail',{}).get('name');dtype=node.get('dtype','')
@@ -913,7 +959,7 @@ class _FrameStepper:
     def __init__(self,frame,rng_seed=8191):
         self.state_programs=(frame or {}).get('state') or {}
         self.output_programs=(frame or {}).get('outputs') or {}
-        self.values=None;self.failed=set();self.rng=np.random.default_rng(rng_seed)
+        self.values=None;self.start={};self.failed=set();self.rng=np.random.default_rng(rng_seed)
     def _eval(self,program,inputs):
         return float(np.asarray(_evaluate_np(program,inputs,self.rng)).reshape(-1)[0])
     def step(self,time,fps,bands,frame_index):
@@ -925,6 +971,8 @@ class _FrameStepper:
                 try:self.values[name]=self._eval(programs['initial'],init_inputs)
                 except Exception:self.values[name]=0.;self.failed.add(name)  # noqa: BLE001
         inputs={**base,**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()}}
+        # Start-of-frame state: inlined per-frame graphs in shader programs read these values.
+        self.start={**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()}}
         updated={}
         for name,programs in self.state_programs.items():
             try:value=self._eval(programs['update'],inputs)
@@ -988,10 +1036,26 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
         x1=fix(x0+1,tw);y1=fix(y0+1,th);x0=fix(x0,tw);y0=fix(y0,th)
         values=((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
-    fitted=_fit_inputs(program,inputs)
+    fitted=_fit_inputs(program,inputs,controls)
     value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample),np.float32)
     value=value.reshape(height,width,-1)
     return value[...,:3]
+
+
+def _fit_field_inputs(field,inputs,controls):
+    """Add per-frame values for inputs of a rebuilt shader_fields.Field graph that the uniforms lack."""
+    fitted=dict(inputs);pending=[field];seen=set()
+    while pending:
+        node=pending.pop()
+        if id(node) in seen:continue
+        seen.add(id(node))
+        if getattr(node,'op',None)=='input':
+            name=node.detail.get('name')
+            if isinstance(name,str) and name not in fitted:
+                value=controls.get(name,controls.get('state:per_frame_:'+name))
+                if type(value) in (int,float):fitted[name]=np.float32(value)
+        pending.extend(getattr(node,'args',()))
+    return fitted
 
 
 def _injection_lanes(transfer):
@@ -1024,8 +1088,11 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
     rng=np.random.default_rng(1000003+frame_index)
     blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,_TERM_CONTEXT.get('bands'))
-    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**blur_uniforms,**{k:np.float32(v) for k,v in (bands or {}).items()},
-            'rand_frame':rng.random(4).astype(np.float32),':native-render-time-f32':np.float32(time)}
+    controls=_TERM_CONTEXT.get('stage') or _TERM_CONTEXT.get('bands') or {}
+    inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**blur_uniforms,
+            **_declared_uniforms(width,height,time,30.,{k:v for k,v in controls.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())}),
+            **{k:np.float32(v) for k,v in (bands or {}).items()},
+            'rand_frame':rng.random(4).astype(np.float32),'rand_preset':np.full(4,.5,np.float32),':native-render-time-f32':np.float32(time)}
     def sample(detail,coordinates):
         texture=detail.get('canonical_texture','main')
         source=image
@@ -1043,12 +1110,12 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
         values=((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     if coordinates is not None:
-        value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=inputs,sample=sample),np.float32).reshape(height,width,-1)
+        value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample),np.float32).reshape(height,width,-1)
         return value[...,0]*width-.5,value[...,1]*height-.5
     out=np.zeros((height,width,3),np.float32)
     for index,lane in enumerate(lanes or []):
         if lane is None:continue
-        value=evaluate_grid(lane,batch_shape=(height,width),inputs=inputs,sample=sample)
+        value=evaluate_grid(lane,batch_shape=(height,width),inputs=_fit_field_inputs(lane,inputs,controls),sample=sample)
         out[...,index]=np.asarray(value,np.float32).reshape(height,width)
     return out
 
@@ -1112,7 +1179,7 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
             columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
             uv=np.stack([columns,rows,columns,rows],axis=-1)
             shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'),rand=_frame_rand(time,fps),
-                                  controls=_TERM_CONTEXT.get('bands'),
+                                  controls=_TERM_CONTEXT.get('stage') or _TERM_CONTEXT.get('bands'),
                                  blur_image=blur_image)
             limitations.append('composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
             return np.clip(shown,0,1)
@@ -1219,6 +1286,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (declared per-frame audio when given, else midpoints; wave per-frame state stepped from its exported recurrence; long-side square projection)')
     for path,(colour,note) in colours.items():limitations.append(path+': '+note)
     wave_alpha={path:_wave_alpha(facts,path,limitations) for path,_ in paths+dynamic_waves}
+    _TERM_CONTEXT.pop('stage',None)
     warp_samples_blur='"canonical_texture": "blur' in json.dumps(warp_program) if warp_program is not None else False
     wave_states={}
     previous=image
@@ -1235,10 +1303,15 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             # Blur timing (MilkdropPreset::RenderFrame): blur textures are made from the previous frame's
             # buffer; a warp shader that samples blur reads last frame's update (two canvases back).
             older=previous;previous=image;canvas['previous_alpha']=canvas['alpha']
+            # Per-frame base inputs, read by inlined per-frame graphs (e.g. a Q accumulating 30/fps per frame).
+            held.update(fps=float(fps),frame=float(int(round(frame_time*fps))),progress=0.,time=float(frame_time))
             if stepper is not None:
                 held.update(stepper.step(frame_time,fps,{k:held[k] for k in BANDS if k in held},int(round(frame_time*fps))))
             _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
                                  bands={k:v for k,v in held.items() if isinstance(v,(int,float))})
+            # Shader programs inline Q graphs over start-of-frame state: their inputs take those values.
+            stage_controls={**held,**(stepper.start if stepper is not None else {})}
+            _TERM_CONTEXT['stage']=stage_controls
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
                 main_x,main_y=map_x,map_y
@@ -1252,7 +1325,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     try:
                         uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,*np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)],axis=-1)
                         warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},diffuse,
-                                                rand=_frame_rand(frame_time,fps),controls=held,blur_image=older if warp_samples_blur else previous)
+                                                rand=_frame_rand(frame_time,fps),controls=stage_controls,blur_image=older if warp_samples_blur else previous)
                         image=np.clip(warped,0,1)
                         image=np.round(image*255)/255
                         canvas['alpha']=np.ones_like(canvas['alpha'])
@@ -1289,10 +1362,16 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             for path,recipe in dynamic_waves:
                 alpha,additive=wave_alpha[path]
                 if alpha is None:continue
+                material=facts.get(path.rsplit('/',1)[0]+'/wave_material') or {}
+                frame_alpha=_frame_wave_alpha(material,held)
+                if frame_alpha is not None:
+                    gate=(material.get('native_draw_gate') or {}).get('threshold')
+                    if type(gate) in (int,float) and frame_alpha<gate:continue
+                    alpha=frame_alpha
                 try:polylines,loop=_builtin_wave_frame(recipe,frame_time,int(round(frame_time*fps))-1,
                                                        {k:held[k] for k in BANDS if k in held},(width,height))
                 except ValueError:continue
-                colour=_wave_colour_at(facts,path,frame_time) or _wave_colour(facts,path)[0]
+                colour=_frame_wave_colour(material,held) or _wave_colour_at(facts,path,frame_time) or _wave_colour(facts,path)[0]
                 # Thick: LineRenderer draws four 1 px passes offset by one pixel (as is, +x, +x+y, +y in NDC,
                 # y up on screen), each blended on its own, so pixels two passes cover receive the blend twice.
                 # Scaled dots are drawn once as 2x2 blocks (Waveform.cpp: one iteration when lineScale > 0).

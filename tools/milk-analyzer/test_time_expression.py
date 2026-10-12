@@ -62,3 +62,14 @@ def test_overflow_becomes_value_error():
     nodes=[{'op':'exp','args':[1],'detail':{}},{'op':'multiply','args':[2,3],'detail':{}},
            {'op':'input','args':[],'detail':{'name':'time'}},{'op':'constant','args':[],'detail':{'value':10}}]
     with pytest.raises(ValueError):evaluate(graph(nodes),100.)
+
+
+def test_eel_boolean_functions_use_projectm_eval_close_factor():
+    from time_expression import evaluate_inputs
+    graph = lambda op, n: {'root': n, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'a'}},
+                                                {'op': 'input', 'args': [], 'detail': {'name': 'b'}},
+                                                {'op': op, 'args': [0] if op == 'bnot' else [0, 1], 'detail': {}}]}
+    assert evaluate_inputs(graph('bnot', 2), {'a': 5e-6, 'b': 0}) == 1.0
+    assert evaluate_inputs(graph('bnot', 2), {'a': 2e-5, 'b': 0}) == 0.0
+    assert evaluate_inputs(graph('band', 2), {'a': 1., 'b': 1e-6}) == 0.0
+    assert evaluate_inputs(graph('bor', 2), {'a': 1e-6, 'b': -3.}) == 1.0

@@ -1,0 +1,32 @@
+{
+  "policy": "sdk-prediction-illustration-v1",
+  "summary_sha256": "c7c2755788a11f298a656fd0f753b947918e06a7aa124f6bc784e79fbfdcc6af",
+  "illustrator_sha256": "9892e5c1d070103e5da57fcf854dbc9431c40cee4010d14b1bd76706942d518b",
+  "image_sha256": "e0f5b67af0848efb2a66540e936e1923c6dd7e82f19e83546ead459f626ad65b",
+  "declared_time_seconds": 5.0,
+  "history_steps": 150,
+  "drawn_components": [],
+  "limitations": [
+    "motion evaluated at the 48x32 mesh vertices and interpolated over its triangles",
+    "main feedback sample uses the exported shader coordinate expression (image-driven displacement included)",
+    "custom warp approximated as uniform gain 0.995 plus constant offset; blur sites read the same pixel; injected spatial fields evaluated per frame (seeded rand_frame stand-in)",
+    "warp shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)",
+    "built-in waveforms drawn per frame from the declared reference PCM (projectM modes 0-9; wave alignment omitted)",
+    "/analysis/visual_description/elements/1/waveform_recipe: alpha unresolved; drawn at alpha 1",
+    "shader sample coordinates not evaluated: missing symbolic grid input: index2",
+    "warp program not evaluated: missing symbolic grid input: index2",
+    "injected warp field not evaluated: missing symbolic grid input: _c2",
+    "mesh terms held at range midpoint or zero: unresolved_inputs",
+    "composite program not evaluated: missing symbolic grid input: movez",
+    "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted",
+    "audio-driven controls use the declared per-frame bands (audio report sha256 4c76bd9cb3ed46b3)",
+    "Illustration of frozen source facts, not a renderer: smoothing, exact raster, audio-driven waveform shape, additive waves and wave alpha are omitted",
+    "Content older than history_steps, including permanent floor residue, is omitted"
+  ],
+  "uses_rendered_images": false,
+  "uses_equation_execution": false,
+  "reads_preset_source": false,
+  "evaluates_exported_closed_form_graphs": true,
+  "graph_evaluation_scope": "exported sample/time/audio point programs, shape controls and per-pixel warp terms; no preset frames are executed",
+  "declared_audio_sha256": "4c76bd9cb3ed46b3e31e315d882d0d66edaa2332f8e6a7b4c106084f3408918b"
+}

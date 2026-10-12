@@ -23,8 +23,10 @@ UNARY={'sin':math.sin,'cos':math.cos,'tan':math.tan,'abs':abs,'negate':lambda v:
        'sign':lambda v:(v>0)-(v<0),'exp':math.exp,'atan':math.atan}
 
 
+# projectm-eval boolean functions (COMPARE_CLOSEFACTOR 1e-5): bnot(x)=|x|<1e-5, band/bor on |x|>1e-5.
+BOOLEAN={'bnot','band','bor'}
 SUPPORTED={'constant','input','add','subtract','multiply','divide','eel_divide','min','max','pow','sqrt',
-           'less','greater','less_equal','greater_equal','select','remainder','eel_equal',*UNARY}
+           'less','greater','less_equal','greater_equal','select','remainder','eel_equal',*UNARY,*BOOLEAN}
 STOCHASTIC={'rand'}
 
 
@@ -80,6 +82,9 @@ def evaluate_inputs(expression,inputs,rng=None):
         elif op=='remainder':result=_remainder(args[0],args[1])
         elif op=='rand':result=rng.random()*max(1.,math.floor(args[0]))
         elif op=='eel_equal':result=float(abs(args[0]-args[1])<1e-5)
+        elif op=='bnot':result=float(abs(args[0])<1e-5)
+        elif op=='band':result=float(abs(args[0])>1e-5 and abs(args[1])>1e-5)
+        elif op=='bor':result=float(abs(args[0])>1e-5 or abs(args[1])>1e-5)
         elif op=='min':result=min(args)
         elif op=='max':result=max(args)
         elif op=='pow':

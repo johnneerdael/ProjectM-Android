@@ -756,3 +756,17 @@ repeated on correctly oriented frames. Probes and results:
 - **r9 v3.** It matches the emulator capture: the green-cyan glow at the disc
   centre, the pale star and the greenish ring tunnel, blurred correlation 0.96,
   about 15% brighter. The remaining difference is line rasterisation.
+- **Inlined per-frame graphs.** Stage programs inline Q graphs over start-of-frame
+  per-frame state (beat counters, accumulators) and per-frame base inputs (`fps`,
+  `frame`, `time`). The illustrator records the stepper's start-of-frame state and
+  supplies it to warp, composite and injected-field programs. The grid evaluator
+  implements the projectm-eval operations those graphs use: `eel_divide`,
+  `eel_equal`, `bnot`/`band`/`bor` (close factor 1e-5), `negate`, `sqr` and `int`.
+- **Built-in wave alpha and colour per frame.** Alpha comes from the recipe: the
+  authored or stepped `wave_a` times the mode gain, times the volume ramp on
+  `vol = 0.333·(bass+mid+treb)`, clamped and gated at 0.004. Colour comes from the
+  stepped `wave_r/g/b`, maximised when `bMaximizeWaveColor` is set.
+- **r10 (`Violet Lights in The Sky`) v1 → v2.** v1 was a single bright ring. v2
+  shows the dark scene of wobbly overlapping rings with violet beat sparks. The
+  ring layout differs from the emulator frame because the preset's init code
+  draws `rand()` for its beat counters, so even two native runs differ.

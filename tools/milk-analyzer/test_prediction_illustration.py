@@ -163,3 +163,14 @@ def test_point_pixels_follow_gl_point_coverage():
     assert list(cols) == [239, -1] and rows[0] == 255
     cols, rows = _point_pixels(np.array([240.]), np.array([255.]), 2, 270)
     assert cols[0] == 239 and rows[0] == 254
+
+
+def test_frame_wave_alpha_applies_volume_ramp_and_clamp():
+    from prediction_illustration import _frame_wave_alpha, _frame_wave_colour
+    material = {'alpha_recipe': {'alpha_envelope_without_volume_modulation': [.2, .2], 'mode_gain': 1.,
+                                 'volume_ramp': {'enabled': True, 'start': .75, 'end': 1.17}}, 'normalization_enabled': True}
+    quiet = _frame_wave_alpha(material, {'bass': .5, 'mid': .5, 'treb': .5})
+    loud = _frame_wave_alpha(material, {'bass': 3., 'mid': 3., 'treb': 3.})
+    assert quiet == 0.0 and abs(loud - min(1., .2 * (3 * .999 - .75) / .42)) < 1e-6
+    assert _frame_wave_colour(material, {'wave_r': .2, 'wave_g': .1, 'wave_b': .4}) == [.5, .25, 1.]
+    assert _frame_wave_colour(material, {}) is None

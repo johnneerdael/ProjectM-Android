@@ -1,0 +1,10 @@
+LLM look description from the SDK recipe (before capture, r10 v1):
+A feedback tunnel: the warp shader scales the previous frame (zoom tunnel / expansion) and adds a
+periodic ripple displacement; a grayscale audio-deformed circle (built-in wave) is the main seed.
+Audio routes drive rotation, vertical translation and the r/g/b colour of the circle from
+bass/mid/treble, and per-frame beat counters (index2, movez) feed Q values that steer the shaders
+(movement through the tunnel advances on beats). Expected: a centred, rippling zoom tunnel of
+circle trails whose colour shifts with the music (violet tones suggested only by the name, which is
+not used); motion moderate to strong, with beat-driven jumps.
+The frozen illustration is a grey ring with a noisy tunnel texture: the warp and composite programs
+could not be evaluated (per-frame inputs index2/movez missing), so colour and shading are not shown.

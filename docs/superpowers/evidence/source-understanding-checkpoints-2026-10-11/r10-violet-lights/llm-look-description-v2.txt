@@ -1,0 +1,8 @@
+LLM look description from the SDK recipe (before capture, r10 v2):
+A dark, mostly black scene. A grey-white audio-deformed circle (built-in wave, alpha 0.207 scaled by
+volume, so it brightens on loud passages) is fed back through a warp that keeps 99.5% minus a small
+offset per frame and pushes the picture with beat-driven tangent ripples (amplitude switching with a
+beat counter). On beats, a lattice of small violet points flashes. The composite lays four rotated,
+expanding copies of the picture over each other with a fading depth ramp that advances on beats, so
+large, wobbly, overlapping grey rings with violet sparks fill the frame. Overall dark (luma ~0.03-0.04),
+slightly violet; motion jumps on beats, otherwise slow.

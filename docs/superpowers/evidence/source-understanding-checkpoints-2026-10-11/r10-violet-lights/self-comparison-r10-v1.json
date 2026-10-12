@@ -1,0 +1,35 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r10-v1",
+ "preset": "A MilkKing Recreation FT Martin  - Violet Flash ft AdamFX n Geiss - Violet Lights in The Sky .milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction-v1.json": "4a0c10440ea31ab8d39a1e4160a99dd6a28e0e40be1ee8a992a87742d0def8be",
+  "description-v1-before-capture.json": "c7c2755788a11f298a656fd0f753b947918e06a7aa124f6bc784e79fbfdcc6af",
+  "recipe-v1-before-capture.json": "94adcf4de6268f3029a750dbd88197514d878bec08db00577f2178caf3537091",
+  "prediction-v1.png": "e0f5b67af0848efb2a66540e936e1923c6dd7e82f19e83546ead459f626ad65b",
+  "llm-look-description-v1.txt": "6ef579249e959ec4016fe5126f59d2470edf0c6fec1426937dcfb50a09dee827"
+ },
+ "capture_result_sha256": "9dae646b8c529144c8e21680bd85c6e7d836e5d6357546b0e5b483755cb3e4f2",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.058,
+  "screenshot_luma": 0.046,
+  "screenshot_saturation": 0.194
+ },
+ "agreements": [
+  "Dark overall with a grey audio-deformed circle"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "Large rippled overlapping rings with violet beat sparks; prediction a single bright ring",
+   "cause": "warp/composite programs not evaluated: inlined Q graphs read per-frame state (beat counters, an accumulator, fps) and EEL operations (eel_divide, bnot, negate) the grid evaluator lacked; injected warp lacked the declared uniforms (_c2) and rand_preset",
+   "next": "per-frame inputs for inlined graphs; EEL ops in the grid evaluator; declared uniforms for injections"
+  }
+ ],
+ "notes": [
+  "The frozen v1 look description says 'noisy tunnel texture'; the frozen image shows only the ring"
+ ],
+ "uses_rendered_images_for_classification": false
+}

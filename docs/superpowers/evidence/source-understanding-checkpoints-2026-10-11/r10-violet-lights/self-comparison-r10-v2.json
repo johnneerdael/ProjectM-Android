@@ -1,0 +1,106 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r10-v2",
+ "preset": "A MilkKing Recreation FT Martin  - Violet Flash ft AdamFX n Geiss - Violet Lights in The Sky .milk",
+ "fresh_prediction": false,
+ "frozen_before_capture": {
+  "prediction-v2.json": "4e4b756d537eb32d1ee234e9d33e2f8b694214db5f833e4bdc24202512e359af",
+  "description-v2-before-capture.json": "c7c2755788a11f298a656fd0f753b947918e06a7aa124f6bc784e79fbfdcc6af",
+  "recipe-v2-before-capture.json": "94adcf4de6268f3029a750dbd88197514d878bec08db00577f2178caf3537091",
+  "prediction-v2.png": "fadfc12186cbd0978cd842706dc8b845376dc23cda6f9ede1b7ed80d53ca2742",
+  "llm-look-description-v2.txt": "396568935364add95874793c268995319a09688ba3fd98dbfaf9228a67d7fa9e"
+ },
+ "capture_result_sha256": "67bf038a8809b7de878ba4bc5ced306d572bfc418fa2b39334f70deb78685567",
+ "calibrated_score": null,
+ "review_measurements": {
+  "prediction_luma": 0.031,
+  "screenshot_luma": 0.046,
+  "p10_p50_p90_prediction": [
+   0.0,
+   0.0,
+   0.071
+  ],
+  "p10_p50_p90_screenshot": [
+   0.0,
+   0.0,
+   0.157
+  ],
+  "mean_rgb_prediction": [
+   0.031,
+   0.031,
+   0.033
+  ],
+  "mean_rgb_screenshot": [
+   0.046,
+   0.044,
+   0.052
+  ],
+  "saturation": [
+   0.097,
+   0.194
+  ],
+  "blurred_luma_correlation": -0.018,
+  "feedback_canvas_vs_native_ruler_passthrough": {
+   "mean_rgb_frames_2_20_60": [
+    [
+     [
+      0.0109,
+      0.0109,
+      0.0109
+     ],
+     [
+      0.0108,
+      0.0108,
+      0.0108
+     ]
+    ],
+    [
+     [
+      0.018,
+      0.018,
+      0.018
+     ],
+     [
+      0.0183,
+      0.0178,
+      0.0193
+     ]
+    ],
+    [
+     [
+      0.0196,
+      0.0191,
+      0.0205
+     ],
+     [
+      0.0138,
+      0.0122,
+      0.0169
+     ]
+    ]
+   ],
+   "teacher_forced_warp_correlation": "0.81-1.00 on regular frames"
+  }
+ },
+ "agreements": [
+  "Dark scene of large, wobbly, overlapping grey rings from the four rotated, expanding composite copies",
+  "Violet beat sparks from the warp's dot lattice on detected beats",
+  "Canvas brightness follows the engine frame by frame through frame 20"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "Ring layout differs from the emulator frame; soft grey motion trails and lavender tint weaker; 30% darker",
+   "cause": "per_frame_init draws rand() for beat counters (index3/index4), so the beat-driven warp amplitude and depth phase differ run to run (two native runs also differ); waveform alignment omitted",
+   "next": "report run-dependent random state as a source fact; describe rather than match layout"
+  }
+ ],
+ "general_fixes": [
+  "inlined Q graphs in stage programs read start-of-frame per-frame state (beat counters, accumulators) and per-frame base inputs (fps, frame, time)",
+  "grid evaluator gains projectm-eval ops: eel_divide, eel_equal, bnot/band/bor (close factor 1e-5), negate, sqr, int; scalar/numpy EEL evaluators gain bnot/band/bor",
+  "injected warp fields get the declared uniforms and rand_preset",
+  "built-in wave alpha per frame from the alpha recipe (wave_a, mode gain, volume ramp, clamp, draw gate) and colour from the stepped wave_r/g/b with maximisation"
+ ],
+ "status": "understood: look and mechanisms match; exact layout is run-dependent",
+ "uses_rendered_images_for_classification": false
+}
