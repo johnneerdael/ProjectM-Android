@@ -16,4 +16,16 @@ final class FacetCursor {
         for (int i = 0; i < selectable.length; i++) if (selectable[i]) return i;
         return -1;
     }
+
+    /** Cursor after a tap on {@code tapped}: moves only onto a selectable chip, else stays. */
+    static int afterTap(int current, int tapped, boolean[] selectable, boolean enabled) {
+        if (tapped >= 0 && tapped < selectable.length && selectable[tapped]) return tapped;
+        return current;
+    }
+
+    /** Accessibility text of the whole row: title, the focused chip's description, disabled state. */
+    static String rowDescription(String title, String chipDescription, boolean enabled) {
+        String text = chipDescription == null ? title : title + ": " + chipDescription;
+        return enabled ? text : text + ", unavailable";
+    }
 }

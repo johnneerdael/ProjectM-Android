@@ -91,7 +91,7 @@ public class FacetRow extends LinearLayout {
             chip.setSingleLine(true);
             chip.setFocusable(false);
             chip.setOnClickListener(c -> {
-                cursor = index;
+                cursor = FacetCursor.afterTap(cursor, index, selectable(), enabled);
                 toggle(index);
                 render();
             });
@@ -169,6 +169,7 @@ public class FacetRow extends LinearLayout {
         setAlpha(enabled ? 1f : 0.4f);
         title.setTextColor(getResources().getColor(focused ? R.color.text_primary : R.color.text_secondary));
         boolean[] selectable = selectable();
+        String cursorDescription = null;
         for (int i = 0; i < chips.size(); i++) {
             PresetFacets.Option option = options.get(i);
             TextView chip = chips.get(i);
@@ -176,8 +177,10 @@ public class FacetRow extends LinearLayout {
             Integer count = counts.get(option.id);
             int n = count == null ? 0 : count;
             chip.setText(option.label + " → " + n);
-            chip.setContentDescription(option.label + ", " + (isSelected ? "selected" : "not selected")
-                    + ", " + n + " presets");
+            CharSequence desc = option.label + ", " + (isSelected ? "selected" : "not selected")
+                    + ", " + n + " presets";
+            chip.setContentDescription(desc);
+            if (i == cursor) cursorDescription = desc.toString();
             int color = isSelected ? R.color.accent : (selectable[i] ? R.color.text_primary : R.color.facet_dimmed);
             chip.setTextColor(getResources().getColor(color));
             int flags = chip.getPaintFlags();
@@ -185,6 +188,7 @@ public class FacetRow extends LinearLayout {
             chip.setPaintFlags(underline ? flags | Paint.UNDERLINE_TEXT_FLAG : flags & ~Paint.UNDERLINE_TEXT_FLAG);
             chip.setTypeface(null, isSelected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         }
+        setContentDescription(FacetCursor.rowDescription(title.getText().toString(), cursorDescription, enabled));
         if (focused && cursor >= 0 && cursor < chips.size()) {
             TextView c = chips.get(cursor);
             scroller.post(() -> scroller.smoothScrollTo(Math.max(0, c.getLeft() - dp(24)), 0));
