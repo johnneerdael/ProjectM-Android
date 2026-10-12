@@ -6,6 +6,11 @@ import attribute_bundle as B
 RULER = {'engine': 'test', 'size': [480, 270], 'frames': 300, 'audio': 'test'}
 
 
+FIELDS = {'luminance': 'mean_luminance', 'saturation': 'mean_saturation', 'coloured_share': 'coloured_share',
+          'warm_cool': 'warm_cool', 'flow': 'mean_flow_screen_widths_per_s', 'frame_difference': 'mean_abs_frame_difference',
+          'jumps': 'global_brightness_jumps_per_10s'}
+
+
 def write_manifest(tmp, skip=()):
     """An evidence manifest matching the result files in tmp/ruler (rows for names in skip are left out)."""
     rows = []
@@ -14,6 +19,9 @@ def write_manifest(tmp, skip=()):
         if row['preset'] not in skip:
             rows.append({'preset': row['preset'], 'preset_sha256': row['preset_sha256'],
                          'result_sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'status': row['status']})
+            if row['status'] == 'measured':
+                rows[-1]['metrics'] = {k: '-' if row[f] is None else '%.4f' % row[f] for k, f in FIELDS.items()}
+                rows[-1]['activity_inputs'] = {k: row[FIELDS[k]] for k in ('frame_difference', 'flow', 'jumps')}
     (tmp / 'ruler-manifest.json').write_text(json.dumps({'policy': 'test', 'rows': rows}, indent=1) + '\n')
 
 
@@ -208,6 +216,65 @@ class BundleTest(unittest.TestCase):
             mpath.write_text(json.dumps(data)); rerecord()
             problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=mpath)
             self.assertTrue(any('d.milk' in p and 'measured' in p for p in problems), problems)
+
+    def rewrite_bundle_row(self, t, name, edit):
+        """Applies edit(cells) to a bundle row and re-records attributes_sha256, as a forger would."""
+        path = t / 'out' / 'attributes.tsv'
+        lines = path.read_text().splitlines()
+        for i, line in enumerate(lines):
+            if line.split('\t')[0] == name:
+                cells = line.split('\t'); edit(cells); lines[i] = '\t'.join(cells)
+        data = ('\n'.join(lines) + '\n').encode(); path.write_bytes(data)
+        manifest = json.loads((t / 'out' / 'manifest.json').read_text())
+        manifest['attributes_sha256'] = hashlib.sha256(data).hexdigest()
+        (t / 'out' / 'manifest.json').write_text(json.dumps(manifest))
+
+    def test_check_rejects_edited_values_and_memberships_that_still_hash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            self.build(t)
+            mpath = t / 'ruler-manifest.json'
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', ruler_manifest=mpath), [])
+
+            def edit(cells):
+                cells[2] = '0.9000'  # luminance: dark -> bright; memberships recomputed to match
+                cells[1] = ','.join(o for o in cells[1].split(',') if o != 'dark')
+            self.rewrite_bundle_row(t, 'a.milk', edit)
+            problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=mpath)
+            self.assertTrue(any('a.milk' in p and 'evidence' in p for p in problems), problems)
+
+    def test_check_rejects_an_edited_activity_column(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            self.build(t)
+            self.rewrite_bundle_row(t, 'b.milk', lambda cells: cells.__setitem__(9, '0.9999'))
+            problems = B.check(t / 'out', t / 'presets.idx', ruler_manifest=t / 'ruler-manifest.json')
+            self.assertTrue(any('b.milk' in p and 'activity' in p for p in problems), problems)
+
+    def test_build_rejects_a_result_whose_metrics_differ_from_the_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            data = json.loads((t / 'ruler-manifest.json').read_text())
+            for row in data['rows']:
+                if row['preset'] == 'b.milk':
+                    row['metrics']['luminance'] = '0.9000'
+            (t / 'ruler-manifest.json').write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError, 'b.milk'):
+                self.build(t)
+
+    def test_write_evidence_manifest_adds_metrics_and_keeps_other_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t = make_inputs(tmp)
+            expected = json.loads((t / 'ruler-manifest.json').read_text())
+            old = json.loads((t / 'ruler-manifest.json').read_text())
+            for row in old['rows']:
+                del row['metrics']; del row['activity_inputs']
+            old['policy'] = 'engine-ruler-results-manifest-v1'; old['keep'] = {'x': 1}
+            (t / 'old.json').write_text(json.dumps(old))
+            B.write_evidence_manifest(t / 'ruler', t / 'old.json', t / 'new.json')
+            new = json.loads((t / 'new.json').read_text())
+            self.assertEqual(new['policy'], 'engine-ruler-results-manifest-v2'); self.assertEqual(new['keep'], {'x': 1})
+            self.assertEqual(new['rows'], expected['rows'])
 
     def freeze(self, t):
         return B.freeze_activity_reference(t / 'ruler', t / 'reference.json', t / 'ruler-manifest.json', t / 'presets.idx')

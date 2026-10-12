@@ -89,6 +89,47 @@ def _measured_rows(ruler_dir):
     return rows, ruler
 
 
+def evidence_metrics(result):
+    """The seven ruler values of a measured result as the bundle stores them before activity (4 decimals, '-' for none)."""
+    return {k: _format(result[f]) for k, f in RULER_FIELDS.items()}
+
+
+def evidence_activity_inputs(result):
+    """The three unrounded activity inputs of a measured result (activity is scored from these, not the 4-decimal columns)."""
+    return {k: result[f] for k, f in (('frame_difference', 'mean_abs_frame_difference'), ('flow', 'mean_flow_screen_widths_per_s'),
+                                      ('jumps', 'global_brightness_jumps_per_10s'))}
+
+
+def _activity_input(inputs):
+    """Activity-metric row built from evidence activity_inputs, keyed as the reference expects."""
+    return {'mean_abs_frame_difference': float(inputs['frame_difference']), 'mean_flow_screen_widths_per_s': float(inputs['flow']),
+            'global_brightness_jumps_per_10s': float(inputs['jumps'])}
+
+
+EVIDENCE_POLICY = 'engine-ruler-results-manifest-v2'
+
+
+def write_evidence_manifest(ruler_dir, source_manifest, output):
+    """Rewrites the evidence manifest with a `metrics` object per measured row, derived from the ruler results.
+
+    All other fields are kept; each row's result hash must still match its result file."""
+    manifest = json.loads(Path(source_manifest).read_text())
+    results = {}
+    for path in sorted(Path(ruler_dir).glob('*.json')):
+        raw = path.read_bytes(); row = json.loads(raw)
+        if row.get('status') == 'measured':
+            results[row['preset']] = (row, _sha(raw))
+    for entry in manifest['rows']:
+        if entry.get('status') != 'measured':
+            entry.pop('metrics', None); continue
+        row, digest = results.get(entry['preset'], (None, None))
+        if row is None or digest != entry.get('result_sha256'):
+            raise ValueError('%s: no measured result matching the manifest result_sha256' % entry['preset'])
+        entry['metrics'] = evidence_metrics(row); entry['activity_inputs'] = evidence_activity_inputs(row)
+    manifest['policy'] = EVIDENCE_POLICY
+    Path(output).write_text(json.dumps(manifest, indent=0) + '\n')
+
+
 def _manifest_entries(ruler_manifest):
     """Evidence manifest rows by preset; a preset listed twice is rejected."""
     rows = json.loads(Path(ruler_manifest).read_text()).get('rows', [])
@@ -147,6 +188,8 @@ def verify_against_manifest(ruler_dir, ruler_manifest, presets_idx, presets_dir=
             problems.append('%s: result differs from the manifest result_sha256' % name)
         elif entry.get('preset_sha256') != row.get('preset_sha256'):
             problems.append('%s: preset_sha256 differs from the manifest' % name)
+        elif entry.get('metrics') != evidence_metrics(row) or entry.get('activity_inputs') != evidence_activity_inputs(row):
+            problems.append('%s: result metrics differ from the manifest metrics' % name)
     for name, entry in sorted(entries.items()):
         if entry.get('status') == 'measured' and consumed.get(name, 0) != 1:
             problems.append('%s: manifest row is measured but %d measured result files match it' % (name, consumed.get(name, 0)))
@@ -235,7 +278,8 @@ def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, r
     if problems:
         raise ValueError('style facts do not match the current presets (%d): %s' % (len(problems), '; '.join(problems[:5])))
     measured = [rows[n] for n in names if n in rows]
-    activity = activity_values(measured, reference)
+    activity = {n: _mid_rank(reference['mean_rank'], _mean_rank(reference, _activity_input(evidence_activity_inputs(rows[n]))))
+                for n in names if n in rows}
     lines = _header(definition, _sha(definition_bytes))
     counts = {o: 0 for o in preset_facets.option_ids(definition)}
     for name in sorted(names):
@@ -276,8 +320,9 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
         return ['bundle unreadable: %s' % error]
     if shipped != definition_path.read_bytes():
         problems.append('facets.json differs from the definition')
+    reference = None
     try:
-        load_activity_reference(json.loads(definition_path.read_bytes()), definition_path)
+        reference = load_activity_reference(json.loads(definition_path.read_bytes()), definition_path)
     except (OSError, KeyError, ValueError) as error:
         problems.append('activity reference unusable: %s' % error)
     if manifest.get('definition_sha256') != _sha(shipped):
@@ -310,7 +355,7 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
     names = [r[0] for r in rows]
     if names != sorted(_index_names(presets_idx)):
         problems.append('attributes rows do not match presets.idx names')
-    state = []
+    state = []; mismatches = []
     for row in rows:
         if len(row) != 2 + len(COLUMNS):
             problems.append('malformed row: ' + row[0]); continue
@@ -323,11 +368,23 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
             if row[1]:
                 problems.append('unmeasured preset has options: ' + row[0])
             continue
+        if evidence is not None and (evidence.get(row[0]) or {}).get('status') == 'measured':
+            metrics = evidence[row[0]].get('metrics')
+            if not isinstance(metrics, dict) or list(row[2:2 + len(RULER_FIELDS)]) != [metrics.get(c) for c in COLUMNS[:-1]]:
+                mismatches.append('%s: bundle values differ from the evidence manifest metrics' % row[0])
+            elif not isinstance(evidence[row[0]].get('activity_inputs'), dict):
+                mismatches.append('%s: evidence manifest has no activity_inputs' % row[0])
+            elif reference is not None:
+                expected = _format(_mid_rank(reference['mean_rank'], _mean_rank(reference, _activity_input(evidence[row[0]]['activity_inputs']))))
+                if row[-1] != expected:
+                    mismatches.append('%s: activity %s differs from %s recomputed from the evidence metrics' % (row[0], row[-1], expected))
         values = {c: float(v) for c, v in zip(COLUMNS, row[2:]) if v != '-'}
         options = row[1].split(',') if row[1] else []
         style = {o for o in options if o in {s['id'] for g in definition['groups'] if g['id'] == 'style' for s in g['options']}}
         if preset_facets.memberships(values, style, definition) != options:
             problems.append('attributes membership mismatch: ' + row[0])
+    if mismatches:
+        problems.append('bundle rows differ from the evidence manifest metrics (%d): %s' % (len(mismatches), '; '.join(mismatches[:5])))
     if state:
         problems.append('bundle rows differ from the evidence manifest measured state (%d): %s' % (len(state), '; '.join(state[:5])))
     return problems
@@ -341,6 +398,8 @@ def main(argv=None):
     parser.add_argument('--presets-dir', type=Path, help='bundled preset files hashed against the evidence (default: presets/ next to --presets-idx)')
     parser.add_argument('--bundle', type=Path, default=Path('core/src/main/assets/preset-attributes'))
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--write-evidence-manifest', type=Path, metavar='OUTPUT',
+                        help='write the evidence manifest with per-row metrics from --ruler and --ruler-manifest (the source manifest)')
     parser.add_argument('--freeze-activity-reference', type=Path, metavar='OUTPUT',
                         help='write the frozen activity reference from --ruler and --ruler-manifest (once per definition version)')
     args = parser.parse_args(argv)
@@ -348,6 +407,11 @@ def main(argv=None):
         if not args.ruler or not args.ruler_manifest:
             parser.error('--ruler and --ruler-manifest are required to freeze the activity reference')
         print(freeze_activity_reference(args.ruler, args.freeze_activity_reference, args.ruler_manifest, args.presets_idx, args.presets_dir))
+        return
+    if args.write_evidence_manifest:
+        if not args.ruler or not args.ruler_manifest:
+            parser.error('--ruler and --ruler-manifest are required to write the evidence manifest')
+        write_evidence_manifest(args.ruler, args.ruler_manifest, args.write_evidence_manifest)
         return
     if args.check:
         problems = check(args.bundle, args.presets_idx, ruler_manifest=args.ruler_manifest or DEFAULT_RULER_MANIFEST, presets_dir=args.presets_dir)

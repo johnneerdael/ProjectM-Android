@@ -2,7 +2,7 @@
 
 Engine-ruler measurements of the 9,606 bundled presets, made with `tools/native-ruler` (see its README for conditions and limits).
 
-- `ruler-results-manifest.json` (sha256 `f7ccb0ca37ca86bd3252a72226ba30b547a03f964182884bef145815049db1e3`; its `archive` field names the archive below and carries its sha256): one row per preset (`preset`, `preset_sha256`, `result_sha256`, `status`). 9,606 rows, all `measured`. The raw per-preset results are not committed.
+- `ruler-results-manifest.json` (sha256 `171609404c1cb41c3c6a2385a17cf859832fd2fc67d744affe479d0edf8b0a27`; its `archive` field names the archive below and carries its sha256): one row per preset (`preset`, `preset_sha256`, `result_sha256`, `status`, and for measured rows `metrics`: the seven ruler values as the bundle stores them before activity, 4 decimals and `-` for an undefined `warm_cool`; and `activity_inputs`: the unrounded frame difference, flow and jumps that activity is scored from; policy `engine-ruler-results-manifest-v2`, regenerated with `attribute_bundle.py --write-evidence-manifest`). 9,606 rows, all `measured`. The raw per-preset results are not committed.
 - Raw results archive (outside the repository): `ProjectM-TV-ruler-results-2026-10-12.tar.gz`, containing `results/*.json`.
   - sha256: `3ad37ffbc8b719d8e1cb23bc8583df7e260951ab7cf49e4f2985638084ba0818`
 - Engine: patched projectM tree at VCS version `2449c627f6e7bc25041adefc2a6f3429da1343e5`, macOS GLES via SwiftShader.
