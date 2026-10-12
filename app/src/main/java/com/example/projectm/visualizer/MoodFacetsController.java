@@ -7,7 +7,7 @@ import nl.neerdael.projectm.core.PresetFacets;
 /** Mood panel state: facet selection, collection choice, persistence and engine pool. No views. */
 final class MoodFacetsController {
     interface Prefs { String get(String key, String fallback); void put(String key, String value); }
-    interface Engine { void setPresetPool(String[] names); void setMusicCategory(String id); int customCount(); }
+    interface Engine { void setPresetPool(String[] names); void setMusicCategory(String id); int customCount(); boolean customPending(); }
     interface SkipList { Set<String> names(); }
 
     static final String PREF_FACETS = "mood_facets", PREF_COLLECTION = "mood_collection", PREF_CATEGORY = "music_category";
@@ -26,6 +26,26 @@ final class MoodFacetsController {
         String stored = prefs.get(PREF_FACETS, "");
         if (facets != null && !stored.isEmpty())
             selected.addAll(facets.select(Arrays.asList(stored.split(",")), Collections.<String>emptySet()).selected());
+        validateCollection();
+    }
+
+    /** A custom collection whose pack is gone, and not being restored, plays the bundled one again. */
+    private void validateCollection() {
+        if ("custom".equals(collection) && engine.customCount() == 0 && !engine.customPending()) collection = "bundled";
+    }
+
+    /** Re-checks the custom collection; returns true when it fell back to bundled (and applied that). */
+    boolean revalidateCollection() {
+        String before = collection;
+        validateCollection();
+        if (before.equals(collection)) return false;
+        apply();
+        return true;
+    }
+
+    /** A selection whose presets are all skipped: All plays, the selection stays stored. */
+    boolean exhausted() {
+        return facets != null && !selected.isEmpty() && "bundled".equals(collection) && selection().poolSize() == 0;
     }
 
     boolean facetsAvailable() { return facets != null; }
@@ -37,6 +57,7 @@ final class MoodFacetsController {
     }
 
     void toggle(String optionId) {
+        validateCollection();
         if (facets == null || "custom".equals(collection)) return;
         PresetFacets.Selection current = selection();
         if (!selected.remove(optionId)) {
@@ -54,11 +75,13 @@ final class MoodFacetsController {
     }
 
     void apply() {
-        prefs.put(PREF_FACETS, String.join(",", selected));
+        validateCollection();
+        // Without a facet table the stored ids cannot be checked: keep them for a later table.
+        if (facets != null) prefs.put(PREF_FACETS, String.join(",", selected));
         prefs.put(PREF_COLLECTION, collection);
         String category;
         if ("custom".equals(collection)) category = "custom";
-        else if (facets != null && !selected.isEmpty()) {
+        else if (facets != null && !selected.isEmpty() && !exhausted()) {
             engine.setPresetPool(selection().presetNames());
             category = "facets";
         } else category = "all";
@@ -69,6 +92,7 @@ final class MoodFacetsController {
     String header() {
         if ("custom".equals(collection)) return "Custom pack";
         if (facets == null || selected.isEmpty()) return facets == null ? "All presets" : "All presets in your mix";
+        if (exhausted()) return "No presets left in your mix; playing All";
         int size = selection().poolSize();
         String text = NumberFormat.getIntegerInstance(Locale.US).format(size) + " presets in your mix";
         return size < FEW ? text + " · few presets: some repetition" : text;

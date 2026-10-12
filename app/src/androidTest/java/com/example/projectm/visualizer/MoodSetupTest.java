@@ -252,6 +252,30 @@ final class MoodSetupTest {
             openMood(test, restarted);
             check(expectedHeader(chill).equals(header(test, restarted)), "restored header: " + header(test, restarted));
 
+            // 9b. A mix whose presets are all skipped says so; resetting skipped presets brings it back.
+            File skipFile = ProjectMCore.skipListFile(test.getTargetContext());
+            try (java.io.Writer out = new java.io.OutputStreamWriter(new FileOutputStream(skipFile, true), StandardCharsets.UTF_8)) {
+                for (String name : table.select(Collections.singletonList("chill"), Collections.<String>emptySet()).presetNames())
+                    out.write(name + "\n");
+            }
+            test.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);  // main panel, on Preset mood
+            SystemClock.sleep(300);
+            test.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);  // reopen: the header reads the skip list
+            SystemClock.sleep(400);
+            check("No presets left in your mix; playing All".equals(header(test, restarted)),
+                    "exhausted header: " + header(test, restarted));
+            test.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+            SystemClock.sleep(300);
+            onUi(test, () -> restarted.findViewById(R.id.row_advanced).performClick());
+            SystemClock.sleep(300);
+            onUi(test, () -> restarted.findViewById(R.id.row_skipped).performClick());
+            check(skipped(test).isEmpty(), "reset left skipped presets");
+            awaitCategory("facets");
+            check(ProjectMJNI.getCategoryPresetCount("facets") == chill, "reset did not send the full pool again: "
+                    + ProjectMJNI.getCategoryPresetCount("facets"));
+            check(expectedHeader(chill).equals(header(test, restarted)), "header after reset: " + header(test, restarted));
+            check("chill".equals(prefs.getString("mood_facets", "")), "reset changed the selection");
+
             // 10. A legacy Intense mood migrates once to the Energy option.
             prefs.edit().remove("mood_facets_migrated_1").remove("mood_facets").remove("mood_collection")
                     .putString("music_category", "intense").commit();
@@ -268,8 +292,27 @@ final class MoodSetupTest {
             openMood(test, migrated);
             check(expectedHeader(intense).equals(header(test, migrated)), "migrated header: " + header(test, migrated));
 
+            // 11. A stored Custom collection without a custom pack plays the bundled mix again.
+            String customCheck = "skipped (custom pack installed)";
+            if (ProjectMJNI.getCategoryPresetCount("custom") == 0 && !ProjectMJNI.isCustomPresetPackPending()) {
+                prefs.edit().putString("mood_collection", "custom").commit();
+                relaunchPause(test, migrated);
+                activity = launch(test);
+                Activity stale = activity;
+                awaitCategory("facets");
+                check("bundled".equals(prefs.getString("mood_collection", "")), "stale Custom collection kept");
+                openMood(test, stale);
+                onUi(test, () -> {
+                    check("bundled".equals(((MoodFacetsController) field(stale, "mood")).collection()), "controller kept Custom");
+                    check(stale.findViewById(R.id.row_mood_collection).getVisibility() == View.GONE,
+                            "collection row shown without a custom pack");
+                    for (FacetRow row : facetRows(stale)) check(row.getAlpha() == 1f, "facet rows disabled");
+                });
+                customCheck = "stale Custom returned to the bundled mix";
+            }
+
             result.putString("stream", "PASS: Mood panel header, D-pad Chill (" + chill + ") and No strobe (" + calm
-                    + "), engine pool, dimmed " + dimmed + " not selectable, Clear all, Back focus, auto-hide, relaunch persistence, legacy Intense migration (" + intense + ")\n");
+                    + "), engine pool, dimmed " + dimmed + " not selectable, Clear all, Back focus, auto-hide, relaunch persistence, legacy Intense migration (" + intense + "), exhausted-mix header and skip reset, " + customCheck + "\n");
             code = Activity.RESULT_OK;
         } catch (Throwable failure) {
             result.putString("stream", "FAIL: " + failure + "; cause=" + failure.getCause() + "\n");

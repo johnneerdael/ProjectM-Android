@@ -18,6 +18,7 @@ public class MoodFacetsControllerTest {
     private final List<String> calls = new ArrayList<>();
     private final Set<String> skipped = new HashSet<>();
     private int customCount = 0;
+    private boolean customPending = false;
     private PresetFacets facets;
 
     @Before public void setUp() throws IOException { facets = PresetFacets.parse(new StringReader(TABLE)); }
@@ -32,6 +33,7 @@ public class MoodFacetsControllerTest {
                     public void setPresetPool(String[] names) { calls.add("pool:" + (names == null ? "null" : String.join(",", names))); }
                     public void setMusicCategory(String id) { calls.add("category:" + id); }
                     public int customCount() { return customCount; }
+                    public boolean customPending() { return customPending; }
                 },
                 () -> skipped);
     }
@@ -97,5 +99,61 @@ public class MoodFacetsControllerTest {
         c.toggle("chill");
         assertTrue(calls.isEmpty());
         assertEquals("All presets", c.header());
+    }
+
+    @Test public void missingTableKeepsTheStoredSelection() {
+        store.put("mood_facets", "chill");
+        MoodFacetsController c = controller(null);
+        c.apply();
+        assertEquals("chill", store.get("mood_facets"));
+        assertEquals("all", store.get("music_category"));
+    }
+
+    @Test public void customCollectionWithoutPackFallsBackToBundled() {
+        store.put("mood_collection", "custom");
+        store.put("mood_facets", "chill");
+        MoodFacetsController c = controller(facets);
+        c.apply();
+        assertEquals("bundled", c.collection());
+        assertEquals("bundled", store.get("mood_collection"));
+        assertEquals("category:facets", calls.get(calls.size() - 1));
+        c.toggle("no_strobe");
+        assertEquals("chill,no_strobe", store.get("mood_facets"));
+    }
+
+    @Test public void pendingCustomRestoreKeepsCustom() {
+        customPending = true;
+        store.put("mood_collection", "custom");
+        MoodFacetsController c = controller(facets);
+        c.apply();
+        assertEquals("custom", c.collection());
+        assertEquals("category:custom", calls.get(calls.size() - 1));
+    }
+
+    @Test public void customPackThatDisappearsReturnsToBundled() {
+        customCount = 3;
+        store.put("mood_facets", "chill");
+        MoodFacetsController c = controller(facets);
+        c.setCollection("custom");
+        customCount = 0;
+        assertTrue(c.revalidateCollection());
+        assertEquals("bundled", c.collection());
+        assertEquals("category:facets", calls.get(calls.size() - 1));
+        assertFalse(c.revalidateCollection());
+    }
+
+    @Test public void fullySkippedSelectionPlaysAllAndRecoversAfterReset() {
+        skipped.addAll(Arrays.asList("a.milk", "c.milk"));
+        store.put("mood_facets", "chill");
+        MoodFacetsController c = controller(facets);
+        assertEquals("No presets left in your mix; playing All", c.header());
+        c.apply();
+        assertEquals("category:all", calls.get(calls.size() - 1));
+        assertEquals("chill", store.get("mood_facets"));
+        skipped.clear();
+        calls.clear();
+        c.apply();
+        assertEquals(Arrays.asList("pool:a.milk,c.milk", "category:facets"), calls);
+        assertEquals("2 presets in your mix · few presets: some repetition", c.header());
     }
 }

@@ -631,6 +631,11 @@ public class MainActivity extends Activity {
         skippedRow = findViewById(R.id.row_skipped);
         skippedRow.setupAction("Skipped presets", "None", () -> {
             ProjectMJNI.resetSkippedPresets();
+            // The pool sent to the engine left skipped presets out: send it again with them.
+            if ("bundled".equals(mood.collection()) && !mood.selected().isEmpty()) {
+                mood.apply();
+                renderMood();
+            }
             refreshStatus();
         });
 
@@ -809,6 +814,7 @@ public class MainActivity extends Activity {
         } else {
             if (target == Menu.MOOD) {
                 reloadMood();  // picks up an official collection installed meanwhile
+                mood.revalidateCollection();
                 renderMood();
             }
             fade(mainMenu, false);
@@ -870,6 +876,8 @@ public class MainActivity extends Activity {
             requestedMusicCategory = applied;
             prefs.edit().putString(PREF_MUSIC_CATEGORY, applied).apply();
             Toast.makeText(this, "No eligible presets in that category; using All", Toast.LENGTH_SHORT).show();
+            // A custom pack that is gone (or failed to restore) must not leave the facets disabled.
+            if (mood.revalidateCollection()) renderMood();
         }
         String key = applied + "|" + ProjectMJNI.getSkippedCount() + "|" + moodRevision;
         if (key.equals(displayedMusicCategory)) return;
@@ -879,6 +887,7 @@ public class MainActivity extends Activity {
 
     /** The Preset mood row's value: Custom, All or the size of the facet pool. */
     private String moodSummary(String applied) {
+        if ("all".equals(applied) && mood.exhausted()) return "All (mix empty)";
         if ("facets".equals(applied)) {
             PresetFacets.Selection selection = mood.selection();
             return selection == null ? "All" : numberFormat.format(selection.poolSize()) + " presets";
@@ -893,7 +902,8 @@ public class MainActivity extends Activity {
         if (mood != null && source.equals(moodSource)) return;
         boolean replacing = mood != null;
         moodSource = source;
-        moodFacets = official == null ? PresetFacets.load(getAssets()) : parseFacets(official);
+        // A committed official collection without attributes offers no facets (only the collection).
+        moodFacets = official == null ? PresetFacets.load(getAssets()) : official.isFile() ? parseFacets(official) : null;
         mood = new MoodFacetsController(moodFacets, new MoodFacetsController.Prefs() {
             @Override public String get(String key, String fallback) { return prefs.getString(key, fallback); }
             @Override public void put(String key, String value) { prefs.edit().putString(key, value).apply(); }
@@ -904,6 +914,7 @@ public class MainActivity extends Activity {
                 ProjectMJNI.setMusicCategory(id);
             }
             @Override public int customCount() { return ProjectMJNI.getCategoryPresetCount("custom"); }
+            @Override public boolean customPending() { return ProjectMJNI.isCustomPresetPackPending(); }
         }, this::skippedPresets);
         moodRevision++;
         if (replacing) {
@@ -980,11 +991,12 @@ public class MainActivity extends Activity {
         refreshMusicCategory();
     }
 
-    /** The collection choice appears only while a custom pack is installed. */
+    /** The collection choice appears while a custom pack is installed or Custom is chosen. */
     private void refreshMoodCollectionRow() {
-        boolean available = ProjectMJNI.getCategoryPresetCount("custom") > 0;
-        int visibility = available ? View.VISIBLE : View.GONE;
         boolean custom = "custom".equals(mood.collection());
+        // Shown while Custom is chosen too, so the viewer can always switch back.
+        boolean available = custom || ProjectMJNI.getCategoryPresetCount("custom") > 0;
+        int visibility = available ? View.VISIBLE : View.GONE;
         if (moodCollectionRow.getVisibility() == visibility && Boolean.valueOf(custom).equals(moodCollectionRow.getTag())) return;
         moodCollectionRow.setVisibility(visibility);
         moodCollectionRow.setTag(custom);
