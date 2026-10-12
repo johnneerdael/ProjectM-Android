@@ -58,6 +58,9 @@ class MetadataTests(unittest.TestCase):
         app = self.module.generate_metadata(self.release, 'tv')
         self.assertEqual(app.AutoUpdateMode, 'Version')
         self.assertEqual(app.UpdateCheckMode, r'Tags ^v\d+\.\d+\.\d+$')
+        # fdroiddata review: '.' reuses the version-code file for the version name.
+        self.assertEqual(app.UpdateCheckData, r'gradle.properties|projectmReleaseVersionCode=(\d+)|'
+                                              r'.|projectmReleaseVersion=(\d+\.\d+\.\d+)')
         self.assertFalse(app.Builds[-1].prebuild)
         rendered = self.module.render(app)
         self.assertNotIn('prebuild', rendered)

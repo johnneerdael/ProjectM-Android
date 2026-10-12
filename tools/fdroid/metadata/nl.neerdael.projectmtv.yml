@@ -35,6 +35,6 @@ AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v\d+\.\d+\.\d+$
 UpdateCheckName: Ignore
 UpdateCheckData: 
-  gradle.properties|projectmReleaseVersionCode=(\d+)|gradle.properties|projectmReleaseVersion=(\d+\.\d+\.\d+)
+  gradle.properties|projectmReleaseVersionCode=(\d+)|.|projectmReleaseVersion=(\d+\.\d+\.\d+)
 CurrentVersion: 2.3.39
 CurrentVersionCode: 88

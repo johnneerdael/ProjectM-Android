@@ -161,6 +161,52 @@ class SyncTests(unittest.TestCase):
             self.sync(newer, lambda: newer)
         self.assertFalse(self.api.writes)
 
+    def adoption_fixture(self):
+        # The branch was synced by an older generator; a reviewer then applied a suggestion
+        # (fdroiddata!52248) that equals the current generator's output.
+        original = self.module.recipes.generate_metadata
+
+        def older(*args, **kwargs):
+            app = original(*args, **kwargs)
+            app.UpdateCheckData = app.UpdateCheckData.replace('|.|', '|gradle.properties|')
+            return app
+
+        appid = 'nl.neerdael.projectm'
+        with patch.object(self.module.recipes, 'generate_metadata', side_effect=older):
+            self.sync()
+        self.assertIn('|gradle.properties|projectmReleaseVersion=', self.api.files[appid])
+        self.api.files[appid] = self.api.files[appid].replace('|gradle.properties|projectmReleaseVersion=',
+                                                              '|.|projectmReleaseVersion=')
+        newer = dict(RELEASE, version='2.4.11', tag='v2.4.11', version_code=121, source_sha='b' * 40)
+        return appid, older, newer
+
+    def test_maintainer_edit_matching_the_generator_is_adopted(self):
+        appid, older, newer = self.adoption_fixture()
+        tagged = {RELEASE['source_sha']: (RELEASE['version'], RELEASE['version_code'])}
+        with patch.object(self.module, 'tagged_release', side_effect=tagged.get):
+            self.api.writes.clear()
+            with patch.object(self.module.recipes, 'generate_metadata', side_effect=older):
+                with self.assertRaisesRegex(ValueError, 'maintainer'):
+                    self.sync(newer, lambda: newer)
+            # TV (unedited) still updates first; the edited phone branch is left alone.
+            self.assertFalse([write for write in self.api.writes if appid in write])
+            self.sync(newer, lambda: newer)
+        self.assertIn('CurrentVersionCode: 121', self.api.files[appid])
+        self.assertIn('|.|projectmReleaseVersion=', self.api.files[appid])
+
+    def test_adoption_is_bound_to_the_checkpointed_release_identity(self):
+        appid, _, newer = self.adoption_fixture()
+        # A maintainer also moves the build to another commit; regenerating from the edited
+        # recipe would reproduce that edit, so the checkpoint's identity must decide.
+        self.api.files[appid] = self.api.files[appid].replace('commit: ' + 'a' * 40, 'commit: ' + 'c' * 40)
+        tagged = {RELEASE['source_sha']: (RELEASE['version'], RELEASE['version_code'])}
+        for lookup in (tagged.get, lambda sha: None, lambda sha: (_ for _ in ()).throw(RuntimeError('HTTP 404'))):
+            with self.subTest(lookup=lookup), patch.object(self.module, 'tagged_release', side_effect=lookup):
+                self.api.writes.clear()
+                with self.assertRaisesRegex(ValueError, 'maintainer'):
+                    self.sync(newer, lambda: newer)
+                self.assertFalse([write for write in self.api.writes if appid in write])
+
     def test_accepted_listing_keeps_build_history(self):
         self.sync()
         self.api.accepted.update(self.api.files)

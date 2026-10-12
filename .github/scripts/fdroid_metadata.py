@@ -65,8 +65,9 @@ def generate_metadata(release, target, existing=None):
     # fdroidserver cannot resolve the conditional package/label in app/build.gradle;
     # retain each flavor's name. Packaged identities are verified in Android CI.
     app.UpdateCheckName = 'Ignore'
+    # '.' reads the version name from the same file as the version code.
     app.UpdateCheckData = (r'gradle.properties|projectmReleaseVersionCode=(\d+)|'
-                           r'gradle.properties|projectmReleaseVersion=(\d+\.\d+\.\d+)')
+                           r'.|projectmReleaseVersion=(\d+\.\d+\.\d+)')
     app.VercodeOperation = []
     app.UpdateCheckIgnore = None
     app.CurrentVersion = release['version']
