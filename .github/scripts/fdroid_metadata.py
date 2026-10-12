@@ -59,13 +59,14 @@ def generate_metadata(release, target, existing=None):
     app.Repo = REPO + '.git'
     app.Binaries = REPO + f'/releases/download/v%v/projectM-{apk}-FDroid-%v.apk'
     app.AllowedAPKSigningKeys = [SIGNING_KEY]
-    app.AutoUpdateMode = 'Version v%v'
-    app.UpdateCheckMode = 'HTTP'
-    # fdroidserver 2.4.5 cannot parse the conditional package/label in app/build.gradle.
-    # HTTP discovery and APK identity checks are authoritative; retain each flavor's name.
+    # Each release tag's gradle.properties declares that release's version and code.
+    app.AutoUpdateMode = 'Version'
+    app.UpdateCheckMode = r'Tags ^v\d+\.\d+\.\d+$'
+    # fdroidserver cannot resolve the conditional package/label in app/build.gradle;
+    # retain each flavor's name. Packaged identities are verified in Android CI.
     app.UpdateCheckName = 'Ignore'
-    app.UpdateCheckData = (REPO + '/releases/latest/download/release-version.json|'
-                           r'"version_code"\s*:\s*(\d+)|.|"version"\s*:\s*"(\d+\.\d+\.\d+)"')
+    app.UpdateCheckData = (r'gradle.properties|projectmReleaseVersionCode=(\d+)|'
+                           r'gradle.properties|projectmReleaseVersion=(\d+\.\d+\.\d+)')
     app.VercodeOperation = []
     app.UpdateCheckIgnore = None
     app.CurrentVersion = release['version']
@@ -81,13 +82,92 @@ def generate_metadata(release, target, existing=None):
     build.sudo = ["sdkmanager 'cmake;3.22.1'"]
     build.gradle = [flavor]
     build.gradleprops = ['projectmDistribution=fdroid', 'androidTouchscreen=' + str(target == 'android').lower()]
-    # Runs in :app. F-Droid substitutes these constants for every auto-generated build.
-    build.prebuild = ["sed -i.bak -e '/^projectmReleaseVersion=/d' -e '/^projectmReleaseVersionCode=/d' ../gradle.properties && "
-                      "rm ../gradle.properties.bak && "
-                      "printf '\\nprojectmReleaseVersion=$$VERSION$$\\nprojectmReleaseVersionCode=$$VERCODE$$\\n' >> ../gradle.properties"]
+    # The tagged source declares its own version: no prebuild edits.
+    build.prebuild = []
     build.ndk = '27.3.13750724'
     app.Builds = [build]
     return app
+
+
+ABSTRACTS = {
+    'tv': ('ProjectM TV is a music visualizer for Android TV. It renders audio-reactive MilkDrop presets '
+           'for the music another app plays on the TV, controlled with the remote.',
+           'images/tvScreenshots/1.jpg'),
+    'android': ('ProjectM Android is a music visualizer for phones and tablets. It renders audio-reactive '
+                'MilkDrop presets from the microphone or, on Android 10 and later, from playback in '
+                'another app that permits capture, controlled with touch gestures.',
+                'images/phoneScreenshots/1.png'),
+}
+
+
+def merge_request_description(target):
+    """New-app merge request text following fdroiddata's 'App inclusion' template."""
+    appid, flavor, _, title = TARGETS[target]
+    summary, screenshot = ABSTRACTS[target]
+    fastlane = f'src/{flavor}/fastlane/metadata/android/en-US'
+    raw = REPO.replace('https://github.com/', 'https://raw.githubusercontent.com/') + '/main/' + fastlane
+    return f'''## Abstract
+
+### Please introduce the functions and usage of your app in summary, and also attach some screenshots.
+
+{summary} This F-Droid edition bundles 20 starter presets; on first launch the user can choose to download the optional 9,606-preset *Cream of the Crop* collection (CC0) from this project's GitHub release, or continue offline. It has no built-in app updater: updates come from F-Droid.
+
+![{title} screenshot]({raw}/{screenshot})
+
+### Please elaborate why you wrote this app. Please highlight the unique functions it provides over other similar apps in F-Droid.
+
+It runs ProjectM TV Engine, a maintained fork of [projectM](https://github.com/projectM-visualizer/projectm) (the open-source MilkDrop reimplementation) with compatibility and rendering fixes, so the large MilkDrop preset catalogue plays on Android devices.
+
+- Source: {REPO} (I'm the author)
+- License: LGPL-2.1-only for the code; presets and textures are CC0 1.0
+- projectM and projectm-eval are git submodules and are built from source with the app.
+
+## Checklist
+
+### Policy
+
+* [x] The app complies with the [inclusion criteria](https://f-droid.org/docs/Inclusion_Policy).
+* [x] The original app author has been notified (and does not oppose the inclusion). I am the author.
+* [x] The upstream app source code repo contains the app metadata in a Fastlane folder structure (`{fastlane}`: title, summary, description, changelogs, icon and screenshots).
+
+### Docs
+
+* [x] Please read [the guide](https://gitlab.com/fdroid/fdroiddata/-/blob/master/CONTRIBUTING.md) first if this is your first contribution.
+* [x] Please make sure your metadata follows the best practice in [our templates](https://gitlab.com/fdroid/fdroiddata/tree/master/templates).
+* [x] Please read the [Build Metadata Reference](https://f-droid.org/docs/Build_Metadata_Reference/) and make sure your metadata is valid.
+* [x] Please read the [Quick Start Guide](https://f-droid.org/en/docs/Submitting_to_F-Droid_Quick_Start_Guide/).
+
+### Merge Request Setup
+
+* [x] The title of this merge request should follow "New app: app name" format.
+* [x] Please make sure your fdroiddata fork is public and your branch is not protected.
+* [x] Please read [our Git guide](https://gitlab.com/fdroid/wiki/-/wikis/Tips-for-fdroiddata-contributors/Git-Usage) if you don't know how to rebase your branch.
+* [x] All related fdroiddata and RFP issues have been referenced in this merge request (there are none).
+* [x] Please only submit one app in one MR.
+
+### Metadata
+
+* [x] Metadata must be put in `metadata/{appid}.yml`.
+* [x] Metadata must be a valid YAML file.
+* [x] Metadata must use LF as line ending.
+* [x] Don't add summary/description/changelog/images or anything that should be provided in upstream repo.
+* [x] Releases are tagged and auto update is enabled (`UpdateCheckMode: Tags`). Each release tag's `gradle.properties` declares that release's version name and code.
+* [x] There is an issue tracker and contact info of the author (GitHub issues).
+* [x] An AuthorName must be added.
+* [x] External repos are added as git submodules instead of srclibs.
+* [x] Enable Reproducible Builds: `Binaries` and `AllowedAPKSigningKeys` are set, and `fdroid build` verifies the matching signed upstream APK.
+* [ ] Setup abi split if the APK is large and the splitted ones can be much smaller: not done, because the universal APK is about 2 MB.
+* [x] Only the latest versions should be kept in the metadata before it's merged.
+* [x] Don't add any disabled versions in the metadata.
+* [x] The `commit` field should be the full hash.
+
+### Pipeline
+
+* [ ] All pipelines should pass.
+* [ ] All warnings and errors in the Reports tab should be fixed or explained.
+
+The author ticks the pipeline items once this merge request's pipeline has finished.
+'''
 
 
 def parse(text, appid):

@@ -170,12 +170,7 @@ def synchronize(release, fork, api, publisher, latest):
                 'source_branch': appid, 'target_branch': 'master', 'target_project_id': uid,
                 'title': 'New app: ' + title, 'allow_collaboration': True,
                 'remove_source_branch': True,
-                'description': (f'{title} is an open-source MilkDrop music visualizer.\n\n'
-                                f'Source: {recipes.REPO}\nLicense: LGPL-2.1-only.\n\n'
-                                'This F-Droid edition includes 20 starter presets and an optional, '
-                                'verified Cream of the Crop download. App updates use F-Droid. '
-                                'The recipe builds all native code from source and verifies the '
-                                'matching upstream APK. Store metadata is in the selected Fastlane flavor.\n')})
+                'description': recipes.merge_request_description(target)})
         results.append({'package': appid, 'state': 'submission', 'merge_request': mr['iid'],
                         'version_code': release['version_code']})
     return results
@@ -283,6 +278,11 @@ def latest_release():
     asset = next(asset for asset in release['assets'] if asset['name'] == 'release-version.json')
     if asset.get('digest') and asset['digest'] != 'sha256:' + hashlib.sha256(body).hexdigest():
         raise ValueError('Published metadata checksum differs')
+    # F-Droid's tag update check reads the version from the tagged gradle.properties.
+    from release_commit import declared_release
+    properties = github_api(f"repos/{REPOSITORY}/contents/gradle.properties?ref={metadata['source_sha']}")
+    if declared_release(base64.b64decode(properties['content']).decode()) != (metadata['version'], metadata['version_code']):
+        raise ValueError('Release tag source does not declare the published version and code')
     return metadata
 
 
