@@ -1316,3 +1316,7 @@ repeated on correctly oriented frames. Probes and results:
   frames differ. Over frames 60–149: luma 0.117 vs 0.133, RGB within 0.04,
   saturation 0.70 vs 0.69, correlation 0.82. The SDK text gave a neon field on
   deep blue with magenta mid-tones, cyan peaks and pronounced flashing.
+- **r39 (`suksma - more Martinik theft`) v1.** Understood on the first
+  prediction: a bright cyan/blue/white tiled grid with a white cross
+  (single-frame correlation 0.991; frames 60–149 luma 0.687 vs 0.723,
+  correlation 0.996). The SDK text gave a bright, cool point-dust scene.

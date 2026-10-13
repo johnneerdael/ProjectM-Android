@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r39 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a feedback scene built from several point-cloud "dust" layers (four custom waves, 512 points per frame each) plus one built-in audio waveform line (mode 7, two parallel left/right traces centred on screen). The points have closed-form positions, so they form smooth curves or sweeps of dots, not tracked particles. Two layers (wave_1, wave_2) are grayscale, spread over roughly the left/upper-centre area with moderate alpha (about 0.16 and 0.20). Two others (wave_0, wave_3) are blue-leaning and span most of the screen height, wave_3 in a narrower central column. Wave_0 is very faint (alpha about 0.06); wave_3 is fully opaque.
+
+Feedback and motion: the previous frame is resampled each frame with a gentle radial zoom (0.96 to 1.04, varying with radius and time) and almost no drift (about 0.14 px/s). Trails fade slowly, with a half-life of about one second (gain 0.978 per frame), so the dots smear into soft breathing streaks that flow in or out from the centre. No rotation, no mirror symmetry, no obvious tunnel or kaleidoscope.
+
+Colour: mostly cool. Blue about 66%, cyan 18%, purple 13% and a little pink come from the two coloured point layers, with grey/white from the other two. The built-in wave line cycles over time, mostly green, some cyan and a little yellow (its alpha is tiny, 0.001, so it may be nearly invisible). The settled canvas is grey-ish and neutral, and the composite brightens it, so the overall look is blue and white on a lighter grey-blue field rather than black.
+
+Brightness: probably fairly bright, mid to high; the calibrated estimate suggests mean luminance about 0.52 (interval 0.33 to 0.76), moderate saturation, slightly cool.
+
+Audio reaction: the only explicit route is smoothed bass driving the zoom, a continuous swell, not a hard beat flash. The waveform line follows the audio. The estimate lists brightness jumps of roughly 6 per 10 s, with a wide interval of 1 to 24, so the strength of the pulsing is unresolved.
+
+Uncertain: how much the faint and opaque layers actually show, the real spread of the points, whether the green wave is visible, the strength of bass zoom, and whether the screen reads as intense or calm (activity 0.76, interval 0.28 to 0.97). Everything is a source estimate, not a render.

@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r39-v1",
+ "preset": "suksma - more Martinik theft.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "cc427cb6cdfeb0979725850381a6196cb32d3f34af482ce76b4948e341038f36",
+  "prediction.json": "43ac6df26eccfb6eb5be80976697afde16e8e814701abcd1e81f377026881b33",
+  "description.json": "fe8f31a244fa1f117439715e9a4f7563e605ef6131e830cae1cf16299edc28eb",
+  "recipe.json": "21f54655f53682af326facbdb0ebccac5dc450099674f945588ec5efaf98d40d",
+  "llm-look-description-v1.txt": "727b778705c92671818ae1c8e230c4184187395b8545045c8edbb05474697210"
+ },
+ "capture_result_sha256": "fe79685af1ffe5326cdbc7b5cf7ab1c5345ab801d7f3141f911ac82df1d629d9",
+ "review_measurements_v1": {
+  "prediction_luma": 0.732,
+  "screenshot_luma": 0.761,
+  "mean_rgb_prediction": [
+   0.599,
+   0.75,
+   0.946
+  ],
+  "mean_rgb_screenshot": [
+   0.639,
+   0.777,
+   0.954
+  ],
+  "saturation": [
+   0.414,
+   0.369
+  ],
+  "blurred_luma_correlation": 0.991,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.687,
+    0.723
+   ],
+   "saturation": [
+    0.413,
+    0.364
+   ],
+   "blurred_luma_correlation": 0.996
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1004,
+   0.0955
+  ]
+ },
+ "agreements": [
+  "prediction: the same bright cyan/blue/white tiled grid with a white cross; luma tracks the capture from frame 0",
+  "SDK text: bright, cool blue/cyan/purple point-dust layers, bass-swelled zoom"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}
