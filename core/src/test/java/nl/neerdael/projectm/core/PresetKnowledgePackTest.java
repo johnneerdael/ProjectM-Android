@@ -71,7 +71,7 @@ public class PresetKnowledgePackTest {
         Map<String, Object> expected = expected();
         double tolerance = ((Number) expected.get("float_tolerance")).doubleValue();
         Map<String, Object> accept = (Map<String, Object>) expected.get("accept");
-        assertEquals(new HashSet<>(Arrays.asList("valid", "unknown-fields")), accept.keySet());
+        assertEquals(new HashSet<>(Arrays.asList("valid", "unknown-fields", "null-containers")), accept.keySet());
         for (Map.Entry<String, Object> pack : accept.entrySet()) {
             PresetKnowledgePack read = PresetKnowledgePack.read(new File(GOLDEN, pack.getKey()));
             List<Object> views = new ArrayList<>();

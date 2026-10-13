@@ -76,7 +76,10 @@ reader therefore verifies the whole core before it publishes anything.
    - estimate values, `activity` and facet values are numbers or null;
    - an interval is null or two numbers;
    - lists of names are lists of strings;
-   - containers are objects or lists of objects.
+   - containers are objects or lists of objects. A container that is missing
+     or `null` means empty: producers write `null` when an estimate is
+     unavailable, for example `display_estimate.activity` without an activity
+     reference.
 
    Readers do not type-check other fields.
 
@@ -92,7 +95,8 @@ recipe does not describe that file.
 ## Reader view
 
 Readers expose at least the following, per preset. Paths are into the recipe
-object. A missing object gives an empty list or `null`; it is not an error.
+object. A missing or `null` container gives an empty list or `null`; it is
+not an error.
 
 | View field | Recipe path |
 |---|---|
@@ -121,6 +125,7 @@ for the packs a reader must accept, and the rule each rejected pack breaks:
 |---|---|
 | `valid` | accept; views as listed |
 | `unknown-fields` | accept; same views (extra manifest and recipe fields are ignored) |
+| `null-containers` | accept; null containers read as empty |
 | `bad-policy` | reject: pack policy |
 | `bad-recipe-policy` | reject: recipe policy |
 | `bad-core-hash` | reject: core file hash |
@@ -137,5 +142,5 @@ for the packs a reader must accept, and the rule each rejected pack breaks:
 `knowledge_pack_golden.py` (predictor branch) regenerates the vectors byte for
 byte from `golden-v1/recipes/`. `test_knowledge_pack_golden.py` checks the
 Python reader against them and `PresetKnowledgePackTest` checks the Java
-reader. A reader in another language should run the same fourteen cases in
+reader. A reader in another language should run the same fifteen cases in
 its own tests.
