@@ -1,0 +1,110 @@
+{
+ "all_oof": {
+  "n": 9516,
+  "activity_spearman": 0.749,
+  "primary_band_accuracy": 0.61,
+  "bands_compatible": 0.75,
+  "opposite_extremes": 0.0056,
+  "width_sweep": [
+   {
+    "max_width": 0.2,
+    "coverage": 0.017,
+    "primary_accuracy": 0.963,
+    "compatible": 0.969
+   },
+   {
+    "max_width": 0.3,
+    "coverage": 0.057,
+    "primary_accuracy": 0.917,
+    "compatible": 0.938
+   },
+   {
+    "max_width": 0.4,
+    "coverage": 0.125,
+    "primary_accuracy": 0.861,
+    "compatible": 0.887
+   },
+   {
+    "max_width": 0.5,
+    "coverage": 0.277,
+    "primary_accuracy": 0.725,
+    "compatible": 0.833
+   },
+   {
+    "max_width": 0.6,
+    "coverage": 0.573,
+    "primary_accuracy": 0.677,
+    "compatible": 0.787
+   },
+   {
+    "max_width": 0.7,
+    "coverage": 1.0,
+    "primary_accuracy": 0.61,
+    "compatible": 0.75
+   },
+   {
+    "max_width": 0.8,
+    "coverage": 1.0,
+    "primary_accuracy": 0.61,
+    "compatible": 0.75
+   },
+   {
+    "max_width": 1.01,
+    "coverage": 1.0,
+    "primary_accuracy": 0.61,
+    "compatible": 0.75
+   }
+  ]
+ },
+ "heldout_emulator_sets": {
+  "n": 90,
+  "activity_spearman": 0.807,
+  "primary_band_accuracy": 0.711,
+  "bands_compatible": 0.822,
+  "opposite_extremes": 0.0222,
+  "width_sweep": [
+   {
+    "max_width": 0.3,
+    "coverage": 0.044,
+    "primary_accuracy": 1.0,
+    "compatible": 1.0
+   },
+   {
+    "max_width": 0.4,
+    "coverage": 0.111,
+    "primary_accuracy": 1.0,
+    "compatible": 1.0
+   },
+   {
+    "max_width": 0.5,
+    "coverage": 0.3,
+    "primary_accuracy": 0.889,
+    "compatible": 0.926
+   },
+   {
+    "max_width": 0.6,
+    "coverage": 0.511,
+    "primary_accuracy": 0.804,
+    "compatible": 0.848
+   },
+   {
+    "max_width": 0.7,
+    "coverage": 1.0,
+    "primary_accuracy": 0.711,
+    "compatible": 0.822
+   },
+   {
+    "max_width": 0.8,
+    "coverage": 1.0,
+    "primary_accuracy": 0.711,
+    "compatible": 0.822
+   },
+   {
+    "max_width": 1.01,
+    "coverage": 1.0,
+    "primary_accuracy": 0.711,
+    "compatible": 0.822
+   }
+  ]
+ }
+}

@@ -1340,3 +1340,10 @@ repeated on correctly oriented frames. Probes and results:
   recipe, which the whole-pack calibration does not read, so pack-wide
   agreement stays flat. Evidence: `fit-report-r11.json`,
   `facet-agreement-r11.json`.
+- **r11 shipped.** The fixture model is now r11 (fe62a985 descriptors) and
+  the activity reference was refreshed from its out-of-fold predictions. Band
+  results are within noise of r8c-hue: main group 64.7% overall, 76.7% on the
+  90 capture-checked presets (r8c-hue 75.6%), 84.3% at high confidence on 24%
+  of presets (unchanged); calm/intense swaps 1.4% (held-out 2 of 90 vs 1). It
+  is shipped because it matches the descriptor code used at prediction time.
+  Evidence: `band-eval-r11-oof.json`.
