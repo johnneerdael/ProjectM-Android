@@ -1386,3 +1386,10 @@ repeated on correctly oriented frames. Probes and results:
   luma follows the capture (0.68/0.67 at frame 15, near 0 at frames 45 and
   105). Frames 60–149: luma 0.139 vs 0.127, correlation 0.78, frame
   difference 0.109 vs 0.112.
+- **r47 (`suksma - … flashlight to the portal …`) v1.** Partial. The layout
+  matches (single-frame correlation 0.93), but the capture brightens after
+  frame 90, is sharper and more orange, and shows a dithered arc band; the
+  SDK text calls the palette green-leaning. Cause: the random-palette
+  template with `cthr = .99` redraws the colour-band limits every frame from
+  about 2.86 s to 3.42 s, exactly where the capture changes, so the later
+  colour is a random draw (the recipe reports the schedule).

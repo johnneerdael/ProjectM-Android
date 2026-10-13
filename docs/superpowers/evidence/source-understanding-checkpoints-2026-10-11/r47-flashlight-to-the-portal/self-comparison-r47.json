@@ -1,0 +1,76 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r47-v1",
+ "preset": "suksma - dotes hostile undertake - flashlight to the portal [flexi's rod vomit maex] nz+.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e6175a94ab0a6677965374db0849fc4d04284a7e28ebfa9085213b4920214d44",
+  "prediction.json": "b16c6f76a5c69f4f67a6488b8601a9c790318db386f356805bd22d36b53f1711",
+  "description.json": "bc1a64cad146ab61800a46e05f83f9322ae210feb4e5acdf40aeb2b0f4614630",
+  "recipe.json": "98a4a7710f40657a0e4123d6d2f68417f2e4a2cae9fd822968b28b95f631c104",
+  "llm-look-description-v1.txt": "c456c4e51a9a710fedac3f0bde51615a9f08fa90d00f556e52cb3e48f1afdd27"
+ },
+ "capture_result_sha256": "4791a6f4fb00fc1efe8680a218318ece710c8205dbf7ba783e919640392f3bd1",
+ "review_measurements_v1": {
+  "prediction_luma": 0.167,
+  "screenshot_luma": 0.219,
+  "mean_rgb_prediction": [
+   0.28,
+   0.14,
+   0.097
+  ],
+  "mean_rgb_screenshot": [
+   0.329,
+   0.195,
+   0.12
+  ],
+  "saturation": [
+   0.695,
+   0.725
+  ],
+  "blurred_luma_correlation": 0.933,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.173,
+    0.268
+   ],
+   "rgb": [
+    [
+     0.26,
+     0.153,
+     0.115
+    ],
+    [
+     0.319,
+     0.272,
+     0.071
+    ]
+   ],
+   "saturation": [
+    0.492,
+    0.785
+   ],
+   "blurred_luma_correlation": 0.887
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0448,
+   0.0497
+  ]
+ },
+ "agreements": [
+  "prediction: bright orb cluster top left, dark lower right, same overall layout and motion"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "the capture brightens after frame 90 (0.48 at frame 105 vs 0.18), is sharper and more orange/yellow, and shows a dithered arc band",
+   "cause": "random-palette template with cthr=.99: sin(time*.5) > .99 from about 2.86 s to 3.42 s, so the warp's colour-band limits q21-q29 are redrawn with rand every frame in that window (frames 86-103); the capture's brightening and orange shift start there. The draws are random outcomes (process-wide rand stream); the recipe reports the redraw schedule (first 2.87 s, period 12.6 s)"
+  },
+  {
+   "size": "medium",
+   "version": "SDK",
+   "observed": "text calls the palette green-leaning; the capture is orange"
+  }
+ ],
+ "verdict": "layout understood; colour and brightness after 2.9 s are a random redraw (reported by the recipe)"
+}
