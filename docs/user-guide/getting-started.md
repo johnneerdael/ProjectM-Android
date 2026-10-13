@@ -180,6 +180,8 @@ If playback stutters, see [Picture quality and performance](picture-quality.md).
 
 In GitHub editions, **Settings › Advanced › Auto-update** is on by default. An explicitly saved Off stays off after upgrading. When on, the app checks GitHub about 10 s after launch and every six hours while open. It downloads a newer stable release, verifies the app ID, higher version and signing key, then shows an **Install** row. Android asks you to confirm installation and may ask you to allow installs from the visualizer. TV downloads `projectM-TV-<version>.apk`; phones download `projectM-Android-<version>.apk`. Turning the setting off deletes a downloaded update.
 
+Versions 2.3.46 and older cannot update themselves since the repository moved from `ProjectM-TV` to `ProjectM-Android`: the **Update** line in the Diagnostics card under **Settings › Advanced** shows `check failed (HTTP 301 …)`. Install the current version once [with Downloader](#install-on-the-tv) (or the [phone code](#install-on-a-phone-or-tablet)); later versions update automatically again.
+
 F-Droid editions show *Via F-Droid* and receive app updates through F-Droid. The optional collection download is separate from app updates.
 
 ## Privacy

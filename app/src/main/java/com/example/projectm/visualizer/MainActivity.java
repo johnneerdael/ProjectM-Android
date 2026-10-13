@@ -846,10 +846,11 @@ public class MainActivity extends Activity {
         if (in) {
             view.setTranslationX(offset);
             view.setVisibility(View.VISIBLE);
-            // Repaint once in place: with partial updates, some GPUs (MediaTek/Mali, Android 14)
-            // otherwise leave the strip the slide moved into unpainted until the next focus move.
+            // The window's transparent region, where the visualizer surface shows through, is only
+            // recomputed at a layout. Laid out while still offset, the panel would leave the strip it
+            // slides into see-through on some TVs (e.g. a MediaTek Google TV) until the next layout.
             view.animate().translationX(0).alpha(1f).setDuration(FADE_MS).withLayer()
-                    .withEndAction(view::invalidate).start();
+                    .withEndAction(view::requestLayout).start();
         } else if (view.getVisibility() == View.VISIBLE) {
             view.animate().translationX(offset).alpha(0f).setDuration(FADE_MS).withLayer()
                     .withEndAction(() -> view.setVisibility(View.GONE)).start();
@@ -860,7 +861,10 @@ public class MainActivity extends Activity {
     private static void fade(View view, boolean in) {
         view.animate().cancel();  // a cancelled animation does not run its end action
         if (in) {
-            view.setTranslationX(0); // a panel returning from a submenu may have been mid-slide
+            if (view.getTranslationX() != 0) {
+                view.setTranslationX(0);  // a panel returning from a submenu may have been mid-slide
+                view.requestLayout();     // see slide(): the transparent region follows layouts only
+            }
             view.setVisibility(View.VISIBLE);
             view.animate().alpha(1f).setDuration(FADE_MS).withLayer().start();
         } else if (view.getVisibility() == View.VISIBLE) {
