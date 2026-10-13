@@ -1636,3 +1636,10 @@ outputs that are NaN or infinite across levels and times. The recipe sets
 `flat_transfer.output_undefined` when that share exceeds one half (r77:
 1.0), and the SKILL tells the describer to say the look is driver-dependent
 instead of naming one fixed look.
+
+### r78 (306 nz+ liquiardia) and r79 (suksma, sun pod gambit couch)
+
+r78's kaleidoscopic octagon matches and its average brightness agrees. The
+colours at 5 s differ because the recipe's random redraw of `q21`–`q31` at
+3.13 s (and every 12.6 s) picks a new palette: random by construction. r79
+was understood on the first prediction (time-average correlation 0.849).

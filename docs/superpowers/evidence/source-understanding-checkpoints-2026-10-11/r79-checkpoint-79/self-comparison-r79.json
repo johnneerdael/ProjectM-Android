@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r79-v1",
+ "preset": "suksma - sun pod gambit couch - flx infinity within a finite boundary --- Isosceles edit1.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "6cab87fbbd6086d7d11c7525a37695db732e51a8e8f46d7e44f91bcabe22c242",
+  "prediction.json": "ae0c8007547551fea304c6aaad1a392a054def566a5918d61882bde9ccf165e8",
+  "description.json": "9e3e100e55b2d92182125252651af5e7f3c6551853cb4b90597cba4b8f19cd0b",
+  "recipe.json": "91205dd1d5812e9c1adb61c1a30c4f4f7bb4a7885f9284c7a65fb485a56e1a9b",
+  "llm-look-description-v1.txt": "fb684f54642be1a7e11b0afdd3a0ee59b22213fa4ae93a0c5d393ab506a19bf1"
+ },
+ "capture_result_sha256": "253aa2b16adbb31d73113ae3cb3ded02fbd598b5866e813c674e4e22b85d83af",
+ "review_measurements_v1": {
+  "prediction_luma": 0.419,
+  "screenshot_luma": 0.359,
+  "mean_rgb_prediction": [
+   0.686,
+   0.375,
+   0.072
+  ],
+  "mean_rgb_screenshot": [
+   0.597,
+   0.316,
+   0.076
+  ],
+  "blurred_luma_correlation": 0.782,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.352,
+    0.317
+   ],
+   "saturation": [
+    0.893,
+    0.87
+   ],
+   "blurred_luma_correlation": 0.849
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0145,
+   0.0135
+  ]
+ },
+ "agreements": [
+  "screenshot correlation 0.782, time average 0.849; mean colour close (ours 0.607/0.306/0.061, capture 0.572/0.267/0.060); frame-to-frame change 0.0145 vs 0.0135; brightness matches through frame 75"
+ ],
+ "misses": [
+  "ours about 0.035 brighter on average"
+ ],
+ "verdict": "understood on the first prediction"
+}

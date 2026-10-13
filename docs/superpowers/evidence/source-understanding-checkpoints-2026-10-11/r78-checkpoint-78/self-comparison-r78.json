@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r78-v1",
+ "preset": "306 nz+ liquiardia.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d8fff2d258b7212b2922ccbd0ae585914134a65172187c06319345c285a7db46",
+  "prediction.json": "091772c3fa8009d086b470640d04654f7504ec9d3199b5ebcbdbf519dccd9230",
+  "description.json": "c1fdcb496c39e1b64ac63596c11374417ac8c3ce5c6bca728ce8557c1d87537c",
+  "recipe.json": "be9dd014f2cdc9a896aa1ee009e6b33419a88b2be921693696c4443972201467",
+  "llm-look-description-v1.txt": "b9e35375bd6b005c88d44ca8138c4978efa13fb3f1ba4154d9b38d7e13d77d46"
+ },
+ "capture_result_sha256": "cd097d360e28af2bc18b2508c273b29e1d195c145fa9a517667daed1ba3db0dd",
+ "review_measurements_v1": {
+  "prediction_luma": 0.386,
+  "screenshot_luma": 0.768,
+  "mean_rgb_prediction": [
+   0.282,
+   0.427,
+   0.279
+  ],
+  "mean_rgb_screenshot": [
+   0.637,
+   0.807,
+   0.772
+  ],
+  "blurred_luma_correlation": -0.028,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.457,
+    0.446
+   ],
+   "saturation": [
+    0.27,
+    0.209
+   ],
+   "blurred_luma_correlation": 0.502
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1413,
+   0.1196
+  ]
+ },
+ "agreements": [
+  "the same kaleidoscopic octagon with central glow and corner shards",
+  "time-average luma 0.457 vs 0.446"
+ ],
+ "misses": [
+  "at 5 s ours is green and saturated, the capture pale cyan: the recipe lists a random redraw of q21-q31 at 3.13 s and every 12.6 s, so the colours shown are a random draw",
+  "frame-to-frame change somewhat higher (0.141 vs 0.120)"
+ ],
+ "verdict": "structure understood; colour random by construction (redraw at 3.13 s)"
+}
