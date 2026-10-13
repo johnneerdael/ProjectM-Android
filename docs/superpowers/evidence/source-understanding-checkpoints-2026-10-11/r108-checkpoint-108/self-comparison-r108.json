@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r108-v1",
+ "preset": "Redi Jedi - pladman coaches womans vollyball.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "13dbe7bda5dd0bbbfe420ed082aef14d3ab87a5e7bbbfe5d6f510d77b9edc36e",
+  "prediction.json": "0344a5a9304306439a351f2c85c129cc729078f535fa25f8c4abc56681d0a0f6",
+  "description.json": "991815ea7d6b6a6478dbbff491f782c41680e7938db451b457b6f9c0ff9be779",
+  "recipe.json": "f970595de24046de91a3d1c5dc4e0cd7be680f87adad059f8b97ac4bdf023785",
+  "llm-look-description-v1.txt": "0aad442db536ffa140556ec293588d331997eed4af5a5d29359c8864b73f8285"
+ },
+ "capture_result_sha256": "4fd5c74c192814e35da36fb58b159baaedf3a155c5f7f89b2ef29c23c8277058",
+ "review_measurements_v1": {
+  "prediction_luma": 0.139,
+  "screenshot_luma": 0.094,
+  "mean_rgb_prediction": [
+   0.633,
+   0.007,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.009,
+   0.074,
+   0.543
+  ],
+  "blurred_luma_correlation": 0.483,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.126,
+    0.244
+   ],
+   "saturation": [
+    1.0,
+    0.389
+   ],
+   "blurred_luma_correlation": 0.267
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.006,
+   0.0417
+  ]
+ },
+ "agreements": [
+  "centre glow, bordered grid and line structure in the same places"
+ ],
+ "misses": [
+  "v1 static red (luma 0.126 vs 0.244, frame difference 0.006 vs 0.042)",
+  "not the random texture: the mean stand-in and four real bundled images all stay red",
+  "candidates: beat-detection state (q2 = 60/avgbbeatrate), blur timing, normalize of a black vector"
+ ],
+ "verdict": "open: the engine cycles pure red, green and blue with large brightness swings; ours stays a static red. The warp is ret = normalize((colorwarp - main.zxy) - color*0.1) with main = blur3 scaled by the beat-rate state q2, a channel-rotating feedback; red is a fixed point of our evaluation"
+}
