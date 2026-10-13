@@ -484,3 +484,17 @@ def test_per_frame_decay_is_used_each_frame_and_clamped_like_per_pixel_mesh():
     assert _feedback_gain({'decay': .8}, .5, per_frame=True) == .8
     assert _feedback_gain({'decay': -.2}, .5, per_frame=True) == 0.
     assert _feedback_gain({'decay': .8}, .5, per_frame=False) == .5
+
+
+def test_random_texture_slots_use_the_mean_of_matching_bundled_images():
+    # projectM picks one bundled image per randNN slot at each load; the expectation over that choice is
+    # the per-pixel mean of the candidates, far smoother than the noise stand-in used before (r81).
+    import prediction_illustration as P
+    any_image = P._random_texture_standin('rand00')
+    noise = P._noise_texture('noise_mq')[..., :3]
+    assert any_image.shape == (256, 256, 3)
+    assert np.abs(np.diff(any_image, axis=1)).mean() < np.abs(np.diff(noise, axis=1)).mean() / 2
+    names = [n for n in P._texture_names() if n.startswith('cells')]
+    if names:
+        filtered = P._random_texture_standin('rand03_cells')
+        assert not np.allclose(filtered, any_image)

@@ -185,6 +185,10 @@ required. Use a native file-read tool to inspect JSON and the summary.
    equation writes (they are 0). With `output_undefined: true` most of the
    picture has no defined value in GLSL ES and depends on the GPU driver: say
    so, and do not describe one fixed look or call it simply black.
+   `render.random_textures` lists `randNN` samplers: projectM picks one bundled
+   image per slot at every load (only names starting with `name_filter` when
+   one is given). Colours and brightness that come from those samples are a
+   random draw: say which stage they colour and that they change per load.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

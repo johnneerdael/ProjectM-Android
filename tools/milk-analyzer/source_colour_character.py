@@ -248,7 +248,8 @@ def _wave_recurrence(frame_prefix,init,frame,programs):
     if not pending:return None
     state={};done=set()
     while pending:
-        name=pending.pop()
+        # Smallest name first: consumers draw rand values in state order, which must not follow string hashing.
+        name=min(pending);pending.discard(name)
         if name in done:continue
         done.add(name)
         update=_expression(frame.environment.get(name,Field('unknown')))
@@ -256,7 +257,7 @@ def _wave_recurrence(frame_prefix,init,frame,programs):
         if update is None or initial is None:return None
         state[name]={'initial':initial,'update':update}
         pending|=states_of(update)-done
-    return {'policy':'source-custom-wave-frame-recurrence-v1','state_input_prefix':marker,'state':state,
+    return {'policy':'source-custom-wave-frame-recurrence-v1','state_input_prefix':marker,'state':dict(sorted(state.items())),
             'conditions':['update graphs give the end-of-frame value; point graphs read the start-of-frame value',
                           'initial graphs read init-time inputs; stepping evaluates authored equations over declared inputs']}
 
@@ -280,7 +281,8 @@ def _point_recurrence(point_prefix,init,controls,programs):
     if not pending:return None
     state={};done=set()
     while pending:
-        name=pending.pop()
+        # Smallest name first: consumers draw rand values in state order, which must not follow string hashing.
+        name=min(pending);pending.discard(name)
         if name in done:continue
         done.add(name)
         update=_expression(controls.get(name,Field('unknown')))
@@ -288,7 +290,7 @@ def _point_recurrence(point_prefix,init,controls,programs):
         if update is None or initial is None:return None
         state[name]={'initial':initial,'update':update}
         pending|=states_of(update)-done
-    return {'policy':'source-custom-wave-point-recurrence-v1','state_input_prefix':marker,'state':state,
+    return {'policy':'source-custom-wave-point-recurrence-v1','state_input_prefix':marker,'state':dict(sorted(state.items())),
             'conditions':['points are evaluated in order; point j reads the end value of point j-1',
                           'the value carries from the last point of one frame to the first point of the next']}
 

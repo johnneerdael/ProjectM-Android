@@ -1063,6 +1063,27 @@ def _named_texture(name):
     return _NAMED[key]
 
 
+def _texture_names():
+    """Bundled texture names (lower case), the candidates of random texture slots."""
+    _named_texture('__probe__')
+    return sorted(k for k in (_NAMED.get('__index__') or {}))
+
+
+def _random_texture_standin(name):
+    """Expected image of a randNN texture slot: projectM chooses one bundled image per slot at each load
+    (randNN_prefix limits the choice to names starting with prefix). The per-pixel mean of the candidates,
+    resized to 256x256, is the expectation over that choice. None when no candidate exists."""
+    import re
+    match=re.fullmatch(r'rand(\d{2})(?:_(\w+))?',str(name).lower())
+    if match is None:return None
+    key=('__random__',match.group(2) or '')
+    if key not in _NAMED:
+        names=[n for n in _texture_names() if not match.group(2) or n.startswith(match.group(2))]
+        images=[cv2.resize(image,(256,256),interpolation=cv2.INTER_AREA) for image in (_named_texture(n) for n in names) if image is not None]
+        _NAMED[key]=np.mean(images,axis=0).astype(np.float32) if images else None
+    return _NAMED[key]
+
+
 def _texsize(name,width,height):
     """texsize_<name> uniform (w, h, 1/w, 1/h): engine noise sizes, blur pass sizes, bundled image sizes,
     256 for other stand-ins."""
@@ -1347,6 +1368,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
         elif texture!='main':
             # Named images: the bundled texture file (declared asset); unknown names keep a noise stand-in.
             named=_named_texture(texture)
+            if named is None:named=_random_texture_standin(texture)
             source=named if named is not None else _noise_texture('noise_mq')
         policy=detail.get('sampling_policy') or {}
         if source.ndim==4:

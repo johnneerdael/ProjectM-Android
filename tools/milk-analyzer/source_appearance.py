@@ -621,7 +621,8 @@ def _shape_recurrence(identity,controls,init):
     if not pending:return None
     state={};done=set()
     while pending:
-        name=pending.pop()
+        # Smallest name first: consumers draw rand values in state order, which must not follow string hashing.
+        name=min(pending);pending.discard(name)
         if name in done:continue
         done.add(name)
         update=_expression(controls.get(name,Field('unknown')))
@@ -629,7 +630,7 @@ def _shape_recurrence(identity,controls,init):
         if update is None or initial is None:return None
         state[name]={'initial':initial,'update':update,'inputs':[name,marker+name]}
         pending|=states_of(update)-done
-    return {'policy':'source-custom-shape-frame-recurrence-v1','state':state,
+    return {'policy':'source-custom-shape-frame-recurrence-v1','state':dict(sorted(state.items())),
             'conditions':['per-frame code runs once per instance; variables persist across instances and frames',
                           'inputs list the plain and init-prefixed names that both read the start value']}
 

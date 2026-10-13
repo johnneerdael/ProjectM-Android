@@ -387,3 +387,18 @@ def test_unresolved_point_colour_keeps_closed_form_positions():
     assert record['status']=='unknown'
     assert record['positions_closed_form'] is True and record['programs']['x'] is not None
     assert record['programs'].get('r') is None
+
+
+def test_recurrence_state_order_is_independent_of_string_hashing():
+    # Consumers draw rand values in state order; a set-driven order changed the random walk of every
+    # wave between processes (PYTHONHASHSEED), so group measures compared different random draws.
+    import os, subprocess, sys
+    code = ('import json,sys;sys.path.insert(0,".");from test_source_colour_character import source_character;'
+            'r=source_character("wavecode_0_enabled=1\\nwavecode_0_bUseDots=1\\nwave_0_init1=zb=.5;ya=.5;mc=.5;\\n'
+            'wave_0_per_point1=zb=zb+.01*(rand(2)-.5);ya=ya+.01*(rand(2)-.5);mc=mc+.01*(rand(2)-.5);\\n'
+            'wave_0_per_point2=x=zb;y=ya+mc-.5;r=1;g=0;b=0;a=1;\\n");'
+            'd=r["by_component"]["wave_0"]["source_palette"]["point_colour_distribution"];'
+            'print(json.dumps([list(d["point_recurrence"]["state"]),d["position_bounds"]]))')
+    outputs = {subprocess.run([sys.executable, '-c', code], cwd=os.path.dirname(os.path.abspath(__file__)), capture_output=True, text=True,
+                              env={**os.environ, 'PYTHONHASHSEED': seed}).stdout for seed in ('1', '2', '3')}
+    assert len(outputs) == 1 and json.loads(outputs.pop())[0] == ['mc', 'ya', 'zb']

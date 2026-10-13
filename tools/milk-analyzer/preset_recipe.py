@@ -392,7 +392,25 @@ def _render(facts):
     if feedback_random[0]:feedback['warp_per_load_random']=feedback_random[0]
     redraws=_random_redraws(((facts.get(BASE+'/stage_programs') or {}).get('frame')))
     return {'feedback':feedback,'layers':layers,'composite':composite,'mechanisms':mechanisms,'audio_bindings':bindings,'random_redraws':redraws,
-            'mirrors':mirror_operators(facts)}
+            'mirrors':mirror_operators(facts),'random_textures':_random_textures(stages)}
+
+
+def _random_textures(stages):
+    """randNN samplers per stage: projectM picks one bundled image per slot at every preset load
+    (randNN_prefix limits the choice to names starting with prefix), so their colours are a random draw."""
+    import re
+    rows=[]
+    for stage in ('warp','composite'):
+        record=stages.get(stage) or {}
+        if record.get('status')!='exported':continue
+        seen=set()
+        for node in (record.get('program') or {}).get('nodes') or []:
+            if not isinstance(node,dict) or node.get('op')!='sample':continue
+            match=re.fullmatch(r'rand(\d{2})(?:_(\w+))?',str((node.get('detail') or {}).get('canonical_texture','')).lower())
+            if match and (match.group(1),match.group(2)) not in seen:
+                seen.add((match.group(1),match.group(2)))
+                rows.append({'stage':stage,'slot':match.group(1),'name_filter':match.group(2)})
+    return rows
 
 
 TIME_VARYING_SPREAD=.05

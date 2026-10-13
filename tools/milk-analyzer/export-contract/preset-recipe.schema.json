@@ -46,7 +46,8 @@
         "composite": {"$ref": "#/$defs/composite"},
         "mechanisms": {"type": "array", "items": {"type": "object", "required": ["mechanism"], "properties": {"mechanism": {"type": "string"}, "stage": {"type": ["string", "null"]}}}},
         "audio_bindings": {"type": "array", "items": {"type": "object"}},
-        "random_redraws": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/randomRedraws"}]}
+        "random_redraws": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/randomRedraws"}]},
+        "random_textures": {"type": "array", "items": {"type": "object", "required": ["stage", "slot"], "properties": {"stage": {"enum": ["warp", "composite"]}, "slot": {"type": "string"}, "name_filter": {"anyOf": [{"type": "null"}, {"type": "string"}]}}}}
       }
     },
     "feedback": {

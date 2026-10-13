@@ -375,3 +375,13 @@ def test_composite_whose_output_is_mostly_non_finite_is_marked_undefined(monkeyp
     table = {'levels': [0., 1.], 'rgb': [[0., 0., 0.], [0., 0., 0.]], 'nonfinite_share': 1.}
     monkeypatch.setattr(feedback_equilibrium, 'stage_transfer', lambda facts, stage, **_: table if stage == 'composite' else None)
     assert R._render({})['composite']['flat_transfer']['output_undefined'] is True
+
+
+def test_random_texture_samplers_are_listed_as_random_per_load():
+    import preset_recipe as R
+    program = {'root': 0, 'nodes': [{'op': 'sample', 'args': [], 'detail': {'sampler': 'sampler_rand00', 'canonical_texture': 'rand00'}},
+                                    {'op': 'sample', 'args': [], 'detail': {'sampler': 'sampler_rand02_smalltiled', 'canonical_texture': 'rand02_smalltiled'}},
+                                    {'op': 'sample', 'args': [], 'detail': {'sampler': 'sampler_main', 'canonical_texture': 'main'}}]}
+    facts = {BASE + '/stage_programs': {'stages': {'composite': {'status': 'exported', 'program': program}}}}
+    rows = R._render(facts)['random_textures']
+    assert rows == [{'stage': 'composite', 'slot': '00', 'name_filter': None}, {'stage': 'composite', 'slot': '02', 'name_filter': 'smalltiled'}]
