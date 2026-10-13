@@ -421,6 +421,26 @@ def test_additive_line_wave_accumulates_every_segment():
     assert np.allclose(row, .6, atol=1e-6)
 
 
+def test_alpha_line_wave_blends_every_overlapping_segment():
+    from prediction_illustration import _draw_points
+    # The same row is drawn twice by one alpha-blended strip (x .8 -> .3 -> .8). GL blends each fragment
+    # over the framebuffer in order, so the retraced pixels compound: .5 then .5 + .5*.5 = .75 (r92 zigzag
+    # ribbons), not the single layer's .5.
+    record = {'sample_count': 3, 'draw_flags': {'thick': False, 'additive': False, 'dots': False},
+              'programs': {'x': {'root': 4, 'nodes': [
+                  {'op': 'input', 'args': [], 'detail': {'name': 'sample'}}, {'op': 'constant', 'args': [], 'detail': {'value': .5}},
+                  {'op': 'subtract', 'args': [0, 1], 'detail': {}}, {'op': 'abs', 'args': [2], 'detail': {}},
+                  {'op': 'add', 'args': [3, 5], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': .3}}]},
+                  'y': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': .5}}]},
+                  **{c: {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': v}}]} for c, v in zip('rgba', (1., 1., 1., .5))}}}
+    width, height = 100, 50
+    canvas = {'alpha': np.zeros((height, width), np.float32)}
+    image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., lambda p: (p[0] * width, (1 - p[1]) * height), canvas)
+    assert np.allclose(image[25, 35:65, 0], .75, atol=1e-6)
+    # The framebuffer alpha follows the same blend (src alpha weights its own alpha): .25 then .25 + .25*.5.
+    assert np.allclose(canvas['alpha'][25, 35:65], .375, atol=1e-6)
+
+
 def test_legacy_echo_follows_the_per_frame_orientation():
     from prediction_illustration import _composite
     # Patch 0008: the echo reads per-frame echo_orient (truncated, mod 4). Orientation 1 mirrors left-right.

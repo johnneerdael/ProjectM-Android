@@ -625,6 +625,30 @@ def _mv_alpha(facts):
     return min(1.,max(0.,colour[3])) if len(colour)>3 and type(colour[3]) in (int,float) else 1.
 
 
+def _blend_over_in_order(image,rows,cols,seg,premultiplied,alpha):
+    """GL SRC_ALPHA/ONE_MINUS_SRC_ALPHA blending of line fragments, each pixel's fragments in segment order.
+
+    For fragments k = 1..n on one pixel: out = dst*prod(1-a_k) + sum_k c_k*a_k*prod_{j>k}(1-a_j), with the
+    premultiplied colours c_k*a_k given per segment. image is (H, W, C); returns a new array.
+    """
+    out=np.array(image,np.float32,copy=True)
+    if not len(rows):return out
+    height,width,channels=out.shape
+    pixel=rows*width+cols
+    order=np.lexsort((seg,pixel));pixel=pixel[order];seg=seg[order]
+    log_keep=np.log1p(-np.clip(np.asarray(alpha,np.float64)[seg],0,1-1e-12))
+    starts=np.flatnonzero(np.r_[True,pixel[1:]!=pixel[:-1]])
+    group=np.repeat(np.arange(len(starts)),np.diff(np.r_[starts,len(pixel)]))
+    running=np.cumsum(log_keep)
+    total=np.add.reduceat(log_keep,starts)
+    before=running-log_keep-(running[starts]-log_keep[starts])[group]
+    weight=np.exp(total[group]-before-log_keep)
+    added=np.zeros((len(starts),channels));np.add.at(added,group,np.asarray(premultiplied,np.float64)[seg]*weight[:,None])
+    flat=out.reshape(-1,channels);target=pixel[starts]
+    flat[target]=(flat[target]*np.exp(total)[:,None]+added).astype(np.float32)
+    return out
+
+
 def _gl_line_pixels(x0,y0,x1,y1,width,height,return_index=False):
     """Pixels of aliased 1 px GL lines (window coordinates, pixel centres at i+.5), vectorised.
 
@@ -785,19 +809,17 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,end
                 v=np.array(valid);h=.5
                 rows,cols,seg=_gl_line_pixels(px[v]+ox+h,py[v]+oy+h,px[v+1]+ox+h,py[v+1]+oy+h,width,height,return_index=True)
                 np.add.at(pass_layer,(rows,cols),colour[v][seg]);np.add.at(cover,(rows,cols),alpha[v][seg])
-            for i in ([] if flags.get('additive',True) else valid):
-                a=(int(round((px[i]+ox)*16)),int(round((py[i]+oy)*16)));b=(int(round((px[i+1]+ox)*16)),int(round((py[i+1]+oy)*16)))
-                cv2.line(pass_layer,a,b,tuple(float(c) for c in colour[i]),1,cv2.LINE_8,4)
-                cv2.line(cover,a,b,float(alpha[i]),1,cv2.LINE_8,4)
             if not flags.get('additive',True):
-                # Alpha blending: each thick pass is blended on its own (GL), so repeated passes converge
-                # to the line colour instead of summing past it.
-                pass_cover=np.zeros(image.shape[:2],np.float32)
-                for i in valid:
-                    a=(int(round((px[i]+ox)*16)),int(round((py[i]+oy)*16)));b=(int(round((px[i+1]+ox)*16)),int(round((py[i+1]+oy)*16)))
-                    cv2.line(pass_cover,a,b,float(alpha[i]),1,cv2.LINE_8,4)
-                image=np.clip(image*(1-pass_cover[...,None])+pass_layer,0,1)
-                if canvas is not None:canvas['alpha']=np.clip(pass_cover**2+canvas['alpha']*(1-pass_cover),0,1)
+                # Alpha blending: GL blends every fragment over the framebuffer in drawing order, so pixels
+                # covered by several segments of the strip (retraced or zigzag strokes) and by repeated thick
+                # passes compound towards the line colour instead of keeping one layer.
+                if valid:
+                    v=np.array(valid);h=.5
+                    rows,cols,seg=_gl_line_pixels(px[v]+ox+h,py[v]+oy+h,px[v+1]+ox+h,py[v+1]+oy+h,width,height,return_index=True)
+                    image=_blend_over_in_order(image,rows,cols,seg,colour[v],alpha[v])
+                    if canvas is not None:
+                        canvas['alpha']=_blend_over_in_order(canvas['alpha'][...,None],rows,cols,seg,(alpha[v]**2)[:,None],alpha[v])[...,0]
+                image=np.clip(image,0,1)
             layer+=pass_layer
         if not flags.get('additive',True):return image
         if canvas is not None:

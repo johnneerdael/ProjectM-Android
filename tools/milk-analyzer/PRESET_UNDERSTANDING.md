@@ -1730,3 +1730,23 @@ shrinking to the centre with a fan above and below. Two general gaps:
 Re-rendering the frozen v1 description: prediction vs screenshot
 correlation 0.193 → 0.997, time-average correlation 0.183 → 0.999, and the
 luma follows the capture within 0.001 per frame.
+
+### r92: overlapping alpha-blended line segments
+
+r92 (You Are Getting Sleepy) draws a 3D "arm" wave whose points alternate
+between two rails, so the line strip zigzags into a filled ribbon, and folds
+the canvas through a z² Julia map. The colour phases and ribbon shapes
+matched, but the drawn waves were 1.7× too dim from frame 0. GL blends every
+fragment of an alpha-blended strip over the framebuffer in drawing order, so
+pixels crossed by several segments compound towards the line colour
+(1 − (1 − a)ⁿ). The illustration kept one layer per pixel. It now composes
+each pixel's fragments in segment order with the GL diamond-exit raster, for
+the colour and the framebuffer alpha. 2,509 presets have an enabled
+alpha-blended line wave.
+
+Re-rendering the frozen v1 description: frame-0 luma 0.018 → 0.033 (engine
+0.032), frames 60–149 luma 0.063 → 0.103 (0.117), frame difference
+0.0425 → 0.0537 (0.0556). The shard layout of the chaotic fold differs per
+frame and is not expected to match. Open: GL interpolates vertex colours
+along the second half of each smoothed segment; the illustration uses the
+start colour (luma-neutral, but alternating colours show as stripes).

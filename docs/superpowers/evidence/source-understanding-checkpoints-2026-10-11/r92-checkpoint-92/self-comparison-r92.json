@@ -1,0 +1,76 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r92-v1",
+ "preset": "The NG + EoS - You Are Getting Sleepy (Once Upon A Time Mix).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c5538da792ad4932777cfd4662693712c81dcfd815c257966d9d7e3e6601e457",
+  "prediction.json": "aa9b63413c629e0fd725f2e77bee9b7bac74bf36630b371f6c8cde358becf818",
+  "description.json": "210f40c1ff81d9f36d12d7e7c2e91d3e63966031e2b432220ca8751422f278bb",
+  "recipe.json": "6b349de499dd0d7e27f4972f7c360094c20fe31eaebc66a89d57e56e85b11758",
+  "llm-look-description-v1.txt": "ce377c0b55d3998e7e405e96ea3b81e4c82469bd911f0114a71e646b9fd1b25c"
+ },
+ "capture_result_sha256": "cdf2c41616b37c73cd9de29c21b076ebf925980c5cf17ea5b891f0ec726dcc06",
+ "review_measurements_v1": {
+  "prediction_luma": 0.042,
+  "screenshot_luma": 0.092,
+  "mean_rgb_prediction": [
+   0.011,
+   0.051,
+   0.04
+  ],
+  "mean_rgb_screenshot": [
+   0.021,
+   0.114,
+   0.078
+  ],
+  "blurred_luma_correlation": 0.184,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.063,
+    0.117
+   ],
+   "saturation": [
+    0.587,
+    0.575
+   ],
+   "blurred_luma_correlation": 0.895
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0425,
+   0.0556
+  ]
+ },
+ "agreements": [
+  "green/yellow/purple/cyan colour phases follow the capture frame by frame",
+  "ribbon arms from the 3D arm wave, three-fold max composite star and scattered shards from the z^2 fold",
+  "time-average colour balance close after the fix"
+ ],
+ "misses": [
+  "v1: zigzag ribbons kept one layer per pixel, so drawn waves were 1.7x too dim from frame 0",
+  "ribbon colours striped per segment; GL interpolates vertex colours along the second half of each smoothed segment (luma-neutral, not fixed)",
+  "per-frame shard layout differs (chaotic fold)"
+ ],
+ "verdict": "understood on averages after a general fix (v2 expected image from the frozen v1 description): alpha-blended line waves now compound overlapping segments in drawing order like GL; frame-0 luma 0.018 -> 0.033 (engine 0.032), frames 60-149 luma 0.063 -> 0.103 (0.117), frame difference 0.0425 -> 0.0537 (0.0556); per-frame layout of the chaotic Julia fold is not predicted",
+ "review_measurements_v2": {
+  "prediction_luma": 0.074,
+  "screenshot_luma": 0.092,
+  "blurred_luma_correlation": 0.256,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.103,
+    0.117
+   ],
+   "blurred_luma_correlation": 0.911
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0537,
+   0.0556
+  ],
+  "frame_0_luma": [
+   0.0334,
+   0.0316
+  ],
+  "note": "v2 re-renders the frozen v1 description with the corrected illustrator; the description itself is unchanged"
+ }
+}
