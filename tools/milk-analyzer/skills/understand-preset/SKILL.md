@@ -86,7 +86,11 @@ required. Use a native file-read tool to inspect JSON and the summary.
    instead of fading to black. For a custom composite,
    `render.composite.flat_transfer` gives the displayed colour for each flat
    canvas level (texture lookups included). That is the palette the whole
-   canvas is shown through, so do not infer coverage from drawn elements alone. A nonzero floor means faint content can persist instead
+   canvas is shown through, so do not infer coverage from drawn elements alone.
+   `render.feedback.steady_state` gives the settled canvas/display colour from
+   source (`hue_family` when it is visibly above black). Use it as the hue cue
+   for the overall palette; its level is a lower bound, so take brightness from
+   `display_estimate`. A nonzero floor means faint content can persist instead
    of returning to black. Use the profile intervals, not one orbit. With a
    curve relation, `persistence_layer_sweep` says whether retained layers cross
    whole inter-turn gaps before the floor; if so, state a conditional

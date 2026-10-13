@@ -175,3 +175,22 @@ def test_custom_composite_flat_transfer_is_the_displayed_palette(monkeypatch):
     composite = R._render({})['composite']
     assert composite['flat_transfer']['rgb'] == table['rgb']
     assert composite['flat_transfer']['source'] == 'exported composite shader evaluated on flat canvas colours'
+
+
+def test_recipe_carries_the_steady_state_hue_from_the_equilibrium(monkeypatch):
+    import feedback_equilibrium
+    import preset_recipe as R
+    # Other keys the descriptor reads from the same equilibrium record.
+    extra = {'display_local_luma': .2, 'display_spread_luma': .3, 'display_local_saturation': .7,
+             'display_spread_saturation': .6, 'drawn_area_fraction': .1, 'elements': 1,
+             'gain_rgb': [.9, .9, .9], 'offset_rgb': [0., 0., 0.], 'energy_rgb_per_frame': [.01, .01, .01]}
+    monkeypatch.setattr(feedback_equilibrium, 'equilibrium', lambda summary: {
+        'display_local_rgb': [.25, .15, .06], 'display_spread_rgb': [.5, .32, .21], 'canvas_local_rgb': [.3, .2, .1],
+        'composite_model': 'composite_transfer', 'substitution_count': 1, **extra})
+    state = R.build_recipe(record())['render']['feedback']['steady_state']
+    assert state['display_local_rgb'] == [.25, .15, .06] and state['hue_family'] == 'orange'
+    assert state['level_note'].startswith('a lower bound')
+    monkeypatch.setattr(feedback_equilibrium, 'equilibrium', lambda summary: {
+        'display_local_rgb': [0., 0., 0.], 'display_spread_rgb': [.001, .001, .001], 'canvas_local_rgb': [0., 0., 0.],
+        'composite_model': 'legacy', 'substitution_count': 0, **extra})
+    assert R.build_recipe(record())['render']['feedback']['steady_state']['hue_family'] is None

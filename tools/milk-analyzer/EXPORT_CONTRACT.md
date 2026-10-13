@@ -333,6 +333,12 @@ the channel-mean table from full level down to half, and
 arithmetic on uniform inputs, not a measured trail length; image structure,
 blur and injected terms can change local persistence.
 
+`render.feedback.steady_state` holds the `feedback_equilibrium` settled colour:
+`display_local_rgb` (energy kept where drawn), `display_spread_rgb` (mixed over
+the screen), `canvas_local_rgb`, `hue_family` (null below 0.02),
+`composite_model` and `substitution_count` (neutral colour priors used). It is a
+hue cue; its level is a lower bound, and brightness comes from `display_estimate`.
+
 `render.composite.flat_transfer` (custom composites) holds the composite shader
 evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the
 displayed palette, including texture lookups.

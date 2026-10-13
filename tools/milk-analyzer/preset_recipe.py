@@ -228,6 +228,30 @@ def _program(source):
             'dialect':'MilkDrop 2.25c equations (projectm-eval semantics) and HLSL shader bodies as authored'}
 
 
+def _steady_state(summary):
+    """Settled canvas/display colour from feedback_equilibrium: a hue cue, not a brightness measure.
+
+    The local estimate keeps each element's energy where it is drawn and the spread estimate mixes it over
+    the screen; unknown element colours use neutral priors (substitution_count). The level is a lower bound
+    for bright presets (transport, blur and self-advection are not iterated), so brightness comes from
+    display_estimate; hue_family is reported only when the estimate is visibly above black.
+    """
+    try:
+        from feedback_equilibrium import equilibrium
+        from time_expression import hue_family
+        e=equilibrium(summary)
+    except Exception:  # noqa: BLE001 - an optional derived block never fails the recipe
+        return None
+    local=e.get('display_local_rgb') or [0.,0.,0.];spread=e.get('display_spread_rgb') or [0.,0.,0.]
+    rgb=local if max(local)>=.02 else spread
+    return {'display_local_rgb':[round(v,4) for v in local],'display_spread_rgb':[round(v,4) for v in spread],
+            'canvas_local_rgb':[round(v,4) for v in e.get('canvas_local_rgb') or [0.,0.,0.]],
+            'hue_family':hue_family(rgb) if max(rgb)>=.02 else None,'composite_model':e.get('composite_model'),
+            'substitution_count':e.get('substitution_count'),
+            'level_note':'a lower bound for bright presets; use display_estimate for brightness',
+            'source':'feedback_equilibrium steady state (source facts, no frames stepped)'}
+
+
 def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=False):
     from approximate_features import describe
     facts=_facts(summary)
@@ -236,6 +260,7 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
         'mood':describe(summary,rules,profiles),'uses_rendered_images':False,
         'limitations':['Engine-neutral approximate recipe; drawn content, audio and native rounding make real frames differ',
                        'Mood values are editable research assumptions, not calibrated preferences']}
+    recipe['render']['feedback']['steady_state']=_steady_state(summary)
     display=_display_estimate(summary)
     if display is not None:recipe['display_estimate']=display
     recipe['facets']=facets_block(summary,display)
