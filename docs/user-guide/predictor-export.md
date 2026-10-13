@@ -58,8 +58,9 @@ SHA-256, so any platform can read it. The reader contract is
 
 The core library's `PresetKnowledgePack` implements it for the app and for
 Milkbeat. `read(File)`, `read(File, visitor)` and `read(manifest, core,
-visitor)` verify the core file hash first, then stream the core, check every
-line before parsing it, and keep only a per-preset view:
+visitor)` read the compressed core once into memory, verify its file hash,
+then decompress it line by line, check every line before parsing it, and keep
+only a per-preset view:
 
 - effects with their parameters;
 - reactivity as band, target, kind and response;
@@ -68,9 +69,10 @@ line before parsing it, and keep only a per-preset view:
 - facet options and values;
 - energy tags.
 
-A `RecipeVisitor` receives each full parsed recipe once, only after the whole
-pack has passed, so memory follows the views rather than the recipes and a
-rejected pack publishes nothing. `load(AssetManager, dir)`
+A `RecipeVisitor` receives each full parsed recipe once, from the same
+verified bytes, only after the whole pack has passed. A rejected pack
+publishes nothing. Memory is the compressed core plus the views; the
+decompressed recipes are never held all at once. `load(AssetManager, dir)`
 returns `null` for a missing or invalid pack. A pack that breaks a rule
 throws `InvalidPackException`, whose `rule` names the rule. Lookups work by
 preset name or by the preset file's SHA-256.

@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -27,10 +26,11 @@ import java.util.zip.ZipException;
  * against the shared golden vectors there. The pack is plain gzip, JSON and SHA-256; no Android
  * types are used outside load(), so the same reader serves the app, Milkbeat and JVM tools.
  *
- * The core is streamed in passes over a re-openable source: the file hash is verified first, then
- * every line is hash-checked, strictly decoded, parsed and reduced to its {@link Preset} view.
- * Nothing is published until the whole pack has passed; only then does a {@link RecipeVisitor}
- * receive each full recipe, once. Memory follows the views, not the recipes.
+ * The compressed core is read once into memory, so every pass sees the same verified bytes: the
+ * file hash is checked first, then every line is hash-checked, strictly decoded, parsed and reduced
+ * to its {@link Preset} view while decompressing. Nothing is published until the whole pack has
+ * passed; only then does a {@link RecipeVisitor} receive each full recipe, once. Memory is the
+ * compressed core plus the views; decompressed recipes are never held all at once.
  */
 public final class PresetKnowledgePack {
     public static final String POLICY = "preset-knowledge-pack-v1";
@@ -113,9 +113,6 @@ public final class PresetKnowledgePack {
         }
     }
 
-    /** Re-openable core bytes: the reader makes separate passes for hashing, views and visiting. */
-    private interface Source { InputStream open() throws IOException; }
-
     private final Map<String, Object> manifest;
     private final List<String> names;
     private final Map<String, Preset> byName = new HashMap<>();
@@ -130,34 +127,30 @@ public final class PresetKnowledgePack {
 
     public static PresetKnowledgePack read(File directory) throws IOException { return read(directory, null); }
 
-    /** Reads manifest.json and core.jsonl.gz from a directory; the core file is read once per pass. */
+    /** Reads manifest.json and core.jsonl.gz from a directory. */
     public static PresetKnowledgePack read(File directory, RecipeVisitor visitor) throws IOException {
-        byte[] manifest;
-        try (InputStream in = new FileInputStream(new File(directory, MANIFEST))) { manifest = bytes(in); }
-        final File core = new File(directory, CORE);
-        return read(manifest, () -> new FileInputStream(core), visitor);
+        try (InputStream manifest = new FileInputStream(new File(directory, MANIFEST));
+             InputStream core = new FileInputStream(new File(directory, CORE))) {
+            return read(manifest, core, visitor);
+        }
     }
 
-    /**
-     * Reads a pack from its manifest and core streams. The compressed core is held in memory for the
-     * passes; use {@link #read(File, RecipeVisitor)} or {@link #load} to stream from storage instead.
-     */
+    /** Reads a pack from its manifest and core streams; the caller closes the streams. */
     public static PresetKnowledgePack read(InputStream manifestStream, InputStream coreStream, RecipeVisitor visitor) throws IOException {
-        byte[] manifest = bytes(manifestStream);
-        final byte[] core = bytes(coreStream);
-        return read(manifest, () -> new ByteArrayInputStream(core), visitor);
+        return read(bytes(manifestStream), bytes(coreStream), visitor);
     }
 
     /** A pack bundled under assets/{directory}, or null when it is missing or invalid. */
-    public static PresetKnowledgePack load(final AssetManager assets, final String directory) {
-        try (InputStream in = assets.open(directory + "/" + MANIFEST)) {
-            return read(bytes(in), () -> assets.open(directory + "/" + CORE), null);
+    public static PresetKnowledgePack load(AssetManager assets, String directory) {
+        try (InputStream manifest = assets.open(directory + "/" + MANIFEST);
+             InputStream core = assets.open(directory + "/" + CORE)) {
+            return read(manifest, core, null);
         } catch (IOException missingOrInvalid) {
             return null;
         }
     }
 
-    private static PresetKnowledgePack read(byte[] manifestBytes, Source core, RecipeVisitor visitor) throws IOException {
+    private static PresetKnowledgePack read(byte[] manifestBytes, byte[] core, RecipeVisitor visitor) throws IOException {
         try {
             return verifiedRead(manifestBytes, core, visitor);
         } catch (WrongType wrong) {
@@ -165,18 +158,13 @@ public final class PresetKnowledgePack {
         }
     }
 
-    private static PresetKnowledgePack verifiedRead(byte[] manifestBytes, Source core, RecipeVisitor visitor) throws IOException {
+    private static PresetKnowledgePack verifiedRead(byte[] manifestBytes, byte[] core, RecipeVisitor visitor) throws IOException {
         Map<String, Object> manifest = object(json(decode(manifestBytes, manifestBytes.length, MANIFEST), MANIFEST), MANIFEST);
         if (!POLICY.equals(manifest.get("policy"))) throw new InvalidPackException("pack policy", String.valueOf(manifest.get("policy")));
         if (!RECIPE_POLICY.equals(manifest.get("recipe_policy")))
             throw new InvalidPackException("recipe policy", String.valueOf(manifest.get("recipe_policy")));
         // Pass 1: the stored core bytes, before anything is decompressed.
-        MessageDigest fileDigest = digest();
-        try (InputStream in = core.open()) {
-            byte[] buffer = new byte[1 << 16];
-            for (int n; (n = in.read(buffer)) > 0; ) fileDigest.update(buffer, 0, n);
-        }
-        if (!hex(fileDigest.digest()).equals(object(manifest.get("core"), "core").get("sha256")))
+        if (!hex(digest().digest(core)).equals(object(manifest.get("core"), "core").get("sha256")))
             throw new InvalidPackException("core file hash", "core file bytes differ from manifest core.sha256");
         Object presetList = manifest.get("presets");
         if (!(presetList instanceof List)) throw new InvalidPackException("manifest structure", "presets must be an array");
@@ -204,10 +192,10 @@ public final class PresetKnowledgePack {
     private interface LineHandler { void handle(int index, Map<String, Object> entry, Map<String, Object> recipe) throws IOException; }
 
     /** Streams the decompressed core, checking count, line hashes, UTF-8 and recipe policy. */
-    private static void lines(Source core, List<Map<String, Object>> entries, LineHandler handler) throws IOException {
+    private static void lines(byte[] core, List<Map<String, Object>> entries, LineHandler handler) throws IOException {
         Line line = new Line();
         int index = 0;
-        try (InputStream in = new BufferedInputStream(new GzipMember(core.open()), 1 << 16)) {
+        try (InputStream in = new BufferedInputStream(GzipMember.open(new ByteArrayInputStream(core)), 1 << 16)) {
             while (line.next(in)) {
                 if (!line.terminated) throw new InvalidPackException("line ending", "the last core line has no terminating LF");
                 if (line.length > 0 && line.bytes[line.length - 1] == '\r')
@@ -236,8 +224,20 @@ public final class PresetKnowledgePack {
         private final CRC32 crc = new CRC32();
         private boolean checked;
 
-        GzipMember(InputStream in) throws IOException {
-            super(in, new Inflater(true), 1 << 16);
+        /** A member reader over in; on a header failure the inflater is ended and in is closed. */
+        static GzipMember open(InputStream in) throws IOException {
+            Inflater inflater = new Inflater(true);
+            try {
+                return new GzipMember(in, inflater);
+            } catch (IOException | RuntimeException failed) {
+                inflater.end();
+                in.close();
+                throw failed;
+            }
+        }
+
+        private GzipMember(InputStream in, Inflater inflater) throws IOException {
+            super(in, inflater, 1 << 16);
             CRC32 header = new CRC32();
             if (next(header) != 0x1f || next(header) != 0x8b || next(header) != 8) throw new InvalidPackException("gzip", "not a deflate gzip member");
             int flags = next(header);
@@ -252,6 +252,16 @@ public final class PresetKnowledgePack {
                 int expected = (int) (header.getValue() & 0xffff);
                 int stored = next(header) | (next(header) << 8);
                 if (stored != expected) throw new InvalidPackException("gzip", "header CRC mismatch");
+            }
+        }
+
+        /** InflaterInputStream does not end a caller-supplied inflater; release its native memory here. */
+        @Override
+        public void close() throws IOException {
+            try {
+                super.close();
+            } finally {
+                inf.end();
             }
         }
 
