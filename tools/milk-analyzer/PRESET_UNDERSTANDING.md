@@ -1617,3 +1617,22 @@ r74 is essentially exact (time-average correlation 0.995, mean colour within
 than the capture from frame 45 and ends a third darker. Its drawn elements
 follow audio-smoothed `q1`–`q3`, so the build-up rate depends on the band
 levels.
+
+### r76 (Flexi + amandio c, piercing 02) and r77 (scathing review2): undefined output
+
+r76 shows glossy red-orange blobs with blue relief halos around a central
+spiral, with matching mean brightness. Its blobs are smaller and less
+saturated than the capture's.
+
+r77's composite divides by `czd·czd`, built from `q15`–`q18`, and no
+equation writes those values, so they are 0 in projectM and every pixel is
+0/0. GLSL ES leaves NaN results undefined. Our IEEE illustration stores them
+as 0 (black), while the emulator's GPU produced a frame-parity strobe (0.9
+at frame 0, then about 0.11 on even frames). The look therefore depends on
+the driver and cannot be predicted.
+
+General fix: `stage_transfer` reports `nonfinite_share`, the share of
+outputs that are NaN or infinite across levels and times. The recipe sets
+`flat_transfer.output_undefined` when that share exceeds one half (r77:
+1.0), and the SKILL tells the describer to say the look is driver-dependent
+instead of naming one fixed look.

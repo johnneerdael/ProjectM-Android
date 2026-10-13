@@ -83,6 +83,7 @@ def generate(out=DEFAULT):
     # Producer and model hashes describe the build machine, not the format: pin them for stable vectors.
     manifest['producer'] = {'commit': None, 'analyzer_dirty': None}
     for key in ('calibration_model_sha256', 'activity_reference_sha256', 'facet_definition_sha256'):manifest[key] = None
+    manifest['schema']['sha256'] = None  # additive schema edits must not change the reader vectors
     (out / 'valid' / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
     lines = _lines(out / 'valid')
 

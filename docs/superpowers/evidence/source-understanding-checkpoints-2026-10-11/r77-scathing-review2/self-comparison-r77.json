@@ -1,0 +1,28 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r77-v1",
+ "preset": "suksma - flexi 27goats digital-artorg - scathing review2 slobbering hot vessel cadavar G0N.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "19df496118192a2832a716d418feb9f1cb36ec6a742d453752663c1c852e2bd1",
+  "description.json": "6e6a305cd033b315363fdc46fda762f0bcae2ed8449c98dd0cd03530656547fd",
+  "recipe.json": "ae3bade9928348eae189bb7122b857b985f3481f1afe4b13b706a162677ff5bf",
+  "llm-look-description-v1.txt": "b0c5a20b90e224a713391319d971d72e39e825f953f4455c32ce70425b355194"
+ },
+ "capture_result_sha256": "ddf4aec18505501911a102a6a13ace0766ebf8b050fb8cc6b505274ef14258ee",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.2836
+  ]
+ },
+ "agreements": [
+  "brightness sequence cannot be matched: the capture strobes (0.9 at frame 0, about 0.11 on even frames, 0 on odd) while ours is black"
+ ],
+ "misses": [
+  "the composite divides by czd\u00b7czd built from q15-q18, which no equation writes (0 in projectM): 0/0 at every pixel. GLSL ES leaves NaN results undefined; our IEEE illustration stores them as 0 (black) and the emulator's GPU produced a frame-parity strobe, so the look depends on the driver",
+  "general fix: stage_transfer reports nonfinite_share and the recipe sets flat_transfer.output_undefined (r77: share 1.0), so the SDK can say the picture is driver-dependent"
+ ],
+ "verdict": "composite output undefined (0/0); now reported by the recipe"
+}

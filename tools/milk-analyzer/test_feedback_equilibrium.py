@@ -132,3 +132,18 @@ def test_stage_transfer_reports_how_far_the_colour_moves_between_times(monkeypat
     table = E.stage_transfer(facts, 'composite', levels=(0., 1.), times=(2., 5., 8.))
     assert [round(v, 4) for v in table['rgb_spread'][1]] == [.6, 0., 0.]
     assert abs(table['rgb'][1][0] - .5) < 1e-4
+
+
+def test_stage_transfer_reports_the_share_of_undefined_outputs(monkeypatch):
+    # r77: a composite dividing by never-written q values computes 0/0 everywhere; GLSL ES leaves the
+    # displayed result undefined, so the share of non-finite outputs is reported rather than hidden as black.
+    import numpy as np
+    import prediction_illustration as P
+    def fake(program, image, uv, time, fps, bands, controls=None, stage='warp', **_):
+        out = np.full(image.shape, np.nan, np.float32); out[0] = .5
+        return out
+    monkeypatch.setattr(P, '_evaluate_stage', fake)
+    facts = {'/analysis/visual_description/stage_programs': {'stages': {'composite': {'status': 'exported', 'program': {'root': 0, 'nodes': []}}}},
+             '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    table = E.stage_transfer(facts, 'composite', levels=(0., 1.), times=(2.,), size=(8, 4))
+    assert abs(table['nonfinite_share'] - .75) < 1e-9 and table['rgb'][0] == [.125, .125, .125]

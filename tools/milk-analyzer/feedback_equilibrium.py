@@ -64,7 +64,7 @@ def stage_transfer(facts,stage,levels=LEVELS,times=TIMES,size=(48,27)):
     uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
     bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
     controls=_stage_controls(facts,bands,times)
-    table,spread=[],[]
+    table,spread,nonfinite=[],[],[]
     for level in levels:
         image=np.full((height,width,3),level,np.float32)
         outputs=[]
@@ -73,12 +73,14 @@ def stage_transfer(facts,stage,levels=LEVELS,times=TIMES,size=(48,27)):
                 out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,controls=dict(controls[time]),stage=stage)
             except Exception:  # noqa: BLE001 - an unevaluable program leaves the transfer unknown
                 return None
+            nonfinite.append(float(np.mean(~np.isfinite(out))))
             out=np.where(np.isfinite(out),out,0.)
             outputs.append(np.clip(out,0,1).reshape(-1,3).mean(0))
         table.append([float(v) for v in np.mean(outputs,axis=0)])
         # How far each channel moves between the declared times (time-driven palette shifts).
         spread.append([float(v) for v in np.ptp(outputs,axis=0)])
-    return {'levels':list(levels),'rgb':table,'rgb_spread':spread,'times':list(times)}
+    # Non-finite results (0/0, inf-inf) are undefined in GLSL ES: they count as 0 in rgb, and their share is reported.
+    return {'levels':list(levels),'rgb':table,'rgb_spread':spread,'times':list(times),'nonfinite_share':float(np.mean(nonfinite))}
 
 
 STAGE_CONTROL_BUDGET_SECONDS=3.

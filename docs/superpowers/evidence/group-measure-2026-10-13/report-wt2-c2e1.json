@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 199,
+ "failed": {
+  "wt2": 1,
+  "c2e1": 1
+ },
+ "versions": {
+  "wt2": {
+   "luma_err": {
+    "mean": 0.0697,
+    "median": 0.0159
+   },
+   "rgb_err": {
+    "mean": 0.0742,
+    "median": 0.0204
+   },
+   "sat_err": {
+    "mean": 0.0847,
+    "median": 0.0315
+   },
+   "fd_err": {
+    "mean": 0.0165,
+    "median": 0.0058
+   },
+   "colour_map_err": {
+    "mean": 0.0914,
+    "median": 0.0439
+   },
+   "map_corr": {
+    "mean": 0.6408,
+    "median": 0.808,
+    "n": 191
+   },
+   "series_corr": {
+    "mean": 0.7404,
+    "median": 0.9156,
+    "n": 188
+   },
+   "luma_within_0.05": 0.704,
+   "map_corr_above_0.8": 0.482
+  },
+  "c2e1": {
+   "luma_err": {
+    "mean": 0.0699,
+    "median": 0.0159
+   },
+   "rgb_err": {
+    "mean": 0.0742,
+    "median": 0.0217
+   },
+   "sat_err": {
+    "mean": 0.0842,
+    "median": 0.0302
+   },
+   "fd_err": {
+    "mean": 0.017,
+    "median": 0.0052
+   },
+   "colour_map_err": {
+    "mean": 0.0911,
+    "median": 0.0453
+   },
+   "map_corr": {
+    "mean": 0.6457,
+    "median": 0.7983,
+    "n": 191
+   },
+   "series_corr": {
+    "mean": 0.7459,
+    "median": 0.9151,
+    "n": 188
+   },
+   "luma_within_0.05": 0.698,
+   "map_corr_above_0.8": 0.477
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 41,
+   "worse": 41
+  },
+  "rgb_err": {
+   "improved": 43,
+   "worse": 37
+  },
+  "fd_err": {
+   "improved": 44,
+   "worse": 30
+  },
+  "colour_map_err": {
+   "improved": 43,
+   "worse": 35
+  },
+  "map_corr": {
+   "improved": 37,
+   "worse": 39
+  }
+ },
+ "largest_gains": [
+  [
+   "drugsincombat - whirlfire b",
+   0.24,
+   0.091
+  ],
+  [
+   "$$$ Royal - Mashup (477)",
+   0.223,
+   0.127
+  ],
+  [
+   "geiss - brain zoom 3 (random texture mix) [rotating palette mix]",
+   0.622,
+   0.582
+  ],
+  [
+   "anglican't americouldn't - zhuGan roam3",
+   0.203,
+   0.168
+  ],
+  [
+   "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Geiss and Zylot + Aurora Industrialis + ORb acid cycle  + triptrap",
+   0.127,
+   0.104
+  ],
+  [
+   "390 threx no more warningsce Rumbo Pal Recodo calmer less agile better sorcery",
+   0.086,
+   0.075
+  ],
+  [
+   "fiShbRaiN - witchcraft (metropolish remix) - test - tillex  - shot ladd ap3+ roam2 nz+",
+   0.097,
+   0.088
+  ],
+  [
+   "uncompromising hate firehose digest pine needles nz+",
+   0.042,
+   0.033
+  ]
+ ],
+ "largest_losses": [
+  [
+   "finchman nz",
+   0.014,
+   0.133
+  ],
+  [
+   "suksma - n6 - n777 - sth 1-ret",
+   0.537,
+   0.581
+  ],
+  [
+   "shifter - bronchiole (EoS+Phat edit) tethered web nz+ shale pignth",
+   0.088,
+   0.124
+  ],
+  [
+   "shifter + flexi - american pie 3 nz wear like chane",
+   0.124,
+   0.15
+  ],
+  [
+   "suksma - barium titanate --- Isosceles edit04",
+   0.145,
+   0.169
+  ],
+  [
+   "martin - elusive impressions mix1",
+   0.137,
+   0.155
+  ],
+  [
+   "suksma - n19 3 layer overlap opt 3 flx nz+ loqo dystropy",
+   0.044,
+   0.058
+  ],
+  [
+   "Geiss - Two-Pointed Pulsagon - mash0000 - bubonic super-fluid centrifuge",
+   0.041,
+   0.053
+  ]
+ ]
+}

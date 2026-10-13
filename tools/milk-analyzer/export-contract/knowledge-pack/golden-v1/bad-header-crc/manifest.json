@@ -3,7 +3,7 @@
  "recipe_policy": "preset-visual-recipe-v1",
  "schema": {
   "file": "export-contract/preset-recipe.schema.json",
-  "sha256": "2b1e943d2406e81cab32145bebdf752187772c7d3a2f15a42ef2b2c4e58c3a3c"
+  "sha256": null
  },
  "producer": {
   "commit": null,

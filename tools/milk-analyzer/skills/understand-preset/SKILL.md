@@ -180,6 +180,11 @@ required. Use a native file-read tool to inspect JSON and the summary.
    texture (blur, noise, many drawn strokes) can look much brighter than that
    level, so do not call the picture dark from `flat_transfer` alone; the
    recipe marks this case with `flat_transfer.flat_areas_only: true`.
+   `nonfinite_share` is the share of that stage's outputs that are NaN or
+   infinite, for example 0/0 when the shader divides by `q` values that no
+   equation writes (they are 0). With `output_undefined: true` most of the
+   picture has no defined value in GLSL ES and depends on the GPU driver: say
+   so, and do not describe one fixed look or call it simply black.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

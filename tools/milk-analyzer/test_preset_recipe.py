@@ -367,3 +367,11 @@ def test_flat_transfer_of_a_relief_composite_covers_flat_areas_only(monkeypatch)
     relief={'/analysis/families/0':{'mechanism':'gradient_relief','stage':'composite','parameters':{'directions':2}}}
     assert R._render(relief)['composite']['flat_transfer']['flat_areas_only'] is True
     assert R._render({})['composite']['flat_transfer']['flat_areas_only'] is False
+
+
+def test_composite_whose_output_is_mostly_non_finite_is_marked_undefined(monkeypatch):
+    import feedback_equilibrium
+    import preset_recipe as R
+    table = {'levels': [0., 1.], 'rgb': [[0., 0., 0.], [0., 0., 0.]], 'nonfinite_share': 1.}
+    monkeypatch.setattr(feedback_equilibrium, 'stage_transfer', lambda facts, stage, **_: table if stage == 'composite' else None)
+    assert R._render({})['composite']['flat_transfer']['output_undefined'] is True

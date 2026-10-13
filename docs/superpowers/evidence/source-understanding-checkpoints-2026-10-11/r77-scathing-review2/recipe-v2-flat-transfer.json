@@ -1,0 +1,76 @@
+{
+ "checkpoint": "r77 v2 recipe (same frozen description)",
+ "render.composite.flat_transfer": {
+  "levels": [
+   0.0,
+   0.25,
+   0.5,
+   0.75,
+   1.0
+  ],
+  "rgb": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  "rgb_spread": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  "times": [
+   2.0,
+   5.0,
+   8.0
+  ],
+  "nonfinite_share": 1.0,
+  "source": "exported composite shader evaluated on flat canvas colours",
+  "time_varying": false,
+  "output_undefined": true,
+  "flat_areas_only": false
+ }
+}

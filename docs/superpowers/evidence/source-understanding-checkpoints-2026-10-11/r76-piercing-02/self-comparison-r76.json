@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r76-v1",
+ "preset": "Flexi + amandio c - piercing 02 nz+.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "da50d5af349bccc4f6ff4ae64fff0b0b18f9af74b477e98feac18bf0be86da1a",
+  "prediction.json": "58496317082132765faf5450744cb2e7acf23353c9034ac068b5b3438ceeeb30",
+  "description.json": "6abd380f4e7d4ae5c44f38df4be2f5b9a46e95309bcacdb77c128495c350ea3a",
+  "recipe.json": "706a13a62198811fa453ebc36a81fe0695588e21386c6972c98d400603600f4c",
+  "llm-look-description-v1.txt": "f5a6f32f9708bf2cebe988b2fcb743ad78d6ab3254458e37626e1d1da66a002b"
+ },
+ "capture_result_sha256": "2312595240fb9d88bcb23911d54f277afb6c447ab4692a2211198804a086ba7a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.149,
+  "screenshot_luma": 0.17,
+  "mean_rgb_prediction": [
+   0.206,
+   0.13,
+   0.175
+  ],
+  "mean_rgb_screenshot": [
+   0.245,
+   0.146,
+   0.186
+  ],
+  "blurred_luma_correlation": 0.11,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.075,
+    0.08
+   ],
+   "saturation": [
+    0.499,
+    0.699
+   ],
+   "blurred_luma_correlation": 0.172
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0173,
+   0.0207
+  ]
+ },
+ "agreements": [
+  "the same glossy red-orange blobs with blue relief halos on dark slate around a central spiral",
+  "time-average luma 0.075 vs 0.080; brightness curve follows the capture (0.073/0.079 at 60, 0.103/0.110 at 75)"
+ ],
+ "misses": [
+  "the capture's blobs are larger and more saturated (saturation 0.70 vs 0.50) and its central spiral clearer; pixel correlation low (0.17 average)"
+ ],
+ "verdict": "look understood; blob scale and saturation lower"
+}

@@ -372,6 +372,8 @@ def _render(facts):
         # A palette that moves by more than 0.05 between the sample times shifts colour over time.
         composite['flat_transfer']['time_varying']=bool(spread>TIME_VARYING_SPREAD)
         # A relief composite shows slopes: flat input gives this level, textured content differs.
+        # Mostly NaN/inf output (e.g. 0/0 from never-written q values): GLSL ES leaves the displayed result undefined.
+        composite['flat_transfer']['output_undefined']=bool((flat.get('nonfinite_share') or 0.)>.5)
         composite['flat_transfer']['flat_areas_only']=any(m['mechanism']=='gradient_relief' and m['stage']=='composite' for m in mechanisms)
     palette=facts.get(BASE+'/nonlinear_texture_colour_bounds/stages/composite/scalar_palette')
     if isinstance(palette,dict):
