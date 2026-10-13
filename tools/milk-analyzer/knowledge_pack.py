@@ -140,17 +140,66 @@ def _write(pack_dir, rows, failures, corpus_run, with_programs):
     return manifest
 
 
+def _decode(data, what):
+    try:
+        return data.decode('utf-8')
+    except UnicodeDecodeError as error:
+        raise ValueError('encoding: %s is not valid UTF-8 (%s)' % (what, error.reason))
+
+
 def _core_lines(pack_dir):
-    """(manifest, stored core lines) after the policy and core file hash checks."""
+    """(manifest, stored core lines as bytes) after the policy and core file hash checks."""
     pack_dir = Path(pack_dir)
-    manifest = json.loads((pack_dir / 'manifest.json').read_text(encoding='utf-8'))
+    manifest = json.loads(_decode((pack_dir / 'manifest.json').read_bytes(), 'manifest.json'))
     if manifest.get('policy') != PACK_POLICY:raise ValueError('unsupported pack policy %r' % manifest.get('policy'))
     data = (pack_dir / manifest['core']['file']).read_bytes()
     if _sha256(data) != manifest['core']['sha256']:raise ValueError('core file hash mismatch')
-    return manifest, [line for line in gzip.decompress(data).decode('utf-8').split('\n') if line]
+    return manifest, [line for line in gzip.decompress(data).split(b'\n') if line]
 
 
 RECIPE_POLICY = 'preset-visual-recipe-v1'
+_TEXT, _NUMBER = (str, type(None)), (int, float, type(None))
+
+
+def _check_view_types(recipe, name):
+    """Reader-view fields must have their JSON types (FORMAT.md rule 7); other fields are free."""
+    def fail(path):raise ValueError('recipe types: %s: %s has the wrong JSON type' % (name, path))
+    def obj(value, path):
+        if value is None:return {}
+        if not isinstance(value, dict):fail(path)
+        return value
+    def rows(value, path):
+        if value is None:return []
+        if not isinstance(value, list) or not all(isinstance(row, dict) for row in value):fail(path)
+        return value
+    def texts(value, path):
+        if value is not None and (not isinstance(value, list) or not all(isinstance(v, str) for v in value)):fail(path)
+    def number(value, path):
+        if isinstance(value, bool) or not isinstance(value, _NUMBER):fail(path)
+    preset = obj(recipe.get('preset'), 'preset')
+    if not isinstance(preset.get('name'), str) or not isinstance(preset.get('sha256'), str):fail('preset.name/sha256')
+    intent = obj(recipe.get('intent'), 'intent')
+    for row in rows(intent.get('effects'), 'intent.effects'):
+        if not isinstance(row.get('effect'), str) or not isinstance(row.get('stage'), _TEXT):fail('intent.effects[].effect/stage')
+    for row in rows(intent.get('reactivity'), 'intent.reactivity'):
+        if not all(isinstance(row.get(k), _TEXT) for k in ('band', 'target', 'kind', 'response')):fail('intent.reactivity[]')
+    texts(obj(intent.get('energy'), 'intent.energy').get('tags'), 'intent.energy.tags')
+    estimate = obj(recipe.get('display_estimate'), 'display_estimate')
+    statistics = obj(estimate.get('statistics'), 'display_estimate.statistics')
+    for key in ('mean_luminance', 'mean_abs_frame_difference'):
+        row = obj(statistics.get(key), 'display_estimate.statistics.' + key)
+        number(row.get('value'), key + '.value')
+        interval = row.get('interval')
+        if interval is not None and (not isinstance(interval, list) or len(interval) != 2):fail(key + '.interval')
+        for bound in interval or []:
+            if bound is None:fail(key + '.interval')
+            number(bound, key + '.interval')
+    activity = obj(estimate.get('activity'), 'display_estimate.activity')
+    number(activity.get('activity'), 'display_estimate.activity.activity')
+    texts(activity.get('bands'), 'display_estimate.activity.bands')
+    facets = obj(recipe.get('facets'), 'facets')
+    texts(facets.get('options'), 'facets.options')
+    for key, row in obj(facets.get('values'), 'facets.values').items():number(obj(row, 'facets.values.' + key).get('value'), 'facets.values.' + key)
 
 
 def load_core(pack_dir):
@@ -162,9 +211,10 @@ def load_core(pack_dir):
     if len(entries) != len(lines):raise ValueError('manifest lists %d presets, core holds %d lines' % (len(entries), len(lines)))
     recipes = {}
     for entry, line in zip(entries, lines):
-        if _sha256(line.encode('utf-8')) != entry.get('core_line_sha256'):raise ValueError(entry.get('name', '?') + ': core line hash mismatch')
-        recipe = json.loads(line)
+        if _sha256(line) != entry.get('core_line_sha256'):raise ValueError(entry.get('name', '?') + ': core line hash mismatch')
+        recipe = json.loads(_decode(line, entry.get('name', '?')))
         if recipe.get('policy') != RECIPE_POLICY:raise ValueError(entry['name'] + ': unsupported recipe policy %r' % recipe.get('policy'))
+        _check_view_types(recipe, entry['name'])
         preset = recipe.get('preset') or {}
         if preset.get('name') != entry['name'] or preset.get('sha256') != entry['sha256']:raise ValueError(entry['name'] + ': recipe identity differs from the manifest')
         recipes[entry['name']] = recipe
@@ -180,7 +230,7 @@ def check(pack_dir, presets_dir=None):
         manifest, lines = _core_lines(pack_dir)
         recipes = {}
         for line in lines:
-            recipe = json.loads(line);recipes[recipe['preset']['name']] = (recipe, line)
+            recipe = json.loads(_decode(line, 'core line'));recipes[recipe['preset']['name']] = (recipe, line)
     except (OSError, ValueError, KeyError) as error:
         return [str(error)]
     from contract_schema import errors, load_schema
@@ -193,7 +243,7 @@ def check(pack_dir, presets_dir=None):
     for name, (recipe, line) in recipes.items():
         entry = entries.get(name) or {}
         # The hash covers the stored UTF-8 line, so any reader can verify it without re-serialising.
-        if _sha256(line.encode('utf-8')) != entry.get('core_line_sha256'):problems.append(name + ': core line hash mismatch')
+        if _sha256(line) != entry.get('core_line_sha256'):problems.append(name + ': core line hash mismatch')
         if recipe['preset']['sha256'] != entry.get('sha256'):problems.append(name + ': preset sha256 mismatch')
         for problem in recipe_errors(recipe)[:2]:problems.append(name + ': ' + problem)
     if presets_dir is not None:

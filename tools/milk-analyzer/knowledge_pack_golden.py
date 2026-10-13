@@ -9,6 +9,8 @@ Inputs are the frozen recipes in <out-dir>/recipes/*.json. Outputs (all determin
     bad-recipe-policy/ one recipe line with a later recipe policy, hashes consistent (must be rejected)
     bad-core-hash/    core file bytes that do not match manifest core.sha256 (must be rejected)
     bad-line-hash/    one recipe line changed, file hash updated, line hash not (must be rejected)
+    bad-utf8/         one line holding an invalid UTF-8 byte, all hashes consistent (must be rejected)
+    bad-field-type/   a reader-view field of the wrong JSON type, hashes consistent (must be rejected)
     expected.json     what a reader exposes for the accepted packs, and the rule each rejected pack breaks
 """
 import gzip
@@ -25,12 +27,13 @@ FLOAT_TOLERANCE = 1e-9
 
 
 def _rewrite(pack, lines, manifest_edit=None, *, update_core_hash=True, update_line_hashes=True):
-    data = gzip.compress(('\n'.join(lines) + '\n').encode('utf-8'), mtime=0)
+    lines = [line if isinstance(line, bytes) else line.encode('utf-8') for line in lines]
+    data = gzip.compress(b'\n'.join(lines) + b'\n', mtime=0)
     (pack / 'core.jsonl.gz').write_bytes(data)
     manifest = json.loads((pack / 'manifest.json').read_text(encoding='utf-8'))
     if update_core_hash:manifest['core']['sha256'] = K._sha256(data)
     if update_line_hashes:
-        for entry, line in zip(manifest['presets'], lines):entry['core_line_sha256'] = K._sha256(line.encode('utf-8'))
+        for entry, line in zip(manifest['presets'], lines):entry['core_line_sha256'] = K._sha256(line)
     if manifest_edit:manifest_edit(manifest)
     (pack / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
 
@@ -64,7 +67,7 @@ def view(recipe):
 def generate(out=DEFAULT):
     out = Path(out)
     recipes = sorted((out / 'recipes').glob('*.json'))
-    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash'):
+    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type'):
         shutil.rmtree(out / name, ignore_errors=True)
     K.build_from_recipes(recipes, out / 'valid', source='golden-v1 recipes')
     manifest = json.loads((out / 'valid' / 'manifest.json').read_text(encoding='utf-8'))
@@ -74,7 +77,7 @@ def generate(out=DEFAULT):
     (out / 'valid' / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
     lines = _lines(out / 'valid')
 
-    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash'):
+    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type'):
         shutil.copytree(out / 'valid', out / name)
     extended = []
     for line in lines:
@@ -91,11 +94,20 @@ def generate(out=DEFAULT):
     tampered = json.loads(lines[-1]); tampered['intent']['effects'] = []
     _rewrite(out / 'bad-line-hash', lines[:-1] + [json.dumps(tampered, separators=(',', ':'), sort_keys=True)], update_line_hashes=False)
 
+    # A raw 0xFF byte inside a JSON string: hash-valid bytes that are not UTF-8.
+    first = lines[0].encode('utf-8')
+    marker = b'"description":"'
+    cut = first.index(marker) + len(marker)
+    _rewrite(out / 'bad-utf8', [first[:cut] + b'\xff' + first[cut:]] + lines[1:])
+    typed = json.loads(lines[1]); typed['intent']['effects'][0]['effect'] = 5
+    _rewrite(out / 'bad-field-type', [lines[0], json.dumps(typed, separators=(',', ':'), sort_keys=True)] + lines[2:])
+
     expected = {
         'format': K.PACK_POLICY, 'recipe_policy': K.RECIPE_POLICY, 'float_tolerance': FLOAT_TOLERANCE,
         'accept': {name: [view(json.loads(line)) for line in lines] for name in ('valid', 'unknown-fields')},
         'reject': {'bad-policy': 'pack policy', 'bad-recipe-policy': 'recipe policy',
-                   'bad-core-hash': 'core file hash', 'bad-line-hash': 'core line hash'},
+                   'bad-core-hash': 'core file hash', 'bad-line-hash': 'core line hash',
+                   'bad-utf8': 'encoding', 'bad-field-type': 'recipe types'},
     }
     (out / 'expected.json').write_text(json.dumps(expected, indent=1) + '\n', encoding='utf-8')
     return expected

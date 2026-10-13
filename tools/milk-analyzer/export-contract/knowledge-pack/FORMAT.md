@@ -36,7 +36,9 @@ serialised program graphs removed (the keys listed in
 - `core.jsonl.gz` is one gzip member. Its content is UTF-8 text: one compact
   JSON object per line, each line ending in `\n` (LF). Producers write ASCII
   only, escaping other characters as `\uXXXX`. Readers must still decode
-  UTF-8.
+  UTF-8, strictly: a byte sequence that is not valid UTF-8, in the manifest
+  or in a line, rejects the pack (rule: *encoding*). Never substitute
+  replacement characters.
 - Lines appear in the order of `manifest.presets`. Readers must use that
   order and must not re-sort; sort orders differ between languages.
 - Empty lines are ignored.
@@ -45,7 +47,9 @@ serialised program graphs removed (the keys listed in
 
 ## Reader rules
 
-A reader must reject the pack, not just one preset, when any rule fails:
+A reader must reject the pack, not just one preset, when any rule fails. It
+must not hand out any recipe or view from a pack it rejects. A streaming
+reader therefore verifies the whole core before it publishes anything.
 
 1. `manifest.policy` is exactly `preset-knowledge-pack-v1` (rule: *pack policy*).
 2. `manifest.recipe_policy` is exactly `preset-visual-recipe-v1` (rule: *recipe policy*).
@@ -58,6 +62,16 @@ A reader must reject the pack, not just one preset, when any rule fails:
    hash*). Hash the bytes as stored; never re-serialise the parsed object.
 6. Each line's `policy` is `preset-visual-recipe-v1` and its `preset.name` and
    `preset.sha256` equal the manifest entry.
+7. The fields of the reader view below have their JSON types (rule: *recipe
+   types*):
+   - `preset.name`, `preset.sha256` and each `intent.effects[].effect` are strings;
+   - effect `stage` and the reactivity fields are strings or null;
+   - estimate values, `activity` and facet values are numbers or null;
+   - an interval is null or two numbers;
+   - lists of names are lists of strings;
+   - containers are objects or lists of objects.
+
+   Readers do not type-check other fields.
 
 Readers must ignore object fields they do not know, both in the manifest and
 in recipes. Fields can be added within v1. A change of meaning or unit
@@ -104,9 +118,11 @@ for the packs a reader must accept, and the rule each rejected pack breaks:
 | `bad-recipe-policy` | reject: recipe policy |
 | `bad-core-hash` | reject: core file hash |
 | `bad-line-hash` | reject: core line hash |
+| `bad-utf8` | reject: encoding |
+| `bad-field-type` | reject: recipe types |
 
 `knowledge_pack_golden.py` (predictor branch) regenerates the vectors byte for
 byte from `golden-v1/recipes/`. `test_knowledge_pack_golden.py` checks the
 Python reader against them and `PresetKnowledgePackTest` checks the Java
-reader. A reader in another language should run the same six cases in its own
-tests.
+reader. A reader in another language should run the same eight cases in its
+own tests.

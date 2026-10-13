@@ -540,6 +540,8 @@
   "bad-policy": "pack policy",
   "bad-recipe-policy": "recipe policy",
   "bad-core-hash": "core file hash",
-  "bad-line-hash": "core line hash"
+  "bad-line-hash": "core line hash",
+  "bad-utf8": "encoding",
+  "bad-field-type": "recipe types"
  }
 }
