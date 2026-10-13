@@ -131,7 +131,137 @@
    }
   }
  },
- "shipped_r8c": {
+ "shipped_r8c_hue": {
+  "plain": {
+   "oof": "build/calibration-2026-10-12/oof-r8c-hue.json",
+   "groups": {
+    "energy": 0.487,
+    "brightness": 0.571,
+    "colour": 0.517,
+    "movement": 0.637,
+    "comfort": 0.792
+   },
+   "options": {
+    "chill": {
+     "precision": 0.855,
+     "recall": 0.336
+    },
+    "normal": {
+     "precision": 0.603,
+     "recall": 0.884
+    },
+    "intense": {
+     "precision": 0.74,
+     "recall": 0.678
+    },
+    "dark": {
+     "precision": 0.831,
+     "recall": 0.147
+    },
+    "balanced": {
+     "precision": 0.523,
+     "recall": 0.864
+    },
+    "bright": {
+     "precision": 0.693,
+     "recall": 0.492
+    },
+    "vivid": {
+     "precision": 0.758,
+     "recall": 0.71
+    },
+    "warm": {
+     "precision": 0.771,
+     "recall": 0.478
+    },
+    "cool": {
+     "precision": 0.742,
+     "recall": 0.305
+    },
+    "still": {
+     "precision": 0.788,
+     "recall": 0.207
+    },
+    "drifting": {
+     "precision": 0.596,
+     "recall": 0.9
+    },
+    "fast": {
+     "precision": 0.765,
+     "recall": 0.478
+    },
+    "no_strobe": {
+     "precision": 0.865,
+     "recall": 0.699
+    }
+   }
+  },
+  "remap": {
+   "oof": "build/calibration-2026-10-12/oof-r8c-hue.json",
+   "groups": {
+    "energy": 0.536,
+    "brightness": 0.592,
+    "colour": 0.501,
+    "movement": 0.634,
+    "comfort": 0.813
+   },
+   "options": {
+    "chill": {
+     "precision": 0.685,
+     "recall": 0.725
+    },
+    "normal": {
+     "precision": 0.689,
+     "recall": 0.66
+    },
+    "intense": {
+     "precision": 0.71,
+     "recall": 0.73
+    },
+    "dark": {
+     "precision": 0.585,
+     "recall": 0.59
+    },
+    "balanced": {
+     "precision": 0.583,
+     "recall": 0.578
+    },
+    "bright": {
+     "precision": 0.612,
+     "recall": 0.616
+    },
+    "vivid": {
+     "precision": 0.743,
+     "recall": 0.739
+    },
+    "warm": {
+     "precision": 0.639,
+     "recall": 0.64
+    },
+    "cool": {
+     "precision": 0.537,
+     "recall": 0.537
+    },
+    "still": {
+     "precision": 0.553,
+     "recall": 0.561
+    },
+    "drifting": {
+     "precision": 0.654,
+     "recall": 0.648
+    },
+    "fast": {
+     "precision": 0.656,
+     "recall": 0.659
+    },
+    "no_strobe": {
+     "precision": 0.815,
+     "recall": 0.818
+    }
+   }
+  }
+ },
+ "r8c": {
   "plain": {
    "oof": "build/calibration-2026-10-12/oof-r8c.json",
    "groups": {

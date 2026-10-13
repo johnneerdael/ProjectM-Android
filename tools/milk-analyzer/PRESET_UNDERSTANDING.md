@@ -795,15 +795,16 @@ repeated on correctly oriented frames. Probes and results:
 
   | Statistic | Out-of-fold Spearman | Held-out 90 |
   |---|---|---|
-  | Luminance | 0.634 (0.583) | 0.700 (0.574) |
-  | Frame difference | 0.710 (0.693) | 0.755 (0.733) |
-  | Flow | 0.679 (0.665) | 0.767 (0.729) |
-  | Brightness jumps | 0.765 (0.757) | 0.729 (0.734) |
-  | Saturation | 0.635 (0.593) | 0.521 (0.556) |
-  | Warm/cool | 0.600 (0.498) | 0.691 (0.468) |
+  | Luminance | 0.641 (0.583) | 0.694 (0.574) |
+  | Frame difference | 0.712 (0.693) | 0.751 (0.733) |
+  | Flow | 0.681 (0.665) | 0.764 (0.729) |
+  | Brightness jumps | 0.765 (0.757) | 0.738 (0.734) |
+  | Saturation | 0.637 (0.593) | 0.541 (0.556) |
+  | Warm/cool | 0.600 (0.498) | 0.656 (0.468) |
 
   The shipped model is fitted on the r8c whole-pack export, which has offline
-  compile evidence and stage transfers that bind the per-frame state.
+  compile evidence and stage transfers that bind the per-frame state, with
+  descriptors that include the composite hue shader.
 
 - **Activity.** `display_activity.py` takes the percentile of the mean
   percentile rank of frame difference, flow and brightness jumps, measured
@@ -815,10 +816,10 @@ repeated on correctly oriented frames. Probes and results:
 - **Grouping.** `approximate_mood(summary, display=...)` assigns bands from the
   calibrated activity, with confidence from the interval width: high ≤ 0.6,
   medium ≤ 0.8. Out-of-fold, against measured activity:
-  - activity Spearman 0.749 (0.786 on the held-out 90; descriptor v1: 0.735
+  - activity Spearman 0.748 (0.793 on the held-out 90; descriptor v1: 0.735
     and 0.784);
   - primary band accuracy 0.65 overall, 0.84 at high confidence (24% of
-    presets), 0.74 on the held-out set (v1: 0.64, 0.85 on 22%, 0.72);
+    presets), 0.76 on the held-out set (v1: 0.64, 0.85 on 22%, 0.72);
   - Chill/Intense swaps 1.3% (v1: 1.4%).
 
   The whole-pack rescore (`corpus_understanding.py --rescore --display-model`)
@@ -1128,3 +1129,9 @@ repeated on correctly oriented frames. Probes and results:
   while the capture shows bright neon blocks with glossy embossed edges. The
   composite multiplies by `pow(hue_shader, ret)`, and v1 had no hue shader.
   v2 matches: luma 0.647 vs 0.628, saturation 0.41 vs 0.49.
+- **Hue-shader descriptors (shipped).** Refitting r8c with descriptors that
+  include the composite hue shader leaves facet agreement within noise
+  (Brightness 0.592, others within 0.003 of r8c) and raises luminance to
+  0.641. It is shipped so the model matches the descriptor code used at
+  prediction time.
+

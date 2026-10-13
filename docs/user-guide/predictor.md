@@ -58,7 +58,7 @@ edges.
 Every preset now gets a group; before, 839 presets got none. Each group carries
 a confidence level. On presets the model never saw during fitting, the main
 group was right 65% of the time overall (chance is 33%), 84% for high-confidence
-presets, and 74% on the 90 presets checked against emulator captures. A calm
+presets, and 76% on the 90 presets checked against emulator captures. A calm
 preset was placed in Intense, or the reverse, 1.3% of the time. Real music, other
 render sizes and TV GPUs can behave differently.
 
