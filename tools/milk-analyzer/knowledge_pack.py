@@ -147,6 +147,18 @@ def _decode(data, what):
         raise ValueError('encoding: %s is not valid UTF-8 (%s)' % (what, error.reason))
 
 
+def _one_gzip_member(data):
+    """Decompressed bytes of exactly one gzip member; extra members or trailing bytes are an error."""
+    import zlib
+    inflater = zlib.decompressobj(16 + zlib.MAX_WBITS)
+    try:
+        text = inflater.decompress(data) + inflater.flush()
+    except zlib.error as error:
+        raise ValueError('gzip: core is not a valid gzip stream (%s)' % error)
+    if not inflater.eof or inflater.unused_data:raise ValueError('gzip: core must be exactly one gzip member with no trailing bytes')
+    return text
+
+
 def _core_lines(pack_dir):
     """(manifest, stored core lines as bytes) after the policy and core file hash checks."""
     pack_dir = Path(pack_dir)
@@ -154,7 +166,7 @@ def _core_lines(pack_dir):
     if manifest.get('policy') != PACK_POLICY:raise ValueError('unsupported pack policy %r' % manifest.get('policy'))
     data = (pack_dir / manifest['core']['file']).read_bytes()
     if _sha256(data) != manifest['core']['sha256']:raise ValueError('core file hash mismatch')
-    text = gzip.decompress(data)
+    text = _one_gzip_member(data)
     if text and not text.endswith(b'\n'):raise ValueError('line ending: the last core line has no terminating LF')
     lines = [line for line in text.split(b'\n') if line]
     if any(line.endswith(b'\r') for line in lines):raise ValueError('line ending: core lines end in CR LF, not LF')

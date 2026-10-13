@@ -141,7 +141,7 @@ def test_texsize_uniforms_follow_engine_texture_sizes():
     assert list(_texsize('blur1', 480, 270)[:2]) == [112, 68]
     assert list(_texsize('main', 480, 270)[:2]) == [480, 270]
     a = _noise_texture('noise_hq');b = _noise_texture('noise_lq')
-    assert a.shape == (256, 256, 3) and b.shape == (256, 256, 3)
+    assert a.shape == (256, 256, 4) and b.shape == (256, 256, 4)
     # hq is interpolated from 32 cells (smooth), lq has independent texels
     assert np.abs(np.diff(a, axis=1)).mean() < np.abs(np.diff(b, axis=1)).mean() / 3
 
@@ -392,7 +392,7 @@ def test_non_finite_shader_output_is_stored_like_the_gpu():
 def test_noise_volumes_are_32_cubed_and_sampled_in_three_dimensions():
     from prediction_illustration import _noise_texture, _texture_lookup_3d, _texsize
     volume = _noise_texture('noisevol_hq')
-    assert volume.shape == (32, 32, 32, 3)
+    assert volume.shape == (32, 32, 32, 4)
     assert list(_texsize('noisevol_hq', 480, 270)[:2]) == [32, 32]
     # hq is smooth (random every 4th texel); lq varies texel to texel.
     lq = _noise_texture('noisevol_lq')
@@ -461,3 +461,16 @@ def test_mesh_term_reads_frame_state_and_zero_for_names_never_written():
         assert np.allclose(_control_field(control, 'zoom', x, y, 0.), 1 + 2 * x)
     finally:
         for key in ('rng', 'bands', 'stage'): _TERM_CONTEXT.pop(key, None)
+
+
+def test_noise_textures_are_rgba_with_random_alpha_and_shaders_read_it():
+    # MilkdropNoise fills all four bytes; a shader offsetting by N.zw = noise*2-1 must see a zero-mean w,
+    # not a padded alpha of 1 (which shifts the image half a texel every frame, r70).
+    import prediction_illustration as P
+    lq = P._noise_texture('noise_lq')
+    assert abs(float(lq[..., 3].mean()) - .5) < .01 and lq[..., 3].std() > .25
+    # Smoothed textures use MilkDrop's 216-value range wrapped into 8 bits (mean about 0.53).
+    assert abs(float(P._noise_texture('noise_hq')[..., 3].mean()) - .529) < .03
+    from test_source_stage_program import evaluate
+    out = evaluate('warp', 'shader_body{ret=tex2D(sampler_noise_lq, uv*7.3).w;}', image_value=0.)
+    assert abs(float(out.mean()) - .5) < .1

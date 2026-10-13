@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r71-v1",
+ "preset": "Flexi - crush ice 67.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "73901c598d2d6666da9d25046935e798dedcf69f83187aa123b19fc4ed51f355",
+  "prediction.json": "7301aa3c8bf3ca530dd6d2154689b10b94c7c759fc4f56f454f2006f78779a0c",
+  "description.json": "c588fb4606a2080cdf2de87be16db60516528771c935139744fec0ad706c88b8",
+  "recipe.json": "e77826bd5555a190aa205509e7fdf3d38be33e079d023ab826a5fd41182d07d3",
+  "llm-look-description-v1.txt": "b680dd1c45cc0d33e23274bd01829835b1498a697b24f99399112deb99a0776a"
+ },
+ "capture_result_sha256": "56ef81278acdd14b773bae1b913e95d9574c7a209e795fc3bdc9826e33f09990",
+ "review_measurements_v1": {
+  "prediction_luma": 0.384,
+  "screenshot_luma": 0.336,
+  "mean_rgb_prediction": [
+   0.579,
+   0.345,
+   0.205
+  ],
+  "mean_rgb_screenshot": [
+   0.536,
+   0.295,
+   0.151
+  ],
+  "blurred_luma_correlation": 0.025,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.383,
+    0.295
+   ],
+   "saturation": [
+    0.647,
+    0.603
+   ],
+   "blurred_luma_correlation": 0.113
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1033,
+   0.1823
+  ]
+ },
+ "agreements": [
+  "the same orange, black and white palette with bright cell edges",
+  "frames 0-45 match in brightness (0.98, 0.69, 0.46, 0.31 vs 0.98, 0.68, 0.51, 0.30)"
+ ],
+ "misses": [
+  "layout diverges after about 1.5 s (time-average correlation 0.11): the warp moves each channel along central differences of blur1 and grows patterns by blur difference (reaction-diffusion-like), so small differences grow; ours keeps a finer cell network and is brighter later (0.383 vs 0.295)",
+  "the recipe calls this self_advection, not gradient-driven flow: the gradient detector needs bare sample differences and misses 2*GetBlur1(uv+d)-2*GetBlur1(uv-d)"
+ ],
+ "verdict": "kind understood; layout chaotic by construction"
+}

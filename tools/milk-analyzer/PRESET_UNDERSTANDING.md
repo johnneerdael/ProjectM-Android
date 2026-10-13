@@ -1570,3 +1570,30 @@ r68 was understood on the first prediction: same strobe envelope and a
 time-average map correlation of 0.967. r69 matches palette, symmetry and
 time-averaged layout (0.925) but is about 0.055 too dark and bright less
 often. The 5 s capture gathers content into a ring that our frame lacks.
+
+### r70 (Tripgnosis, Firesticks Isosceles): noise textures are RGBA
+
+The orange crescents and the dotted 3D arm matched in v1. But our image
+dripped downward in vertical columns and changed 4.4 times as much between
+frames as the capture. The warp jitters each pixel by `N.zw*texsize.zw*0.5`
+with `N = tex2D(sampler_noise_lq, …)*2-1`. Our noise stand-ins had only RGB
+channels, and the sampler padded alpha with 1, so `N.w = 1` moved every pixel
+half a texel down each frame. `MilkdropNoise::generate2D/3D` fills all four
+bytes. Each byte is `(rand % RANGE) + RANGE/2` stored in 8 bits: uniform for
+the unsmoothed textures (RANGE 256), and wrapped to 108–255 and 0–67 for the
+smoothed ones (RANGE 216, mean about 0.53).
+
+General fix: noise textures are RGBA with that distribution, and four-channel
+samples are no longer padded. In v2 the screenshot correlation rose from 0.48
+to 0.88 and the time average from 0.70 to 0.96. The frame-to-frame change
+went from 0.030 to 0.0067, against the capture's 0.0068. A rough source scan
+finds noise samplers in 5,185 presets, many of which read `.w`, `.a` or
+`.zw`.
+
+### r71 (Flexi, crush ice 67)
+
+Reaction-diffusion-like: the warp moves channels along central differences of
+blur1 and grows patterns by a blur difference. The first 45 frames match;
+after that, small differences grow (chaotic by construction). The recipe
+labels this `self_advection`, because the gradient detector needs bare sample
+differences and misses `2*GetBlur1(uv+d)-2*GetBlur1(uv-d)`.

@@ -545,6 +545,8 @@
   "bad-field-type": "recipe types",
   "bad-no-presets": "manifest structure",
   "bad-crlf": "line ending",
-  "bad-final-lf": "line ending"
+  "bad-final-lf": "line ending",
+  "bad-two-members": "gzip",
+  "bad-trailing-bytes": "gzip"
  }
 }

@@ -1189,21 +1189,29 @@ def _sampler_wraps(policy,controls=None):
 _NOISE={}
 
 
+def _noise_bytes(rng,shape,zoom):
+    """MilkdropNoise texel bytes in [0,1]: each of R, G, B and A is (rand % RANGE) + RANGE/2 stored in 8 bits,
+    RANGE 256 for unsmoothed textures (uniform) and 216 for smoothed ones (wraps to 108-255 and 0-67)."""
+    span=216 if zoom>1 else 256
+    return (((rng.integers(0,span,shape)+span//2)%256)/255.).astype(np.float32)
+
+
 def _noise_texture(name):
-    """Deterministic stand-in for projectM noise textures at the engine sizes (lq finest, hq smoothest), values in [0,1]."""
+    """Deterministic stand-in for projectM noise textures at the engine sizes (lq finest, hq smoothest):
+    RGBA in [0,1], since MilkdropNoise fills all four bytes and shaders read .w."""
     if name not in _NOISE:
         # MilkdropNoise: random texels every `zoom` texels, cubic in between (lq: every texel; hq: every 8th).
         size,zoom=NOISE_SIZES.get(name,(256,4))
         rng=np.random.default_rng(sum(map(ord,name)))
         if name.startswith('noisevol_'):
             # MilkdropNoise::generate3D: a size^3 volume (z, y, x), random every `zoom` texels, cubic between.
-            cells=rng.random((size//zoom,)*3+(3,)).astype(np.float32)
+            cells=_noise_bytes(rng,(size//zoom,)*3+(4,),zoom)
             if zoom>1:
                 from scipy.ndimage import zoom as upsample
                 cells=upsample(cells,(zoom,zoom,zoom,1),order=3,mode='grid-wrap').clip(0,1).astype(np.float32)
             _NOISE[name]=cells
             return cells
-        cells=rng.random((size//zoom,size//zoom,3)).astype(np.float32)
+        cells=_noise_bytes(rng,(size//zoom,size//zoom,4),zoom)
         _NOISE[name]=cells if zoom==1 else cv2.resize(cells,(size,size),interpolation=cv2.INTER_CUBIC).clip(0,1)
     return _NOISE[name]
 
@@ -1344,7 +1352,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
         if source.ndim==4:
             values=_texture_lookup_3d(source,coordinates,wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
         else:values=_texture_lookup(source,coordinates[:,:2],wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
-        return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
+        return values if values.shape[1]==4 else np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     fitted=_fit_inputs(program,inputs,controls)
     value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32)
     value=value.reshape(height,width,-1)
@@ -1412,7 +1420,7 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
         policy=detail.get('sampling_policy') or {}
         wrap=_sampler_wraps(policy,_TERM_CONTEXT.get('bands'));linear=policy.get('linear') is not False
         values=_texture_lookup_3d(source,coordinates,wrap=wrap,linear=linear) if source.ndim==4 else _texture_lookup(source,coordinates[:,:2],wrap=wrap,linear=linear)
-        return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
+        return values if values.shape[1]==4 else np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     if coordinates is not None:
         value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width,-1)
         return value[...,0]*width-.5,value[...,1]*height-.5

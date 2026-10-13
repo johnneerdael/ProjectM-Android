@@ -690,12 +690,12 @@ outputs are stable:
   TV app, Milkbeat or a desktop tool). The reader contract is
   [`export-contract/knowledge-pack/FORMAT.md`](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-static-output-bounds/tools/milk-analyzer/export-contract/knowledge-pack/FORMAT.md):
   check the two policy strings, the core file hash and every line hash
-  (taken over the stored line bytes), require LF line endings and a presets
-  array, decode UTF-8 strictly, check the JSON
-  types of the fields it exposes, keep manifest order, ignore unknown fields,
-  and hand out nothing from a rejected pack. Golden vectors in `golden-v1/` (one valid pack, one with
-  unknown fields, nine packs that each break one rule) show whether a reader
-  in any language follows the contract.
+  (taken over the stored line bytes); require a single gzip member, LF line
+  endings and a presets array; decode UTF-8 strictly; check the JSON types of
+  the fields it exposes; keep manifest order; ignore unknown fields; and hand
+  out nothing from a rejected pack. Golden vectors in `golden-v1/` (one valid
+  pack, one with unknown fields, eleven packs that each break one rule) show
+  whether a reader in any language follows the contract.
 
 Display estimates and facets are calibrated estimates, not measurements.
 Random per-load choices (hue shader phase, `rand_preset` switches, random

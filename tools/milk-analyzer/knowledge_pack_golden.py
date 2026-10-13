@@ -14,6 +14,8 @@ Inputs are the frozen recipes in <out-dir>/recipes/*.json. Outputs (all determin
     bad-no-presets/   manifest without its presets array, empty core with a matching hash (must be rejected)
     bad-crlf/         lines ending in CR LF, hashes taken over the bytes including CR (must be rejected)
     bad-final-lf/     the last line without its terminating LF, hashes consistent (must be rejected)
+    bad-two-members/  each line in its own gzip member, file hash updated (must be rejected)
+    bad-trailing-bytes/ one valid gzip member followed by extra bytes, file hash updated (must be rejected)
     expected.json     what a reader exposes for the accepted packs, and the rule each rejected pack breaks
 """
 import gzip
@@ -70,7 +72,7 @@ def view(recipe):
 def generate(out=DEFAULT):
     out = Path(out)
     recipes = sorted((out / 'recipes').glob('*.json'))
-    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf'):
+    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes'):
         shutil.rmtree(out / name, ignore_errors=True)
     K.build_from_recipes(recipes, out / 'valid', source='golden-v1 recipes')
     manifest = json.loads((out / 'valid' / 'manifest.json').read_text(encoding='utf-8'))
@@ -80,7 +82,7 @@ def generate(out=DEFAULT):
     (out / 'valid' / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
     lines = _lines(out / 'valid')
 
-    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf'):
+    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes'):
         shutil.copytree(out / 'valid', out / name)
     extended = []
     for line in lines:
@@ -107,6 +109,12 @@ def generate(out=DEFAULT):
     _rewrite(out / 'bad-no-presets', [], lambda m: (m.pop('presets'), m['counts'].update(presets=0)))
     _rewrite(out / 'bad-crlf', [line.encode('utf-8') + b'\r' for line in lines])
     _rewrite(out / 'bad-final-lf', lines, final_lf=False)
+    for name, data in (('bad-two-members', b''.join(gzip.compress(line.encode('utf-8') + b'\n', mtime=0) for line in lines)),
+                       ('bad-trailing-bytes', (out / 'valid' / 'core.jsonl.gz').read_bytes() + b'\x00trailing')):
+        (out / name / 'core.jsonl.gz').write_bytes(data)
+        manifest = json.loads((out / name / 'manifest.json').read_text(encoding='utf-8'))
+        manifest['core']['sha256'] = K._sha256(data)
+        (out / name / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
 
     expected = {
         'format': K.PACK_POLICY, 'recipe_policy': K.RECIPE_POLICY, 'float_tolerance': FLOAT_TOLERANCE,
@@ -114,7 +122,8 @@ def generate(out=DEFAULT):
         'reject': {'bad-policy': 'pack policy', 'bad-recipe-policy': 'recipe policy',
                    'bad-core-hash': 'core file hash', 'bad-line-hash': 'core line hash',
                    'bad-utf8': 'encoding', 'bad-field-type': 'recipe types',
-                   'bad-no-presets': 'manifest structure', 'bad-crlf': 'line ending', 'bad-final-lf': 'line ending'},
+                   'bad-no-presets': 'manifest structure', 'bad-crlf': 'line ending', 'bad-final-lf': 'line ending',
+                   'bad-two-members': 'gzip', 'bad-trailing-bytes': 'gzip'},
     }
     (out / 'expected.json').write_text(json.dumps(expected, indent=1) + '\n', encoding='utf-8')
     return expected

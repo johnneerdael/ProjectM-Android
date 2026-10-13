@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r70-v1",
+ "preset": "Tripgnosis - Firesticks --- Isosceles edit10.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f6b7a52f1d278f8ee467ceb590a0f4c22a22f2553281486694b3fd5396a528f5",
+  "prediction.json": "37947812145719ce28c0d02c7a6015b9bc056bcf460bf3aeaa971cae24c2c4f2",
+  "description.json": "31762d135252c7cc5c2fc1a153c35d111550934e718f4186433f83ffe80b6fc4",
+  "recipe.json": "71ba84cdb02a7ebd0afb289c8405699c645acf3b77229610bef56e55135f7ec4",
+  "llm-look-description-v1.txt": "82cc6be0276e8aa667c74d052ef8a4aa9ff8c635124abae261829c7f5daf9cc8"
+ },
+ "capture_result_sha256": "22741d91b048751051bb528628503b1eccda4ab279aa3bd46ad797c7b60797dc",
+ "review_measurements_v1": {
+  "prediction_luma": 0.034,
+  "screenshot_luma": 0.037,
+  "mean_rgb_prediction": [
+   0.036,
+   0.033,
+   0.031
+  ],
+  "mean_rgb_screenshot": [
+   0.041,
+   0.036,
+   0.032
+  ],
+  "blurred_luma_correlation": 0.482,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.092,
+    0.101
+   ],
+   "saturation": [
+    0.185,
+    0.259
+   ],
+   "blurred_luma_correlation": 0.697
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0301,
+   0.0068
+  ]
+ },
+ "agreements": [
+  "v1: orange crescents and the dotted 3D arm match",
+  "v2 (RGBA noise): screenshot correlation 0.876, time average 0.956, frame-to-frame change 0.0067 vs 0.0068"
+ ],
+ "misses": [
+  "v1: our image dripped downward in vertical columns and changed 4.4 times as much between frames. The warp offsets each pixel by N.zw*texsize.zw*0.5 with N = noise*2-1; our noise textures had only RGB and the sampler padded alpha with 1, so N.w = 1 shifted every pixel half a texel down each frame. MilkdropNoise fills all four bytes"
+ ],
+ "verdict": "understood after a general fix (v2): noise textures are RGBA"
+}
