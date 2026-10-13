@@ -38,3 +38,22 @@ so far, gains and losses alike, is that noise rather than the code change.
 Fixed in 44e4fa2f (names processed smallest first, state returned sorted).
 `predict_one` now gives identical results across `PYTHONHASHSEED` values. A
 deterministic group measure of 44e4fa2f is the new baseline for comparisons.
+
+## The four presets that stayed low after the determinism fix
+
+`drop ballast`, `american pie 3`, `Two-Pointed Pulsagon` and `finchman nz`
+kept their c2e1 values in the deterministic 44e4 run. All four sample noise
+textures and read their fourth channel. Map correlation against the engine
+over four noise draws, with RGBA noise and with the old RGB-only noise:
+
+| Preset | RGBA noise | RGB noise | wt2 run | c2e1 run |
+|---|---|---|---|---|
+| drop ballast | −0.10, −0.20, +0.29, −0.35 | −0.05, +0.07, −0.23, +0.04 | −0.06 | −0.35 |
+| Two-Pointed Pulsagon | +0.09, −0.02, +0.09, −0.09 | +0.09, +0.02, −0.02, +0.07 | +0.13 | +0.02 |
+
+For noise-driven presets the score swings by up to ±0.3 with the noise
+texture alone, under either implementation. Both version values sit inside
+that spread, and the averages over draws barely differ. projectM seeds its
+noise textures from the clock at every load, so these layouts are random in
+the engine too. This is noise-draw variance, not a regression. A per-preset
+comparison of noise-driven presets should average over several draws.

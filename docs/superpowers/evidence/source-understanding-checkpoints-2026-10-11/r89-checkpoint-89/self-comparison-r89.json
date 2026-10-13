@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r89-v1",
+ "preset": "amandio c - the green machine 4 - radial nature sludge semi-proficient at self-annihilation.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "5c326e561f0b9cedff5d504287c586965c4c440ca7ed3b14389ec3df7c2104ee",
+  "prediction.json": "7039f372668aeb21df4c77d22d15c24794617727cfea590b96f985f3fad5349d",
+  "description.json": "fb634b9e65f74c18884c6c0adbc1a1c982f2df9de1d6a0e9ddb394d6235a97e4",
+  "recipe.json": "fc1dbafaf27cb11dc95ab4944edd431b9f88a56d765dc809258ece9be46c257a",
+  "llm-look-description-v1.txt": "af5b34063187323a5c4a7d012c759e0155825da5fc1e3a0bf4cf1fdf34790496"
+ },
+ "capture_result_sha256": "b5b07a349e961a38867f138f40e1e2126e42c62c4b3b23334d4b45b3fb55c30c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.002,
+  "screenshot_luma": 0.005,
+  "mean_rgb_prediction": [
+   0.003,
+   0.001,
+   0.002
+  ],
+  "mean_rgb_screenshot": [
+   0.004,
+   0.005,
+   0.003
+  ],
+  "blurred_luma_correlation": 0.528,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.001,
+    0.005
+   ],
+   "saturation": [
+    0.037,
+    0.089
+   ],
+   "blurred_luma_correlation": 0.67
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0011,
+   0.0036
+  ]
+ },
+ "agreements": [
+  "both near black: time-average luma 0.001 vs 0.005, correlation 0.67"
+ ],
+ "misses": [
+  "ours slightly darker and stiller (frame-to-frame change 0.0011 vs 0.0036)"
+ ],
+ "verdict": "understood (near-black preset)"
+}
