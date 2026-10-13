@@ -118,7 +118,10 @@ required. Use a native file-read tool to inspect JSON and the summary.
    `render.feedback.steady_state` gives the settled canvas/display colour from
    source (`hue_family` when it is visibly above black). Use it as the hue cue
    for the overall palette; its level is a lower bound, so take brightness from
-   `display_estimate`.
+   `display_estimate`. When `steady_state.exact` is true, nothing feeds the
+   canvas and the composite output is constant: the whole screen is
+   `display_local_rgb` at every moment (for example plain white). Say so, and
+   do not describe texture, motion or `display_estimate` brightness.
    For a built-in wave layer, size circles by `effective_base_radius_model_units`
    (base plus the `wave_mystery` offset; its magnitude is the ring radius), not
    by `base_radius_model_units`. With `colour.max_normalised`, read

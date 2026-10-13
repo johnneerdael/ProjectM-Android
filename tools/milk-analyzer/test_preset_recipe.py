@@ -385,3 +385,17 @@ def test_random_texture_samplers_are_listed_as_random_per_load():
     facts = {BASE + '/stage_programs': {'stages': {'composite': {'status': 'exported', 'program': program}}}}
     rows = R._render(facts)['random_textures']
     assert rows == [{'stage': 'composite', 'slot': '00', 'name_filter': None}, {'stage': 'composite', 'slot': '02', 'name_filter': 'smalltiled'}]
+
+
+def test_display_is_exact_when_nothing_feeds_the_canvas_and_the_composite_is_constant():
+    # r100: no drawn layers, so the canvas stays at its cleared black; the composite maps black to white
+    # with no spread at any sampled time, so the whole display is exactly white (not a lower bound).
+    from preset_recipe import _display_is_exact
+    empty = {'elements': 0, 'energy_rgb_per_frame': [0., 0., 0.], 'offset_rgb': [0., 0., 0.], 'substitution_count': 0}
+    flat = {'levels': [0., .5, 1.], 'rgb': [[1., 1., 1.]] * 3, 'rgb_spread': [[0., 0., 0.]] * 3, 'time_varying': False, 'output_undefined': False}
+    assert _display_is_exact(empty, flat)
+    assert not _display_is_exact({**empty, 'elements': 1}, flat)
+    assert not _display_is_exact({**empty, 'offset_rgb': [.01, 0., 0.]}, flat)
+    assert not _display_is_exact(empty, {**flat, 'time_varying': True})
+    assert not _display_is_exact(empty, {**flat, 'rgb_spread': [[.2, 0., 0.]] + [[0., 0., 0.]] * 2})
+    assert not _display_is_exact(empty, None)

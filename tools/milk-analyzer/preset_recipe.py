@@ -424,7 +424,18 @@ def _program(source):
             'dialect':'MilkDrop 2.25c equations (projectm-eval semantics) and HLSL shader bodies as authored'}
 
 
-def _steady_state(summary):
+def _display_is_exact(e,flat):
+    """True when nothing feeds the canvas (no drawn elements, no injected energy or offset, no substituted
+    priors) and the composite's flat transfer is constant: no spatial spread and no time variation. The
+    canvas then stays at its cleared level and the display is exactly the composite of that level."""
+    if not isinstance(flat,dict) or flat.get('time_varying') or flat.get('output_undefined'):return False
+    if e.get('elements') or e.get('substitution_count'):return False
+    if any(abs(v)>0 for v in (e.get('energy_rgb_per_frame') or [1])+(e.get('offset_rgb') or [1])):return False
+    spread=flat.get('rgb_spread') or []
+    return bool(spread) and all(max(abs(v) for v in row)==0 for row in spread)
+
+
+def _steady_state(summary,flat=None):
     """Settled canvas/display colour from feedback_equilibrium: a hue cue, not a brightness measure.
 
     The local estimate keeps each element's energy where it is drawn and the spread estimate mixes it over
@@ -445,7 +456,10 @@ def _steady_state(summary):
             'hue_family':hue_family(rgb) if max(rgb)>=.02 else None,'composite_model':e.get('composite_model'),
             'substitution_count':e.get('substitution_count'),
             'level_note':'a lower bound for bright presets; use display_estimate for brightness',
-            'source':'feedback_equilibrium steady state (source facts, no frames stepped)'}
+            'source':'feedback_equilibrium steady state (source facts, no frames stepped)',
+            **({'exact':True,'level_note':'exact: nothing feeds the canvas, so it stays at canvas_local_rgb, and the composite '
+                'maps that level to display_local_rgb everywhere at every sampled time; the whole display is this colour '
+                'and display_estimate does not apply'} if _display_is_exact(e,flat) else {})}
 
 
 def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=False):
@@ -456,7 +470,7 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
         'mood':describe(summary,rules,profiles),'uses_rendered_images':False,
         'limitations':['Engine-neutral approximate recipe; drawn content, audio and native rounding make real frames differ',
                        'Mood values are editable research assumptions, not calibrated preferences']}
-    recipe['render']['feedback']['steady_state']=_steady_state(summary)
+    recipe['render']['feedback']['steady_state']=_steady_state(summary,(recipe['render'].get('composite') or {}).get('flat_transfer'))
     display=_display_estimate(summary)
     if display is not None:recipe['display_estimate']=display
     recipe['facets']=facets_block(summary,display)

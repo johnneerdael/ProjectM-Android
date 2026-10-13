@@ -1862,3 +1862,17 @@ None came from the new math:
   source and r94, but here it removed a lucky cancellation. With wrap forced
   on in both, our canvas is still about 2× the engine's and the gap grows
   over time (over-retention, probably in textured-shape blending). Open.
+
+### r98–r100
+
+r98 (Zylot - Puddle Of Music) and r99 (ORB - Blade) were understood on the
+first prediction; r98 is about 14% too bright. r100 is uniform white: nothing
+is drawn, so the canvas stays black and the composite maps black to white.
+The static prediction matched exactly, but the SDK description expected a
+rippling noise texture, because the recipe called the exact white steady state
+"a lower bound" and pointed to `display_estimate`. The recipe now marks
+`steady_state.exact` when nothing feeds the canvas (no elements, energy,
+offset or substituted priors) and the composite's flat transfer has no
+spatial spread and no time variation. The SKILL tells readers to describe the
+whole screen as that colour. Up to 365 presets have no custom layers and a
+near-invisible built-in wave; fewer qualify once borders and vectors count.

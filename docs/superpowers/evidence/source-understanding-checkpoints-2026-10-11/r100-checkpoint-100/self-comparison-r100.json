@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r100-v1",
+ "preset": "i am only here to die slowly in pain spread 'em.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "48fa10b15fd3610a2dc1bf30c2ff2f8221b21444150ff2d66f12a00fcd405fd1",
+  "prediction.json": "90ce5d9e7cb16659d6b9fd9532b443e5a576b682cc98fa3534c74c375ed016e1",
+  "description.json": "760ce82560126b6ce54c51edadce3fe040c14e3046e0f371b5e86d89cfaa4e3c",
+  "recipe.json": "1dd445a21015a5a45a073a51afe98c857a95f9a42cb4dd6de537c3bf9a9fc56c",
+  "llm-look-description-v1.txt": "a6fcd916774baba4858db2487c5cf3ebbedb0e9f99877e80e046ec3fc674199e"
+ },
+ "capture_result_sha256": "598249e86c3c35a5833995c5da05ce4983a22f1ef679c5bea85597827d514669",
+ "review_measurements_v1": {
+  "prediction_luma": 1.0,
+  "screenshot_luma": 1.0,
+  "mean_rgb_prediction": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "mean_rgb_screenshot": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "blurred_luma_correlation": 1.0,
+  "time_average_frames_60_149": {
+   "luma": [
+    1.0,
+    1.0
+   ],
+   "saturation": [
+    0.0,
+    0.0
+   ],
+   "blurred_luma_correlation": 1.0
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.0
+  ]
+ },
+ "agreements": [
+  "prediction and capture are uniform white at every frame (luma 1.0)",
+  "v2 SDK description: 'the whole screen is one flat colour: plain white'"
+ ],
+ "misses": [
+  "v1 SDK description expected a soft rippling noise texture at luma about 0.67: the recipe gave the exact white steady state but called it a lower bound and pointed to display_estimate"
+ ],
+ "verdict": "understood: the static prediction is exactly the capture (solid white); after a general recipe fix the SDK description says so too"
+}
