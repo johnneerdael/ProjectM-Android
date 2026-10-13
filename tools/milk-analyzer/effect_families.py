@@ -409,6 +409,27 @@ def _has(value, op):
     return any(node.op == op for node, _ in _walk(value))
 
 
+def _ops_below(roots, ops):
+    """{id(node): wanted ops in the subtree} for each root's first argument and its descendants.
+
+    One memoised post-order pass over subtrees an earlier _walk already visited, so it adds no
+    traversal-budget charge and visits each node once however many roots share it."""
+    wanted = frozenset(ops); memo = {}
+    for root in roots:
+        stack = [(root.args[0], False)]
+        while stack:
+            node, done = stack.pop()
+            if id(node) in memo:continue
+            children = _children(node)
+            if done:
+                found = wanted & {node.op}
+                for child in children:found = found | memo.get(id(child), frozenset())
+                memo[id(node)] = frozenset(found)
+            else:
+                stack.append((node, True)); stack.extend((child, False) for child in children if id(child) not in memo)
+    return memo
+
+
 def _is_spatial_input(node):
     return (node.op=='input' and node.detail.get('name') in SPATIAL and not
             (node.detail.get('equation_phase') in {'per_frame_','per_frame_init_'} and
@@ -1321,12 +1342,24 @@ class _Analysis:
             elif _radius(phase):
                 self.add('radial_twist', prefix, sample,
                          'shared spatial/radius-dependent sine/cosine rotation reaches sample coordinates', path=path)
+        # One walk of the coordinate graph serves every check below (each walk spends the traversal budget).
+        coordinate_nodes = [n for n, _ in _walk(uv)]
         if any(n.op == 'abs' and _spatial(n.args[0]) and not _angle(n.args[0]) and
                not _radius(n.args[0]) and not _has(n.args[0], 'sample') and not _has(n.args[0], 'loop_result')
-               for n, _ in _walk(uv)):
+               for n in coordinate_nodes):
             self.add('cartesian_mirror_fold', prefix, sample,
                      'absolute reflection of spatial image sampling domain', path=path)
-        coordinate_samples = [n for n, _ in _walk(uv) if n.op == 'sample']
+        # Periodic wrap of spatial sample coordinates tiles the image; a second wrap of the reflected
+        # coordinate (frac(1-uv)) or a parity floor(frac(uv/2)*2) selects mirrored tiles.
+        wraps = [n for n in coordinate_nodes if n.op in ('frac', 'floor') and n.args]
+        below = _ops_below(wraps, ('sample', 'frac')) if wraps else {}
+        fracs = [n for n in wraps if n.op == 'frac' and _spatial(n.args[0]) and 'sample' not in below[id(n.args[0])]]
+        if fracs:
+            mirrored = len({_key(n.args[0]) for n in fracs}) >= 2 or any(
+                n.op == 'floor' and 'frac' in below[id(n.args[0])] for n in wraps)
+            self.add('repeat_tiling', prefix, sample, 'periodic wrap (frac) of spatial sample coordinates tiles the image',
+                     path=path, parameters={'mirrored': bool(mirrored)})
+        coordinate_samples = [n for n in coordinate_nodes if n.op == 'sample']
         if coordinate_samples:
             noise = all(n.detail.get('canonical_texture', '').startswith('noise') for n in coordinate_samples)
             self.add('noise_driven_advection' if noise else 'image_driven_advection', prefix, sample,

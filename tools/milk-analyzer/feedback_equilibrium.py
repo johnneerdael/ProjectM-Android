@@ -51,8 +51,9 @@ def stage_transfer(facts,stage,levels=LEVELS,times=TIMES,size=(48,27)):
     """Mean output RGB of an exported stage program for flat input colours (the stage's colour transfer).
 
     Each level c fills main and blur inputs with the constant colour c; the program is evaluated at a few
-    declared times with neutral audio (bands 1) and averaged over the screen. This evaluates the exported
-    closed-form shader at fixed inputs; no frames are stepped and no feedback is iterated.
+    declared times with neutral audio (bands 1) and averaged over the screen; 'rgb' is the mean over the
+    times and 'rgb_spread' the per-channel range between them. This evaluates the exported closed-form
+    shader at fixed inputs; no frames are stepped and no feedback is iterated.
     """
     import numpy as np
     import prediction_illustration as P
@@ -63,7 +64,7 @@ def stage_transfer(facts,stage,levels=LEVELS,times=TIMES,size=(48,27)):
     uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
     bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
     controls=_stage_controls(facts,bands,times)
-    table=[]
+    table,spread=[],[]
     for level in levels:
         image=np.full((height,width,3),level,np.float32)
         outputs=[]
@@ -75,7 +76,9 @@ def stage_transfer(facts,stage,levels=LEVELS,times=TIMES,size=(48,27)):
             out=np.where(np.isfinite(out),out,0.)
             outputs.append(np.clip(out,0,1).reshape(-1,3).mean(0))
         table.append([float(v) for v in np.mean(outputs,axis=0)])
-    return {'levels':list(levels),'rgb':table}
+        # How far each channel moves between the declared times (time-driven palette shifts).
+        spread.append([float(v) for v in np.ptp(outputs,axis=0)])
+    return {'levels':list(levels),'rgb':table,'rgb_spread':spread,'times':list(times)}
 
 
 STAGE_CONTROL_BUDGET_SECONDS=3.

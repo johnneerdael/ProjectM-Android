@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r60 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a dark, mostly grayscale feedback field with three 512-point custom waves (the point_cloud layers wave_0, wave_1 and wave_2) drawn as dotted, swirling scatters on top. A 40-sided white shape (shape_0) sits at the screen centre with a large nominal radius of about 0.67. Its fill is white at alpha 1, but the border alpha is 0. How much of it actually shows is unresolved, because the recipe records no visible coverage and no resolved shape palette. Independent particles are not established. The dots are wave sample positions, not tracked particles.
+
+Feedback and motion: the previous frame is rotated by a spatially varying rot, up to about 1.25 rad per step. Zoom is also position dependent, from 0.975 to 1.0. This should give a swirling, sinkhole-like twist. There is no net drift (dx and dy are 0). Trails fade fast: decay is 0.9475, so the half-life is about 0.43 s (13 steps) and faint residue stalls near 9/255. A 2% border band is blacked out every frame. The composite adds a 1.01x magnified copy at 50% opacity, mirrored left to right, so the picture is approximately two-fold mirror symmetric (an upper estimate; zoom and drawing make it inexact).
+
+Colour: the waves carry the colour. wave_0 is orange and red, wave_1 is blue, and wave_2 is pink and red. Each has about 14% grayscale and mean saturation near 0.56. The settled feedback canvas is grayscale. Reached colours and which wave dominates are unverified.
+
+Brightness: the settled canvas is a dim gray (about 0.2). The calibrated display estimate puts mean luminance near 0.20, with a wide interval of 0.01 to 0.44. It reads as a low-activity, Chill-leaning look (activity about 0.10, possibly Normal), with confidence low.
+
+Audio reaction: the three waves read treb_att, mid_att and bass_att in their per-frame state, so their shapes and colours should shift gently with treble, mids and bass. All three use smoothed attenuated bands, not raw beats. No audio brightness route and no flash site were found. Sharp pulses are not expected.
+
+Uncertain: wave visibility and coverage, the shape's final colour, true trail length and rotation speed on screen, and the exact palette. Mood assumptions are uncalibrated.

@@ -334,6 +334,11 @@ def _render(facts):
         if path.endswith('/legacy_response') and isinstance(value,dict):
             ranges=value.get('native_control_ranges') or {}
             composite['gamma_weight']=value.get('gamma_absolute_weight_sum_upper')
+            tint=value.get('tint_amount')
+            if type(tint) in (int,float) and tint>.001:
+                # Legacy composite corner hue tint (fShader): PresetState::hueRandomOffsets per preset load.
+                composite['legacy_hue_tint']={'amount':float(tint),
+                    'phase':'random per preset load: which hue shows where is not fixed by the source'}
             composite['echo']={'active':value.get('echo_selection')=='active or possible native echo',
                                'alpha':ranges.get('echo_alpha'),'zoom':ranges.get('echo_zoom'),'orientation':ranges.get('echo_orient')}
             composite.setdefault('evidence',[]).append(path)
@@ -363,6 +368,9 @@ def _render(facts):
     if flat is not None:
         # Displayed colour for each flat canvas level: the custom composite's palette (texture lookups included).
         composite['flat_transfer']={**flat,'source':'exported composite shader evaluated on flat canvas colours'}
+        spread=max((v for row in flat.get('rgb_spread') or [] for v in row),default=0.)
+        # A palette that moves by more than 0.05 between the sample times shifts colour over time.
+        composite['flat_transfer']['time_varying']=bool(spread>TIME_VARYING_SPREAD)
     palette=facts.get(BASE+'/nonlinear_texture_colour_bounds/stages/composite/scalar_palette')
     if isinstance(palette,dict):
         composite['scalar_palette']={'ramp':[{'scalar':row['scalar'],'rgb':row['clamped_rgb']} for row in palette.get('samples') or []],
@@ -382,6 +390,8 @@ def _render(facts):
     return {'feedback':feedback,'layers':layers,'composite':composite,'mechanisms':mechanisms,'audio_bindings':bindings,'random_redraws':redraws,
             'mirrors':mirror_operators(facts)}
 
+
+TIME_VARYING_SPREAD=.05
 
 def _program(source):
     sections={}
@@ -645,6 +655,7 @@ def main(argv=None):
 SHADER_EFFECTS={
     'angular_mirror_fold':('kaleidoscope',{'sectors':'sector_count'}),
     'cartesian_mirror_fold':('mirror',{}),
+    'repeat_tiling':('tiling',{'mirrored':'mirrored'}),
     'polar_radial_sampling':('polar_tunnel',{'radial_mapping':'radial_mapping'}),
     'radial_twist':('swirl',{}),
     'global_rotation':('rotation',{}),

@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r59 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a busy, organic, "sludge-like" field built from many small repeated polygons and point clouds over a mostly dark ground. Four shape layers draw large instance counts (92 twelve-sided shapes, two groups of 1024 ten-sided shapes, 311 tiny triangles of radius about 0.01), so the screen reads as dense scattered blobs, beads and speckle, not a few big objects. Two 512-point custom waves add dotted, curve-like strands, with a parametric radial curve (not proven to be an exact circle) suggesting radial or ring-like structure. These are configured counts, not proven independent particles, and how much of the screen they cover is unresolved.
+
+Feedback and motion: the warp is self-advecting and noise-displaced, so content should look smeared, flowing and fluid. A gentle zoom about the screen centre (up to about 1.8% per step, driven by bass, mid and treble) pushes the smear outward or inward. The recipe lists trail decay of about 0.1 per frame, which would make trails very short; the feedback block itself gives no decay, so trail length is uncertain. Shape centres move.
+
+Colour: one wave is faintly blue (low alpha). The other has dynamic RGB with broad hue possibilities (grayscale, red, blue, green, yellow, some pink and orange), at moderate saturation (about 0.3) and slightly cool-leaning. Shapes can be grayscale through red, orange, yellow or green. Ten q values are redrawn at random at about 3.1 s and then every 12.6 s, so colours and shapes depending on them change as a random draw at those moments. No single palette can be named. The composite maps flat canvas levels to black, so empty areas stay dark.
+
+Brightness: probably dim to moderate overall (calibrated mean luminance about 0.14, wide interval), with a thin white border.
+
+Audio reaction: bass and treble nudge one small shape layer's position, and bass, mid and treble all modulate zoom, which gives a continuous breathing and pulsing of the flow. Visible strength is unresolved.
+
+Uncertain: coverage, trail persistence, which hues dominate, flashing (a source brightness cycle of about 0.08 Hz is nominal only), and the real density of the shape clouds. Approximate activity estimate: Intense, possibly Normal.

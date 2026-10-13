@@ -42,3 +42,14 @@ def test_check_detects_tampered_core_and_changed_presets(tmp_path):
     core = tmp_path / 'pack' / 'core.jsonl.gz'
     core.write_bytes(gzip.compress(gzip.decompress(core.read_bytes()).replace(b'a.milk', b'z.milk')))
     assert K.check(tmp_path / 'pack') == ['core file hash mismatch']
+
+
+def test_manifest_follows_its_contract_and_check_reports_drift(tmp_path):
+    from contract_schema import errors, load_schema
+    K.build(_corpus(tmp_path), tmp_path / 'pack', workers=1)
+    manifest_path = tmp_path / 'pack' / 'manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    assert errors(manifest, load_schema('knowledge-pack-manifest.schema.json')) == []
+    manifest['uses_rendered_images'] = True
+    manifest_path.write_text(json.dumps(manifest))
+    assert any('manifest: $.uses_rendered_images' in p for p in K.check(tmp_path / 'pack'))

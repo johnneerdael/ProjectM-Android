@@ -1468,3 +1468,47 @@ repeated on correctly oriented frames. Probes and results:
   first prediction: yellow wave loops over a violet-banded dark field
   (screenshot luma 0.145 vs 0.145; frames 60–149 RGB equal to 0.002, frame
   difference 0.0634 vs 0.0634, correlation 0.988).
+- **Repeat tiling mechanism.** `frac` of spatial sample coordinates tiles the
+  image (`repeat_tiling`, intent `tiling`); a second wrap of the reflected
+  coordinate or a parity `floor` marks the tiles as mirrored. r43's composite
+  (`uv = (3+1.5·roam_sin)·uv`, parity-flipped `frac`) is now named as a
+  mirrored tiling.
+- **r57 (`BEST OF ADAMFX 2 Flexi + Geiss - Bipolar vs reaction diffusion …`)
+  v1.** Understood on the first prediction: an octagonal kaleidoscope tunnel
+  (frame difference 0.1413 vs 0.1414, time-averaged luma 0.394 vs 0.408).
+- **r58 (`suksma - ed geining hateops`) v1.** Understood: a violet nebula
+  with star-like glints whose luma tracks frame by frame (frame difference
+  0.0354 vs 0.0358). Extra green/cyan in the prediction comes from
+  `fShader = 1`, the legacy corner hue tint with per-load random offsets.
+
+### r59 (green machine 4, radial nature sludge) and r60 (sinkhole web remix)
+
+Both were understood on the first prediction. r59 is a dense, fast-changing
+picture (mean frame-to-frame change 0.24) built from thousands of repeated
+shape instances: the prediction has the same yellow halo, mirrored curls and
+central face, and its time average agrees in brightness and colour balance. A
+green double ring visible in the 5 s screenshot is an audio-timed element, not
+a missing layer. r60 is dark and nearly static; the time-averaged maps
+correlate at 0.965, with the prediction about 0.01 brighter.
+
+### r62 (Zylot, In death there is life, Wrong Portal mix)
+
+Understood on the first prediction: broken green rings spread from the
+centre, and the time averages match (luma 0.076 vs 0.075, mean colour within
+0.001). Pixel correlation is low because the rings' radial phase follows beat
+timing. The SDK text called the composite's colour logic unresolved. The
+composite multiplies each channel by `1+0.2*sin(time*k)` with three different
+rates, then folds the result (`ret -= abs(ret-1); ret += ret`). The flat
+transfer averaged that over three sample times and so hid the movement.
+
+General fix: `stage_transfer` now also returns `rgb_spread`, the per-channel
+range between its sample times, and the recipe marks a composite palette that
+moves by more than 0.05 as `time_varying`. For r62 the quarter level moves by
+0.93 (red), 0.27 (green) and 0.73 (blue). The same field applies to any
+composite or warp whose output depends on `time`, whatever the rates.
+
+The tiling detector added for r43 walked the sample-coordinate graph again
+for every wrap, and each walk is charged to the shared traversal budget; two
+large presets ran out of budget. The sample analysis now walks the
+coordinates once and computes the "contains a sample/frac" flags in one
+memoised pass (`_ops_below`) over nodes already visited.

@@ -10,8 +10,8 @@ Layout of <pack-dir>:
     core.jsonl.gz      one recipe per line (sorted by preset name); expression/program graphs removed
     full/<sha256>.json.gz   complete recipes with programs (only with --with-programs)
 
-Every core line validates against export-contract/preset-recipe.schema.json. `check` re-validates the
-lines, recomputes the file hashes and, with --presets, verifies every preset name and sha256 against
+Every core line validates against export-contract/preset-recipe.schema.json and manifest.json against
+export-contract/knowledge-pack-manifest.schema.json. `check` re-validates both, recomputes the file hashes and, with --presets, verifies every preset name and sha256 against
 the collection. Consumers read it with load_core(pack_dir).
 """
 import argparse
@@ -78,26 +78,22 @@ def build(corpus_dir, pack_dir, *, with_programs=False, workers=8):
     corpus_dir, pack_dir = Path(corpus_dir), Path(pack_dir)
     pack_dir.mkdir(parents=True, exist_ok=True)
     results = sorted((corpus_dir / 'results').glob('*.json'))
-    rows, failures = [], {}
+    failures, rows = {}, []
+    if with_programs:(pack_dir / 'full').mkdir(exist_ok=True)
+    # Stream: full recipes are written as they arrive; only the compact core lines stay in memory.
     with ProcessPoolExecutor(workers) as pool:
         for name, sha, recipe, problem in pool.map(_recipe_from_result, results, chunksize=4):
             if recipe is None:failures[name or '?'] = problem;continue
-            rows.append((name, sha, recipe))
+            line = json.dumps(core_recipe(recipe), separators=(',', ':'), sort_keys=True)
+            entry = {'name': name, 'sha256': sha, 'core_line_sha256': _sha256(line.encode())}
+            if with_programs:
+                full = json.dumps(recipe, separators=(',', ':'), sort_keys=True).encode()
+                (pack_dir / 'full' / (sha + '.json.gz')).write_bytes(gzip.compress(full, mtime=0))
+                entry['full_sha256'] = _sha256(full)
+            rows.append((name, line, entry))
     rows.sort(key=lambda row: row[0])
-    entries = []
-    core_lines = []
-    if with_programs:(pack_dir / 'full').mkdir(exist_ok=True)
-    for name, sha, recipe in rows:
-        line = json.dumps(core_recipe(recipe), separators=(',', ':'), sort_keys=True)
-        core_lines.append(line)
-        entry = {'name': name, 'sha256': sha, 'core_line_sha256': _sha256(line.encode())}
-        if with_programs:
-            full = json.dumps(recipe, separators=(',', ':'), sort_keys=True).encode()
-            target = pack_dir / 'full' / (sha + '.json.gz')
-            target.write_bytes(gzip.compress(full, mtime=0))
-            entry['full_sha256'] = _sha256(full)
-        entries.append(entry)
-    core_bytes = gzip.compress(('\n'.join(core_lines) + '\n').encode(), mtime=0)
+    entries = [entry for _, _, entry in rows]
+    core_bytes = gzip.compress(('\n'.join(line for _, line, _ in rows) + '\n').encode(), mtime=0)
     (pack_dir / 'core.jsonl.gz').write_bytes(core_bytes)
     run_manifest = corpus_dir / 'run-manifest.json'
     manifest = {
@@ -142,6 +138,8 @@ def check(pack_dir, presets_dir=None):
         recipes = load_core(pack_dir)
     except (OSError, ValueError, KeyError) as error:
         return [str(error)]
+    from contract_schema import errors, load_schema
+    problems += ['manifest: ' + p for p in errors(manifest, load_schema('knowledge-pack-manifest.schema.json'))]
     if manifest['schema']['sha256'] != _file_hash(HERE / manifest['schema']['file']):
         problems.append('schema changed since the pack was built')
     entries = {e['name']: e for e in manifest['presets']}

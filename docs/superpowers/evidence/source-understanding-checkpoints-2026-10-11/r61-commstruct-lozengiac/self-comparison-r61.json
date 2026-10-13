@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r61-v1",
+ "preset": "suksma - commstruct lozengiac.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "2e622a3b89eb83430965093a4b79759dc50c85d1198e482df53ccb15afc4fa2e",
+  "prediction.json": "4c87b33e28ed6837dc77818df982a7e15197964ab892def0acbe490835fdfe43",
+  "description.json": "c4e9d7dc4931f680f3eac47fa798351726d03439252cb3df66053b4ce94857f8",
+  "recipe.json": "794ba0df4a97f605e40d96136a5828474229bb3a3461a7d38156d155b3cadc16",
+  "llm-look-description-v1.txt": "b63adf68daddaa07a9e81cbbde173bf546068f50ac5dcfc092e75fd3ba76e8a1"
+ },
+ "capture_result_sha256": "65feeca517b122157869760aa3edf8d8948c4312bf6c126ff41cd1f0ee4ab10b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.299,
+  "screenshot_luma": 0.082,
+  "mean_rgb_prediction": [
+   0.19,
+   0.339,
+   0.226
+  ],
+  "mean_rgb_screenshot": [
+   0.032,
+   0.072,
+   0.329
+  ],
+  "blurred_luma_correlation": 0.301,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.224,
+    0.264
+   ],
+   "saturation": [
+    0.247,
+    0.314
+   ],
+   "blurred_luma_correlation": 0.877
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1111,
+   0.1162
+  ]
+ },
+ "agreements": [
+  "time average: map correlation 0.88, frame-to-frame change 0.111 vs 0.116, similar mean colour",
+  "frames 95 and 105: the same central sphere, rings, bright haze and tinted corners"
+ ],
+ "misses": [
+  "screenshot at 5 s: ours bright and multicoloured, capture dark blue; brightness swings strongly from frame to frame in both, so a single frame is a lottery",
+  "the capture streaks content outward along the diagonals (X shape); the warp averages 8 previous-frame samples at symmetric offsets of 0.01*sin(bass*90)*rad, a neighbourhood blur whose radius grows with radius and jumps pseudo-randomly with bass every frame. No mechanism recognised it and the SDK text did not mention a blur"
+ ],
+ "verdict": "time averages understood; frame look has a gap (neighbourhood blur not described)"
+}

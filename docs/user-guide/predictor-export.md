@@ -665,6 +665,31 @@ merely because the preset bytes match. Example hashes bind each actual input
 context. The fixture has duplicate decay settings: the effective first value is1,
 not the later .97. Preserve its original bytes and declared identities.
 
+## Consuming the predictor from an application
+
+Applications should read data, not the generated text. Two machine-readable
+outputs are stable:
+
+- **Preset recipe** (`preset-visual-recipe-v1`): one JSON document per preset
+  with render facts, intent effects, the calibrated display estimate and
+  facets. Its shape is fixed by
+  [`export-contract/preset-recipe.schema.json`](https://github.com/johnneerdael/ProjectM-TV/blob/feat/predictor-static-output-bounds/tools/milk-analyzer/export-contract/preset-recipe.schema.json).
+  Fields can be added within v1; a change of meaning or unit gets a new
+  policy string. Check `policy`, validate against the schema, and ignore
+  fields you do not know.
+- **Knowledge pack** (`preset-knowledge-pack-v1`): recipes for a whole preset
+  collection, built by `knowledge_pack.py build` from a corpus run.
+  `core.jsonl.gz` holds one recipe per preset without the embedded program
+  graphs; an optional `full/` directory keeps them. `manifest.json` pins the
+  schema hash, producer commit, corpus run, calibration model and facet
+  definition, and lists every preset name and sha256. `knowledge_pack.py
+  check <pack> --presets <dir>` re-validates every recipe and hash against the
+  collection; `load_core(pack)` reads it.
+
+Display estimates and facets are calibrated estimates, not measurements.
+Random per-load choices (hue shader phase, `rand_preset` switches, random
+redraws) are reported as such rather than as one fixed look.
+
 ## 8. Authority and compatibility
 
 This numerical section and its companion schema describe producers at the

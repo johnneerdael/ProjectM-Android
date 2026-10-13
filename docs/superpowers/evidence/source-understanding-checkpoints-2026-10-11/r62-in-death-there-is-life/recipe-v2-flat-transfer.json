@@ -1,0 +1,73 @@
+{
+ "checkpoint": "r62-v2 recipe (same frozen description, new recipe field)",
+ "render.composite.flat_transfer": {
+  "levels": [
+   0.0,
+   0.25,
+   0.5,
+   0.75,
+   1.0
+  ],
+  "rgb": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.6036749482154846,
+    0.8175113797187805,
+    0.4563920795917511
+   ],
+   [
+    1.0,
+    1.0,
+    1.0
+   ],
+   [
+    1.0,
+    1.0,
+    1.0
+   ],
+   [
+    1.0,
+    1.0,
+    1.0
+   ]
+  ],
+  "rgb_spread": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.9250577688217163,
+    0.26607799530029297,
+    0.7308268547058105
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  "times": [
+   2.0,
+   5.0,
+   8.0
+  ],
+  "source": "exported composite shader evaluated on flat canvas colours",
+  "time_varying": true
+ }
+}

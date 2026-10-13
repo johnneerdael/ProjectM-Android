@@ -88,7 +88,7 @@
     "composite": {
       "type": "object",
       "properties": {
-        "flat_transfer": {"type": "object", "required": ["levels", "rgb"], "properties": {"levels": {"type": "array", "items": {"type": "number"}}, "rgb": {"type": "array", "items": {"$ref": "#/$defs/number3"}}}},
+        "flat_transfer": {"type": "object", "required": ["levels", "rgb"], "properties": {"levels": {"type": "array", "items": {"type": "number"}}, "rgb": {"type": "array", "items": {"$ref": "#/$defs/number3"}}, "rgb_spread": {"type": "array", "items": {"$ref": "#/$defs/number3"}}, "times": {"type": "array", "items": {"type": "number"}}, "time_varying": {"type": "boolean"}}},
         "hue_shader": {
           "type": "object",
           "required": ["channels", "cycle_periods_seconds_rgb", "range_rgb", "phase"],

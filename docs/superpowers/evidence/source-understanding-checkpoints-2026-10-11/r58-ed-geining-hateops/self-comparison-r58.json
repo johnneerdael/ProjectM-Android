@@ -1,0 +1,57 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r58-v1",
+ "preset": "suksma - ed geining hateops.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "6ec0f544b67824eeb80a3f556a4a2df07316179432ae4fe852a009f5b05eb6fe",
+  "prediction.json": "9ff078009c4cfaa30cb75334a37aeee657eeab1c9216f73c8e6271a97b5e0b5b",
+  "description.json": "b2232b5bac58e7ca56d1091854b55ad1600f0187a261dbf55cd043f36ea6f3a5",
+  "recipe.json": "d62d1ec692ecf940a83a2697ddf4e55c36d2dfca1671dfc99c5e48772629034c",
+  "llm-look-description-v1.txt": "d708716cc77fa5fdb4dae2848d0571f1e775e26f53856d802bbd1df1bad3c86b"
+ },
+ "capture_result_sha256": "7aeec9e923354cd5b5abc9112c47a07e80ce71a857ebf83f7b8760f42ec22301",
+ "review_measurements_v1": {
+  "prediction_luma": 0.247,
+  "screenshot_luma": 0.259,
+  "blurred_luma_correlation": 0.399,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.216,
+    0.219
+   ],
+   "rgb": [
+    [
+     0.201,
+     0.209,
+     0.338
+    ],
+    [
+     0.227,
+     0.201,
+     0.364
+    ]
+   ],
+   "saturation": [
+    0.439,
+    0.447
+   ],
+   "blurred_luma_correlation": 0.764
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0354,
+   0.0358
+  ]
+ },
+ "agreements": [
+  "prediction: the same violet nebula with star-like glints; luma tracks frame by frame; motion equal"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "extra green/cyan regions in the prediction",
+   "cause": "fShader = 1: the legacy composite's corner hue tint uses per-load random offsets (illustrated with zero offsets)"
+  }
+ ],
+ "verdict": "understood; hue placement random per load"
+}

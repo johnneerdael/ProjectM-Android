@@ -381,6 +381,10 @@ frame-state and positions-only records, with `colour_resolved` and
 evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the
 displayed palette, including texture lookups.
 
+`render.composite.legacy_hue_tint` (presets without a custom composite and
+`fShader` > 0) gives the tint `amount` and the same random-per-load `phase` as
+the hue shader.
+
 `render.composite.per_load_random` and `render.feedback.warp_per_load_random`
 report a shader's use of `rand_preset` (four `floatRand()` values drawn when
 `MilkdropShader` is built, once per preset load): `switches` (component,

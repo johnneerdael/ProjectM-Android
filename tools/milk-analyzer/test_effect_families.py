@@ -609,3 +609,13 @@ def test_unsharp_mask_counts_and_softening_or_plain_blur_does_not():
     composite = analyze(shader('shader_body {ret=GetPixel(uv)-(GetBlur3(uv)-GetBlur1(uv));}', 'comp'))
     assert not rows(soften, 'blur_difference_feedback') and not rows(plain, 'blur_difference_feedback')
     assert not rows(composite, 'blur_difference_feedback')  # no feedback: the composite is display only
+
+
+def test_frac_of_sample_coordinates_is_repeat_tiling_and_parity_flip_mirrors_it():
+    mirrored = analyze(shader('shader_body {uv=3*uv; float2 m=floor(frac(uv*0.5)*2); uv=frac(uv)*(1-m)+m*frac(1-uv);'
+                              'ret=GetPixel(uv);}', 'comp'))
+    row, = rows(mirrored, 'repeat_tiling')
+    assert row['parameters']['mirrored'] is True and row['stage'] == 'composite'
+    plain = analyze(shader('shader_body {ret=GetPixel(frac(uv*4));}', 'comp'))
+    assert rows(plain, 'repeat_tiling')[0]['parameters']['mirrored'] is False
+    assert not rows(analyze(shader('shader_body {ret=GetPixel(uv*0.5+0.25);}', 'comp')), 'repeat_tiling')

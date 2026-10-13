@@ -176,6 +176,15 @@ def test_custom_composite_flat_transfer_is_the_displayed_palette(monkeypatch):
     composite = R._render({})['composite']
     assert composite['flat_transfer']['rgb'] == table['rgb']
     assert composite['flat_transfer']['source'] == 'exported composite shader evaluated on flat canvas colours'
+    assert composite['flat_transfer']['time_varying'] is False
+
+
+def test_flat_transfer_that_moves_between_times_is_time_varying(monkeypatch):
+    import feedback_equilibrium
+    import preset_recipe as R
+    table = {'levels': [0., 1.], 'rgb': [[0., 0., 0.], [.6, .8, .5]], 'rgb_spread': [[0., 0., 0.], [.2, .03, .25]], 'times': [2., 5., 8.]}
+    monkeypatch.setattr(feedback_equilibrium, 'stage_transfer', lambda facts, stage, **_: table if stage == 'composite' else None)
+    assert R._render({})['composite']['flat_transfer']['time_varying'] is True
 
 
 def test_recipe_carries_the_steady_state_hue_from_the_equilibrium(monkeypatch):
@@ -325,3 +334,10 @@ def test_random_redraw_events_of_the_random_palette_template():
     assert abs(redraw['event_times_s'][0] - math.pi) < .1
     assert abs(redraw['period_s'] - 4 * math.pi) < .1
     assert any(e['effect'] == 'random_redraw' for e in recipe['intent']['effects'])
+
+
+def test_legacy_fshader_tint_is_reported_with_random_phase():
+    recipe = build_recipe(summary(('feedback', BASE + '/legacy_response',
+                                   {'tint_amount': 1.0, 'native_control_ranges': {}, 'gamma_absolute_weight_sum_upper': 1.0})))
+    tint = recipe['render']['composite']['legacy_hue_tint']
+    assert tint['amount'] == 1.0 and 'random' in tint['phase']

@@ -1,0 +1,15 @@
+LLM look description from the SDK recipe, source parts only (before capture, r58 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a mostly dark, cool-grey feedback field. Three things are drawn into it each frame: a stereo X-Y waveform trace (built-in wave mode 3, centred at 0.5,0.5), one five-sided polygon whose centre wanders (its x, y, radius and rotation come from random-driven per-frame equations), and a faint echo copy of the whole image.
+
+The wave is authored as pure black (RGB 0,0,0) and additive. Below the 0.01 max-normalise threshold it is drawn as authored, so the trace itself should be nearly invisible. Its alpha is replaced by a treble-squared value, so it matters only on treble. The polygon is the more likely visible shape: its centre alpha is 1, and its edge colour is a dim blue (b2 0.2, alpha 0). Its centre RGB is not resolved.
+
+Feedback and motion: the image expands from the screen centre by about 0.9% per frame, with a slow rotation of up to about -0.004 rad per frame, which is treble-modulated. Decay is 1.0, so nothing fades by the decay control and faint residue builds up. Whatever the polygon and wave deposit gets dragged outward and spun into streaks or a slow tunnel-like flow, and it can pile up. The composite adds an echo of the frame magnified 2.2x at 60% opacity. Gamma brightens by up to 1.7x.
+
+Colour: mainly grayscale and cold (warm/cool about -0.87, saturation about 0.25), with the blue polygon edge as the one known tint. The steady-state hue family is grayscale. Palette dominance is unresolved.
+
+Brightness: the calibrated estimate is mid-dark to medium. Mean luminance is about 0.34 (interval 0.15-0.57), frame difference is low, and the estimated flow is about 0.11 screen widths per second. Activity is Chill to Normal, and I expect no strobing.
+
+Audio: treble drives rotation and wave alpha. Bass, mid and treble push the warp translation in x and y, through clamped or thresholded responses, so the flow drifts and shifts with the music. The wave shape follows the left and right waveform.
+
+Uncertain: how visible the black additive wave really is, the polygon's size, position and fill colour, how much the 1.0 decay lets residue accumulate (it may wash toward bright or stay faint), how strong the audio response is on screen, and the exact brightness.

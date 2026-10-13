@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r61 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a small, compact audio-driven ring (a built-in circular waveform, mode 0, centred at 0.5,0.5) sits over a tight custom 512-point line wave confined to roughly x and y 0.4-0.6, so the drawn content is a small central cluster on a mostly dark field. The custom wave's points are mostly blue (about 47%) and yellow (about 46%), with a little purple and green, fully opaque and fairly saturated.
+
+Feedback and motion: the previous frame is pulled back through a radially varying zoom (about 0.77 to 1.11, with a switch near radius 0.2), so content is stretched or compressed with distance from the centre like a soft tunnel or expansion. A periodic ripple or wobble displacement is also present. There is no rotation and no drift. Trails are very short: the warp keeps only about 45% of brightness per frame (a half-life of about one frame, with faint content settling near 25%). Expect the rings to smear only briefly rather than build deep layered echoes. I cannot tell how much of the screen the ripple fills.
+
+Colour: the composite multiplies by cycling corner shades (periods roughly 15, 20 and 16 seconds, range 0.67-1.0 per channel). Where each hue lands is random per preset load, so I cannot name one fixed tint. The settled background is a faint purple-leaning dark tone, so the base reads dark violet with blue and yellow wave colours on top. The overall palette is unresolved.
+
+Brightness: dark base with bright wave strokes. The calibrated display estimate puts mean luminance around 0.28 (wide range 0.10-0.52). It expects frequent brightness changes, with saturation around 0.75. It also predicts high activity, probably Intense (possibly Normal).
+
+Audio reaction: bass and attenuated bass and treble drive the red, green and blue levels in the warp and composite shaders. The effect is thresholded or clamped, so colour and brightness pump with the music. The ring shape follows the right-channel waveform. A nominal brightness cycle of about 14 Hz exists in the warp shader, which may read as flicker. Whether it really flashes is unverified.
+
+Uncertain: actual coverage, how strong the audio response is, which hues dominate, whether the 14 Hz cycle is visible, and how the ripple looks.

@@ -95,6 +95,10 @@ required. Use a native file-read tool to inspect JSON and the summary.
    `render.composite.flat_transfer` gives the displayed colour for each flat
    canvas level (texture lookups included). That is the palette the whole
    canvas is shown through, so do not infer coverage from drawn elements alone.
+   `rgb` is the mean over a few sample `times`; `rgb_spread` is how far each
+   channel moves between them. With `time_varying` true the palette itself
+   shifts over time (for example a slow per-channel tint), so describe the
+   colours as changing rather than fixed.
    Layers with a `point_cloud` carry the custom wave's per-point programs.
    `colour_resolved: false` means only the positions are known and the colour
    shown is the wave's authored base colour. `frame_inputs` name the main
@@ -157,6 +161,9 @@ required. Use a native file-read tool to inspect JSON and the summary.
    patterned rather than a dark background with a few drawn elements, and read
    its look through the composite palette. Its flat-content gain is
    `flat_gain_by_lane`; flat-content persistence alone understates coverage.
+   A `tiling` effect (mechanism `repeat_tiling`) means the image repeats in
+   tiles across the screen, mirrored when `mirrored` is true: describe it as a
+   tiled or kaleidoscopic pattern.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

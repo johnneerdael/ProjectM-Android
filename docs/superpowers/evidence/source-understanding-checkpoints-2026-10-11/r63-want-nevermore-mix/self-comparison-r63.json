@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r63-v1",
+ "preset": "rce-ordinary - want (nevermore mix) nz+ tucks medicated pads.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b10e14256755cdd7127628dd2a13e1fa677781b152cbb1a36980e8ca2a46af36",
+  "prediction.json": "16fc06e6f527a832285be85f90a64a436d9da5e58c1e309a6a4e4956c6ce90ec",
+  "description.json": "8e25f86550c6387467a8358f3077787ccaad3b16f436242f666b3437af22757f",
+  "recipe.json": "561995087c407637a7e86cecd6ab35d213421fecc54419c2f63781ac81e4c589",
+  "llm-look-description-v1.txt": "398cdfe5d2d63160162798f4c89a779f5af579973ece8d6f09c1ec167555c65b"
+ },
+ "capture_result_sha256": "e8dd5ffdea1f66665082a241c292ad94448c7e56673ecd4c76234a1871f7a34f",
+ "review_measurements_v1": {
+  "prediction_luma": 0.131,
+  "screenshot_luma": 0.167,
+  "mean_rgb_prediction": [
+   0.563,
+   0.013,
+   0.037
+  ],
+  "mean_rgb_screenshot": [
+   0.634,
+   0.034,
+   0.109
+  ],
+  "blurred_luma_correlation": 0.29,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.395,
+    0.455
+   ],
+   "saturation": [
+    0.625,
+    0.585
+   ],
+   "blurred_luma_correlation": 0.463
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1052,
+   0.0991
+  ]
+ },
+ "agreements": [
+  "prediction: the same red and pink swirling feedback with dark folds",
+  "frame-to-frame change 0.105 vs 0.099; brightness follows the same rise and fall over the clip",
+  "SDK text: swirling tunnel-like feedback field with a thin waveform at the top"
+ ],
+ "misses": [
+  "prediction somewhat darker on average (0.395 vs 0.455)"
+ ],
+ "verdict": "understood on the first prediction"
+}

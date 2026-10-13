@@ -117,3 +117,18 @@ def test_stage_controls_stop_stepping_at_their_budget(monkeypatch):
     controls = E._stage_controls(facts, {'bass': 1.}, (2., 5., 8.), budget_seconds=.1)
     assert time.perf_counter() - started < 1. and len(calls) < 20
     assert set(controls) == {2., 5., 8.} and controls[8.]['time'] == 8.
+
+
+def test_stage_transfer_reports_how_far_the_colour_moves_between_times(monkeypatch):
+    # A composite such as ret *= 1+.2*sin(time*k) shifts its palette over time: the mean alone hides that.
+    import numpy as np
+    import prediction_illustration as P
+    def fake(program, image, uv, time, fps, bands, controls=None, stage='warp', **_):
+        out = np.empty(image.shape, np.float32); out[..., 0] = time / 10; out[..., 1] = .5; out[..., 2] = image[..., 2]
+        return out
+    monkeypatch.setattr(P, '_evaluate_stage', fake)
+    facts = {'/analysis/visual_description/stage_programs': {'stages': {'composite': {'status': 'exported', 'program': {'root': 0, 'nodes': []}}}},
+             '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    table = E.stage_transfer(facts, 'composite', levels=(0., 1.), times=(2., 5., 8.))
+    assert [round(v, 4) for v in table['rgb_spread'][1]] == [.6, 0., 0.]
+    assert abs(table['rgb'][1][0] - .5) < 1e-4

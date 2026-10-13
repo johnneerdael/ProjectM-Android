@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r62-v1",
+ "preset": "Zylot - In death there is life (Wrong Portal mix).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9a29364426bf589dd8a33acaa4c9461af1330a0cde671a219f3693c6a21fbee5",
+  "prediction.json": "37daf4c4b5f77624b73028b0840ce36dda199867e47ec949f8643f07c6d3f86a",
+  "description.json": "ecb27d823a2780702a52af9e2071a1f6753573bc8881cf6ca79eef47871c2ed3",
+  "recipe.json": "77c6a201bb5d5307bc090ff60af29e31c67df52a53bfcbd76dce56a31145ef5a",
+  "llm-look-description-v1.txt": "1e6268a552dede00a20ec3c2a4a32d4e47df7ede363a967aed140878407d01bb"
+ },
+ "capture_result_sha256": "05ababccb8ae594827c547da01af252f0c05ef75e989e8944b227035c0a433e0",
+ "review_measurements_v1": {
+  "prediction_luma": 0.084,
+  "screenshot_luma": 0.088,
+  "mean_rgb_prediction": [
+   0.043,
+   0.099,
+   0.055
+  ],
+  "mean_rgb_screenshot": [
+   0.039,
+   0.106,
+   0.054
+  ],
+  "blurred_luma_correlation": 0.025,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.076,
+    0.075
+   ],
+   "saturation": [
+    0.466,
+    0.469
+   ],
+   "blurred_luma_correlation": 0.447
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0222,
+   0.023
+  ]
+ },
+ "agreements": [
+  "prediction: the same broken green concentric rings spreading from the centre on black",
+  "time average: luma 0.076 vs 0.075, mean RGB equal to 0.001, frame-to-frame change 0.0222 vs 0.0230",
+  "SDK text: dot-mode waveform and a centred shape seen through feedback"
+ ],
+ "misses": [
+  "pixel correlation is low (screenshot 0.03, time average 0.45) because the rings' radial phase depends on when beats arrived",
+  "SDK text called the composite colour logic unresolved; the recipe now reports the composite palette's spread between sample times (time_varying, rgb_spread), which marks this composite's slow per-channel sine tint"
+ ],
+ "verdict": "understood on the first prediction (ring phase follows audio timing)"
+}

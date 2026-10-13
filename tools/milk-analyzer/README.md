@@ -1700,6 +1700,13 @@ website includes the same reference at `docs/user-guide/predictor-export.md`.
 Semantic element/effect descriptors and generation vocabulary are documented as
 follow-up work; no renderer or new producer schema is introduced by these docs.
 
+Applications consume the preset recipe (schema
+`export-contract/preset-recipe.schema.json`, validator `contract_schema.py`) or
+a versioned knowledge pack of recipes for a whole collection
+(`knowledge_pack.py build <corpus-run> <pack> [--with-programs]`, then
+`knowledge_pack.py check <pack> --presets core/src/main/assets/presets`). See
+EXPORT_CONTRACT.md, "Recipe schema".
+
 ## Automated 47-field corpus export
 
 Run `./tools/run-preset-corpus.command` from the prepared checkout for60frames at15fps,854×480, with resumable per-name JSON and paired ZIPs every100completed attempts in Downloads. No AI or native frame capture is involved. See [CORPUS_EXPORT.md](CORPUS_EXPORT.md) for inputs, failures, prerequisites and cadence limits.

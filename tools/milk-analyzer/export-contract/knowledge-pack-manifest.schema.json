@@ -1,0 +1,38 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "knowledge-pack-manifest.schema.json",
+ "title": "Preset knowledge pack manifest (preset-knowledge-pack-v1)",
+ "description": "manifest.json of a knowledge_pack.py build. Fields may be added within v1; a change of meaning gets a new policy string. Consumers check policy and the core hash, then read core.jsonl.gz (one preset-visual-recipe-v1 document per line).",
+ "type": "object",
+ "required": ["policy", "recipe_policy", "schema", "producer", "corpus_run", "counts", "core", "full", "presets", "failures", "uses_rendered_images"],
+ "properties": {
+  "policy": {"const": "preset-knowledge-pack-v1"},
+  "recipe_policy": {"const": "preset-visual-recipe-v1"},
+  "schema": {"type": "object", "required": ["file", "sha256"],
+   "properties": {"file": {"type": "string"}, "sha256": {"$ref": "#/$defs/sha256_or_null"}}},
+  "producer": {"type": "object", "required": ["commit", "analyzer_dirty"],
+   "properties": {"commit": {"anyOf": [{"type": "null"}, {"type": "string"}]}, "analyzer_dirty": {"type": ["boolean", "null"]}}},
+  "corpus_run": {"type": "object", "required": ["directory", "run_manifest_sha256"],
+   "properties": {"directory": {"type": "string"}, "run_manifest_sha256": {"$ref": "#/$defs/sha256_or_null"}}},
+  "calibration_model_sha256": {"$ref": "#/$defs/sha256_or_null"},
+  "activity_reference_sha256": {"$ref": "#/$defs/sha256_or_null"},
+  "facet_definition_sha256": {"$ref": "#/$defs/sha256_or_null"},
+  "counts": {"type": "object", "required": ["presets", "failed"],
+   "properties": {"presets": {"type": "integer", "minimum": 0}, "failed": {"type": "integer", "minimum": 0}}},
+  "core": {"type": "object", "required": ["file", "sha256", "graphs_removed"],
+   "properties": {"file": {"const": "core.jsonl.gz"}, "sha256": {"$ref": "#/$defs/sha256"},
+    "graphs_removed": {"type": "array", "items": {"type": "string"}}}},
+  "full": {"type": "object", "required": ["directory", "present"],
+   "properties": {"directory": {"const": "full"}, "present": {"type": "boolean"}}},
+  "presets": {"type": "array", "items": {"type": "object", "required": ["name", "sha256", "core_line_sha256"],
+   "properties": {"name": {"type": "string"}, "sha256": {"$ref": "#/$defs/sha256"},
+    "core_line_sha256": {"$ref": "#/$defs/sha256"}, "full_sha256": {"$ref": "#/$defs/sha256"}}}},
+  "failures": {"type": "object"},
+  "uses_rendered_images": {"const": false},
+  "note": {"type": "string"}
+ },
+ "$defs": {
+  "sha256": {"type": "string"},
+  "sha256_or_null": {"anyOf": [{"type": "null"}, {"type": "string"}]}
+ }
+}

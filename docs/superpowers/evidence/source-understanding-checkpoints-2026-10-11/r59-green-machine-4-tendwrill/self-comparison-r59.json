@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r59-v1",
+ "preset": "amandio c - the green machine 4 - radial nature sludge ngastraiq tendwrill i don't want to be alone.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "da65595871c531e5a327b7004160912371c32560c7ae8785c400194030f55cc3",
+  "prediction.json": "4cd919d94fdd024895c81cdda1aa21c36159f4611af1aacf552ef66e836d287d",
+  "description.json": "55b2e7c99c9081c0b6b2de743f8cd4d09d5a071d642ec8715f73967fb5329470",
+  "recipe.json": "2a3376520120ee2d8c0f29108f09df25e9363bdfa90aa941169e7c904c1b1592",
+  "llm-look-description-v1.txt": "e53bb34f083f4ef4f53eefe7c1467a451818e1101c696aef783bf860704362a5"
+ },
+ "capture_result_sha256": "d9751aaf828abfe8337eecb47e7ed705fd300fbd0e62c1d02e2b91ea3112d48a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.369,
+  "screenshot_luma": 0.366,
+  "mean_rgb_prediction": [
+   0.414,
+   0.393,
+   0.005
+  ],
+  "mean_rgb_screenshot": [
+   0.377,
+   0.396,
+   0.041
+  ],
+  "blurred_luma_correlation": 0.517,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.237,
+    0.229
+   ],
+   "saturation": [
+    0.885,
+    0.781
+   ],
+   "blurred_luma_correlation": 0.773
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2365,
+   0.2471
+  ]
+ },
+ "agreements": [
+  "prediction: the same yellow halo, mirrored black curls on both sides and the central face with eyes",
+  "time average: luma 0.237 vs 0.229, red/green/blue balance and the high frame-to-frame change (0.237 vs 0.247) agree",
+  "SDK text: dense scattered blobs and speckle from many repeated shapes over a dark ground"
+ ],
+ "misses": [
+  "screenshot at 5 s shows a green and cyan double ring under the face that the prediction does not show at that moment; the time average agrees, so this is timing of an audio-driven element, not a missing layer"
+ ],
+ "verdict": "understood on the first prediction"
+}

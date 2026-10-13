@@ -40,6 +40,12 @@
       "validator": "contract_schema.recipe_errors",
       "tests": "test_contract_schema.py",
       "added": "2026-10-13"
+    },
+    "knowledge-pack-manifest.schema.json": {
+      "contract": "preset-knowledge-pack-v1",
+      "validator": "knowledge_pack.check",
+      "tests": "test_knowledge_pack.py",
+      "added": "2026-10-13"
     }
   }
 }

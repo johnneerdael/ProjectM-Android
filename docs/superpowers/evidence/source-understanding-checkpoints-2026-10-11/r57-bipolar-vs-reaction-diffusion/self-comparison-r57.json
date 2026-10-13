@@ -1,0 +1,50 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r57-v1",
+ "preset": "BEST OF ADAMFX 2 Flexi + Geiss - Bipolar vs reaction diffusion + Deamon Lord + EOS 29.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0b06025b34373b37910539c38dd356869a55500a8bbe007a9eb5685dd0b2473e",
+  "prediction.json": "8d78093fde13564e8fac2bdf82ccea490762acad05e31a9822154702d0ab5cb9",
+  "description.json": "8cc9c5373486d1d91f6f19fd2a7542337f0b49af0065cd3a88061aac49f40081",
+  "recipe.json": "51950ca126f56b30e5b8c49a5f155d8f7dda8153e99b52f028972a0627ab0402",
+  "llm-look-description-v1.txt": "4be8a5fbe4543b0a8e83fc96d56e804a6d1c9ce480002fdfa4952d4e57d2fda8"
+ },
+ "capture_result_sha256": "87d4dd199a9fe8e3d20333e9e0b9e00afffd0fa96007179ca2f70916f65df67c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.45,
+  "screenshot_luma": 0.443,
+  "mean_rgb_prediction": [
+   0.348,
+   0.465,
+   0.6
+  ],
+  "mean_rgb_screenshot": [
+   0.345,
+   0.454,
+   0.626
+  ],
+  "blurred_luma_correlation": 0.65,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.394,
+    0.408
+   ],
+   "saturation": [
+    0.324,
+    0.344
+   ],
+   "blurred_luma_correlation": 0.668
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1413,
+   0.1414
+  ]
+ },
+ "agreements": [
+  "prediction: the same octagonal kaleidoscope tunnel with black-and-white blotches",
+  "SDK text: dense feedback field, folded composite ramp (0 and 1 white, 0.5 black)"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}

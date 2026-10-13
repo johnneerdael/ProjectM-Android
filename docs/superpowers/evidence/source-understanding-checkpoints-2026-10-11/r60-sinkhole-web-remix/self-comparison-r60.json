@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r60-v1",
+ "preset": "Phat_shifter - sinkhole web_remix.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a529ab062f2a12ed64338d3f8765e6404d06c554cf3ad61b73b9b3bb98cd144d",
+  "prediction.json": "bbbe31361713e05f8e6741d0865f75ae23909f0431f7a9a785dbd51653be3ff4",
+  "description.json": "5fa768f511e74c6b7966f608c473ff194d3e6039703165ee4b0dca406cbaa752",
+  "recipe.json": "f98b2f7526fe62ca8d5177116d34102a060485ad4c8ad32624a97157b7f925ef",
+  "llm-look-description-v1.txt": "35bb8002e77155a53fc660d32832b2e604bcff80fbd934b10f964d42e2cf35a9"
+ },
+ "capture_result_sha256": "efa311dadec5d0aca65b6999215f9ef65fff6d224e15be7698e9ac6de188b898",
+ "review_measurements_v1": {
+  "prediction_luma": 0.054,
+  "screenshot_luma": 0.045,
+  "mean_rgb_prediction": [
+   0.061,
+   0.051,
+   0.055
+  ],
+  "mean_rgb_screenshot": [
+   0.053,
+   0.042,
+   0.045
+  ],
+  "blurred_luma_correlation": 0.895,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.047,
+    0.035
+   ],
+   "saturation": [
+    0.216,
+    0.236
+   ],
+   "blurred_luma_correlation": 0.965
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0061,
+   0.0051
+  ]
+ },
+ "agreements": [
+  "prediction: the same pink cone, blue and brown radial burst and thin arcs on a black ground",
+  "time average correlation 0.965, frame-to-frame change 0.0061 vs 0.0051",
+  "SDK text: dark mostly grayscale feedback field with dotted swirling waves and a centred shape"
+ ],
+ "misses": [
+  "prediction slightly brighter on average (0.047 vs 0.035) and a little sharper than the capture"
+ ],
+ "verdict": "understood on the first prediction"
+}
