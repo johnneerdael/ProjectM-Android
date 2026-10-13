@@ -97,8 +97,10 @@ def test_work_budget_keeps_partial_results_and_no_complete_group_claim():
     from shader_fields import Field
     from source_instances import shape_instance_motion
     controls={name:Field('constant',detail={'value':value}) for name,value in [('y',.5),('rad',.1),('ang',0),('sides',4)]}
-    controls['x']=Field('input',detail={'name':'instance'})
-    m=shape_instance_motion(controls,3,max_node_visits=7)
+    # x = instance + instance + instance: instance-dependent work is redone per instance and counted.
+    index=Field('input',detail={'name':'instance'})
+    controls['x']=Field('add',(Field('add',(index,index)),index))
+    m=shape_instance_motion(controls,3,max_node_visits=9)
     assert m['processed_instances']==1
     assert m['expansion_complete'] is False
     assert m['maximum_vertex_speed_ndc_per_second_upper_bound'] is None
@@ -115,3 +117,20 @@ def test_instance_division_zero_guard_does_not_invent_infinite_radius():
     m=group('x=.2+.1*instance;y=.5;rad=.1/instance;ang=time;sides=4;')
     assert m['instances'][0]['maximum_vertex_speed_ndc_per_second_upper_bound']==0
     assert m['instances'][1]['maximum_vertex_speed_ndc_per_second_upper_bound']==pytest.approx(.1)
+
+
+def test_instance_independent_subgraphs_are_specialised_once_for_all_instances():
+    # A large time-only subtree shared by 1000 instances must not exhaust the visit budget: it specialises
+    # identically for every instance (speed budget 1 s per preset), only instance terms are redone.
+    from shader_fields import Field
+    from source_instances import shape_instance_motion
+    time=Field('input',detail={'name':'time'})
+    terms=[Field('multiply',(time,Field('constant',detail={'value':.001*k}))) for k in range(256)]
+    while len(terms)>1:terms=[Field('add',(terms[i],terms[i+1])) for i in range(0,len(terms),2)]
+    shared=terms[0]
+    index=Field('input',detail={'name':'instance'})
+    controls={name:Field('constant',detail={'value':value}) for name,value in [('y',.5),('rad',.01),('ang',0),('sides',4)]}
+    controls['x']=Field('add',(Field('multiply',(Field('sin',(shared,)),Field('constant',detail={'value':.01}))),
+                               Field('multiply',(index,Field('constant',detail={'value':.0009})))))
+    m=shape_instance_motion(controls,1000)
+    assert m['expansion_complete'] is True and m['processed_instances']==1000

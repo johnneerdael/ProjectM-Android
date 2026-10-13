@@ -26,11 +26,22 @@ def shape_instance_motion(controls,count,*,max_instances=MAX_INSTANCES,max_node_
     if type(count) is not int or count<1 or count>max_instances:
         result['unknown_reasons']=['configured instance count is outside the declared source expansion budget'];return result
     visits=0
+    # Subgraphs that never read `instance` specialise identically for every instance: they are computed
+    # once and shared (exact), so only instance-dependent work is redone and counted per instance.
+    dependent={}
+    def reads_instance(node,depth=0):
+        key=id(node)
+        if key not in dependent:
+            if depth>64:return True
+            dependent[key]=(node.op=='input' and node.detail.get('name')=='instance') or any(reads_instance(arg,depth+1) for arg in node.args)
+        return dependent[key]
+    shared={}
     for index in range(count):
         memo={};token=_CACHE.set({})
         def specialize(node,depth=0):
             nonlocal visits
             if id(node) in memo:return memo[id(node)]
+            if id(node) in shared:return shared[id(node)]
             if depth>64 or visits>=max_node_visits:raise ValueError('source instance specialization node/depth budget exceeded')
             visits+=1
             if node.op=='input' and node.dtype=='float' and node.detail.get('name')=='instance':
@@ -46,7 +57,9 @@ def shape_instance_motion(controls,count,*,max_instances=MAX_INSTANCES,max_node_
                     argument=_phase_literal(value.args[0])
                     if argument is not None:literal=(math.sin if value.op=='sin' else math.cos)(argument)
                 if literal is not None:value=Field('constant',dtype=value.dtype,detail={'value':literal})
-            memo[id(node)]=value;return value
+            memo[id(node)]=value
+            if not reads_instance(node):shared[id(node)]=value
+            return value
         try:
             specialized={name:specialize(controls[name]) for name in ('x','y','rad','ang','sides')}
             trajectory=planar_trajectory([specialized['x'],specialized['y']])
