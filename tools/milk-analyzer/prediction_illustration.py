@@ -1248,6 +1248,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
     blur_image is the canvas the engine's blur textures were made from (default: image).
     """
     from grid_math import evaluate_grid
+    from field_math import GLES_IEEE_ILLUSTRATION
     height,width=image.shape[:2]
     blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,controls)
     inputs={'_uv':uv.astype(np.float32),'_uv_orig':uv[...,2:].astype(np.float32),'_rad_ang':_rad_ang(width,height,stage),
@@ -1269,7 +1270,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
         values=_texture_lookup(source,coordinates,wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     fitted=_fit_inputs(program,inputs,controls)
-    value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample),np.float32)
+    value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32)
     value=value.reshape(height,width,-1)
     return value[...,:3]
 
@@ -1314,6 +1315,7 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
     rand_frame is a seeded per-frame stand-in for the engine's random vector.
     """
     from grid_math import evaluate_grid
+    from field_math import GLES_IEEE_ILLUSTRATION
     height,width=image.shape[:2]
     columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
     uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,columns,rows],axis=-1).astype(np.float32)
@@ -1335,12 +1337,12 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
         values=_texture_lookup(source,coordinates,wrap=_sampler_wraps(policy,_TERM_CONTEXT.get('bands')),linear=policy.get('linear') is not False)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     if coordinates is not None:
-        value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample),np.float32).reshape(height,width,-1)
+        value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width,-1)
         return value[...,0]*width-.5,value[...,1]*height-.5
     out=np.zeros((height,width,3),np.float32)
     for index,lane in enumerate(lanes or []):
         if lane is None:continue
-        value=evaluate_grid(lane,batch_shape=(height,width),inputs=_fit_field_inputs(lane,inputs,controls),sample=sample)
+        value=evaluate_grid(lane,batch_shape=(height,width),inputs=_fit_field_inputs(lane,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION)
         out[...,index]=np.asarray(value,np.float32).reshape(height,width)
     return out
 
@@ -1363,6 +1365,7 @@ def _affine_composite(image,facts,time,fps,blur_image=None):
     stage=((facts.get('/analysis/visual_description/texture_colour_transfer') or {}).get('stages') or {}).get('composite') or {}
     if stage.get('source_model')!='affine_sample_colour' or not stage.get('sample_contributions'):return None
     from grid_math import evaluate_grid
+    from field_math import GLES_IEEE_ILLUSTRATION
     height,width=image.shape[:2]
     columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
     uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
@@ -1380,13 +1383,13 @@ def _affine_composite(image,facts,time,fps,blur_image=None):
         for site in stage['sample_contributions']:
             source=texture(site.get('canonical_texture','main'))
             expression=site['coordinate_expression']
-            coordinates=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs)),np.float32).reshape(height,width,-1)
+            coordinates=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs),numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width,-1)
             u=np.mod(coordinates[...,0]*width-.5,width).astype(np.float32);v=np.mod(coordinates[...,1]*height-.5,height).astype(np.float32)
             sampled=cv2.remap(source,u,v,cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)
             rgba=np.concatenate([sampled,np.ones((height,width,1),np.float32)],axis=-1)
             out+=np.einsum('ij,hwj->hwi',np.asarray(site['matrix_rgb_rgba'],np.float32),rgba)
         for lane,expression in enumerate(stage.get('offset_expressions') or []):
-            if expression:out[...,lane]+=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs)),np.float32).reshape(height,width)
+            if expression:out[...,lane]+=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs),numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width)
         return np.clip(out,0,1)
     except Exception:  # noqa: BLE001 - fall back to the legacy display model
         return None
@@ -1407,7 +1410,7 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
                                   controls=_TERM_CONTEXT.get('stage') or _TERM_CONTEXT.get('bands'),
                                  blur_image=blur_image,stage='composite')
             limitations.append('composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
-            return np.clip(shown,0,1)
+            return _stored(shown)
         except Exception as error:  # noqa: BLE001 - fall back to the affine/legacy display
             limitations.append('composite program not evaluated: '+str(error)[:120])
     composite_image=_affine_composite(image,facts,time,fps,blur_image)
@@ -1442,6 +1445,26 @@ def simulated_display_series(summary,*,seconds=4.,fps=30.,viewport=(160,90),audi
     return rows,limitations
 
 
+def _initial_canvas(flat,shape,*,time,fps,history_steps):
+    """Feedback canvas before the first simulated frame. projectM clears it to black at preset load, so
+    a history covering the whole time since load starts there (a cleared canvas can be an absorbing
+    state, e.g. a shader dividing by a canvas sample). A shorter history stands in for the frames it
+    omits with the flat-field steady state."""
+    image=np.zeros((*shape,3),np.float32)
+    if history_steps>=int(round(time*fps)):
+        return image,'feedback content starts from the cleared (black) canvas, as at preset load'
+    if isinstance(flat,dict) and isinstance(flat.get('state_rgb'),list):
+        image[:]=np.array(flat['state_rgb'],np.float32)
+        return image,'feedback content starts from the flat-field steady state'
+    return image,None
+
+
+def _stored(values):
+    """Shader output as an RGBA8 target stores it: NaN (0*inf, inf-inf) as 0, infinities and other
+    values clamped to [0, 1]."""
+    return np.clip(np.nan_to_num(np.asarray(values,np.float32),nan=0.,posinf=1.,neginf=0.),0,1)
+
+
 def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None):
     """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite.
 
@@ -1454,12 +1477,12 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     width,height=viewport or context['viewport']
     _DRAW_SCALE[0]=width/float(context['viewport'][0])
     aspect=(1.0,height/width) if width>=height else (width/height,1.0)
-    image=np.zeros((height,width,3),np.float32);limitations=[]
+    limitations=[]
     # Stored canvas alpha starts cleared; it weights textured copies of the previous frame.
     canvas={'alpha':np.zeros((height,width),np.float32)}
     flat=facts.get('/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field')
-    if isinstance(flat,dict) and isinstance(flat.get('state_rgb'),list):
-        image[:]=np.array(flat['state_rgb'],np.float32);limitations.append('feedback content starts from the flat-field steady state')
+    image,note=_initial_canvas(flat,(height,width),time=time,fps=fps,history_steps=history_steps)
+    if note:limitations.append(note)
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None
     frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
@@ -1568,7 +1591,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                         uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,*np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)],axis=-1)
                         warped=_evaluate_stage(warp_program,image,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},diffuse,
                                                 rand=_frame_rand(frame_time,fps),controls=stage_controls,blur_image=older if warp_samples_blur else previous)
-                        image=np.clip(warped,0,1)
+                        image=_stored(warped)
                         image=np.round(image*255)/255
                         canvas['alpha']=np.ones_like(canvas['alpha'])
                         warped=image;program_done=True

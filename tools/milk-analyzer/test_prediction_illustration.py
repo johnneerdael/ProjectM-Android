@@ -369,3 +369,21 @@ def test_positions_only_cloud_draws_in_its_authored_colour():
     width, height = 48, 27
     image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., lambda p: (p[0] * width, (1 - p[1]) * height))
     assert image[..., 0].max() == 1. and image[..., 1].max() == 0.
+
+
+def test_canvas_starts_cleared_when_the_history_covers_the_time_since_load():
+    from prediction_illustration import _initial_canvas
+    flat = {'state_rgb': [1., 1., 1.]}
+    # projectM clears the feedback canvas at load: 150 frames at 30 fps is the whole first 5 s.
+    image, note = _initial_canvas(flat, (4, 6), time=5., fps=30., history_steps=150)
+    assert not image.any() and 'cleared' in note
+    # A shorter history stands in for the earlier frames with the flat-field steady state.
+    image, note = _initial_canvas(flat, (4, 6), time=20., fps=30., history_steps=150)
+    assert np.all(image == 1.) and 'flat-field' in note
+
+
+def test_non_finite_shader_output_is_stored_like_the_gpu():
+    from prediction_illustration import _stored
+    # 1/0 in a shader gives inf, inf*0 gives NaN; an RGBA8 target stores NaN as 0 and clamps infinities.
+    values = np.array([np.nan, np.inf, -np.inf, .5, 1.7, -.2], np.float32)
+    assert list(_stored(values)) == [0., 1., 0., .5, 1., 0.]

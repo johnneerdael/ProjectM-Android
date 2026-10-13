@@ -723,7 +723,15 @@ repeated on correctly oriented frames. Probes and results:
   `rand_frame` is a seeded new vector every frame.
 - **Thick lines and history.** Thick main-wave and outline passes are blended
   one at a time. The loop renders exactly `history_steps` frames ending at the
-  declared time (native frame k renders at (k+1)/fps).
+  declared time (native frame k renders at (k+1)/fps). When those frames cover
+  the whole time since load, the canvas starts cleared (black), as projectM
+  clears it at preset load; a shorter history starts from the flat-field steady
+  state. Warp and composite programs are evaluated with IEEE float semantics
+  (`gles300-ieee-illustration-v1`: x/0 is ±∞, 0·∞ in a compound `*=` is NaN,
+  bare `*` keeps the translator's `mult0` zero guard). Non-finite outputs are
+  stored as an RGBA8 target does (NaN → 0, infinities clamped), and non-finite
+  sample coordinates are addressed at the edge. This is an illustration policy,
+  not a proof; certified paths keep the strict numeric policy.
 - **Custom-wave state.** When per-point graphs read a wave's persistent
   per-frame variables (`state:<wave>_per_frame:<name>`), the point record carries
   `frame_recurrence`: initial and end-of-frame update graphs. The analyzer steps
@@ -1242,3 +1250,21 @@ repeated on correctly oriented frames. Probes and results:
   yellow-green). A full-screen additive quad draws `int(rand(4))/3` colours
   every frame and shape colours follow beat-triggered random seeds, so the
   per-frame tint is a draw from projectm-eval's process-wide random stream.
+- **r10 whole-pack export (dark-wave fix and band-pass mechanism; not
+  shipped).** Refit within noise (luminance 0.644, frame difference 0.712,
+  flow 0.677, jumps 0.765, saturation 0.636, warm/cool 0.605). Facet agreement
+  with remap is marginally higher: Energy 0.537, Brightness 0.596, Colour
+  0.502, Movement 0.635, Comfort 0.812 (mean 0.6164 vs 0.6152). Later
+  descriptor changes (r31–r33) make an r11 export the consistent candidate.
+  Evidence: `fit-report-r10.json`, `facet-agreement-r10.json`.
+- **r33 (`undulant safe preyre --- Isosceles edit`) v1 → v2.** The capture is
+  solid white. The warp divides by a canvas sample
+  (`mscale = 1/tex2D(sampler_pw_main, (q20, .004)).z`, `q20` never set). The
+  canvas is cleared at load, so this is 1/0 = ∞, the compound `i *= mscale`
+  gives NaN, and the RGBA8 target stores 0: black is absorbing, and the
+  inverting composite shows white. v1 started from the flat-field state
+  (white, another fixed point) and refused the non-finite division. v2 starts
+  from the cleared canvas and uses IEEE semantics: solid white for the whole
+  clip. The recipe's steady state and flat transfers now carry the absorbing
+  black canvas, and the v2 SDK text describes a light, pale, inverted screen.
+  Earlier checkpoints are unchanged (r21 is chaotic).

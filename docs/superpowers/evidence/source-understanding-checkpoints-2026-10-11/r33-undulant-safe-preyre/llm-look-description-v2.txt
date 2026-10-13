@@ -1,0 +1,11 @@
+LLM look description from the SDK recipe, source parts only (r33 v2; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: three custom line waveforms (wave_0 to wave_2, 512 points each) are drawn across most of the frame (x about 0.002-0.994, y 0-1). Their per-point alpha is very low (mean about 0.016), so each frame adds only faint, thin strokes. Feedback accumulates these strokes into soft, smeared, fluid-looking structure rather than crisp lines. The warp shader is image-driven (self-advection), so the picture should flow and smear organically.
+
+Feedback and motion: the previous frame contracts toward the centre by only about 0.049% per step. There is no rotation and no net translation, so the drift is slow and the motion is mostly internal swirling from the self-advection. Trails persist but are channel-selective: red is kept least (about 0.66 per frame), green about 0.72 and blue about 0.76. Old content therefore shifts toward blue-ish tints as it fades. The recipe's own motion ceiling is small (about 0.01 viewport units per second for the mesh), and the calibrated flow estimate is about 0.08 screen widths per second. The overall feel is smooth and liquid.
+
+Colour and brightness: the composite inverts the canvas. An empty canvas shows as white, and drawn content shows as darker tinted strokes. The settled background is near-white grayscale, and the calibrated mean luminance is about 0.60 (interval 0.41-0.84). Expect a light, pale screen with darker blue, yellow, green and pink-purple wave strokes on it. The wave colours oscillate with time, with sine periods of roughly 5.5 seconds, so the hues drift slowly. Saturation is moderate on the strokes and low overall (calibrated about 0.23). The warm/cool balance is near neutral.
+
+Audio reaction: mid and treble bands feed the warp shader's red, green and blue channels through thresholded or clamped responses. Expect colour and brightness shifts of the smeared structure rather than shape or size changes. Strength is unresolved.
+
+Uncertain: the visible coverage of the faint strokes, the actual hue mix, the size of the audio response, and flash behaviour. A nominal 0.08 Hz brightness cycle exists and brightness jumps are estimated at 0 to 6 per 10 seconds, so flashing is not ruled out. Activity is Chill to Normal, with Intense possible.

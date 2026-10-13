@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r33-v2",
+ "preset": "undulant safe preyre --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9b792be4cc0d01b3d497496df924ac4eb1c4e4d07d4bcd3f5193ed2d36c2bae4",
+  "prediction.json": "3b00363f6678c2b32d7a7a65fc834f08ef54caf523ac45c3c8910c6759c0aec7",
+  "description.json": "a681ff77087620dcaf9a80c9dd3d1fce9ff9254276da4d0628e3287af6d07617",
+  "recipe.json": "f4dd912af4b1d428d86d41c8d76d46265c1d09980ecadfdfe6ba9e164cd1cd68",
+  "llm-look-description-v1.txt": "634b62ae473ef63092f0b274d79b60a353bf498590959a0b67d23a37b5e1a90a"
+ },
+ "capture_result_sha256": "f983b26776ca1eeffe58a9a65122b08b0ccec29489c113d161f0baac402215c1",
+ "review_measurements_v1": {
+  "prediction_luma": 0.239,
+  "screenshot_luma": 0.999,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.312,
+    1.0
+   ]
+  }
+ },
+ "review_measurements_v2": {
+  "prediction_luma": 1.0,
+  "screenshot_luma": 0.999,
+  "time_average_frames_60_149": {
+   "luma": [
+    1.0,
+    1.0
+   ]
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.0007
+  ],
+  "note": "both uniform white; correlation undefined"
+ },
+ "agreements": [
+  "v2 prediction: solid white for the whole clip, as captured",
+  "v2 SDK text: inverting composite, empty canvas shown white, light pale screen"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "version": "v1",
+   "observed": "dim grey web of strokes vs solid white",
+   "cause": "the warp divides by a canvas sample (mscale = 1/tex2D(sampler_pw_main,(q20,.004)).z with q20 unset); projectM clears the canvas at load, so 1/0 = inf and the compound i*=mscale gives NaN, stored as 0: black is absorbing and the inverting composite shows white. The illustrator started from the flat-field state (white) and refused the non-finite division, so both shaders fell back",
+   "fix": "the canvas starts cleared when the history covers the time since load; illustration stages use IEEE semantics (gles300-ieee-illustration-v1) and store NaN as 0"
+  }
+ ],
+ "regressions": {
+  "r8_r32": "unchanged except r21's chaotic snapshot"
+ },
+ "verdict": "understood (v2): prediction and SDK text"
+}

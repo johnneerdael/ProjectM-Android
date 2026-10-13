@@ -125,3 +125,22 @@ def test_grid_rand_follows_projectm_eval_range_and_draws_once_for_uniform_input(
     assert uniform.min() == uniform.max() and 0 <= uniform.min() < 6
     small = np.asarray(evaluate_grid(field, batch_shape=(64,), inputs={'n': np.float32(.3)}), np.float32)
     assert 0 <= small.min() and small.max() < 1
+
+
+class IllustrationNumericPolicyTest(unittest.TestCase):
+    def test_ieee_policy_propagates_division_by_zero_and_addresses_nan_samples(self):
+        from grid_math import evaluate_grid, UnresolvedMath
+        from field_math import GLES_IEEE_ILLUSTRATION
+        _,field=test_field_math.lower('float s=1/uv.x; float n=uv.y; n*=s; ret=float3(s, n, tex2D(sampler_main, float2(n,.5)).x);')
+        inputs={'_uv':[[0.,0.,0.,0.],[.5,.5,0,0]]}
+        seen=[]
+        def sample(detail,coordinates):
+            seen.append(coordinates.copy());return np.full((len(coordinates),4),.25,np.float32)
+        with self.assertRaises(UnresolvedMath):
+            evaluate_grid(field,batch_shape=(2,),inputs=inputs,sample=sample)
+        out=evaluate_grid(field,batch_shape=(2,),inputs=inputs,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION)
+        self.assertTrue(np.isinf(out[0,0]) and np.isnan(out[0,1]))
+        self.assertEqual(out[1,0],2.)
+        # Compound *= is plain GLSL arithmetic (no mult0 zero guard): 0*inf is NaN. The NaN coordinate of
+        # lane 0 is addressed like a clamped or wrapped edge, not refused.
+        self.assertTrue(np.all(np.isfinite(seen[-1])))

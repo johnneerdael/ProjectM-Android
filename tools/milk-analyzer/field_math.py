@@ -15,6 +15,9 @@ class UnresolvedMath(ValueError):
 
 
 GLES_HIGHP_INFINITY='gles300-highp-infinity-v1'
+# Illustration only (never a proof): IEEE infinities and NaN propagate as on GLES hardware; non-finite
+# sample coordinates are addressed like the edge (wrap -> 0, clamp -> nearest edge).
+GLES_IEEE_ILLUSTRATION='gles300-ieee-illustration-v1'
 INFINITY_OPERATIONS={'add','subtract','multiply','divide','dot','mul','member','index','components',
     'cast','construct','aggregate','unary','abs','min','max','clamp','saturate',
     'sequence','select','write_member','less','greater','less_equal','greater_equal',

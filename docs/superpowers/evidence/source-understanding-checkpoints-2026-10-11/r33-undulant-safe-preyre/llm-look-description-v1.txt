@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r33 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a soft, fluid feedback scene rather than crisp shapes. Three custom line waveforms (512 points each) span nearly the full width and height of the screen, drawn at very low alpha (about 0.016), so each frame only deposits faint strokes. The image is built up by the feedback loop, with smeared, flowing structure from a warp shader that makes the picture steer its own sampling coordinates (self-advection). Sampled blur and smear is the most likely look, not sharp lines.
+
+Feedback and motion: the whole canvas contracts very slowly toward the centre (zoom 0.99951, about 0.049% per step). There is no rotation and no sideways drift. The shader advection adds the fluid, undulating movement. The mesh-field diagnostic puts the sampling ceiling at about 0.01 viewport units per second, so overall motion is probably gentle. Trail persistence is not resolved (decay and half-life are null, because the custom warp shader replaces the decay control).
+
+Colour: the waveform point colours move with time through sine functions. Their hue shares are blue and yellow (about 29% each), plus grayscale, green, orange, pink or purple. Mean saturation is about 0.7. That points to a mixed blue/yellow palette with some saturated accents, but the colours actually reached are unverified. The feedback and composite palettes are unresolved. The warm/cool balance is nearly neutral (0.07).
+
+Brightness: the calibrated display estimate gives mean luminance of about 0.32 (interval 0.13 to 0.56), so a mid-to-dim picture rather than a dark one. Frame-to-frame change is low (about 0.045) and flow is slow (about 0.07 screen widths per second). The source-derived steady state is near black, which is only a lower bound. Activity is low to normal (about 0.28).
+
+Audio reaction: mid and treble drive the red, green and blue colour channels in the warp shader, through thresholds or clamps with no known gain. That suggests colour and brightness shifts with the music rather than shape changes. A brightness cycle of about 0.08 Hz exists in the source. Whether this shows as visible flashing is unverified.
+
+Uncertain: trail length, how much of the screen the faint waves cover, the final palette and its dominant hue, and the strength of the audio response. Mood tags are low-confidence: smooth, organic/liquid, possibly flashing.

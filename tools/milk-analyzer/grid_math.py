@@ -8,7 +8,7 @@ coordinates and native history metadata. Unknown operations/domains remain error
 import re
 import numpy as np
 from field_math import UnresolvedMath,typed,SWIZZLE,BINARY,UNARY,matrix_cast,matrix_constructor,numeric_layout,maskable_math
-from field_math import GLES_HIGHP_INFINITY,INFINITY_OPERATIONS,check_infinity_operation
+from field_math import GLES_HIGHP_INFINITY,GLES_IEEE_ILLUSTRATION,INFINITY_OPERATIONS,check_infinity_operation
 from field_math import SEPARATE_ARITHMETIC,APPLE_MIX_FMA,mix_values
 from shader_fields import Field
 
@@ -44,8 +44,8 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
     if work_policy not in {'full-grid-v1','uniform-proof-v1'}:raise UnresolvedMath('unsupported shader work policy')
     if work is not None and not isinstance(work,dict):raise ValueError('shader work dictionary required')
     if arithmetic_profile not in (SEPARATE_ARITHMETIC,APPLE_MIX_FMA):raise UnresolvedMath('unsupported shader arithmetic profile')
-    if numeric_policy not in {'strict',GLES_HIGHP_INFINITY}:raise UnresolvedMath('unsupported shader numeric policy')
-    highp=numeric_policy==GLES_HIGHP_INFINITY
+    if numeric_policy not in {'strict',GLES_HIGHP_INFINITY,GLES_IEEE_ILLUSTRATION}:raise UnresolvedMath('unsupported shader numeric policy')
+    highp=numeric_policy==GLES_HIGHP_INFINITY;ieee=numeric_policy==GLES_IEEE_ILLUSTRATION
     if highp and coordinate_profile!='strict':raise UnresolvedMath('unsupported mixed shader numeric/coordinate policies')
     if coordinate_profile not in ('strict','apple-m4pro-gl41-nan-sampler-v1'):
         raise UnresolvedMath('unsupported shader coordinate profile')
@@ -61,7 +61,7 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
     nan_coordinates=False
 
     def convert(value,dtype,count,**kwargs):
-        return _convert(value,dtype,count,allow_nan=nan_coordinates,allow_infinity=highp,**kwargs)
+        return _convert(value,dtype,count,allow_nan=nan_coordinates or ieee,allow_infinity=highp or ieee,**kwargs)
 
     def context(indices,parent,update=None):
         if update is None:
@@ -271,6 +271,10 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
             finally:nan_coordinates=prior
             for argument in node.args[1:]:
                 if not np.all(np.isfinite(visit(argument,ctx))):raise UnresolvedMath('nonfinite texture argument')
+            if ieee and not np.all(np.isfinite(coordinates)):
+                wrap=detail.get('sampling_policy',{}).get('wrap')
+                coordinates=np.where(np.isnan(coordinates),0. if wrap else 1.,coordinates)
+                coordinates=np.where(np.isinf(coordinates),0. if wrap else np.clip(coordinates,0.,1.),coordinates)
             if np.any(np.isinf(coordinates)):raise UnresolvedMath('nonfinite texture coordinates')
             if np.any(np.isnan(coordinates)):
                 policy=detail.get('sampling_policy',{})
@@ -414,7 +418,7 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
                 raw=function(args[0],axis=tuple(range(1,args[0].ndim)))
             else:raise UnresolvedMath('grid operation not implemented: '+op)
         propagates_nan={'divide','add','subtract','multiply','dot','member','components','cast','construct','aggregate','unary'}
-        if (np.any(np.isinf(raw)) and not (highp and op in INFINITY_OPERATIONS)) or (np.any(np.isnan(raw)) and not (nan_coordinates and op in propagates_nan)):
+        if not ieee and ((np.any(np.isinf(raw)) and not (highp and op in INFINITY_OPERATIONS)) or (np.any(np.isnan(raw)) and not (nan_coordinates and op in propagates_nan))):
             raise UnresolvedMath('unresolved grid numeric domain: '+op)
         result=convert(raw,node.dtype,count,zero_extend=op=='cast');cache[key]=result
         return result
