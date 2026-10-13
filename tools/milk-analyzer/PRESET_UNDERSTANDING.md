@@ -1164,3 +1164,26 @@ repeated on correctly oriented frames. Probes and results:
   look in the illustration, but the refit shows no measurable gain from
   them in the whole-pack statistics. Evidence: `fit-report-r9.json`,
   `facet-agreement-r9.json`.
+- **Dark built-in waves cut the canvas.** Built-in wave blending took its
+  coverage from the line colour, so a near-black wave never darkened the
+  feedback. projectM blends the wave at its alpha whatever its colour, and
+  with `bMaximizeWaveColor` a wave whose largest channel is at most 0.01 is
+  drawn as authored, i.e. near black. Coverage now comes from the raster mask.
+  Recipes add `effective_base_radius_model_units` (base plus `wave_mystery`)
+  for circle modes, and `max_normalise_rule` with `value_at_unit_bands` for
+  maximised wave colours. Custom warps that keep one channel and clear another
+  now report `per_channel` persistence (`channel_selective`) instead of a
+  misleading channel mean.
+- **r28 (`Flexi - splatter effects 22`) v1 → v2.** A red-only warp (`x +
+  blur1 − blur3`) grows splatter from seeds, shown through an amber composite.
+  The wave colour `(treb+bass)·0.005` sits on the 0.01 maximise gate, so the
+  small centre ring flips between orange and black. In v1 the black ring never
+  reached the canvas, the central hole never grew and the display stayed too
+  dark over time (luma 0.20 vs 0.27). The native-ruler canvas located the
+  miss: red coverage matched to frame 30 and then ran 0.06–0.10 high. v2
+  tracks the ruler canvas (0.509 vs 0.506 at frame 100) and the capture
+  (frames 60–149: luma 0.257 vs 0.267, saturation 0.458 vs 0.460, blurred
+  correlation 0.86). Other checkpoints are unchanged except r21's chaotic
+  frame-150 snapshot (its time average is unchanged). Open: the SDK text still
+  calls the screen mostly dark, because no mechanism names the
+  difference-of-blurs pattern term.

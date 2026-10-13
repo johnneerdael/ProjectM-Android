@@ -451,6 +451,17 @@ def _wave_alpha(facts,path,limitations):
     return min(1.,max(0.,(envelope[0]+envelope[1])/2)),additive
 
 
+def _blend_wave_layer(image,canvas_alpha,layer,mask,alpha,additive):
+    """Blend one built-in wave raster into the canvas. Coverage comes from the raster mask, never from
+    the colour: a near-black wave (not maximised when its largest channel is <= 0.01) still replaces
+    what it covers under alpha blending. The layer holds colour times the raster weight (anti-aliased
+    lines), the mask the raster weight alone. Returns (image, canvas alpha)."""
+    coverage=np.clip(mask,0,1)[...,None]
+    image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
+    a=coverage[...,0]*alpha
+    return image,np.clip(canvas_alpha+a*a if additive else a*a+canvas_alpha*(1-a),0,1)
+
+
 def _frame_wave_alpha(material,values,mode=None,texsize=None):
     """Per-frame built-in wave alpha from the alpha recipe: mode-adjusted authored alpha (wave_a from the
     frame program when stepped), or for mode 3 the reference alpha (by MaximizeColorsTextureSize) * 1.3 *
@@ -1578,13 +1589,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 if alpha is None:continue
                 pixels=[to_pixels(point) for point in points]
                 colour=_wave_colour_at(facts,path,frame_time) or colours[path][0]
-                layer=np.zeros_like(image)
+                layer=np.zeros_like(image);mask=np.zeros(image.shape[:2],np.float32)
                 for a,b in zip(pixels,pixels[1:]):
-                    cv2.line(layer,tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b),tuple(colour),1,cv2.LINE_AA)
-                coverage=layer.max(axis=-1,keepdims=True)
-                image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
-                a=coverage[...,0]*alpha
-                canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
+                    ends=tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b)
+                    cv2.line(layer,*ends,tuple(colour),1,cv2.LINE_AA);cv2.line(mask,*ends,1.0,1,cv2.LINE_AA)
+                image,canvas['alpha']=_blend_wave_layer(image,canvas['alpha'],layer,mask,alpha,additive)
             for path,recipe in dynamic_waves:
                 alpha,additive=wave_alpha[path]
                 if alpha is None:continue
@@ -1603,7 +1612,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 # y up on screen), each blended on its own, so pixels two passes cover receive the blend twice.
                 # Scaled dots are drawn once as 2x2 blocks (Waveform.cpp: one iteration when lineScale > 0).
                 for ox,oy in ([(0,0),(16,0),(16,-16),(0,-16)] if recipe.get('thick') and not recipe.get('dots') else [(0,0)]):
-                    layer=np.zeros_like(image)
+                    layer=np.zeros_like(image);mask=np.zeros(image.shape[:2],np.float32)
                     for points in polylines:
                         # Built-in wave NDC: column=(1+x)/2*W, row=(1-y)/2*H (y up on screen; native-ruler
                         # probe at wave_y .8 matches to the pixel).
@@ -1615,13 +1624,11 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                             for x0,y0 in zip(cols,rows):
                                 for x in (x0,x0+1):
                                     for y in (y0,y0+1):
-                                        if 0<=x<width and 0<=y<height:layer[y,x]=colour
+                                        if 0<=x<width and 0<=y<height:layer[y,x]=colour;mask[y,x]=1.
                         else:
                             cv2.polylines(layer,[pixel+[ox,oy]],bool(loop),tuple(float(c) for c in colour),1,cv2.LINE_8,4)
-                    coverage=layer.max(axis=-1,keepdims=True)
-                    image=np.clip(image+layer*alpha,0,1) if additive else image*(1-coverage*alpha)+layer*alpha
-                    a=coverage[...,0]*alpha
-                    canvas['alpha']=np.clip(canvas['alpha']+a*a if additive else a*a+canvas['alpha']*(1-a),0,1)
+                            cv2.polylines(mask,[pixel+[ox,oy]],bool(loop),1.0,1,cv2.LINE_8,4)
+                    image,canvas['alpha']=_blend_wave_layer(image,canvas['alpha'],layer,mask,alpha,additive)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
             rng=np.random.default_rng(7919+int(round(frame_time*fps)))
             for shape_index,shape in enumerate(textured):

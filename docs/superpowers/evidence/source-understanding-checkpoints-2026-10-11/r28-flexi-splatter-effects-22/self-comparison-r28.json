@@ -1,0 +1,156 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r28-v2",
+ "preset": "Flexi - splatter effects 22.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d0c7710b736e3d69756e059536d18567051a1866f10a5fdfc98f00d9482cd2fd",
+  "prediction.json": "3f94b5c03629e91428a9df7074629571dbef601972f1ca515d4f1a7a62046756",
+  "description.json": "a4dc23487da58660aa34110d717b4d6177635b346d5d11da5eb5262390797066",
+  "recipe.json": "0ecccec5bb599d38d82fbaa62ae3f86ca6fa3b1ff17d45943e1900d4f5c1cc3a",
+  "llm-look-description-v1.txt": "313529d8f16788086ea2749e737ffd7dd4521cbc5203ce26d44e5b8d13b6cd12"
+ },
+ "capture_result_sha256": "2867629ca15cdef0569cad61148dac6d98d2f478ae29b30a8c5a13e288825851",
+ "review_measurements_v1": {
+  "prediction_luma": 0.302,
+  "screenshot_luma": 0.378,
+  "mean_rgb_prediction": [
+   0.382,
+   0.292,
+   0.156
+  ],
+  "mean_rgb_screenshot": [
+   0.482,
+   0.366,
+   0.19
+  ],
+  "saturation": [
+   0.402,
+   0.517
+  ],
+  "blurred_luma_correlation": 0.28,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.2,
+    0.267
+   ],
+   "saturation": [
+    0.442,
+    0.46
+   ],
+   "blurred_luma_correlation": 0.596
+  }
+ },
+ "review_measurements_v2": {
+  "prediction_luma": 0.407,
+  "screenshot_luma": 0.378,
+  "mean_rgb_prediction": [
+   0.522,
+   0.394,
+   0.198
+  ],
+  "mean_rgb_screenshot": [
+   0.482,
+   0.366,
+   0.19
+  ],
+  "saturation": [
+   0.532,
+   0.517
+  ],
+  "blurred_luma_correlation": 0.629,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.257,
+    0.267
+   ],
+   "rgb": [
+    [
+     0.302,
+     0.254,
+     0.159
+    ],
+    [
+     0.314,
+     0.263,
+     0.165
+    ]
+   ],
+   "saturation": [
+    0.458,
+    0.46
+   ],
+   "blurred_luma_correlation": 0.86
+  }
+ },
+ "diagnostics": {
+  "native_ruler_identity_composite_canvas_red_coverage": {
+   "frame": [
+    20,
+    40,
+    60,
+    80,
+    100,
+    120,
+    140
+   ],
+   "v1": [
+    0.328,
+    0.544,
+    0.658,
+    0.689,
+    0.587,
+    0.592,
+    0.637
+   ],
+   "v2": [
+    0.327,
+    0.474,
+    0.557,
+    0.614,
+    0.509,
+    0.535,
+    0.585
+   ],
+   "ruler": [
+    0.333,
+    0.475,
+    0.561,
+    0.619,
+    0.506,
+    0.571,
+    0.603
+   ]
+  },
+  "native_ruler_display_luma_frames_60_149": 0.267,
+  "note": "diagnostic only (not a feature): the ruler canvas located the miss"
+ },
+ "agreements": [
+  "v2 prediction: the same amber/grey splatter rings on black, central white ring and central dark hole; display luma tracks the capture frame by frame (within about 0.01 to frame 100)",
+  "v2 SDK text: a small centred ring (effective radius 0.08), max-normalised colour sitting on the 0.01 gate so the line flips between orange and black, warm tan/amber composite palette"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "version": "v1",
+   "observed": "canvas over-filled with red after frame 30 (display too dark, luma 0.20 vs 0.27 over time)",
+   "cause": "built-in wave blending took coverage from the line colour; a near-black (not maximised) wave had coverage ~0.01 and never cut the feedback, so the black seed that grows the central hole was missing",
+   "fix": "coverage from the raster mask (_blend_wave_layer); general for every dark built-in wave"
+  },
+  {
+   "size": "medium",
+   "version": "v1 SDK",
+   "observed": "text sized the ring at radius 0.5 and called the colour change subtle",
+   "cause": "recipe gave the nominal base radius without the wave_mystery offset and no maximise gate",
+   "fix": "effective_base_radius_model_units, max_normalise_rule, value_at_unit_bands"
+  },
+  {
+   "size": "medium",
+   "version": "v2 SDK",
+   "observed": "text calls the screen mostly dark with very short trails",
+   "cause": "warp_transfer channel mean (red kept whole, green/blue cleared) read as 'one third kept, halving 0.6 frames'; the difference-of-blurs pattern term has no mechanism",
+   "fix": "per_channel transfer (channel_selective); blur-difference mechanism is the next step"
+  }
+ ],
+ "verdict": "understood by the prediction (v2); SDK text partially (screen coverage and pattern formation open)"
+}

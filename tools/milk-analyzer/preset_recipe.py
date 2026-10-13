@@ -42,6 +42,19 @@ CONVENTIONS={
 }
 
 
+
+UNIT_BANDS={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att','vol','vol_att')}
+
+
+def _value_at_unit_bands(expression):
+    """Value of a band-only frame expression when every band reads 1 (projectM's bands hover around 1,
+    their long-run normalisation). None when the expression reads anything else."""
+    from time_expression import evaluate_inputs
+    try:value=float(evaluate_inputs(expression,UNIT_BANDS))
+    except (ValueError,KeyError,TypeError,ZeroDivisionError):return None
+    return value if value==value and abs(value)!=float('inf') else None
+
+
 def _facts(summary):
     out={}
     for group,rows in summary.get('facts',{}).items():
@@ -102,6 +115,11 @@ def _layer(facts,index):
         layer['builtin_wave']={k:copy.deepcopy(waveform.get(k)) for k in ('form_name','effective_mode','audio_inputs','wave_x','wave_y',
             'line_angle_rad','separation_normal_offset','base_radius_model_units','sample_radial_gain','nominal_rotation_rad_per_second',
             'dots','thick','additive','path_topology') if waveform.get(k) is not None}
+        mystery=waveform.get('normalized_mystery');base=waveform.get('base_radius_model_units')
+        if waveform.get('effective_mode') in (0,1) and type(mystery) in (int,float) and type(base) in (int,float):
+            # Circle.cpp / XYOscillationSpiral.cpp: radius = base + gain*pcm + mystery (normalised); a
+            # negative radius draws the same ring through the opposite side of the centre.
+            layer['builtin_wave']['effective_base_radius_model_units']=base+mystery
     material=facts.get(path+'/wave_material')
     if isinstance(material,dict):
         channels={}
@@ -109,8 +127,19 @@ def _layer(facts,index):
             curve_row=(channel or {}).get('raw_time_curve') or {}
             channels[name]={'time_expression':copy.deepcopy(channel.get('time_only_expression')),
                             **{k:curve_row.get(k) for k in ('curve_kind','constant_value','nominal_value_range','period_seconds') if curve_row.get(k) is not None}}
+        expressions=(waveform.get('control_expressions') if isinstance(waveform,dict) else None) or {}
+        for name,channel in channels.items():
+            if channel.get('time_expression') is None and (expressions.get(name) or {}).get('complete'):
+                channel['frame_expression']=copy.deepcopy(expressions[name])
+                value=_value_at_unit_bands(expressions[name])
+                if value is not None:channel['value_at_unit_bands']=value
         layer['colour']={'channels':channels,'max_normalised':bool(material.get('normalization_enabled')),
                          'blend':material.get('blend_mode')}
+        if layer['colour']['max_normalised']:
+            # Waveform.cpp (bMaximizeWaveColor): only a largest channel above 0.01 is scaled to 1.
+            layer['colour']['max_normalise_rule']={'threshold':.01,
+                'above':'every channel is divided by the largest, so the largest becomes 1',
+                'at_or_below':'channels are drawn as authored (near black for small values)'}
     elif isinstance(facts.get(path+'/colour'),dict):
         layer['colour']=copy.deepcopy(facts[path+'/colour'])
     for colour_path,colour_row in facts.items():
@@ -148,25 +177,40 @@ def _warp_transfer(facts):
     low,high=rgb[0],rgb[-1]
     gain=[round(high[i]-low[i],6) for i in range(3)];offset=[round(low[i],6) for i in range(3)]
     mean=[sum(row)/3 for row in rgb]
-    affine=[mean[0]+(mean[-1]-mean[0])*level for level in levels]
-    linear=max(abs(a-b) for a,b in zip(mean,affine))<.02
+    per_channel={name:_iterated_persistence(levels,[row[i] for row in rgb]) for i,name in enumerate('rgb')}
+    # A warp that keeps one channel and clears another has no single persistence: its channel mean
+    # would describe neither (ret.x = main.x on flat content keeps red whole and clears green/blue).
+    selective=max(gain)-min(gain)>.1
+    summary=_iterated_persistence(levels,mean)
+    return {'gain_rgb':gain,'offset_rgb':offset,'linear':summary['linear'],
+            'halving_frames':None if selective else summary['halving_frames'],
+            'steady_level_from_full':None if selective else summary['steady_level_from_full'],
+            'channel_selective':selective,'per_channel':per_channel,
+            'retention_by_level':[{'level':level,'retention':round(value/level,3)} for level,value in zip(levels,mean) if level>0],
+            'levels':levels,'rgb':rgb,'source':'exported warp shader evaluated on flat colours'}
+
+
+def _iterated_persistence(levels,values):
+    """Uniform-content persistence of one transfer curve W (levels -> values): gain W(1)-W(0), whether
+    W is affine within 0.02, frames for full level to fall to half (closed form ln .5/ln gain when
+    affine; None if it never halves) and the level the iteration settles at (None within 600 frames)."""
+    affine=[values[0]+(values[-1]-values[0])*level for level in levels]
+    linear=max(abs(a-b) for a,b in zip(values,affine))<.02
     def step(x):
-        # Piecewise-linear transfer of the channel-mean level (uniform content).
+        # Piecewise-linear transfer of a uniform level.
         k=1
         while k<len(levels)-1 and x>levels[k]:k+=1
         a,b=levels[k-1],levels[k];t=(x-a)/(b-a) if b>a else 0.
-        return mean[k-1]*(1-t)+mean[k]*t
+        return values[k-1]*(1-t)+values[k]*t
     x=float(levels[-1]);halving=None;steady=None
     for frame in range(1,601):
         nxt=step(x)
         if halving is None and nxt<=.5*levels[-1]:halving=frame
         if abs(nxt-x)<1e-5:steady=round(nxt,3);break
         x=nxt
-    if linear and halving is not None:
-        g=sum(gain)/3;halving=math.log(.5)/math.log(g) if 0<g<1 else halving
-    return {'gain_rgb':gain,'offset_rgb':offset,'linear':linear,'halving_frames':halving,'steady_level_from_full':steady,
-            'retention_by_level':[{'level':level,'retention':round(value/level,3)} for level,value in zip(levels,mean) if level>0],
-            'levels':levels,'rgb':rgb,'source':'exported warp shader evaluated on flat colours'}
+    g=values[-1]-values[0]
+    if linear and halving is not None and 0<g<1:halving=math.log(.5)/math.log(g)
+    return {'gain':round(g,6),'linear':linear,'halving_frames':halving,'steady_level_from_full':steady}
 
 
 def _render(facts):
@@ -528,7 +572,13 @@ def intent(recipe):
     half=features.get('feedback.half_life_s',{}).get('value')
     warp=fb.get('warp_transfer') or {}
     decay=fb.get('decay') if fb.get('decay') is not None else (sum(warp['gain_rgb'])/3 if warp.get('gain_rgb') else None)
-    if half is None and warp.get('halving_frames'):half=warp['halving_frames']/30
+    if warp.get('channel_selective'):
+        # The longest-lived channel carries the trails; one that is never halved has no half-life.
+        channels=[row for row in (warp.get('per_channel') or {}).values() if row.get('gain',0)>0]
+        decay=max((row['gain'] for row in channels),default=0.)
+        lives=[row.get('halving_frames') for row in channels]
+        if half is None and lives and None not in lives:half=max(lives)/30
+    elif half is None and warp.get('halving_frames'):half=warp['halving_frames']/30
     effects.append({'effect':'trails','half_life_s':half,'decay_per_frame':decay,
                     'faint_residue':bool(fb.get('stored_level_floor') and max(fb['stored_level_floor'])>0)})
     for pattern in fb['warp_patterns']:

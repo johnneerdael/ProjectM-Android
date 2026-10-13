@@ -194,3 +194,60 @@ def test_recipe_carries_the_steady_state_hue_from_the_equilibrium(monkeypatch):
         'display_local_rgb': [0., 0., 0.], 'display_spread_rgb': [.001, .001, .001], 'canvas_local_rgb': [0., 0., 0.],
         'composite_model': 'legacy', 'substitution_count': 0, **extra})
     assert R.build_recipe(record())['render']['feedback']['steady_state']['hue_family'] is None
+
+
+def _graph_linear(terms):
+    """sum(coefficient*input) as an exported expression graph."""
+    nodes=[];products=[]
+    for name,coefficient in terms:
+        nodes+=[{'op':'input','args':[],'detail':{'name':name}},{'op':'constant','args':[],'detail':{'value':coefficient}}]
+        nodes.append({'op':'multiply','args':[len(nodes)-2,len(nodes)-1],'detail':{}});products.append(len(nodes)-1)
+    root=products[0]
+    for index in products[1:]:
+        nodes.append({'op':'add','args':[root,index],'detail':{}});root=len(nodes)-1
+    return {'root':root,'nodes':nodes,'complete':True}
+
+
+def test_circle_wave_reports_the_effective_radius_with_the_mystery_offset():
+    recipe=build_recipe(summary(
+        ('construction',BASE+'/elements/0/id','builtin_wave'),
+        ('audio',BASE+'/elements/0/waveform_recipe',{'form_name':'audio_deformed_circle','effective_mode':0,
+            'wave_x':.5,'wave_y':.5,'normalized_mystery':-.58,'base_radius_model_units':.5,'sample_radial_gain':.4})))
+    wave=next(layer for layer in recipe['render']['layers'] if layer.get('builtin_wave'))['builtin_wave']
+    # Circle.cpp: radius = 0.5 + 0.4*pcm + mystery, drawn as |radius| around the centre.
+    assert abs(wave['effective_base_radius_model_units']+.08)<1e-9
+    assert wave['base_radius_model_units']==.5
+
+
+def test_max_normalised_wave_colour_states_the_gate_and_unit_band_values():
+    recipe=build_recipe(summary(
+        ('construction',BASE+'/elements/0/id','builtin_wave'),
+        ('audio',BASE+'/elements/0/waveform_recipe',{'form_name':'audio_deformed_circle','effective_mode':0,
+            'control_expressions':{'wave_r':_graph_linear([('treb',.005),('bass',.005)]),'wave_g':_graph_linear([('bass',.005)]),
+                                   'wave_b':_graph_linear([('bass',0.)])}}),
+        ('colour',BASE+'/elements/0/wave_material',{'normalization_enabled':True,'blend_mode':'source_alpha_over',
+            'channels':{'wave_r':{'raw_time_curve':{'curve_kind':'unknown'}},'wave_g':{'raw_time_curve':{'curve_kind':'unknown'}}}})))
+    colour=next(layer for layer in recipe['render']['layers'] if layer.get('builtin_wave'))['colour']
+    assert colour['max_normalised'] is True
+    assert colour['max_normalise_rule']['threshold']==.01
+    # projectM's bass/mid/treb hover around 1: here the largest channel sits exactly on the gate.
+    assert abs(colour['channels']['wave_r']['value_at_unit_bands']-.01)<1e-12
+    assert abs(colour['channels']['wave_g']['value_at_unit_bands']-.005)<1e-12
+    assert colour['channels']['wave_r']['frame_expression']['complete']
+
+
+def test_channel_selective_warp_transfer_reports_persistence_per_channel(monkeypatch):
+    # ret = 0; ret.x = main.x - (blur3.x - blur1.x): on flat content red is kept whole and green/blue
+    # are cleared. A channel mean would claim a third kept per frame (halving in 0.6 frames).
+    import feedback_equilibrium
+    table = {'levels': [0., .25, .5, .75, 1.], 'rgb': [[c, 0., 0.] for c in (0., .25, .5, .75, 1.)]}
+    monkeypatch.setattr(feedback_equilibrium, 'stage_transfer', lambda facts, stage, **_: table if stage == 'warp' else None)
+    recipe = build_recipe(summary(('feedback', STATIC + '/feedback_persistence', {'decay_gain': None})))
+    transfer = recipe['render']['feedback']['warp_transfer']
+    assert transfer['channel_selective'] is True
+    red, green = transfer['per_channel']['r'], transfer['per_channel']['g']
+    assert red['gain'] == 1. and red['halving_frames'] is None and red['steady_level_from_full'] == 1.
+    assert green['gain'] == 0. and green['halving_frames'] == 1 and green['steady_level_from_full'] == 0.
+    assert transfer['halving_frames'] is None  # no single channel-mean persistence
+    trails = next(e for e in recipe['intent']['effects'] if e['effect'] == 'trails')
+    assert trails['half_life_s'] is None and trails['decay_per_frame'] == 1.

@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (r28 v2; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a small, thick, unfilled ring (built-in circular waveform, wave mode 0, centred at 0.5,0.5) whose outline is bent by the right-channel audio waveform. The effective base radius is only about 0.08 model units (negative offset; magnitude is the ring size), so it reads as a compact wobbling loop in the middle of a mostly dark screen, not a large circle. It turns slowly, nominally 0.2 rad/s. The name suggests nothing; this rests on the source mechanisms.
+
+Feedback and motion: the previous frame is re-fed through a custom warp shader that steers its own sampling (self-advection), with small offsets (about 0.2% of width, 0.4% of height), plus a gentle zoom about the centre (base 0.99, zoomexp 0.12, nudged by mid/treble/bass). Trails are very short: the warp keeps about one third of the red level per frame (half-life under one frame), so the ring should leave only a brief smeared, flowing echo rather than long streaks or tunnels. No steady drift or rotation (dx, dy, rot all 0). The exact zoom wobble is unresolved.
+
+Colour: the wave colour is red-led with some green and no blue, scaled by bass and treble. It is max-normalised, so a largest channel above 0.01 becomes a full-colour line (about red 1, green 0.5, i.e. orange), otherwise near black. At unit audio the values sit right at the 0.01 threshold, so the line may flip between orange and black with the music. The warp passes only red. The composite maps mid-level content to warm tan/amber (about 0.56,0.41,0.19 at quarter level, 0.75,0.55,0.25 at half) and maps both zero and full level to black. A thin outer border (1% of screen) is dark red (0.5,0,0). Background is black.
+
+Brightness: probably dark overall. The source steady-state estimate is near black (display about 0.02,0.006,0.003, a lower bound); brightness is not established.
+
+Audio reaction: bass and treble drive wave red (gain 0.005), bass drives green; mid and treble modulate zoom; the waveform shapes the ring. These are continuous routes, not shown to be beat-synchronised or to cause whole-screen pulses.
+
+Uncertain: how much of the screen the ring and its echoes cover, actual brightness, how often the colour flips to black, zoom strength, the texture-driven advection pattern. Source-estimated mood is low confidence: smooth, warm, low-to-moderate activity.

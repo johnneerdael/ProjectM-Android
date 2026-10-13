@@ -339,3 +339,19 @@ def test_hue_shader_interpolates_the_engine_corner_colours():
     assert np.allclose(hue[0, 1, :3], corner(0), atol=1e-6) and np.allclose(hue[0, 0, :3], corner(1), atol=1e-6)
     assert np.allclose(hue[1, 1, :3], corner(2), atol=1e-6) and np.allclose(hue[1, 0, :3], corner(3), atol=1e-6)
     assert hue.shape == (2, 2, 4) and np.all(hue[..., 3] == 1.)
+
+
+def test_dark_builtin_wave_covers_by_its_raster_not_its_colour():
+    from prediction_illustration import _blend_wave_layer
+    # A non-maximised wave (projectM keeps wave_r/g/b when the largest is <= 0.01) is near black.
+    # Alpha blending replaces covered pixels with it at full alpha: a dark line cuts a red canvas.
+    image = np.zeros((4, 6, 3), np.float32); image[..., 0] = 1.
+    layer = np.zeros_like(image); mask = np.zeros(image.shape[:2], np.float32)
+    layer[2, 1:5] = (.009, .005, 0.); mask[2, 1:5] = 1.
+    canvas_alpha = np.zeros(image.shape[:2], np.float32)
+    out, alpha_out = _blend_wave_layer(image, canvas_alpha, layer, mask, 1., False)
+    assert np.allclose(out[2, 1:5], (.009, .005, 0.)) and np.all(out[0, :, 0] == 1.)
+    assert np.all(alpha_out[2, 1:5] == 1.) and np.all(alpha_out[0] == 0.)
+    # Additive blending adds the colour: a dark line barely changes the canvas.
+    out, _ = _blend_wave_layer(image, canvas_alpha, layer, mask, 1., True)
+    assert np.allclose(out[2, 1:5, 0], 1.)

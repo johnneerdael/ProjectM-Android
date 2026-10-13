@@ -80,7 +80,11 @@ required. Use a native file-read tool to inspect JSON and the summary.
    Then read the recipe's `render.feedback.warp_transfer`: the exported warp
    evaluated on flat colours gives the per-frame `gain_rgb`, `offset_rgb` and
    `halving_frames` of uniform content. Report that as the trail persistence
-   instead of calling it unresolved. When `linear` is false, read
+   instead of calling it unresolved. When `channel_selective` is true the
+   channels persist differently (for example red kept whole, green and blue
+   cleared): read `per_channel` and describe each channel, never the channel
+   mean. A channel with gain 1 and `steady_level_from_full` 1 is not faded by
+   the warp on flat content. When `linear` is false, read
    `retention_by_level` and `steady_level_from_full`: dim content can be kept
    whole while bright content is cut, so the canvas settles at that level
    instead of fading to black. For a custom composite,
@@ -90,7 +94,15 @@ required. Use a native file-read tool to inspect JSON and the summary.
    `render.feedback.steady_state` gives the settled canvas/display colour from
    source (`hue_family` when it is visibly above black). Use it as the hue cue
    for the overall palette; its level is a lower bound, so take brightness from
-   `display_estimate`. A nonzero floor means faint content can persist instead
+   `display_estimate`.
+   For a built-in wave layer, size circles by `effective_base_radius_model_units`
+   (base plus the `wave_mystery` offset; its magnitude is the ring radius), not
+   by `base_radius_model_units`. With `colour.max_normalised`, read
+   `max_normalise_rule` and each channel's `value_at_unit_bands`: a largest
+   channel above 0.01 is scaled to 1 (a fully coloured line), otherwise the line
+   is drawn as authored, usually near black. Bands hover around 1, so a largest
+   value near 0.01 means the wave flips between full colour and black with the
+   music. A black line drawn over feedback still cuts what it covers. A nonzero floor means faint content can persist instead
    of returning to black. Use the profile intervals, not one orbit. With a
    curve relation, `persistence_layer_sweep` says whether retained layers cross
    whole inter-turn gaps before the floor; if so, state a conditional

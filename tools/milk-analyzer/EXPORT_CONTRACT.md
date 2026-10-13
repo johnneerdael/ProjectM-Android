@@ -329,7 +329,12 @@ ln 0.5 / ln(mean gain) for uniform content (null when the gain is not in
 whether the table is affine within 0.02. For a nonlinear table,
 `retention_by_level` lists W(c)/c, `halving_frames` counts the iterations of
 the channel-mean table from full level down to half, and
-`steady_level_from_full` is where that iteration settles. It is the shader's
+`steady_level_from_full` is where that iteration settles. `per_channel` gives
+the same `gain`, `linear`, `halving_frames` and `steady_level_from_full` for each
+of `r`, `g` and `b`. When the channel gains differ by more than 0.1,
+`channel_selective` is true and the channel-mean `halving_frames` and
+`steady_level_from_full` are null (no single persistence describes the canvas);
+the `trails` intent then takes the longest-lived channel. It is the shader's
 arithmetic on uniform inputs, not a measured trail length; image structure,
 blur and injected terms can change local persistence.
 
@@ -338,6 +343,17 @@ blur and injected terms can change local persistence.
 the screen), `canvas_local_rgb`, `hue_family` (null below 0.02),
 `composite_model` and `substitution_count` (neutral colour priors used). It is a
 hue cue; its level is a lower bound, and brightness comes from `display_estimate`.
+
+Built-in wave layers carry `builtin_wave.effective_base_radius_model_units` for
+modes 0 and 1: `base_radius_model_units` plus the normalised `wave_mystery`
+(projectM `Circle.cpp`/`XYOscillationSpiral.cpp` add it to every vertex radius;
+a negative value draws the same ring through the opposite side of the centre).
+When the material maximises colour (`colour.max_normalised`, `bMaximizeWaveColor`),
+`colour.max_normalise_rule` states projectM's gate (`Waveform.cpp`): a largest
+channel above 0.01 divides every channel by it; otherwise the authored values
+are drawn unchanged. Channels without a time-only expression carry their
+band-driven `frame_expression` and `value_at_unit_bands` (every band and
+attenuated band at 1, projectM's long-run normalisation).
 
 `render.composite.flat_transfer` (custom composites) holds the composite shader
 evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the

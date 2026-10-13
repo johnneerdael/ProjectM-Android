@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r28 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a single audio-deformed circular line (built-in wave, mode 0, thick, not dots) centred on the screen at radius about 0.5 model units, whose outline follows the right-channel waveform and rotates slowly (nominal 0.2 rad/s). It is drawn over a feedback canvas that is smeared by a custom warp shader (image-driven self-advection from a blurred copy), so I expect a soft, fluid, smudged ring with splatter-like blotches rather than crisp geometry. A thin dark-red border (about 1% of the screen, [0.5,0,0]) frames the picture.
+
+Feedback and motion: the mesh applies only a gentle uniform zoom about the centre (0.99 plus small bass/mid/treble terms, zoomexp 0.12), with zero rotation and zero translation. The shader offsets are tiny (at most about 0.2% of the width horizontally and 0.4% vertically per step), so the smearing is local and slow. Trails are short: the warp transfer keeps only red and about a third of the level per frame (halving about 0.6 frames), so old layers fade almost at once and the image should not build deep tunnels. Estimated flow is about 0.1 screen widths per second; the calmer end of Chill to Normal.
+
+Colour: the warp ramp runs from grayscale (black content) to red (white content), and the composite maps mid levels to a warm amber/tan (about 0.56,0.41,0.19 at a quarter level, 0.75,0.55,0.25 at half), returning to black at the extremes. The wave has no blue and its red and green are audio-nudged, so I expect warm orange, amber and red-brown, with a mostly black background. Overall warm, low saturation (estimated about 0.38).
+
+Brightness: fairly dark. The estimated mean luminance is about 0.15 (interval roughly 0 to 0.39); the source steady state is a faint red-brown, only a lower bound.
+
+Audio reaction: bass and treble shift the wave's red (and bass its green), but at gain 0.005, so very subtle colour breathing; mid and treble modulate zoom slightly; the ring shape itself follows the waveform continuously. No threshold or beat-triggered flash was found, and brightness jumps are estimated only around 3 per 10 seconds, with a wide interval.
+
+Uncertain: how prominent the splatter smears are, the actual ring brightness (wave alpha 25 is clipped), the composite's texture lookups, whether the ring stays on screen, and the mood (the strict model records no eligible band; confidence is low).
