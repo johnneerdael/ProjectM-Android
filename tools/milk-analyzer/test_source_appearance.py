@@ -964,3 +964,13 @@ def test_exported_control_formulas_keep_texture_identity_and_obligations():
         assert expression['resources_resolved'] is False
         expressions.append(json.dumps(expression,sort_keys=True))
     assert len(set(expressions))==3
+
+
+def test_per_frame_side_count_is_exported_as_a_motion_control():
+    from test_effect_families import read
+    record = appearance(read('shapecode_0_enabled=1\nshapecode_0_textured=1\nshapecode_0_rad=1.4\n'
+                             'shape_0_per_frame1=sides=int(abs(sin(time*.5)*7));\n'))
+    shape = next(e for e in record['elements'] if e.get('id') == 'shape_0')
+    assert [c['control'] for c in shape['motion_controls']].count('side_count') == 1
+    fixed = appearance(read('shapecode_0_enabled=1\nshapecode_0_sides=5\n'))
+    assert 'side_count' not in [c['control'] for e in fixed['elements'] if e.get('id') == 'shape_0' for c in e['motion_controls']]

@@ -498,3 +498,19 @@ def test_random_texture_slots_use_the_mean_of_matching_bundled_images():
     if names:
         filtered = P._random_texture_standin('rand03_cells')
         assert not np.allclose(filtered, any_image)
+
+
+def test_shapes_with_per_frame_side_counts_are_drawn_with_the_clamped_frame_value():
+    # Hexcollie Surge: sides = int(abs(sin(time*.5)*7)) on a full-screen textured triangle. The static side
+    # count is unknown, so the shape was dropped and the canvas turned white; CustomShape clamps to [3, 100].
+    import prediction_illustration as P
+    base = '/analysis/visual_description/elements/2'
+    facts = {base + '/material': {'texture': {'role': 'previous_main'}, 'centre_vertex_rgba': [1, 1, 1, .5]},
+             base + '/geometry': {'effective_sides': None, 'configured_instances': 1},
+             base + '/motion_controls/0': {'control': 'side_count', 'constant_value': None,
+                                           'expression': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': 1.7}}]}}}
+    shape, = P._textured_shapes(facts, {})
+    assert shape['sides'] is None and P._shape_sides(shape, 0., {}) == 3
+    shape['controls']['side_count']['expression']['nodes'][0]['detail']['value'] = 6.9
+    assert P._shape_sides(shape, 0., {}) == 6
+    assert not P._textured_shapes({k: v for k, v in facts.items() if 'motion_controls' not in k}, {})

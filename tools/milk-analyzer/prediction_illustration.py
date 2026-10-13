@@ -876,6 +876,15 @@ def _value_at(record,key,expression_key,held,time,rng=None):
     except (ValueError,TypeError,KeyError,AttributeError):return None
 
 
+def _shape_sides(shape,time,held,rng=None):
+    """Side count for one frame: the static value, or the side_count control truncated and clamped to
+    [3, 100] as CustomShape does. None when neither is known."""
+    if shape.get('sides') is not None:return shape['sides']
+    value=_value_at(shape['controls'].get('side_count'),'constant_value','expression',held,time,rng)
+    if value is None or not math.isfinite(value) or not -(2**31)<value<2**31:return None
+    return min(100,max(3,math.trunc(value)))
+
+
 def _textured_shapes(facts,held):
     """Single-instance custom shapes with closed-form controls: textured (previous frame) or gradient fills."""
     base='/analysis/visual_description/elements/'
@@ -889,8 +898,11 @@ def _textured_shapes(facts,held):
         geometry=facts.get(element+'/geometry') or {}
         sides=geometry.get('effective_sides')
         instances=geometry.get('configured_instances') or 1
-        if type(sides) not in (int,float) or type(instances) not in (int,float) or not 1<=instances<=1024:continue
-        shapes.append({'id':facts.get(element+'/id'),'controls':controls,'texture':texture,'sides':int(sides),
+        # A side count written per frame has no static value: draw with the frame's value when exported.
+        if type(sides) not in (int,float) and 'side_count' not in controls:continue
+        if type(instances) not in (int,float) or not 1<=instances<=1024:continue
+        shapes.append({'id':facts.get(element+'/id'),'controls':controls,'texture':texture,
+                       'sides':int(sides) if type(sides) in (int,float) else None,
                        'textured':texture.get('role')=='previous_main',
                        'channels':material.get('channel_expressions') or {},'blend':material.get('blend_mode'),
                        'rgb':(material.get('centre_vertex_rgba') or [1,1,1,None])[:3],
@@ -916,6 +928,8 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
         if record is None:return default
         return _value_at(record,'constant_value','expression',held,time,rng)
     x=control('position_x');y=control('position_y');radius=control('radius');angle=control('rotation',0.)
+    sides=_shape_sides(shape,time,held,rng)
+    if sides is None:return image,False
     zoom=_value_at(shape['texture'],'tex_zoom_source','tex_zoom_expression',held,time,rng)
     tex_angle=_value_at(shape['texture'],'tex_angle_source_rad','tex_angle_expression',held,time,rng)
     def channel(group,name):
@@ -939,8 +953,8 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
     ux=(columns-x)/(radius*aspect*.5);sn=-(rows-y)/(radius*.5)
     delta=tex_angle-angle;cos,sin=math.cos(delta),math.sin(delta)
     u=.5+.5/zoom*(cos*ux-sin*sn)*aspect;v=.5-.5/zoom*(sin*ux+cos*sn)
-    phi=np.mod(np.arctan2(sn,ux)-(angle+math.pi/4),2*math.pi/shape['sides'])
-    edge=math.cos(math.pi/shape['sides'])/np.cos(phi-math.pi/shape['sides'])
+    phi=np.mod(np.arctan2(sn,ux)-(angle+math.pi/4),2*math.pi/sides)
+    edge=math.cos(math.pi/sides)/np.cos(phi-math.pi/sides)
     fraction=np.hypot(ux,sn)/edge
     inside=fraction<=1
     if not inside.any():return full_image,True
@@ -973,7 +987,7 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
     if None not in border and border[3]>.0001:
         # Outline: the polygon edge in the border colour, alpha-blended over (thick: MilkDrop's 4 offsets).
         aspect_y=min(1.,height/width)
-        angles=np.arange(shape['sides'])/shape['sides']*2*math.pi+angle+math.pi/4
+        angles=np.arange(sides)/sides*2*math.pi+angle+math.pi/4
         px=(x+radius*aspect_y*.5*np.cos(angles))*width;py=(1-(y-radius*.5*np.sin(angles)))*height
         points=np.stack([px,py],axis=-1)
         # Each thick pass is blended on its own; shape borders are offset by 1/viewport in strip

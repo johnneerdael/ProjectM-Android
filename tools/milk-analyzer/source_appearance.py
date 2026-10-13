@@ -27,7 +27,8 @@ SHAPE_CONTROLS={'x':('position_x','milkdrop shape coordinate'),'y':('position_y'
     'b2':('perimeter_colour_b','encoded RGB component'),'a2':('perimeter_opacity','source opacity'),
     'border_r':('border_colour_r','encoded RGB component'),'border_g':('border_colour_g','encoded RGB component'),
     'border_b':('border_colour_b','encoded RGB component'),'border_a':('outline_opacity','source opacity'),
-    'tex_zoom':('texture_zoom','source texture zoom ratio'),'tex_ang':('texture_rotation','rad')}
+    'tex_zoom':('texture_zoom','source texture zoom ratio'),'tex_ang':('texture_rotation','rad'),
+    'sides':('side_count','polygon sides (native int32, clamped to 3-100 by CustomShape)')}
 MESH_CONTROLS={'zoom':('zoom','source zoom ratio'),'zoomexp':('radial_zoom','source zoom exponent'),
     'rot':('rotation','rad/feedback step'),'dx':('translation_x','source UV displacement'),
     'dy':('translation_y','source UV displacement'),'sx':('scale_x','source UV scale'),
@@ -493,6 +494,10 @@ def appearance_from_analysis(analysis):
         if recurrence is not None:elements[identity]['frame_recurrence']=recurrence
         elements[identity]['motion_controls']=[motion_control(controls[name],*SHAPE_CONTROLS[name],
             application='shape geometry parameter',input_scenario=getattr(analysis,'input_scenario',None)) for name in ('x','y','rad','ang') if name in controls]
+        if 'sides' in controls and _number(controls['sides']) is None:
+            # A side count written per frame: exported so consumers can evaluate it each frame (CustomShape clamps to 3-100).
+            elements[identity]['motion_controls'].append(motion_control(controls['sides'],*SHAPE_CONTROLS['sides'],
+                application='shape geometry parameter',input_scenario=getattr(analysis,'input_scenario',None)))
         for name,(control,unit) in SHAPE_CONTROLS.items():
             if name in controls:
                 material=elements[identity]['material']
