@@ -1,0 +1,49 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r86-v1",
+ "preset": "suksma - branding the breeders - depression addiction.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4ec6f34aede7803ece7cfdff14a748140fb4f96aaf93365d3ef37185b0ddfd39",
+  "prediction.json": "2a108e17dcd7077bd898ef45eb84815294bad6ecdda11ea24d9fac946eeb7963",
+  "description.json": "4d5e894afd9c9a3faea8d6e1761780cd5282910b5feab588bd24fe044f7d2724",
+  "recipe.json": "1328a4d5fdfd0136bff309b13fdeceaeb0c6ab58712e9f2bbbacc913153cff83",
+  "llm-look-description-v1.txt": "377f3b1f313f994926ecea685630de68e201bdf6cb01e9ec96d8990a232f41ed"
+ },
+ "capture_result_sha256": "a4f1c712af9b4991ddf45c1bfb9beb192a98313ab4526fbfb48e10b825d4bdee",
+ "review_measurements_v1": {
+  "prediction_luma": 0.011,
+  "screenshot_luma": 0.007,
+  "mean_rgb_prediction": [
+   0.014,
+   0.01,
+   0.008
+  ],
+  "mean_rgb_screenshot": [
+   0.01,
+   0.007,
+   0.005
+  ],
+  "blurred_luma_correlation": 0.577,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.02,
+    0.017
+   ],
+   "saturation": [
+    0.359,
+    0.309
+   ],
+   "blurred_luma_correlation": 0.784
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0211,
+   0.0184
+  ]
+ },
+ "agreements": [
+  "dark preset: time-average luma 0.020 vs 0.017, correlation 0.784; frame-to-frame change 0.021 vs 0.018"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}

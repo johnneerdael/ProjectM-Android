@@ -1698,3 +1698,12 @@ per frame; in 754 of them the vectors can be visible.
   engine's (open).
 - Threshold composites (r75, 312): display brightness is very sensitive to
   blur2 levels. The cause is not established yet (open).
+
+### r84–r87
+
+r84 (chaotic layout) matches on averages. r86 and r87 were understood on
+the first prediction. r87's brightness is identical to the capture frame by
+frame for three seconds before drifting slightly brighter. r85 is open: a
+thin red border spreads over our canvas through the warp's audio-driven blur
+while the engine's canvas stays dark. Its composite samples the canvas at
+coordinates set by the canvas's own colour, so the error shows as solid red.
