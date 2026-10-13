@@ -1282,3 +1282,10 @@ repeated on correctly oriented frames. Probes and results:
   0.736 vs 0.762, edge energy 0.0027 vs 0.0028, correlation 0.76). The v4
   SDK text states the 60/40 split; what each branch changes is not yet in
   the recipe.
+- **r35 (`amandio c - green machinery 2 …`) v1.** The prediction matches on
+  the first attempt: a cyan/blue spiral vortex with bright filaments (frames
+  60–149 luma 0.344 vs 0.380, saturation 0.60 vs 0.57, correlation 0.66). The
+  SDK text gets the self-advecting texture and long persistence but calls the
+  palette grey. Audio-driven shader colour channels leave the recipe without
+  a hue, and the spiral form is not named. Open SDK gap: a hue summary for
+  shader colour that the illustration resolves.

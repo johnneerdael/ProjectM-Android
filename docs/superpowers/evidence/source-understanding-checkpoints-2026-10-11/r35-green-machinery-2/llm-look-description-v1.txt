@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r35 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a dense, self-advecting machine-like texture rather than a few drawn objects. The only drawn element is one tiny 12-sided polygon (radius about 0.003 NDC) repeated 1024 times with instance-dependent positions (centres unknown), so it reads as a fine scatter of specks or dots seeding the canvas. A warp shader steers the image by its own content (self-advection), which smears and flows those seeds into fluid, organic structure. The composite uses a reciprocal-radius polar mapping, a tunnel-like candidate (not guaranteed). A fully black outer border is redrawn each frame but covers about 0% of the screen.
+
+Feedback and motion: the standard mesh does nothing (zoom 1, rotation 0, no translation), so movement comes from the shader advection alone. Flat-colour trails persist for a very long time (gain about 0.999 per frame, tiny positive offset), and mid to bright levels are kept almost whole. Content therefore accumulates and lingers, with slow drift. Estimated flow is about 0.075 screen widths per second (range 0.005 to 0.2), with low frame-to-frame change (about 0.03).
+
+Colour: the source palette is unresolved. Steady state is grayscale, close to neutral white or grey with no fixed hue family. The composite maps mid and bright canvas levels to near-white, so bright areas clip to white. The estimate gives moderate saturation (about 0.4, wide uncertainty) and neutral warm/cool balance. The preset name says "green", but nothing in the recipe supports green.
+
+Brightness: calibrated mean luminance about 0.46 (0.27 to 0.70), a mid-bright picture that may bloom toward white. Brightness jumps are estimated at about 1.6 per 10 s (0 to 8.6).
+
+Audio: bass, mid and treble all route into the warp and composite shader colour channels (red, green, blue). Gains are unresolved, so the strength is unknown. Expect brightness or colour pulses with the music, not a clear beat-locked shape.
+
+Uncertain: the 1024 instance positions, actual hues, whether the tunnel look appears, trail density and how white the screen gets. The two mood estimates conflict. The calibrated display estimate says Chill (activity 0.20, possible Chill, Normal or Intense), while the assumption-based mood layer says Intense (85). I lean toward calm to moderate and flowing, with audio-driven brightness pulses.

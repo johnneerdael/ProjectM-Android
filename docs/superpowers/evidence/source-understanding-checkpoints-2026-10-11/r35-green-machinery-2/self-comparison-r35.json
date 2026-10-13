@@ -1,0 +1,78 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r35-v1",
+ "preset": "amandio c - green machinery 2 martin says jump, amandioq says how HI jesusk.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "be01830939f5767101f05a84f64b9707a9db03581c86a96818ad49b5ad39db8c",
+  "prediction.json": "a8ea3ccab88881e7cbccb7a8b0e8037784fb4d5d91098fac9ce7d7727f6abf4a",
+  "description.json": "4c125f52bf2b4b84f3b91283d53cb477fa9b2c0809755cdd2f55170152ab2c0d",
+  "recipe.json": "63edc8c1a92017f491ba7c7ffa0b3c43d5a74a4778b5bf5b1f5f810d99785157",
+  "llm-look-description-v1.txt": "dda133ae38539a51cb960272f0901793921bdab1e79240f27ddb6d34d69c8e42"
+ },
+ "capture_result_sha256": "e3f7432996e962759054c952a66b88bc2c274f14f5be52e2bef21222410ff887",
+ "review_measurements_v1": {
+  "prediction_luma": 0.337,
+  "screenshot_luma": 0.435,
+  "mean_rgb_prediction": [
+   0.041,
+   0.399,
+   0.589
+  ],
+  "mean_rgb_screenshot": [
+   0.051,
+   0.531,
+   0.619
+  ],
+  "saturation": [
+   0.935,
+   0.931
+  ],
+  "blurred_luma_correlation": 0.383,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.344,
+    0.38
+   ],
+   "rgb": [
+    [
+     0.162,
+     0.396,
+     0.359
+    ],
+    [
+     0.221,
+     0.416,
+     0.496
+    ]
+   ],
+   "saturation": [
+    0.597,
+    0.57
+   ],
+   "blurred_luma_correlation": 0.664
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.071,
+   0.0803
+  ]
+ },
+ "agreements": [
+  "prediction: the same cyan/blue spiral vortex with bright filaments and dark core; brightness, saturation and motion match",
+  "SDK text: dense self-advecting texture seeded by tiny instanced specks, very long persistence, mid brightness"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "version": "SDK",
+   "observed": "text calls the palette unresolved/grey and possibly blooming to white; the capture is saturated cyan/blue",
+   "cause": "the recipe carries no hue for audio-driven shader colour channels; the steady-state hue cue is grey"
+  },
+  {
+   "size": "small",
+   "version": "SDK",
+   "observed": "spiral form not named (only a possible tunnel)"
+  }
+ ],
+ "verdict": "understood by the prediction on the first attempt; SDK text partial (palette, spiral form)"
+}
