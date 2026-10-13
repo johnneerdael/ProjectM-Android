@@ -1562,4 +1562,4 @@ the capture's dim red falls by about 3% per frame. A diagnostic run that
 truncates stored levels lowers our mean from 0.057 to 0.037 (capture 0.020),
 so storage rounding is at most part of the cause. It is not adopted, because
 it would change every preset without evidence of the GPU's conversion. The
-recipe also leaves persistence unresolved when `fDecay=1`. Open item.
+recipe states the decay correctly (`feedback.decay` 1.0). Open item.

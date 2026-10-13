@@ -46,7 +46,7 @@
   "time-average map correlation 0.80"
  ],
  "misses": [
-  "ours keeps a dim red haze everywhere (luma 0.057 vs 0.020 over frames 60-149); the capture lets dim content fall to black at about 3% per frame although fDecay is 1. Diagnostic: truncating instead of rounding the stored 8-bit levels lowers ours to 0.037, so storage rounding explains part at most; not adopted (it would change every preset without proof of the GPU's conversion). Recipe also leaves persistence unresolved for fDecay=1 (decay_gain null)"
+  "ours keeps a dim red haze everywhere (luma 0.057 vs 0.020 over frames 60-149); the capture lets dim content fall to black at about 3% per frame although fDecay is 1. Diagnostic: truncating instead of rounding the stored 8-bit levels lowers ours to 0.037, so storage rounding explains part at most; not adopted (it would change every preset without proof of the GPU's conversion). The recipe states decay 1.0 (feedback.decay)"
  ],
  "verdict": "structure understood; dim persistence overestimated (open)"
 }
