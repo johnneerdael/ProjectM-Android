@@ -1,0 +1,110 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r40-v2",
+ "preset": "Phat+EoS 3way=).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "786147e5b6c9d39d5664de19d77dd5cca35b34e1200236a5f9fbbf8fc9bc6c97",
+  "prediction.json": "f12a86d06ca1f755175a6ebf5dc824083ac5da672ff97e53b351fa28d65da8d8",
+  "description.json": "5595eaf4c6fbec3968c765114ceae2e9fd3c7bd99ad17e27310aecdbd8115eed",
+  "recipe.json": "4c2dabec53c5e88e442c48d6159388cec32be42cfa436d6711d3181b0236927d",
+  "llm-look-description-v1.txt": "d5acb493c23d3f2e8f389be23e013ff2155dce11f513017d972d035b6cca2314"
+ },
+ "capture_result_sha256": "72b2b1a755203412019889688d2b2f142fd9b53ccb660ba8e4608684ad44b3fd",
+ "review_measurements_v1": {
+  "prediction_luma": 0.283,
+  "screenshot_luma": 0.579,
+  "mean_rgb_prediction": [
+   0.49,
+   0.221,
+   0.283
+  ],
+  "mean_rgb_screenshot": [
+   0.591,
+   0.591,
+   0.42
+  ],
+  "blurred_luma_correlation": 0.573,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.165,
+    0.346
+   ],
+   "blurred_luma_correlation": 0.898
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0334,
+   0.1097
+  ]
+ },
+ "review_measurements_v2": {
+  "prediction_luma": 0.587,
+  "screenshot_luma": 0.579,
+  "mean_rgb_prediction": [
+   0.603,
+   0.599,
+   0.422
+  ],
+  "mean_rgb_screenshot": [
+   0.591,
+   0.591,
+   0.42
+  ],
+  "saturation": [
+   0.354,
+   0.345
+  ],
+  "blurred_luma_correlation": 0.605,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.345,
+    0.346
+   ],
+   "rgb": [
+    [
+     0.362,
+     0.354,
+     0.213
+    ],
+    [
+     0.36,
+     0.354,
+     0.218
+    ]
+   ],
+   "saturation": [
+    0.43,
+    0.407
+   ],
+   "blurred_luma_correlation": 0.878
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0483,
+   0.1097
+  ]
+ },
+ "diagnostics": {
+  "note": "native-ruler identity-composite canvas (diagnostic only): white self-crossing wave rings and yellow textured shapes"
+ },
+ "agreements": [
+  "v2 prediction: the same white looping rings, yellow flame shards and inset square; luma tracks the capture frame by frame (within about 0.01)"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "version": "v1",
+   "observed": "tinted (orange/magenta/blue) rings and half the brightness",
+   "cause": "additive custom waves are 512-point self-crossing loops; GL adds every segment, so overlaps saturate to white, but line waves were drawn into one layer per pass (overlaps not counted)",
+   "fix": "additive line waves accumulate every segment's pixels (np.add.at over _gl_line_pixels with segment indices)"
+  },
+  {
+   "size": "small",
+   "observed": "frame difference 0.048 vs 0.110",
+   "note": "open: likely the video echo orientation following bass_att+mid_att+treb_att each frame"
+  }
+ ],
+ "regressions": {
+  "r8_r25": "r8 and r12 within 0.01; r21 chaotic"
+ },
+ "verdict": "understood (v2)"
+}

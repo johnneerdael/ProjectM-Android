@@ -1320,3 +1320,23 @@ repeated on correctly oriented frames. Probes and results:
   prediction: a bright cyan/blue/white tiled grid with a white cross
   (single-frame correlation 0.991; frames 60–149 luma 0.687 vs 0.723,
   correlation 0.996). The SDK text gave a bright, cool point-dust scene.
+- **Additive line waves accumulate.** GL adds every segment of an additive
+  wave, so self-crossing or retraced strokes build up. Line waves were drawn
+  into one layer per thick pass, so overlaps were not counted. They now add
+  each segment's pixels (`_gl_line_pixels` with segment indices; a segment's
+  end pixel belongs to the next one). Alpha-blended waves keep the per-pass
+  blend.
+- **r40 (`Phat+EoS 3way=)`) v1 → v2.** Three additive 512-point Lissajous
+  loops in orange, magenta and blue overlap until they saturate to white,
+  over yellow textured shapes. v1 drew tinted rings at half the brightness.
+  v2 matches the capture: screenshot luma 0.587 vs 0.579, RGB within 0.012,
+  per-frame luma within about 0.01. Frame difference is still low (0.048 vs
+  0.110); the video echo orientation follows the audio sum every frame.
+- **r11 whole-pack export (fe62a985).** Refit within noise (luminance 0.646,
+  frame difference 0.710, flow 0.681, jumps 0.765, saturation 0.638,
+  warm/cool 0.602). Facet agreement with remap: Energy 0.532, Brightness
+  0.598, Colour 0.502, Movement 0.639, Comfort 0.812 (mean 0.6166 vs r8c-hue
+  0.6152). Most of the r28–r40 fixes change the prediction image and the
+  recipe, which the whole-pack calibration does not read, so pack-wide
+  agreement stays flat. Evidence: `fit-report-r11.json`,
+  `facet-agreement-r11.json`.

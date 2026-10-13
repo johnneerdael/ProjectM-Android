@@ -578,7 +578,7 @@ def _mv_alpha(facts):
     return min(1.,max(0.,colour[3])) if len(colour)>3 and type(colour[3]) in (int,float) else 1.
 
 
-def _gl_line_pixels(x0,y0,x1,y1,width,height):
+def _gl_line_pixels(x0,y0,x1,y1,width,height,return_index=False):
     """Pixels of aliased 1 px GL lines (window coordinates, pixel centres at i+.5), vectorised.
 
     Diamond-exit rule along the major axis: a pixel is produced when the segment leaves its diamond,
@@ -592,7 +592,7 @@ def _gl_line_pixels(x0,y0,x1,y1,width,height):
     step=np.where(a1>=a0,1.,-1.);span=np.abs(a1-a0)
     # First exit vertex strictly after the start in the drawing direction (vertices sit on integers).
     first=np.where(step>0,np.floor(a0)+1,np.ceil(a0)-1)
-    rows=[];cols=[]
+    rows=[];cols=[];segments=[]
     for k in range(int(np.ceil(span.max()))+1 if len(span) else 0):
         exit_=first+step*k;offset=(exit_-a0)*step
         keep=(offset>0)&(offset<=span)
@@ -602,8 +602,9 @@ def _gl_line_pixels(x0,y0,x1,y1,width,height):
         minor=np.floor(b0+(b1-b0)*t);major=np.floor(centre)
         col=np.where(xmajor,major,minor)[keep].astype(int);row=np.where(xmajor,minor,major)[keep].astype(int)
         inside=(col>=0)&(col<width)&(row>=0)&(row<height)
-        cols.append(col[inside]);rows.append(row[inside])
-    if not rows:return np.zeros(0,int),np.zeros(0,int)
+        cols.append(col[inside]);rows.append(row[inside]);segments.append(np.nonzero(keep)[0][inside])
+    if not rows:return (np.zeros(0,int),)*(3 if return_index else 2)
+    if return_index:return np.concatenate(rows),np.concatenate(cols),np.concatenate(segments)
     return np.concatenate(rows),np.concatenate(cols)
 
 
@@ -715,7 +716,15 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,end
         for ox,oy in ([(0,0),(.5,0),(.5,-up),(0,-up)] if flags.get('thick') else [(0,0)]):
             pass_layer=np.zeros_like(image)
             colour=colour*min(1.,_DRAW_SCALE[0]) if ox==0 and oy==0 else colour
-            for i in valid:
+            if flags.get('additive',True) and valid:
+                # Additive blending adds every segment, so self-crossing and retraced strokes accumulate
+                # (GL leaves each segment's end pixel to the next one: joints are not counted twice).
+                # px/py use pixel centres at integers (the native-ruler-checked cv2 raster); shift by half a
+                # pixel into _gl_line_pixels' centres-at-i+.5 window convention.
+                v=np.array(valid);h=.5
+                rows,cols,seg=_gl_line_pixels(px[v]+ox+h,py[v]+oy+h,px[v+1]+ox+h,py[v+1]+oy+h,width,height,return_index=True)
+                np.add.at(pass_layer,(rows,cols),colour[v][seg]);np.add.at(cover,(rows,cols),alpha[v][seg])
+            for i in ([] if flags.get('additive',True) else valid):
                 a=(int(round((px[i]+ox)*16)),int(round((py[i]+oy)*16)));b=(int(round((px[i+1]+ox)*16)),int(round((py[i+1]+oy)*16)))
                 cv2.line(pass_layer,a,b,tuple(float(c) for c in colour[i]),1,cv2.LINE_8,4)
                 cv2.line(cover,a,b,float(alpha[i]),1,cv2.LINE_8,4)

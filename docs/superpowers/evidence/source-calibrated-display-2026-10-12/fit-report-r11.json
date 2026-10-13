@@ -1,0 +1,44 @@
+{
+ "policy": "source-display-calibration-fit-v1",
+ "presets_with_summaries": 9606,
+ "labelled": 9606,
+ "excluded": 90,
+ "targets": {
+  "mean_luminance": {
+   "n": 9516,
+   "oof_spearman": 0.646,
+   "excluded_n": 90,
+   "excluded_spearman": 0.696
+  },
+  "mean_abs_frame_difference": {
+   "n": 9516,
+   "oof_spearman": 0.71,
+   "excluded_n": 90,
+   "excluded_spearman": 0.776
+  },
+  "mean_flow_screen_widths_per_s": {
+   "n": 9516,
+   "oof_spearman": 0.681,
+   "excluded_n": 90,
+   "excluded_spearman": 0.757
+  },
+  "global_brightness_jumps_per_10s": {
+   "n": 9516,
+   "oof_spearman": 0.765,
+   "excluded_n": 90,
+   "excluded_spearman": 0.736
+  },
+  "mean_saturation": {
+   "n": 9516,
+   "oof_spearman": 0.638,
+   "excluded_n": 90,
+   "excluded_spearman": 0.533
+  },
+  "warm_cool": {
+   "n": 9238,
+   "oof_spearman": 0.602,
+   "excluded_n": 89,
+   "excluded_spearman": 0.715
+  }
+ }
+}

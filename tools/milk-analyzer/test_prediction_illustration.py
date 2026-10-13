@@ -401,3 +401,21 @@ def test_noise_volumes_are_32_cubed_and_sampled_in_three_dimensions():
     c = (np.array([[3, 5, 7]]) + .5) / 32
     assert np.allclose(_texture_lookup_3d(lq, c, wrap=True, linear=True)[0], lq[7, 5, 3])
     assert np.allclose(_texture_lookup_3d(lq, c + 1, wrap=True, linear=True)[0], lq[7, 5, 3])
+
+
+def test_additive_line_wave_accumulates_every_segment():
+    from prediction_illustration import _draw_points
+    # x runs .2 -> .8 -> .2 at y = .5: the same row is drawn twice. GL adds both passes of an additive
+    # wave, so the retraced pixels reach twice the colour (0.3 -> 0.6), not one layer's value.
+    xs = {'root': 0, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'sample'}}]}
+    record = {'sample_count': 3, 'draw_flags': {'thick': False, 'additive': True, 'dots': False},
+              'programs': {'x': {'root': 4, 'nodes': [
+                  {'op': 'input', 'args': [], 'detail': {'name': 'sample'}}, {'op': 'constant', 'args': [], 'detail': {'value': .5}},
+                  {'op': 'subtract', 'args': [0, 1], 'detail': {}}, {'op': 'abs', 'args': [2], 'detail': {}},
+                  {'op': 'add', 'args': [3, 5], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': .3}}]},
+                  'y': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': .5}}]},
+                  **{c: {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': v}}]} for c, v in zip('rgba', (.3, .3, .3, 1.))}}}
+    width, height = 100, 50
+    image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., lambda p: (p[0] * width, (1 - p[1]) * height))
+    row = image[25, 35:65, 0]
+    assert np.allclose(row, .6, atol=1e-6)

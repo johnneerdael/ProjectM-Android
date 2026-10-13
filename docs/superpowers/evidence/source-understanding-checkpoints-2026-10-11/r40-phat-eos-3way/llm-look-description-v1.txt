@@ -1,0 +1,15 @@
+LLM look description from the SDK recipe, source parts only (before capture, r40 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a soft, layered, mostly greyish-white composition built from three polygon shapes (14-sided, radius 0.33; 13-sided, radius about 1.02, so it overfills the screen; and a 4-sided one, radius 0.45, which sways sideways on a roughly 6-second sine), three dotted custom-wave clouds of 512 points each (red, pink and blue, bunched in the left-centre of the frame, roughly x 0.17-0.50, y 0.37-0.63), and a built-in stereo X/Y dot trace around the centre. The shapes are authored white with faint borders, so I expect pale, translucent polygon fills rather than saturated ones. Whether textures tint them is unresolved.
+
+Feedback and motion: decay is 0.93 per frame, a half-life of about a third of a second. That gives short trails, with faint residue fading to near black. The warp has no net zoom, rotation or drift. Only a small procedural warp (0.07) wobbles the canvas, so the image should not tunnel or spin. A 2.7x magnified echo copy is blended at 50% about the centre, which adds a large soft ghost behind the detail. A thin 2% dark border and a mild centre-darkening diamond vignette the frame.
+
+Colour: the settled canvas is grey-white (about 0.55 canvas, 0.8 displayed), so it reads as a pale, muted wash with red, pink and blue dots on top. Overall warm/cool is slightly cool-neutral. Hue cycling is zero.
+
+Brightness: moderate. The calibrated estimate is a mean luminance of about 0.27, with a wide range of 0.08 to 0.5. I expect no strobing, and the brightness-jump estimate is near 0.
+
+Audio: the stereo dot trace follows the waveform directly. The three clouds hold bass (red), mid (pink) and treble (blue) at midpoints, but I found no proven band-to-brightness route, so the reaction may be modest and mostly shape jitter.
+
+Mood: calm, smooth and low activity (estimated Chill, with Normal possible). Confidence is low.
+
+Uncertain: shape textures and fill appearance, how much the dots show against the pale wash, how strongly audio moves the clouds, and the real trail length on screen.
