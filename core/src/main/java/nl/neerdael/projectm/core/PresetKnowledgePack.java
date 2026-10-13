@@ -238,20 +238,29 @@ public final class PresetKnowledgePack {
 
         GzipMember(InputStream in) throws IOException {
             super(in, new Inflater(true), 1 << 16);
-            if (in.read() != 0x1f || in.read() != 0x8b || in.read() != 8) throw new InvalidPackException("gzip", "not a deflate gzip member");
-            int flags = in.read();
-            if (flags < 0 || (flags & 0xe0) != 0) throw new InvalidPackException("gzip", "bad header flags");
-            for (int i = 0; i < 6; i++) if (in.read() < 0) throw new InvalidPackException("gzip", "short header");
+            CRC32 header = new CRC32();
+            if (next(header) != 0x1f || next(header) != 0x8b || next(header) != 8) throw new InvalidPackException("gzip", "not a deflate gzip member");
+            int flags = next(header);
+            if ((flags & 0xe0) != 0) throw new InvalidPackException("gzip", "bad header flags");
+            for (int i = 0; i < 6; i++) next(header);
             if ((flags & 4) != 0) {
-                int length = in.read() | (in.read() << 8);
-                for (int i = 0; i < length; i++) if (in.read() < 0) throw new InvalidPackException("gzip", "short extra field");
+                int length = next(header) | (next(header) << 8);
+                for (int i = 0; i < length; i++) next(header);
             }
-            for (int field : new int[]{8, 16}) if ((flags & field) != 0) {
-                int b;
-                while ((b = in.read()) > 0) { /* zero-terminated name or comment */ }
-                if (b < 0) throw new InvalidPackException("gzip", "short header text");
+            for (int field : new int[]{8, 16}) if ((flags & field) != 0) while (next(header) != 0) { /* zero-terminated name or comment */ }
+            if ((flags & 2) != 0) {
+                int expected = (int) (header.getValue() & 0xffff);
+                int stored = next(header) | (next(header) << 8);
+                if (stored != expected) throw new InvalidPackException("gzip", "header CRC mismatch");
             }
-            if ((flags & 2) != 0 && (in.read() < 0 || in.read() < 0)) throw new InvalidPackException("gzip", "short header CRC");
+        }
+
+        /** The next header byte, added to the running header CRC; a short header is an invalid pack. */
+        private int next(CRC32 header) throws IOException {
+            int b = in.read();
+            if (b < 0) throw new InvalidPackException("gzip", "short header");
+            header.update(b);
+            return b;
         }
 
         @Override

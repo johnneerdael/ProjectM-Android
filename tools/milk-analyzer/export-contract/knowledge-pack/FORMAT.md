@@ -33,8 +33,10 @@ serialised program graphs removed (the keys listed in
 
 ## Encoding
 
-- `core.jsonl.gz` is exactly one gzip member: a second member or any bytes
-  after the member reject the pack (rule: *gzip*). Its content is UTF-8 text: one compact
+- `core.jsonl.gz` is exactly one valid RFC 1952 gzip member (header CRC
+  checked when present, CRC-32 and size trailer checked): a second member,
+  any bytes after the member, or a corrupt member reject the pack (rule:
+  *gzip*). Its content is UTF-8 text: one compact
   JSON object per line, each line ending in `\n` (LF). A carriage return
   before the LF, or a last line without its LF, rejects the pack (rule:
   *line ending*). Producers write ASCII
@@ -130,9 +132,10 @@ for the packs a reader must accept, and the rule each rejected pack breaks:
 | `bad-final-lf` | reject: line ending |
 | `bad-two-members` | reject: gzip |
 | `bad-trailing-bytes` | reject: gzip |
+| `bad-header-crc` | reject: gzip |
 
 `knowledge_pack_golden.py` (predictor branch) regenerates the vectors byte for
 byte from `golden-v1/recipes/`. `test_knowledge_pack_golden.py` checks the
 Python reader against them and `PresetKnowledgePackTest` checks the Java
-reader. A reader in another language should run the same thirteen cases in
+reader. A reader in another language should run the same fourteen cases in
 its own tests.
