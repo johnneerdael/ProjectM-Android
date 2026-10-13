@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r42-v1",
+ "preset": "suksma - staining aethers of lovegrudge barfpain.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "486aa444609ce2140ab6ed41814a1805c4b03e6efdd43277e24809ebafb48d22",
+  "prediction.json": "4b49ced7927d11a8371928023cc87d0330e95f23572d845947665312e4bf1f11",
+  "description.json": "666edfa2be62cb74dd9131a104e88333f2cd75f2ee7f82e95d013569d2b8d5e0",
+  "recipe.json": "991555bc75ed775eb2a6389e645b2599f942604090688bd210de1857f938a273",
+  "llm-look-description-v1.txt": "486da62bc3d80b1d8d3b5ddbc32899c30fd77eb938492c2bf71d080bce4a48e1"
+ },
+ "capture_result_sha256": "f849215892d6514fd8012a8f1dbaff4c5da27d3413c15a42b934d7a495a302a9",
+ "review_measurements_v1": {
+  "prediction_luma": 0.736,
+  "screenshot_luma": 0.078,
+  "mean_rgb_prediction": [
+   0.063,
+   1.0,
+   0.099
+  ],
+  "mean_rgb_screenshot": [
+   0.063,
+   0.079,
+   0.1
+  ],
+  "blurred_luma_correlation": 0.996,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.749,
+    0.123
+   ],
+   "blurred_luma_correlation": 0.998
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0626,
+   0.0912
+  ]
+ },
+ "agreements": [
+  "prediction: the same glowing white-cyan centre blob, faint blue grid lines and specks in the same places (correlation 0.996); red and blue channels match"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "solid green background in the prediction, black in the capture",
+   "cause": "q5-q8 are never written, so the warp's uv = mul(uv, float2x2(_qb)) collapses to a constant and the whole background samples one texel of noise_lq, keeping channels >= 0.9. projectM seeds noise_lq from the clock: black in about 73% of processes, a saturated colour otherwise (1-0.9^3); the illustration's stand-in texel has green >= 0.9",
+   "fix": "none for the image (a per-process draw); a recipe note for single-texel noise sampling is open"
+  }
+ ],
+ "verdict": "structure understood; background colour is a per-process noise draw"
+}

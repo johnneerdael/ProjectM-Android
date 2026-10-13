@@ -1,6 +1,6 @@
 {
  "policy": "checkpoint-self-comparison-v1",
- "checkpoint": "r40-v2",
+ "checkpoint": "r40-v3",
  "preset": "Phat+EoS 3way=).milk",
  "fresh_prediction": true,
  "frozen_before_capture": {
@@ -99,12 +99,40 @@
   },
   {
    "size": "small",
+   "version": "v2",
    "observed": "frame difference 0.048 vs 0.110",
-   "note": "open: likely the video echo orientation following bass_att+mid_att+treb_att each frame"
+   "cause": "the legacy echo used the midpoint of echo_orient's range; patch 0008 applies the per-frame echo_orient = int(bass_att+mid_att+treb_att) % 4, so the mirror flips with the music",
+   "fix": "the legacy composite reads the frame's stepped echo_orient/echo_zoom/echo_alpha"
   }
  ],
  "regressions": {
   "r8_r25": "r8 and r12 within 0.01; r21 chaotic"
  },
- "verdict": "understood (v2)"
+ "verdict": "understood (v3): single-frame correlation 0.984, motion matches",
+ "review_measurements_v3": {
+  "prediction_luma": 0.577,
+  "screenshot_luma": 0.579,
+  "mean_rgb_prediction": [
+   0.591,
+   0.59,
+   0.418
+  ],
+  "mean_rgb_screenshot": [
+   0.591,
+   0.591,
+   0.42
+  ],
+  "blurred_luma_correlation": 0.984,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.347,
+    0.346
+   ],
+   "blurred_luma_correlation": 0.998
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1115,
+   0.1097
+  ]
+ }
 }

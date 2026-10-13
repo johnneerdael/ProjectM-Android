@@ -1347,3 +1347,42 @@ repeated on correctly oriented frames. Probes and results:
   of presets (unchanged); calm/intense swaps 1.4% (held-out 2 of 90 vs 1). It
   is shipped because it matches the descriptor code used at prediction time.
   Evidence: `band-eval-r11-oof.json`.
+- **Per-frame video echo.** Patch 0008 makes the engine apply this frame's
+  `echo_orient` (truncated, mod 4), `echo_zoom` and `echo_alpha`. The legacy
+  composite in the illustration used the midpoint of each range; it now uses
+  the stepped per-frame values. r40 v3: single-frame correlation 0.984 (v2
+  0.605), frame difference 0.112 vs 0.110, because its echo mirror flips with
+  `int(bass_att+mid_att+treb_att) % 4`.
+- **r41 (`Stahlregen - Eckshack's Eyeball (floater mix) (Plastic)`) v1.**
+  Understood on the first prediction: the same dark swirling tunnel with grey
+  ribbons and blue/green accents (single-frame correlation 0.85, frames 60–149
+  0.89), about 20% darker late in the clip.
+- **r42 (`suksma - staining aethers of lovegrudge barfpain`) v1.** Everything
+  drawn matches (correlation 0.996; red and blue channels equal), but the
+  background is solid green in the prediction and black in the capture. q5–q8
+  are never written, so the warp's `uv = mul(uv, float2x2(_qb))` collapses to
+  a constant and the background samples a single `noise_lq` texel, keeping
+  channels ≥ 0.9. projectM seeds that texture from the clock, so the
+  background is black in about 73% of processes and a saturated colour
+  otherwise; our stand-in texel has green ≥ 0.9. Open: a recipe note when
+  noise is sampled at constant coordinates.
+- **r43 (`EoS - glowsticks v2 03 … [roaming]`) v1.** Understood on the first
+  prediction: a tiled kaleidoscope of glowstick arcs (single-frame correlation
+  0.979; frames 60–149 luma 0.157 vs 0.166, correlation 0.998, frame
+  difference 0.042 vs 0.043). The SDK text misses the tiling.
+- **r44 (`ORB - Comic Book Curves 2 …`) v1.** Understood on the first
+  prediction: smeared blue-violet strokes with dark arcs (frames 60–149 luma
+  0.272 vs 0.285, correlation 0.982, frame difference 0.133 vs 0.130).
+- **r45 (`LuxXx - The Feeder II`) v1.** Brightness matches until about frame
+  105, then the capture darkens while the prediction stays white. A q-probe
+  (diagnostic) shows the beat state agrees but `q8` is offset by a constant
+  from frame 0. `q8` accumulates `pow(1.2·bass + 0.4·bass_att + …, 6)/fps`,
+  about 3,700 on the loud first frame, so a 0.1% band difference moves it by
+  tens of units. The warp centres are `sin(k·q8)`, so the layout is chaotic
+  with respect to tiny audio differences: unpredictable by construction.
+  Open: an SDK note for amplitude-sensitive accumulators.
+- **r46 (`amandio c - the green machine 4 - radial nature sludge …`) v1.**
+  Understood on the first prediction: a strobing green field whose per-frame
+  luma follows the capture (0.68/0.67 at frame 15, near 0 at frames 45 and
+  105). Frames 60–149: luma 0.139 vs 0.127, correlation 0.78, frame
+  difference 0.109 vs 0.112.

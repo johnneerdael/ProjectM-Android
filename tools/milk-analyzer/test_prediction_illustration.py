@@ -419,3 +419,16 @@ def test_additive_line_wave_accumulates_every_segment():
     image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., lambda p: (p[0] * width, (1 - p[1]) * height))
     row = image[25, 35:65, 0]
     assert np.allclose(row, .6, atol=1e-6)
+
+
+def test_legacy_echo_follows_the_per_frame_orientation():
+    from prediction_illustration import _composite
+    # Patch 0008: the echo reads per-frame echo_orient (truncated, mod 4). Orientation 1 mirrors left-right.
+    image = np.zeros((4, 8, 3), np.float32); image[:, :4] = 1.
+    facts = {'/analysis/visual_description/x/legacy_response': {
+        'echo_selection': 'active or possible native echo',
+        'native_control_ranges': {'echo_alpha': [.5, .5], 'echo_zoom': [1., 1.], 'echo_orient': [0., 3.]}}}
+    plain, _ = _composite(image.copy(), facts, controls={'echo_orient': .7})
+    mirrored, _ = _composite(image.copy(), facts, controls={'echo_orient': 1.9})
+    assert np.allclose(plain[:, :4], 1.) and np.allclose(plain[:, 4:], 0.)
+    assert np.allclose(mirrored, .5)

@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r41 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a centred, softly glowing tunnel-like scene. A thin audio-driven line trace (built-in wave mode 1, stereo polar rotating trace, drawn around the screen centre) is the main seed. Over it sit two 32-sided polygon shapes, a small one (radius about 0.147 NDC, one copy) and a larger one (radius about 0.245, two instance copies), which read as smooth circles or discs. The shapes are marked as moving, but the source gives no measured speed (geometry drift bound 0).
+
+Feedback and motion: the previous frame is re-sampled through a constant radial zoom (1.049, zoomexp 0.179), so everything expands outward from the screen centre. The effective rate is about 0.5% per frame near the centre and up to about 30% per frame toward the edges. There is no rotation and no sideways drift. Decay is 0.98 per frame, giving trails with a half-life near 1.2 s and a faint residue (stored levels of 24-25/255 never fade). The result should be rings and echoes of the line and circles streaming outward and fading, with a slow breathing deformation of the warp.
+
+Colour: the source palette for the warp, shapes and composite is unresolved. The composite is a neutral grey transfer curve (mid-grey 0.5 shows as 0.54, full white as 0.92), so it adds no tint. The wave may start from grey and its colour is flagged as cycling. A calibrated estimate gives moderate saturation (about 0.4, wide interval 0.13-0.67) and no clear warm or cool lean. I would call it muted to moderately coloured, not one fixed hue.
+
+Brightness: the calibrated estimate for mean luminance is about 0.21 (range 0.02-0.45), so it is mostly dark to mid. Brightness jumps are expected to be rare (0 per 10 s, upper 2). Activity is estimated Chill, though Normal or Intense is not excluded. Confidence is low.
+
+Audio reaction: treble and smoothed bass drive the warp deformation through thresholds or clamps, not smooth gains, so the bends appear only above certain levels. The waveform line follows the left and right audio continuously.
+
+Uncertain: the actual colours, how bright and dense the trails get, how large the shapes appear after clipping, how strong the audio deformation is, and whether the shapes move visibly.

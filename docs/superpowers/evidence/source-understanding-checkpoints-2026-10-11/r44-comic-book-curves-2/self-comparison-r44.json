@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r44-v1",
+ "preset": "ORB - Comic Book Curves 2 thine pain chasm platoon floss.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "53eb68298614f419faff3b890e790201013a63ddd7992e6b56cad11890f7003e",
+  "prediction.json": "e663553a55253dfd49c1a12f19f0e5802ea9cd03dd7988105f9ba294294b9509",
+  "description.json": "d517000848276b3a4aefe34334134a5f5855c2b53f9bdb0e402182279a38b298",
+  "recipe.json": "2d0105f3baf5aa01b8eed644bbe4ac4e83ed21dc79fd5a0d23a6f54403421acb",
+  "llm-look-description-v1.txt": "46f41562edcf19af15a3cb0f90c683bfa6597daa35bfe0d71497e30b67f989ba"
+ },
+ "capture_result_sha256": "10ad8389d282d56c5175a9b2432a32750ca2f8e3834b5c1427ccf081cb72e669",
+ "review_measurements_v1": {
+  "prediction_luma": 0.3,
+  "screenshot_luma": 0.274,
+  "mean_rgb_prediction": [
+   0.271,
+   0.295,
+   0.436
+  ],
+  "mean_rgb_screenshot": [
+   0.248,
+   0.268,
+   0.413
+  ],
+  "saturation": [
+   0.495,
+   0.513
+  ],
+  "blurred_luma_correlation": 0.669,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.272,
+    0.285
+   ],
+   "saturation": [
+    0.364,
+    0.363
+   ],
+   "blurred_luma_correlation": 0.982
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1326,
+   0.1304
+  ]
+ },
+ "agreements": [
+  "prediction: the same smeared blue-violet strokes, dark arcs and pale gaps; luma tracks frame by frame",
+  "SDK text: screen-filling flowing pattern, moderate brightness, slightly cool"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}

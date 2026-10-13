@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r42 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a mirrored, kaleidoscope-like feedback scene. Five drawn pieces sit on top of a custom warp: a dotted stereo X/Y waveform trace (built-in wave mode 2, points only, authored alpha about 0.001, so faint), two custom waves of 512 very faint blue points each (alpha about 0.01), and four polygons. Three are pentagons (NDC radius 0.39, 0.48, 0.29) and one is a 15-sided, near-round shape (radius 0.18). The centred shapes are stationary. Two have unresolved or time-varying centres, so some positions are unknown. The wave points run well beyond the screen, so only part of them is likely to show.
+
+Feedback and motion: the per-pixel warp pulls the image toward the centre, about 2 to 10 percent per step (stronger toward the edges), while rotating it back and forth by up to 0.315 rad per step, slowly oscillating. The warp centre wanders. There is no steady translation. A cartesian mirror fold in the warp should give symmetric, folded, tunnel-and-swirl motion. The recipe's warp transfer on flat colour has gain 0 and offset (0,1,0), so old content is essentially replaced each frame rather than left as long trails. I expect short, swirling echoes of the shapes and not long smears.
+
+Colour: the steady-state hue cue is green (display about 0.12, 1.0, 0.14). The built-in wave cycles orange, pink, green, yellow, red and a little blue over time, but it is faint. The custom waves are pale blue (0.45, 0.65, 1.0). Shapes are white, with fills fading toward light blue or pink and the small one tinted salmon. Overall I expect a green-dominated field with pastel blue, pink and white accents. Saturation is moderate.
+
+Brightness: the composite maps even a quarter-level canvas to near white, so the picture should read as bright, even washed out. The calibrated display estimate gives mean luminance about 0.5 (interval 0.32 to 0.75). Treat this as a source-calibrated estimate, not a measurement.
+
+Audio: bass, mid and treble each change the opacity of the 5-sided shape with the 0.48 radius and of the 15-sided shape, through thresholds or clamps, so those two should pop in and out with the music. The dotted X/Y trace follows the waveform continuously. Gains are unknown.
+
+Uncertain: how much of the faint points and trace actually shows, the real green dominance, how strong the audio flicker is, shape positions, mirror symmetry (the recipe scores it near zero), and whether the bright composite clips to white. Activity is estimated Intense but with a wide interval (Chill to Intense); no strict mood band applies.

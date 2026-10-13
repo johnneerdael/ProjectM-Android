@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r46 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a mostly dark, smeared, organic-looking field built from thousands of small polygons. Shapes are drawn in large instance groups (12-sided x512, 12-sided x92, 20-sided x1024, plus about 311 tiny black triangles), together with one custom line waveform whose source colour is possibly red. The 20-sided group is a faint purple/blue-pink wash (alpha about 0.03, blue-dominant with a pink second colour), so it likely reads as soft glowing clouds of overlapping discs rather than crisp outlines. The black triangles probably punch small dark specks or holes into the feedback. A white border is drawn, but covers essentially none of the screen.
+
+Feedback and motion: the warp is self-advecting (image steers its own sampling) with a periodic ripple/wobble displacement, giving flowing, smeared, liquid-like structure. Plain zoom, rotation and translation are all neutral. Persistence is strongly channel-selective: red is kept (half-life about 170 frames, roughly 5-6 s) while green and blue are flipped to their inverse each frame. Expect red-ish residue to linger as trails while green/blue content flickers or alternates between frames. Shape positions move, but exact paths are unknown.
+
+Colour: red wave, purple/blue/pink shapes, grayscale/black specks. The custom composite is black for every flat canvas level, so only non-flat content shows. Calibrated estimates say mean luminance about 0.16 (wide interval, could be near black), saturation about 0.22, neutral to slightly cool. Overall: dark with muted colour accents, not a bright rainbow.
+
+Audio reaction: bass, mid and treble all route to shape_2 position; bass and treble also move the black triangles (thresholded). Bass, mid and treble all feed warp colour channels through thresholds or clamps. So expect jittering shape clouds and abrupt colour or brightness changes tied to loudness; gain sizes are unknown.
+
+Randomness: ten q values are redrawn at about 3.1 s and then every 12.6 s, so shapes or colours can change abruptly at those moments.
+
+Uncertain: final palette and dominance, actual shape paths and coverage, how visible the faint purple wash is, flashing (estimate roughly 26 brightness jumps per 10 s, very wide interval), and whether the picture is Intense or only Normal.

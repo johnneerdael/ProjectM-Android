@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r44 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a screen-filling, flowing, smeared pattern rather than a few clean shapes on black. Four custom waveforms (512 points each, authored white RGBA, positions in closed form) are drawn as curves around the centre. A built-in circular waveform sits at the centre with radius 0.5. It is authored as black with alpha 0.001, so it is nearly invisible and at most cuts a faint dark ring into what it covers. The custom curves feed an image-driven advection (self-advection) in both the warp and the composite. Expect smeared, fluid, comic-ink style swirls and curve remnants, not crisp lines.
+
+Feedback and motion: the warp has a spatially varying zoom (base about 0.97, modulated by x/y and bass_att) plus a small warp amount (0.011), no rotation and a centre of 0.5. Translation dy is within +/-0.036. Mirror reflection occurs in the warp, but the recipe's symmetry score is 0, so the symmetry is inexact. Kaleidoscope-like folding is only a candidate. Decay is about 0.57 per frame (half-life near 0.07 s), so trails are short. The image is mostly renewed by the redrawn curves and advection. Motion is likely lively and flowing, but the exact speed is unknown.
+
+Colour: the custom wave colours are dynamic and could take broad hues, and the reached colours are unverified. The composite flat-canvas transfer shows black canvas displayed as bright teal-cyan (about 0.42, 0.78, 0.77). Brighter canvas levels shift to deep blue and cyan with red falling to zero. I expect a teal, cyan and blue dominated palette with dark navy where content is bright. This is an inference from the transfer table and does not prove which hues appear.
+
+Brightness: the source-calibrated display estimate gives mean luminance about 0.43 (interval 0.24 to 0.66), moderate saturation and a slightly cool bias. The source gives no flashing certificate.
+
+Audio reaction: attenuated bass drives zoom and both translations through thresholded or clamped switches. The strength is not established. Expect the whole field to lurch, breathe or shift on bass. The central circle follows the waveform shape but is nearly invisible.
+
+Uncertain: which hues the custom waves reach, the number of visible curve layers, how the black centre ring looks, the amount of mirroring, real speed, and brightness jumps. The estimate is Intense, with Normal as a possibility.

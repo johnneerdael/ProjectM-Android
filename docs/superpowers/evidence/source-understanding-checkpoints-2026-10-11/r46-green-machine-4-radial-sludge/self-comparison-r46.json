@@ -1,0 +1,74 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r46-v1",
+ "preset": "amandio c - the green machine 4 - radial nature sludge abject condesc rehire flexi if wanted immediately.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "baaf2a9f5f094a41a5e27d49b8dfa910371134b906047ba6ca56294d956c39c1",
+  "prediction.json": "47a43b646e8b94c6ab061015f3fa8ebda635bee10fcfb602355052ea71c30eaa",
+  "description.json": "9e40ea3a3a634e889368b557d835f8999c06e17b6b14a71a08793750bb5d2547",
+  "recipe.json": "bc5a32d93a02d80acf558f038301880c96a6c76ac4bbbb6545a3d9b2cc2c52c6",
+  "llm-look-description-v1.txt": "cd2d4dd11dfe07af8c7afb2c4d394907283706b532f66fc5f79d8e8a7de32da1"
+ },
+ "capture_result_sha256": "e26b272d1ed2c40491b6911e2b502ece737ce0a19bb284d18539f23ad37bc243",
+ "review_measurements_v1": {
+  "prediction_luma": 0.008,
+  "screenshot_luma": 0.0,
+  "note": "both final frames nearly black (strobe)",
+  "time_average_frames_60_149": {
+   "luma": [
+    0.139,
+    0.127
+   ],
+   "rgb": [
+    [
+     0.032,
+     0.181,
+     0.029
+    ],
+    [
+     0.042,
+     0.161,
+     0.038
+    ]
+   ],
+   "saturation": [
+    0.718,
+    0.638
+   ],
+   "blurred_luma_correlation": 0.775
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1086,
+   0.1121
+  ],
+  "luma_by_frame": {
+   "15": [
+    0.68,
+    0.666
+   ],
+   "30": [
+    0.627,
+    0.595
+   ],
+   "45": [
+    0.002,
+    0.007
+   ],
+   "75": [
+    0.449,
+    0.391
+   ],
+   "105": [
+    0.003,
+    0.007
+   ]
+  }
+ },
+ "agreements": [
+  "prediction: the same strobing green field with near-black frames between flashes; per-frame luma pattern and averaged colour match",
+  "SDK text: mostly dark field from instanced shapes, black for flat canvas, frequent brightness jumps"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction (strobe)"
+}

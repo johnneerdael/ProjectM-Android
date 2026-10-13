@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r43 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a black canvas with sparse, glowing line-and-dot work drawn over a strongly zooming feedback trail. The drawn elements are a stereo X/Y waveform trace rendered as dots at screen centre (built-in mode 2, left/right audio as the two axes), two custom point-cloud waves of 512 points each, and two five-sided polygon shapes with oversized nominal radii (about 1.76 and 1.07 NDC). The shapes are very faint (alpha 0.025 for one), so they probably read as soft washes or large pale polygons, not crisp outlines. Border coverage is 0%. Nothing here establishes tracked particles.
+
+Feedback and motion: the warp is a radial zoom with zoomexp about 1.22, so the zoom rate varies with radius. The whole image contracts or expands by roughly -2.6% to +23.9% per step. The audio-driven part reaches only the upper end, so quiet music should give a gentle drift and loud bass or treble should give a surging tunnel-like push. There is no translation or rotation in the warp. Trails decay at 0.95 per frame (half-life about 0.45 s), so dots smear into short streaks that stream along radial lines. The shapes' centres and rotations move with bass, mid and treble, but no speed bound is established.
+
+Colour: the black background is certain. The wave colours are dynamic and cycle, so a broad range of hues is possible, with an orange-leaning built-in wave and authored greens and cyans in the custom waves. The composite maps mid-level canvas values to pink and magenta and bright values to white. Expect pastel-to-white glowing cores with coloured fringes. Which hue dominates is unresolved.
+
+Brightness: mostly dark with bright localized highlights. The calibrated estimate gives mean luminance about 0.17 (wide interval) and activity "Chill" to "Normal".
+
+Audio reaction: bass_att and treb_att drive the zoom surge. All three attenuated bands move and rotate the shapes. The waveform trace follows the live stereo signal. These are potential routes, not measured beat strength.
+
+Uncertain: how bright the shapes and point clouds actually get, how much of the screen the trails fill, the final palette, flash behaviour, and the real speed.

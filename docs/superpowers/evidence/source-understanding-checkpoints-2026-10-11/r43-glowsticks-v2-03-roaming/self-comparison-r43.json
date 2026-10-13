@@ -1,0 +1,60 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r43-v1",
+ "preset": "EoS - glowsticks v2 03 music shifter edit b (Stahl's Reactive RMX) [+ flexi's reflections] [roaming].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "5928fa024e59f3e8c66b4d377bfcb62f475ff9f11a5cee55ed9944b6059b9dac",
+  "prediction.json": "c2b6cf9a2ef195cd4f00c43000e59690ae7329d2437dc047d871a1a063142bc3",
+  "description.json": "4f140162800523ba4c4e1cf739e4095b2e135cf98a030b41dc662a64cde7aa2f",
+  "recipe.json": "bd8e20c760db98be6c6a34a2690167fab671cb16ff9dd35b8e72dd74b080f96f",
+  "llm-look-description-v1.txt": "ed14c0940ff3c73be3df0d22a450cd77c0982961b4bb218938c236470df0a4c9"
+ },
+ "capture_result_sha256": "1061baa984598af3b59e90bda07f2c589321ce66f6382e577cb6ec92234b30a6",
+ "review_measurements_v1": {
+  "prediction_luma": 0.155,
+  "screenshot_luma": 0.172,
+  "mean_rgb_prediction": [
+   0.076,
+   0.189,
+   0.057
+  ],
+  "mean_rgb_screenshot": [
+   0.092,
+   0.205,
+   0.069
+  ],
+  "saturation": [
+   0.882,
+   0.873
+  ],
+  "blurred_luma_correlation": 0.979,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.157,
+    0.166
+   ],
+   "saturation": [
+    0.648,
+    0.626
+   ],
+   "blurred_luma_correlation": 0.998
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0417,
+   0.0429
+  ]
+ },
+ "agreements": [
+  "prediction: the same tiled kaleidoscope of green, red and cyan glowstick arcs on dark green; luma tracks frame by frame",
+  "SDK text: dark base with glowing lines and dots, strong zooming feedback trail"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "version": "SDK",
+   "observed": "the text does not name the tiled mirror/kaleidoscope form"
+  }
+ ],
+ "verdict": "understood on the first prediction; SDK text partial on form"
+}

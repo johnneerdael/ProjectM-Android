@@ -1,0 +1,59 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r41-v1",
+ "preset": "Stahlregen - Eckshack's Eyeball (floater mix) (Plastic).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d904a2ce0ab5cd2f4510aa00d3c1f314beb4cd9b66ecf28df02feed289057622",
+  "prediction.json": "48d94b3c2b67d490a3beb5f29ea71f3e58c451cd1c0bcf114e466dcf1b75abe6",
+  "description.json": "f6b61b694ebb6937988e76304b0b9de64013351e94ebe47932fe02e8c2162e04",
+  "recipe.json": "8c87aa4060c605e8266d49e95e369469e6749c236927ff720039b1e8a065d61f",
+  "llm-look-description-v1.txt": "5d83d074d1d776c25eaad9786e57e382daeb6b2e26b2a53e1d03ca20b7b485bf"
+ },
+ "capture_result_sha256": "c878c9100d7810417b89e75f93f8a82403216c3e40e201e8ede6b52ca4801c4c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.064,
+  "screenshot_luma": 0.098,
+  "mean_rgb_prediction": [
+   0.078,
+   0.061,
+   0.048
+  ],
+  "mean_rgb_screenshot": [
+   0.105,
+   0.098,
+   0.078
+  ],
+  "saturation": [
+   0.601,
+   0.56
+  ],
+  "blurred_luma_correlation": 0.847,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.08,
+    0.101
+   ],
+   "saturation": [
+    0.554,
+    0.494
+   ],
+   "blurred_luma_correlation": 0.887
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0201,
+   0.0295
+  ]
+ },
+ "agreements": [
+  "prediction: the same dark swirling tunnel with grey ribbon streaks, a small white centre figure and faint red/green/blue edges",
+  "SDK text: dark-to-mid glowing tunnel seeded by a rotating polar wave trace, rare brightness jumps"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "about 20% darker after frame 75 (luma 0.05 vs 0.08) and less motion"
+  }
+ ],
+ "verdict": "understood on the first prediction"
+}

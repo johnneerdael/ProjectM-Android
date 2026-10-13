@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r45 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a dotted audio trace. The built-in wave is mode 4, a "horizontal momentum trace" of left and right waveform samples. It is drawn as thick, additive dots (about 352 points) around the vertical middle, slightly above centre (wave y about 0.54). A custom point wave adds more procedurally placed points. These are dots, not a solid line, and the recipe does not establish independent particles. A reciprocal-radius polar composite makes a tunnel-like look a candidate, but it is not guaranteed.
+
+Feedback and motion: every frame the previous image is pulled toward the screen centre. The zoom is 0.9803 with zoomexp 0.352, so contraction runs from about 0.5% to 5.5% per step and varies with radius. The picture flows inward and smears into radial streaks or a tunnel from the dots. There is no steady rotation (rot 0). An angular periodic warp adds wavy sideways and vertical displacement. Trails fade slowly: gain about 0.97 per frame, half-life about 17 frames or 0.57 s, so dots leave medium-length inward streaks.
+
+Colour: unresolved. The wave colour is animated by sine and time expressions, so many hues are possible. The settled background leans blue, and the composite maps even dim canvas levels (0.25) to near-white with a slight blue tint. Expect a bright, pale blue-white look with some hue cycling from the wave, not a dark scene.
+
+Brightness: the source-calibrated estimate gives mean luminance about 0.52 (interval 0.34 to 0.76), moderate saturation (about 0.4), and roughly neutral warm/cool. Flat areas decay to black but the composite lifts any content strongly. Activity is likely Normal (possibly Chill or Intense), with smooth rather than strobing change.
+
+Audio reaction: the waveform shape follows the audio continuously. Bass, mid and treble, raw and smoothed, steer the warp's x and y translation, but only through thresholds or clamps, so the gain is unknown. Expect the tunnel to drift or sway with the music rather than pulse in brightness. No beat-flash route was found.
+
+Uncertain: actual colours reached, the visible tunnel and symmetry, how dense the streaks get, the strength of the audio sway, and flash behaviour (not proven absent).

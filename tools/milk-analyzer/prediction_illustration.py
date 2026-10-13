@@ -534,11 +534,16 @@ def _palette_display(image,facts,limitations):
     return display
 
 
-def _composite(image,facts):
+def _composite(image,facts,controls=None):
     for path,value in facts.items():
         if not path.endswith('/legacy_response') or not isinstance(value,dict):continue
         ranges=value.get('native_control_ranges') or {}
         alpha=_mid(ranges.get('echo_alpha'));zoom=_mid(ranges.get('echo_zoom'));orient=_mid(ranges.get('echo_orient'))
+        # The engine (patch 0008) applies this frame's echo controls: use the stepped values when known.
+        frame=controls or {}
+        if type(frame.get('echo_alpha')) in (int,float):alpha=min(1.,max(0.,float(frame['echo_alpha'])))
+        if type(frame.get('echo_zoom')) in (int,float):zoom=min(1000.,max(.001,float(frame['echo_zoom'])))
+        if type(frame.get('echo_orient')) in (int,float):orient=float(frame['echo_orient'])
         weight=value.get('gamma_absolute_weight_sum_upper')
         tint=value.get('tint_amount')
         if type(tint) in (int,float) and tint>.001 and value.get('_illustration_time') is not None:
@@ -1465,7 +1470,7 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
     if palette_image is not None:return palette_image
     for path,value in facts.items():
         if path.endswith('/legacy_response') and isinstance(value,dict):value['_illustration_time']=time
-    shown,note=_composite(image,facts)
+    shown,note=_composite(image,facts,_TERM_CONTEXT.get('stage'))
     if any(type(v.get('tint_amount')) in (int,float) and v['tint_amount']>.001 for p,v in facts.items()
            if p.endswith('/legacy_response') and isinstance(v,dict)):
         limitations.append('legacy fShader corner tint applied with zero random hue offsets (tint strength known; hue placement illustrative)')

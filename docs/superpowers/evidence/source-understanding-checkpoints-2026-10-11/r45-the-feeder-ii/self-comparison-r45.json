@@ -1,0 +1,69 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r45-v1",
+ "preset": "LuxXx - The Feeder II.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "84be5995ad65d92d1770b850adbfa612a0ff0cc40b0d1a19eebeda8fbd06ce5e",
+  "prediction.json": "0144086322804f1a8914ac87380b81b3fbcfa044e517c11e6559415c7402b6de",
+  "description.json": "1dec7217fc60fd7c2f75472fa3d30c848309b94cedb03b231bd4bfc719d8e948",
+  "recipe.json": "4cb054e2f3cfc597b22a3af2a1ab016f38bf01a5fbb5755aed8bdd3db31a54dc",
+  "llm-look-description-v1.txt": "49bc541767f7e7ef0d5478a66dcbe9a84b394307e86ad0accb607c0b14d1ab7e"
+ },
+ "capture_result_sha256": "0e8adcde60829c13b572517bb19dface8ec344c14228ed357d0cc4e681693563",
+ "review_measurements_v1": {
+  "prediction_luma": 0.966,
+  "screenshot_luma": 0.554,
+  "blurred_luma_correlation": -0.203,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.955,
+    0.836
+   ],
+   "blurred_luma_correlation": 0.311
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0071,
+   0.0185
+  ],
+  "luma_by_frame": {
+   "0": [
+    0.027,
+    0.021
+   ],
+   "60": [
+    0.985,
+    0.99
+   ],
+   "105": [
+    0.93,
+    0.901
+   ],
+   "120": [
+    0.967,
+    0.814
+   ],
+   "135": [
+    0.959,
+    0.575
+   ]
+  }
+ },
+ "diagnostics": {
+  "q_probe": "native ruler with a composite showing q3, frac(q8/10), q1: q3 equal (no beat in either); q8 offset by a constant (~28 units) from frame 0, increments equal afterwards",
+  "note": "diagnostic only"
+ },
+ "agreements": [
+  "prediction: white field with a central teal/violet burst; brightness matches until about frame 105",
+  "SDK text: dotted momentum trace, composite lifting dim levels to near white"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "the capture darkens after frame 110 (black corners, cyan wings); the prediction stays white",
+   "cause": "q8 accumulates pow(1.2*bass+0.4*bass_att+..., 6)/fps (about 3,700 on the loud first frame): a 0.1% band difference moves q8 by tens of units, and the warp centres are sin(k*q8). The layout is chaotic with respect to tiny audio differences",
+   "fix": "none possible for the exact layout; an SDK note for amplitude-sensitive accumulators is open"
+  }
+ ],
+ "verdict": "early frames understood; later layout chaotic by construction (audio-amplitude sensitive)"
+}
