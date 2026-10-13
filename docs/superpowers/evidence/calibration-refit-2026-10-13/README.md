@@ -31,3 +31,27 @@ Every target's rank correlation rises a little, but facet agreement stays
 flat. The targets (Energy 0.77, Brightness 0.73, Movement 0.84) need much
 stronger rank prediction than these descriptor additions give. The r12
 corpus (new mechanisms, deterministic random draws) is refitted next.
+
+## How much rank correlation do the facet targets need?
+
+A diagnostic of the metric itself (not a feature): synthetic predictions are
+the engine-ruler values plus Gaussian noise of σ·sd, scored with the same
+`facet_agreement` (no remap).
+
+| Noise σ | Spearman (luma, frame difference, jumps) | energy | brightness | colour | movement | comfort | mean |
+|---|---|---|---|---|---|---|---|
+| 0.3 | 0.94, 0.94, 0.90 | 0.753 | 0.828 | 0.813 | 0.854 | 0.929 | 0.835 |
+| 0.5 | 0.86, 0.87, 0.86 | 0.683 | 0.734 | 0.678 | 0.762 | 0.859 | 0.743 |
+| 0.75 | 0.76, 0.77, 0.78 | 0.610 | 0.639 | 0.541 | 0.669 | 0.798 | 0.651 |
+| 1.0 | 0.67, 0.68, 0.70 | 0.550 | 0.572 | 0.449 | 0.594 | 0.753 | 0.584 |
+
+The current source-only estimates (Spearman 0.66–0.77) sit between σ 0.75
+and 1.0, consistent with the measured mean agreement of 0.618. The targets
+need roughly:
+
+- Brightness 0.73: Spearman about 0.86;
+- Energy 0.77 and Movement 0.84: Spearman about 0.94.
+
+That is a gain of about 0.2 in rank correlation. The descriptor v3 refit
+gained about 0.01, so the targets are not reachable by incremental
+descriptor additions alone.
