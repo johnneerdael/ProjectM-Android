@@ -1295,3 +1295,15 @@ repeated on correctly oriented frames. Probes and results:
   of the condition (first 60 s, bands at 1) and the period. r35's colour bands
   are redrawn at 3.1 s and every 12.6 s; the v2 SDK text now says the palette
   is a random draw that changes at those moments.
+- **Noise volumes.** `tex3D(sampler_noisevol_lq/hq, …)` reads 32³ volumes
+  (`MilkdropNoise::generate3D`: lq random per texel, hq random every 4th texel
+  with cubic interpolation, seeded from the clock, so their content is a draw
+  per process). The illustration used a 2D stand-in and ignored z; it now
+  samples deterministic stand-in volumes trilinearly with wrap.
+- **r36 (`Flexi - emergencey 2 --- Isosceles edit10h rings`) v1 → v2.** The
+  magenta lace frame matched from v1. The composite subtracts volume noise
+  wherever the inverted canvas is bright, which gives the capture its moving
+  multicoloured patches. With volumes, frame difference rose from 0.009 to
+  0.024 (capture 0.033) and the time-averaged correlation from 0.13 to 0.46.
+  The interior hue remains a draw. Elsewhere r13 and r35 improved and r23's
+  time-averaged luma moved from 0.548 to 0.633 (capture 0.584).

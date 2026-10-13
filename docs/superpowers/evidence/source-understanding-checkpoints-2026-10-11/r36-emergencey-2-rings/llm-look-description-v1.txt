@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r36 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a centred, concentric composition built around the screen middle. Three large 100-sided (near-circular) white translucent discs sit at x=0.5, y=0.5 with radii about 0.50, 0.74 and 1.0 (alpha 0.7, 0.6, 0.5), so they read as nested rings or discs that overfill the frame. Three custom waveforms are also pinned at the centre (all points near 0.5, 0.5) and are white, so they add little visible shape on their own. A built-in stereo "polar rotating trace" waveform line circles the centre (radius about 0.53, nominal rotation about 2.3 rad/s) and follows the left/right audio waveform. There are no mirror or kaleidoscope operators.
+
+Feedback and motion: the previous frame is fed back with a mild radial zoom (zoomexp 1.0018), no rotation and no translation, so the motion is a gentle breathing expansion from the centre. The warp shader sharpens fine detail against a coarser blur and lets the image steer its own sampling (small offsets, about 0.002 UV). Expect soft, smeared, organic, splatter-like patterns growing from the rings and the trace rather than a plain dark background. Shape centres are stationary.
+
+Colour: the warp shows a green ramp (flat regions settle to green within about 0.17 s, and only the green channel persists), but the composite maps the canvas to a pale pink-lavender (about RGB 0.79, 0.50, 0.88 on flat canvas). The steady-state hue family is pink. The source palette is largely grayscale white drawing seen through that tint, so I expect a washed pink/lilac look with greener patterning. The brightness-reactive colour terms could shift the tint, and the final palette is unverified.
+
+Brightness: the calibrated estimate is mid-bright (mean luminance 0.35, interval 0.16-0.59), moderately saturated (about 0.63), with Normal activity (0.38, interval 0.04-0.85) and flow of roughly 0.07 screen widths per second.
+
+Audio: bass and treble (attenuated) feed the composite's red, green and blue brightness terms through thresholded or clamped, smoothed responses, so there may be soft colour or brightness swells. The trace line shape follows the waveform continuously. Gains are unquantified.
+
+Uncertain: how much the pale rings versus feedback texture dominate, the actual colour balance, how strongly the audio swells show, the brightness-jump rate (about 5 per 10 s, wide interval), and the real density of the advection patterns.

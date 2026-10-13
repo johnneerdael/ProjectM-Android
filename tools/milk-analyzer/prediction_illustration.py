@@ -995,7 +995,8 @@ def _fit_inputs(expression,inputs,controls=None):
     return fitted
 
 
-NOISE_SIZES={'noise_lq':(256,1),'noise_lq_lite':(32,1),'noise_mq':(256,4),'noise_hq':(256,8)}  # (size, zoom) MilkdropNoise
+NOISE_SIZES={'noise_lq':(256,1),'noise_lq_lite':(32,1),'noise_mq':(256,4),'noise_hq':(256,8),
+             'noisevol_lq':(32,1),'noisevol_hq':(32,4)}  # (size, zoom) MilkdropNoise; noisevol_* are 32^3 volumes
 
 
 TEXTURE_DIRECTORY=Path(__file__).resolve().parents[2]/'core/src/main/assets/textures'
@@ -1106,6 +1107,29 @@ def _texture_lookup(source,coordinates,*,wrap,linear):
     return ((source[y0,x0]*(1-fx)+source[y0,x1]*fx)*(1-fy)+(source[y1,x0]*(1-fx)+source[y1,x1]*fx)*fy).astype(np.float32)
 
 
+def _texture_lookup_3d(volume,coordinates,*,wrap,linear):
+    """GL 3D texture lookup of (N, 3) normalised (u, v, w) in a (depth, height, width, C) volume:
+    trilinear between texel centres (or the nearest texel), wrapping or clamping each axis."""
+    d,h,w=volume.shape[:3]
+    sizes=np.array([w,h,d],np.float64)
+    c=np.where(np.isfinite(coordinates[:,:3]),coordinates[:,:3],0.)*sizes
+    if not linear:
+        i=np.floor(c).astype(np.int64)
+        i=np.mod(i,sizes.astype(np.int64)) if wrap else np.clip(i,0,sizes.astype(np.int64)-1)
+        return volume[i[:,2],i[:,1],i[:,0]].astype(np.float32)
+    c=c-.5
+    base=np.floor(c).astype(np.int64);f=(c-base)
+    out=np.zeros((len(c),volume.shape[3]),np.float32)
+    for dx in (0,1):
+        for dy in (0,1):
+            for dz in (0,1):
+                i=base+np.array([dx,dy,dz])
+                i=np.mod(i,sizes.astype(np.int64)) if wrap else np.clip(i,0,sizes.astype(np.int64)-1)
+                weight=(f[:,0] if dx else 1-f[:,0])*(f[:,1] if dy else 1-f[:,1])*(f[:,2] if dz else 1-f[:,2])
+                out+=volume[i[:,2],i[:,1],i[:,0]]*weight[:,None]
+    return out
+
+
 def _sampler_wraps(policy,controls=None):
     """Resolved wrap addressing of an exported sampling policy.
 
@@ -1129,6 +1153,14 @@ def _noise_texture(name):
         # MilkdropNoise: random texels every `zoom` texels, cubic in between (lq: every texel; hq: every 8th).
         size,zoom=NOISE_SIZES.get(name,(256,4))
         rng=np.random.default_rng(sum(map(ord,name)))
+        if name.startswith('noisevol_'):
+            # MilkdropNoise::generate3D: a size^3 volume (z, y, x), random every `zoom` texels, cubic between.
+            cells=rng.random((size//zoom,)*3+(3,)).astype(np.float32)
+            if zoom>1:
+                from scipy.ndimage import zoom as upsample
+                cells=upsample(cells,(zoom,zoom,zoom,1),order=3,mode='grid-wrap').clip(0,1).astype(np.float32)
+            _NOISE[name]=cells
+            return cells
         cells=rng.random((size//zoom,size//zoom,3)).astype(np.float32)
         _NOISE[name]=cells if zoom==1 else cv2.resize(cells,(size,size),interpolation=cv2.INTER_CUBIC).clip(0,1)
     return _NOISE[name]
@@ -1267,7 +1299,9 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
             named=_named_texture(texture)
             source=named if named is not None else _noise_texture('noise_mq')
         policy=detail.get('sampling_policy') or {}
-        values=_texture_lookup(source,coordinates,wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
+        if source.ndim==4:
+            values=_texture_lookup_3d(source,coordinates,wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
+        else:values=_texture_lookup(source,coordinates[:,:2],wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     fitted=_fit_inputs(program,inputs,controls)
     value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32)
@@ -1334,7 +1368,8 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
         elif texture.startswith('blur'):
             source=blurred[min(3,max(1,int(texture[4:] or 1)))]
         policy=detail.get('sampling_policy') or {}
-        values=_texture_lookup(source,coordinates,wrap=_sampler_wraps(policy,_TERM_CONTEXT.get('bands')),linear=policy.get('linear') is not False)
+        wrap=_sampler_wraps(policy,_TERM_CONTEXT.get('bands'));linear=policy.get('linear') is not False
+        values=_texture_lookup_3d(source,coordinates,wrap=wrap,linear=linear) if source.ndim==4 else _texture_lookup(source,coordinates[:,:2],wrap=wrap,linear=linear)
         return np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     if coordinates is not None:
         value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width,-1)

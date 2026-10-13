@@ -387,3 +387,17 @@ def test_non_finite_shader_output_is_stored_like_the_gpu():
     # 1/0 in a shader gives inf, inf*0 gives NaN; an RGBA8 target stores NaN as 0 and clamps infinities.
     values = np.array([np.nan, np.inf, -np.inf, .5, 1.7, -.2], np.float32)
     assert list(_stored(values)) == [0., 1., 0., .5, 1., 0.]
+
+
+def test_noise_volumes_are_32_cubed_and_sampled_in_three_dimensions():
+    from prediction_illustration import _noise_texture, _texture_lookup_3d, _texsize
+    volume = _noise_texture('noisevol_hq')
+    assert volume.shape == (32, 32, 32, 3)
+    assert list(_texsize('noisevol_hq', 480, 270)[:2]) == [32, 32]
+    # hq is smooth (random every 4th texel); lq varies texel to texel.
+    lq = _noise_texture('noisevol_lq')
+    assert np.abs(np.diff(volume, axis=2)).mean() < np.abs(np.diff(lq, axis=2)).mean()
+    # Texel centres read the texel; z selects the slice; wrap repeats.
+    c = (np.array([[3, 5, 7]]) + .5) / 32
+    assert np.allclose(_texture_lookup_3d(lq, c, wrap=True, linear=True)[0], lq[7, 5, 3])
+    assert np.allclose(_texture_lookup_3d(lq, c + 1, wrap=True, linear=True)[0], lq[7, 5, 3])

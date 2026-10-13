@@ -1,0 +1,88 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r36-v2",
+ "preset": "Flexi - emergencey 2 --- Isosceles edit10h rings.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "65e686a8d628a9ce8068111e8be21b0cac68671e4919411f786e01626a60a4b2",
+  "prediction.json": "bd010a3405d2540024419c83f6d9fec6736401edfd53284f8976963a0ddf4ddc",
+  "description.json": "171b809bb65e93c177b2aba95e440eb42bc988928a2a781d4417d54654aaabb5",
+  "recipe.json": "9df0ee8800bc08a0c38b7a1e10a6307a9d52fa71631f8e50ea1e102386cf401f",
+  "llm-look-description-v1.txt": "d474d3fceea59f3394940a6f77b280628132c5e8cf83ac0660b486ecc90079a8"
+ },
+ "capture_result_sha256": "daca0e00892e3f0d48b677be7b7cc70b307340d25b5c8d4645068e824d67862b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.274,
+  "screenshot_luma": 0.317,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.274,
+    0.337
+   ],
+   "saturation": [
+    0.855,
+    0.553
+   ],
+   "blurred_luma_correlation": 0.129
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0091,
+   0.0332
+  ]
+ },
+ "review_measurements_v2": {
+  "prediction_luma": 0.445,
+  "screenshot_luma": 0.317,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.409,
+    0.337
+   ],
+   "rgb": [
+    [
+     0.615,
+     0.349,
+     0.396
+    ],
+    [
+     0.567,
+     0.249,
+     0.529
+    ]
+   ],
+   "saturation": [
+    0.67,
+    0.553
+   ],
+   "blurred_luma_correlation": 0.458
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0243,
+   0.0332
+  ]
+ },
+ "agreements": [
+  "prediction: the same magenta lace frame (inverted glow edges of the advected green field) around a mottled centre"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "version": "v1",
+   "observed": "smooth corner gradient and still interior instead of moving multicoloured patches",
+   "cause": "tex3D(sampler_noisevol_hq) was read as a 2D stand-in with z ignored; the composite subtracts that noise wherever the inverted canvas is bright",
+   "fix": "32^3 noise volumes (lq random per texel, hq random every 4th texel, cubic between) sampled trilinearly with wrap"
+  },
+  {
+   "size": "small",
+   "observed": "interior hue (orange vs blue/purple)",
+   "cause": "projectM seeds the noise volumes from the clock: their content is a draw per process"
+  }
+ ],
+ "regressions": {
+  "r13": "time-average luma gap 0.050 -> 0.010",
+  "r35": "blue 0.36 -> 0.49 (capture 0.50), correlation 0.66 -> 0.72",
+  "r23": "time-average luma 0.548 -> 0.633 (capture 0.584), correlation 0.20 -> -0.03",
+  "r21": "chaotic snapshot"
+ },
+ "verdict": "structure understood; noise-volume colours are a per-process draw"
+}
