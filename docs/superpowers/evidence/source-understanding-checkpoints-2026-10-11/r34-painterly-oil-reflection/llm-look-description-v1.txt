@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r34 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a centred, audio-deformed circular wave (built-in wave mode 0, ring radius about 0.5, slowly rotating at roughly 0.2 rad/s) drawn over three layers of 32-sided polygon shapes (33, 7 and 33 instances). The shapes move, and their size, colour and opacity are wired to bass, mid and treble. The composite shader looks up the canvas through a reciprocal-radius polar mapping, which is a tunnel candidate, and displaces it with noise, so I expect a shimmering, radially bent picture rather than crisp geometry. The tunnel look is not guaranteed.
+
+Feedback and motion: the warp zooms about the screen centre. The zoom grows with radius (zoomexp 1.47) and is driven by bass and attenuated bass, from no change up to about 41% per step on strong bass. There is no rotation or translation. Trails are very short: the warp keeps about 0.30 of the previous frame, so the half-life is about one frame and faint residue is gone almost at once. The picture is mostly what is drawn each frame, with pulsing zoom breathing on bass hits.
+
+Colour: the composite multiplies by cycling corner shades. The red, green and blue periods are about 14.6, 19.6 and 16.2 s, in the range 0.67 to 1. Where each hue sits is random per preset load. The wave's own base is grayscale and the settled feedback is grayscale, so the colour should come mostly from the composite hue cycling and the audio-driven shape colours. I expect moderate saturation and a roughly neutral warm/cool balance, with a wide range of hues over time.
+
+Brightness: the composite maps any non-black canvas level to white before the shade is applied, so lit areas read bright against dark. The calibrated estimate is a mean luminance of about 0.25 (interval 0.06 to 0.49), which is medium.
+
+Audio reaction: bass drives the zoom pulse and shape radius. Bass, mid and treble all modulate shape colour and opacity, and the wave follows the waveform. Frequent brightness jumps are likely, about 36 per 10 s with a very wide interval. Activity is probably Intense, but Chill and Normal remain possible.
+
+Uncertain: how much of the screen the shapes cover, their paths, how visible the tunnel and noise are, the actual hue placement, whether the brightness jumps read as flashing, and the real strength of each audio route.

@@ -381,6 +381,15 @@ frame-state and positions-only records, with `colour_resolved` and
 evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the
 displayed palette, including texture lookups.
 
+`render.composite.per_load_random` and `render.feedback.warp_per_load_random`
+report a shader's use of `rand_preset` (four `floatRand()` values drawn when
+`MilkdropShader` is built, once per preset load): `switches` (component,
+`condition` against a constant, `probability_true` under a uniform draw) and
+`continuous_components` read in other ways. The illustration holds
+`rand_preset` at 0.5, i.e. one branch. Each switch also appears as an intent
+effect `per_load_variant` (stage, condition, `probability_true`) and as a
+sentence appended to the recipe `description`.
+
 `render.composite.hue_shader` (composites reading `hue_shader`/`_vDiffuse`)
 summarises `FinalComposite::ApplyHueShaderColors` from the element's
 `native_colour_generators` fact: `channels` read, `cycle_periods_seconds_rgb`

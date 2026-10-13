@@ -283,3 +283,24 @@ def test_wrapping_warp_transfer_reports_a_level_cycle_not_a_halving(monkeypatch)
     cycling = next(e for e in recipe['intent']['effects'] if e['effect'] == 'level_cycling')
     assert abs(cycling['cycle_s'] - 200 / 30) < 1e-6
     assert next(e for e in recipe['intent']['effects'] if e['effect'] == 'trails')['decay_per_frame'] is None
+
+
+def test_per_load_random_switches_report_their_probability():
+    # static const float sw1 = rand_preset.x >= .4; ... noise.r <= rand_preset.y
+    nodes = [{'op': 'input', 'args': [], 'detail': {'name': 'rand_preset'}},
+             {'op': 'member', 'args': [0], 'detail': {'field': 'x', 'swizzle': True}},
+             {'op': 'constant', 'args': [], 'detail': {'value': .4}},
+             {'op': 'greater_equal', 'args': [1, 2], 'detail': {}},
+             {'op': 'member', 'args': [0], 'detail': {'field': 'y', 'swizzle': True}},
+             {'op': 'input', 'args': [], 'detail': {'name': 'noise'}},
+             {'op': 'less_equal', 'args': [5, 4], 'detail': {}},
+             {'op': 'multiply', 'args': [3, 6], 'detail': {}}]
+    program = {'root': 7, 'nodes': nodes}
+    recipe = build_recipe(summary(('construction', BASE + '/stage_programs',
+                                   {'stages': {'composite': {'status': 'exported', 'program': program}}})))
+    switches = recipe['render']['composite']['per_load_random']
+    assert switches['switches'] == [{'component': 'x', 'condition': '>= 0.4', 'probability_true': .6}]
+    assert switches['continuous_components'] == ['y']
+    variant = next(e for e in recipe['intent']['effects'] if e['effect'] == 'per_load_variant')
+    assert variant == {'effect': 'per_load_variant', 'stage': 'composite', 'condition': 'rand_preset.x >= 0.4', 'probability_true': .6}
+    assert 'rand_preset.x >= 0.4 (true in 60% of preset loads)' in recipe['description']

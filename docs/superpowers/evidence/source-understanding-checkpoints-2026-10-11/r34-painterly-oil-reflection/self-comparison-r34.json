@@ -1,0 +1,68 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r34-v1 (recipe v4)",
+ "preset": "suksma - dotes hostile undertake - painterly oil reflection - flacc spher.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1c211dcf9256f9253e715f7b8fc07a1a93777b56347dac16bffef0a714291872",
+  "prediction.json": "91d1a00a48735502a6ae77b4109570edb9573962883921b2a0f0f3f49c7f036a",
+  "description.json": "08c675c64c0071560ee8fbbf215f9bd2db5eec69d25354dda88b5bddf81945cf",
+  "recipe.json": "186b735d012ec83af6eedcd8dc88cbc658c2b79e80400e0bfeb5900ae50a75e6",
+  "llm-look-description-v1.txt": "5bb2d2d4a61529a152b05c57663ba1bfc23ed1fddf11b3f0ba6e53b2738376b8"
+ },
+ "capture_result_sha256": "9ce5ecb7d7463da4f6989ceb6ca8bbeb670e2e6ea8d003514d52b07f6ae7c350",
+ "review_measurements_v1": {
+  "prediction_luma": 0.836,
+  "screenshot_luma": 0.762,
+  "saturation": [
+   0.183,
+   0.132
+  ],
+  "blurred_luma_correlation": 0.636,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.41,
+    0.4
+   ],
+   "saturation": [
+    0.089,
+    0.102
+   ],
+   "blurred_luma_correlation": 0.835
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0994,
+   0.0859
+  ]
+ },
+ "diagnostics": {
+  "other_branch_rand_preset_x_0.2": {
+   "frame149_luma": [
+    0.736,
+    0.762
+   ],
+   "horizontal_edge_energy": [
+    0.0027,
+    0.0028
+   ],
+   "blurred_luma_correlation": 0.763
+  },
+  "note": "diagnostic only: the composite's sw1 = rand_preset.x >= .4 switch; the capture took the 40% branch (plain mirrored glow), the illustration holds rand_preset at 0.5 (tunnel branch)"
+ },
+ "agreements": [
+  "prediction: brightness over time, pastel layout (green top, pink bottom, white centre) and motion match",
+  "diagnostic other branch: the capture's soft mirrored glow"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "sharp glossy tunnel streaks vs soft glow blobs",
+   "cause": "per-load random switch on rand_preset (floatRand at shader construction)",
+   "fix": "recipe per_load_random, intent per_load_variant and a description sentence; the v4 SDK text states the 60/40 split"
+  }
+ ],
+ "open": [
+  "the recipe does not yet say what each branch changes"
+ ],
+ "verdict": "understood up to a per-load random branch (both branches identified)"
+}

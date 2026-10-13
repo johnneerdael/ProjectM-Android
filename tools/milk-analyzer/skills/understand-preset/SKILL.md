@@ -99,6 +99,10 @@ required. Use a native file-read tool to inspect JSON and the summary.
    `colour_resolved: false` means only the positions are known and the colour
    shown is the wave's authored base colour. `frame_inputs` name the main
    per-frame state the points read (stepped by a consumer).
+   `render.composite.per_load_random` (and `render.feedback.warp_per_load_random`)
+   lists switches on `rand_preset`, drawn once per preset load: describe each
+   branch with its `probability_true` (for example "60% of loads add a tunnel
+   distortion, otherwise a plain mirrored glow"), never only one of them.
    `render.composite.hue_shader` means the composite multiplies by projectM's
    cycling corner shades: name the cycle periods and the range, and say that
    the hue placement is random per preset load (do not name one fixed tint).

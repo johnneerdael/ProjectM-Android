@@ -1268,3 +1268,17 @@ repeated on correctly oriented frames. Probes and results:
   clip. The recipe's steady state and flat transfers now carry the absorbing
   black canvas, and the v2 SDK text describes a light, pale, inverted screen.
   Earlier checkpoints are unchanged (r21 is chaotic).
+- **Per-load shader switches.** `rand_preset` is four `floatRand()` values
+  drawn when a shader is built, i.e. once per preset load. Recipes report
+  comparisons of a component with a constant as `per_load_random` switches
+  with their probability, add a `per_load_variant` intent effect and append a
+  sentence to the description. The illustration holds `rand_preset` at 0.5.
+- **r34 (`suksma - … painterly oil reflection - flacc spher`) v1.** Brightness
+  over time, layout and motion match (frames 60–149 luma 0.41 vs 0.40,
+  correlation 0.835), but the capture is a soft mirrored glow while the
+  prediction shows sharp tunnel streaks. The composite branches on
+  `rand_preset.x >= .4` (tunnel distortion and doubled blur in 60% of loads).
+  Rendering the other branch as a diagnostic reproduces the capture (luma
+  0.736 vs 0.762, edge energy 0.0027 vs 0.0028, correlation 0.76). The v4
+  SDK text states the 60/40 split; what each branch changes is not yet in
+  the recipe.

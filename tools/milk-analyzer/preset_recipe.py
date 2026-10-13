@@ -229,6 +229,38 @@ def _iterated_persistence(levels,values):
     return {'gain':round(g,6),'linear':linear,'halving_frames':halving,'steady_level_from_full':steady}
 
 
+COMPARISONS={'greater':'>','greater_equal':'>=','less':'<','less_equal':'<='}
+
+
+def _per_load_random(program):
+    """Branches on MilkdropShader's rand_preset: four floatRand() values drawn when the shader is built,
+    i.e. once per preset load. A comparison of one component with a constant is a per-load switch whose
+    probability follows from the uniform draw; other reads use the component continuously."""
+    if not isinstance(program,dict):return None
+    nodes=program.get('nodes') or []
+    components={i:n['detail'].get('field') for i,n in enumerate(nodes) if n.get('op')=='member' and n.get('args')
+                and nodes[n['args'][0]].get('op')=='input' and nodes[n['args'][0]]['detail'].get('name')=='rand_preset'}
+    if not components:return None
+    switches=[];switched=set()
+    for node in nodes:
+        op=COMPARISONS.get(node.get('op'))
+        args=node.get('args') or []
+        if op is None or len(args)!=2:continue
+        a,b=args
+        if a in components and nodes[b].get('op')=='constant':index,constant,flip=a,nodes[b]['detail'].get('value'),False
+        elif b in components and nodes[a].get('op')=='constant':index,constant,flip=b,nodes[a]['detail'].get('value'),True
+        else:continue
+        if type(constant) not in (int,float):continue
+        if flip:op={'>':'<','>=':'<=','<':'>','<=':'>='}[op]
+        c=min(1.,max(0.,float(constant)))
+        probability=1-c if op in ('>','>=') else c
+        switches.append({'component':components[index],'condition':op+' '+format(float(constant),'.6g'),'probability_true':round(probability,6)})
+        switched.add(index)
+    continuous=sorted({field for index,field in components.items() if index not in switched})
+    return {'switches':switches,'continuous_components':continuous,
+            'source':'rand_preset: four uniform values drawn per preset load (MilkdropShader floatRand)'}
+
+
 def _render(facts):
     persistence=facts.get(STATIC+'/feedback_persistence') or {}
     mesh=facts.get(STATIC+'/mesh_field') or {}
@@ -247,7 +279,7 @@ def _render(facts):
         'flat_field':{k:flat.get(k) for k in ('state_rgb','flat_region_behaviour','settle_seconds','composite_rgb_at_state') if flat.get(k) is not None} or None,
         'warp_transfer':_warp_transfer(facts) if persistence.get('decay_gain') is None else None,
         'evidence':[p for p in (STATIC+'/feedback_persistence',STATIC+'/mesh_field',BASE+'/nonlinear_texture_colour_bounds/flat_field') if p in facts]}
-    composite={}
+    composite={};feedback_random=[None]
     for path,value in facts.items():
         if path.endswith('/legacy_response') and isinstance(value,dict):
             ranges=value.get('native_control_ranges') or {}
@@ -256,6 +288,13 @@ def _render(facts):
                                'alpha':ranges.get('echo_alpha'),'zoom':ranges.get('echo_zoom'),'orientation':ranges.get('echo_orient')}
             composite.setdefault('evidence',[]).append(path)
             break
+    stages=(facts.get(BASE+'/stage_programs') or {}).get('stages') or {}
+    for stage,target in (('composite',composite),('warp',None)):
+        record=stages.get(stage) or {}
+        switches=_per_load_random(record.get('program')) if record.get('status')=='exported' else None
+        if switches:
+            if target is None:feedback_random[0]=switches
+            else:target['per_load_random']=switches
     for path,value in sorted(facts.items()):
         if not path.endswith('/native_colour_generators') or not isinstance(value,list):continue
         hue=next((row for row in value if isinstance(row,dict) and row.get('policy')=='source31-native-composite-hue-v1'),None)
@@ -288,6 +327,7 @@ def _render(facts):
     bindings=[{'layer':layer['id'],'input':AUDIO_NAMES.get(route['input_code'],route['input_code']),'target':route['target'],
                'linear_gain':route['linear_gain']} for layer in layers for route in layer.get('audio',[])]
     from mirror_symmetry import mirror_operators
+    if feedback_random[0]:feedback['warp_per_load_random']=feedback_random[0]
     return {'feedback':feedback,'layers':layers,'composite':composite,'mechanisms':mechanisms,'audio_bindings':bindings,
             'mirrors':mirror_operators(facts)}
 
@@ -338,6 +378,11 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
     if display is not None:recipe['display_estimate']=display
     recipe['facets']=facets_block(summary,display)
     recipe['intent']=intent(recipe)
+    variants=[e for e in recipe['intent']['effects'] if e['effect']=='per_load_variant']
+    if variants and isinstance(recipe['description'],str):
+        recipe['description']+=' Per-load variants: '+'; '.join(
+            f"the {e['stage']} shader branches on {e['condition']} (true in {round(100*e['probability_true'])}% of preset loads)"
+            for e in variants)+'. Each branch is a real outcome; describe both looks.'
     if source is not None and include_program:recipe['program']=_program(source)
     return recipe
 
@@ -631,6 +676,11 @@ def intent(recipe):
                        speed_px_s=osc.get('phase_speed_pixels_per_second') or osc.get('radial_phase_speed_pixels_per_second'),
                        direction=osc.get('travel_direction_xy'),lobes=osc.get('angular_lobes'),amplitude_px=pattern.get('amplitude_pixels_range'))
         if row['effect']:effects.append({k:v for k,v in row.items() if v is not None})
+    for stage,switches in (('composite',render['composite'].get('per_load_random')),('warp',fb.get('warp_per_load_random'))):
+        for switch in (switches or {}).get('switches') or []:
+            # The look branches once per preset load: both variants are real outcomes.
+            effects.append({'effect':'per_load_variant','stage':stage,'condition':'rand_preset.'+switch['component']+' '+switch['condition'],
+                            'probability_true':switch['probability_true']})
     for item in render['mechanisms']:
         mapped=SHADER_EFFECTS.get(item['mechanism'])
         if mapped and item.get('stage') in ('warp','composite'):
