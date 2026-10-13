@@ -47,12 +47,16 @@ SHA-256, so any platform can read it. The reader contract is
 
 - check the pack and recipe policy strings;
 - check the core file hash, and each line's hash over the stored line bytes;
+- decode UTF-8 strictly;
+- check the JSON types of the fields it exposes;
 - keep manifest order;
-- ignore fields you do not know.
+- ignore fields you do not know;
+- hand out nothing from a rejected pack.
 
 The core library's `PresetKnowledgePack` implements it for the app and for
-Milkbeat. `read(File)` and `read(manifest, core, visitor)` stream the core,
-check every line before parsing it, and keep only a per-preset view:
+Milkbeat. `read(File)`, `read(File, visitor)` and `read(manifest, core,
+visitor)` verify the core file hash first, then stream the core, check every
+line before parsing it, and keep only a per-preset view:
 
 - effects with their parameters;
 - reactivity as band, target, kind and response;
@@ -61,14 +65,15 @@ check every line before parsing it, and keep only a per-preset view:
 - facet options and values;
 - energy tags.
 
-A `RecipeVisitor` receives each full parsed recipe once while streaming, so
-memory follows the views rather than the recipes. `load(AssetManager, dir)`
+A `RecipeVisitor` receives each full parsed recipe once, only after the whole
+pack has passed, so memory follows the views rather than the recipes and a
+rejected pack publishes nothing. `load(AssetManager, dir)`
 returns `null` for a missing or invalid pack. A pack that breaks a rule
 throws `InvalidPackException`, whose `rule` names the rule. Lookups work by
 preset name or by the preset file's SHA-256.
 
 The golden vectors in `export-contract/knowledge-pack/golden-v1/` (one valid
-pack, one with unknown fields, and four packs that each break one rule) are
+pack, one with unknown fields, and six packs that each break one rule) are
 the shared tests for every reader. `PresetKnowledgePackTest` runs them on the
 JVM. Estimates and facets come from calibrated source analysis, not from
 rendered frames. No pack ships in the app yet.

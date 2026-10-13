@@ -86,14 +86,17 @@ public class PresetKnowledgePackTest {
     @SuppressWarnings("unchecked")
     public void eachBrokenPackIsRejectedForItsRule() throws IOException {
         Map<String, Object> reject = (Map<String, Object>) expected().get("reject");
-        assertEquals(4, reject.size());
+        assertEquals(6, reject.size());
         for (Map.Entry<String, Object> pack : reject.entrySet()) {
+            final List<String> visited = new ArrayList<>();
             try {
-                PresetKnowledgePack.read(new File(GOLDEN, pack.getKey()));
+                PresetKnowledgePack.read(new File(GOLDEN, pack.getKey()), (preset, recipe) -> visited.add(preset.name));
                 fail(pack.getKey() + " was accepted");
             } catch (PresetKnowledgePack.InvalidPackException e) {
                 assertEquals(pack.getKey(), pack.getValue(), e.rule);
             }
+            // Nothing from a rejected pack is handed out, whichever line breaks the rule.
+            assertEquals(pack.getKey(), Collections.emptyList(), visited);
         }
     }
 
