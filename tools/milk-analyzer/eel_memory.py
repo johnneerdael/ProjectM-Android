@@ -141,12 +141,23 @@ def input_names(expression, *, stochastic=False):
     """
     from time_expression import SUPPORTED
     if not isinstance(expression, dict) or not isinstance(expression.get('nodes'), list):return None
+    # Exported graphs are immutable and re-scanned per point and frame; the cache holds a reference to
+    # each graph (so its id is not reused) and its node count (a graph edited in place misses).
+    key = (id(expression), id(expression['nodes']), len(expression['nodes']), stochastic)
+    cached = _NAMES_CACHE.get(key)
+    if cached is not None and cached[0] is expression:return None if cached[1] is None else set(cached[1])
     allowed = SUPPORTED | MEMORY_OPS | LOOP_OPS | BITWISE_OPS | (STOCHASTIC if stochastic else set())
     names = set()
     for node in expression['nodes']:
-        if node.get('op') not in allowed:return None
+        if node.get('op') not in allowed:
+            names = None;break
         if node.get('op') == 'input':names.add(node.get('detail', {}).get('name'))
+    if len(_NAMES_CACHE) > 200000:_NAMES_CACHE.clear()
+    _NAMES_CACHE[key] = (expression, None if names is None else frozenset(names))
     return names
+
+
+_NAMES_CACHE = {}
 
 
 def evaluate_np(expression, inputs, rng=None, batch_shape=None, deadline=None):

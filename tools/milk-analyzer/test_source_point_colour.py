@@ -144,3 +144,20 @@ def test_stochastic_point_series_draws_rand_from_the_given_generator():
     assert len(series) == 400 and steps.min() >= 0. and steps.max() <= 2. and abs(steps.mean() - 1.) < .1
     again, _ = point_state_series(recurrence, {'walk': 0.}, lambda j: {} if j < 400 else None, rng=np.random.default_rng(5))
     assert again == series
+
+
+def test_vectorised_point_evaluation_matches_the_per_point_scalar_path():
+    # Speed (analysis budget 1 s per preset): all points of a frame in one evaluation, identical values.
+    import numpy as np
+    from source_point_colour import _evaluate, _evaluate_points
+    program = graph([name('sample'), name('value1'), {'op': 'multiply', 'args': [0, 1], 'detail': {}}, name('state:p:flip'),
+                     {'op': 'add', 'args': [2, 3], 'detail': {}}, constant(3.), {'op': 'remainder', 'args': [4, 5], 'detail': {}},
+                     {'op': 'sin', 'args': [6], 'detail': {}}])
+    count = 7
+    wave = (np.linspace(-1, 1, count), np.zeros(count))
+    flips = [float(j % 2) for j in range(count)]
+    base = {'time': .5}
+    vector = _evaluate_points(program, base, count, wave, {'state:p:flip': np.array(flips)}, None)
+    scalar = [_evaluate(program, {**base, 'sample': j / (count - 1), 'value1': float(wave[0][j]), 'value2': 0., 'state:p:flip': flips[j]})
+              for j in range(count)]
+    assert np.array_equal(vector, np.array(scalar))

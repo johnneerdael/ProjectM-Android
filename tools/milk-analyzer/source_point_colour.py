@@ -26,6 +26,8 @@ import colorsys
 import itertools
 import math
 
+import numpy as np
+
 from time_expression import evaluate_inputs,hue_family,input_names
 
 POLICY='source-custom-point-colour-distribution-v1'
@@ -69,6 +71,28 @@ def _evaluate(graph,values,rng=None):
         from eel_memory import evaluate_np
         return float(np.asarray(evaluate_np(graph,values,rng)).reshape(-1)[0])
     return evaluate_inputs(graph,values)
+
+
+def _evaluate_points(graph,base,count,wave=None,point_state=None,rng=None):
+    """Values of a per-point graph for points j=0..count-1 in one vectorised evaluation.
+
+    base holds the per-frame scalar inputs; sample=j/(count-1), value1/value2 come from wave and
+    point_state maps per-point state names to arrays. Absent names read as in _complete. rand calls
+    draw once per call and point (batch). Same projectm-eval semantics as the scalar path.
+    """
+    import numpy as np
+    from eel_memory import evaluate_np
+    values={**base,'sample':np.arange(count)/(count-1) if count>1 else np.zeros(count)}
+    if wave is not None:values.update(value1=np.asarray(wave[0],np.float64)[:count],value2=np.asarray(wave[1],np.float64)[:count])
+    values.update(point_state or {})
+    values=_complete(graph,values,base)
+    result=evaluate_np(graph,values,rng,batch_shape=(count,) if _stochastic(graph) else None)
+    return np.broadcast_to(np.asarray(result,np.float64),(count,)).copy()
+
+
+def _native_points(values):
+    import numpy as np
+    return np.clip(np.fmod(np.fmod(values,PERIOD)+PERIOD,PERIOD),0.,1.)
 
 
 def _complete(expression,values,base):
@@ -178,7 +202,6 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
         stochastic=any(_stochastic(graph) for graph in graphs)
         rng=None
         if stochastic:
-            import numpy as np
             rng=np.random.default_rng(STOCHASTIC_SEED)
         state_names=set()
         if recurrence:
@@ -243,11 +266,17 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
             if point_recurrence:
                 carry=initial_state({'state':point_recurrence['state']},held,rng)
                 pstate,_=point_state_series(point_recurrence,carry,point_inputs,rng)
-            for j in range(count):
-                values=point_inputs(j)
-                if pstate:values.update({point_recurrence['state_input_prefix']+n:v for n,v in pstate[j].items()})
-                rgba=[_native(_evaluate(programs[name],values,rng)) for name in 'rgba']
-                points.append(rgba)
+            base={**held,**(trajectory[time] if trajectory else {}),'time':time}
+            arrays={point_recurrence['state_input_prefix']+n:np.array([row[n] for row in pstate]) for n in point_recurrence['state']} if pstate else None
+            try:
+                channels=[_native_points(_evaluate_points(programs[name],base,count,wave,arrays,rng)) for name in 'rgba']
+                points.extend([[float(c[j]) for c in channels] for j in range(count)])
+            except ValueError:
+                # A graph the batch cannot carry (memory selected per point): point by point.
+                for j in range(count):
+                    values=point_inputs(j)
+                    if pstate:values.update({point_recurrence['state_input_prefix']+n:v for n,v in pstate[j].items()})
+                    points.append([_native(_evaluate(programs[name],values,rng)) for name in 'rgba'])
         total=len(points);alpha=sum(p[3] for p in points)
         result['mean_rgb']=[sum(p[i] for p in points)/total for i in range(3)]
         result['mean_alpha']=alpha/total
@@ -340,9 +369,15 @@ def _positions(positions,count,held,grid,trajectory=None,waveform=None,point_rec
                 if wave:values.update(value1=float(wave[0][j]),value2=float(wave[1][j]))
                 return values
             pstate=point_state_series(point_recurrence,initial_state({'state':point_recurrence['state']},held,rng),point_inputs,rng)[0] if point_names else None
-            for j in range(count):
-                values=point_inputs(j)
-                if pstate:values.update({point_recurrence['state_input_prefix']+n:v for n,v in pstate[j].items()})
-                xs.append(_evaluate(positions['x'],values,rng));ys.append(_evaluate(positions['y'],values,rng))
+            base={**held,**(trajectory[time] if trajectory else {}),'time':time}
+            arrays={point_recurrence['state_input_prefix']+n:np.array([row[n] for row in pstate]) for n in point_recurrence['state']} if pstate else None
+            try:
+                xs.extend(_evaluate_points(positions['x'],base,count,wave,arrays,rng).tolist())
+                ys.extend(_evaluate_points(positions['y'],base,count,wave,arrays,rng).tolist())
+            except ValueError:
+                for j in range(count):
+                    values=point_inputs(j)
+                    if pstate:values.update({point_recurrence['state_input_prefix']+n:v for n,v in pstate[j].items()})
+                    xs.append(_evaluate(positions['x'],values,rng));ys.append(_evaluate(positions['y'],values,rng))
     except ValueError:return {}
     return {'positions_closed_form':True,'position_bounds':{'x':[min(xs),max(xs)],'y':[min(ys),max(ys)]}}

@@ -1822,3 +1822,43 @@ v3 (frozen v1 description): frames 60–149 luma 0.156 → 0.063 (engine 0.055),
 screenshot correlation 0.81 → 0.938, and the dark stretch over frames 30–90
 and the rise after frame 105 follow the capture. 1,226 presets can show motion
 vectors and 516 write a border alpha per frame.
+
+### Analysis speed (budget: 1 s per preset)
+
+The facet-producing analysis must run in at most 1 s per preset; 300-frame
+validation renders may take longer. Measured in one warm process (imports
+paid once), before and after vectorising custom-wave point evaluation and
+caching graph input names:
+
+| 200 random presets | Before | After |
+|---|---|---|
+| Median | about 0.74 s (19-preset profile) | 0.46 s |
+| 90th percentile | — | 0.98 s |
+| Within 1 s | 15% (cold corpus run, imports included) | 92% |
+| Slowest | 46 s (corpus) | 3.4 s |
+
+Per-point colours and positions of custom waves are now evaluated for all
+points of a frame in one `eel_memory` evaluation (same projectm-eval
+semantics as the scalar path, which remains as the fallback). Per-point
+carried state (like r92's `flip`) is still stepped point by point. The
+slowest presets (shifter glassworms, amandio climbing) are next.
+
+### Regression review of the r90–r94 fixes
+
+The first paired group measure after the fixes (4530 → 908d) showed losses.
+None came from the new math:
+
+- "chloral reef" and other losses came from the measurement: the snapshots
+  for 2b192a16–908dea3b were made with `git archive` and lacked the `core`
+  symlink that earlier snapshots had, so they ran without bundled assets.
+  With the link, 2b192a16 reproduces 4530 exactly. The 908d pass is being
+  re-run.
+- "rce-ordinary - want" and "fed - glowing 5" redraw `rand()` values on audio
+  change events; their error spans 0.007–0.168 across stepper seeds alone.
+  The joint per-frame evaluation changes which draw they get. The engine
+  draws a new set at every load, so such presets should be measured (and
+  turned into facets) as a distribution over seeds, not one draw.
+- "EoS+Phat - I_v2_Shape_v3": the `bTexWrap=0` clamp rule matches the engine
+  source and r94, but here it removed a lucky cancellation. With wrap forced
+  on in both, our canvas is still about 2× the engine's and the gap grows
+  over time (over-retention, probably in textured-shape blending). Open.
