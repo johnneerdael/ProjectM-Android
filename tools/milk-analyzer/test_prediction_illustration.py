@@ -432,3 +432,32 @@ def test_legacy_echo_follows_the_per_frame_orientation():
     mirrored, _ = _composite(image.copy(), facts, controls={'echo_orient': 1.9})
     assert np.allclose(plain[:, :4], 1.) and np.allclose(plain[:, 4:], 0.)
     assert np.allclose(mirrored, .5)
+
+
+def test_inlined_per_frame_rand_is_drawn_once_per_frame():
+    from prediction_illustration import _evaluate_np, _FrameSiteRandom
+    # q30 = int(rand(1000))/1000*6.28 is evaluated once per frame in the engine; every shape instance or
+    # control that inlines it must see the same value within the frame (q31 = q30 - 3.14 stays opposite).
+    site = lambda i: {'op': 'rand', 'args': [1], 'detail': {'site_index': i, 'equation_phase': 'per_frame_', 'value_binding': 'stateful_random_call'}}
+    expr = lambda i: {'root': 0, 'nodes': [site(i), {'op': 'constant', 'args': [], 'detail': {'value': 1000.}}]}
+    frame = _FrameSiteRandom(np.random.default_rng(3))
+    a = float(_evaluate_np(expr(6), {}, frame)); b = float(_evaluate_np(expr(6), {}, frame))
+    c = float(_evaluate_np(expr(4), {}, frame))
+    assert a == b and a != c
+    nxt = _FrameSiteRandom(np.random.default_rng(4))
+    assert float(_evaluate_np(expr(6), {}, nxt)) != a
+
+
+def test_mesh_term_reads_frame_state_and_zero_for_names_never_written():
+    from prediction_illustration import _control_field, _TERM_CONTEXT
+    # zoom = 1 + musictime*x + tim  (musictime: per-frame state from the stepper; tim: never written -> 0)
+    nodes = [{'op': 'input', 'args': [], 'detail': {'name': 'musictime'}}, {'op': 'input', 'args': [], 'detail': {'name': 'x'}},
+             {'op': 'multiply', 'args': [0, 1], 'detail': {}}, {'op': 'input', 'args': [], 'detail': {'name': 'tim'}},
+             {'op': 'add', 'args': [2, 3], 'detail': {}}]
+    control = {'terms': [{'kind': 'constant', 'value': 1.}, {'kind': 'unresolved_inputs', 'expression': {'root': 4, 'nodes': nodes}}], 'value_range': None}
+    x, y = np.meshgrid(np.linspace(0, 1, 5), np.linspace(0, 1, 3))
+    _TERM_CONTEXT.update(rng=np.random.default_rng(1), bands={'bass': 1.}, stage={'musictime': 2.})
+    try:
+        assert np.allclose(_control_field(control, 'zoom', x, y, 0.), 1 + 2 * x)
+    finally:
+        for key in ('rng', 'bands', 'stage'): _TERM_CONTEXT.pop(key, None)

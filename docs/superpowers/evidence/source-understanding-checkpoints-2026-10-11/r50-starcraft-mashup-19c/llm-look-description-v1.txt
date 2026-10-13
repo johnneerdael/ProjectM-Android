@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r50 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a centred, audio-deformed ring (built-in circular wave around screen centre, thick and additive, slowly rotating about 0.2 rad/s, radius around half the model unit) that follows the right-channel waveform. Over it sit a 16-sided polygon of moderate size (radius about 0.33 NDC), four small triangles (two shapes, two instances each) and a scatter of 42 points from a custom wave spread across most of the frame. Whether the points read as a spray or a loose lattice is unresolved; they are not proven to be independent particles.
+
+Feedback and motion: strong expanding feedback. Every step the image zooms outward from the centre by about 12-15%, with rotation up to +/-0.1 rad per step and sideways drift of roughly +/-15 px per step. Decay is 0.98, so trails have a half-life of about 1.2 s and leave a faint residue that stalls near stored level 24/255. Expect a rotating, outward-streaming tunnel or spiral of echoed rings and shapes, with swirling smears rather than crisp static geometry. Motion should look fast and fluid.
+
+Colour palette: the ring is mostly near-white grey with occasional pink, yellow or red tints, because the wave colour is max-normalised and drifts slowly. The point wave is cyan and low in saturation. The recipe's overall tag is cold and desaturated (about 93% cold). The composite and warp palettes are unresolved.
+
+Brightness: the composite maps flat canvas levels to black, so empty areas should stay dark and only drawn or fed-back structure shows. Luminance is probably low to middling. The calibrated estimate is about 0.2, with a very wide interval of 0.01-0.44. Global brightness jumps look rare.
+
+Audio reaction: the only established route is the waveform shaping the ring outline. No bass, mid or treble bindings were found, so I expect no beat-synchronised flashes. Intensity comes from the constant motion rather than from audio.
+
+Uncertain: the final palette and dominance, how prominent the shapes and points are against the trails, real brightness, whether the unresolved shader composite adds tint or distortion, and the true visible speed. Mood estimates (intense, cold, low confidence) are editable assumptions.

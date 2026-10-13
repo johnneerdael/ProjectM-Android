@@ -1,0 +1,85 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r50-v2",
+ "preset": "stahlregen & bdrv + fishbrain + flexi + geiss + shifter - starcraft (mashup 19c - hyperion rmx).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e876e0b39efe8c7f492554e5653ba597dc50967f1b20aec20518edd12df858d3",
+  "prediction.json": "47c0445ca1acfc80f0c2a91b630636a43476976cea05f37836080bdf0ca15f0e",
+  "description.json": "5ad680cba2b25d8ee33b31ee2185ff77c7562930b7cf0cc1bf1c1c60af585df7",
+  "recipe.json": "b7b570c012dfc17213afae6d6dee2c7eee1636586a9099eead965ea0fe92dc03",
+  "llm-look-description-v1.txt": "6cdf3f86dfd28043974fc179ab0e231e31367249b0a2b9f0eb99c31502da8289"
+ },
+ "capture_result_sha256": "cf079feeb540de9c03b2f24ff44d7a7fc059ab9e6d19bd76e43dd7a42dca1f0e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.113,
+  "screenshot_luma": 0.094,
+  "blurred_luma_correlation": -0.017,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.127,
+    0.092
+   ],
+   "rgb": [
+    [
+     0.136,
+     0.13,
+     0.082
+    ],
+    [
+     0.098,
+     0.093,
+     0.064
+    ]
+   ],
+   "saturation": [
+    0.43,
+    0.385
+   ],
+   "blurred_luma_correlation": 0.147
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.157,
+   0.1196
+  ]
+ },
+ "agreements": [
+  "prediction: amber/cyan pieces and two-tone spheres scattered on black, similar brightness and colour balance"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "observed": "the capture shows four/six-pointed stars where the prediction draws single arrowheads; prediction about 40% brighter with more motion",
+   "cause": "q23-q32 are fresh rand draws once per frame (positions, angle q30 and q31 = q30 - 3.14): two opposite triangles at one spot form a six-pointed star. The shape controls inline the rand graphs and each evaluation drew anew, so the two instances got independent positions and angles",
+   "fix": "per-frame rand call sites (equation_phase per_frame_, site_index) draw once per frame and are shared by every instance and control (_FrameSiteRandom); stars now form"
+  }
+ ],
+ "verdict": "understood (v2): stars form; their positions are per-frame random draws",
+ "review_measurements_v2": {
+  "prediction_luma": 0.075,
+  "screenshot_luma": 0.094,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.079,
+    0.092
+   ],
+   "rgb": [
+    [
+     0.084,
+     0.081,
+     0.045
+    ],
+    [
+     0.098,
+     0.093,
+     0.064
+    ]
+   ],
+   "blurred_luma_correlation": 0.181
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1047,
+   0.1196
+  ]
+ }
+}

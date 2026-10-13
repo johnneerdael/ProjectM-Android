@@ -1,0 +1,15 @@
+LLM look description from the SDK recipe, source parts only (before capture, r51 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a bright, mostly pale screen dominated by a feedback tunnel, not a few thin elements. The composite samples the canvas through a reciprocal-radius polar mapping (a tunnel candidate), and the warp is a nonlinear, complex-quadratic-style iteration whose zoom, rotation and offsets vary with radius, x and y. Expect swirling, fractal-like layered structure pulling toward or away from the centre. The recipe's mirror score is 0, so little symmetry is expected.
+
+Drawn elements: a built-in two-channel parallel-trace waveform (mode 7) at screen centre that follows the left and right audio waveform. Its authored colour is green-ish (0, 0.4, 0) and normalises to full green, but its alpha is only 0.001, so it may be nearly invisible. Three custom waves (512 points each) have authored white, and three very large stationary square shapes (radius about 2.67, centred) are translucent white fading to red at the rim. The shapes will mostly act as veils or washes across the whole frame. There is a black outer border (about 15% of the screen) and a red inner border (about 9%), both drawn every frame.
+
+Feedback and motion: trails persist with a gain of 0.996 per frame, about 172 frames (roughly 5.7 s) to halve, so drawn content builds up. The shapes do not move; movement comes from the warp field and the tunnel mapping. Calibrated flow is about 0.16 screen widths per second (interval 0.06 to 0.34), so gentle to moderate drift.
+
+Colour palette: the composite maps flat canvas levels to near-white, with a faint blue tint at black. The steady-state hue is grayscale. Expect white and pale grey with a pastel or washed look, and red from the inner border and shape rims. The green wave adds little. The calibrated mean saturation is about 0.41 (wide interval), and warm versus cool is unresolved.
+
+Brightness: calibrated mean luminance is about 0.50 (0.31 to 0.74), so mid-bright to bright. Brightness jumps are about 2 per 10 s, with a very wide interval.
+
+Audio reaction: the only established routes are bass driving texture zoom in two shapes (thresholded or clamped, strength unknown) and the waveform shape. There is no established bass-to-colour or beat-flash route. Volume-dependent offsets in the warp are unresolved.
+
+Uncertain: the wave colours and alpha, the true palette beyond near-white, whether the tunnel is visible, how strong the bass zoom is, and flash behaviour. Approximate mood: Normal activity, Chill to Intense possible, low confidence.

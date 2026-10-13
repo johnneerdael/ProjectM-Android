@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r54 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a small, dense cluster of glowing line work sits at the screen centre and is smeared by feedback into a swirling, liquid, glowstick-like tunnel. The source draws a built-in two-channel waveform (mode 7, parallel traces through the centre, faint alpha 0.001 authored, so it is probably a minor contributor) plus three 512-point custom waves. Wave 0 is the only one with a known footprint: a tight bundle inside roughly x 0.43-0.57, y 0.44-0.56, so a compact bright knot, not a screen-filling figure. Waves 1 and 2 have unresolved positions and colour (authored white, mean colour unknown).
+
+Feedback and motion: every frame the image contracts toward the centre by about 15.9% (zoom 0.84) while rotating 0.1 rad, with a wandering warp centre (sine-driven, about +/-0.8 range) and warp strength 1.42. Content therefore spirals inward fast and repeats as nested, twisted copies. The composite adds image-driven self-advection (offsets from the blur sampler), giving smeared, fluid distortion. Trail gain is 0.975 per frame, a half-life of about 27 frames (about 0.8 s), so strokes leave visible curling trails. Borders add faint dark/neutral framing at alpha 0.2 and 0.1.
+
+Colour: the custom wave hue shares are mostly green (57%), then red (14%), orange (10%), pink (9%), with some purple and yellow; mean saturation about 0.57. The composite multiplies by cycling corner shades (periods about 14.6, 19.6 and 16.2 s, range 0.67-1), with hue placement random per load, so no single fixed tint. Steady-state hue cue is green-leaning, but reached colours are unverified.
+
+Brightness: calibrated estimate mean luminance about 0.29 (interval 0.11-0.53), saturation about 0.69, near-neutral warm/cool. Probably a mid-brightness picture on black, with saturated glowing lines.
+
+Audio reaction: the built-in wave follows the waveform, and the custom waves read bass and bass_att as frame inputs. No band-driven brightness route was found, so the reaction is mostly the line shapes wobbling with the sound rather than whole-screen pulses.
+
+Uncertain: the exact look of waves 1 and 2, how much of the screen the feedback fills, how strong the audio effect is, actual flashing (estimated about 0.6 brightness jumps per 10 s, range 0-5), and the activity band (Normal to Intense, possibly Chill).

@@ -1402,3 +1402,65 @@ repeated on correctly oriented frames. Probes and results:
   motion (frame difference 0.0154 vs 0.0153, single-frame correlation 0.85).
   The hues differ because the composite multiplies by `pow(hue_shader, ret)`,
   whose phases are random per load.
+- **r50 (`stahlregen & bdrv + … starcraft (mashup 19c - hyperion rmx)`) v1.**
+  Partial. Style and colour match (amber/cyan pieces and spheres on black),
+  but the capture shows stars where the prediction draws single arrowheads.
+  Shapes 1 and 2 are two-instance triangles with
+  `ang = if(equal(instance,0), q30, q31)`, whose overlap forms the stars.
+  Cause: `q23`–`q32` are fresh `rand` draws once per frame, but the inlined
+  shape controls drew anew at every evaluation, so the two instances got
+  independent positions and angles. Per-frame `rand` call sites (marked
+  `equation_phase: per_frame_` with a `site_index`) now draw once per frame
+  and are shared by every instance and control. v2 forms the stars (luma
+  0.079 vs 0.092, frame difference 0.105 vs 0.120); their positions are
+  random draws.
+- **Group measure, 200 random presets (diagnostic).** A frozen random
+  selection (seed 20261013) was rendered once with the native ruler, and the
+  full source pipeline was run at two versions: 9948b7f4, before the r28–r40
+  fixes, and 9dee0aba, after them. Metrics cover frames 60–149 on the 199
+  presets both versions finished. Mean / median brightness error 0.084 / 0.022
+  → 0.070 / 0.017; presets within 0.05 brightness 64% → 71%; colour image
+  error 0.104 / 0.052 → 0.092 / 0.044; image correlation median 0.757 → 0.794;
+  brightness-over-time correlation median 0.905 → 0.917; motion error 0.0191 →
+  0.0164. Paired: brightness better on 51 presets and worse on 20, colour 52
+  vs 20. The later per-frame echo and per-frame `rand` fixes are not included.
+  Harness and report: `docs/superpowers/evidence/group-measure-2026-10-13/`.
+- **r51 (`A Ultimate AdamFX 2 Martin - disco mix 6 (UFO RMX) …`) v1.**
+  Understood on the first prediction: a red/white diagonal burst with a glowing
+  centre disc (frames 60–149 luma 0.665 vs 0.665, RGB equal to three decimals,
+  correlation 0.999).
+- **Mesh terms read frame state; never-written names read 0.** Mesh control
+  terms that read per-frame state (for example `musictime += vol`) or names
+  that are never written (projectm-eval reads them as 0) were classed
+  unresolved, and the whole control was held neutral. Terms now take the
+  frame's stepped controls and read 0 for names nothing supplies; only
+  unsupported operations remain unresolved. Approximation: a per-pixel
+  variable read before it is written persists across vertices in the engine
+  but reads 0 here.
+- **r52 (`va ultramix - 247 --- Isosceles edit`) v1 → v2.** The per-pixel code
+  blends two complete transform sets, one with `rot = 11` and zoom about 5.
+  v1 held zoom/dx/dy/cy neutral and filled slowly (luma 0.07 at frame 15
+  against 0.45). v2 is exact: luma 0.455 vs 0.456, every frame within 0.003,
+  correlation 0.997.
+- **r53 (`martin - hardcore mix 2 (2)`) v1.** Understood on averages: the
+  same neon ray fan on dark violet (frames 60–149 luma 0.208 vs 0.222, RGB
+  within 0.03, frame difference 0.117 vs 0.121); the ray orientation at the
+  snapshot differs.
+- **r54 (`Liquid Glowsticks - … disco mix …`) v1.** The same saturated
+  liquid swirl with identical motion (frame difference 0.203 vs 0.204); the
+  colour distribution is a per-load hue-shader draw, and luma is about 17%
+  high over time.
+- **r55 (`flexi - patternton, district of media, …`) v1.** Understood on the
+  first prediction: a cyan/violet polar swirl with grey pixel blocks, luma
+  within about 0.01 at every frame (frames 60–149 correlation 0.86). The SDK
+  text gets the palette and level but calls the content a wavy line.
+- **Consumable outputs: recipe schema and knowledge pack.** The preset recipe
+  now has a JSON Schema (`export-contract/preset-recipe.schema.json`) with a
+  dependency-free validator (`contract_schema.py`). It validates a real fresh
+  export in the suite, all 60 sampled whole-pack recipes and 54 of 55
+  checkpoint recipes (r24's predates two fields). `knowledge_pack.py` builds a
+  versioned pack for applications from a corpus run: `core.jsonl.gz` (recipes
+  without graphs), optional `full/` recipes with programs, and a manifest
+  pinning schema, producer commit, corpus run, calibration model and facet
+  definition. `check` re-validates and verifies hashes (and preset bytes with
+  `--presets`); `load_core` is the reader.

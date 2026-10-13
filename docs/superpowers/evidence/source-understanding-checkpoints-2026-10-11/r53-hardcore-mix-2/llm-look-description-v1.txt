@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r53 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a centred, mirrored, radially sampled image. The composite uses reciprocal-radius polar sampling (a tunnel candidate) and the warp contains a cartesian mirror fold (kaleidoscope/symmetry candidate), so the screen likely reads as a symmetric, tunnel-like pattern rather than a dark background with a few objects. Drawn on top are a thick, additive angled waveform trace through the centre (built-in wave mode 6, tilted about 0.6 rad), two custom line waves (512 and 442 points, one faint at alpha 0.1), and three centred polygons: an 18-sided shape of radius about 0.15 (white, alpha 0.7), a 32-sided shape, and a 4-sided shape of radius about 0.2 in orange (r 1, g 0.4, b 0) whose position is randomised each frame. These are configured shapes, not particles.
+
+Feedback and motion: the mesh warp is very gentle, a uniform contraction toward the centre of about 0.01% per step with no rotation or translation. Persistence is moderate: flat content keeps about 97% per frame (half-life about 25 frames) and settles near 2% of full level. Trails therefore linger and the mirrored, tunnelling structure builds up over several seconds. Motion comes mostly from the waveform and the randomly jumping orange shape, not from the warp.
+
+Colour: the settled display tint is blue (hue_family blue; display RGB about 0.14, 0.19, 0.22). The composite lifts black to a muted blue-grey (about 0.11, 0.18, 0.21) and maps full white to a mid grey-blue (about 0.53, 0.54, 0.55). Expect a cool, desaturated blue-grey base with a thin blue border (alpha 0.3). The orange shape and white wave and shape elements are possible warmer or brighter accents. Their final colours depend on the feedback and are not resolved.
+
+Brightness: the calibrated estimate is dim to medium (mean luminance about 0.21, interval 0.02 to 0.44).
+
+Audio reaction: bass, mid and treble all route to shape radius, opacity and RGB, and the waveform line follows the audio. The source shows many routes, but their strength is unresolved. Expect a lively, reactive look with frequent brightness changes (estimate about 30 per 10 s, wide interval). The strict model gives no eligible mood group. The approximate tags are Reactive, cooler than warm, and high intensity.
+
+Uncertain: how much of the screen the tunnel and mirror cover, the actual palette beyond blue-grey, exact shape visibility, flashing, and how strong the audio response really is.

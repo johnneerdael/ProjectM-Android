@@ -1,0 +1,69 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r52-v2",
+ "preset": "va ultramix - 247 --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "3a9bc8239b4b25edd1586fb83b1e50763ad28b2aff1c460273136ca489bc8a5c",
+  "prediction.json": "e0d0c89db1e1259cfc1cd871128118ed5502724a9b2cb58c7db78a6336a67dbd",
+  "description.json": "225e25fb0243ba7a4ec20b5146624405b60b2b8c3f5b2934d96775e72fbdfcd2",
+  "recipe.json": "e9e0b48a084f0f7b754f92dfbbd16bda4e4a0c4ad98ae6c740f8643354a578cb",
+  "llm-look-description-v1.txt": "cb3f04a00018e78d275604880c61f9ec848a4c8d4544c4b07b5419a94dfd1d3f"
+ },
+ "capture_result_sha256": "9e6d3aca4055d31f79bf22e2685eae7672803c4fd99bccb79df0206e43e5e02c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.275,
+  "screenshot_luma": 0.456,
+  "blurred_luma_correlation": 0.207,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.234,
+    0.437
+   ],
+   "blurred_luma_correlation": 0.315
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0009,
+   0.0073
+  ]
+ },
+ "review_measurements_v2": {
+  "prediction_luma": 0.455,
+  "screenshot_luma": 0.456,
+  "mean_rgb_prediction": [
+   0.0,
+   0.577,
+   0.577
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.579,
+   0.579
+  ],
+  "blurred_luma_correlation": 0.997,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.437,
+    0.437
+   ],
+   "blurred_luma_correlation": 0.997
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0076,
+   0.0073
+  ]
+ },
+ "agreements": [
+  "v2 prediction: the same glossy teal diamond liquid; luma within 0.003 at every frame"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "version": "v1",
+   "observed": "slow fill with fine streaks (luma 0.07 at frame 15 vs 0.45)",
+   "cause": "per-pixel code blends two full transform sets (one with rot 11, zoom about 5, sx -1.2); the mesh terms read tim and dx_r (never written: 0) and musictime (per-frame state), were classed unresolved, and the whole zoom/dx/dy/cy controls were held neutral",
+   "fix": "mesh terms read the frame's stepped controls and treat names nothing supplies as 0 (projectm-eval rule); only unsupported operations stay unresolved"
+  }
+ ],
+ "verdict": "understood (v2): exact"
+}

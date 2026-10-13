@@ -33,5 +33,13 @@
     "examples/strict-features.json": "15e01f96dd275d5dafbc5a02ae29b5ba3f909175508496ccde410f575706a128",
     "feature-catalog.json": "f6b03ea143a1dcc77802fb5044cb75ebc5d3bfaa6736927cb2a1ddbd059bd6fb",
     "source-feature-record.schema.json": "002abe548af7924b410f6b4d7e6bbef1a49ec9d15e608c90b1545a7cc4bfe2f4"
+  },
+  "schemas": {
+    "preset-recipe.schema.json": {
+      "contract": "preset-visual-recipe-v1",
+      "validator": "contract_schema.recipe_errors",
+      "tests": "test_contract_schema.py",
+      "added": "2026-10-13"
+    }
   }
 }

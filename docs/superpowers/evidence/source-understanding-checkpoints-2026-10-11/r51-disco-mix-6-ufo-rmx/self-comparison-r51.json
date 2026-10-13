@@ -1,0 +1,66 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r51-v1",
+ "preset": "A Ultimate AdamFX 2 Martin - disco mix 6 (UFO RMX)Inside the ship (thereShooting)Flexi,Fishbrain,Hexoc10.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "3200a477c5cf34061be37435cc3b7b26e6d58c3d2d18834cf60e16f7c18b48b7",
+  "prediction.json": "3a7fd6aa3a1b1dc877a549a662c7cbf7707a72568aa76e68d8a69e23b28288e3",
+  "description.json": "53117a03686904071ec624e33782e922357cc6a68793a92661cd9e473289509f",
+  "recipe.json": "7c4e9c59153cf2cf2ed165954944b2193f26348b33e1b11587ec6cc3c811498f",
+  "llm-look-description-v1.txt": "63d5b90b89926bf1fa873fb4cd0114f3dda4f3fa03c07592e6ccbd8c8aad2021"
+ },
+ "capture_result_sha256": "f147cdaac595202fdccfc13fb59a214a0b5968ddadddd59f18057a1dcc75799a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.701,
+  "screenshot_luma": 0.703,
+  "mean_rgb_prediction": [
+   0.948,
+   0.638,
+   0.6
+  ],
+  "mean_rgb_screenshot": [
+   0.948,
+   0.639,
+   0.607
+  ],
+  "saturation": [
+   0.397,
+   0.39
+  ],
+  "blurred_luma_correlation": 0.968,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.665,
+    0.665
+   ],
+   "rgb": [
+    [
+     0.97,
+     0.589,
+     0.524
+    ],
+    [
+     0.969,
+     0.588,
+     0.524
+    ]
+   ],
+   "saturation": [
+    0.467,
+    0.467
+   ],
+   "blurred_luma_correlation": 0.999
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.045,
+   0.0471
+  ]
+ },
+ "agreements": [
+  "prediction: the same red/white diagonal burst with a glowing centre disc; averages equal to three decimals",
+  "SDK text: bright, pale, tunnel-dominated screen"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}

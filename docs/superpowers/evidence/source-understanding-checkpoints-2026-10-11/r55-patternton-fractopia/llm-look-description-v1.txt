@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r55 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a mostly dark, textured field with a single wavy horizontal line drawn across the middle, slightly below centre (custom wave, 512 points, spanning the full width and a little beyond, y roughly 0.56-0.67). The recipe lists its colour as pink/magenta, although the authored base RGBA reads green, so that line colour is uncertain. A tiny audio-deformed circle sits near the top centre (radius about 0.06). It is drawn white at alpha 0.004, so it is almost invisible. A black outer border covers about 10% of the screen edge.
+
+Feedback and motion: the previous frame is resampled with no net zoom, rotation or drift (zoom 1, rot 0, dx and dy 0). There is a mild radial zoom exponent (0.65) and a small warp amount (0.049). The warp shader adds a fine level of the fed-back image and subtracts a coarser blur, which is a band-pass sharpening. Seeds such as the line grow into splatter, cells or edge patterns that spread over the canvas. The image also steers its own sampling (self-advection), so structure should look flowing or smeared rather than rigidly moving. The composite mirrors the picture across an axis, so expect a loosely mirrored, kaleidoscope-like symmetry, inexact because of the other operations.
+
+Colour: the warp wipes red completely every frame. Green is kept at 0.99 per frame and blue at 0.996. The settled canvas is therefore green to cyan-green, and the source steady state gives a green hue family. The composite maps most flat levels to black, with only the top level shown as mid grey. Dim canvas content may therefore display as very dark, and the visible picture may be sparse bright patterns on black. Pink or magenta from the line may stand out against the green.
+
+Brightness: probably dim to moderate. The steady-state display level is low (about 0.28 green), but this is a lower bound and the real brightness is not established.
+
+Audio: the only route found is the circle following the waveform, which is nearly invisible. There are no bass, mid or treble routes, no audio-driven brightness and no found flash mechanism. Only a very slow nominal composite brightness cycle (about 0.016 Hz) exists. I expect a calm, smooth look.
+
+Uncertain: the actual line colour, how much pattern growth fills the screen, true brightness, how strong the mirror symmetry is, and whether the composite's black mapping hides most content.

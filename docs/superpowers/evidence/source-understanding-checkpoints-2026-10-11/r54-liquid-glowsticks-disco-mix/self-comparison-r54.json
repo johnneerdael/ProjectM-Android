@@ -1,0 +1,58 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r54-v1",
+ "preset": "Liquid Glowsticks - ATwisted Pre Set Mix By AdamFX 2 martin - disco mix Ft Hexocollie including Flexi Remixed 4.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b5b511307970975fc38b840799925e23ec05dbcf05cbc0d2a0cfb62ce2c8104b",
+  "prediction.json": "c2f957da38bea3b9f1d49520a4c2e2b55c27e3fb786ecf6afad2b95aa311d775",
+  "description.json": "8077f47a0f19733842b6d77e3d172605e3e714743d4d1634a4a607bd432b2865",
+  "recipe.json": "70d4dc83910f429ea76df6e15d4536e7d485a8b40589e6a390d5f1ad68cc5039",
+  "llm-look-description-v1.txt": "7238ba5b56df3caef32618ade6ddf0981244bceb9702f7e89e20a43bb562d71b"
+ },
+ "capture_result_sha256": "9a9528c390409237a1aa9a2446a4124c9491f379bae1585f93b1d4473d919105",
+ "review_measurements_v1": {
+  "prediction_luma": 0.427,
+  "screenshot_luma": 0.459,
+  "blurred_luma_correlation": 0.303,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.446,
+    0.381
+   ],
+   "rgb": [
+    [
+     0.375,
+     0.47,
+     0.421
+    ],
+    [
+     0.326,
+     0.388,
+     0.468
+    ]
+   ],
+   "saturation": [
+    0.523,
+    0.495
+   ],
+   "blurred_luma_correlation": 0.656
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2031,
+   0.204
+  ]
+ },
+ "agreements": [
+  "prediction: the same saturated liquid swirl geometry and identical motion",
+  "SDK text: glowing line work smeared into a swirling liquid tunnel, corner hue cycling"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "colour distribution and about 17% higher time-averaged luma",
+   "cause": "composite multiplies by hue_shader (random per load)"
+  }
+ ],
+ "verdict": "understood; hue placement random per load"
+}

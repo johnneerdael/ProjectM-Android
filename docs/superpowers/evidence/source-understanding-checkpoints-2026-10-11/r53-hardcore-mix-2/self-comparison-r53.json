@@ -1,0 +1,57 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r53-v1",
+ "preset": "martin - hardcore mix 2 (2).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "7e9a20bb214b12ac3624080d9f54f593a0390753f350c7e0b66c9eae8b43ea37",
+  "prediction.json": "150be7c4f46a4da1829735995f4bedb7c2ba0b1ae02f2e32110fb7f9e9ee4cb4",
+  "description.json": "623fcb36e40ee92cdf26e19f70d5a0a2d84df77426a8b0333d168e2864d55f19",
+  "recipe.json": "03df64fee2575ff47b334921d02006d6c4263da7dae9404717719f9ece495f2b",
+  "llm-look-description-v1.txt": "e1146b4fc8d62bec4a04640e207170b48071f258bf441fe9a7657be77166ebae"
+ },
+ "capture_result_sha256": "3dc26a37f7cd6cb57bf87794f8005432b117428be44af79bd823909e1fb5dd52",
+ "review_measurements_v1": {
+  "prediction_luma": 0.264,
+  "screenshot_luma": 0.345,
+  "blurred_luma_correlation": 0.029,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.208,
+    0.222
+   ],
+   "rgb": [
+    [
+     0.152,
+     0.22,
+     0.262
+    ],
+    [
+     0.158,
+     0.234,
+     0.29
+    ]
+   ],
+   "saturation": [
+    0.428,
+    0.461
+   ],
+   "blurred_luma_correlation": 0.647
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1173,
+   0.1209
+  ]
+ },
+ "agreements": [
+  "prediction: the same neon cyan/magenta/green rays on dark violet with a warm glow; averaged brightness, colour and motion match",
+  "SDK text: mirrored radially sampled image, blue-grey tint, reactive"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "ray orientation at the snapshot differs (audio-driven rotation phase)"
+  }
+ ],
+ "verdict": "understood on averages (orientation phase differs)"
+}

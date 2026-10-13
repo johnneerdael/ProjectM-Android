@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r52 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a large, smooth cyan disc. The one custom shape has 100 sides, so it reads as a circle. Its radius is about 0.49 in shape units, and its colour is authored as cyan (r0, g1, b1, a1). The second colour is transparent black (all zero), so the disc probably fades toward its rim. The shape centre wanders inside a box from roughly 0.2 to 0.8 on both axes, so the disc drifts around the middle of the screen. Its own geometry speed bound is 0. A circular built-in wave (audio-deformed circle, centred, with additive blending) is also authored. Its alpha is only 0.001, so it should be close to invisible. No mirrors, kaleidoscope, particles or echo are present.
+
+Feedback and motion: decay is 1.0, so the warp never fades the previous frame. Old content stays, and the picture builds up and smears rather than clearing. The warp has a zoom that varies across the screen with angle, radius and position, plus a spatially varying rotation. Expect a slow swirling, tunnel-like or breathing smear of the cyan disc, not sharp movement. The borders are authored at zero coverage, so they add nothing. Estimated flow is about 0.02 screen widths per second, with no brightness jumps and no flash route found. The look should be smooth and hypnotic.
+
+Colour: cool and cyan-blue. The steady-state cue is cyan, and the display estimate puts warm/cool at -0.74. Saturation is moderate to high, about 0.66 (interval 0.39 to 0.93). The authored wave is grey and the shape is green-cyan-blue, so I expect no strong warm hues.
+
+Brightness: fairly dark overall, with mean luminance near 0.18 (interval 0 to 0.41). The cyan disc and its smear are the brightest parts, and the rest is dark.
+
+Audio reaction: weak and unclear. The only audio input is the right waveform on the nearly transparent wave line. No band route, threshold or beat switch was found. Expect little visible response to the music, with a calm Chill feel (activity estimate about 0.003; Normal is possible).
+
+Uncertain: how the spatially varying zoom actually distorts the smear; whether the disc rim is visibly faded; how much the faint wave line shows once feedback accumulates; real trail brightness (the steady-state level is only a lower bound); and whether the shape's centre motion is audio driven.

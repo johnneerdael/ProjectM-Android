@@ -649,6 +649,20 @@ merely because the preset bytes match. Example hashes bind each actual input
 context. The fixture has duplicate decay settings: the effective first value is1,
 not the later .97. Preserve its original bytes and declared identities.
 
+### Recipe schema (`export-contract/preset-recipe.schema.json`)
+
+The preset recipe (`preset-visual-recipe-v1`, from `preset_recipe.build_recipe`)
+has a draft 2020-12 JSON Schema covering its stable sections: identity, render
+feedback (including `warp_transfer` with `per_channel` and `wrap`), layers
+(built-in wave radius, maximise rule, point clouds), composite (`flat_transfer`,
+`hue_shader`, `per_load_random`), `random_redraws`, display estimate, facets
+and intent effects. `contract_schema.recipe_errors(recipe)` validates a recipe
+without extra dependencies, and `test_contract_schema.py` validates a real
+fresh export end to end. Unlisted properties are allowed, so additive fields
+stay within v1. A change of meaning, unit or basis needs a new policy string
+and a schema update in the same change. Consumers should check `policy`,
+validate against the schema, and ignore fields they do not know.
+
 ## 8. Authority and compatibility
 
 This document and companion schema describe producers at the stated checkpoint.

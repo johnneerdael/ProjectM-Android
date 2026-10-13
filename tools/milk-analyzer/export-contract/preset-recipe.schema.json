@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/johnneerdael/ProjectM-TV/tools/milk-analyzer/export-contract/preset-recipe.schema.json",
+  "title": "ProjectM TV preset visual recipe (preset-visual-recipe-v1)",
+  "description": "Machine shape of preset_recipe.build_recipe output. Fields may be added within v1; a change of meaning, unit or basis requires a new policy version. Unlisted properties are allowed (additive evolution).",
+  "type": "object",
+  "required": ["policy", "preset", "conventions", "description", "render", "mood", "uses_rendered_images", "limitations", "intent"],
+  "properties": {
+    "policy": {"const": "preset-visual-recipe-v1"},
+    "preset": {
+      "type": "object",
+      "required": ["name", "sha256"],
+      "properties": {
+        "name": {"type": "string"},
+        "sha256": {"type": "string"},
+        "relative_path": {"type": ["string", "null"]}
+      }
+    },
+    "conventions": {"type": "object"},
+    "description": {"type": ["string", "null"]},
+    "uses_rendered_images": {"const": false},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "render": {"$ref": "#/$defs/render"},
+    "mood": {"type": "object"},
+    "display_estimate": {"$ref": "#/$defs/displayEstimate"},
+    "facets": {"type": "object", "required": ["policy"], "properties": {"policy": {"const": "preset-facets-v1"}}},
+    "intent": {
+      "type": "object",
+      "required": ["effects"],
+      "properties": {
+        "effects": {"type": "array", "items": {"type": "object", "required": ["effect"], "properties": {"effect": {"type": "string"}}}},
+        "reactivity": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "program": {"type": "object"}
+  },
+  "$defs": {
+    "number3": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+    "numberOrNull": {"type": ["number", "null"]},
+    "render": {
+      "type": "object",
+      "required": ["feedback", "layers", "composite", "mechanisms", "audio_bindings"],
+      "properties": {
+        "feedback": {"$ref": "#/$defs/feedback"},
+        "layers": {"type": "array", "items": {"$ref": "#/$defs/layer"}},
+        "composite": {"$ref": "#/$defs/composite"},
+        "mechanisms": {"type": "array", "items": {"type": "object", "required": ["mechanism"], "properties": {"mechanism": {"type": "string"}, "stage": {"type": ["string", "null"]}}}},
+        "audio_bindings": {"type": "array", "items": {"type": "object"}},
+        "random_redraws": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/randomRedraws"}]}
+      }
+    },
+    "feedback": {
+      "type": "object",
+      "properties": {
+        "decay": {"$ref": "#/$defs/numberOrNull"},
+        "warp_transfer": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/warpTransfer"}]},
+        "steady_state": {"anyOf": [{"type": "null"}, {"type": "object"}]},
+        "warp_per_load_random": {"$ref": "#/$defs/perLoadRandom"}
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "required": ["gain", "linear", "halving_frames", "steady_level_from_full"],
+      "properties": {
+        "gain": {"type": "number"},
+        "linear": {"type": "boolean"},
+        "halving_frames": {"$ref": "#/$defs/numberOrNull"},
+        "steady_level_from_full": {"$ref": "#/$defs/numberOrNull"}
+      }
+    },
+    "warpTransfer": {
+      "type": "object",
+      "required": ["gain_rgb", "offset_rgb", "linear", "halving_frames", "steady_level_from_full", "levels", "rgb", "source"],
+      "properties": {
+        "gain_rgb": {"$ref": "#/$defs/number3"},
+        "offset_rgb": {"$ref": "#/$defs/number3"},
+        "linear": {"type": "boolean"},
+        "halving_frames": {"$ref": "#/$defs/numberOrNull"},
+        "steady_level_from_full": {"$ref": "#/$defs/numberOrNull"},
+        "channel_selective": {"type": "boolean"},
+        "per_channel": {"type": "object", "required": ["r", "g", "b"], "properties": {"r": {"$ref": "#/$defs/persistence"}, "g": {"$ref": "#/$defs/persistence"}, "b": {"$ref": "#/$defs/persistence"}}},
+        "wrap": {"anyOf": [{"type": "null"}, {"type": "object", "required": ["shift_per_frame", "cycle_frames"], "properties": {"shift_per_frame": {"type": "number"}, "cycle_frames": {"type": "number", "minimum": 0}}}]},
+        "levels": {"type": "array", "items": {"type": "number"}},
+        "rgb": {"type": "array", "items": {"$ref": "#/$defs/number3"}},
+        "source": {"type": "string"}
+      }
+    },
+    "composite": {
+      "type": "object",
+      "properties": {
+        "flat_transfer": {"type": "object", "required": ["levels", "rgb"], "properties": {"levels": {"type": "array", "items": {"type": "number"}}, "rgb": {"type": "array", "items": {"$ref": "#/$defs/number3"}}}},
+        "hue_shader": {
+          "type": "object",
+          "required": ["channels", "cycle_periods_seconds_rgb", "range_rgb", "phase"],
+          "properties": {
+            "channels": {"type": "array", "items": {"enum": ["r", "g", "b"]}},
+            "cycle_periods_seconds_rgb": {"type": "array", "items": {"$ref": "#/$defs/numberOrNull"}, "minItems": 3, "maxItems": 3},
+            "range_rgb": {"type": ["array", "null"]},
+            "phase": {"type": "string"}
+          }
+        },
+        "per_load_random": {"$ref": "#/$defs/perLoadRandom"}
+      }
+    },
+    "perLoadRandom": {
+      "type": "object",
+      "required": ["switches", "continuous_components"],
+      "properties": {
+        "switches": {"type": "array", "items": {"type": "object", "required": ["component", "condition", "probability_true"], "properties": {
+          "component": {"type": "string"}, "condition": {"type": "string"}, "probability_true": {"type": "number", "minimum": 0, "maximum": 1}}}},
+        "continuous_components": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "randomRedraws": {
+      "type": "object",
+      "required": ["states", "feeds", "event_times_s", "period_s"],
+      "properties": {
+        "states": {"type": "array", "items": {"type": "string"}},
+        "feeds": {"type": "array", "items": {"type": "string"}},
+        "event_times_s": {"type": ["array", "null"], "items": {"type": "number", "minimum": 0}},
+        "period_s": {"$ref": "#/$defs/numberOrNull"}
+      }
+    },
+    "layer": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string"},
+        "builtin_wave": {"type": "object", "properties": {
+          "effective_mode": {"type": ["integer", "null"]},
+          "effective_base_radius_model_units": {"type": "number"},
+          "thick": {"type": ["boolean", "null"]},
+          "dots": {"type": ["boolean", "null"]},
+          "additive": {"type": ["boolean", "null"]}}},
+        "colour": {"type": "object", "properties": {
+          "max_normalised": {"type": "boolean"},
+          "max_normalise_rule": {"type": "object", "required": ["threshold"], "properties": {"threshold": {"type": "number"}}},
+          "channels": {"type": "object"}}},
+        "point_cloud": {"type": "object", "properties": {
+          "colour_resolved": {"type": "boolean"},
+          "authored_rgba": {"type": ["array", "null"]},
+          "positions_closed_form": {"type": ["boolean", "null"]}}}
+      }
+    },
+    "displayEstimate": {
+      "type": "object",
+      "required": ["policy", "statistics"],
+      "properties": {
+        "policy": {"type": "string"},
+        "statistics": {"type": "object"},
+        "activity": {"type": "object"}
+      }
+    }
+  }
+}

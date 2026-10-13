@@ -195,10 +195,24 @@ _TERM_CONTEXT={}
 
 
 def _terms_evaluable(expression):
+    """Supported operations only: inputs are coordinates, time, bands, the frame's stepped controls or,
+    for names nothing supplies, 0 (projectm-eval reads never-written variables as 0)."""
     from time_expression import input_names
     plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
-    names=input_names(plain)
-    return names is not None and names<={'x','y','rad','ang','time',*_TERM_CONTEXT.get('bands',{})}
+    return input_names(plain) is not None
+
+
+def _term_inputs(expression,base):
+    """base inputs plus the frame's stepped controls; names nobody supplies read 0. A per-pixel variable
+    read before it is written persists across vertices in the engine; here it reads 0 (approximation)."""
+    from time_expression import input_names
+    plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
+    stage={k:v for k,v in (_TERM_CONTEXT.get('stage') or {}).items() if isinstance(v,(int,float))}
+    inputs={**stage,**base}
+    for name in input_names(plain) or ():
+        if isinstance(name,str) and name not in inputs:
+            inputs[name]=0.;_UNRESOLVED_TERMS.add('mesh input %s read as 0 (never written)'%name)
+    return inputs
 
 
 def _terms_field(terms,x,y,time):
@@ -209,7 +223,7 @@ def _terms_field(terms,x,y,time):
         if kind=='constant':total+=term['value']
         elif kind=='uniform' and term.get('expression') and _TERM_CONTEXT.get('bands') and _terms_evaluable(term['expression']):
             # Declared per-frame bands replace the range midpoint for audio/time-driven uniform terms.
-            inputs={'time':time,**_TERM_CONTEXT['bands']}
+            inputs=_term_inputs(term['expression'],{'time':time,**_TERM_CONTEXT['bands']})
             total+=term.get('sign',1)*float(np.asarray(_evaluate_np(term['expression'],inputs,_TERM_CONTEXT.get('rng'))).reshape(-1)[0])
         elif kind=='uniform':
             value=_mid(term.get('value_range'))
@@ -234,7 +248,7 @@ def _terms_field(terms,x,y,time):
             total+=amplitude*(np.sin(argument) if osc['function']=='sin' else np.cos(argument))
         elif kind in ('nonlinear_coordinate_term','unresolved_inputs','uniform_scaled_coordinate_affine') and term.get('expression') \
                 and _TERM_CONTEXT.get('rng') is not None and _terms_evaluable(term['expression']):
-            inputs={'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'ang':-np.arctan2(y-.5,x-.5),'time':time,**_TERM_CONTEXT.get('bands',{})}
+            inputs=_term_inputs(term['expression'],{'x':x,'y':y,'rad':2*np.hypot(x-.5,y-.5),'ang':-np.arctan2(y-.5,x-.5),'time':time,**_TERM_CONTEXT.get('bands',{})})
             total+=term.get('sign',1)*_evaluate_np(term['expression'],inputs,_TERM_CONTEXT['rng'])
         elif kind=='nonlinear_coordinate_term':
             # Not evaluable here (unsupported operation or input): held at its range midpoint, or zero,
@@ -637,6 +651,20 @@ def _motion_vector_marks(facts,sample,time,width,height,maps=None):
 
 
 from eel_memory import _UNARY_NP,STOCHASTIC as _STOCHASTIC,Memory  # noqa: E402 - shared projectm-eval numerics
+
+
+class _FrameSiteRandom:
+    """A frame's random source: per-frame rand call sites (inlined main per-frame code) draw once per
+    frame and are shared by every instance and control that reads them; other calls draw per call."""
+    def __init__(self,generator):
+        self.generator=generator;self.cache={}
+
+    def site_draw(self,key,limit):
+        if key not in self.cache:self.cache[key]=float(self.generator.random())
+        return self.cache[key]*limit
+
+    def __getattr__(self,name):
+        return getattr(self.generator,name)
 
 
 def _evaluate_np(expression,inputs,rng=None,batch_shape=None):
@@ -1707,7 +1735,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                             cv2.polylines(mask,[pixel+[ox,oy]],bool(loop),1.0,1,cv2.LINE_8,4)
                     image,canvas['alpha']=_blend_wave_layer(image,canvas['alpha'],layer,mask,alpha,additive)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
-            rng=np.random.default_rng(7919+int(round(frame_time*fps)))
+            rng=_FrameSiteRandom(np.random.default_rng(7919+int(round(frame_time*fps))))
             for shape_index,shape in enumerate(textured):
                 recurrence=shape.get('frame_recurrence')
                 for instance in range(shape.get('instances',1)):
