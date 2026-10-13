@@ -355,3 +355,17 @@ def test_dark_builtin_wave_covers_by_its_raster_not_its_colour():
     # Additive blending adds the colour: a dark line barely changes the canvas.
     out, _ = _blend_wave_layer(image, canvas_alpha, layer, mask, 1., True)
     assert np.allclose(out[2, 1:5, 0], 1.)
+
+
+def test_positions_only_cloud_draws_in_its_authored_colour():
+    from prediction_illustration import _draw_points, _point_clouds
+    const = lambda v: {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': v}}]}
+    record = {'status': 'unknown', 'positions_only': True, 'positions_closed_form': True, 'sample_count': 4,
+              'programs': {'x': const(.5), 'y': const(.5)}, 'authored_rgba': [1., 0., 0., 1.],
+              'draw_flags': {'dots': True, 'thick': False, 'additive': False}}
+    facts = {'/analysis/visual_description/static_behaviour/colour/components/0':
+             {'component_id': 'wave_0', 'source_palette': {'point_colour_distribution': record}}}
+    assert [name for name, _ in _point_clouds(facts)] == ['wave_0']
+    width, height = 48, 27
+    image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., lambda p: (p[0] * width, (1 - p[1]) * height))
+    assert image[..., 0].max() == 1. and image[..., 1].max() == 0.

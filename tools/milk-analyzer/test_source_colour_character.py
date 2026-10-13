@@ -364,3 +364,26 @@ def test_spectrum_wave_positions_read_the_spectrum_not_frame_state():
     record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
     assert record['waveform_inputs']['params']['spectrum'] is True
     assert 'value1' not in (record.get('frame_inputs') or [])
+
+
+def test_large_per_point_programs_are_exported():
+    # A 3D Lissajous point projected in perspective: well over 256 graph nodes, all closed-form.
+    def terms(seed):
+        return '+'.join(f'.1*sin(sample*{seed+k}.3+time*.{seed+k})' for k in range(1,13))
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_bUseDots=1\n'
+        f'wave_0_per_point1=ox={terms(10)};oy={terms(30)};oz={terms(50)}-3;'
+        'mx=ox*cos(time)+oz*sin(time);mz=-ox*sin(time)+oz*cos(time);ox=mx;oz=mz;'
+        'my=oy*cos(time*.7)-oz*sin(time*.7);mz=oy*sin(time*.7)+oz*cos(time*.7);oy=my;oz=mz;'
+        'x=ox*.5/oz+.5;y=oy*.5/oz+.5;r=1;g=1;b=1;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['positions_closed_form'] is True and record['programs']['x'] is not None
+
+
+def test_unresolved_point_colour_keeps_closed_form_positions():
+    # The colour reads an input nothing defines a domain for; the positions are still drawable.
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_bUseDots=1\n'
+        'wave_0_per_point1=x=sample;y=.5+.1*sin(sample*6);r=1;g=1;b=1;a=1;\nwave_0_per_point2=r=megabuf(sample*100);\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['status']=='unknown'
+    assert record['positions_closed_form'] is True and record['programs']['x'] is not None
+    assert record['programs'].get('r') is None

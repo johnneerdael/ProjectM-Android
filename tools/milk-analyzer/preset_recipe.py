@@ -146,8 +146,9 @@ def _layer(facts,index):
         if not colour_path.startswith(STATIC+'/colour/components/') or not isinstance(colour_row,dict):continue
         if colour_row.get('component_id')!=identity:continue
         points=(colour_row.get('source_palette') or {}).get('point_colour_distribution') or {}
-        if points.get('status')=='closed_form_point_colours':
+        if points.get('status') in ('closed_form_point_colours','frame_state_point_colours') or points.get('positions_only'):
             layer['point_cloud']={'points_per_frame':points.get('sample_count'),'sample_grid':'sample=j/(N-1)',
+                'colour_resolved':not points.get('positions_only'),'authored_rgba':points.get('authored_rgba'),
                 **{k:copy.deepcopy(points.get(k)) for k in ('hue_family_shares','mean_rgb','mean_alpha','mean_saturation',
                    'held_inputs','positions_closed_form','position_bounds','frame_inputs','programs')},
                 'coordinates':'MilkDrop source x right, y down, nominal [0,1]; colours native modulo 256/255 then clamp',
@@ -182,12 +183,27 @@ def _warp_transfer(facts):
     # would describe neither (ret.x = main.x on flat content keeps red whole and clears green/blue).
     selective=max(gain)-min(gain)>.1
     summary=_iterated_persistence(levels,mean)
-    return {'gain_rgb':gain,'offset_rgb':offset,'linear':summary['linear'],
-            'halving_frames':None if selective else summary['halving_frames'],
-            'steady_level_from_full':None if selective else summary['steady_level_from_full'],
-            'channel_selective':selective,'per_channel':per_channel,
+    wrap=_wrap_cycle(levels,mean)
+    return {'gain_rgb':gain,'offset_rgb':offset,'linear':summary['linear'] and wrap is None,
+            'halving_frames':None if selective or wrap else summary['halving_frames'],
+            'steady_level_from_full':None if selective or wrap else summary['steady_level_from_full'],
+            'channel_selective':selective,'per_channel':per_channel,'wrap':wrap,
             'retention_by_level':[{'level':level,'retention':round(value/level,3)} for level,value in zip(levels,mean) if level>0],
             'levels':levels,'rgb':rgb,'source':'exported warp shader evaluated on flat colours'}
+
+
+def _wrap_cycle(levels,values):
+    """A modulo (frac/fmod) warp: interior levels move by a constant shift while the end the shift runs
+    into jumps to the other end. Content then cycles through the whole range every 1/|shift| frames
+    instead of fading. None when the transfer does not wrap."""
+    interior=[(level,value) for level,value in zip(levels,values) if 0<level<1]
+    if len(interior)<2:return None
+    shifts=[value-level for level,value in interior];shift=sum(shifts)/len(shifts)
+    if not 1e-4<abs(shift)<.1 or max(shifts)-min(shifts)>.01:return None
+    wrapped=values[0]-levels[0]>.5 if shift<0 else levels[-1]-values[-1]>.5
+    if not wrapped:return None
+    return {'shift_per_frame':shift,'cycle_frames':1/abs(shift),
+            'description':'levels step by the shift each frame and wrap around the range (colour cycling), not a fade'}
 
 
 def _iterated_persistence(levels,values):
@@ -593,6 +609,10 @@ def intent(recipe):
         lives=[row.get('halving_frames') for row in channels]
         if half is None and lives and None not in lives:half=max(lives)/30
     elif half is None and warp.get('halving_frames'):half=warp['halving_frames']/30
+    if warp.get('wrap'):
+        # A wrapping warp cycles levels through the range instead of fading them.
+        decay=None
+        effects.append({'effect':'level_cycling','cycle_s':warp['wrap']['cycle_frames']/30,'shift_per_frame':warp['wrap']['shift_per_frame']})
     effects.append({'effect':'trails','half_life_s':half,'decay_per_frame':decay,
                     'faint_residue':bool(fb.get('stored_level_floor') and max(fb['stored_level_floor'])>0)})
     for pattern in fb['warp_patterns']:

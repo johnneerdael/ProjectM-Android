@@ -84,13 +84,21 @@ required. Use a native file-read tool to inspect JSON and the summary.
    channels persist differently (for example red kept whole, green and blue
    cleared): read `per_channel` and describe each channel, never the channel
    mean. A channel with gain 1 and `steady_level_from_full` 1 is not faded by
-   the warp on flat content. When `linear` is false, read
+   the warp on flat content. A `wrap` entry means the warp takes a modulo
+   (`frac`): levels step by `shift_per_frame` and wrap around, so colours cycle
+   through the whole range every `cycle_frames` instead of fading. Describe it
+   as continuous colour cycling (intent `level_cycling`), never as a short
+   trail. When `linear` is false, read
    `retention_by_level` and `steady_level_from_full`: dim content can be kept
    whole while bright content is cut, so the canvas settles at that level
    instead of fading to black. For a custom composite,
    `render.composite.flat_transfer` gives the displayed colour for each flat
    canvas level (texture lookups included). That is the palette the whole
    canvas is shown through, so do not infer coverage from drawn elements alone.
+   Layers with a `point_cloud` carry the custom wave's per-point programs.
+   `colour_resolved: false` means only the positions are known and the colour
+   shown is the wave's authored base colour. `frame_inputs` name the main
+   per-frame state the points read (stepped by a consumer).
    `render.composite.hue_shader` means the composite multiplies by projectM's
    cycling corner shades: name the cycle periods and the range, and say that
    the hue placement is random per preset load (do not name one fixed tint).

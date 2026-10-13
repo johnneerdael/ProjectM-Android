@@ -266,3 +266,20 @@ def test_composite_hue_shader_reports_periods_range_and_random_phase():
     assert abs(shader['cycle_periods_seconds_rgb'][0] - 2 * math.pi / (30 * .0143)) < 1e-9
     assert shader['range_rgb'] == [[.75, 1.]] * 3
     assert 'random' in shader['phase']
+
+
+def test_wrapping_warp_transfer_reports_a_level_cycle_not_a_halving(monkeypatch):
+    # ret = frac(ret - 0.005) with a small dither: interior levels step down 0.005 per frame and
+    # black wraps to near white, so every level cycles through the range every 200 frames.
+    import feedback_equilibrium
+    table = {'levels': [0., .25, .5, .75, 1.],
+             'rgb': [[.92] * 3, [.245] * 3, [.495] * 3, [.745] * 3, [.92] * 3]}
+    monkeypatch.setattr(feedback_equilibrium, 'stage_transfer', lambda facts, stage, **_: table if stage == 'warp' else None)
+    recipe = build_recipe(summary(('feedback', STATIC + '/feedback_persistence', {'decay_gain': None})))
+    transfer = recipe['render']['feedback']['warp_transfer']
+    assert abs(transfer['wrap']['shift_per_frame'] + .005) < 1e-9
+    assert abs(transfer['wrap']['cycle_frames'] - 200) < 1e-6
+    assert transfer['halving_frames'] is None and transfer['steady_level_from_full'] is None
+    cycling = next(e for e in recipe['intent']['effects'] if e['effect'] == 'level_cycling')
+    assert abs(cycling['cycle_s'] - 200 / 30) < 1e-6
+    assert next(e for e in recipe['intent']['effects'] if e['effect'] == 'trails')['decay_per_frame'] is None

@@ -334,7 +334,12 @@ the same `gain`, `linear`, `halving_frames` and `steady_level_from_full` for eac
 of `r`, `g` and `b`. When the channel gains differ by more than 0.1,
 `channel_selective` is true and the channel-mean `halving_frames` and
 `steady_level_from_full` are null (no single persistence describes the canvas);
-the `trails` intent then takes the longest-lived channel. It is the shader's
+the `trails` intent then takes the longest-lived channel. `wrap` (or null)
+reports a modulo transfer: interior levels shift by a constant
+`shift_per_frame` while the end the shift runs into jumps to the other end, so
+levels cycle every `cycle_frames` = 1/|shift|; `halving_frames` and
+`steady_level_from_full` are then null and the intent gains a `level_cycling`
+effect (`cycle_s`). It is the shader's
 arithmetic on uniform inputs, not a measured trail length; image structure,
 blur and injected terms can change local persistence.
 
@@ -363,6 +368,14 @@ Its parameters are `lanes` (0–2 for r, g, b), `fine_levels`, `coarse_levels` a
 content). Component selections and constant blur decodes are looked through;
 nonlinear products do not count. It is a source construction: how far the
 patterns spread depends on seeds, retention and clamping.
+
+Custom-wave point clouds: per-point programs export up to 1,024 graph nodes
+(other controls keep 256). A record whose colour graphs cannot be resolved but
+whose positions can keeps `positions_closed_form`, the resolvable programs and
+`positions_only: true` (status stays `unknown`); every record carries the
+wave's `authored_rgba`. Recipe layers show `point_cloud` for closed-form,
+frame-state and positions-only records, with `colour_resolved` and
+`authored_rgba`.
 
 `render.composite.flat_transfer` (custom composites) holds the composite shader
 evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the

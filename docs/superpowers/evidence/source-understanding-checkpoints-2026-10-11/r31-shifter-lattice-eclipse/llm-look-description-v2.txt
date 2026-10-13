@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (r31 v2; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a full-screen, continuously flowing feedback field rather than a few discrete objects. Three 512-point custom waveform layers (two authored white, one authored black) and three polygon shapes (34-sided, a 4-sided one with radius about 2, a triangle) are all centred on the screen and stationary. They seed the image, and the feedback loop smears and propagates them. The authored 4-sided shape is oversized, so it likely washes across the whole frame at low opacity. The 34-gon reads as a near-circle. The black wave layer probably cuts dark lines into whatever is on the canvas. The triangle is yellow-white with a faint blue inner tint.
+
+Feedback and motion: the warp is a uniform zoom of about 0.95 percent per frame, so content expands steadily outward from the centre. There is no rotation and no drift. The composite then advects the image through a blurred copy of itself, which gives a flowing, smeared, fluid look, with sampling offsets up to roughly 0.1 of the screen width. The custom warp ignores the usual decay. Dark areas are reset to a bright pinkish level, around 0.92. Mid levels are kept almost whole (retention 0.98 to 0.99) but their value steps down about 0.005 per frame and wraps around. The colours therefore cycle continuously, about every 6.6 seconds, instead of fading to black.
+
+Colour: the source gives no fixed palette. The wave colours are dynamic and admit broad hue possibilities, and the shape and feedback palettes are unresolved. The only hue cue is the settled-state estimate, a muted pink (about 0.44, 0.33, 0.38), plus the continuous level cycling. The composite shows grey levels unchanged, so any strong colour comes from the waves and cycling, not the final display transform.
+
+Brightness: the calibrated estimate (not a render) is moderate, mean luminance about 0.32 (range 0.13 to 0.56). Saturation is fairly high at about 0.74, and warm/cool is about neutral.
+
+Audio reaction: three routes only. Smoothed bass sets the 34-gon's opacity, smoothed treble sets the large square's opacity, and raw bass rotates the triangle. Each has gain 1, so response is gentle and continuous, with no thresholds. Brightness jumps are estimated at about 3 per 10 seconds, with a wide range.
+
+Uncertain: the actual colours reached, how much of the screen the waves cover, how the zoom, level cycling and blur advection combine in practice, and the strength of the audio response. The strict model gives no mood group. The calibrated activity estimate leans Intense, with a wide interval (0.30 to 0.96) that also spans Chill and Normal.

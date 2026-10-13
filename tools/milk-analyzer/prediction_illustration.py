@@ -649,7 +649,8 @@ def _point_clouds(facts):
     for path,value in facts.items():
         if '/colour/components/' not in path or not isinstance(value,dict):continue
         record=(value.get('source_palette') or {}).get('point_colour_distribution') or {}
-        if record.get('status') in ('closed_form_point_colours','frame_state_point_colours') and record.get('positions_closed_form') and record.get('programs'):
+        drawable=record.get('status') in ('closed_form_point_colours','frame_state_point_colours') or record.get('positions_only')
+        if drawable and record.get('positions_closed_form') and record.get('programs'):
             clouds.append((value.get('component_id') or path,record))
     return clouds
 
@@ -671,14 +672,18 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,end
     count=int(record['sample_count']);programs=record['programs']
     inputs={**record.get('held_inputs',{}),**(audio or {}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
     stochastic=bool(record.get('stochastic')) and rng is not None
-    values={name:np.broadcast_to(_evaluate_np(programs[name],inputs,rng if stochastic else None,(count,) if stochastic else None),(count,)) for name in 'rgbaxy'}
+    # Unresolved colour channels (positions-only records) take the wave's authored colour before its code.
+    authored=record.get('authored_rgba') or [1.,1.,1.,1.]
+    values={name:np.broadcast_to(_evaluate_np(programs[name],inputs,rng if stochastic else None,(count,) if stochastic else None),(count,))
+            if name in programs else np.full(count,float(authored['rgba'.index(name)] if authored['rgba'.index(name)] is not None else 1.))
+            for name in 'rgbaxy'}
     # A channel written as a per-point state (x=mx after mx's update) takes that state's end-of-point
     # value, so random steps are not drawn twice.
     points=record.get('point_recurrence') or {}
     for name in 'rgbaxy':
         for state,entry in (points.get('state') or {}).items():
             key=points['state_input_prefix']+state
-            if ends is not None and key in ends and entry.get('update')==programs[name]:values[name]=ends[key]
+            if ends is not None and key in ends and entry.get('update')==programs.get(name):values[name]=ends[key]
     period=256/255
     rgba=[np.clip(np.fmod(np.fmod(values[c],period)+period,period),0,1) for c in 'rgba']
     flags=record.get('draw_flags') or {}

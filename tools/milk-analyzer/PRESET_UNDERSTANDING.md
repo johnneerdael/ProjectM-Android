@@ -1216,3 +1216,22 @@ repeated on correctly oriented frames. Probes and results:
   (periods, range, random phase) from the export's `native_colour_generators`,
   which `preset_understanding.py` had dropped. The SDK brightness (estimate
   0.26 vs measured 0.07) waits for the refit.
+- **Large per-point programs and wrapping warps.** Custom waves whose
+  per-point code projects 3D Lissajous points in perspective produce 234–334
+  graph nodes, over the 256-node control export, so their positions and
+  colours were dropped and the waves never drawn. Per-point programs now
+  export up to 1,024 nodes. A record whose colours stay unresolved keeps its
+  closed-form positions (`positions_only`, drawn in the wave's
+  `authored_rgba`), and recipes show frame-state point clouds. A warp taking
+  `frac(ret − k)` wraps levels around the range: `warp_transfer.wrap` reports
+  the shift per frame and the cycle length (intent `level_cycling`) instead of
+  a halving time.
+- **r31 (`shifter - lattice (eclipse) … aa bb`) v1 → v2.** v1 drew a calm red
+  field; the capture is a multicoloured cellular liquid texture with a red
+  radial burst (frame difference 0.18). The native-ruler canvas showed
+  hundreds of radial coloured lines from three custom waves that v1 dropped
+  (export budget). v2 matches: screenshot luma 0.302 vs 0.286, saturation
+  0.80 vs 0.82; frames 60–149 luma 0.250 vs 0.235, blurred correlation 0.87,
+  frame difference 0.20 vs 0.18. The v2 SDK text describes a full-screen
+  flowing field whose colours cycle every 6.6 s. r21's chaotic time average
+  moved to 0.139 (capture 0.123).

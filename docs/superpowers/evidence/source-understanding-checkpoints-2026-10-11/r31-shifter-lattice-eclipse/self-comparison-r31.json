@@ -1,0 +1,121 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r31-v2",
+ "preset": "shifter - lattice (eclipse) Phat + EoS more color mix_v2 aa bb.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "69704b6743d6dfcaf25ab41167d4afc031faafa532626ed6212565c01afb9e4d",
+  "prediction.json": "368d75c9b6f54c9779d263dd550f535a3f72f74f9e261599c1c9d22843d0c1e0",
+  "description.json": "1c6ba31480b7935ec7178cc4336e54623effe3e1cd33356b3c56c06851c01bbe",
+  "recipe.json": "024541a85126b90a3001d6802fd97ff86b48e557c75eb79943f2a081febc6e03",
+  "llm-look-description-v1.txt": "1242a96c2188be73fe8e7962bd0a019423acbad5a13b68c875453141299b75aa"
+ },
+ "capture_result_sha256": "73347f72e630eb6cde5ffcf08b7e384821f01ce2e6326b86efa8347b94763e44",
+ "review_measurements_v1": {
+  "prediction_luma": 0.32,
+  "screenshot_luma": 0.286,
+  "mean_rgb_prediction": [
+   0.889,
+   0.169,
+   0.139
+  ],
+  "mean_rgb_screenshot": [
+   0.413,
+   0.258,
+   0.183
+  ],
+  "saturation": [
+   0.903,
+   0.815
+  ],
+  "blurred_luma_correlation": 0.201,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.325,
+    0.235
+   ],
+   "saturation": [
+    0.87,
+    0.463
+   ],
+   "blurred_luma_correlation": 0.118
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0163,
+   0.178
+  ]
+ },
+ "review_measurements_v2": {
+  "prediction_luma": 0.302,
+  "screenshot_luma": 0.286,
+  "mean_rgb_prediction": [
+   0.403,
+   0.282,
+   0.197
+  ],
+  "mean_rgb_screenshot": [
+   0.413,
+   0.258,
+   0.183
+  ],
+  "saturation": [
+   0.798,
+   0.815
+  ],
+  "blurred_luma_correlation": 0.337,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.25,
+    0.235
+   ],
+   "rgb": [
+    [
+     0.315,
+     0.234,
+     0.224
+    ],
+    [
+     0.346,
+     0.206,
+     0.201
+    ]
+   ],
+   "saturation": [
+    0.37,
+    0.463
+   ],
+   "blurred_luma_correlation": 0.867
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2006,
+   0.178
+  ]
+ },
+ "diagnostics": {
+  "note": "native-ruler identity-composite canvas (diagnostic only): hundreds of radial coloured lines from three custom waves that v1 never drew"
+ },
+ "agreements": [
+  "v2 prediction: multicoloured cellular liquid texture with a red-orange radial burst from the centre; brightness, colour balance and motion match",
+  "v2 SDK text: full-screen flowing feedback field, colour cycling every 6.6 s from the wrapping warp, no fixed palette"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "version": "v1",
+   "observed": "calm saturated red field (frame difference 0.016 vs 0.178)",
+   "cause": "three custom waves (3D-projected Lissajous point programs, 234-334 graph nodes) exceeded the 256-node control export, so their positions and colours were dropped; one unresolved colour also discarded resolved positions",
+   "fix": "per-point programs export up to 1,024 nodes; positions survive unresolved colours (positions_only, authored_rgba fallback); recipe shows frame-state point clouds"
+  },
+  {
+   "size": "medium",
+   "version": "v1 SDK",
+   "observed": "text read the frac() warp as 'keeps dim levels, cuts bright, halving 58 frames'",
+   "cause": "wrap-around transfer summarised as persistence",
+   "fix": "warp_transfer.wrap (shift_per_frame, cycle_frames) and intent level_cycling"
+  }
+ ],
+ "regressions": {
+  "r21": "chaotic snapshot moved; frames 60-149 luma 0.139 vs 0.123 (was 0.121), inside its 0.07-0.23 swing"
+ },
+ "verdict": "understood (v2): prediction and SDK text"
+}

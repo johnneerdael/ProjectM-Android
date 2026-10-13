@@ -276,7 +276,31 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
             result['conditions'].append('wave per-frame state stepped from t=0 at 30 fps under the held inputs')
     except (ValueError,KeyError,TypeError,RecursionError) as error:
         result['unknown_reasons'].append(str(error))
+        if not result['positions_closed_form'] and positions and all(positions.get(n) for n in 'xy'):
+            # Unresolved colours do not hide resolved geometry: keep closed-form positions (and any
+            # resolved colour programs) so a consumer can draw the points with a colour prior.
+            try:
+                count=int(sample_count) if sample_count is not None else None
+                if count is not None and 1<=count<=512:
+                    names=_names(positions)
+                    held={name:(float(span[0])+float(span[1]))/2 for name,span in held_inputs.items()
+                          if name in names and isinstance(span,(list,tuple)) and len(span)==2}
+                    found=_positions(positions,count,held,(0.,),None,waveform if {'value1','value2'}&names else None,None,None)
+                    if found.get('positions_closed_form'):
+                        result.update(found,sample_count=count,positions_only=True,
+                                      programs={**{n:g for n,g in programs.items() if _resolvable(g,held_inputs)},**positions})
+                        if waveform and {'value1','value2'}&names:result['waveform_inputs']=waveform
+            except (ValueError,KeyError,TypeError,RecursionError):pass
     return result
+
+
+def _resolvable(graph,held_inputs):
+    """A per-point graph whose every input is sample/time, value1/value2, a held input or plain
+    main per-frame state (resolved by stepping the frame program)."""
+    names=_names_of(graph) if graph else None
+    if names is None:return False
+    return all(isinstance(n,str) and (n in {'sample','time','value1','value2'} or n in held_inputs or
+               ':' not in n or n.startswith('state:per_frame_:')) for n in names)
 
 
 def _names(graphs):

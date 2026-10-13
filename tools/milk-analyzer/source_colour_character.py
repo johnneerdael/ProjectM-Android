@@ -293,6 +293,9 @@ def _point_recurrence(point_prefix,init,controls,programs):
                           'the value carries from the last point of one frame to the first point of the next']}
 
 
+
+POINT_PROGRAM_NODES=1024
+
 def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     """Closed-form per-point colour distribution over the authored sample grid."""
     from effect_families import Field
@@ -302,9 +305,10 @@ def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     samples=frame.environment.get('samples')
     count=_phase_literal(samples) if samples is not None else _scalar(analysis.values,prefix+'samples',512,'float')
     if count is not None:count=min(512,math.trunc(count))
-    programs={name:_expression(controls.get(name,Field('unknown'))) for name in 'rgba'}
+    # Per-point programs (3D projections, rotations) exceed the default 256-node control export.
+    programs={name:_expression(controls.get(name,Field('unknown')),POINT_PROGRAM_NODES) for name in 'rgba'}
     held={name:span for name,span in domains.items() if name!='sample'}
-    positions={name:_expression(controls.get(name,Field('unknown'))) for name in 'xy'}
+    positions={name:_expression(controls.get(name,Field('unknown')),POINT_PROGRAM_NODES) for name in 'xy'}
     recurrence=None;point_recurrence=None
     if init is not None:
         identity='wave_'+prefix.removeprefix('wavecode_').rstrip('_')
@@ -323,6 +327,7 @@ def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
         value=_scalar(analysis.values,prefix+key,0,'float')
         flags[name]=None if value is None else bool(value)
     record['draw_flags']=flags
+    record['authored_rgba']=[_scalar(analysis.values,prefix+c,1,'float') for c in 'rgba']
     return record
 
 

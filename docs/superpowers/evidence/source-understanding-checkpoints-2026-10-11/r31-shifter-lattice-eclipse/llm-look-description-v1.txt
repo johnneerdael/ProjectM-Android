@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r31 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a centred, symmetric-feeling layered scene. Everything is anchored at the screen centre (x=y=0.5): a 34-sided, almost circular polygon (radius about 0.66) with a yellow centre fading to magenta at its rim and a faint white outline; a very large square (radius 2.0, bigger than the screen) that is nearly transparent apart from a faint yellow border; and a big triangle (radius 1.09) with a faint yellow wash and a thin white edge. A 512-point greyscale custom wave and a second custom wave with dynamic colours add scattered points or lines. None of the shapes move; only their opacity and rotation change.
+
+Feedback and motion: the previous frame is pulled outward from the centre by about 0.95% per frame, with no rotation or sideways drift, so content streams outward like a gentle zoom tunnel. A composite shader smears the image by sampling a blurred copy of itself (offsets roughly -0.03 to +0.11 of the screen), which should give a flowing, fluid, smeared look. The warp shader keeps dim and mid levels almost whole (retention 0.98 to 0.99) but cuts the brightest content, so the canvas should settle at a mid level instead of fading to black, and bright flashes get trimmed. Persistence is about 58 frames to halve.
+
+Colour: the steady-state canvas hue family is pink, around RGB 0.44/0.33/0.38, shown through a plain greyscale composite. Yellow and magenta shape ingredients and the dynamic wave add broad hue possibilities, but the recipe cannot say which are reached. The calibrated estimate gives fairly saturated colour (about 0.70, interval 0.42 to 0.97), mildly warm.
+
+Brightness: mid-range, about 0.32 mean luminance (interval 0.13 to 0.55).
+
+Audio reaction: smoothed bass lifts the 34-gon's opacity; smoothed treble lifts the big square's opacity; raw bass rotates the triangle. All three responses are continuous, with unresolved visible strength. Calibrated activity is about 0.74 (Normal to Intense), with flow about 0.19 screen widths per second.
+
+Uncertain: how much of the screen is covered, the exact palette, whether the bright-level cut dominates, the composition of the dynamic wave, the strength of the audio response, and any flashing (the estimate gives about 2.6 global brightness jumps per 10 s, interval 0.2 to 12). Mood confidence is low.
