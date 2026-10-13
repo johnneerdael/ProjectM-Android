@@ -36,6 +36,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void followsOnlyARenamedRepositorysLatestRelease() {
+        // GitHub answers a former repository name with the new name's releases/latest first.
+        assertEquals("https://github.com/johnneerdael/ProjectM-Android/releases/latest",
+                Updater.latestUrlOfRenamedRepo("https://github.com/johnneerdael/ProjectM-Android/releases/latest"));
+        assertNull(Updater.latestUrlOfRenamedRepo("https://github.com/someone-else/ProjectM-Android/releases/latest"));
+        assertNull(Updater.latestUrlOfRenamedRepo("http://github.com/johnneerdael/ProjectM-Android/releases/latest"));
+        assertNull(Updater.latestUrlOfRenamedRepo("https://github.com/johnneerdael/ProjectM-Android/releases"));
+        assertNull(Updater.latestUrlOfRenamedRepo("https://example.com/johnneerdael/ProjectM-Android/releases/latest"));
+        assertNull(Updater.latestUrlOfRenamedRepo(null));
+    }
+
+    @Test
     public void versionsCompareNumerically() {
         assertTrue(Updater.compareVersions("1.9.10", "1.9.9") > 0);
         assertTrue(Updater.compareVersions("1.10", "1.9.18") > 0);

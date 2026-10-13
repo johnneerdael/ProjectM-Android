@@ -43,7 +43,7 @@ final class Updater {
     interface Listener { void onUpdateReady(String version); }
 
     private static final String TAG = "ProjectMTV";
-    static final String REPO = "https://github.com/johnneerdael/ProjectM-TV";
+    static final String REPO = "https://github.com/johnneerdael/ProjectM-Android";
     static final String APK_MIME = "application/vnd.android.package-archive";
     private static final String PREF_ENABLED = "auto_update";
     private static final String PREF_CHECKED_AT = "update_checked_at";
@@ -266,17 +266,23 @@ final class Updater {
 
     /** Version of the newest release: GitHub redirects releases/latest to its tag. */
     private static String latestVersion(String installed) throws IOException {
-        HttpURLConnection connection = open(REPO + "/releases/latest", installed);
-        try {
-            connection.setInstanceFollowRedirects(false);
-            connection.setRequestMethod("HEAD");
-            int code = connection.getResponseCode();
-            String location = connection.getHeaderField("Location");
-            String version = location != null ? versionFromTagUrl(location) : null;
-            if (code / 100 != 3 || version == null) throw new IOException("HTTP " + code + " " + location);
-            return version;
-        } finally {
-            connection.disconnect();
+        String url = REPO + "/releases/latest";
+        // A renamed repository first redirects to its new /releases/latest, then to the tag.
+        for (int hop = 0; ; hop++) {
+            HttpURLConnection connection = open(url, installed);
+            try {
+                connection.setInstanceFollowRedirects(false);
+                connection.setRequestMethod("HEAD");
+                int code = connection.getResponseCode();
+                String location = connection.getHeaderField("Location");
+                String version = location != null ? versionFromTagUrl(location) : null;
+                if (code / 100 == 3 && version != null) return version;
+                String renamed = code / 100 == 3 && hop < 2 ? latestUrlOfRenamedRepo(location) : null;
+                if (renamed == null) throw new IOException("HTTP " + code + " " + location);
+                url = renamed;
+            } finally {
+                connection.disconnect();
+            }
         }
     }
 
@@ -507,6 +513,13 @@ final class Updater {
     static String versionFromTagUrl(String url) {
         Matcher m = Pattern.compile("/releases/tag/v([0-9]+(?:\\.[0-9]+)*)/?$").matcher(url.trim());
         return m.find() ? m.group(1) : null;
+    }
+
+    /** "https://github.com/johnneerdael/<repo>/releases/latest" → itself; null for anything else. */
+    static String latestUrlOfRenamedRepo(String location) {
+        return location != null
+                && location.trim().matches("https://github\\.com/johnneerdael/[A-Za-z0-9._-]+/releases/latest/?")
+                ? location.trim() : null;
     }
 
     static String stripSuffix(String versionName) {

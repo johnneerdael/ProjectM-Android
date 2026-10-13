@@ -146,6 +146,8 @@ The code links to https://github.com/johnneerdael/ProjectM-Android/releases/late
 
 You can also download the [touchscreen Android APK directly](https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-Android.apk). The stable filenames are `projectM-TV.apk` for TV and `projectM-Android.apk` for phones/tablets. The two apps have separate app IDs and settings; auto-update selects the matching APK.
 
+Versions 2.3.46 and older cannot update themselves since the repository moved to `ProjectM-Android`: their update check fails with `HTTP 301` (the **Update** line under *Settings › Advanced*). Install the current version once with Downloader; later versions update automatically again.
+
 **F-Droid editions**
 
 | Device | Stable APK | Presets | App updates |
