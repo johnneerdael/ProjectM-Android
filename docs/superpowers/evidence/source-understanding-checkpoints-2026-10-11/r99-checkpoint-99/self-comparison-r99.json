@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r99-v1",
+ "preset": "ORB - Blade.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "573eda8c4a66792aac6f3697b4759b8b3198f0fddc282486477a080f2bcd20ba",
+  "prediction.json": "a8005d0559ff109f564b87e5b06994896e569b5d612ee98b8f2338c32ac20371",
+  "description.json": "8412d1e472c2597b351a7c1ef676da6aeb4a64d9fe12fa7d7cc4f6bae9477394",
+  "recipe.json": "f626989634c02598d83aa8d239255e55a148f1037a7114c2b8d4029f2344f180",
+  "llm-look-description-v1.txt": "db254477e6dc9d1f0d3fb035fdb8a2aea29f086da36d67d87707f07489fe464e"
+ },
+ "capture_result_sha256": "5b77a05b4dcc37bbdb1bd81b88642146dba3bac2efb05aa9dc2a4aa3ffa8ef5e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.748,
+  "screenshot_luma": 0.79,
+  "mean_rgb_prediction": [
+   0.865,
+   0.723,
+   0.649
+  ],
+  "mean_rgb_screenshot": [
+   0.845,
+   0.778,
+   0.748
+  ],
+  "blurred_luma_correlation": 0.583,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.691,
+    0.693
+   ],
+   "saturation": [
+    0.191,
+    0.174
+   ],
+   "blurred_luma_correlation": 0.899
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0419,
+   0.0398
+  ]
+ },
+ "agreements": [
+  "black start until about frame 45, then a bright warm picture as in the capture",
+  "per-frame luma within about 0.03 at most sampled frames (0.521 vs 0.522 at frame 60, 0.917 vs 0.915 at frame 120)",
+  "time-average 0.691 vs 0.693, correlation 0.899; frame difference 0.042 vs 0.040"
+ ],
+ "misses": [
+  "screenshot layout differs in detail (correlation 0.583); our saturation slightly higher"
+ ],
+ "verdict": "understood on the first prediction"
+}

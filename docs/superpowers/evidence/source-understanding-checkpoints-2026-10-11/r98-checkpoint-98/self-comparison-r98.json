@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r98-v1",
+ "preset": "Zylot - Puddle Of Music.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "25d7605fa9e32f51a8eef7cd8a62b0d1f39e58f0dcc8f794a8aeac13612ee74b",
+  "prediction.json": "bfcb13d36802073d62b5609cdf1bed713adbc4240594464316b8a41c8f2b89bb",
+  "description.json": "87d1a3d943e3cbcc258fe2eafed4550f076f5293e078764f87f5bff642b6caa3",
+  "recipe.json": "a094f45cc4d3d26f2ca8d77507c4eb319506d15364943675341521f2569b3375",
+  "llm-look-description-v1.txt": "ed58d576042f620ddf7e76abcfda2f82c32930f8c83c20904e13c4f8c7248fc6"
+ },
+ "capture_result_sha256": "d9d2e0d7f8f5bcb997fa9f13827b8ed30196a57b4a85890ebe3c03a7686882e4",
+ "review_measurements_v1": {
+  "prediction_luma": 0.577,
+  "screenshot_luma": 0.51,
+  "mean_rgb_prediction": [
+   0.652,
+   0.558,
+   0.547
+  ],
+  "mean_rgb_screenshot": [
+   0.596,
+   0.487,
+   0.484
+  ],
+  "blurred_luma_correlation": 0.814,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.5,
+    0.439
+   ],
+   "saturation": [
+    0.253,
+    0.271
+   ],
+   "blurred_luma_correlation": 0.907
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0518,
+   0.0458
+  ]
+ },
+ "agreements": [
+  "pink disc with a white radial starburst ring, white circle and dark centre over a pink-grey ground",
+  "colour balance and brightness curve over frames 0-149 follow the capture (time-average correlation 0.907)",
+  "frame difference 0.052 vs 0.046"
+ ],
+ "misses": [
+  "halo slightly brighter and sharper than the engine's; ring slightly smaller"
+ ],
+ "verdict": "understood; about 14% too bright (frames 60-149 luma 0.500 vs 0.439)"
+}
