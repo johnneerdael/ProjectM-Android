@@ -1563,3 +1563,10 @@ truncates stored levels lowers our mean from 0.057 to 0.037 (capture 0.020),
 so storage rounding is at most part of the cause. It is not adopted, because
 it would change every preset without evidence of the GPU's conversion. The
 recipe states the decay correctly (`feedback.decay` 1.0). Open item.
+
+### r68 (Tripgnosis, Kaleidestrobe 3) and r69 (176)
+
+r68 was understood on the first prediction: same strobe envelope and a
+time-average map correlation of 0.967. r69 matches palette, symmetry and
+time-averaged layout (0.925) but is about 0.055 too dark and bright less
+often. The 5 s capture gathers content into a ring that our frame lacks.

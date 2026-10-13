@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r69-v1",
+ "preset": "176.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "cac3c0d758ad4fcb3c4655a49345e723070203b3efd86f274d65da7f30372ffc",
+  "prediction.json": "554f3074e965b12d71cc0a5601b2648b0e1b91de6c7330ca59d299316b9edaad",
+  "description.json": "660e671ed565a9b40296d80d4cce44637635d3d9e4b0bf30e3bc40a5160d9bca",
+  "recipe.json": "86fe20a5918250734b937af6a50c8786ed92ac9ce41125e320ae1f1bae42f0a2",
+  "llm-look-description-v1.txt": "b2a6f1eed9398212fbf583593e4fa5bbebb8b36e78042a0c6d065b5ce47c28a6"
+ },
+ "capture_result_sha256": "4ebf1808744cbf04d5e82fde85655d9821126e05ab82662608c12c23aa3edd97",
+ "review_measurements_v1": {
+  "prediction_luma": 0.183,
+  "screenshot_luma": 0.326,
+  "mean_rgb_prediction": [
+   0.291,
+   0.15,
+   0.195
+  ],
+  "mean_rgb_screenshot": [
+   0.482,
+   0.278,
+   0.34
+  ],
+  "blurred_luma_correlation": 0.6,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.123,
+    0.178
+   ],
+   "saturation": [
+    0.632,
+    0.5
+   ],
+   "blurred_luma_correlation": 0.925
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0397,
+   0.0462
+  ]
+ },
+ "agreements": [
+  "the same purple and gold palette and mirror symmetry; time-average map correlation 0.925"
+ ],
+ "misses": [
+  "ours darker (0.123 vs 0.178 over frames 60-149) and bright less often; at 5 s the capture gathers the content into a ring where ours shows scattered shards"
+ ],
+ "verdict": "layout understood on averages; too dark"
+}

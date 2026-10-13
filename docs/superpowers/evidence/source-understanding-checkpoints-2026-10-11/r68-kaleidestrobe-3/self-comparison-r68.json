@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r68-v1",
+ "preset": "Tripgnosis - Kaleidestrobe 3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "6da36cc1c1ba6ab0e88fcef659c2324ecd302d441fd7bba32ab81886def42ac4",
+  "prediction.json": "6e618213cff6ac22e8dbdc70fcd714c3bcabf2f1e4a52a75690eb55c2ddacc90",
+  "description.json": "4ad435387ba5ea3068f8fdfeaf05d4b9a47502c64d54a12727a62505a3e81e9a",
+  "recipe.json": "3c5cdc18fa1a0c03f77a7434428caa0c817033c068e134cb6cb94025f943bfd1",
+  "llm-look-description-v1.txt": "c1b913aff170c389f830de6ab76f7bf39397849f628663a166c1ebcad6dedb08"
+ },
+ "capture_result_sha256": "bf1fd55f821038cc52c1238868a2dc590432bd31e8947d5500be1be4071fb672",
+ "review_measurements_v1": {
+  "prediction_luma": 0.384,
+  "screenshot_luma": 0.516,
+  "mean_rgb_prediction": [
+   0.303,
+   0.42,
+   0.266
+  ],
+  "mean_rgb_screenshot": [
+   0.427,
+   0.558,
+   0.368
+  ],
+  "blurred_luma_correlation": 0.252,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.175,
+    0.205
+   ],
+   "saturation": [
+    0.523,
+    0.507
+   ],
+   "blurred_luma_correlation": 0.967
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1,
+   0.1034
+  ]
+ },
+ "agreements": [
+  "time-average map correlation 0.967; frame-to-frame change 0.100 vs 0.103",
+  "brightness follows the same strobe envelope (bright at the start, dark from frame 30 to 105, rising again)"
+ ],
+ "misses": [
+  "ours about 0.03 darker on average; the 5 s screenshot fell at a different point of the strobe (0.384 vs 0.516)"
+ ],
+ "verdict": "understood on the first prediction"
+}
