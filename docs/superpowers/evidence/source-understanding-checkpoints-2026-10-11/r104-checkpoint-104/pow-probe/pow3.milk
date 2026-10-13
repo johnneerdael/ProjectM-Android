@@ -1,0 +1,17 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=2
+PSVERSION_WARP=2
+PSVERSION_COMP=2
+[preset00]
+fDecay=0
+fWaveAlpha=0
+zoom=1
+warp=0
+comp_1=`shader_body{
+comp_2=`float z = tex2D(sampler_main, uv).x*0;
+comp_3=`float p1 = (pow(z, 0.0075) - 0.5)*20;
+comp_4=`float p2 = pow(z - 0.5, 2.0);
+comp_5=`float p3 = pow(z - 0.5, 0.5);
+comp_6=`ret = float3(p1, p2, p3*0.2 + 0.5);
+comp_7=`if (uv.x > 0.5) ret = float3(isnan(p2) ? 1 : 0, isnan(p3) ? 1 : 0, 0.1);
+comp_8=`}

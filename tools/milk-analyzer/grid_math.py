@@ -376,9 +376,16 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
             elif op=='cross':raw=np.cross(*args)
             elif op=='pow':
                 base,exponent=align(args)
-                if np.any(base<0):raise UnresolvedMath('pow grid negative base domain')
-                if np.any((base==0)&(exponent<=0)):raise UnresolvedMath('pow grid zero base with nonpositive exponent domain')
-                raw=np.power(base,exponent)
+                if ieee:
+                    # Measured on the emulator and the native ruler (2026-10-14): the engine computes
+                    # exp2(y*log2(|x|)) with log2(0) = -127, so pow(0,0) = 1, pow(0,y>0) = 2^(-127y) and a
+                    # negative base uses its magnitude. GLSL leaves these domains undefined; other GPUs may differ.
+                    with np.errstate(over='ignore'):
+                        raw=np.exp2(exponent*np.log2(np.maximum(np.abs(base),np.float32(2.**-127)))).astype(np.float32)
+                else:
+                    if np.any(base<0):raise UnresolvedMath('pow grid negative base domain')
+                    if np.any((base==0)&(exponent<=0)):raise UnresolvedMath('pow grid zero base with nonpositive exponent domain')
+                    raw=np.power(base,exponent)
             elif op=='rsqrt':raw=1/np.sqrt(args[0])
             elif op=='atan2':raw=np.arctan2(*align(args))
             elif op=='min':raw=np.minimum(*align(args))

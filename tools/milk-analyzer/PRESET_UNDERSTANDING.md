@@ -1890,3 +1890,20 @@ evaluated on a flat canvas of the actual colour (`stage_output_at`), with the
 ramp only as a fallback. r102 steady display: (1.0, 0.0065, 0) → (0.0065,
 0.0065, 0). The warp's per-channel gain/offset model has the same assumption
 (open: a flat-colour fixed point would handle channel-mixing warps).
+
+### r103–r104: shader pow outside its defined domain
+
+r103 (suksma - assheadish lice) was understood on the first prediction
+(about 10% dim). In r104 (Serge + cope - the drain2) the prediction stayed
+flat at luma 0.16 while three engine runs with different random draws all
+climbed to about 0.32. The warp shader calls `pow(rc.x, 0)` and
+`pow(rc.x, 0.005)`; on black pixels the grid evaluator refused the zero base,
+so the warp program, its sample coordinates and its injected field were all
+replaced by a uniform gain model. Probe presets (`pow-probe/`) measured the
+engine on emulator-5610: `pow(x, y) = exp2(y·log2(|x|))` with `log2(0) = −127`,
+so `pow(0, 0) = 1`, `pow(0, 0.0075) = 2^−0.9525`, `pow(−0.5, 2) = 0.25` and
+`pow(−0.5, 0.5) = 0.707`; the native ruler agrees on the zero cases. The
+illustration numeric policy now uses that rule; strict policies still refuse
+these domains. GLSL leaves them undefined, so TV GPUs may differ. r104:
+frames 60–149 luma 0.158 → 0.249 (engine 0.243). 3,921 presets use `pow` in
+their shaders.

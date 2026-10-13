@@ -128,6 +128,20 @@ def test_grid_rand_follows_projectm_eval_range_and_draws_once_for_uniform_input(
 
 
 class IllustrationNumericPolicyTest(unittest.TestCase):
+    def test_ieee_policy_pow_follows_the_measured_engine_exp2_log2_abs_rule(self):
+        # Emulator and ruler (2026-10-14): pow(x,y) = exp2(y*log2(|x|)) with log2(0) = -127, so pow(0,0) = 1,
+        # pow(0,.0075) = 2^-0.9525 and pow(-.5,.5) = .707; strict policies still refuse these domains (r104).
+        from grid_math import evaluate_grid, UnresolvedMath
+        from field_math import GLES_IEEE_ILLUSTRATION
+        _,field=test_field_math.lower('float z=uv.x*0; ret=float3(pow(z,0.0), pow(z,0.0075), pow(z-0.5,0.5));')
+        inputs={'_uv':[[.3,.3,0,0]]}
+        with self.assertRaises(UnresolvedMath):
+            evaluate_grid(field,batch_shape=(1,),inputs=inputs)
+        out=np.asarray(evaluate_grid(field,batch_shape=(1,),inputs=inputs,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float64)[0]
+        self.assertAlmostEqual(out[0],1.,places=5)
+        self.assertAlmostEqual(out[1],2**(-127*.0075),places=4)
+        self.assertAlmostEqual(out[2],.5**.5,places=4)
+
     def test_ieee_policy_propagates_division_by_zero_and_addresses_nan_samples(self):
         from grid_math import evaluate_grid, UnresolvedMath
         from field_math import GLES_IEEE_ILLUSTRATION

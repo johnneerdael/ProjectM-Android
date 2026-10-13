@@ -1,0 +1,77 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r104-v1",
+ "preset": "Serge + cope - the drain2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4adc58700b22c122d7a9ef91c3c73bdfaa813b392d0cb2e7be6a734b8388b5c4",
+  "prediction.json": "913ab8a2d1ad1e1bac426fb0b9b0e20eca9bbf23645e6b8bb738bb9756c7ab95",
+  "description.json": "6e9d648997ba9865f836116affa3ace4cf6d00b7bdc6fced6fe4236ce52f9694",
+  "recipe.json": "8fccecc894ce7ab48f7cf93ed24529eb8c0a4318e88cd7c2b97b6b92a2de9ecb",
+  "llm-look-description-v1.txt": "d2fe663f1df9be5ddddb3a8e6946835226438bea6ce037990b857b32a58273b6"
+ },
+ "capture_result_sha256": "507b9f2b1117f8093692b0e2bcd3b67cb591d49b93d2a738d8bc11afd8217b7b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.16,
+  "screenshot_luma": 0.386,
+  "mean_rgb_prediction": [
+   0.16,
+   0.158,
+   0.176
+  ],
+  "mean_rgb_screenshot": [
+   0.396,
+   0.385,
+   0.368
+  ],
+  "blurred_luma_correlation": 0.156,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.158,
+    0.243
+   ],
+   "saturation": [
+    0.163,
+    0.211
+   ],
+   "blurred_luma_correlation": -0.106
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0667,
+   0.0427
+  ]
+ },
+ "agreements": [
+  "liquid metallic streaks with relief over a filled, lumpy background after the fix",
+  "brightness climbs over five seconds like the engine (three ruler runs with different random draws agree: 0.27-0.28)"
+ ],
+ "misses": [
+  "v1: pow(rc.x, 0) on black pixels raised a domain error, so the warp shader, its sample coordinates and its injected field were all dropped for a uniform gain model",
+  "colours: the composite uses projectM's hue_shader, whose corner hues are random per load (purple in the capture, green in ours)"
+ ],
+ "verdict": "understood after a general fix (v2 expected image from the frozen v1 description): shader pow follows the engine's measured rule exp2(y*log2(|x|)) with log2(0) = -127 instead of refusing zero and negative bases, which had abandoned the whole warp program; frames 60-149 luma 0.158 -> 0.249 (engine 0.243), frame difference 0.0667 -> 0.0442 (0.0427), screenshot correlation 0.156 -> 0.729",
+ "review_measurements_v2": {
+  "prediction_luma": 0.354,
+  "screenshot_luma": 0.386,
+  "blurred_luma_correlation": 0.729,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.249,
+    0.243
+   ],
+   "blurred_luma_correlation": 0.884
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0442,
+   0.0427
+  ],
+  "engine_pow_measurement": {
+   "pow(0,0)": 1.0,
+   "pow(0,0.0075)": "2^(-127*0.0075) (p1 readback 0.333)",
+   "pow(-0.5,2)": 0.251,
+   "pow(-0.5,0.5)": 0.7155,
+   "devices": "emulator-5610 and native ruler (SwiftShader) agree on the zero cases"
+  },
+  "note": "v2 re-renders the frozen v1 description with the corrected illustrator"
+ }
+}
