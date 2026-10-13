@@ -1311,3 +1311,8 @@ repeated on correctly oriented frames. Probes and results:
   prediction: a dim grey concentric tunnel with a translucent central panel
   (single-frame blurred correlation 0.956; frames 60–149 luma 0.139 vs 0.145,
   correlation 0.985, frame difference 0.0078 vs 0.0079). The SDK text matches.
+- **r38 (`suksma - martin - neon space ps3 …`) v1.** Understood on the first
+  prediction. It strobes (luma 0.02–0.34 within a few frames), so single
+  frames differ. Over frames 60–149: luma 0.117 vs 0.133, RGB within 0.04,
+  saturation 0.70 vs 0.69, correlation 0.82. The SDK text gave a neon field on
+  deep blue with magenta mid-tones, cyan peaks and pronounced flashing.

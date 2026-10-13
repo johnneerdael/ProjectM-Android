@@ -1,0 +1,15 @@
+LLM look description from the SDK recipe, source parts only (before capture, r38 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a busy, neon-style feedback scene built from many small drawn elements rather than one big shape. The preset draws an audio-deformed circle (built-in wave driven by the right waveform channel), four custom point clouds of 512 points each, and four polygon-shape groups: 32-sided (33 copies), 12-sided (92), 14-sided (512) and tiny triangles (311, radius about 0.01). A 14 x 14 grid of red motion-vector lines is also drawn into the feedback. Most of this sits near the screen centre; the one point cloud with known bounds (pink, low alpha 0.1) is a tight cluster around x 0.49-0.55, y 0.49-0.53. Independent particles are not established; these are authored point layers and repeated shapes.
+
+Feedback and motion: the warp is a self-advecting shader. The image steers its own sampling through blur and noise lookups, so expect smeared, flowing, fluid-like structure rather than a clean tunnel. The plain mesh controls are nearly still (zoom 1, no rotation, no translation, a very slight horizontal shrink of 0.9999), so any visible drift comes from the advection, not a global spin. Trails are channel-selective: green persists almost whole (gain 0.999), while red and blue flip and are cut each frame. That makes the canvas lean green and cyan with pink-magenta flickers.
+
+Colour: the composite maps flat canvas levels to deep blue at black, then a dim pink-magenta mid-tone, and cyan or green-cyan at full level. The source steady state is pink. Wave sources hint at grayscale, cyan, pink and blue. Audio-driven colour routes make hues shift. The calibrated estimate gives a saturated look (saturation about 0.85) with warm and cool roughly balanced.
+
+Brightness: the calibrated display estimate puts mean luminance around 0.31, with a wide interval of 0.12 to 0.55. It is a mid-brightness picture on a dark blue background.
+
+Audio: bass, mid and treble all drive the radius, colour channels and opacity of the shapes. Bass also moves their position. Expect bursty size and colour pulsing with the music, with strength unresolved.
+
+Estimates, not measurements: the calibrated activity is high (about 0.95, Intense, with Normal also possible). That includes roughly 77 brightness jumps per 10 s, interval 25 to 287. Flashing may be pronounced.
+
+Uncertain: which layers dominate the screen, the actual colour mix, how much the advection smears, and the typical motion speed.

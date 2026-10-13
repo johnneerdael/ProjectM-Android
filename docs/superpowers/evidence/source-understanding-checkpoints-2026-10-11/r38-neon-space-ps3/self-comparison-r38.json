@@ -1,0 +1,58 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r38-v1",
+ "preset": "suksma - martin - neon space ps3 - mob dotes - flacc ap4+ lambsth.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "90f4d67e531932d887d4fbe7ded5719409d91fca6a5cb8b9547b6fa5c6fe5551",
+  "prediction.json": "38d6ef114ff0db225769b9af6635f425d868139baef8f67f7107ea674c4ab169",
+  "description.json": "13f1c59c03ed55ae8ff99d093400579fe4a045d5923ad12e87dbae0ddf35dc55",
+  "recipe.json": "a0dc99ab7bac3a01594f2c5bd45a5970f0bfbb07028e725401e6091d2b60fd08",
+  "llm-look-description-v1.txt": "d01ff95c6fde063ed2c7db062fb836f08085183a24fa4702a54660426923113f"
+ },
+ "capture_result_sha256": "d328843a6f8a2ea9ec7c883b725b1c9f7e0a01f0b04425c884ed6ef5cff9830a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.124,
+  "screenshot_luma": 0.244,
+  "blurred_luma_correlation": -0.06,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.117,
+    0.133
+   ],
+   "rgb": [
+    [
+     0.145,
+     0.09,
+     0.308
+    ],
+    [
+     0.183,
+     0.1,
+     0.313
+    ]
+   ],
+   "saturation": [
+    0.696,
+    0.686
+   ],
+   "blurred_luma_correlation": 0.823
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1435,
+   0.17
+  ]
+ },
+ "agreements": [
+  "prediction: dark liquid neon field with blue base, magenta and cyan/green accents and strobing brightness; time averages match",
+  "SDK text: neon feedback scene on deep blue, magenta mid-tones, cyan at full level, pronounced flashing"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "single-frame brightness and layout (strobing: luma 0.02-0.34 within frames)",
+   "note": "chaotic; judged on time averages"
+  }
+ ],
+ "verdict": "understood on the first prediction (chaotic)"
+}
