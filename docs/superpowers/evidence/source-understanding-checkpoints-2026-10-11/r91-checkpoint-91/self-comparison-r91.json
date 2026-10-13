@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r91-v1",
+ "preset": "EoS - repeater 06 - rave on a lot of acid.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "59b62904375c93e0eedd2d76448c231540549a3da7b4be4f102d6f771d4967bc",
+  "prediction.json": "34e0a4124c3fdf55eec3c39a7dceb502b98466e8bdc538b34ba6b51a757c918c",
+  "description.json": "e79ff2c3bdd7aa00ae852eeeb42c09b09be98871f189ee261e323c59e5f50a6f",
+  "recipe.json": "63209db37c9f9acd2a2328b59460f785a56523bec82da3604d1c7d8a8c0010db",
+  "llm-look-description-v1.txt": "885b190f81b513d680ec6ead81c8dc8c61b813521441a8dc56b97560d226317d"
+ },
+ "capture_result_sha256": "a8ed5b44b6ffbcbf7e7d121f568a64692e2ec11e2f95fb6e09ed013fe320990d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.216,
+  "screenshot_luma": 0.26,
+  "mean_rgb_prediction": [
+   0.049,
+   0.258,
+   0.296
+  ],
+  "mean_rgb_screenshot": [
+   0.046,
+   0.318,
+   0.318
+  ],
+  "blurred_luma_correlation": 0.96,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.136,
+    0.16
+   ],
+   "saturation": [
+    0.617,
+    0.627
+   ],
+   "blurred_luma_correlation": 0.953
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0208,
+   0.0215
+  ]
+ },
+ "agreements": [
+  "four huge corner quads and four point layers over a cyan/blue feedback field",
+  "colour balance and brightness envelope over frames 0-149 track the capture (time-average correlation 0.953, screenshot 0.96)",
+  "frame difference 0.0208 vs 0.0215"
+ ],
+ "misses": [
+  "slightly dim throughout (luma 0.136 vs 0.160 averaged)"
+ ],
+ "verdict": "understood"
+}

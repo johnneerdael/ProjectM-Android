@@ -463,6 +463,48 @@ def test_mesh_term_reads_frame_state_and_zero_for_names_never_written():
         for key in ('rng', 'bands', 'stage'): _TERM_CONTEXT.pop(key, None)
 
 
+def test_mesh_term_with_eel_bitwise_operations_is_evaluated_not_held_neutral():
+    # The evaluator supports EEL '&'/'|' (eel_memory); a per-pixel term using them must move the mesh
+    # rather than hold the whole control at its neutral value (r90: zoom/rot frozen at 1/0).
+    from prediction_illustration import _control_field, _TERM_CONTEXT, _UNRESOLVED_TERMS
+    # zoom = 1 + (3 & 1) * 0.1 * x
+    nodes = [{'op': 'constant', 'args': [], 'detail': {'value': 3.}}, {'op': 'constant', 'args': [], 'detail': {'value': 1.}},
+             {'op': 'eel_bitwise_and', 'args': [0, 1], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': .1}},
+             {'op': 'multiply', 'args': [2, 3], 'detail': {}}, {'op': 'input', 'args': [], 'detail': {'name': 'x'}},
+             {'op': 'multiply', 'args': [4, 5], 'detail': {}}]
+    control = {'terms': [{'kind': 'constant', 'value': 1.}, {'kind': 'unresolved_inputs', 'expression': {'root': 6, 'nodes': nodes}}], 'value_range': None}
+    x, y = np.meshgrid(np.linspace(0, 1, 5), np.linspace(0, 1, 3))
+    _TERM_CONTEXT.update(rng=np.random.default_rng(1), bands={}, stage={})
+    _UNRESOLVED_TERMS.clear()
+    try:
+        assert np.allclose(_control_field(control, 'zoom', x, y, 0.), 1 + .1 * x)
+        assert not any('held whole' in t for t in _UNRESOLVED_TERMS)
+    finally:
+        for key in ('rng', 'bands', 'stage'): _TERM_CONTEXT.pop(key, None)
+
+
+def _constant_mesh(**overrides):
+    values = {'zoom': 1., 'zoomexp': 1., 'rot': 0., 'warp': 0., 'cx': .5, 'cy': .5, 'dx': 0., 'dy': 0., 'sx': 1., 'sy': 1., **overrides}
+    return {'controls': {name: {'status': 'described', 'terms': [{'kind': 'constant', 'value': v}], 'value_range': None}
+                         for name, v in values.items()}}
+
+
+def test_negative_zoom_with_fractional_power_samples_the_origin_only_where_undefined():
+    # Engine (MilkDrop CPU powf, patch 0015): a negative zoom keeps a defined signed result for an
+    # integer nested power (zoomexp 1: the zoom itself) and NaN for a fractional one. Triangles touching
+    # a NaN vertex sample far outside (Apple-observed NaN mesh rule): texture coordinate 0. The rest of
+    # the field stays illustrated instead of the whole field being abandoned (r90).
+    from prediction_illustration import _backward_map, _UNRESOLVED_TERMS
+    _UNRESOLVED_TERMS.clear()
+    map_x, map_y = _backward_map(_constant_mesh(zoom=-.5, zoomexp=1.5), 32, 18, grid=(4, 2))(0.)
+    assert np.all(map_x == -.5) and np.all(map_y == -.5)
+    assert any('nonfinite' in t for t in _UNRESOLVED_TERMS)
+    # zoomexp exactly 1: the signed zoom reflects the sample (defined, no substitution).
+    _UNRESOLVED_TERMS.clear()
+    map_x, _ = _backward_map(_constant_mesh(zoom=-.5, zoomexp=1.), 32, 18, grid=(4, 2))(0.)
+    assert np.all(np.isfinite(map_x)) and not any('nonfinite' in t for t in _UNRESOLVED_TERMS)
+
+
 def test_noise_textures_are_rgba_with_random_alpha_and_shaders_read_it():
     # MilkdropNoise fills all four bytes; a shader offsetting by N.zw = noise*2-1 must see a zero-mean w,
     # not a padded alpha of 1 (which shifts the image half a texel every frame, r70).

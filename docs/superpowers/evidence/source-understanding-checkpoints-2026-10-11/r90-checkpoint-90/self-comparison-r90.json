@@ -1,0 +1,70 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r90-v1",
+ "preset": "idiot - Great Tulip Majesty.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "951de30a539f522db40dfbabb3b365089bdc553d840a2869a686b000e7784e43",
+  "prediction.json": "7123ccd2900b95f79f51789cd3e228ff93ed9493ae05cd9aea8582a25ed803b6",
+  "description.json": "1e61ea900dbeae5ddba4305fad8226769a826c71620d5753a9f4bc938edad65a",
+  "recipe.json": "7cf9104f100bb57d272da6110e350bbc6ec95fceaaf79926a87a243593cb4d54",
+  "llm-look-description-v1.txt": "984cc7b944c6b91dc70efd2649b45a5599fb5a4f53de4c2b5e11dd13cb7c2c28"
+ },
+ "capture_result_sha256": "fcd7f31827bd6687f2c2021879928ed1db1533b5f68d55f210de0f18d437c9b7",
+ "review_measurements_v1": {
+  "prediction_luma": 0.005,
+  "screenshot_luma": 0.048,
+  "mean_rgb_prediction": [
+   0.024,
+   0.0,
+   0.003
+  ],
+  "mean_rgb_screenshot": [
+   0.191,
+   0.0,
+   0.102
+  ],
+  "blurred_luma_correlation": 0.193,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.005,
+    0.044
+   ],
+   "saturation": [
+    0.051,
+    1.0
+   ],
+   "blurred_luma_correlation": 0.183
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0011,
+   0.0132
+  ]
+ },
+ "agreements": [
+  "dark blue-black ground with red rings and a blue ring (after fixes)",
+  "frame-by-frame luma follows the capture within 0.001 after the fixes"
+ ],
+ "misses": [
+  "v1: zoom and rot held at neutral because the per-pixel terms use EEL & (supported by the evaluator, rejected by the illustration's narrower operation check), so no shrinking rings and no fan",
+  "v3 first attempt: field abandoned at border vertices with negative zoom and zoomexp 1.0001 instead of applying the engine's per-vertex NaN rule"
+ ],
+ "verdict": "understood after two general fixes (v3 expected image from the frozen v1 description): mesh terms using EEL bitwise operators are evaluated, and negative zoom follows the engine's CPU power with nonfinite triangles sampling the texture origin; prediction vs screenshot correlation 0.193 -> 0.997",
+ "review_measurements_v3": {
+  "prediction_luma": 0.047,
+  "screenshot_luma": 0.048,
+  "blurred_luma_correlation": 0.997,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.043,
+    0.044
+   ],
+   "blurred_luma_correlation": 0.999
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0168,
+   0.0132
+  ],
+  "note": "v3 re-renders the frozen v1 description with the corrected illustrator; the description itself is unchanged"
+ }
+}

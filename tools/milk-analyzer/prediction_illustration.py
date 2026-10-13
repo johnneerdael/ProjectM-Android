@@ -195,9 +195,10 @@ _TERM_CONTEXT={}
 
 
 def _terms_evaluable(expression):
-    """Supported operations only: inputs are coordinates, time, bands, the frame's stepped controls or,
-    for names nothing supplies, 0 (projectm-eval reads never-written variables as 0)."""
-    from time_expression import input_names
+    """Operations the evaluator supports (eel_memory: bitwise, memory and loops included); inputs are
+    coordinates, time, bands, the frame's stepped controls or, for names nothing supplies, 0
+    (projectm-eval reads never-written variables as 0)."""
+    from eel_memory import input_names
     plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
     return input_names(plain) is not None
 
@@ -205,7 +206,7 @@ def _terms_evaluable(expression):
 def _term_inputs(expression,base):
     """base inputs plus the frame's stepped controls; names nobody supplies read 0. A per-pixel variable
     read before it is written persists across vertices in the engine; here it reads 0 (approximation)."""
-    from time_expression import input_names
+    from eel_memory import input_names
     plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
     stage={k:v for k,v in (_TERM_CONTEXT.get('stage') or {}).items() if isinstance(v,(int,float))}
     inputs={**stage,**base}
@@ -348,13 +349,17 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
     rad=2*np.hypot(x-.5,y-.5)
     def sample(time):
         values={name:_control_field(controls[name],name,x,y,time) for name in names}
-        # Negative zoom with zoomexp exactly 1 is the zoom itself (patch 0047's CPU path: a point
-        # reflection of the sample); other nonpositive bases have no defined power and are not illustrated.
-        positive=values['zoom']>0
-        unsupported=(values['zoom']==0)|(values['zoomexp']<=0)|((~positive)&(values['zoomexp']!=1))
-        if np.any(unsupported):raise ValueError('nonpositive zoom with zoomexp != 1 (or zero zoom) not illustrated')
-        zoom=np.where(positive,np.power(np.where(positive,values['zoom'],1.),np.power(values['zoomexp'],2*rad-1)),values['zoom'])
-        u=.5+(x-.5)/zoom;v=.5+(y-.5)/zoom
+        # Negative zoom follows MilkDrop's CPU powf (patch 0015): zoomexp exactly 1 is the zoom itself (a
+        # point reflection of the sample), an integer nested power keeps its sign and a fractional one is
+        # NaN. Zero zoom and nonpositive zoomexp have no defined power either. Such vertices stay nonfinite
+        # and are resolved after interpolation below.
+        with np.errstate(all='ignore'):
+            exponent=np.power(values['zoomexp'],2*rad-1)
+            exponent=np.where(values['zoomexp']>0,exponent,np.nan)
+            zoom=np.where(values['zoom']>0,np.power(np.abs(values['zoom']),exponent),
+                          np.where(values['zoomexp']==1,values['zoom'],np.power(values['zoom'],exponent)))
+            zoom=np.where(values['zoom']==0,np.nan,zoom)
+            u=.5+(x-.5)/zoom;v=.5+(y-.5)/zoom
         # Stretch near zero would sample at infinity; keep its sign with a 1e-3 magnitude floor.
         stretch=lambda value:np.where(np.abs(value)<1e-3,np.where(value<0,-1e-3,1e-3),value)
         u=values['cx']+(u-values['cx'])/stretch(values['sx']);v=values['cy']+(v-values['cy'])/stretch(values['sy'])
@@ -377,7 +382,15 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
         u=du*cos-dv*sin+values['cx'];v=du*sin+dv*cos+values['cy']
         u=u-values['dx'];v=v-values['dy']
         if interpolate is not None:u=interpolate(u);v=interpolate(v)
-        return ((u-.5)*long+width/2-.5).astype(np.float32),((v-.5)*long+height/2-.5).astype(np.float32)
+        map_x=((u-.5)*long+width/2-.5).astype(np.float32);map_y=((v-.5)*long+height/2-.5).astype(np.float32)
+        undefined=~(np.isfinite(map_x)&np.isfinite(map_y))
+        if np.any(undefined):
+            # A nonfinite vertex UV makes every triangle touching it sample far outside the texture
+            # (Apple-observed NaN mesh rule, spatial.APPLE_NAN_MESH_PROFILE): texture coordinate 0. Android
+            # nonfinite interpolation is unverified.
+            _UNRESOLVED_TERMS.add('nonfinite warp UV (undefined zoom power): touching triangles sampled at texture origin')
+            map_x=np.where(undefined,-.5,map_x).astype(np.float32);map_y=np.where(undefined,-.5,map_y).astype(np.float32)
+        return map_x,map_y
     return sample
 
 

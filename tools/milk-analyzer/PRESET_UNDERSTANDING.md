@@ -1707,3 +1707,26 @@ frame for three seconds before drifting slightly brighter. r85 is open: a
 thin red border spreads over our canvas through the warp's audio-driven blur
 while the engine's canvas stays dark. Its composite samples the canvas at
 coordinates set by the canvas's own colour, so the error shows as solid red.
+
+### r88–r91: bitwise mesh terms and undefined zoom powers
+
+r88, r89 and r91 were understood on the first prediction. r90 (Great Tulip
+Majesty) showed one red ring on black; the engine draws nested rings
+shrinking to the centre with a fan above and below. Two general gaps:
+
+- The illustration only evaluated per-pixel terms whose operations the
+  time-expression evaluator lists. EEL `&` and `|` (and memory and loop
+  operations) are evaluated by `eel_memory`, but terms using them held the
+  whole zoom and rotation at their neutral values. The check now uses the
+  evaluator's own list. 366 presets use `&` or `|` in per-pixel code.
+- Negative zoom with a zoom exponent other than exactly 1 stopped the whole
+  field. The engine (patch 0015) uses MilkDrop's CPU power: an integer nested
+  power keeps the sign, a fractional one is NaN. r90 reaches it only at
+  border vertices (zoomexp 1.0001). The illustration now keeps those
+  vertices nonfinite and samples the texture origin in the triangles that
+  touch them. That is the Apple-observed NaN mesh rule; Android behaviour
+  is unverified.
+
+Re-rendering the frozen v1 description: prediction vs screenshot
+correlation 0.193 → 0.997, time-average correlation 0.183 → 0.999, and the
+luma follows the capture within 0.001 per frame.
