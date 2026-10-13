@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (r28 v3; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a dark, mostly black screen with a small, thick ring at the centre (built-in audio-deformed circle, effective radius about 0.08 model units, rotating about 0.2 rad/s, outline wobbling with the right-channel waveform). From that seed, a blur-difference feedback stage (pattern growth) sharpens features between two blur scales, so the ring's marks should grow into blobs, cells or splatter that spread across the canvas. A self-advection stage (image steering its own sampling) smears and bends them, giving a liquid, organic texture rather than clean geometry. A thin dark-red border (about 1% of the screen, 0.5/0/0) frames the edge.
+
+Feedback and motion: the warp is a gentle zoom-in (zoom about 0.99, audio-modulated, with a mild radial exponent 0.12), no rotation and no translation. The warp shader keeps only the red channel whole; green and blue are cleared each frame, so trails and splatter persist in red only. Motion looks smooth and slow, with a flow estimate of roughly 0.1 screen widths per second (wide uncertainty).
+
+Colour: the composite maps canvas brightness onto a warm amber-orange ramp: dim content shows as brown-orange, mid levels as bright amber (about 0.75, 0.55, 0.25), and fully saturated red canvas is shown black. Expect warm browns, oranges and dark reds; a single hue family. The ring itself is a red-orange line.
+
+Brightness: dim overall (estimated mean luminance about 0.15, interval roughly 0 to 0.39). The steady-state canvas is very dark.
+
+Audio reaction: bass and treble feed the ring's red and green values only weakly (gain 0.005). The ring colour sits at the max-normalise threshold (0.01), so it can flip between a full-colour line and near black with the music; a black line still cuts the feedback behind it. Mid and treble nudge the zoom. Estimated brightness jumps are about 3 per 10 seconds (0.4 to 15), activity Chill-leaning but low confidence.
+
+Uncertain: how much of the screen the splatter fills, its density and contrast, the actual trail lifetime, whether the ring is visible, exact audio strength, and the real hue balance. Mood tags (smooth, warm, hypnotic, organic) are low-confidence estimates.

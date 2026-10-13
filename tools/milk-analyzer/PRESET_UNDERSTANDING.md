@@ -1187,3 +1187,14 @@ repeated on correctly oriented frames. Probes and results:
   frame-150 snapshot (its time average is unchanged). Open: the SDK text still
   calls the screen mostly dark, because no mechanism names the
   difference-of-blurs pattern term.
+- **Band-pass feedback (`blur_difference_feedback`).** A warp lane that adds a
+  finer level of the fed-back image (main or blur1) and subtracts a coarser
+  blur sharpens features between the two scales every frame, so seeds grow
+  into splatter, cells or edges that cover the canvas. The detector reads
+  signed coefficients per sampled surface through component selections and
+  constant blur decodes. It fires on 80 of a 600-preset random sample (477
+  with warp code), mostly main against blur1, blur2 or blur3. It does not see
+  band-pass terms behind `if` branches. With it and per-channel persistence,
+  the r28 v3 SDK text describes the splatter spreading from the seed ring.
+  Its brightness ("dim", from `display_estimate` 0.15, interval 0–0.39 against
+  a measured 0.27) waits for a whole-pack refit that includes the mechanism.

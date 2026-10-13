@@ -521,6 +521,7 @@ SHADER_EFFECTS={
     'image_driven_advection':('self_advection',{}),
     'gradient_driven_advection':('reaction_diffusion_flow',{}),
     'noise_driven_advection':('noise_turbulence',{}),
+    'blur_difference_feedback':('pattern_growth',{'channels':'lanes','fine_levels':'fine_levels','coarse_levels':'coarse_levels'}),
     'uv_advection':('periodic_wobble',{}),
     'multi_copy_feedback_recursion':('recursive_copies',{'copies':'copies','scales':'sampling_scales'}),
     'nonlinear_feedback_map':('fractal_feedback',{'construction':'construction'}),

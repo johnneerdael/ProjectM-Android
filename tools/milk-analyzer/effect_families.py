@@ -156,6 +156,34 @@ def _parts(value):
     return result
 
 
+def _surface_level(sample):
+    """0 for the previous image, N for blurN of it; None for any other texture."""
+    surface = sample.detail.get('surface'); texture = sample.detail.get('canonical_texture') or ''
+    if surface == 'pre_composite_feedback':
+        return 0
+    if surface == 'blur_of_pre_composite_feedback' and texture[:4] == 'blur' and texture[4:].isdigit():
+        return int(texture[4:])
+    return None
+
+
+def _surface_terms(value, scale=1., depth=0):
+    """(coefficient, level) for previous-image and blur samples entering value linearly. Component
+    selections (.x, .xyz) and constant-affine blur decodes are looked through; nonlinear products
+    contribute nothing."""
+    found = []
+    for coefficient, term in _terms(value, scale):
+        node = _strip(term); unwrapped = False
+        while node.op == 'member' and node.args:
+            node = _strip(node.args[0]); unwrapped = True
+        if node.op == 'sample':
+            level = _surface_level(node)
+            if level is not None:
+                found.append((coefficient, level))
+        elif unwrapped and depth < 4 and node.op in {'add', 'subtract', 'multiply', 'divide'}:
+            found.extend(_surface_terms(node, coefficient, depth+1))
+    return found
+
+
 def _rgb_output(value):
     """Follow the native ret.xyz sink, retaining execution-effect wrappers."""
     if value.op == 'sequence':
@@ -1194,6 +1222,8 @@ class _Analysis:
             return
         output = _rgb_output(output)
         self.outputs[stage] = output
+        if stage == 'warp':
+            self.blur_difference(output, prefix)
         nodes = list(_walk(output))
         colour_nodes={id(node) for node,path in _walk(output,sample_coordinates=False,constant_clipping=True)}
         self.unknowns.extend({'section': prefix, 'reason': n.detail.get('reason', 'unresolved live typed field')}
@@ -1238,6 +1268,29 @@ class _Analysis:
         # Unused loops may still fail to terminate; disclose control uncertainty.
         if _has(output, 'sequence') or model.effects:
             self.unknowns.append({'section': prefix, 'reason': 'loop/domain control effects require runtime termination/domain; no execution performed'})
+
+    def blur_difference(self, output, prefix):
+        """Band-pass feedback: a warp lane adding a finer level of the fed-back image (main = 0,
+        blur1-3) and subtracting a coarser one. It sharpens features between the two scales every
+        frame, so seeds grow into patterns (reaction-diffusion-like splatter, cells or edges)."""
+        lanes = []; fine = set(); coarse = set(); gains = []
+        for index, lane in enumerate(_parts(output)[:3]):
+            try:
+                weights = {}
+                for coefficient, level in _surface_terms(lane):
+                    weights[level] = weights.get(level, 0.) + coefficient
+            except (_SemanticBudget, RecursionError):
+                continue
+            positive = {level for level, weight in weights.items() if weight > 0}
+            negative = {level for level, weight in weights.items() if weight < 0}
+            if any(f < k for f in positive for k in negative):
+                lanes.append(index); fine |= positive; coarse |= negative; gains.append(sum(weights.values()))
+        if lanes:
+            self.add('blur_difference_feedback', prefix, output,
+                     'a finer fed-back image level is added and a coarser blur subtracted in the warp',
+                     parameters={'lanes': lanes, 'fine_levels': sorted(fine), 'coarse_levels': sorted(coarse),
+                                 'flat_gain_by_lane': gains},
+                     conditions=['the warp stays selected and feedback retains content between frames'])
 
     def affine_scale(self, uv):
         parts = _parts(uv)

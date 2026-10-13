@@ -355,6 +355,15 @@ are drawn unchanged. Channels without a time-only expression carry their
 band-driven `frame_expression` and `value_at_unit_bands` (every band and
 attenuated band at 1, projectM's long-run normalisation).
 
+The warp mechanism `blur_difference_feedback` (intent effect `pattern_growth`)
+is reported when an output lane of the custom warp linearly adds a finer level
+of the fed-back image (main = level 0, blur1–3) and subtracts a coarser level.
+Its parameters are `lanes` (0–2 for r, g, b), `fine_levels`, `coarse_levels` and
+`flat_gain_by_lane` (sum of the lane's sample coefficients: the gain on flat
+content). Component selections and constant blur decodes are looked through;
+nonlinear products do not count. It is a source construction: how far the
+patterns spread depends on seeds, retention and clamping.
+
 `render.composite.flat_transfer` (custom composites) holds the composite shader
 evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the
 displayed palette, including texture lookups.

@@ -129,7 +129,14 @@ required. Use a native file-read tool to inspect JSON and the summary.
    through (black- and white-content colours are exact), and `flat_field` for
    the steady colour of flat regions (background) under a custom warp. Read
    source mechanism sentences for shader constructions such as self-advection,
-   kaleidoscope sectors or polar tunnels.
+   kaleidoscope sectors or polar tunnels. A `blur_difference_feedback`
+   mechanism (intent `pattern_growth`) adds a finer fed-back level and
+   subtracts a coarser blur every frame. Features between the two scales are
+   sharpened, so small seeds (a wave, a border, noise) grow into blobs, cells
+   or splatter that spread over the canvas. Expect most of the screen to be
+   patterned rather than a dark background with a few drawn elements, and read
+   its look through the composite palette. Its flat-content gain is
+   `flat_gain_by_lane`; flat-content persistence alone understates coverage.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

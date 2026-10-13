@@ -1,6 +1,6 @@
 {
  "policy": "checkpoint-self-comparison-v1",
- "checkpoint": "r28-v2",
+ "checkpoint": "r28-v3",
  "preset": "Flexi - splatter effects 22.milk",
  "fresh_prediction": true,
  "frozen_before_capture": {
@@ -127,7 +127,8 @@
  },
  "agreements": [
   "v2 prediction: the same amber/grey splatter rings on black, central white ring and central dark hole; display luma tracks the capture frame by frame (within about 0.01 to frame 100)",
-  "v2 SDK text: a small centred ring (effective radius 0.08), max-normalised colour sitting on the 0.01 gate so the line flips between orange and black, warm tan/amber composite palette"
+  "v2 SDK text: a small centred ring (effective radius 0.08), max-normalised colour sitting on the 0.01 gate so the line flips between orange and black, warm tan/amber composite palette",
+  "v3 SDK text: pattern growth from the seed ring spreading over the canvas, red-only persistence, amber ramp, ring flipping at the gate"
  ],
  "misses": [
   {
@@ -149,8 +150,18 @@
    "version": "v2 SDK",
    "observed": "text calls the screen mostly dark with very short trails",
    "cause": "warp_transfer channel mean (red kept whole, green/blue cleared) read as 'one third kept, halving 0.6 frames'; the difference-of-blurs pattern term has no mechanism",
-   "fix": "per_channel transfer (channel_selective); blur-difference mechanism is the next step"
+   "fix": "per_channel transfer (channel_selective) and the blur_difference_feedback mechanism (intent pattern_growth)"
   }
  ],
- "verdict": "understood by the prediction (v2); SDK text partially (screen coverage and pattern formation open)"
+ "verdict": "understood by the prediction (v2/v3, image unchanged by v3) and by the SDK text apart from overall brightness",
+ "open": [
+  "SDK brightness still 'dim' from display_estimate 0.15 (interval 0-0.39) vs 0.27 measured: the calibration model sees the new mechanism only after a whole-pack re-export and refit",
+  "blur_difference_feedback recall: band-pass terms after if/select branches are not seen (e.g. 'buxom xuxum sluxtxphuxnx')"
+ ],
+ "corpus_sample": {
+  "seed": 7,
+  "presets": 600,
+  "with_warp_code": 477,
+  "blur_difference_feedback": 80
+ }
 }

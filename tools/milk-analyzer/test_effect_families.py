@@ -588,3 +588,24 @@ def test_cancelled_mechanisms_are_withheld_with_explicit_finite_domain_uncertain
     record = analyze(shader('shader_body {'+body+'}', 'warp'))
     assert forbidden not in families(record)
     assert any('finite' in row['reason'] for row in record['unknowns'])
+
+
+def test_warp_difference_of_blurs_is_band_pass_feedback():
+    # ret.x = main - (blur3 - blur1): a finer level added and a coarser one subtracted on the fed-back
+    # image sharpens features between the two blur scales and grows patterns (Flexi's splatter).
+    record = analyze(shader('shader_body {ret=0; ret.x=GetPixel(uv).x-(GetBlur3(uv).x-GetBlur1(uv).x);}', 'warp'))
+    row, = rows(record, 'blur_difference_feedback')
+    assert row['stage'] == 'warp'
+    assert row['parameters']['lanes'] == [0]
+    assert row['parameters']['fine_levels'] == [0, 1] and row['parameters']['coarse_levels'] == [3]
+    assert abs(row['parameters']['flat_gain_by_lane'][0] - 1.) < 1e-9
+
+
+def test_unsharp_mask_counts_and_softening_or_plain_blur_does_not():
+    unsharp = analyze(shader('shader_body {ret=GetPixel(uv)+(GetPixel(uv)-GetBlur1(uv))*0.3;}', 'warp'))
+    assert rows(unsharp, 'blur_difference_feedback')[0]['parameters']['lanes'] == [0, 1, 2]
+    soften = analyze(shader('shader_body {ret=GetPixel(uv)*0.5+GetBlur2(uv)*0.5;}', 'warp'))
+    plain = analyze(shader('shader_body {ret=GetBlur1(uv);}', 'warp'))
+    composite = analyze(shader('shader_body {ret=GetPixel(uv)-(GetBlur3(uv)-GetBlur1(uv));}', 'comp'))
+    assert not rows(soften, 'blur_difference_feedback') and not rows(plain, 'blur_difference_feedback')
+    assert not rows(composite, 'blur_difference_feedback')  # no feedback: the composite is display only
