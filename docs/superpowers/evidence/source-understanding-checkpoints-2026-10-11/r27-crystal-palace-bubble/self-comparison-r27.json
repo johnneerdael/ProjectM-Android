@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r27-v1",
+ "preset": "Serge + martin - crystal palace bubble003a.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "86abba2acbee290b42561d52152cf8e79eb848cf23e6c5a51c6baa3a59a90e27",
+  "prediction.json": "a0de66e71b7c32c7a9068ca73b849df6df9e5bc44f57828f2127a3855c99ff4a",
+  "description.json": "99bbab4d7ce06f1dfa0007ef9e33e4dd48de26f50f9b2ba5074eaebc7aec6cec",
+  "recipe.json": "2e826cfc23b363be33307ed3d56142955999b5b7ff0694ec0d95fce637879240",
+  "llm-look-description-v1.txt": "9e9449e6e65c571144b657efe50225a6fbc24482fe19ff49274565c427b0a5ed"
+ },
+ "capture_result_sha256": "81a6d73a3703e7608a233a4899f94ab593adce81bdfd071a2b24321b41d6bb7e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.336,
+  "screenshot_luma": 0.317,
+  "mean_rgb_prediction": [
+   0.413,
+   0.319,
+   0.22
+  ],
+  "mean_rgb_screenshot": [
+   0.389,
+   0.3,
+   0.213
+  ],
+  "saturation": [
+   0.609,
+   0.599
+  ],
+  "blurred_luma_correlation": 0.861
+ },
+ "agreements": [
+  "prediction image: the same amber log-polar structure, dark lobes, white flares and green-speckled dot clouds",
+  "SDK text: centred ring, dot clouds, short smeared trails (warp_transfer halving ~15 frames), possible log-polar tunnel, steep composite with blow-out risk"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "SDK text left the final palette unresolved (amber in the capture)",
+   "cause": "the recipe composite flat_transfer gives grey levels per canvas level; the colour of drawn content through the log-polar composite is not summarised",
+   "next": "summarise the composite palette for coloured inputs, not only flat grey levels"
+  }
+ ],
+ "status": "understood (v1): luma 0.336 vs 0.317, saturation 0.61 vs 0.60, blurred correlation 0.86",
+ "uses_rendered_images_for_classification": false
+}

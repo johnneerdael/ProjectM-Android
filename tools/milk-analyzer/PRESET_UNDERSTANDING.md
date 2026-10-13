@@ -1149,3 +1149,8 @@ repeated on correctly oriented frames. Probes and results:
   diverging lyre curves. The steep composite turned the thinner bright tail
   into the brightness gap. v2 matches: luma 0.476 vs 0.459, colour within
   0.02 per channel.
+- **r27 (`Serge + martin - crystal palace bubble003a`) v1.** Understood on the
+  first prediction: an amber log-polar composite over a ring, dot clouds and
+  short smeared trails (luma 0.336 vs 0.317, saturation 0.61 vs 0.60, blurred
+  correlation 0.86). The SDK text got the construction right but left the
+  palette unresolved. The composite's flat transfer only reports grey levels.
