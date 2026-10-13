@@ -21,6 +21,9 @@ from pathlib import Path
 POLICY='source-calibrated-display-v1'
 DEFAULT_MODEL=Path(__file__).with_name('fixtures')/'calibrated-display-model.json.gz'
 MISSING=-1e9
+# Physical range of each statistic: estimates and residual intervals are clamped into it.
+DOMAINS={'mean_luminance':(0.,1.),'mean_abs_frame_difference':(0.,1.),'mean_saturation':(0.,1.),'warm_cool':(-1.,1.),
+         'mean_flow_screen_widths_per_s':(0.,None),'global_brightness_jumps_per_10s':(0.,None)}
 _CACHE={}
 
 
@@ -55,8 +58,10 @@ def predict(summary,model=None):
     out={}
     for target,spec in model['targets'].items():
         raw=spec['baseline']+sum(_tree(tree,x) for tree in spec['trees'])
-        value=_inverse(raw,spec.get('transform'))
-        low,high=(_inverse(raw+spec['residual_p10'],spec.get('transform')),_inverse(raw+spec['residual_p90'],spec.get('transform')))
+        clamp=lambda v,bounds=DOMAINS.get(target,(None,None)):min(max(v,bounds[0]) if bounds[0] is not None else v,
+                                                                   bounds[1] if bounds[1] is not None else math.inf)
+        value=clamp(_inverse(raw,spec.get('transform')))
+        low,high=(clamp(_inverse(raw+spec['residual_p10'],spec.get('transform'))),clamp(_inverse(raw+spec['residual_p90'],spec.get('transform'))))
         out[target]={'value':value,'interval':[min(low,high),max(low,high)],'oof_spearman':spec['oof_spearman'],
                      'evidence':'source-calibrated','label_source':model.get('label_source')}
     return out

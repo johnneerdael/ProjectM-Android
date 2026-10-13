@@ -1,0 +1,106 @@
+"""Golden reader vectors for the knowledge pack: packs every reader implementation must accept or reject.
+
+    python knowledge_pack_golden.py <out-dir>      # writes export-contract/knowledge-pack/golden-v1 by default
+
+Inputs are the frozen recipes in <out-dir>/recipes/*.json. Outputs (all deterministic):
+    valid/            a well-formed pack
+    unknown-fields/   the same data plus fields a v1 reader does not know (must be accepted, same values)
+    bad-policy/       manifest policy of a later pack version (must be rejected)
+    bad-recipe-policy/ one recipe line with a later recipe policy, hashes consistent (must be rejected)
+    bad-core-hash/    core file bytes that do not match manifest core.sha256 (must be rejected)
+    bad-line-hash/    one recipe line changed, file hash updated, line hash not (must be rejected)
+    expected.json     what a reader exposes for the accepted packs, and the rule each rejected pack breaks
+"""
+import gzip
+import json
+import shutil
+import sys
+from pathlib import Path
+
+import knowledge_pack as K
+
+HERE = Path(__file__).resolve().parent
+DEFAULT = HERE / 'export-contract' / 'knowledge-pack' / 'golden-v1'
+FLOAT_TOLERANCE = 1e-9
+
+
+def _rewrite(pack, lines, manifest_edit=None, *, update_core_hash=True, update_line_hashes=True):
+    data = gzip.compress(('\n'.join(lines) + '\n').encode('utf-8'), mtime=0)
+    (pack / 'core.jsonl.gz').write_bytes(data)
+    manifest = json.loads((pack / 'manifest.json').read_text(encoding='utf-8'))
+    if update_core_hash:manifest['core']['sha256'] = K._sha256(data)
+    if update_line_hashes:
+        for entry, line in zip(manifest['presets'], lines):entry['core_line_sha256'] = K._sha256(line.encode('utf-8'))
+    if manifest_edit:manifest_edit(manifest)
+    (pack / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
+
+
+def _lines(pack):
+    return gzip.decompress((pack / 'core.jsonl.gz').read_bytes()).decode('utf-8').split('\n')[:-1]
+
+
+def view(recipe):
+    """The reader view every implementation exposes (FORMAT.md, "Reader view")."""
+    estimate = recipe.get('display_estimate') or {}
+    statistics = estimate.get('statistics') or {}
+    activity = estimate.get('activity') or {}
+    facets = recipe.get('facets') or {}
+    intent = recipe.get('intent') or {}
+    def stat(name):
+        row = statistics.get(name) or {}
+        return {'value': row.get('value'), 'interval': row.get('interval')}
+    return {
+        'name': recipe['preset']['name'], 'sha256': recipe['preset']['sha256'],
+        'effects': [row.get('effect') for row in intent.get('effects') or []],
+        'reactivity': [[row.get('band'), row.get('target'), row.get('kind'), row.get('response')] for row in intent.get('reactivity') or []],
+        'mean_luminance': stat('mean_luminance'), 'mean_abs_frame_difference': stat('mean_abs_frame_difference'),
+        'activity': activity.get('activity'), 'activity_bands': activity.get('bands') or [],
+        'facet_options': facets.get('options') or [],
+        'facet_values': {name: row.get('value') for name, row in sorted((facets.get('values') or {}).items())},
+        'energy_tags': (intent.get('energy') or {}).get('tags') or [],
+    }
+
+
+def generate(out=DEFAULT):
+    out = Path(out)
+    recipes = sorted((out / 'recipes').glob('*.json'))
+    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash'):
+        shutil.rmtree(out / name, ignore_errors=True)
+    K.build_from_recipes(recipes, out / 'valid', source='golden-v1 recipes')
+    manifest = json.loads((out / 'valid' / 'manifest.json').read_text(encoding='utf-8'))
+    # Producer and model hashes describe the build machine, not the format: pin them for stable vectors.
+    manifest['producer'] = {'commit': None, 'analyzer_dirty': None}
+    for key in ('calibration_model_sha256', 'activity_reference_sha256', 'facet_definition_sha256'):manifest[key] = None
+    (out / 'valid' / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
+    lines = _lines(out / 'valid')
+
+    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash'):
+        shutil.copytree(out / 'valid', out / name)
+    extended = []
+    for line in lines:
+        recipe = json.loads(line)
+        recipe['x_later_field'] = {'added_in': 'a later v1 producer', 'values': [1, 2.5, None, True]}
+        recipe['intent']['x_later_hint'] = 'ignored by v1 readers'
+        extended.append(json.dumps(recipe, separators=(',', ':'), sort_keys=True))
+    _rewrite(out / 'unknown-fields', extended, lambda m: m.update({'x_later_manifest_field': {'note': 'ignored by v1 readers'}}))
+    _rewrite(out / 'bad-policy', lines, lambda m: m.update({'policy': 'preset-knowledge-pack-v2'}))
+    changed = json.loads(lines[0]); changed['policy'] = 'preset-visual-recipe-v2'
+    _rewrite(out / 'bad-recipe-policy', [json.dumps(changed, separators=(',', ':'), sort_keys=True)] + lines[1:])
+    # Same lines, different gzip stream (compression level 1): bytes no longer match core.sha256.
+    (out / 'bad-core-hash' / 'core.jsonl.gz').write_bytes(gzip.compress(('\n'.join(lines) + '\n').encode('utf-8'), compresslevel=1, mtime=0))
+    tampered = json.loads(lines[-1]); tampered['intent']['effects'] = []
+    _rewrite(out / 'bad-line-hash', lines[:-1] + [json.dumps(tampered, separators=(',', ':'), sort_keys=True)], update_line_hashes=False)
+
+    expected = {
+        'format': K.PACK_POLICY, 'recipe_policy': K.RECIPE_POLICY, 'float_tolerance': FLOAT_TOLERANCE,
+        'accept': {name: [view(json.loads(line)) for line in lines] for name in ('valid', 'unknown-fields')},
+        'reject': {'bad-policy': 'pack policy', 'bad-recipe-policy': 'recipe policy',
+                   'bad-core-hash': 'core file hash', 'bad-line-hash': 'core line hash'},
+    }
+    (out / 'expected.json').write_text(json.dumps(expected, indent=1) + '\n', encoding='utf-8')
+    return expected
+
+
+if __name__ == '__main__':
+    sys.path.insert(0, str(HERE))
+    generate(Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT)

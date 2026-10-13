@@ -84,24 +84,47 @@ def build(corpus_dir, pack_dir, *, with_programs=False, workers=8):
     with ProcessPoolExecutor(workers) as pool:
         for name, sha, recipe, problem in pool.map(_recipe_from_result, results, chunksize=4):
             if recipe is None:failures[name or '?'] = problem;continue
-            line = json.dumps(core_recipe(recipe), separators=(',', ':'), sort_keys=True)
-            entry = {'name': name, 'sha256': sha, 'core_line_sha256': _sha256(line.encode())}
-            if with_programs:
-                full = json.dumps(recipe, separators=(',', ':'), sort_keys=True).encode()
-                (pack_dir / 'full' / (sha + '.json.gz')).write_bytes(gzip.compress(full, mtime=0))
-                entry['full_sha256'] = _sha256(full)
-            rows.append((name, line, entry))
+            rows.append(_row(pack_dir, name, sha, recipe, with_programs))
+    run_manifest = corpus_dir / 'run-manifest.json'
+    return _write(pack_dir, rows, failures, {'directory': corpus_dir.name, 'run_manifest_sha256': _file_hash(run_manifest)},
+                  with_programs)
+
+
+def _row(pack_dir, name, sha, recipe, with_programs):
+    # ASCII JSON (non-ASCII escaped), sorted keys, no spaces: one line per recipe.
+    line = json.dumps(core_recipe(recipe), separators=(',', ':'), sort_keys=True)
+    entry = {'name': name, 'sha256': sha, 'core_line_sha256': _sha256(line.encode('utf-8'))}
+    if with_programs:
+        full = json.dumps(recipe, separators=(',', ':'), sort_keys=True).encode('utf-8')
+        (pack_dir / 'full' / (sha + '.json.gz')).write_bytes(gzip.compress(full, mtime=0))
+        entry['full_sha256'] = _sha256(full)
+    return name, line, entry
+
+
+def build_from_recipes(recipe_paths, pack_dir, *, source='recipes'):
+    """Pack from finished recipe JSON files (golden reader vectors, small collections)."""
+    pack_dir = Path(pack_dir); pack_dir.mkdir(parents=True, exist_ok=True)
+    from contract_schema import recipe_errors
+    rows, failures = [], {}
+    for path in recipe_paths:
+        recipe = json.loads(Path(path).read_text(encoding='utf-8'))
+        problems = recipe_errors(recipe)
+        if problems:failures[recipe.get('preset', {}).get('name', str(path))] = 'schema: ' + '; '.join(problems[:3]);continue
+        rows.append(_row(pack_dir, recipe['preset']['name'], recipe['preset']['sha256'], recipe, False))
+    return _write(pack_dir, rows, failures, {'directory': source, 'run_manifest_sha256': None}, False)
+
+
+def _write(pack_dir, rows, failures, corpus_run, with_programs):
     rows.sort(key=lambda row: row[0])
     entries = [entry for _, _, entry in rows]
-    core_bytes = gzip.compress(('\n'.join(line for _, line, _ in rows) + '\n').encode(), mtime=0)
+    core_bytes = gzip.compress(('\n'.join(line for _, line, _ in rows) + '\n').encode('utf-8'), mtime=0)
     (pack_dir / 'core.jsonl.gz').write_bytes(core_bytes)
-    run_manifest = corpus_dir / 'run-manifest.json'
     manifest = {
         'policy': PACK_POLICY,
-        'recipe_policy': 'preset-visual-recipe-v1',
+        'recipe_policy': RECIPE_POLICY,
         'schema': {'file': 'export-contract/preset-recipe.schema.json', 'sha256': _file_hash(HERE / 'export-contract/preset-recipe.schema.json')},
         'producer': _producer_commit(),
-        'corpus_run': {'directory': corpus_dir.name, 'run_manifest_sha256': _file_hash(run_manifest)},
+        'corpus_run': corpus_run,
         'calibration_model_sha256': _file_hash(HERE / 'fixtures/calibrated-display-model.json.gz'),
         'activity_reference_sha256': _file_hash(HERE / 'fixtures/display-activity-reference-v1.json'),
         'facet_definition_sha256': _file_hash(HERE / 'facets/facets-v1.json'),
@@ -117,15 +140,35 @@ def build(corpus_dir, pack_dir, *, with_programs=False, workers=8):
     return manifest
 
 
-def load_core(pack_dir):
-    """{preset name: core recipe} after checking the pack policy and core hash."""
+def _core_lines(pack_dir):
+    """(manifest, stored core lines) after the policy and core file hash checks."""
     pack_dir = Path(pack_dir)
-    manifest = json.loads((pack_dir / 'manifest.json').read_text())
+    manifest = json.loads((pack_dir / 'manifest.json').read_text(encoding='utf-8'))
     if manifest.get('policy') != PACK_POLICY:raise ValueError('unsupported pack policy %r' % manifest.get('policy'))
     data = (pack_dir / manifest['core']['file']).read_bytes()
     if _sha256(data) != manifest['core']['sha256']:raise ValueError('core file hash mismatch')
-    recipes = [json.loads(line) for line in gzip.decompress(data).decode().splitlines() if line]
-    return {recipe['preset']['name']: recipe for recipe in recipes}
+    return manifest, [line for line in gzip.decompress(data).decode('utf-8').split('\n') if line]
+
+
+RECIPE_POLICY = 'preset-visual-recipe-v1'
+
+
+def load_core(pack_dir):
+    """{preset name: core recipe}: the reference reader. Applies every rule of
+    export-contract/knowledge-pack/FORMAT.md that a reader in another language must apply."""
+    manifest, lines = _core_lines(pack_dir)
+    if manifest.get('recipe_policy') != RECIPE_POLICY:raise ValueError('unsupported recipe policy %r' % manifest.get('recipe_policy'))
+    entries = manifest.get('presets') or []
+    if len(entries) != len(lines):raise ValueError('manifest lists %d presets, core holds %d lines' % (len(entries), len(lines)))
+    recipes = {}
+    for entry, line in zip(entries, lines):
+        if _sha256(line.encode('utf-8')) != entry.get('core_line_sha256'):raise ValueError(entry.get('name', '?') + ': core line hash mismatch')
+        recipe = json.loads(line)
+        if recipe.get('policy') != RECIPE_POLICY:raise ValueError(entry['name'] + ': unsupported recipe policy %r' % recipe.get('policy'))
+        preset = recipe.get('preset') or {}
+        if preset.get('name') != entry['name'] or preset.get('sha256') != entry['sha256']:raise ValueError(entry['name'] + ': recipe identity differs from the manifest')
+        recipes[entry['name']] = recipe
+    return recipes
 
 
 def check(pack_dir, presets_dir=None):
@@ -134,8 +177,10 @@ def check(pack_dir, presets_dir=None):
     pack_dir = Path(pack_dir)
     problems = []
     try:
-        manifest = json.loads((pack_dir / 'manifest.json').read_text())
-        recipes = load_core(pack_dir)
+        manifest, lines = _core_lines(pack_dir)
+        recipes = {}
+        for line in lines:
+            recipe = json.loads(line);recipes[recipe['preset']['name']] = (recipe, line)
     except (OSError, ValueError, KeyError) as error:
         return [str(error)]
     from contract_schema import errors, load_schema
@@ -144,10 +189,11 @@ def check(pack_dir, presets_dir=None):
         problems.append('schema changed since the pack was built')
     entries = {e['name']: e for e in manifest['presets']}
     if set(entries) != set(recipes):problems.append('manifest and core list different presets')
-    for name, recipe in recipes.items():
+    if [e['name'] for e in manifest['presets']] != [name for name in recipes]:problems.append('core lines are not in manifest order')
+    for name, (recipe, line) in recipes.items():
         entry = entries.get(name) or {}
-        line = json.dumps(recipe, separators=(',', ':'), sort_keys=True)
-        if _sha256(line.encode()) != entry.get('core_line_sha256'):problems.append(name + ': core line hash mismatch')
+        # The hash covers the stored UTF-8 line, so any reader can verify it without re-serialising.
+        if _sha256(line.encode('utf-8')) != entry.get('core_line_sha256'):problems.append(name + ': core line hash mismatch')
         if recipe['preset']['sha256'] != entry.get('sha256'):problems.append(name + ': preset sha256 mismatch')
         for problem in recipe_errors(recipe)[:2]:problems.append(name + ': ' + problem)
     if presets_dir is not None:

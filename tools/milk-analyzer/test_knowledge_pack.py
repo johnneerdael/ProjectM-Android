@@ -53,3 +53,17 @@ def test_manifest_follows_its_contract_and_check_reports_drift(tmp_path):
     manifest['uses_rendered_images'] = True
     manifest_path.write_text(json.dumps(manifest))
     assert any('manifest: $.uses_rendered_images' in p for p in K.check(tmp_path / 'pack'))
+
+
+def test_line_hashes_cover_the_stored_bytes_not_a_reserialisation(tmp_path):
+    # Readers in other languages cannot reproduce Python's float formatting; they hash the line as stored.
+    K.build(_corpus(tmp_path), tmp_path / 'pack', workers=1)
+    core = tmp_path / 'pack' / 'core.jsonl.gz'
+    lines = gzip.decompress(core.read_bytes()).decode().splitlines()
+    spaced = [json.dumps(json.loads(line), indent=None) for line in lines]  # same data, different bytes
+    data = gzip.compress(('\n'.join(spaced) + '\n').encode(), mtime=0)
+    core.write_bytes(data)
+    manifest = json.loads((tmp_path / 'pack' / 'manifest.json').read_text())
+    manifest['core']['sha256'] = K._sha256(data)
+    (tmp_path / 'pack' / 'manifest.json').write_text(json.dumps(manifest))
+    assert any('core line hash mismatch' in p for p in K.check(tmp_path / 'pack'))

@@ -17,3 +17,16 @@ def test_tree_model_predicts_with_transform_and_interval():
     assert result['evidence'] == 'source-calibrated'
     missing = predict({'facts': {}}, model)['mean_flow_screen_widths_per_s']
     assert math.isclose(missing['value'], math.expm1(math.log1p(1.) - .2) / 10)  # missing sentinel goes left
+
+
+def test_values_and_intervals_stay_inside_each_statistics_physical_range():
+    # A luminance or saturation cannot leave [0, 1]; residual intervals added to a low value must not either.
+    import calibrated_display as C
+    model = {'columns': [], 'label_source': 'x', 'targets': {
+        'mean_luminance': {'baseline': .05, 'trees': [], 'residual_p10': -.2, 'residual_p90': .2, 'oof_spearman': .6},
+        'mean_saturation': {'baseline': .95, 'trees': [], 'residual_p10': -.1, 'residual_p90': .3, 'oof_spearman': .6},
+        'warm_cool': {'baseline': -.9, 'trees': [], 'residual_p10': -.3, 'residual_p90': .3, 'oof_spearman': .6}}}
+    out = C.predict({}, model)
+    assert out['mean_luminance']['interval'] == [0., .25] and out['mean_luminance']['value'] == .05
+    assert out['mean_saturation']['interval'][1] == 1. and abs(out['mean_saturation']['interval'][0] - .85) < 1e-12
+    assert out['warm_cool']['interval'][0] == -1.

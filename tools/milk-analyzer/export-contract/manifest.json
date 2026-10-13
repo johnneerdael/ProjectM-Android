@@ -46,6 +46,12 @@
       "validator": "knowledge_pack.check",
       "tests": "test_knowledge_pack.py",
       "added": "2026-10-13"
+    },
+    "knowledge-pack/FORMAT.md": {
+      "contract": "preset-knowledge-pack-v1 reader rules",
+      "validator": "knowledge_pack.load_core (reference reader)",
+      "tests": "test_knowledge_pack_golden.py (golden-v1 vectors)",
+      "added": "2026-10-13"
     }
   }
 }
