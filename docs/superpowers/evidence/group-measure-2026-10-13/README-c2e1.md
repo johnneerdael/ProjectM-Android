@@ -21,3 +21,20 @@ for every preset that samples noise. Part of the spread is therefore a
 different random draw, not a better or worse model. The checkpoint where
 the fourth channel matters (r70) improved from 0.70 to 0.96 time-average
 correlation.
+
+## Correction (same day)
+
+The explanation above, that the RGBA noise redraw caused the spread, was not
+checked. Two of the largest losers (`liquid circuitry … pataoblivion`, map
+correlation −0.22; `toffee cream`, −0.12) do not sample noise at all. The
+real cause was nondeterminism. The recurrence builders popped state names
+from a Python set, so the order of state updates, and the `rand()` value each
+update received, followed per-process string hashing. The same snapshot gave
+`toffee cream` mean luma 0.170, 0.202 and 0.156 in three runs. Every preset
+with `rand()` in wave or shape programs therefore drew differently in each
+group-measure process. Part of each version-to-version difference measured
+so far, gains and losses alike, is that noise rather than the code change.
+
+Fixed in 44e4fa2f (names processed smallest first, state returned sorted).
+`predict_one` now gives identical results across `PYTHONHASHSEED` values. A
+deterministic group measure of 44e4fa2f is the new baseline for comparisons.
