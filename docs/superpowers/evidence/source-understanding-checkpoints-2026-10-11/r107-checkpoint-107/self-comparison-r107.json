@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r107-v1",
+ "preset": "suksma - n19 opt - a happy innocent time that is gone, corrupted by time - long2(1).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "db5e8e51f5b69f4c560f75bfcd8d152fa85be2686eb9a2a48ecd95b6be5d80e2",
+  "prediction.json": "ec8ea0ec186f9869baa33a37ea7cb4e94e4ab91cdc1c414145edaad63f1cfa13",
+  "description.json": "5bb9cfa68029baf8defe3cac93af074631e28b02d031a1a1148ad19ff66a665d",
+  "recipe.json": "79fb4e5cc0412c13a5a4f4d7c688afad0e5d8454a64b7a17152367e44c4276d5",
+  "llm-look-description-v1.txt": "116cff797852044a4fe31dd9344827c6d2720c2d8ec59ef2e1abe4c2f2639eb6"
+ },
+ "capture_result_sha256": "fcde1e298e650201b9f8859f5f1287d7b89e276eb742a9e8d83685d4369a7a86",
+ "review_measurements_v1": {
+  "prediction_luma": 0.619,
+  "screenshot_luma": 0.465,
+  "mean_rgb_prediction": [
+   0.73,
+   0.582,
+   0.658
+  ],
+  "mean_rgb_screenshot": [
+   0.525,
+   0.451,
+   0.429
+  ],
+  "blurred_luma_correlation": 0.687,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.499,
+    0.224
+   ],
+   "saturation": [
+    0.283,
+    0.119
+   ],
+   "blurred_luma_correlation": 0.714
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1273,
+   0.114
+  ]
+ },
+ "agreements": [
+  "vertical bars, line triangle and bottom wave in the same places",
+  "white load flash"
+ ],
+ "misses": [
+  "canvas red averages 0.15 in ours vs about 0.4 in the engine: our selection dynamics bias the stored pseudo-coordinates; nearest sampling and noise distribution checked and not the cause",
+  "colours: ours pink/purple, engine muted green/blue-grey"
+ ],
+ "verdict": "open: structure matches but brightness is 2.2x too high (frames 60-149 luma 0.499 vs 0.224); the canvas itself differs (canvas-only engine render): this is the seed-selection family (r81 Mosaic), where each pixel keeps the colour whose (r,g) is closest to its own position"
+}
