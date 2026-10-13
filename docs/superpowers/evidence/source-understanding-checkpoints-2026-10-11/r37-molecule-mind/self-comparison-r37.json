@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r37-v1",
+ "preset": "fiShbRaiN - molecule mind.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1a7142d7d59d27bf0f1c6d6e8aafd882fc566a76646471168ac1d5378f7e7beb",
+  "prediction.json": "e409161133ce2f76910fb137fa29b6f68f62b6e5256a4fef7f08c9729ed18fc2",
+  "description.json": "abe7cfb8650553eb908288ca0f7eba1af351b2a46021c000cbd1063a886d4136",
+  "recipe.json": "1ea84e5f2e43d92afb8f7ff4df09eb97b4c96103fba376e781f018c9c3ad6103",
+  "llm-look-description-v1.txt": "4235b16913d980747deda26acec2c711eabaaf820e18066231118dc32a8392d0"
+ },
+ "capture_result_sha256": "fbb2372ae71b1a4f7c2467071cadda011e5284da9b329761aa5dcbd0ef081877",
+ "review_measurements_v1": {
+  "prediction_luma": 0.132,
+  "screenshot_luma": 0.134,
+  "mean_rgb_prediction": [
+   0.129,
+   0.132,
+   0.139
+  ],
+  "mean_rgb_screenshot": [
+   0.117,
+   0.14,
+   0.118
+  ],
+  "saturation": [
+   0.112,
+   0.16
+  ],
+  "blurred_luma_correlation": 0.956,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.139,
+    0.145
+   ],
+   "saturation": [
+    0.123,
+    0.143
+   ],
+   "blurred_luma_correlation": 0.985
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0078,
+   0.0079
+  ]
+ },
+ "agreements": [
+  "prediction: the same dim grey concentric tunnel, central translucent panel and sparse specks; luma tracks the capture frame by frame",
+  "SDK text: dim grey field of thin traces and dots with mirrored symmetry, slow inward zoom, no flashing"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}

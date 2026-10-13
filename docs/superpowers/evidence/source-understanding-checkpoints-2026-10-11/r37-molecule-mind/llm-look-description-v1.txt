@@ -1,0 +1,15 @@
+LLM look description from the SDK recipe, source parts only (before capture, r37 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a soft, mostly grayscale (white-to-gray) abstract field built from layered thin traces and faint dots, mirrored into a roughly four-fold symmetric pattern. The sources are a built-in two-channel parallel waveform line (mode 7, additive, centred, two traces offset about 0.25 apart), four custom point waveforms of 512 points each, and one 100-sided polygon (radius about 1.36 NDC, centred, stationary, white). The polygon is large enough that it probably fills or washes much of the frame, though its visible coverage is not established. The four point clouds are closed-form curves in sample and time, each spread over a different quadrant-like region. Each point is very faint (mean alpha about 0.08), so they read as dotted, glowing strands that build up through feedback, not as bright particles. The recipe does not prove independent particles.
+
+Feedback and motion: decay is 0.98, so trails have a half-life of about 1.2 s, and faint residue stalls near stored level 24/255. The warp is a slow uniform zoom toward the centre (about 0.05% per frame), with no rotation, drift or audio-driven warp, so the motion is a gentle inward drift. The composite adds a 0.55x shrunken echo at 50% opacity, mirrored left-right and top-bottom, which produces the symmetric, kaleidoscope-like look. Gamma brightening of up to 1.49x lifts the image. The thin borders recolour the screen edges (black outer, white inner).
+
+Colour: no hue is established. Every identified colour ingredient is grayscale or unresolved, so expect a white, gray and black palette, possibly with faint tints.
+
+Brightness: the calibrated estimate gives a mean luminance around 0.20 (interval 0.01 to 0.44), which is dim to medium, with low saturation (about 0.30, wide interval) and almost no global flashing.
+
+Audio reaction: the only established audio route is the built-in waveform line, which follows the left and right waveforms continuously. There are no band-driven (bass, mid, treble) controls. The reaction is therefore shape wobble in the traces and not pulsing.
+
+Overall feel: calm, smooth and hypnotic. The estimated activity is low (Chill, possibly Normal), with a mean flow of about 0.05 screen widths per second.
+
+Uncertain: how much the large polygon covers the frame, whether the custom point waves look like lines or sparse dots, the real palette and tint, the actual trail density and symmetry exactness, and how visible the audio response is.

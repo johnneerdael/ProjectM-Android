@@ -1307,3 +1307,7 @@ repeated on correctly oriented frames. Probes and results:
   0.024 (capture 0.033) and the time-averaged correlation from 0.13 to 0.46.
   The interior hue remains a draw. Elsewhere r13 and r35 improved and r23's
   time-averaged luma moved from 0.548 to 0.633 (capture 0.584).
+- **r37 (`fiShbRaiN - molecule mind`) v1.** Understood on the first
+  prediction: a dim grey concentric tunnel with a translucent central panel
+  (single-frame blurred correlation 0.956; frames 60–149 luma 0.139 vs 0.145,
+  correlation 0.985, frame difference 0.0078 vs 0.0079). The SDK text matches.
