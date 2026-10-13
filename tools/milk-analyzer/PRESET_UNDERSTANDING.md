@@ -1464,3 +1464,7 @@ repeated on correctly oriented frames. Probes and results:
   pinning schema, producer commit, corpus run, calibration model and facet
   definition. `check` re-validates and verifies hashes (and preset bytes with
   `--presets`); `load_core` is the reader.
+- **r56 (`Adam Fx 2 Zylot - FierceFX Glowworld 6`) v1.** Understood on the
+  first prediction: yellow wave loops over a violet-banded dark field
+  (screenshot luma 0.145 vs 0.145; frames 60–149 RGB equal to 0.002, frame
+  difference 0.0634 vs 0.0634, correlation 0.988).

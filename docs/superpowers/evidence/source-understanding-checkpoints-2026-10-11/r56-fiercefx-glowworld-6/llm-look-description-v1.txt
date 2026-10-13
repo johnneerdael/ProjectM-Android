@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r56 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a feedback-driven "glow" field rather than a clean drawn figure. Three huge four-sided shapes (NDC radius about 2.67, centred and stationary) sit far larger than the screen, so they act as translucent tinted washes (centre alpha 0.1, outer edge alpha 0.4; shape colours fade from white to red or green at the rim, with a red border on one). Over them run a built-in two-channel parallel waveform (mode 7, thin lines, centred, offset a quarter of the screen) and three 512-point custom waves with white authored colour whose real positions and colours are not resolved.
+
+Feedback and motion: the previous frame expands from the centre by 0.2% each step, with no rotation or drift, so content slowly streams outward as a tunnel-like bloom. There is a small procedural warp (0.033). The warp shader does not simply fade the image. Its levels step by about -0.01 per frame and wrap, a continuous colour cycle of roughly 3.35 s (about 100 frames), not a trail that fades. Shapes are stationary, so nearly all movement comes from the outward zoom and the colour cycling.
+
+Colour: the settled display hue leans blue (display-local RGB about 0, 0.14, 0.29). The composite maps flat canvas levels to saturated tints (levels near 0 give a purple-blue, 0.75 gives orange-red, 1.0 gives bright yellow), so expect banded, shifting blue, purple, orange and yellow rather than one tint. The wave lines may be green or grayscale. Calibrated estimate: moderate saturation (about 0.55, wide interval), warm/cool near neutral.
+
+Brightness: calibrated mean luminance about 0.24 (interval 0.05 to 0.48), so mid-dim with bright wave and wash highlights. Brightness jumps are estimated around 19 per 10 s (very wide interval).
+
+Audio reaction: bass, mid and treble all feed the warp shader's red, green and blue colour, through thresholded or clamped switches, so colour and brightness change with the music in a stepped way. Bass also drives the shapes' texture zoom. The waveform lines follow the left and right audio continuously. Strengths are not established.
+
+Uncertain: which colours actually dominate, wave and shape visibility, how bright the bands are, whether colour changes read as flashing, and trail length. The calibrated activity is high (Intense, 0.78) but the interval spans Chill to Intense. No strict mood group is established.

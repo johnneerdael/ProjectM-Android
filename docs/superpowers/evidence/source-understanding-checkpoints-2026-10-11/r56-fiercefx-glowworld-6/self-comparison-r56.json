@@ -1,0 +1,66 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r56-v1",
+ "preset": "Adam Fx 2 Zylot -  FierceFX Glowworld 6.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "acdf47ffde096051e56f1e999a23597c1bf6518d8f0fa1b52d43d4c014af1676",
+  "prediction.json": "022057eb004367c5ad3501a5c80e9c34eb49e843d7ed6220a047627b5b32babb",
+  "description.json": "4a5a8db42217456a5acbbb4cbdd6e8c14447e375f7b6d4d8379a69f60571215a",
+  "recipe.json": "6f4cf34ffe4f05ff698b8094d3b9a43c04287868de7c8787f1e7977c3363694d",
+  "llm-look-description-v1.txt": "6d2a77924c1536b9c512641a4a6a1b5270d0b4ffda7a48034b88318531fb82d5"
+ },
+ "capture_result_sha256": "e94174b5404c3fc27c2ee7b333f318f832bdc081119068ee4d8e4f3f6aa60eb7",
+ "review_measurements_v1": {
+  "prediction_luma": 0.145,
+  "screenshot_luma": 0.145,
+  "mean_rgb_prediction": [
+   0.202,
+   0.136,
+   0.067
+  ],
+  "mean_rgb_screenshot": [
+   0.203,
+   0.136,
+   0.069
+  ],
+  "saturation": [
+   0.5,
+   0.505
+  ],
+  "blurred_luma_correlation": 0.617,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.147,
+    0.145
+   ],
+   "rgb": [
+    [
+     0.21,
+     0.124,
+     0.187
+    ],
+    [
+     0.208,
+     0.122,
+     0.186
+    ]
+   ],
+   "saturation": [
+    0.563,
+    0.563
+   ],
+   "blurred_luma_correlation": 0.988
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0634,
+   0.0634
+  ]
+ },
+ "agreements": [
+  "prediction: the same yellow wave loops sweeping over a violet-banded dark field; averages equal",
+  "SDK text: feedback glow field with huge background shapes, blue-leaning settled hue, stepped audio colour"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}
