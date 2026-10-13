@@ -1876,3 +1876,17 @@ offset or substituted priors) and the composite's flat transfer has no
 spatial spread and no time variation. The SKILL tells readers to describe the
 whole screen as that colour. Up to 365 presets have no custom layers and a
 near-invisible built-in wave; fewer qualify once borders and vectors count.
+
+### r101–r102
+
+r101 (Fire and Brimstone) matched the capture frame by frame on the first
+prediction. In r102 (Flexi - flower demo 3) the frame prediction was right
+(black from frame 30), but the recipe's steady state said red. The warp keeps
+only green and drives it to 1; the composite is `lerp((1,1,0), 0, canvas.g)`,
+so the engine shows black. The equilibrium applied the composite as three
+per-channel lookups on the grey-level ramp, so output red was read at canvas
+red 0 (white on the ramp). A composite can mix channels, so it is now
+evaluated on a flat canvas of the actual colour (`stage_output_at`), with the
+ramp only as a fallback. r102 steady display: (1.0, 0.0065, 0) → (0.0065,
+0.0065, 0). The warp's per-channel gain/offset model has the same assumption
+(open: a flat-colour fixed point would handle channel-mixing warps).

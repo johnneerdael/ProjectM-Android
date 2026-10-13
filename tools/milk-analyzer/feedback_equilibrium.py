@@ -270,8 +270,34 @@ def _wave_terms(facts,notes):
     return terms
 
 
+def stage_output_at(facts,stage,rgb,times=TIMES,size=(48,27)):
+    """Mean output RGB of an exported stage program for one flat input colour, averaged over the declared
+    times (None when unevaluable). A program can mix channels (output red read from input green), so this
+    is the transfer at the colour itself, not three per-channel grey-ramp lookups."""
+    import numpy as np
+    import prediction_illustration as P
+    program=(((facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}).get(stage) or {})
+    if program.get('status')!='exported':return None
+    width,height=size
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+    uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
+    bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
+    controls=_stage_controls(facts,bands,times)
+    image=np.broadcast_to(np.array([_clip(v) for v in rgb],np.float32),(height,width,3)).copy()
+    outputs=[]
+    for time in times:
+        try:out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,controls=dict(controls[time]),stage=stage)
+        except Exception:return None  # noqa: BLE001
+        out=np.where(np.isfinite(out),out,0.)
+        outputs.append(np.clip(out,0,1).reshape(-1,3).mean(0))
+    return [float(v) for v in np.mean(outputs,axis=0)]
+
+
 def _composite(rgb,facts,notes,transfer=None):
-    if transfer is not None:return [_clip(v) for v in _apply_transfer(transfer,rgb)],'composite_transfer'
+    if transfer is not None:
+        exact=stage_output_at(facts,'composite',rgb,times=tuple(transfer.get('times') or TIMES))
+        if exact is not None:return [_clip(v) for v in exact],'composite_transfer'
+        return [_clip(v) for v in _apply_transfer(transfer,rgb)],'composite_transfer'
     stage=((facts.get('/analysis/visual_description/texture_colour_transfer') or {}).get('stages') or {}).get('composite') or {}
     if stage.get('source_model')=='affine_sample_colour':
         matrix=stage.get('base_uv_matrix_rgb');offset=stage.get('constant_offset_rgb') or [0,0,0]

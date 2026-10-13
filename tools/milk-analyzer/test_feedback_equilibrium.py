@@ -160,3 +160,19 @@ def test_equilibrium_reports_composite_threshold_spread_and_undefined_share(monk
     monkeypatch.setattr(E, 'stage_transfer', lambda facts, stage, **_: None)
     result = E.equilibrium(summary({}))
     assert result['composite_threshold_level'] is None and result['composite_nonfinite_share'] == 0.
+
+
+def test_channel_mixing_composite_is_evaluated_at_the_canvas_colour(monkeypatch):
+    # r102: ret = lerp((1,1,0), 0, canvas.g). A green canvas (0,1,0) shows black; reading each output channel
+    # from the grey ramp at that channel's own level gave red (output red at canvas red 0 is 1).
+    import numpy as np
+    import prediction_illustration as P
+    def fake(program, image, uv, time, fps, bands, controls=None, stage='warp', **_):
+        g = image[..., 1:2]
+        return np.concatenate([1 - g, 1 - g, np.zeros_like(g)], axis=-1).astype(np.float32)
+    monkeypatch.setattr(P, '_evaluate_stage', fake)
+    facts = {'/analysis/visual_description/stage_programs': {'stages': {'composite': {'status': 'exported', 'program': {'root': 0, 'nodes': []}}}},
+             '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    transfer = E.stage_transfer(facts, 'composite')
+    shown, model = E._composite([0., 1., 0.], facts, [], transfer)
+    assert model == 'composite_transfer' and max(shown) < 1e-6

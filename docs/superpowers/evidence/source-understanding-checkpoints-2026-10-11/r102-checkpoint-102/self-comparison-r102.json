@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r102-v1",
+ "preset": "Flexi - flower demo 3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9eb790dd1f962664cce42871bac104a861f0cbb1cfbdb0448b293140e2ec6aa3",
+  "prediction.json": "22eefb10d6b7cb84f7d0ee68332123bf87ef42277d8e96c1bf56c6441ab14eae",
+  "description.json": "fec667c04800b893714a9b66d4f5a22a32c50c2a146e84ac1cb786d9e8c96650",
+  "recipe.json": "a696bc7d6a7d4432a8ef7415a6b77bb6e24f78d680479df5e69c6b882bacb8f8",
+  "llm-look-description-v1.txt": "c6ee9a1685283e3ccc2f98c4277ffdf06d48b104e826db3a23bd83140763145c"
+ },
+ "capture_result_sha256": "8edef6cee32a660389c17caa308f986ca4cdeab66599df012c2e61cff10a4535",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.0,
+  "mean_rgb_prediction": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.755,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.0,
+    0.0
+   ],
+   "saturation": [
+    0.0,
+    0.0
+   ],
+   "blurred_luma_correlation": 0.748
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.0
+  ]
+ },
+ "agreements": [
+  "per-frame luma identical: 0.899 at load, 0.436 at frame 15, black from frame 30"
+ ],
+ "misses": [
+  "v1 recipe steady state said display (1.0, 0.0065, 0) red for a green canvas, so the SDK described a red patterned field: each output channel was read from the grey ramp at that channel's own canvas level; the composite lerp((1,1,0),0,canvas.g) maps green 0.993 to (0.0065,0.0065,0)"
+ ],
+ "verdict": "frame prediction understood (bright start, black from frame 30, as in the capture); the recipe's steady state was wrong and is fixed generally: a channel-mixing composite is now evaluated at the canvas colour"
+}
