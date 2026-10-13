@@ -1,0 +1,60 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r49-v1",
+ "preset": "flexi - mindblob 2-0 (rv cn jelly v4).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "aeb9398effcc1f100403eec8d175b15b1cf4a844fab4fd3961d41603c6e69866",
+  "prediction.json": "47dfed8c3b552f4ad6b84c74845e2ed9c621f698c0956ca7f5f680e95fa4e6da",
+  "description.json": "ef3c7929b04e71bca422fa7b68533c716f2dcf8682bbe5c89bc5cbdceebd814a",
+  "recipe.json": "8bc2d05385956bb9aa34a273f58db9d863c2a97a50476aafa59d842a41e3ddea",
+  "llm-look-description-v1.txt": "266319d025609ca8541a71530691a9834609f88d86cc5d897b1c76784be81dfc"
+ },
+ "capture_result_sha256": "8187de71439c3e4eb6158fda37b0ed2c00d5d7997e39a9594f4b2620fa661eb2",
+ "review_measurements_v1": {
+  "prediction_luma": 0.164,
+  "screenshot_luma": 0.194,
+  "mean_rgb_prediction": [
+   0.173,
+   0.155,
+   0.226
+  ],
+  "mean_rgb_screenshot": [
+   0.171,
+   0.203,
+   0.176
+  ],
+  "saturation": [
+   0.793,
+   0.874
+  ],
+  "blurred_luma_correlation": 0.847,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.274,
+    0.364
+   ],
+   "saturation": [
+    0.672,
+    0.766
+   ],
+   "blurred_luma_correlation": 0.789
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0154,
+   0.0153
+  ]
+ },
+ "agreements": [
+  "prediction: the same jelly blobs and contour edges in the same places, same motion",
+  "SDK text: band-pass jelly field, per-channel persistence, slow drift"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "hues (green/magenta vs blue/olive/purple)",
+   "cause": "the composite multiplies by pow(hue_shader, ret); hue phases are random per preset load (reported as render.composite.hue_shader)"
+  }
+ ],
+ "verdict": "understood on the first prediction; hue placement random per load"
+}

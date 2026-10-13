@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r49 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a dim, organic, fluid-looking field rather than a crisp drawn object. Almost the whole screen is patterned by feedback: a band-pass (fine level added, coarse blur subtracted) sharpening loop grows small seeds into soft blobs, cells and splatter, and three image-driven advection steps (two in the warp, one in the composite) smear and steer that structure like a slowly flowing, jelly-like liquid. A radial zoom with exponent 0.92 and no rotation gives a gentle outward/inward breathing about the centre.
+
+Seeds: a small circular audio-deformed wave (radius about 0.06, centred horizontally, low on the screen at y about 0.04 in source units, slowly rotating, thick line) and a tiny 100-sided polygon (radius about 0.02, near-black, alpha 0.1, at the centre, stationary). Both are only seed material; they are not meant to be seen as clean shapes, and the wave's position suggests it may be partly clipped at an edge. No mirror or kaleidoscope symmetry is indicated.
+
+Feedback and colour: the warp keeps red almost whole (gain 0.996), trims green slightly (0.97) and clears blue quickly (gain 0.85, halving in about 4 frames), so trails are long in red and green and short in blue. The composite adds a cycling corner tint (periods about 14.6, 19.6 and 16.2 s, range 0.67 to 1) whose placement is random per load. The settled display hue family is blue to teal, around RGB (0.18, 0.31, 0.46). The wave itself is authored white-ish with source-alpha blending. Calibrated saturation is moderate to high (0.74, wide interval), slightly cool.
+
+Brightness: dim to mid. Estimated mean luminance is about 0.25 (interval 0.06 to 0.49). No black-and-white flashing mechanism is found; brightness jumps are estimated near zero.
+
+Motion and audio: slow drift. Estimated flow is about 0.06 screen widths per second and frame difference is small, so activity is likely Chill, possibly Normal. The only audio route is the right-channel waveform bending the small circle; no band-driven brightness or zoom pulses are found, so the reaction is mostly the wobbling seed feeding the flowing field.
+
+Uncertain: the real palette (feedback colours are unresolved), how much screen the pattern covers, how visible the wave is, whether blobs read as cells or smears, and the true motion speed.

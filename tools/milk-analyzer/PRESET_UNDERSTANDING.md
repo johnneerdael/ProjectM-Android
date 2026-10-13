@@ -1397,3 +1397,8 @@ repeated on correctly oriented frames. Probes and results:
   prediction: a symmetric multicoloured butterfly with luma within about 0.01
   at every frame (single-frame correlation 0.98, frames 60–149 0.995). The SDK
   brightness estimate (0.31) is low against the measured 0.62.
+- **r49 (`flexi - mindblob 2-0 (rv cn jelly v4)`) v1.** Understood on the
+  first prediction: the same jelly blobs and contour edges with identical
+  motion (frame difference 0.0154 vs 0.0153, single-frame correlation 0.85).
+  The hues differ because the composite multiplies by `pow(hue_shader, ret)`,
+  whose phases are random per load.
