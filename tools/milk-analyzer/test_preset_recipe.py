@@ -341,3 +341,29 @@ def test_legacy_fshader_tint_is_reported_with_random_phase():
                                    {'tint_amount': 1.0, 'native_control_ranges': {}, 'gamma_absolute_weight_sum_upper': 1.0})))
     tint = recipe['render']['composite']['legacy_hue_tint']
     assert tint['amount'] == 1.0 and 'random' in tint['phase']
+
+
+def test_neighbourhood_blur_mechanism_is_a_blur_effect_with_its_radius_drivers():
+    data=record()
+    data['facts']['construction'].append({'path':'/analysis/families/1','value':{'mechanism':'neighbourhood_blur','stage':'warp',
+        'parameters':{'taps':8,'radius_spatial':True,'radius_audio':True,'radius_time':False,'offsets':[.01]}}})
+    blur,=[e for e in build_recipe(data)['intent']['effects'] if e['effect']=='blur']
+    assert blur=={'effect':'blur','stage':'warp','taps':8,'radius_spatial':True,'radius_audio':True,'radius_time':False,'offsets':[.01]}
+
+
+def test_gradient_relief_mechanism_is_a_relief_effect():
+    data=record()
+    data['facts']['construction'].append({'path':'/analysis/families/1','value':{'mechanism':'gradient_relief','stage':'composite',
+        'parameters':{'directions':2}}})
+    relief,=[e for e in build_recipe(data)['intent']['effects'] if e['effect']=='relief']
+    assert relief=={'effect':'relief','stage':'composite','directions':2}
+
+
+def test_flat_transfer_of_a_relief_composite_covers_flat_areas_only(monkeypatch):
+    import feedback_equilibrium
+    import preset_recipe as R
+    table={'levels':[0.,1.],'rgb':[[.04,.03,.05],[.04,.03,.05]]}
+    monkeypatch.setattr(feedback_equilibrium,'stage_transfer',lambda facts,stage,**_:table if stage=='composite' else None)
+    relief={'/analysis/families/0':{'mechanism':'gradient_relief','stage':'composite','parameters':{'directions':2}}}
+    assert R._render(relief)['composite']['flat_transfer']['flat_areas_only'] is True
+    assert R._render({})['composite']['flat_transfer']['flat_areas_only'] is False

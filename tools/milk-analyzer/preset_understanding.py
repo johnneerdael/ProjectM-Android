@@ -320,6 +320,8 @@ MECHANISM_TEXT={
     'image_driven_advection':'image content steering its own sampling coordinates (self-advection: flowing, smeared or fluid-like structure)',
     'gradient_driven_advection':'flow along image gradients from central differences (reaction-diffusion or fluid-like organic patterns)',
     'noise_driven_advection':'noise textures displacing the sampling coordinates (turbulent shimmer)',
+    'neighbourhood_blur':'the previous frame averaged over neighbouring samples every frame (a soft spatial blur that accumulates through the feedback into haze and smeared streaks)',
+    'gradient_relief':'the image shown through its local slopes (central differences: embossed relief or normal-map shading where edges and texture stand out and flat areas read as one level)',
     'repeat_tiling':'the image repeated in tiles across the screen (periodic wrap of the sampling coordinates; mirrored tiles when the wrap alternates)',
     'blur_difference_feedback':'a finer level of the fed-back image added and a coarser blur subtracted every frame (band-pass sharpening: seeds grow into splatter, cells or edge patterns that spread over the canvas)',
     'uv_advection':'a periodic spatial displacement field (ripples or wobble)',

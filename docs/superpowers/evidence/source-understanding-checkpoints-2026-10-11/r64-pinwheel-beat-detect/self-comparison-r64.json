@@ -1,0 +1,50 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r64-v1",
+ "preset": "Mr_Zoolook - Pinwheel (beat detect [synchro]).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "231a8d8d9d96be681c166946c5c643000ceb1bb7ea5e2d7f825f64d48aa1a545",
+  "prediction.json": "83408e4108ce9a6355c0c746694d83e5649bdf4e5e10034b8196a4b85e4cbdd5",
+  "description.json": "bad1bc1173ca534647196fd3e5ee4c5968acf49ab3b9f7ca71707828ed186b66",
+  "recipe.json": "5fba553cc7f5227ee32eebcc6dff25117f1056f5e83e8e3b6af22cc4e6154093",
+  "llm-look-description-v1.txt": "147c8d53999a19c7751b34a2d7d695a38bdee9e07707d1fb5715bfb034b7f83d"
+ },
+ "capture_result_sha256": "0c6d0d57c1660d316290f68906bc18b8cb36ed25c3565e5eaa99b312431e0886",
+ "review_measurements_v1": {
+  "prediction_luma": 0.114,
+  "screenshot_luma": 0.11,
+  "mean_rgb_prediction": [
+   0.109,
+   0.114,
+   0.12
+  ],
+  "mean_rgb_screenshot": [
+   0.107,
+   0.111,
+   0.115
+  ],
+  "blurred_luma_correlation": 0.979,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.114,
+    0.11
+   ],
+   "saturation": [
+    0.435,
+    0.443
+   ],
+   "blurred_luma_correlation": 0.993
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0158,
+   0.0153
+  ]
+ },
+ "agreements": [
+  "prediction: the same nested pinwheel of blue, yellow, purple and green arcs spiralling into the centre, matching layout and colours",
+  "screenshot correlation 0.979, time-average correlation 0.993, luma 0.114 vs 0.110"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}

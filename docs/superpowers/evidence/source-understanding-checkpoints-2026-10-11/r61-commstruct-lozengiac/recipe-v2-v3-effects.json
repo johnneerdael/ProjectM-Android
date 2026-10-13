@@ -1,0 +1,34 @@
+{
+ "checkpoint": "r61 v2/v3 recipes (same frozen preset; analyzer revisions)",
+ "v2_effects": [
+  {
+   "effect": "blur",
+   "stage": "warp",
+   "taps": 8,
+   "radius_spatial": true,
+   "radius_audio": true,
+   "radius_time": false,
+   "offsets": [
+    0.01
+   ]
+  }
+ ],
+ "v3_effects": [
+  {
+   "effect": "relief",
+   "stage": "composite",
+   "directions": 2
+  },
+  {
+   "effect": "blur",
+   "stage": "warp",
+   "taps": 8,
+   "radius_spatial": true,
+   "radius_audio": true,
+   "radius_time": false,
+   "offsets": [
+    0.01
+   ]
+  }
+ ]
+}

@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 199,
+ "failed": {
+  "head": 1,
+  "wt2": 1
+ },
+ "versions": {
+  "head": {
+   "luma_err": {
+    "mean": 0.0699,
+    "median": 0.0171
+   },
+   "rgb_err": {
+    "mean": 0.0746,
+    "median": 0.0212
+   },
+   "sat_err": {
+    "mean": 0.0838,
+    "median": 0.0302
+   },
+   "fd_err": {
+    "mean": 0.0164,
+    "median": 0.0058
+   },
+   "colour_map_err": {
+    "mean": 0.0919,
+    "median": 0.0443
+   },
+   "map_corr": {
+    "mean": 0.6377,
+    "median": 0.7935,
+    "n": 191
+   },
+   "series_corr": {
+    "mean": 0.743,
+    "median": 0.9166,
+    "n": 188
+   },
+   "luma_within_0.05": 0.709,
+   "map_corr_above_0.8": 0.467
+  },
+  "wt2": {
+   "luma_err": {
+    "mean": 0.0697,
+    "median": 0.0159
+   },
+   "rgb_err": {
+    "mean": 0.0742,
+    "median": 0.0204
+   },
+   "sat_err": {
+    "mean": 0.0847,
+    "median": 0.0315
+   },
+   "fd_err": {
+    "mean": 0.0165,
+    "median": 0.0058
+   },
+   "colour_map_err": {
+    "mean": 0.0914,
+    "median": 0.0439
+   },
+   "map_corr": {
+    "mean": 0.6408,
+    "median": 0.808,
+    "n": 191
+   },
+   "series_corr": {
+    "mean": 0.7404,
+    "median": 0.9156,
+    "n": 188
+   },
+   "luma_within_0.05": 0.704,
+   "map_corr_above_0.8": 0.482
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 9,
+   "worse": 6
+  },
+  "rgb_err": {
+   "improved": 7,
+   "worse": 6
+  },
+  "fd_err": {
+   "improved": 4,
+   "worse": 8
+  },
+  "colour_map_err": {
+   "improved": 7,
+   "worse": 7
+  },
+  "map_corr": {
+   "improved": 9,
+   "worse": 3
+  }
+ },
+ "largest_gains": [
+  [
+   "suksma - platinum sulfur dope nz+ qabel mboqtsch par 4 haq qoursch",
+   0.085,
+   0.047
+  ],
+  [
+   "va ultramix2 - 364_1",
+   0.073,
+   0.038
+  ],
+  [
+   "suksma - drop ballast, acquire teeth - hate shade --- Isosceles edit",
+   0.036,
+   0.011
+  ],
+  [
+   "suksma - from the evil that brought you existence comes this new feature-length beheading",
+   0.052,
+   0.029
+  ],
+  [
+   "Hexcollie, Flexi n Aderrasi - Black out, I mean time travel",
+   0.118,
+   0.113
+  ],
+  [
+   "shifter + Flexi - liquid circuitry from the pataoblivion everything for eternity, god damn it, i did it again",
+   0.029,
+   0.027
+  ],
+  [
+   "va ultramix - 293 heat cannon oqult i'm stevo-o and i make people happy for a living",
+   0.046,
+   0.045
+  ],
+  [
+   "suksma + aderassi geiss - the sick assumptions you make about my car [shifter's esc shader] nz+",
+   0.053,
+   0.053
+  ]
+ ],
+ "largest_losses": [
+  [
+   "390 threx no more warningsce Rumbo Pal Recodo calmer less agile better sorcery",
+   0.07,
+   0.086
+  ],
+  [
+   "fiShbRaiN - toffee cream and icing sugar",
+   0.074,
+   0.075
+  ],
+  [
+   "LuxXx - HipHop UrethraFish I",
+   0.09,
+   0.091
+  ],
+  [
+   "Stahlregen & Geiss + Flexi + Fishbrain - Kinda Cool",
+   0.066,
+   0.067
+  ],
+  [
+   "shifter - mosaic mitosis - will they find me roam2 nz+ souprae more kootra minecraft",
+   0.044,
+   0.045
+  ],
+  [
+   "shifter + Flexi - liquid circuitry from the hive qongugaething the pisspondenseath ferocious butt hounds",
+   0.009,
+   0.009
+  ],
+  [
+   "Hexcollie - Surge",
+   0.604,
+   0.604
+  ],
+  [
+   "you are now leaving the materialistic sector - chloral reef, er",
+   0.071,
+   0.071
+  ]
+ ]
+}

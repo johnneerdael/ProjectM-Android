@@ -1512,3 +1512,43 @@ for every wrap, and each walk is charged to the shared traversal budget; two
 large presets ran out of budget. The sample analysis now walks the
 coordinates once and computes the "contains a sample/frac" flags in one
 memoised pass (`_ops_below`) over nodes already visited.
+
+### r61 (Commstruct, lozengiac): neighbourhood blur and gradient relief
+
+The time averages matched in v1 (map correlation 0.88), but single frames
+differed. The capture smears content outward along the diagonals and fills
+the screen with haze, while the SDK text described a small figure on a dark
+ground. Two general gaps:
+
+- **Neighbourhood blur.** The warp averages eight previous-frame samples at
+  `uv ± 0.01*b` (axes and diagonals) with `b = sin(bass*90)*rad`. Offsets that
+  cancel in pairs average a neighbourhood: a blur whose radius here grows
+  with the radius and jumps pseudo-randomly with bass every frame. New
+  mechanism `neighbourhood_blur` (intent `blur`: taps, offsets, and whether
+  the radius depends on position, audio or time). It also stops the false
+  "periodic wobble" claim from the `sin` inside each tap's offset: the
+  offsets cancel, so nothing is displaced on average. On a 600-preset sample
+  it fires on 81 presets (13.5%): 4-tap and 8-tap fixed kernels are the most
+  common, then 8-tap kernels with a position- and audio-dependent radius
+  like this one.
+- **Gradient relief.** The composite subtracts weighted samples on opposite
+  sides of each pixel (`gx1-gx2`, `gy1-gy2`) and shades with
+  `normalize(gx, gy, 0.14)`. Flat input therefore gives about 0.04 whatever
+  its level, and only edges and texture are bright. New mechanism
+  `gradient_relief` (intent `relief`, number of directions), and
+  `flat_transfer.flat_areas_only` marks that the flat palette covers flat
+  areas only.
+
+The v2/v3 SDK texts name the blur, its edge-growing and erratic radius, and
+the embossed relief. v3 still calls the ground dark from the flat level,
+hence the explicit `flat_areas_only` flag.
+
+### r64 (Mr_Zoolook, Pinwheel) and r65 (suksma, waning novelty)
+
+r64 was understood on the first prediction (time-average correlation 0.993).
+r65's structure (mirrored diamond lattice, embossed relief, coloured corners)
+matches. The corner colours are `hue_shader` corners, random per load. Open:
+our frames change 1.7 times as much as the capture. The warp adds per-frame
+random spots scaled by the audio bands, and the composite's hue weight uses
+an exponent integrated from `|band - band_att|^2`. The GLES translation
+compiles, so the difference is not a fallback shader.

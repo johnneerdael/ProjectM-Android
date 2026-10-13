@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r65-v1",
+ "preset": "suksma - waning novelty, wittled to emptiness.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "6f46763de632000bebf6634d50788cfd468415ccaecfc0871026d871f85d6ae7",
+  "prediction.json": "82309441f98eafb91cfc8327773e314fda7c70d2dc8ece38fedca3a5625af60b",
+  "description.json": "bb414eb1c12929a251d9f86e5d91a1bf1d7506af09e2b412cfcfa77f25ef2c4a",
+  "recipe.json": "d22949de224a7a80eea78987f251eedba7f5a5cf5f946b65e663db15d5f2d290",
+  "llm-look-description-v1.txt": "c5001c65f582ec696ca1a7a639505f34f205310f9c00600a317c3be4e6e7e918"
+ },
+ "capture_result_sha256": "7bc035f7fc8c042f3c72dd5e5c52ee2d9039eba9025100e40aaa857a42b57f94",
+ "review_measurements_v1": {
+  "prediction_luma": 0.63,
+  "screenshot_luma": 0.507,
+  "mean_rgb_prediction": [
+   0.667,
+   0.639,
+   0.427
+  ],
+  "mean_rgb_screenshot": [
+   0.499,
+   0.521,
+   0.389
+  ],
+  "blurred_luma_correlation": 0.462,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.492,
+    0.584
+   ],
+   "saturation": [
+    0.506,
+    0.521
+   ],
+   "blurred_luma_correlation": 0.713
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1091,
+   0.0624
+  ]
+ },
+ "agreements": [
+  "prediction: the same four-way mirrored diamond lattice with metallic embossed relief and coloured corners",
+  "time-average map correlation 0.71"
+ ],
+ "misses": [
+  "corner colours differ (ours red/yellow/blue, capture green/magenta): the composite multiplies by hue_shader corners whose phase is random per load",
+  "our frames change 1.7 times as much as the capture's (0.109 vs 0.062), evenly over the screen. The warp adds spots at .051/length(.4*sin(uv1*18*rand_frame.xy)) scaled by treb/bass/mid, and the composite raises hue_shader to q20*ret with q20 integrated from ",
+  "band - band_att",
+  "^2. Both depend on audio levels; the GLES translation compiles (rand_frame truncated to xy), so the difference is not a fallback shader. Open item",
+  "ours denser vertical streaking and about 0.09 darker on average"
+ ],
+ "verdict": "structure understood; colour random per load; flicker overestimated (open)"
+}

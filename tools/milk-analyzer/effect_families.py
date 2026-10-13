@@ -19,6 +19,8 @@ from stage_resolution import resolve_stages
 
 SCHEMA_VERSION = 1
 POLICY = 'source-effect-families-v1'
+# Equation audio names, and the shader constants packing them (_c3 bass/mid/treb/vol, _c4 the attenuated bands).
+AUDIO_INPUTS = {'bass', 'mid', 'treb', 'bass_att', 'mid_att', 'treb_att', 'vol', 'vol_att', '_c3', '_c4'}
 SPATIAL = {'_uv', '_uv_orig', '_rad_ang', 'x', 'y', 'rad', 'ang'}
 _CACHE = ContextVar('effect_family_symbolic_cache', default=None)
 MAX_FIELD_VISITS = 250000
@@ -428,6 +430,48 @@ def _ops_below(roots, ops):
             else:
                 stack.append((node, True)); stack.extend((child, False) for child in children if id(child) not in memo)
     return memo
+
+
+def _sample_offset(node):
+    """(base, offset lanes) of a sample at uv + offset: base is the identity UV term of each lane,
+    offset lanes are (constant, {key: (coefficient, term)}) for the remaining terms. None otherwise."""
+    lanes = _parts(node.args[0])
+    if len(lanes) != 2:return None
+    base, offset = [], []
+    for lane in lanes:
+        identity, rest, constant = None, {}, 0.
+        for coefficient, term in _terms(lane):
+            number = _number(term)
+            if number is not None:constant += coefficient*number
+            elif identity is None and coefficient == 1 and _affine_degree(term) == 1 and \
+                    _spatial_inputs(term) <= {'_uv', '_uv_orig'}:identity = term
+            else:rest[_key(term)] = (coefficient, term)
+        if identity is None:return None
+        base.append(_key(identity)); offset.append((round(constant, 9), rest))
+    return tuple(base), offset
+
+
+def _offset_signature(lanes, sign=1):
+    return tuple((sign*c+0., tuple(sorted((k, round(sign*v[0], 9)+0.) for k, v in r.items()))) for c, r in lanes)
+
+
+def _weighted_samples(value):
+    """{(base, offset lanes, sampler): weight} when value is a constant-weighted sum of image samples
+    at uv offsets (channel selections and casts allowed); None when another term takes part."""
+    found = {}
+    for coefficient, term in _terms(value):
+        node = _strip(term)
+        while node.op in {'member', 'cast', 'flat_component'} and node.args:node = _strip(node.args[0])
+        if node.op != 'sample':return None
+        located = _sample_offset(node)
+        if located is None:return None
+        key = (located[0], _offset_signature(located[1]), node.detail.get('sampler'))
+        found[key] = found.get(key, 0.) + round(coefficient, 9)
+    return found
+
+
+def _negated(signature):
+    return tuple((-c+0., tuple((k, -v+0.) for k, v in terms)) for c, terms in signature)
 
 
 def _is_spatial_input(node):
@@ -1245,6 +1289,7 @@ class _Analysis:
         self.outputs[stage] = output
         if stage == 'warp':
             self.blur_difference(output, prefix)
+        self.gradient_relief(output, prefix)
         nodes = list(_walk(output))
         colour_nodes={id(node) for node,path in _walk(output,sample_coordinates=False,constant_clipping=True)}
         self.unknowns.extend({'section': prefix, 'reason': n.detail.get('reason', 'unresolved live typed field')}
@@ -1286,9 +1331,65 @@ class _Analysis:
                      parameters={'copies': len({_key(node.args[0]) for node, _, _ in affine}),
                                  'sampling_scales': sorted(set(scale for _, _, scale in affine))},
                      conditions=['recursive feedback is retained across frames and a seed is present'])
+        self.neighbourhood_blur(samples, prefix, output)
         # Unused loops may still fail to terminate; disclose control uncertainty.
         if _has(output, 'sequence') or model.effects:
             self.unknowns.append({'section': prefix, 'reason': 'loop/domain control effects require runtime termination/domain; no execution performed'})
+
+    def neighbourhood_blur(self, samples, prefix, output):
+        """Previous-image samples at uv plus offsets that cancel in pairs (uv+d and uv-d) average the
+        neighbourhood: a spatial blur whose radius is the offset. The offset may be constant or vary
+        with screen position, audio or time; with feedback the blur accumulates every frame."""
+        groups = {}
+        for node, _ in samples:
+            located = _sample_offset(node)
+            if located is not None:groups.setdefault(located[0], []).append((located[1], node))
+        signature = _offset_signature
+        for members in groups.values():
+            offsets = [offset for offset, _ in members]
+            present = {signature(o) for o in offsets}
+            zero = signature([(0., {}), (0., {})])
+            taps = [o for o in offsets if signature(o) != zero and signature(o, -1) in present]
+            if len({signature(o) for o in taps}) < 4:continue
+            tap_ids = {id(node) for offset, node in members if signature(offset) != zero and signature(offset, -1) in present}
+            advected = self.__dict__.get('advected_samples', {}).get(prefix, set())
+            if advected and advected <= tap_ids:
+                # Every periodic displacement here belongs to a cancelling tap: the taps blur, they do not ripple.
+                stage = {'warp_': 'warp', 'comp_': 'composite'}.get(prefix)
+                self.families = [f for f in self.families if not (f['mechanism'] == 'uv_advection' and f['stage'] == stage)]
+            terms = [term for o in taps for _, rest in o for _, term in rest.values()]
+            names = set().union(*(_deps(term) for term in terms)) if terms else set()
+            magnitudes = sorted({round(abs(v), 9) for o in taps for c, rest in o
+                                 for v in [c] + [coefficient for coefficient, _ in rest.values()] if v})
+            self.add('neighbourhood_blur', prefix, output,
+                     'previous-image samples at offsets that cancel in pairs average each neighbourhood',
+                     parameters={'taps': len({signature(o) for o in taps}),
+                                 'radius_spatial': any(_spatial(term) for term in terms),
+                                 'radius_audio': bool(names & AUDIO_INPUTS), 'radius_time': bool(names & {'time', 'frame', '_c2'}),
+                                 'offsets': magnitudes},
+                     conditions=['feedback retains the blurred image across frames'])
+            break
+
+    def gradient_relief(self, output, prefix):
+        """Central differences of the image: one weighted set of samples at uv+d minus the same set at
+        uv-d. The output then follows local slopes, so flat areas read as one level whatever their
+        brightness and edges or texture stand out (emboss, relief or normal-map shading)."""
+        directions = set()
+        for node, _ in _walk(output, sample_coordinates=False):
+            if node.op not in {'add', 'subtract'}:continue
+            weights = _weighted_samples(node)
+            if not weights:continue
+            # A pure central difference: every off-centre sample is cancelled by the opposite sample.
+            pairs = [(key, weight) for key, weight in weights.items() if key[1] != _negated(key[1])]
+            if not pairs or any(weights.get((base, _negated(signature), sampler)) != -weight
+                                for (base, signature, sampler), weight in pairs):continue
+            directions |= {signature for (_, signature, _), _ in pairs}
+        unique = set()
+        for signature in directions:
+            if _negated(signature) not in unique:unique.add(signature)
+        if unique:
+            self.add('gradient_relief', prefix, output, 'paired opposite-offset image samples are subtracted (central difference)',
+                     parameters={'directions': len(unique)})
 
     def blur_difference(self, output, prefix):
         """Band-pass feedback: a warp lane adding a finer level of the fed-back image (main = 0,
@@ -1369,6 +1470,7 @@ class _Analysis:
                 self.add('gradient_driven_advection', prefix, sample,
                          'paired central differences on orthogonal offsets drive later image coordinates', path=path)
         elif _periodic_advection(parts):
+            self.__dict__.setdefault('advected_samples', {}).setdefault(prefix, set()).add(id(sample))
             self.add('uv_advection', prefix, sample,
                      'spatial periodic vector displacement reaches image coordinates', path=path)
         phases = self.rotation(uv)

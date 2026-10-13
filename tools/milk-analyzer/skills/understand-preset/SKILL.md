@@ -164,6 +164,22 @@ required. Use a native file-read tool to inspect JSON and the summary.
    A `tiling` effect (mechanism `repeat_tiling`) means the image repeats in
    tiles across the screen, mirrored when `mirrored` is true: describe it as a
    tiled or kaleidoscopic pattern.
+   A `blur` effect (mechanism `neighbourhood_blur`) averages each pixel with
+   samples at `offsets` around it every frame, so drawn content spreads into a
+   soft haze that can fill much of the screen. With `radius_spatial` the blur
+   grows with screen position (stronger towards the edges); with
+   `radius_audio` or `radius_time` its strength changes with the music or the
+   clock. A radius such as `sin(bass*90)` changes erratically from frame to
+   frame. Diagonal and axis taps at the same offset reach different distances,
+   so content can smear into a star or X shape.
+   A `relief` effect (mechanism `gradient_relief`) shows the image through its
+   local slopes: the stage subtracts samples on opposite sides of each pixel.
+   Flat areas then all show as one level, whatever their brightness, and
+   edges and texture stand out like embossing or lit relief. In that stage
+   `flat_transfer` gives only the colour of flat areas. A canvas full of fine
+   texture (blur, noise, many drawn strokes) can look much brighter than that
+   level, so do not call the picture dark from `flat_transfer` alone; the
+   recipe marks this case with `flat_transfer.flat_areas_only: true`.
 5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

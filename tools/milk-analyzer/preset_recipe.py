@@ -371,6 +371,8 @@ def _render(facts):
         spread=max((v for row in flat.get('rgb_spread') or [] for v in row),default=0.)
         # A palette that moves by more than 0.05 between the sample times shifts colour over time.
         composite['flat_transfer']['time_varying']=bool(spread>TIME_VARYING_SPREAD)
+        # A relief composite shows slopes: flat input gives this level, textured content differs.
+        composite['flat_transfer']['flat_areas_only']=any(m['mechanism']=='gradient_relief' and m['stage']=='composite' for m in mechanisms)
     palette=facts.get(BASE+'/nonlinear_texture_colour_bounds/stages/composite/scalar_palette')
     if isinstance(palette,dict):
         composite['scalar_palette']={'ramp':[{'scalar':row['scalar'],'rgb':row['clamped_rgb']} for row in palette.get('samples') or []],
@@ -656,6 +658,8 @@ SHADER_EFFECTS={
     'angular_mirror_fold':('kaleidoscope',{'sectors':'sector_count'}),
     'cartesian_mirror_fold':('mirror',{}),
     'repeat_tiling':('tiling',{'mirrored':'mirrored'}),
+    'gradient_relief':('relief',{'directions':'directions'}),
+    'neighbourhood_blur':('blur',{'taps':'taps','radius_spatial':'radius_spatial','radius_audio':'radius_audio','radius_time':'radius_time','offsets':'offsets'}),
     'polar_radial_sampling':('polar_tunnel',{'radial_mapping':'radial_mapping'}),
     'radial_twist':('swirl',{}),
     'global_rotation':('rotation',{}),

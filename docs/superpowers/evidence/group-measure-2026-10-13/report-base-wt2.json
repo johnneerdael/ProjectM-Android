@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 199,
+ "failed": {
+  "base": 1,
+  "wt2": 1
+ },
+ "versions": {
+  "base": {
+   "luma_err": {
+    "mean": 0.084,
+    "median": 0.0219
+   },
+   "rgb_err": {
+    "mean": 0.0858,
+    "median": 0.0291
+   },
+   "sat_err": {
+    "mean": 0.0968,
+    "median": 0.0353
+   },
+   "fd_err": {
+    "mean": 0.0191,
+    "median": 0.0059
+   },
+   "colour_map_err": {
+    "mean": 0.1035,
+    "median": 0.0516
+   },
+   "map_corr": {
+    "mean": 0.6204,
+    "median": 0.7574,
+    "n": 192
+   },
+   "series_corr": {
+    "mean": 0.7268,
+    "median": 0.9046,
+    "n": 189
+   },
+   "luma_within_0.05": 0.643,
+   "map_corr_above_0.8": 0.452
+  },
+  "wt2": {
+   "luma_err": {
+    "mean": 0.0697,
+    "median": 0.0159
+   },
+   "rgb_err": {
+    "mean": 0.0742,
+    "median": 0.0204
+   },
+   "sat_err": {
+    "mean": 0.0847,
+    "median": 0.0315
+   },
+   "fd_err": {
+    "mean": 0.0165,
+    "median": 0.0058
+   },
+   "colour_map_err": {
+    "mean": 0.0914,
+    "median": 0.0439
+   },
+   "map_corr": {
+    "mean": 0.6408,
+    "median": 0.808,
+    "n": 191
+   },
+   "series_corr": {
+    "mean": 0.7404,
+    "median": 0.9156,
+    "n": 188
+   },
+   "luma_within_0.05": 0.704,
+   "map_corr_above_0.8": 0.482
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 51,
+   "worse": 23
+  },
+  "rgb_err": {
+   "improved": 47,
+   "worse": 25
+  },
+  "fd_err": {
+   "improved": 34,
+   "worse": 29
+  },
+  "colour_map_err": {
+   "improved": 54,
+   "worse": 20
+  },
+  "map_corr": {
+   "improved": 41,
+   "worse": 27
+  }
+ },
+ "largest_gains": [
+  [
+   "New Creation Sensation -  AdamFx,Flexi,Amandio c n Martin - Star to Another World ft Hexocollie  n Shad6",
+   0.382,
+   0.005
+  ],
+  [
+   "shifter + flexi - american pie 3 nz wear like chane",
+   0.457,
+   0.124
+  ],
+  [
+   "hexcollie - Starburst Hurricane",
+   0.316,
+   0.034
+  ],
+  [
+   "suksma - dotes hostile undertake - finished breathing sir flacc roam",
+   0.256,
+   0.023
+  ],
+  [
+   "stbenge - dripping_piles_B nz+",
+   0.219,
+   0.008
+  ],
+  [
+   "extreme paranoia and fear unleash in spontaneous suicide flails roam3",
+   0.259,
+   0.051
+  ],
+  [
+   "suksma - barium titanate --- Isosceles edit04",
+   0.281,
+   0.145
+  ],
+  [
+   "AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Tydye7",
+   0.173,
+   0.043
+  ]
+ ],
+ "largest_losses": [
+  [
+   "suksma - dotes hostile undertake + demonlord - blood in your eyes again - flacc nz+ sky vomit",
+   0.384,
+   0.413
+  ],
+  [
+   "$$$ Royal - Mashup (477)",
+   0.205,
+   0.223
+  ],
+  [
+   "Martin - Diabolo --- Isosceles edit",
+   0.027,
+   0.039
+  ],
+  [
+   "suksma - coal drapes - mrt fsh behooval roam3- nz+ gene phreqshough slambspamb",
+   0.112,
+   0.124
+  ],
+  [
+   "suksma - daryl feels my hellish lonliness - placing you under citizen's",
+   0.089,
+   0.1
+  ],
+  [
+   "fiShbRaiN - witchcraft (metropolish remix) - test - tillex  - shot ladd ap3+ roam2 nz+",
+   0.09,
+   0.097
+  ],
+  [
+   "stupid mash5 - men in black 3 'i like hogs' nz+",
+   0.16,
+   0.166
+  ],
+  [
+   "suksma - shifter - urchin kali echos - bowel roams nz+",
+   0.068,
+   0.074
+  ]
+ ]
+}

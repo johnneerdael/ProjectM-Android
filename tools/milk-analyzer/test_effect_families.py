@@ -619,3 +619,37 @@ def test_frac_of_sample_coordinates_is_repeat_tiling_and_parity_flip_mirrors_it(
     plain = analyze(shader('shader_body {ret=GetPixel(frac(uv*4));}', 'comp'))
     assert rows(plain, 'repeat_tiling')[0]['parameters']['mirrored'] is False
     assert not rows(analyze(shader('shader_body {ret=GetPixel(uv*0.5+0.25);}', 'comp')), 'repeat_tiling')
+
+
+def test_symmetric_offset_samples_of_the_previous_image_are_a_neighbourhood_blur():
+    taps = '+'.join('GetPixel(uv+float2(%s,%s))' % pair for pair in
+                    (('.01*b', '0'), ('-.01*b', '0'), ('0', '.01*b'), ('0', '-.01*b')))
+    varying = analyze(shader('shader_body {float b=sin(bass*90)*rad; ret=0.25*(%s);}' % taps, 'warp'))
+    row, = rows(varying, 'neighbourhood_blur')
+    assert row['parameters']['taps'] == 4 and row['parameters']['radius_spatial'] is True
+    assert row['parameters']['radius_audio'] is True and row['stage'] == 'warp'
+    # Offsets that cancel in pairs displace nothing on average: no ripple claim from the taps.
+    assert not rows(varying, 'uv_advection')
+    wobble = analyze(shader('shader_body {ret=GetPixel(uv+float2(.01*sin(uv.y*20),0));}', 'warp'))
+    assert rows(wobble, 'uv_advection') and not rows(wobble, 'neighbourhood_blur')
+    fixed = analyze(shader('shader_body {ret=0.25*(GetPixel(uv+float2(.003,0))+GetPixel(uv-float2(.003,0))'
+                           '+GetPixel(uv+float2(0,.003))+GetPixel(uv-float2(0,.003)));}', 'warp'))
+    assert rows(fixed, 'neighbourhood_blur')[0]['parameters'] == {'taps': 4, 'radius_spatial': False, 'radius_audio': False,
+                                                                 'radius_time': False, 'offsets': [.003]}
+    # One shifted copy is drift and two scaled copies are recursion, not a blur.
+    assert not rows(analyze(shader('shader_body {ret=GetPixel(uv+float2(.01,0));}', 'warp')), 'neighbourhood_blur')
+    assert not rows(analyze(shader('shader_body {ret=.5*(GetPixel(uv*.5+.25)+GetPixel(uv*.7+.15));}', 'warp')), 'neighbourhood_blur')
+
+
+def test_central_differences_of_the_image_in_the_composite_are_gradient_relief():
+    relief = analyze(shader('shader_body {float2 d=texsize.zw; float gx=GetPixel(uv+float2(d.x,0))*1+GetBlur1(uv+float2(d.x,0))*.4'
+                            '-GetPixel(uv-float2(d.x,0))*1-GetBlur1(uv-float2(d.x,0))*.4;'
+                            'float gy=GetPixel(uv+float2(0,d.y))-GetPixel(uv-float2(0,d.y));'
+                            'ret=0.5+0.5*normalize(float3(gx,gy,0.14));}', 'comp'))
+    row, = rows(relief, 'gradient_relief')
+    assert row['parameters'] == {'directions': 2} and row['stage'] == 'composite'
+    one_axis = analyze(shader('shader_body {ret=GetPixel(uv)+(GetPixel(uv+float2(.002,0))-GetPixel(uv-float2(.002,0)));}', 'comp'))
+    assert rows(one_axis, 'gradient_relief')[0]['parameters'] == {'directions': 1}
+    # A sum of opposite taps is a blur and a difference of unrelated points is not a gradient.
+    assert not rows(analyze(shader('shader_body {ret=GetPixel(uv+float2(.002,0))+GetPixel(uv-float2(.002,0));}', 'comp')), 'gradient_relief')
+    assert not rows(analyze(shader('shader_body {ret=GetPixel(uv)-GetPixel(uv*.5);}', 'comp')), 'gradient_relief')
