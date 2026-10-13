@@ -1135,3 +1135,17 @@ repeated on correctly oriented frames. Probes and results:
   0.641. It is shipped so the model matches the descriptor code used at
   prediction time.
 
+- **Spectrum-mode custom waves.** With `bSpectrum=1`, `value1`/`value2` read
+  the engine spectrum of the declared PCM window, computed as in projectM
+  `PCM::UpdateSpectrum` with `MilkdropFFT`: two-tap damping, an envelope over
+  480 samples, a 1,024-point FFT and equalisation `−0.02·ln((512−i)/512)`.
+  The values are resampled by (512−sep)/samples, smoothed and scaled by
+  0.15·scaling·waveScale. 2,229 bundled presets have such waves. Engine
+  per-point inputs (`value1`, `value2`, `sample`) are never treated as main
+  per-frame state.
+- **r26 (`suksma - more pathetic attempts … evil dog collar`) v1 → v2.** v1 had
+  the right look but was about 40% too dark over time. Both custom waves are
+  spectrum waves and were drawn as vertical lines instead of the engine's
+  diverging lyre curves. The steep composite turned the thinner bright tail
+  into the brightness gap. v2 matches: luma 0.476 vs 0.459, colour within
+  0.02 per channel.

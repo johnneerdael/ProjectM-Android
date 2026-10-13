@@ -39,3 +39,32 @@ def test_custom_wave_values_follow_projectm_window_and_smoothing():
     # more points than waveform samples resample the 480 inputs
     c, _ = custom_wave_values(data, sample_count=512, smoothing=0.)
     assert np.isclose(c[511], data[int(511 * 480 / 512)] * .004)
+
+
+def test_spectrum_matches_a_direct_milkdrop_fft():
+    # projectM PCM::UpdateSpectrum + MilkdropFFT(480 in, 512 out, equalize, envelope power 1).
+    import math
+    import numpy as np
+    from builtin_wave_geometry import spectrum
+    rng = np.random.default_rng(3)
+    window = np.round(rng.normal(0, 30, 576))
+    damped = [.5 * (window[i] + window[max(i - 1, 0)]) for i in range(576)]
+    envelope = [.5 + .5 * math.sin(i * 2 * math.pi / 480 - math.pi / 2) for i in range(480)]
+    x = [damped[i] * envelope[i] for i in range(480)] + [0.] * (1024 - 480)
+    expected = []
+    for k in range(512):
+        re = sum(x[n] * math.cos(-2 * math.pi * k * n / 1024) for n in range(480))
+        im = sum(x[n] * math.sin(-2 * math.pi * k * n / 1024) for n in range(480))
+        expected.append(-.02 * math.log((512 - k) / 512) * math.hypot(re, im))
+    assert np.allclose(spectrum(window), expected, rtol=1e-6, atol=1e-6)
+
+
+def test_spectrum_custom_wave_values_resample_and_scale_like_projectm():
+    import numpy as np
+    from builtin_wave_geometry import custom_spectrum_values
+    spec = np.arange(512, dtype=float)
+    left, right = custom_spectrum_values(spec, spec, sample_count=256, scaling=2., wave_scale=.5, smoothing=0., sep=0)
+    # scaling (512 - sep) / 256 = 2: point j reads bin int(2j); mult = 2 * .5 * .15.
+    assert np.allclose(left, spec[::2] * .15) and np.allclose(right, left)
+    left, _ = custom_spectrum_values(spec, spec, sample_count=512, scaling=1., wave_scale=1., smoothing=0., sep=256)
+    assert np.allclose(left, spec[(np.arange(512) * .5).astype(int)] * .15)

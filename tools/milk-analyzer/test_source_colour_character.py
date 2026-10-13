@@ -356,3 +356,11 @@ def test_frame_state_wave_colours_keep_their_waveform_inputs():
         'wave_0_per_point1=x=.5+value1;y=.5;r=q1;g=0;b=0;a=1;\n')
     record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
     assert record['status']=='frame_state_point_colours' and 'waveform_inputs' in record
+
+
+def test_spectrum_wave_positions_read_the_spectrum_not_frame_state():
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_bSpectrum=1\nwavecode_0_bUseDots=1\n'
+        'wave_0_per_point1=x=.5+value1;y=sample;r=1;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['waveform_inputs']['params']['spectrum'] is True
+    assert 'value1' not in (record.get('frame_inputs') or [])

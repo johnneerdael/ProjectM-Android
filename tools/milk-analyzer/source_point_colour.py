@@ -112,11 +112,15 @@ def recurrence_trajectory(recurrence,held,times,fps=FPS,rng=None):
 
 def waveform_point_values(waveform,count,frame):
     """value1/value2 per point for one frame from the declared reference PCM windows."""
-    from builtin_wave_geometry import custom_wave_values,reference_windows
+    from builtin_wave_geometry import custom_spectrum_values,custom_wave_values,reference_windows,spectrum
     windows=_WINDOWS.get('data')
     if windows is None:windows=_WINDOWS['data']=reference_windows()
     window=windows[int(frame)%len(windows)]
     params=waveform['params']
+    if params.get('spectrum'):
+        # Spectrum mode: value1/value2 read the engine spectrum of the same declared window.
+        return custom_spectrum_values(spectrum(window),sample_count=count,scaling=params['scaling'],wave_scale=params['wave_scale'],
+                                      smoothing=params['smoothing'],sep=params['sep'])
     return custom_wave_values(window,sample_count=count,scaling=params['scaling'],wave_scale=params['wave_scale'],
                               smoothing=params['smoothing'],sep=params['sep'])
 
@@ -201,7 +205,8 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
         blocked=sorted(map(str,names-{'sample','time'}-set(held)-state_names-wave_names-point_names))
         # Plain names left in point graphs come from inlined main per-frame graphs (Q values): a consumer
         # resolves them by stepping the exported frame program, so the programs are kept without statistics.
-        frame_inputs=[n for n in blocked if ':' not in n or n.startswith('state:per_frame_:')]
+        # Engine per-point inputs (value1/value2, sample) are never main per-frame state.
+        frame_inputs=[n for n in blocked if (':' not in n or n.startswith('state:per_frame_:')) and n not in {'value1','value2','sample'}]
         if blocked and len(frame_inputs)<len(blocked):
             result['unresolved_inputs']=blocked
             raise ValueError('per-point colour depends on unresolved inputs')
@@ -215,7 +220,7 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
             result['frame_inputs']=sorted(set(frame_inputs)|set(result.get('frame_inputs') or []))
             result.update(status='frame_state_point_colours',sample_count=count,held_inputs=held,programs={**programs,**positions},stochastic=stochastic)
             if waveform and (wave_names&(names|_names(positions))):
-                result['waveform_inputs']={**waveform,'source':'declared reference PCM windows (oscilloscope value1/value2)'}
+                result['waveform_inputs']={**waveform,'source':'declared reference PCM windows (value1/value2: oscilloscope samples, or the engine spectrum when params.spectrum)'}
             if point_names:result['point_recurrence']=point_recurrence
             if state_names:result['frame_recurrence']=recurrence
             result['conditions'].append('colours read main per-frame state; statistics need its stepped values, so only the programs are exported')
@@ -261,7 +266,7 @@ def point_colour_distribution(programs,sample_count,held_inputs,*,times=TIMES,po
             result['conditions'].append('rand calls are seeded draws from projectm-eval\'s uniform distribution (one per call and point), not the engine\'s random stream')
         if result['positions_closed_form']:result['programs']={**programs,**positions}
         if result['positions_closed_form'] and waveform and (uses_wave or (wave_names&_names(positions))):
-            result['waveform_inputs']={**waveform,'source':'declared reference PCM windows (oscilloscope value1/value2)'}
+            result['waveform_inputs']={**waveform,'source':'declared reference PCM windows (value1/value2: oscilloscope samples, or the engine spectrum when params.spectrum)'}
             result['conditions'].append('value1/value2 from the declared reference PCM windows, frame index wrapped')
         if point_names:
             result['point_recurrence']=point_recurrence

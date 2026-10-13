@@ -118,6 +118,47 @@ def reference_windows(path=None):
     return (data.astype(np.float64)-128.)
 
 
+SPECTRUM_SAMPLES=512
+FFT_SIZE=1024
+
+
+def spectrum(window):
+    """projectM spectrum of one +-128 waveform window (PCM::UpdateSpectrum, MilkdropFFT).
+
+    The input is damped with its previous sample (0.5*(w[i]+w[i-1])), the first 480 samples are
+    weighted by the envelope 0.5+0.5*sin(2*pi*i/480 - pi/2) and zero-padded to a 1024-point FFT; bin i
+    of the 512 outputs is |X[i]| times the equalisation -0.02*ln((512-i)/512).
+    """
+    w=np.asarray(window,np.float64)
+    damped=.5*(w+np.concatenate([w[:1],w[:-1]]))
+    n=np.arange(WAVEFORM_SAMPLES)
+    x=np.zeros(FFT_SIZE);x[:WAVEFORM_SAMPLES]=damped[:WAVEFORM_SAMPLES]*(.5+.5*np.sin(n*2*np.pi/WAVEFORM_SAMPLES-np.pi/2))
+    k=np.arange(SPECTRUM_SAMPLES)
+    return -.02*np.log((SPECTRUM_SAMPLES-k)/SPECTRUM_SAMPLES)*np.abs(np.fft.fft(x)[:SPECTRUM_SAMPLES])
+
+
+def custom_spectrum_values(left,right=None,*,sample_count,scaling=1.,wave_scale=1.,smoothing=.5,sep=0):
+    """Custom-wave value1/value2 in spectrum mode (projectM CustomWaveform with bSpectrum).
+
+    sep cuts that many bins off the high end; the remaining 512-sep bins are resampled to the point
+    count (bin int(j*scaling), scaling=(512-sep)/count), IIR-smoothed forward and backward with
+    mix1 = sqrt(0.98*smoothing) and scaled by scaling*wave_scale*0.15.
+    """
+    count=int(sample_count)
+    if not 1<=count<=SPECTRUM_SAMPLES:raise ValueError('custom wave sample count 1..512 required')
+    left=np.asarray(left,np.float64);right=left if right is None else np.asarray(right,np.float64)
+    separation=min(count-1,max(0,int(sep)))
+    step=(SPECTRUM_SAMPLES-separation)/count
+    mix1=math.sqrt(max(0.,smoothing*.98));mix2=1-mix1
+    out=[]
+    for data in (left,right):
+        values=np.zeros(count);values[0]=data[0]
+        for i in range(1,count):values[i]=data[int(i*step)]*mix2+values[i-1]*mix1
+        for i in range(count-2,-1,-1):values[i]=values[i]*mix2+values[i+1]*mix1
+        out.append(values*scaling*wave_scale*.15)
+    return out[0],out[1]
+
+
 def custom_wave_values(left,right=None,*,sample_count,scaling=1.,wave_scale=1.,smoothing=.5,sep=0):
     """Custom-wave per-point value1/value2 from waveform data (projectM CustomWaveform, oscilloscope mode).
 

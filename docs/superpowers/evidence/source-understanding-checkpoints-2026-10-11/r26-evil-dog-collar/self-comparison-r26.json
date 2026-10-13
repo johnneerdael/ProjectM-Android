@@ -1,0 +1,72 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r26-v1",
+ "preset": "suksma - more pathetic attempts justifying my ignominious end - evil dog collar.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "5b38a15b95cd11dde31b60695aa1b979b79e9f44b2a622a38493d8088dc15647",
+  "prediction.json": "505fddd1a5561a70203ad930ab7cc1e3a4855922f688ccd77c1d90476de21a7c",
+  "description.json": "06530a8821814938131a3bd299267723e3f0853f75080de1353da0d05345712a",
+  "recipe.json": "886ef9a019118c5ba44bbc70eb014e49a027bb4690803b361c187320cdc69260",
+  "llm-look-description-v1.txt": "970f32ee6886cf33da74913bc32b93ff7ed3eb262ebc6bd8b7dbcaf005900fe1"
+ },
+ "capture_result_sha256": "ea46f192c904fbfdc776c28239e081958c7eda0bc9587c4f434ad07e6b52ceaa",
+ "review_measurements_v1": {
+  "prediction_luma": 0.324,
+  "screenshot_luma": 0.459,
+  "mean_rgb_prediction": [
+   0.41,
+   0.3,
+   0.225
+  ],
+  "mean_rgb_screenshot": [
+   0.535,
+   0.453,
+   0.291
+  ],
+  "blurred_luma_correlation": 0.396,
+  "luma_frames_60_149": {
+   "prediction": 0.24,
+   "capture": 0.416
+  }
+ },
+ "agreements_v1": [
+  "metallic liquid swirls, golden vertical streak with green tint, bright lower centre, darker left side",
+  "SDK text: fluid smeared swirl, high-contrast bright cores, moderate motion"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "v1 about 40% too dark over time (luma 0.24 vs 0.42)",
+   "cause": "the two custom waves are spectrum-mode (bSpectrum=1); spectrum values were not modelled, so value1 was missing. An r23 change then treated value1 as main-frame state (0), drawing both waves as vertical lines at x=0.49/0.51 instead of the diverging lyre curves the engine draws; the steep composite (0.5 -> 0.93) turned the weaker bright tail into the brightness gap",
+   "diagnostics": {
+    "canvas": "identity-composite variant: canvas means agree by frame 149 but the bright tail is thinner (>0.45: 4.9% vs 8.4%)",
+    "composite": "our composite on the ruler canvas: red 0.596 vs ruler display 0.540",
+    "early_frames": "fresh drawing at frames 0-3: ours 60% of the engine, lines vertical instead of curved"
+   },
+   "scope": "2229 bundled presets have spectrum-mode custom waves",
+   "next": "done in v2"
+  }
+ ],
+ "general_fixes_v2": [
+  "spectrum-mode custom waves: value1/value2 read the engine spectrum of the declared PCM window (projectM PCM::UpdateSpectrum + MilkdropFFT: two-tap damping, 480-sample envelope, 1024-point FFT, -0.02*ln((512-i)/512) equalisation), resampled by (512-sep)/samples, smoothed and scaled by 0.15*scaling*waveScale",
+  "engine per-point inputs (value1, value2, sample) are never treated as main per-frame state"
+ ],
+ "review_measurements_v2": {
+  "prediction_luma": 0.476,
+  "screenshot_luma": 0.459,
+  "mean_rgb_prediction": [
+   0.545,
+   0.475,
+   0.297
+  ],
+  "mean_rgb_screenshot": [
+   0.535,
+   0.453,
+   0.291
+  ],
+  "blurred_luma_correlation": 0.471
+ },
+ "status": "understood (v2): two spectrum lyre waves smeared by an expanding, rotating, self-advecting feedback through a steep composite; luma 0.476 vs 0.459, colour within 0.02 per channel",
+ "uses_rendered_images_for_classification": false
+}
