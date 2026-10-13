@@ -19,3 +19,16 @@ timings.
 The pack was built before the stricter reader rules (single gzip member, LF
 endings, strict UTF-8, view types, presets array) were written down; both
 readers accept it under those rules.
+
+## Correction: statistics outside their physical range
+
+This pack was built at d584df77, before `calibrated_display.predict` clamped
+values and intervals to their physical domain (46c21e4b). It breaks the
+FORMAT.md rule that statistic values and intervals lie inside their physical
+range: 3,580 presets have at least one out-of-range bound (2,328 luminance
+intervals, 1,793 saturation intervals, 328 warm/cool intervals, and 22
+values). Both readers accepted it because the rule is a producer guarantee,
+not a reader rule, and `knowledge_pack.py check` did not test it. `check` now
+reports these bounds, and a pack built with the current recipe code clamps
+them. The "every FORMAT.md rule" statement above covers the reader rules
+only.

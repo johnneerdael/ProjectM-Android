@@ -20,3 +20,17 @@ Paired c2e1 → 44e4: map correlation better on 12 presets and worse on 4,
 colour map 11 / 5, frame difference 8 / 5, luma 8 / 7. Paired base → 44e4:
 luma 72 / 39, colour map 74 / 36, map correlation 55 / 45. Future
 comparisons use 44e4 as the reproducible reference.
+
+## 4530206b (per-frame side count, motion-vector colour)
+
+Same 200 presets, seed and frames (199 compared; `compare-44e4-4530.log`).
+
+| Metric | 44e4 | 4530 |
+|---|---|---|
+| Luma error mean / median | 0.0653 / 0.0157 | 0.0606 / 0.0154 |
+| Colour map error mean / median | 0.0861 / 0.0451 | 0.0827 / 0.0429 |
+| Map correlation median | 0.815 | 0.821 |
+| Luma within 0.05 | 69.8% | 71.4% |
+
+Paired 44e4 → 4530: luma error 11 better / 4 worse, colour map error
+10 / 5, map correlation 8 / 7.

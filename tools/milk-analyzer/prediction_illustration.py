@@ -1343,6 +1343,18 @@ class _FrameStepper:
         from eel_memory import evaluate_np
         value=evaluate_np(program,inputs,self.rng,deadline=self.deadline)
         return value if isinstance(value,Memory) else float(np.asarray(value).reshape(-1)[0])
+    def _eval_all(self,programs,inputs):
+        """{name: value} for several programs evaluated together, so loops they share (each program is
+        serialised with its own copy) run once; None when the joint evaluation fails."""
+        from eel_memory import evaluate_many_np,input_names
+        names=list(programs)
+        plain=lambda p:{'root':p['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in p['nodes']]}
+        missing=set()
+        for name in names:missing|=(input_names(plain(programs[name])) or set())-set(inputs)
+        try:values=evaluate_many_np([programs[name] for name in names],{**inputs,**{n:_absent(n) for n in missing}},self.rng,deadline=self.deadline)
+        except Exception:return None  # noqa: BLE001 - the caller evaluates program by program
+        self.zero_inputs|=missing
+        return {name:value if isinstance(value,Memory) else float(np.asarray(value).reshape(-1)[0]) for name,value in zip(names,values)}
     def step(self,time,fps,bands,frame_index):
         base={**self.constants,**{k:float(v) for k,v in bands.items()},'time':float(np.float32(time)),'fps':float(np.float32(fps)),'frame':float(frame_index),'progress':0.}
         if self.values is None:
@@ -1355,14 +1367,18 @@ class _FrameStepper:
         # Start-of-frame state: inlined per-frame graphs in shader programs read these values.
         self.start={**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()}}
         updated={}
+        joint=self._eval_all({**{('state',n):p['update'] for n,p in self.state_programs.items()},
+                              **{('output',n):p for n,p in self.output_programs.items()}},inputs)
         for name,programs in self.state_programs.items():
-            try:value=self._eval(programs['update'],inputs)
-            except Exception:value=self.values.get(name,0.);self.failed.add(name)  # noqa: BLE001
+            if joint is not None:value=joint[('state',name)]
+            else:
+                try:value=self._eval(programs['update'],inputs)
+                except Exception:value=self.values.get(name,0.);self.failed.add(name)  # noqa: BLE001
             updated[name]=value if isinstance(value,Memory) or math.isfinite(value) else 0.
         outputs={}
         for name,program in self.output_programs.items():
             try:
-                value=self._eval(program,inputs)
+                value=joint[('output',name)] if joint is not None else self._eval(program,inputs)
                 if math.isfinite(value):outputs[name]=value
             except Exception:self.failed.add(name)  # noqa: BLE001
         self.values=updated

@@ -1,0 +1,70 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r93-v1",
+ "preset": "random mash-up round 48.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "49deb16edd0d9b8c246e716586cf865cadb1e5604c6191e3eee651646b6c660f",
+  "prediction.json": "3c06217dae6a605b40732597cf14979471975dccda6134face0e841a1ddef825",
+  "description.json": "6c502dbfa14a83cf5123003e52e0ffb0c1c5c0e7f610502d243dc686c462b755",
+  "recipe.json": "4cf7b8c8dd5e4a36c09f6a04520a51d307e7cdf25798da603dde770f4f93a5d6",
+  "llm-look-description-v1.txt": "07979d278921817d4aee2894d7b5ead21acd002d0d7e58037ab2a7a904528813"
+ },
+ "capture_result_sha256": "cbe2683dc123e0710922a7f110ce01ad083e614f8bab45969f3228bea0109fa6",
+ "review_measurements_v1": {
+  "prediction_luma": 0.25,
+  "screenshot_luma": 0.722,
+  "mean_rgb_prediction": [
+   0.208,
+   0.256,
+   0.316
+  ],
+  "mean_rgb_screenshot": [
+   0.705,
+   0.725,
+   0.745
+  ],
+  "blurred_luma_correlation": -0.014,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.209,
+    0.664
+   ],
+   "saturation": [
+    0.395,
+    0.108
+   ],
+   "blurred_luma_correlation": -0.048
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0221,
+   0.0361
+  ]
+ },
+ "agreements": [
+  "relief outlines and tiling over a blue-grey ground (v1)",
+  "after the fixes: white fountain streaks from 100 bouncing particles, orange particle dots, brightness rising from 0.03 to 0.7 over five seconds as in the capture"
+ ],
+ "misses": [
+  "v1: the 100-instance particle shape was not drawn: per-frame memory was unsupported because exec2(assign(...), ...) was treated as possible reference aliasing",
+  "v3: every particle started at one position because rand() inside the init loop was memoised outside the loop"
+ ],
+ "verdict": "understood after three general fixes (v4 is a fresh export of the same frozen preset): exec2/exec3 lower as sequences so gmegabuf particle loops export; rand inside a loop body draws every iteration; per-frame programs are evaluated together so shared loops run once (100 s -> 6 s for 6 frames). Prediction luma 0.25 -> 0.704 (engine 0.722), frame difference 0.0235 -> 0.0365 (0.0361); particle layout is chaotic (collisions) and differs in detail",
+ "review_measurements_v4": {
+  "prediction_luma": 0.704,
+  "screenshot_luma": 0.722,
+  "blurred_luma_correlation": 0.593,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.642,
+    0.664
+   ],
+   "blurred_luma_correlation": 0.751
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0365,
+   0.0361
+  ],
+  "note": "v4 is a fresh source export of the same frozen preset with the corrected exporter and illustrator (v3: shapes drawn but all particles started at one point)"
+ }
+}

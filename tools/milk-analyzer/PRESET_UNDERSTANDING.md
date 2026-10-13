@@ -1750,3 +1750,34 @@ Re-rendering the frozen v1 description: frame-0 luma 0.018 → 0.033 (engine
 frame and is not expected to match. Open: GL interpolates vertex colours
 along the second half of each smoothed segment; the illustration uses the
 start colour (luma-neutral, but alternating colours show as stripes).
+
+### r93: memory particle systems
+
+r93 (random mash-up round 48) is a 100-particle system: the init block
+fills `gmegabuf` with random positions and colours, the frame block applies
+gravity, bounces at the edges and resolves elastic collisions in nested
+loops, and a 100-instance shape reads each particle from `gmegabuf`. The
+first prediction drew no particles (luma 0.25 against 0.72). Three general
+gaps:
+
+- `exec2(a, b)` and `exec3(a, b, c)` run their arguments in order and yield
+  the last one, like a statement sequence. The lowering treated any call with
+  assignments in its arguments as possible pointer aliasing, so the frame
+  program's memory was unsupported. They now lower as sequences.
+- `rand()` inside a loop body did not depend on the loop's slots, so the
+  evaluator memoised one draw for every iteration and all particles started
+  at one point. A `rand` created inside a loop body now carries that loop's
+  plan and draws every iteration; a value drawn before the loop stays one
+  draw.
+- Every per-frame state and output program is serialised separately, so a
+  loop feeding several outputs ran once per program (about 98 times per
+  frame, 16 s per frame here). `eel_memory.evaluate_many_np` merges the
+  graphs structurally (loop slots keyed by nesting depth, rand sites kept
+  distinct) and runs each loop once: 6 frames take 6 s instead of 100 s.
+
+v4 (fresh export of the same preset): prediction luma 0.704 (engine 0.722),
+frames 60–149 luma 0.642 (0.664), frame difference 0.0365 (0.0361), and the
+luma follows the capture from frame 0. The particle layout differs in detail
+because collisions are chaotic. About 180 presets combine per-frame loops
+with memory and a drawn layer; 259 enabled shapes and 81 enabled waves read
+`megabuf` or `gmegabuf`.

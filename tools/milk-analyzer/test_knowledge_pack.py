@@ -67,3 +67,20 @@ def test_line_hashes_cover_the_stored_bytes_not_a_reserialisation(tmp_path):
     manifest['core']['sha256'] = K._sha256(data)
     (tmp_path / 'pack' / 'manifest.json').write_text(json.dumps(manifest))
     assert any('core line hash mismatch' in p for p in K.check(tmp_path / 'pack'))
+
+
+def test_check_reports_statistics_outside_their_physical_range(tmp_path):
+    # FORMAT.md: statistic values and intervals lie inside their physical range (r11 pack: 2,328
+    # luminance intervals did not, and check passed).
+    K.build(_corpus(tmp_path), tmp_path / 'pack', workers=1)
+    recipe = K.load_core(tmp_path / 'pack')['a.milk']
+    statistics = recipe.setdefault('display_estimate', {}).setdefault('statistics', {})
+    statistics['mean_luminance'] = {'value': .4, 'interval': [-.05, .7]}
+    statistics['warm_cool'] = {'value': 1.2, 'interval': [.9, 1.3]}
+    statistics['mean_flow_screen_widths_per_s'] = {'value': .2, 'interval': [0., 3.]}
+    path = tmp_path / 'a.json'; path.write_text(json.dumps(recipe))
+    K.build_from_recipes([path], tmp_path / 'tampered')
+    problems = K.check(tmp_path / 'tampered')
+    assert any('mean_luminance.interval outside [0, 1]' in p for p in problems)
+    assert any('warm_cool.value outside [-1, 1]' in p for p in problems)
+    assert not any('mean_flow' in p for p in problems)

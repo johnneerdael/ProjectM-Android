@@ -239,6 +239,20 @@ def load_core(pack_dir):
     return recipes
 
 
+def _statistic_range_problems(recipe):
+    """Display statistics whose value or interval leaves its physical range (FORMAT.md)."""
+    from calibrated_display import DOMAINS
+    statistics = ((recipe.get('display_estimate') or {}).get('statistics')) or {}
+    problems = []
+    for key, (low, high) in DOMAINS.items():
+        row = statistics.get(key)
+        if not isinstance(row, dict):continue
+        for part, numbers in (('value', [row.get('value')]), ('interval', row.get('interval') or [])):
+            if any(isinstance(v, (int, float)) and ((low is not None and v < low) or (high is not None and v > high)) for v in numbers):
+                problems.append('%s.%s outside [%s, %s]' % (key, part, format(low, 'g'), 'inf' if high is None else format(high, 'g')))
+    return problems
+
+
 def check(pack_dir, presets_dir=None):
     """List of problems (empty when the pack is consistent)."""
     from contract_schema import recipe_errors
@@ -264,6 +278,7 @@ def check(pack_dir, presets_dir=None):
         if _sha256(line) != entry.get('core_line_sha256'):problems.append(name + ': core line hash mismatch')
         if recipe['preset']['sha256'] != entry.get('sha256'):problems.append(name + ': preset sha256 mismatch')
         for problem in recipe_errors(recipe)[:2]:problems.append(name + ': ' + problem)
+        problems += [name + ': ' + p for p in _statistic_range_problems(recipe)]
     if presets_dir is not None:
         for name, entry in entries.items():
             path = Path(presets_dir) / name

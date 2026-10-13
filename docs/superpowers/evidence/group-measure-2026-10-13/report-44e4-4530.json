@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 199,
+ "failed": {
+  "44e4": 1,
+  "4530": 1
+ },
+ "versions": {
+  "44e4": {
+   "luma_err": {
+    "mean": 0.0653,
+    "median": 0.0157
+   },
+   "rgb_err": {
+    "mean": 0.0704,
+    "median": 0.0217
+   },
+   "sat_err": {
+    "mean": 0.0762,
+    "median": 0.0287
+   },
+   "fd_err": {
+    "mean": 0.0162,
+    "median": 0.0048
+   },
+   "colour_map_err": {
+    "mean": 0.0861,
+    "median": 0.0451
+   },
+   "map_corr": {
+    "mean": 0.6594,
+    "median": 0.8147,
+    "n": 192
+   },
+   "series_corr": {
+    "mean": 0.7426,
+    "median": 0.9128,
+    "n": 194
+   },
+   "luma_within_0.05": 0.698,
+   "map_corr_above_0.8": 0.487
+  },
+  "4530": {
+   "luma_err": {
+    "mean": 0.0606,
+    "median": 0.0154
+   },
+   "rgb_err": {
+    "mean": 0.0664,
+    "median": 0.0212
+   },
+   "sat_err": {
+    "mean": 0.0735,
+    "median": 0.0284
+   },
+   "fd_err": {
+    "mean": 0.0157,
+    "median": 0.0043
+   },
+   "colour_map_err": {
+    "mean": 0.0827,
+    "median": 0.0429
+   },
+   "map_corr": {
+    "mean": 0.6605,
+    "median": 0.8214,
+    "n": 192
+   },
+   "series_corr": {
+    "mean": 0.7493,
+    "median": 0.9094,
+    "n": 194
+   },
+   "luma_within_0.05": 0.714,
+   "map_corr_above_0.8": 0.497
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 11,
+   "worse": 4
+  },
+  "rgb_err": {
+   "improved": 11,
+   "worse": 4
+  },
+  "fd_err": {
+   "improved": 11,
+   "worse": 4
+  },
+  "colour_map_err": {
+   "improved": 10,
+   "worse": 5
+  },
+  "map_corr": {
+   "improved": 8,
+   "worse": 7
+  }
+ },
+ "largest_gains": [
+  [
+   "Redi Jedi - Shaking your reality",
+   0.313,
+   0.021
+  ],
+  [
+   "Hexcollie - Surge",
+   0.604,
+   0.342
+  ],
+  [
+   "Rovastar - Fractopia (Galaxy Swirl Mix 2)",
+   0.329,
+   0.078
+  ],
+  [
+   "suksma - Dbleja - Escape (Blue Mix) - k me as an xmas grift",
+   0.272,
+   0.149
+  ],
+  [
+   "shifter - bronchiole (EoS+Phat edit) tethered web nz+ shale pignth",
+   0.124,
+   0.051
+  ],
+  [
+   "EoS - dark side of the moon",
+   0.074,
+   0.025
+  ],
+  [
+   "suksma - i'm alive (omniversal disappointment)",
+   0.141,
+   0.11
+  ],
+  [
+   "random mash-up round 18",
+   0.036,
+   0.024
+  ]
+ ],
+ "largest_losses": [
+  [
+   "extreme paranoia and fear unleash in spontaneous suicide flails roam3",
+   0.051,
+   0.294
+  ],
+  [
+   "extreme paranoia and fear unleash in spontaneous suicide flails - slapping the elite roam3",
+   0.453,
+   0.594
+  ],
+  [
+   "suksma - pus on my cat - hate shade",
+   0.103,
+   0.123
+  ],
+  [
+   "suksma - pus on my cat - subdomain largo goat pear",
+   0.022,
+   0.025
+  ],
+  [
+   "suksma - mtn,flx - flacc - choilan roam",
+   0.028,
+   0.028
+  ],
+  [
+   "you are now leaving the materialistic sector - chloral reef, er",
+   0.071,
+   0.071
+  ],
+  [
+   "va ultramix2 - 364_1",
+   0.038,
+   0.038
+  ],
+  [
+   "va ultramix2 - 30",
+   0.0,
+   0.0
+  ]
+ ]
+}

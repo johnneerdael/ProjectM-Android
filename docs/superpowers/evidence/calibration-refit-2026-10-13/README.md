@@ -32,6 +32,34 @@ flat. The targets (Energy 0.77, Brightness 0.73, Movement 0.84) need much
 stronger rank prediction than these descriptor additions give. The r12
 corpus (new mechanisms, deterministic random draws) is refitted next.
 
+## r12 corpus with descriptor v3
+
+The r12 corpus was exported from the frozen 44e4fa2f snapshot (new mechanisms
+since r11, deterministic random draws, random-texture stand-ins); same fit and
+descriptor v3 (`model-r12v3`, `facets-r12v3.txt`).
+
+| Target (out-of-fold Spearman) | r11 + v3 | r12 + v3 |
+|---|---|---|
+| mean_luminance | 0.664 | 0.665 |
+| mean_abs_frame_difference | 0.716 | 0.718 |
+| mean_flow_screen_widths_per_s | 0.684 | 0.687 |
+| global_brightness_jumps_per_10s | 0.771 | 0.771 |
+| mean_saturation | 0.645 | 0.645 |
+| warm_cool | 0.602 | 0.603 |
+
+| Facet group agreement | r11 + v3 | r12 + v3 |
+|---|---|---|
+| energy | 0.536 | 0.539 |
+| brightness | 0.599 | 0.599 |
+| colour | 0.503 | 0.506 |
+| movement | 0.637 | 0.637 |
+| comfort | 0.816 | 0.816 |
+| mean | 0.6182 | 0.6194 |
+
+The per-preset understanding gains between r11 and r12 (group measure map
+correlation 0.757 → 0.815) barely move the calibrated ranks: the descriptor
+reads summary statistics of the source facts, and those changed little.
+
 ## How much rank correlation do the facet targets need?
 
 A diagnostic of the metric itself (not a feature): synthetic predictions are

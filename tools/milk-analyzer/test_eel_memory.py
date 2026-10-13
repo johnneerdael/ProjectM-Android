@@ -156,3 +156,59 @@ def test_evaluation_stops_at_its_deadline():
     graph = serialise(lowered(tree).environment['i'])
     with pytest.raises(ValueError, match='budget'):
         M.evaluate_np(graph, {}, deadline=time.perf_counter() - 1)
+
+
+def test_exec2_and_exec3_evaluate_their_arguments_in_order_and_return_the_last():
+    # projectm-eval exec2(a, b) runs a then b and yields b (exec3 likewise with three). Particle presets
+    # fill gmegabuf with loop(n, exec2(assign(gmegabuf(i*8), v), assign(i, i+1))) (r93).
+    body = call('exec2', assign(gmem(call('_mul', var('i'), num(8))), call('_add', var('i'), num(.5))),
+                assign(var('i'), call('_add', var('i'), num(1))))
+    model = lowered(seq(assign(var('i'), num(0)), call('loop', num(3), body)))
+    assert not model.unknown
+    memory = M.evaluate_np(serialise(model.memory['global']), {'memory:global': M.Memory()})
+    assert [memory.read(float(k)) for k in (0, 8, 16, 24)] == [.5, 1.5, 2.5, 0.]
+    assert value(model, 'i', {'memory:global': M.Memory()}) == 3.
+    three = lowered(assign(var('r'), call('exec3', assign(var('a'), num(2)), assign(var('b'), call('_mul', var('a'), num(3))),
+                                          call('_add', var('b'), num(1)))))
+    assert not three.unknown and value(three, 'r') == 7. and value(three, 'b') == 6.
+
+
+def test_evaluate_many_runs_a_loop_shared_by_several_programs_once():
+    # Per-frame programs are serialised one by one, so a loop feeding several outputs appears in each
+    # graph. Evaluated together they share one run (r93: ~98 programs re-ran the same particle loops).
+    model = lowered(counting_loop(num(5)))
+    x, i = serialise(model.environment['x']), serialise(model.environment['i'])
+    calls = []
+    original = M.loop_count
+    M.loop_count = lambda value: calls.append(1) or original(value)  # run_loop reads the count once per run
+    try:
+        values = M.evaluate_many_np([x, i, x], {})
+    finally:
+        M.loop_count = original
+    assert [float(v) for v in values] == [10., 5., 10.]
+    assert len(calls) == 1
+    # Distinct rand sites stay distinct draws; the same site in two programs is one draw.
+    import numpy as np
+    def rand_graph(site):
+        return {'root': 0, 'nodes': [{'op': 'rand', 'args': [1], 'detail': {'site_index': site}},
+                                     {'op': 'constant', 'args': [], 'detail': {'value': 1000.}}]}
+    a, b, c = M.evaluate_many_np([rand_graph(0), rand_graph(1), rand_graph(0)], {}, np.random.default_rng(3))
+    assert float(a) == float(c) and float(a) != float(b)
+
+
+def test_rand_inside_a_loop_body_draws_every_iteration_but_a_value_drawn_before_the_loop_does_not():
+    import numpy as np
+    # i=0; loop(3, exec2(assign(gmegabuf(i), rand(1000)), assign(i, i+1))): three independent draws (r93
+    # particles all started at one position). x=rand(1000) before the loop is one draw reused inside it.
+    body = call('exec2', assign(gmem(var('i')), call('rand', num(1000))), assign(var('i'), call('_add', var('i'), num(1))))
+    model = lowered(seq(assign(var('i'), num(0)), call('loop', num(3), body)))
+    graph = serialise(model.memory['global'])
+    memory = M.evaluate_np(graph, {'memory:global': M.Memory()}, np.random.default_rng(5))
+    draws = [memory.read(float(k)) for k in range(3)]
+    assert len(set(draws)) == 3
+    merged = M.evaluate_many_np([graph], {'memory:global': M.Memory()}, np.random.default_rng(5))[0]
+    assert len({merged.read(float(k)) for k in range(3)}) == 3
+    before = lowered(seq(assign(var('x'), call('rand', num(1000))), assign(var('i'), num(0)),
+                         call('loop', num(3), call('exec2', assign(gmem(var('i')), var('x')), assign(var('i'), call('_add', var('i'), num(1)))))))
+    memory = M.evaluate_np(serialise(before.memory['global']), {'memory:global': M.Memory()}, np.random.default_rng(5))
+    assert len({memory.read(float(k)) for k in range(3)}) == 1

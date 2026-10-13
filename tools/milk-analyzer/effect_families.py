@@ -871,7 +871,9 @@ class _EEL:
             slot=Field('loop_eel_slot',detail={'plan':plan,'name':name})
             if name.startswith('memory:'):self.memory[name.split(':',1)[1]]=slot
             elif name!='__value':self.environment[name]=slot
-        result=self.lower(body)
+        self._loop_plans=getattr(self,'_loop_plans',[])+[plan]
+        try:result=self.lower(body)
+        finally:self._loop_plans=self._loop_plans[:-1]
         for name in names:
             if name=='__value':plan.updates[name]=result
             elif name.startswith('memory:'):plan.updates[name]=self.memory[name.split(':',1)[1]]
@@ -937,6 +939,12 @@ class _EEL:
             return value
         if function == 'loop' and len(tree.get('args',[]))==2:
             return self.fixed_count_loop(tree)
+        if function in {'exec2','exec3'} and len(tree.get('args',[]))==int(function[-1]):
+            # projectm-eval exec2/exec3 evaluate their arguments in order and yield the last one, like a
+            # statement sequence; no argument's value is held while a later one writes.
+            result=_constant(0)
+            for argument in tree['args']:result=self.lower(argument)
+            return result
         if function in {'assign','_set'} and tree['args'][0].get('kind') == 'variable':
             name = tree['args'][0]['name'].lower()
             value = self.lower(tree['args'][1])
@@ -997,8 +1005,10 @@ class _EEL:
         args=tuple(self.lower(arg) for arg in tree.get('args',[]))
         if function=='rand':
             site=self.random_site_count;self.random_site_count+=1
-            return Field('rand',args,detail={'site_index':site,'equation_phase':self.equation_phase,
-                'value_binding':'stateful_random_call'})
+            detail={'site_index':site,'equation_phase':self.equation_phase,'value_binding':'stateful_random_call'}
+            # A call inside a loop body runs once per iteration: it carries the innermost loop's plan.
+            if getattr(self,'_loop_plans',None):detail['plan']=self._loop_plans[-1]
+            return Field('rand',args,detail=detail)
         return self.operation(self.OPS.get(function,function),args)
 
     @staticmethod

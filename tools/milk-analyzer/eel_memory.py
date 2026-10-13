@@ -15,6 +15,7 @@ that precede them in source order.
 runs the body that many times. A loop is exported as a plan: the names it writes (variables and
 ``memory:<space>``), each name's start-of-iteration slot, and its end-of-iteration update.
 """
+import json
 import math
 import time
 
@@ -157,7 +158,106 @@ def evaluate_np(expression, inputs, rng=None, batch_shape=None, deadline=None):
     """
     names = input_names(expression, stochastic=rng is not None)
     if names is None or names - set(inputs):raise ValueError('point program not evaluable')
-    nodes = expression['nodes'];plans = expression.get('plans') or []
+    return _evaluator(expression['nodes'], expression.get('plans') or [], inputs, rng, batch_shape, deadline)(expression['root'])
+
+
+def evaluate_many_np(expressions, inputs, rng=None, batch_shape=None, deadline=None):
+    """Values of several serialised graphs evaluated together: structurally identical subgraphs (a loop
+    serialised into every program that reads its results) are merged and computed once."""
+    merged, roots = merge_graphs(expressions)
+    names = input_names(merged, stochastic=rng is not None)
+    if names is None or names - set(inputs):raise ValueError('point program not evaluable')
+    value = _evaluator(merged['nodes'], merged['plans'], inputs, rng, batch_shape, deadline)
+    return [value(root) for root in roots]
+
+
+def merge_graphs(expressions):
+    """One graph holding every expression's nodes once, plus each expression's root in it.
+
+    Nodes are keyed by operation, detail and argument keys; a loop slot is keyed by its name and the
+    depth of its plan on the enclosing loop stack, so the same loop serialised into different graphs
+    (different plan_ref numbers) gets one key. rand nodes keep their site detail, so distinct sites
+    stay distinct draws.
+    """
+    keys = {};info = []
+
+    def intern(key, payload):
+        found = keys.get(key)
+        if found is None:found = keys[key] = len(info);info.append(payload)
+        return found
+
+    def keyed(graph):
+        nodes = graph['nodes'];plans = graph.get('plans') or [];memo = {}
+
+        def plan_key(ref, stack):
+            plan = plans[ref];inner = stack + (ref,)
+            updates = tuple(node_key(plan['updates'][name], inner) for name in plan['names'])
+            rest = json.dumps({k: v for k, v in plan.items() if k not in ('names', 'updates')}, sort_keys=True)
+            return intern(('plan', tuple(plan['names']), updates, rest), ('plan', plan, updates))
+
+        def node_key(index, stack):
+            memo_key = (index, stack)
+            if memo_key in memo:return memo[memo_key]
+            node = nodes[index];op = node['op'];detail = dict(node.get('detail') or {})
+            ref = detail.pop('plan_ref', None)
+            if op == 'loop_eel_slot':
+                depth = len(stack) - 1 - stack.index(ref)
+                key = intern(('slot', detail.get('name'), depth), ('slot', node, depth))
+            elif op == 'loop_eel_result':
+                count = len(plans[ref]['names'])
+                outer = tuple(node_key(arg, stack) for arg in node['args'][:1 + count])
+                plan = plan_key(ref, stack)
+                key = intern(('result', json.dumps(detail, sort_keys=True), outer, plan), ('result', node, outer + (plan,)))
+            else:
+                args = tuple(node_key(arg, stack) for arg in node['args'])
+                # A rand call made inside a loop body is tied to that loop by its depth on the stack.
+                depth = len(stack) - 1 - stack.index(ref) if ref is not None and ref in stack else None
+                key = intern((op, json.dumps(detail, sort_keys=True), args, depth), ('node', node, (args, depth)))
+            memo[memo_key] = key
+            return key
+        return node_key(graph['root'], ())
+
+    root_keys = [keyed(graph) for graph in expressions]
+    nodes = [];plans = [];built = {}
+
+    def build_plan(key, stack):
+        # One plan per loop and context: every result node of the loop reads the same run.
+        if ('plan', key, stack) in built:return built[('plan', key, stack)]
+        _, plan, updates = info[key]
+        ref = len(plans);entry = {k: v for k, v in plan.items() if k not in ('updates',)};plans.append(entry)
+        built[('plan', key, stack)] = ref
+        inner = stack + (ref,)
+        entry['updates'] = {name: build(update, inner) for name, update in zip(plan['names'], updates)}
+        return ref
+
+    def build(key, stack):
+        kind, node, args = info[key]
+        if kind == 'slot':
+            # The slot's plan is the enclosing loop at its recorded depth (slots are keyed by depth).
+            memo_key = (key, stack[len(stack) - 1 - args])
+        else:memo_key = (key, stack)
+        if memo_key in built:return built[memo_key]
+        detail = {k: v for k, v in (node.get('detail') or {}).items() if k != 'plan_ref'}
+        if kind == 'slot':detail['plan_ref'] = memo_key[1];new_args = []
+        elif kind == 'result':
+            *outer, plan = args
+            new_args = [build(arg, stack) for arg in outer]
+            ref = build_plan(plan, stack);detail['plan_ref'] = ref
+            new_args += [plans[ref]['updates'][name] for name in plans[ref]['names']]
+        else:
+            args, depth = args
+            new_args = [build(arg, stack) for arg in args]
+            if depth is not None:detail['plan_ref'] = stack[len(stack) - 1 - depth]
+        nodes.append({'op': node['op'], 'dtype': node.get('dtype'), 'args': new_args, 'detail': detail})
+        built[memo_key] = len(nodes) - 1
+        return built[memo_key]
+
+    roots = [build(key, ()) for key in root_keys]
+    return {'root': roots[0] if roots else None, 'nodes': nodes, 'plans': plans}, roots
+
+
+def _evaluator(nodes, plans, inputs, rng, batch_shape, deadline):
+    """value(index) over one graph's nodes with a memo shared by every root asked for."""
     stochastic = rng is not None
     # Which loop plans each node's value depends on (through slots, directly or via nested loops).
     depends = {}
@@ -166,7 +266,8 @@ def evaluate_np(expression, inputs, rng=None, batch_shape=None, deadline=None):
         if index in depends:return depends[index]
         depends[index] = frozenset()
         node = nodes[index];found = set()
-        if node['op'] == 'loop_eel_slot':found.add(node['detail']['plan_ref'])
+        # A loop slot, and a rand call made inside a loop body, take a new value every iteration.
+        if node['op'] in ('loop_eel_slot', 'rand') and 'plan_ref' in (node.get('detail') or {}):found.add(node['detail']['plan_ref'])
         for arg in node['args']:found |= plans_of(arg)
         if node['op'] == 'loop_eel_result':
             plan = node['detail']['plan_ref'];inner = set()
@@ -230,4 +331,4 @@ def evaluate_np(expression, inputs, rng=None, batch_shape=None, deadline=None):
         table[key] = current
         return current
 
-    return value(expression['root'])
+    return value
