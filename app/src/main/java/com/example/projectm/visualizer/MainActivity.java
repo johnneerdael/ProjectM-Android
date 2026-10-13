@@ -846,7 +846,10 @@ public class MainActivity extends Activity {
         if (in) {
             view.setTranslationX(offset);
             view.setVisibility(View.VISIBLE);
-            view.animate().translationX(0).alpha(1f).setDuration(FADE_MS).withLayer().start();
+            // Repaint once in place: with partial updates, some GPUs (MediaTek/Mali, Android 14)
+            // otherwise leave the strip the slide moved into unpainted until the next focus move.
+            view.animate().translationX(0).alpha(1f).setDuration(FADE_MS).withLayer()
+                    .withEndAction(view::invalidate).start();
         } else if (view.getVisibility() == View.VISIBLE) {
             view.animate().translationX(offset).alpha(0f).setDuration(FADE_MS).withLayer()
                     .withEndAction(() -> view.setVisibility(View.GONE)).start();
