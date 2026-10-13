@@ -1393,3 +1393,7 @@ repeated on correctly oriented frames. Probes and results:
   template with `cthr = .99` redraws the colour-band limits every frame from
   about 2.86 s to 3.42 s, exactly where the capture changes, so the later
   colour is a random draw (the recipe reports the schedule).
+- **r48 (`$$$ Royal - Mashup (220)`) v1.** Understood on the first
+  prediction: a symmetric multicoloured butterfly with luma within about 0.01
+  at every frame (single-frame correlation 0.98, frames 60–149 0.995). The SDK
+  brightness estimate (0.31) is low against the measured 0.62.

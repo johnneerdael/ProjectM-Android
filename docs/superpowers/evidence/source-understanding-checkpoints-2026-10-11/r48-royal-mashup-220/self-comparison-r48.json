@@ -1,0 +1,60 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r48-v1",
+ "preset": "$$$ Royal - Mashup (220).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a8ae07d585615bc0f037f73be71ea36722fd3316e8ce77856ee2271f288a456f",
+  "prediction.json": "491db74343e8e0094ef39319f53c6a29e7f4ed25b58b239392b707a39a0b896c",
+  "description.json": "41d9266e5695db74d0e23291935088ee29c475859b52855ca201e680a0c3725e",
+  "recipe.json": "d72c89cd0e33bafd27f519baedd7ae6850048c4427c2fc790cd1352043a6d009",
+  "llm-look-description-v1.txt": "8ef09a565bfc374b8c5098d99837e7e499582cd02e5463c3032b0adc58ee5f45"
+ },
+ "capture_result_sha256": "622246ee943db669d6dae3525ccbbec1f8c9f74cecc35e6ff23aa27f45acb2ab",
+ "review_measurements_v1": {
+  "prediction_luma": 0.511,
+  "screenshot_luma": 0.517,
+  "mean_rgb_prediction": [
+   0.618,
+   0.511,
+   0.196
+  ],
+  "mean_rgb_screenshot": [
+   0.626,
+   0.52,
+   0.169
+  ],
+  "saturation": [
+   0.824,
+   0.835
+  ],
+  "blurred_luma_correlation": 0.98,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.616,
+    0.623
+   ],
+   "saturation": [
+    0.546,
+    0.575
+   ],
+   "blurred_luma_correlation": 0.995
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0466,
+   0.0404
+  ]
+ },
+ "agreements": [
+  "prediction: the same symmetric butterfly of lime, violet, orange and yellow; luma within about 0.01 at every frame"
+ ],
+ "misses": [
+  {
+   "size": "medium",
+   "version": "SDK",
+   "observed": "brightness estimate 0.31 (interval 0.12-0.55) vs measured 0.62",
+   "cause": "display_estimate calibration"
+  }
+ ],
+ "verdict": "understood on the first prediction; SDK brightness low"
+}

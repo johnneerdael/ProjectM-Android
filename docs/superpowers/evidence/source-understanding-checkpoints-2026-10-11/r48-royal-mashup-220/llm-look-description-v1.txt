@@ -1,0 +1,15 @@
+LLM look description from the SDK recipe, source parts only (before capture, r48 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: three custom line waveforms (512 points each) drawn over a feedback canvas, in the centre of the screen. Their closed-form positions sit roughly in x 0.24-0.72 and y 0.13-0.87, so the curves fill the middle of the picture rather than the edges. Because the image feeds back through a warp that uses its own content to steer its sampling (self-advection), the lines should smear into flowing, fluid, liquid-looking streaks rather than stay as thin crisp strokes.
+
+Feedback and motion: each frame the old image is resampled with a zoom that varies with angle (about 1.0 to 1.06) and a radius-dependent swirl of up to plus or minus 0.02 rad per step. There is no steady sideways drift (dx and dy are 0). Trails are fairly long: the recipe gives a half-life of about 1 second, and the flat-colour warp transfer shows green persisting best, red fading moderately and blue fading fastest. Persistent content therefore drifts toward green and pink over time. The composite brightens with gamma up to 1.07x and adds a left-right mirrored copy at 50% opacity, so expect a roughly two-fold mirror symmetry, inexact because of zoom and swirl.
+
+Colour palette: the waves have broad dynamic hues. wave_0 is mostly green, cyan, pink and blue; wave_1 is pink, purple, blue and yellow; wave_2 is orange, green, yellow and cyan. Mean saturation is about 0.57. The settled display colour leans pink or magenta with green in the canvas. The calibrated estimate gives saturation of about 0.68 (a vivid look) and a roughly neutral warm/cool balance. Reached colours are unverified.
+
+Brightness: a calibrated mid level of about 0.31 mean luminance (interval 0.12-0.55). Brightness jumps are rare (about 1 per 10 s, interval 0-6).
+
+Audio reaction: bass and treble both drive the warp zoom, so the swirl and zoom should pulse with the music. The gain is unresolved and the response is thresholded or clamped. I found no other audio routes.
+
+Overall mood: smooth, hypnotic, psychedelic and liquid. Activity is estimated Normal; the mood layer says Chill, so these two disagree (the activity interval spans Chill to Intense).
+
+Uncertain: how much of the screen the lines cover, the real colour balance, how strong the audio pulses are, how dense the feedback layers become, and the visible speed.
