@@ -15,7 +15,7 @@ energy, computed from the same facts by closed-form transfer evaluation (no fram
 import math
 import re
 
-POLICY='static-summary-descriptor-v2'
+POLICY='static-summary-descriptor-v3'
 SKIP_GROUPS={'identity'}
 SKIP_KEYS={'conditions','unknown_reasons','evidence','limitations','scope','note','policy','source_locations',
            'source_keys','expression','expressions','programs','nodes','representative_points','lane_expressions_rgb',
@@ -88,4 +88,9 @@ def _equilibrium_columns(summary):
     out['equilibrium:display_local_warm']=e['display_local_rgb'][0]-e['display_local_rgb'][2]
     out['equilibrium:display_spread_warm']=e['display_spread_rgb'][0]-e['display_spread_rgb'][2]
     for model in EQUILIBRIUM_MODELS:out['equilibrium:composite='+model]=1. if e['composite_model']==model else 0.
+    # Composite transfer shape: threshold level (1.1 when it never reaches 0.5), time spread, undefined share.
+    level=e.get('composite_threshold_level')
+    out['equilibrium:composite_threshold_level']=1.1 if level is None else float(level)
+    out['equilibrium:composite_spread_max']=float(e.get('composite_spread_max') or 0.)
+    out['equilibrium:composite_nonfinite_share']=float(e.get('composite_nonfinite_share') or 0.)
     return out

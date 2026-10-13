@@ -147,3 +147,16 @@ def test_stage_transfer_reports_the_share_of_undefined_outputs(monkeypatch):
              '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
     table = E.stage_transfer(facts, 'composite', levels=(0., 1.), times=(2.,), size=(8, 4))
     assert abs(table['nonfinite_share'] - .75) < 1e-9 and table['rgb'][0] == [.125, .125, .125]
+
+
+def test_equilibrium_reports_composite_threshold_spread_and_undefined_share(monkeypatch):
+    # r75/r77: a threshold composite, a time-varying palette and 0/0 output are descriptor inputs.
+    table = {'levels': [0., .25, .5, .75, 1.], 'rgb': [[0, 0, 0], [0, 0, 0], [.2, .2, .2], [.8, .8, .8], [1, 1, 1]],
+             'rgb_spread': [[0, 0, 0], [.1, .3, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]], 'nonfinite_share': .25}
+    monkeypatch.setattr(E, 'stage_transfer', lambda facts, stage, **_: table if stage == 'composite' else None)
+    result = E.equilibrium(summary({}))
+    assert abs(result['composite_threshold_level'] - .625) < 1e-9  # luma .2 at .5, .8 at .75: crosses .5 midway
+    assert result['composite_spread_max'] == .3 and result['composite_nonfinite_share'] == .25
+    monkeypatch.setattr(E, 'stage_transfer', lambda facts, stage, **_: None)
+    result = E.equilibrium(summary({}))
+    assert result['composite_threshold_level'] is None and result['composite_nonfinite_share'] == 0.

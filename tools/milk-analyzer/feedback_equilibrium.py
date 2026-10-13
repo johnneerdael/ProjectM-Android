@@ -293,6 +293,22 @@ def _composite(rgb,facts,notes,transfer=None):
     return out,'legacy'
 
 
+def _composite_shape(composite):
+    """Descriptor facts of the composite's flat transfer: the canvas level where displayed luma first
+    crosses 0.5 (None if never), the largest per-channel spread between sample times, and the share of
+    non-finite outputs."""
+    if not composite:return {'composite_threshold_level':None,'composite_spread_max':0.,'composite_nonfinite_share':0.}
+    levels,lumas=composite['levels'],[_luma(row) for row in composite['rgb']]
+    threshold=None
+    if lumas and lumas[0]>=.5:threshold=levels[0]
+    else:
+        for (a,la),(b,lb) in zip(zip(levels,lumas),zip(levels[1:],lumas[1:])):
+            if la<.5<=lb:threshold=a+(b-a)*(.5-la)/(lb-la);break
+    spread=max((v for row in composite.get('rgb_spread') or [] for v in row),default=0.)
+    return {'composite_threshold_level':threshold,'composite_spread_max':float(spread),
+            'composite_nonfinite_share':float(composite.get('nonfinite_share') or 0.)}
+
+
 def equilibrium(summary):
     """Steady-state canvas/display brightness and colour bounds from the summary facts."""
     facts={fact['path']:fact['value'] for group in summary['facts'].values() for fact in group}
@@ -319,4 +335,5 @@ def equilibrium(summary):
             'display_local_luma':_luma(shown_local),'display_spread_luma':_luma(shown_spread),
             'display_local_saturation':_saturation(shown_local),'display_spread_saturation':_saturation(shown_spread),
             'composite_model':model,'substitutions':notes[:20],'substitution_count':len(notes),
+            **_composite_shape(composite),
             'uses_equation_execution':False,'uses_rendered_images':False}
