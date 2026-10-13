@@ -251,3 +251,18 @@ def test_channel_selective_warp_transfer_reports_persistence_per_channel(monkeyp
     assert transfer['halving_frames'] is None  # no single channel-mean persistence
     trails = next(e for e in recipe['intent']['effects'] if e['effect'] == 'trails')
     assert trails['half_life_s'] is None and trails['decay_per_frame'] == 1.
+
+
+def test_composite_hue_shader_reports_periods_range_and_random_phase():
+    import math
+    hue = {'policy': 'source31-native-composite-hue-v1', 'consumed_rgb_components': [0, 1, 2],
+           'raw_corner': {'angular_rate_rad_per_second_rgb': [30 * .0143, 30 * .0107, 30 * .0129]},
+           'nominal_input_range_rgb': [[.75, 1.]] * 3, 'random_phase_lifetime': 'preset instance, selected at initialization'}
+    recipe = build_recipe(summary(('construction', BASE + '/elements/0/id', 'shader_composite'),
+                                  ('construction', BASE + '/elements/0/stage', 'composite'),
+                                  ('colour', BASE + '/elements/0/native_colour_generators', [hue])))
+    shader = recipe['render']['composite']['hue_shader']
+    assert shader['channels'] == ['r', 'g', 'b']
+    assert abs(shader['cycle_periods_seconds_rgb'][0] - 2 * math.pi / (30 * .0143)) < 1e-9
+    assert shader['range_rgb'] == [[.75, 1.]] * 3
+    assert 'random' in shader['phase']

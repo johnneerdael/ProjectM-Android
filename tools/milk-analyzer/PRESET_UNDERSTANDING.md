@@ -1206,3 +1206,13 @@ repeated on correctly oriented frames. Probes and results:
   channel, saturation 0.122 vs 0.126, frame difference 0.41 vs 0.34. The SDK
   text gave a dense churning, washed, grey-based bright field with possible
   flicker.
+- **r30 (`TonyMilkdrop - Tricolors … Isosceles edit`) v1.** Understood on the
+  first prediction: a glowing rounded triangle with a streak over a dark,
+  finely advected field (single-frame blurred correlation 0.986; frames 60–149
+  luma 0.067 vs 0.069, correlation 0.998). The only difference is the inner
+  tint: the composite multiplies by `pow(hue_shader, 6)`, and projectM draws the
+  hue phases from `std::random_device` at every load, so the placement is
+  random by construction. The recipe now carries `render.composite.hue_shader`
+  (periods, range, random phase) from the export's `native_colour_generators`,
+  which `preset_understanding.py` had dropped. The SDK brightness (estimate
+  0.26 vs measured 0.07) waits for the refit.

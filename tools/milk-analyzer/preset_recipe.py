@@ -240,6 +240,19 @@ def _render(facts):
                                'alpha':ranges.get('echo_alpha'),'zoom':ranges.get('echo_zoom'),'orientation':ranges.get('echo_orient')}
             composite.setdefault('evidence',[]).append(path)
             break
+    for path,value in sorted(facts.items()):
+        if not path.endswith('/native_colour_generators') or not isinstance(value,list):continue
+        hue=next((row for row in value if isinstance(row,dict) and row.get('policy')=='source31-native-composite-hue-v1'),None)
+        rates=((hue or {}).get('raw_corner') or {}).get('angular_rate_rad_per_second_rgb')
+        if not hue or not rates:continue
+        # FinalComposite::ApplyHueShaderColors: four corner shades cycle at fixed rates; their phases
+        # add PresetState::hueRandomOffsets, drawn from std::random_device at every preset load.
+        composite['hue_shader']={'channels':['rgb'[i] for i in hue.get('consumed_rgb_components') or [] if i in (0,1,2)],
+            'cycle_periods_seconds_rgb':[2*math.pi/rate if rate else None for rate in rates],
+            'range_rgb':hue.get('nominal_input_range_rgb'),
+            'spatial':'four corner shades blended over the screen, each normalised so its largest channel is 1',
+            'phase':'random per preset load: which hue shows where is not fixed by the source','evidence':path}
+        break
     from feedback_equilibrium import stage_transfer
     flat=stage_transfer(facts,'composite')
     if flat is not None:

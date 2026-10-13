@@ -1,0 +1,79 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r30-v2",
+ "preset": "TonyMilkdrop - Tricolors [Flexi - priming + techstyle] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "92ffb3f5f0a7021adf998eee26e86d74f38ad383afd528976047352f198f0f08",
+  "prediction.json": "e09a11c8f40c420fd2179a2c9c883e5e8910af4937499b44955ab34b82a4228b",
+  "description.json": "f6c902d564cb9bbf4c7ef09cfa3187640e52fa0df8b61ca5c5a65fc34395a159",
+  "recipe.json": "0cf379ed9264b82099846c018eff5ae97fc2c09589c0ae6b290bdbb044934e8d",
+  "llm-look-description-v1.txt": "e53d38c94bb7ccf52cbf43f3f165258401079340986c6be8d3d21c35a9ad1127"
+ },
+ "capture_result_sha256": "0cb9637e7e3025173a880691c59deef6ebb7deebd7585cf56b9f2f01e93f9d22",
+ "review_measurements_v1": {
+  "prediction_luma": 0.072,
+  "screenshot_luma": 0.083,
+  "mean_rgb_prediction": [
+   0.071,
+   0.071,
+   0.076
+  ],
+  "mean_rgb_screenshot": [
+   0.073,
+   0.087,
+   0.075
+  ],
+  "saturation": [
+   0.162,
+   0.21
+  ],
+  "blurred_luma_correlation": 0.986,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.067,
+    0.069
+   ],
+   "rgb": [
+    [
+     0.062,
+     0.069,
+     0.067
+    ],
+    [
+     0.065,
+     0.071,
+     0.065
+    ]
+   ],
+   "saturation": [
+    0.133,
+    0.135
+   ],
+   "blurred_luma_correlation": 0.998
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0251,
+   0.0257
+  ]
+ },
+ "agreements": [
+  "prediction: the same glowing rounded triangle with a left streak over a dark, finely advected field; luma, motion and layout match",
+  "SDK text: centre ring with outward streaming echoes, self-advection, strong persistence, cycling saturated ring colour, no beat flashing"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "inner tint blue in the prediction, green in the capture at the snapshot (red early in the capture)",
+   "cause": "composite multiplies by pow(hue_shader,6); projectM draws the hue phases from std::random_device at every preset load, so the tint placement is not fixed by the source (the prediction uses zero offsets)",
+   "fix": "none possible for the image; the recipe now reports render.composite.hue_shader (periods, range, random phase) and the v2 SDK text says the placement is random per load"
+  },
+  {
+   "size": "medium",
+   "version": "SDK",
+   "observed": "v1 text 'moderate', v2 'moderate to dim' (estimate 0.26, interval 0.07-0.50) vs measured 0.07-0.08",
+   "cause": "display_estimate calibration; refit with the r10 export pending"
+  }
+ ],
+ "verdict": "understood on the first prediction; SDK text understood apart from the brightness level"
+}

@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (r30 v2; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a single thick, unfilled ring drawn at the screen centre (builtin_wave, effective radius about 0.2 model units, rotating slowly at roughly 0.2 rad/s). Its outline is deformed by the right-channel audio waveform, so it wobbles like a living circle rather than a perfect one.
+
+Feedback and motion: each frame the previous image is pulled outward from the centre. zoom is 1.03 with zoomexp 13.7, so the rate depends strongly on radius: near the centre the expansion is almost nil (about 0.2% per step), toward the edges it is far stronger (up to roughly 139% per step in the source model). The ring therefore seems to shed copies that stream outward and accelerate, like a tunnel or ripple. A shader warp that steers its own sampling (self-advection, small offsets of about 0.1 to 0.2% of the screen) should smear and swirl those copies into fluid, organic shapes. There is no rotation and no sideways drift. Warp gain is about 0.994 per frame, almost lossless on flat content, so trails should persist for a long time and fill much of the frame rather than leaving a dark background.
+
+Colour: the ring colour cycles through red, green and blue sinusoids with periods of roughly 9.5, 10.2 and 11.1 s. It is max-normalised, so it is always a fully bright, saturated line. The cycle most often passes through blue, green and red, with some pink, orange and cyan. The composite also multiplies by four corner tints (range 0.67 to 1, cycling over 15 to 20 s) whose placement is random per load. The settled canvas leans blue.
+
+Brightness: moderate to dim overall. The calibrated estimate gives mean luminance of about 0.26 (interval 0.07 to 0.50) and saturation of about 0.36. Activity is low (Chill, possibly Normal). No flashing is expected.
+
+Audio reaction: only the waveform shapes the ring. No bass, mid or treble bindings exist, so I expect no beat pulses or brightness jumps.
+
+Uncertain: the shader warp and composite palettes are unresolved. The real trail density and outward speed are unverified. The mood tags (psychedelic, organic or liquid) are low-confidence estimates.

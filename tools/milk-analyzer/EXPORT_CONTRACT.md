@@ -368,6 +368,13 @@ patterns spread depends on seeds, retention and clamping.
 evaluated on flat canvas colours (`levels`, mean displayed `rgb` per level): the
 displayed palette, including texture lookups.
 
+`render.composite.hue_shader` (composites reading `hue_shader`/`_vDiffuse`)
+summarises `FinalComposite::ApplyHueShaderColors` from the element's
+`native_colour_generators` fact: `channels` read, `cycle_periods_seconds_rgb`
+(2π / (30 · rate constant)), `range_rgb` after per-corner normalisation, and
+`phase`: `PresetState::hueRandomOffsets` come from `std::random_device` at every
+preset load, so the hue at a given place and time is not fixed by the source.
+
 ### Mood facets block (`facets`, policy `preset-facets-v1`)
 
 `preset_recipe.py` adds a `facets` block to every recipe, and

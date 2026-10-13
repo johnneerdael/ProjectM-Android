@@ -226,7 +226,7 @@ def summarize_preset(record):
         for key in ("geometry", "center_trajectory", "vertex_motion", "audio_area_response", "audio_center_response"):
             if key in element:
                 fact("geometry", path + "/" + key, element[key], "Nominal source geometry/response with original units and nulls")
-        for key in ("colour", "material", "wave_material"):
+        for key in ("colour", "material", "wave_material", "native_colour_generators"):
             if key in element:
                 fact("colour", path + "/" + key, element[key], "Source colour/material ingredients before final displayed composition")
         if "frame_recurrence" in element:

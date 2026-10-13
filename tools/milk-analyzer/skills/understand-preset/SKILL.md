@@ -91,6 +91,9 @@ required. Use a native file-read tool to inspect JSON and the summary.
    `render.composite.flat_transfer` gives the displayed colour for each flat
    canvas level (texture lookups included). That is the palette the whole
    canvas is shown through, so do not infer coverage from drawn elements alone.
+   `render.composite.hue_shader` means the composite multiplies by projectM's
+   cycling corner shades: name the cycle periods and the range, and say that
+   the hue placement is random per preset load (do not name one fixed tint).
    `render.feedback.steady_state` gives the settled canvas/display colour from
    source (`hue_family` when it is visibly above black). Use it as the hue cue
    for the overall palette; its level is a lower bound, so take brightness from

@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r30 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a single thick, closed-looking circular line near the screen centre (wave at 0.5, 0.5, effective radius about 0.2 model units, mode 0, not dots, not additive). Its outline is deformed by the right-channel audio waveform, so it reads as a wobbling ring rather than a clean circle, and it turns slowly (about 0.2 rad/s nominal). Everything else on screen comes from feedback of that ring.
+
+Feedback and motion: the previous frame is pushed outward from the centre every step (zoom 1.03 with a very large zoom exponent, 13.7). Near the centre the expansion is tiny (about 0.2% per step) while toward the edges it is very large (up to about 139% per step). So the ring should leave smeared, fast-widening echoes that stream outward and stretch toward the edges, like a tunnel or bloom, with a nearly static middle. A self-advecting warp shader steers its own sampling through the blurred image, adding small (about 0.1 to 0.2% of the screen) flowing, smeared, liquid distortion. There is no rotation and no net translation. Trails persist strongly: per-step gain is about 0.994 with a small positive offset, so content fades only slowly.
+
+Colour: the ring colour cycles through all hues over roughly 9 to 11 second periods in red, green and blue (blue, green and red are the most visited, then grey, pink and orange). The brightest channel is held at full, so it stays saturated and vivid. The composite shader gives a cool tint, and the settled background leans blue. Final colours of the warp and composite shaders are unresolved.
+
+Brightness: the full-white canvas is displayed at about 0.6 to 0.7, so the picture is probably moderate rather than glaring. Persistent trails may fill much of the screen with faded colour, but the coverage is uncertain.
+
+Audio reaction: only the waveform shape of the ring is bound to audio. No bass, mid or treble routes are recorded, so I expect no beat-synchronised flashing or brightness jumps. The motion is continuous and driven by the music's waveform.
+
+Uncertain: how much of the screen the echoes fill, the real trail density, the true speed of the outward flow, the actual colour mix after the shaders, the exact brightness, and the visible effect of the advection. The provisional mood is psychedelic and liquid, moderate energy, low confidence.
