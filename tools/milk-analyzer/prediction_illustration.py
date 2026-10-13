@@ -1530,6 +1530,14 @@ def simulated_display_series(summary,*,seconds=4.,fps=30.,viewport=(160,90),audi
     return rows,limitations
 
 
+def _feedback_gain(held,static_decay,*,per_frame):
+    """Fixed-warp gain for one frame: the per-frame program's decay clamped to [0, 1] like
+    PerPixelMesh (std::min(decay, 1)), or the static persistence gain."""
+    if not per_frame:return static_decay
+    value=held.get('decay',static_decay)
+    return min(max(float(value),0.),1.) if type(value) in (int,float) else static_decay
+
+
 def _initial_canvas(flat,shape,*,time,fps,history_steps):
     """Feedback canvas before the first simulated frame. projectM clears it to black at preset load, so
     a history covering the whole time since load starts there (a cleared canvas can be an absorbing
@@ -1569,7 +1577,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     image,note=_initial_canvas(flat,(height,width),time=time,fps=fps,history_steps=history_steps)
     if note:limitations.append(note)
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
-    decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None
+    decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None;transfer_gain=False
     frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
     stepper=_FrameStepper(frame_record,constants=_render_constants(context)) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
     programs=(facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}
@@ -1587,13 +1595,20 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     if type(decay) not in (int,float) and type(transfer.get('uniform_content_gain')) in (int,float):
         # Custom warp: uniform-content gain of all previous-image sample sites plus the known constant
         # offset; blur sites are approximated by the same pixel and injected fields are omitted.
-        decay=float(transfer['uniform_content_gain'])
+        decay=float(transfer['uniform_content_gain']);transfer_gain=True
         known=transfer.get('constant_offset_rgb') or transfer.get('constant_offset_rgb_excluding_injection')
         if isinstance(known,list) and len(known)==3 and None not in known:offset=np.array(known,np.float32)
         injection=_injection_lanes(transfer);main_coordinates=_main_coordinate_field(transfer)
         if main_coordinates is not None:limitations.append('main feedback sample uses the exported shader coordinate expression (image-driven displacement included)')
         limitations.append('custom warp approximated as uniform gain %.4g plus constant offset; blur sites read the same pixel'%decay+
                            ('; injected spatial fields evaluated per frame (seeded rand_frame stand-in)' if injection else '; injected spatial fields omitted'))
+    # A frame program that writes decay gives each frame's gain, even when the static persistence is
+    # unknown (e.g. decay = decay + sin(bass_att)); the fixed warp then uses that value every frame.
+    frame_decay=(stepper is not None and 'decay' in (frame_record.get('outputs') or {}) and warp_program is None
+                 and not transfer_gain)
+    if frame_decay and type(decay) not in (int,float):
+        decay=1.
+        limitations.append('feedback decay taken from the per-frame program each frame (clamped to [0,1] as PerPixelMesh does)')
     if warp_program is not None and sample is not None:
         decay=1.  # the exported warp program supplies the full colour transfer below
         limitations.append('warp shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
@@ -1683,7 +1698,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     except Exception as error:  # noqa: BLE001 - fall back to the transfer model
                         limitations.append('warp program not evaluated: '+str(error)[:120]);warp_program=None;warped=image*0
                 if warp_program is None:
-                    warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)*decay+offset
+                    warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)*_feedback_gain(held,decay,per_frame=frame_decay)+offset
                 if injection is not None and not program_done:
                     try:warped=warped+_evaluate_injection(injection,image,map_x,map_y,frame_time,int(round(frame_time*fps)),None,
                                                           {k:held[k] for k in BANDS if k in held})

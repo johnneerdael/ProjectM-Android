@@ -474,3 +474,13 @@ def test_noise_textures_are_rgba_with_random_alpha_and_shaders_read_it():
     from test_source_stage_program import evaluate
     out = evaluate('warp', 'shader_body{ret=tex2D(sampler_noise_lq, uv*7.3).w;}', image_value=0.)
     assert abs(float(out.mean()) - .5) < .1
+
+
+def test_per_frame_decay_is_used_each_frame_and_clamped_like_per_pixel_mesh():
+    # Fitting Butterfly writes decay = decay + sin(bass_att) every frame: the static persistence is
+    # unknown, but each frame's value is known; PerPixelMesh clamps it with min(decay, 1).
+    from prediction_illustration import _feedback_gain
+    assert _feedback_gain({'decay': 1.37}, None, per_frame=True) == 1.
+    assert _feedback_gain({'decay': .8}, .5, per_frame=True) == .8
+    assert _feedback_gain({'decay': -.2}, .5, per_frame=True) == 0.
+    assert _feedback_gain({'decay': .8}, .5, per_frame=False) == .5

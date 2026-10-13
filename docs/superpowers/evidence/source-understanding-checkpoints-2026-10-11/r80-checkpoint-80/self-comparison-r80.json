@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r80-v1",
+ "preset": "Hexcollie n EoS - sunburst baboon - species muppet.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "2460c235db54fe38f3d0019a3f961134739303bf6389a417e5e65e07fd3de271",
+  "prediction.json": "1a4d807ab5ac381cf65a46d8f1b2f0a4bcded744c89f9c83d6e18f108f03b6d3",
+  "description.json": "c826d0bd91373463ac82c2df9b7cfbef37fb69016ed82c34f7297866f40501c3",
+  "recipe.json": "467a2f1dac41baf96733eee3ea2427da746a2246e6bdfc247b81ec6cb821faff",
+  "llm-look-description-v1.txt": "ed3863b03871533d4b4ee6f78c86afb3ecd54e9a71d6b3f5e0f2f51f7cf0a483"
+ },
+ "capture_result_sha256": "f40ab3a9605a6d787a3a46b1b69e2d46543b85bc4acc305d035e704ebe2059ee",
+ "review_measurements_v1": {
+  "prediction_luma": 0.052,
+  "screenshot_luma": 0.105,
+  "mean_rgb_prediction": [
+   0.068,
+   0.039,
+   0.127
+  ],
+  "mean_rgb_screenshot": [
+   0.132,
+   0.085,
+   0.232
+  ],
+  "blurred_luma_correlation": 0.822,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.038,
+    0.04
+   ],
+   "saturation": [
+    0.586,
+    0.57
+   ],
+   "blurred_luma_correlation": 0.973
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0436,
+   0.0437
+  ]
+ },
+ "agreements": [
+  "time-average correlation 0.973; frame-to-frame change 0.0436 vs 0.0437; the same full white flash at frame 0 and dark sequence after",
+  "mean colour equal within 0.002"
+ ],
+ "misses": [
+  "the 5 s screenshot is darker in ours (0.052 vs 0.105), within a sparse flickering stretch"
+ ],
+ "verdict": "understood on the first prediction"
+}
