@@ -86,7 +86,7 @@ public class PresetKnowledgePackTest {
     @SuppressWarnings("unchecked")
     public void eachBrokenPackIsRejectedForItsRule() throws IOException {
         Map<String, Object> reject = (Map<String, Object>) expected().get("reject");
-        assertEquals(6, reject.size());
+        assertEquals(9, reject.size());
         for (Map.Entry<String, Object> pack : reject.entrySet()) {
             final List<String> visited = new ArrayList<>();
             try {

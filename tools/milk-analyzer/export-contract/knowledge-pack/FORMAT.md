@@ -34,7 +34,9 @@ serialised program graphs removed (the keys listed in
 ## Encoding
 
 - `core.jsonl.gz` is one gzip member. Its content is UTF-8 text: one compact
-  JSON object per line, each line ending in `\n` (LF). Producers write ASCII
+  JSON object per line, each line ending in `\n` (LF). A carriage return
+  before the LF, or a last line without its LF, rejects the pack (rule:
+  *line ending*). Producers write ASCII
   only, escaping other characters as `\uXXXX`. Readers must still decode
   UTF-8, strictly: a byte sequence that is not valid UTF-8, in the manifest
   or in a line, rejects the pack (rule: *encoding*). Never substitute
@@ -56,7 +58,9 @@ reader therefore verifies the whole core before it publishes anything.
 3. SHA-256 of the `core.jsonl.gz` file bytes equals `manifest.core.sha256`,
    lowercase hex (rule: *core file hash*). Hash the file as stored, before
    decompressing.
-4. The number of non-empty lines equals the number of `manifest.presets`.
+4. `manifest.presets` is an array of objects (rule: *manifest structure*; a
+   missing or null array is not an empty collection), and the number of
+   non-empty lines equals its length.
 5. For the *i*-th line, SHA-256 of its UTF-8 bytes, without the trailing
    `\n`, equals `manifest.presets[i].core_line_sha256` (rule: *core line
    hash*). Hash the bytes as stored; never re-serialise the parsed object.
@@ -120,9 +124,12 @@ for the packs a reader must accept, and the rule each rejected pack breaks:
 | `bad-line-hash` | reject: core line hash |
 | `bad-utf8` | reject: encoding |
 | `bad-field-type` | reject: recipe types |
+| `bad-no-presets` | reject: manifest structure |
+| `bad-crlf` | reject: line ending |
+| `bad-final-lf` | reject: line ending |
 
 `knowledge_pack_golden.py` (predictor branch) regenerates the vectors byte for
 byte from `golden-v1/recipes/`. `test_knowledge_pack_golden.py` checks the
 Python reader against them and `PresetKnowledgePackTest` checks the Java
-reader. A reader in another language should run the same eight cases in its
+reader. A reader in another language should run the same eleven cases in its
 own tests.

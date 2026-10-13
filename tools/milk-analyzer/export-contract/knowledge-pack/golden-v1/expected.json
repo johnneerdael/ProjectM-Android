@@ -542,6 +542,9 @@
   "bad-core-hash": "core file hash",
   "bad-line-hash": "core line hash",
   "bad-utf8": "encoding",
-  "bad-field-type": "recipe types"
+  "bad-field-type": "recipe types",
+  "bad-no-presets": "manifest structure",
+  "bad-crlf": "line ending",
+  "bad-final-lf": "line ending"
  }
 }

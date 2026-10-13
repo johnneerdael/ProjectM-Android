@@ -47,6 +47,7 @@ SHA-256, so any platform can read it. The reader contract is
 
 - check the pack and recipe policy strings;
 - check the core file hash, and each line's hash over the stored line bytes;
+- require a `presets` array and LF line endings (no CR, final LF present);
 - decode UTF-8 strictly;
 - check the JSON types of the fields it exposes;
 - keep manifest order;
@@ -73,7 +74,7 @@ throws `InvalidPackException`, whose `rule` names the rule. Lookups work by
 preset name or by the preset file's SHA-256.
 
 The golden vectors in `export-contract/knowledge-pack/golden-v1/` (one valid
-pack, one with unknown fields, and six packs that each break one rule) are
+pack, one with unknown fields, and nine packs that each break one rule) are
 the shared tests for every reader. `PresetKnowledgePackTest` runs them on the
 JVM. Estimates and facets come from calibrated source analysis, not from
 rendered frames. No pack ships in the app yet.

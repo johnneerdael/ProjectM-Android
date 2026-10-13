@@ -175,7 +175,11 @@ public final class PresetKnowledgePack {
         }
         if (!hex(fileDigest.digest()).equals(object(manifest.get("core"), "core").get("sha256")))
             throw new InvalidPackException("core file hash", "core file bytes differ from manifest core.sha256");
-        List<Map<String, Object>> entries = rows(manifest.get("presets"), "presets");
+        Object presetList = manifest.get("presets");
+        if (!(presetList instanceof List)) throw new InvalidPackException("manifest structure", "presets must be an array");
+        for (Object entry : (List<?>) presetList)
+            if (!(entry instanceof Map)) throw new InvalidPackException("manifest structure", "presets must be an array of objects");
+        List<Map<String, Object>> entries = rows(presetList, "presets");
         // Pass 2: every line verified and reduced to its view; nothing is published yet.
         final List<Preset> presets = new ArrayList<>(entries.size());
         lines(core, entries, (index, entry, recipe) -> {
@@ -202,6 +206,9 @@ public final class PresetKnowledgePack {
         int index = 0;
         try (InputStream in = new BufferedInputStream(new GZIPInputStream(core.open(), 1 << 16), 1 << 16)) {
             while (line.next(in)) {
+                if (!line.terminated) throw new InvalidPackException("line ending", "the last core line has no terminating LF");
+                if (line.length > 0 && line.bytes[line.length - 1] == '\r')
+                    throw new InvalidPackException("line ending", "core lines end in CR LF, not LF");
                 if (line.length == 0) continue;
                 if (index >= entries.size()) throw new InvalidPackException("preset count", "more core lines than manifest presets");
                 Map<String, Object> entry = entries.get(index);
@@ -217,16 +224,18 @@ public final class PresetKnowledgePack {
         if (index != entries.size()) throw new InvalidPackException("preset count", "manifest lists " + entries.size() + ", core holds " + index);
     }
 
-    /** One LF-terminated line of the decompressed core, reusing its buffer. */
+    /** One line of the decompressed core, reusing its buffer; terminated is false for a last line without LF. */
     private static final class Line {
         byte[] bytes = new byte[1 << 16];
         int length;
+        boolean terminated;
 
         boolean next(InputStream in) throws IOException {
             length = 0;
+            terminated = false;
             int b;
             while ((b = in.read()) >= 0) {
-                if (b == '\n') return true;
+                if (b == '\n') { terminated = true; return true; }
                 if (length == bytes.length) bytes = Arrays.copyOf(bytes, bytes.length * 2);
                 bytes[length++] = (byte) b;
             }
