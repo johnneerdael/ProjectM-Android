@@ -1,0 +1,69 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r94-v1",
+ "preset": "TonyMilkdrop - Rhythm Of My Life.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4308d42dbb6ecb880160d6b23ae5c30817a77be6ae873cfe46b1bbef92bba7a0",
+  "prediction.json": "ddd27668c13609a23b0f8ccf764f2343120147f80a1ca9f17212e8c7f7758f2a",
+  "description.json": "ec25f616b292ad13a02a22f6137ca17b46ca1f1035e81079857064fc790a5351",
+  "recipe.json": "d525a03efd65bc8c107cc36dea7fcfde820f86f80dd8d7006a1bbf78ca5dd8f4",
+  "llm-look-description-v1.txt": "fa538baab3c3a9ad1d80789586726cec8417ce05b5737a54fc9232bef1a10020"
+ },
+ "capture_result_sha256": "25ca72cbc665021cb19fe19ab2b584da9bf35a1218f794bd4ebae41a4ed553d5",
+ "review_measurements_v1": {
+  "prediction_luma": 0.023,
+  "screenshot_luma": 0.094,
+  "mean_rgb_prediction": [
+   0.036,
+   0.014,
+   0.075
+  ],
+  "mean_rgb_screenshot": [
+   0.111,
+   0.058,
+   0.394
+  ],
+  "blurred_luma_correlation": 0.456,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.071,
+    0.267
+   ],
+   "saturation": [
+    0.371,
+    0.235
+   ],
+   "blurred_luma_correlation": 0.696
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0521,
+   0.0821
+  ]
+ },
+ "agreements": [
+  "ten-lobed star burst with zebra-striped arms from the coloured outer border pulled inward by the bass-modulated zoom",
+  "brightness rhythm on bass beats (peaks at frames 15, 75, 120) matched in v1"
+ ],
+ "misses": [
+  "v1: 3.7x too dim; the solid star blob was missing because zoom-out samples beyond the texture took the opposite side (wrap) instead of the clamped border colour"
+ ],
+ "verdict": "understood after a general fix (v2 is a fresh export of the same frozen preset): the main feedback texture follows bTexWrap (0 clamps to the edge texel) instead of always wrapping, and the header value is exported; screenshot correlation 0.456 -> 0.998, frames 60-149 luma 0.071 -> 0.263 (engine 0.267), frame difference 0.0835 (0.0821)",
+ "review_measurements_v2": {
+  "prediction_luma": 0.093,
+  "screenshot_luma": 0.094,
+  "blurred_luma_correlation": 0.998,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.263,
+    0.267
+   ],
+   "blurred_luma_correlation": 0.998
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0835,
+   0.0821
+  ],
+  "note": "v2 is a fresh source export of the same frozen preset with the corrected exporter and illustrator"
+ }
+}

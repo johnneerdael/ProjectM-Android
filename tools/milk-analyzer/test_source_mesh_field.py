@@ -166,3 +166,10 @@ def test_zoom_range_crossing_degenerate_slope_is_flagged():
     motion=value['controls']['dx']['regions'][0]['axis_motion']
     assert motion['composed_feature_scale_per_step_range'] is None
     assert motion['behaviour']=='degenerate_sampling_possible'
+
+
+def test_header_texture_wrap_is_exported_with_the_milkdrop_default():
+    # The main feedback texture is sampled with bTexWrap (default 1, wrap); 0 clamps to the edge texel (r94).
+    assert field(synthetic('dx=0;'))['texture_wrap'] == 1
+    clamped = read_raw('bTexWrap=0\nfWaveAlpha=0\nper_frame_1=zoom=.9;\nper_pixel_1=dx=0;\n')
+    assert field(clamped)['texture_wrap'] == 0

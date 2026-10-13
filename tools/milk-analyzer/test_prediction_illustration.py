@@ -525,6 +525,19 @@ def test_negative_zoom_with_fractional_power_samples_the_origin_only_where_undef
     assert np.all(np.isfinite(map_x)) and not any('nonfinite' in t for t in _UNRESOLVED_TERMS)
 
 
+def test_main_warp_clamps_to_the_edge_texel_when_texture_wrap_is_off():
+    # bTexWrap=0: a zoom-out samples beyond the texture; GL_CLAMP_TO_EDGE repeats the edge texel (a border
+    # colour fills the outside), while wrap repeats the opposite side (r94's solid star blob).
+    import prediction_illustration as P
+    mesh = {**_constant_mesh(zoom=.5), 'texture_wrap': 0}
+    facts = {'/analysis/visual_description/static_behaviour/mesh_field': mesh,
+             '/analysis/visual_description/static_behaviour/context': {'viewport': [32, 18]}}
+    assert P._main_wrap(facts, {}) is False
+    assert P._main_wrap({**facts, '/analysis/visual_description/static_behaviour/mesh_field': {**mesh, 'texture_wrap': 1}}, {}) is True
+    # A per-frame wrap write overrides the header value.
+    assert P._main_wrap(facts, {'wrap': 1.}) is True
+
+
 def test_noise_textures_are_rgba_with_random_alpha_and_shaders_read_it():
     # MilkdropNoise fills all four bytes; a shader offsetting by N.zw = noise*2-1 must see a zero-mean w,
     # not a padded alpha of 1 (which shifts the image half a texel every frame, r70).

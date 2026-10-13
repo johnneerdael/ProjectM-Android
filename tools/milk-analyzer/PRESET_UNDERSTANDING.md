@@ -1781,3 +1781,21 @@ luma follows the capture from frame 0. The particle layout differs in detail
 because collisions are chaotic. About 180 presets combine per-frame loops
 with memory and a drawn layer; 259 enabled shapes and 81 enabled waves read
 `megabuf` or `gmegabuf`.
+
+### r94: clamped feedback texture
+
+r94 (Rhythm Of My Life) has no shapes, waves or shaders: a thin coloured
+outer border and a black inner border are drawn every frame, and a per-pixel
+zoom of 0.95 ± 0.05·bass with ten angular lobes pulls them inward. The star
+and its striped arms matched, and so did the beat rhythm, but the picture was
+3.7× too dim and the large solid star blob was missing. On a strong beat the
+zoom samples beyond the texture. With `bTexWrap=0` the engine clamps to the
+edge texel, which holds the border colour, so the outside fills with that
+colour. The illustration always wrapped, so those pixels took the opposite
+side instead. The mesh field now exports the header `texture_wrap`. The main
+warp and the shader samplers bound to the feedback texture read it, unless
+per-frame code writes `wrap`. 4,025 presets set `bTexWrap=0` and 274 write
+`wrap` per frame.
+
+v2: screenshot correlation 0.456 → 0.998, frames 60–149 luma
+0.071 → 0.263 (engine 0.267), and per-frame luma within 0.01 of the capture.

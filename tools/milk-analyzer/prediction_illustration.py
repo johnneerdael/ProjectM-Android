@@ -1257,6 +1257,14 @@ def _texture_lookup_3d(volume,coordinates,*,wrap,linear):
     return out
 
 
+def _main_wrap(facts,controls=None):
+    """Main feedback texture addressing: a per-frame `wrap` value, else the header bTexWrap (default 1)."""
+    value=(controls or {}).get('wrap')
+    if type(value) not in (int,float):
+        value=((facts.get('/analysis/visual_description/static_behaviour/mesh_field') or {}).get('texture_wrap'))
+    return float(value)>.0001 if type(value) in (int,float) else True
+
+
 def _sampler_wraps(policy,controls=None):
     """Resolved wrap addressing of an exported sampling policy.
 
@@ -1730,6 +1738,10 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
           if isinstance(span,list) and len(span)==2}
     for name in ('bass','mid','treb','bass_att','mid_att','treb_att'):held.setdefault(name,1.0)
     held.update(_render_constants(context))
+    # Header texture addressing (bTexWrap) until per-frame code writes `wrap`: the main warp and shader
+    # samplers bound to the feedback texture read it.
+    header_wrap=(facts.get('/analysis/visual_description/static_behaviour/mesh_field') or {}).get('texture_wrap')
+    if type(header_wrap) in (int,float):held.setdefault('wrap',float(header_wrap))
     textured=_textured_shapes(facts,held)
     wrap=True
     if textured:limitations.append('textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)')
@@ -1802,7 +1814,8 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                     except Exception as error:  # noqa: BLE001 - fall back to the transfer model
                         limitations.append('warp program not evaluated: '+str(error)[:120]);warp_program=None;warped=image*0
                 if warp_program is None:
-                    warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)*_feedback_gain(held,decay,per_frame=frame_decay)+offset
+                    border=cv2.BORDER_WRAP if _main_wrap(facts,stage_controls) else cv2.BORDER_REPLICATE
+                    warped=cv2.remap(image,main_x.astype(np.float32),main_y.astype(np.float32),cv2.INTER_LINEAR,borderMode=border)*_feedback_gain(held,decay,per_frame=frame_decay)+offset
                 if injection is not None and not program_done:
                     try:warped=warped+_evaluate_injection(injection,image,map_x,map_y,frame_time,int(round(frame_time*fps)),None,
                                                           {k:held[k] for k in BANDS if k in held})

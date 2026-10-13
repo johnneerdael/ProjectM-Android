@@ -447,6 +447,9 @@ def mesh_field_structure(analysis,context=None):
         'pixel_scale':None,'coordinate_domains':None,'visible_motion_speed':None,'native_numeric_certified':False,
         'uses_equation_execution':False,'uses_rendered_images':False,'whole_preset_activity_credit':False,
         'unknown_reasons':[],
+        # Main feedback texture addressing (bTexWrap, MilkDrop default 1): 1 wraps, 0 clamps to the edge
+        # texel; per-frame code can change it through `wrap`.
+        'texture_wrap':_scalar(getattr(analysis,'values',None) or {},'bTexWrap',1,'bool'),
         'conditions':['Engine convention: zoom acts about the screen centre; stretch and rotation about (cx, cy); then the warp samples (u-dx, v-dy); retained content moves +dx right and +dy down (y=0 top) per feedback step',
             'Zoom is z^(zoomexp^(2*rad-1)) per vertex; it is uniform only when zoomexp is 1',
             'Per-pixel x/y are aspect-corrected: both measure the long side, so 1 unit is max(width, height) pixels; rad=1 is half the long side',
