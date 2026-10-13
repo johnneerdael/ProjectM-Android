@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r32 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a busy, glittering field of dots and small shapes rather than one clean figure. A built-in waveform is drawn as additive dots in a rotating stereo trace around the screen centre (about 2.3 rad/s), with a ring-like radius. Two custom waves add 512 points each, moving with time and audio, but they are not proven to be independent particles. One small six-sided polygon, two four-sided shapes (one very large and faint, one slightly translucent) and a 4-by-28 grid of motion-vector lines add faint structure. Everything is drawn into the feedback image, so it gets smeared and re-sampled.
+
+Feedback and motion: the warp is a spatially varying zoom (about 0.69 to 1.44, so some regions pull in and others push out) with a swirl of up to plus or minus 0.04 rad per frame and no sideways drift. The recipe's band-pass feedback adds a fine level and subtracts a blurred coarse level, so small seeds should grow into splatter, cells or petal-like blobs spreading over much of the canvas instead of a dark background with a few dots. Flat-colour trails are short (half-life about 0.23 s), but the pattern growth should keep content alive longer.
+
+Colour: the wave colour drifts continuously through blue, pink, green, purple, red, orange and cyan (blue and pink most common). Its brightest channel is kept at full, so the wave stays vivid while its hue shifts, at roughly 0.3 cycles per second. The composite lifts mid-level content strongly: a quarter-level canvas reads about 0.66 grey and half-level or above reads white. Expect saturated colour with bright, washed-out patches and a slight cool lean.
+
+Brightness: fairly bright, with the composite pushing a lot of the canvas toward white.
+
+Audio reaction: attenuated treble drives the zoom and vertical shift of the warp, the size and opacity of one shape, and the composite colour. Attenuated mid also changes the composite colour. All of these are continuous and smoothed, so I expect a shimmering, breathing response to music, not hard beat flashes. The waveform shape follows the left and right audio.
+
+Uncertain: how much of the screen the growth pattern covers, whether the dots read as particles, the real colours reached, how strong the audio response is, and how visible the faint large shape and motion vectors are.

@@ -1,0 +1,73 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r32-v1",
+ "preset": "A Bit Storm Effected by AdamFX 2 shadowharlequin - bit storm Ft dancing petals .milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b1c3391e8182168385a277dd871da229a90710880772ed0f85f92f5451869afd",
+  "prediction.json": "2f7a84ae39b1b5ad1115bfbc0cefd402c149758c181c85e13f86d4c7356f00a0",
+  "description.json": "2fbd4c2be7942487bd0d0ea3507029efe15d5f54e0200d4e8818f959f41c107a",
+  "recipe.json": "91e10063612967ebb84ba6782c5e9b9fc060007e26b939906ca091083b2c081b",
+  "llm-look-description-v1.txt": "138f5a03efab8ef8740a586cb86fc2ec2c167956de1d2f1f0abb4a93c1b9908a"
+ },
+ "capture_result_sha256": "d53b70a9ffe0c9718d4d1bb3609372e34f2d9ac5fd30970bb262209e461db627",
+ "review_measurements_v1": {
+  "prediction_luma": 0.694,
+  "screenshot_luma": 0.883,
+  "mean_rgb_prediction": [
+   0.774,
+   0.66,
+   0.794
+  ],
+  "mean_rgb_screenshot": [
+   0.885,
+   0.897,
+   0.745
+  ],
+  "saturation": [
+   0.217,
+   0.208
+  ],
+  "blurred_luma_correlation": 0.179,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.55,
+    0.535
+   ],
+   "rgb": [
+    [
+     0.537,
+     0.553,
+     0.552
+    ],
+    [
+     0.529,
+     0.537,
+     0.529
+    ]
+   ],
+   "saturation": [
+    0.037,
+    0.038
+   ],
+   "blurred_luma_correlation": 0.692
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.132,
+   0.1416
+  ]
+ },
+ "agreements": [
+  "prediction: the same mirror-symmetric fan of white stripes, central column and bottom speckle; brightness, motion and averaged colour match",
+  "SDK text: bright, washed-towards-white composite, band-pass pattern growth, hue drifting wave colours, smoothed (non-beat) response"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "snapshot hue lilac vs yellow-green",
+   "cause": "a full-screen additive quad takes int(rand(4))/3 colours every frame and shape colours follow beat-triggered random seeds; projectm-eval's process-wide rand stream makes the per-frame tint a draw",
+   "note": "time averages agree (saturation 0.037 vs 0.038)"
+  }
+ ],
+ "verdict": "understood on the first prediction (per-frame tint is random by construction)"
+}

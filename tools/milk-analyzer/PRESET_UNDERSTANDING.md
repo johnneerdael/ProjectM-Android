@@ -1235,3 +1235,10 @@ repeated on correctly oriented frames. Probes and results:
   frame difference 0.20 vs 0.18. The v2 SDK text describes a full-screen
   flowing field whose colours cycle every 6.6 s. r21's chaotic time average
   moved to 0.139 (capture 0.123).
+- **r32 (`A Bit Storm … dancing petals`) v1.** Understood on the first
+  prediction: the same mirror-symmetric fan of white stripes, central column
+  and bottom speckle (frames 60–149 luma 0.550 vs 0.535, saturation 0.037 vs
+  0.038, frame difference 0.13 vs 0.14). The snapshot tint differs (lilac vs
+  yellow-green). A full-screen additive quad draws `int(rand(4))/3` colours
+  every frame and shape colours follow beat-triggered random seeds, so the
+  per-frame tint is a draw from projectm-eval's process-wide random stream.
