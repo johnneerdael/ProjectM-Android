@@ -1,0 +1,50 @@
+{
+ "pack": "knowledge-pack-r11-d584df77",
+ "policy": "preset-knowledge-pack-v1",
+ "recipe_policy": "preset-visual-recipe-v1",
+ "producer": {
+  "commit": "26372d53579668c00ac53982767c53b4c59f2edd",
+  "analyzer_dirty": true
+ },
+ "corpus_run": {
+  "directory": "corpus-understanding-9606-r11",
+  "run_manifest_sha256": "2e9a8f55bf765d8ecef801b3cce2718d4a2e9d70bf8269c9cdc049add5a4ea89"
+ },
+ "counts": {
+  "presets": 9606,
+  "failed": 0
+ },
+ "core": {
+  "sha256": "f5dd3d88d0ce4bba3a63089fc86828a5bd2c2409ec293aa2b4d2cbc39fbff33a",
+  "bytes": 52454337
+ },
+ "full": {
+  "files": 9606,
+  "bytes": 115257075
+ },
+ "manifest_bytes": 3236738,
+ "manifest_sha256": "352c2c336603a6d9d923bdfb92ab208c51554088e5051a885566e2a0dd1d6a55",
+ "build": {
+  "workers": 4,
+  "wall_seconds": 7705,
+  "main_process_max_rss_bytes": 1473478656,
+  "command": "knowledge_pack.py build build/preset-corpus/corpus-understanding-9606-r11 <pack> --with-programs --workers 4"
+ },
+ "check": "knowledge_pack.py check <pack> --presets core/src/main/assets/presets: ok",
+ "readers": {
+  "python_load_core": {
+   "presets": 9606,
+   "seconds": 3.2,
+   "max_rss_bytes": 2669936640,
+   "note": "keeps every full recipe"
+  },
+  "java_PresetKnowledgePack": {
+   "presets": 9606,
+   "visited": 9606,
+   "milliseconds": 7752,
+   "heap_after_gc_mb": 129,
+   "jvm": "desktop JVM, -Xmx2g, Apple M4 Pro",
+   "note": "views only; not measured on a TV"
+  }
+ }
+}
