@@ -1,0 +1,46 @@
+{
+ "policy": "preset-knowledge-pack-v1",
+ "recipe_policy": "preset-visual-recipe-v1",
+ "schema": {
+  "file": "export-contract/preset-recipe.schema.json",
+  "sha256": "2b1e943d2406e81cab32145bebdf752187772c7d3a2f15a42ef2b2c4e58c3a3c"
+ },
+ "producer": {
+  "commit": null,
+  "analyzer_dirty": null
+ },
+ "corpus_run": {
+  "directory": "golden-v1 recipes",
+  "run_manifest_sha256": null
+ },
+ "calibration_model_sha256": null,
+ "activity_reference_sha256": null,
+ "facet_definition_sha256": null,
+ "counts": {
+  "presets": 0,
+  "failed": 0
+ },
+ "core": {
+  "file": "core.jsonl.gz",
+  "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+  "graphs_removed": [
+   "control_expressions",
+   "expression",
+   "expressions",
+   "frame_expression",
+   "frame_recurrence",
+   "point_recurrence",
+   "program",
+   "programs",
+   "terms",
+   "time_expression"
+  ]
+ },
+ "full": {
+  "directory": "full",
+  "present": false
+ },
+ "failures": {},
+ "uses_rendered_images": false,
+ "note": "Source-only recipes; display_estimate/facets are calibrated estimates, not measurements."
+}
