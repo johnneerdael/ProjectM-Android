@@ -5,6 +5,8 @@
 Inputs are the frozen recipes in <out-dir>/recipes/*.json. Outputs (all deterministic):
     valid/            a well-formed pack
     unknown-fields/   the same data plus fields a v1 reader does not know (must be accepted, same values)
+    null-containers/  view containers set to null, as producers emit when an estimate is missing
+                      (must be accepted; null means empty)
     bad-policy/       manifest policy of a later pack version (must be rejected)
     bad-recipe-policy/ one recipe line with a later recipe policy, hashes consistent (must be rejected)
     bad-core-hash/    core file bytes that do not match manifest core.sha256 (must be rejected)
@@ -74,7 +76,7 @@ def view(recipe):
 def generate(out=DEFAULT):
     out = Path(out)
     recipes = sorted((out / 'recipes').glob('*.json'))
-    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes', 'bad-header-crc'):
+    for name in ('valid', 'unknown-fields', 'null-containers', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes', 'bad-header-crc'):
         shutil.rmtree(out / name, ignore_errors=True)
     K.build_from_recipes(recipes, out / 'valid', source='golden-v1 recipes')
     manifest = json.loads((out / 'valid' / 'manifest.json').read_text(encoding='utf-8'))
@@ -84,7 +86,7 @@ def generate(out=DEFAULT):
     (out / 'valid' / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
     lines = _lines(out / 'valid')
 
-    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes', 'bad-header-crc'):
+    for name in ('unknown-fields', 'null-containers', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes', 'bad-header-crc'):
         shutil.copytree(out / 'valid', out / name)
     extended = []
     for line in lines:
@@ -93,6 +95,11 @@ def generate(out=DEFAULT):
         recipe['intent']['x_later_hint'] = 'ignored by v1 readers'
         extended.append(json.dumps(recipe, separators=(',', ':'), sort_keys=True))
     _rewrite(out / 'unknown-fields', extended, lambda m: m.update({'x_later_manifest_field': {'note': 'ignored by v1 readers'}}))
+    nulled = [json.loads(line) for line in lines]
+    nulled[0]['facets'] = None; nulled[0]['display_estimate']['activity'] = None; nulled[0]['intent']['reactivity'] = None
+    nulled[1]['display_estimate'] = None; nulled[1]['intent']['energy'] = None
+    nulled = [json.dumps(recipe, separators=(',', ':'), sort_keys=True) for recipe in nulled]
+    _rewrite(out / 'null-containers', nulled)
     _rewrite(out / 'bad-policy', lines, lambda m: m.update({'policy': 'preset-knowledge-pack-v2'}))
     changed = json.loads(lines[0]); changed['policy'] = 'preset-visual-recipe-v2'
     _rewrite(out / 'bad-recipe-policy', [json.dumps(changed, separators=(',', ':'), sort_keys=True)] + lines[1:])
@@ -124,7 +131,8 @@ def generate(out=DEFAULT):
 
     expected = {
         'format': K.PACK_POLICY, 'recipe_policy': K.RECIPE_POLICY, 'float_tolerance': FLOAT_TOLERANCE,
-        'accept': {name: [view(json.loads(line)) for line in lines] for name in ('valid', 'unknown-fields')},
+        'accept': {'valid': [view(json.loads(line)) for line in lines], 'unknown-fields': [view(json.loads(line)) for line in lines],
+                   'null-containers': [view(json.loads(line)) for line in nulled]},
         'reject': {'bad-policy': 'pack policy', 'bad-recipe-policy': 'recipe policy',
                    'bad-core-hash': 'core file hash', 'bad-line-hash': 'core line hash',
                    'bad-utf8': 'encoding', 'bad-field-type': 'recipe types',

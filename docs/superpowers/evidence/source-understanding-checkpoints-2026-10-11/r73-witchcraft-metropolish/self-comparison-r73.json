@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r73-v1",
+ "preset": "fiShbRaiN - witchcraft (metropolish remix) - test - tillex  - waqx xtrong en la ngoadzchple.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9ebc42963f65b4cf9a78183cfd2136875d7cc4acb6adcc13c6f836c3afc88d67",
+  "prediction.json": "8aec577883eca9713f8c5e45749e6c4ac75713da7fb6cc6752f7a69a5ea20b01",
+  "description.json": "6ced71fe423bddc40985f312c052fe9e765f9e949993abb22b66b034290673bc",
+  "recipe.json": "8bedddc81a48860bb2f0a2527abd4c29b8cdd71313914294c35e851cd12d444e",
+  "llm-look-description-v1.txt": "d97f48f0f1b65f15306c29e6add2b3d434448067662fe6e9cb51ca12a3ebbf5b"
+ },
+ "capture_result_sha256": "37df3cca14f63c8c6f219c9253ec2c950c4aab5be8a07a127b42cf13001273b9",
+ "review_measurements_v1": {
+  "prediction_luma": 0.001,
+  "screenshot_luma": 0.025,
+  "mean_rgb_prediction": [
+   0.0,
+   0.0,
+   0.019
+  ],
+  "mean_rgb_screenshot": [
+   0.116,
+   0.0,
+   0.0
+  ],
+  "blurred_luma_correlation": -0.17,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.077,
+    0.079
+   ],
+   "saturation": [
+    0.156,
+    0.109
+   ],
+   "blurred_luma_correlation": 0.355
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1585,
+   0.1561
+  ]
+ },
+ "agreements": [
+  "the same full-screen colour sequence (green, then red, then black stretches) with the same edge marks",
+  "brightness frame by frame 0.141/0.142, 0.121/0.121, 0.094/0.091, then black in both; mean 0.077 vs 0.079; frame-to-frame change 0.159 vs 0.156"
+ ],
+ "misses": [
+  "the capture shows a spiral of dots (green phase) and a dotted rosette (red phase) from the 1024-instance shape layers; the illustration holds audio-driven shape controls at band midpoints, so this instance arrangement is not drawn",
+  "the 5 s screenshot fell in a black stretch (correlation meaningless there)"
+ ],
+ "verdict": "understood on averages; shape-instance arrangement not shown"
+}

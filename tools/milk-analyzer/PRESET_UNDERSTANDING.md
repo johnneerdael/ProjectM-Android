@@ -1597,3 +1597,15 @@ blur1 and grows patterns by a blur difference. The first 45 frames match;
 after that, small differences grow (chaotic by construction). The recipe
 labels this `self_advection`, because the gradient detector needs bare sample
 differences and misses `2*GetBlur1(uv+d)-2*GetBlur1(uv-d)`.
+
+### r72 (Reaction Diffusion 34 mashup) and r73 (witchcraft, metropolish remix)
+
+r72's reaction-diffusion blobs and central star match. Its brightness follows
+the capture frame by frame, and only the chaotic blob layout differs. r73
+cycles full-screen green, red and black, and the brightness sequence matches
+frame by frame. The spiral and rosette of dots drawn by its 1024-instance
+shapes are missing, because the illustration holds audio-driven shape
+controls at band midpoints.
+
+The generalised gradient detector (r71) recognises gradient-driven flow or
+gradient relief in 167 of a 600-preset sample: 137 with flow, 93 with relief.

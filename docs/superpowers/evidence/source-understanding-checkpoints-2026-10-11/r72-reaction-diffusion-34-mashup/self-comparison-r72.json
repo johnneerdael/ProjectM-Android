@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r72-v1",
+ "preset": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss an65.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9d5f667d6f4f239acb7122d0aadb84e3f38067a45b611f516f2a9eb15a45f153",
+  "prediction.json": "edb1b620a2489cabc82d14738021a9d804649e7967a4e017f1f35b5835188aa4",
+  "description.json": "f4ac0cfe26a630c47135b5960c68f0c99f6c7ae2d48598706dd853b6681ee2c2",
+  "recipe.json": "ab9208bd41882c1d8974ff399ba35f400e21950cd3f3e0ed03984ff0ec2a5fb0",
+  "llm-look-description-v1.txt": "9893424dc917aa40a1ee368f4ef583a3ef2f5234563504ab9e74279d39cb400f"
+ },
+ "capture_result_sha256": "8aee951643d143ba5d3fcf7183aef0fe83065fbfe8d375e95a261c3942a93aa6",
+ "review_measurements_v1": {
+  "prediction_luma": 0.679,
+  "screenshot_luma": 0.695,
+  "mean_rgb_prediction": [
+   0.673,
+   0.681,
+   0.68
+  ],
+  "mean_rgb_screenshot": [
+   0.692,
+   0.696,
+   0.695
+  ],
+  "blurred_luma_correlation": 0.148,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.65,
+    0.661
+   ],
+   "saturation": [
+    0.022,
+    0.019
+   ],
+   "blurred_luma_correlation": 0.195
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0753,
+   0.0763
+  ]
+ },
+ "agreements": [
+  "the same white and black reaction-diffusion blobs with streaks and the central blue star",
+  "brightness follows the capture frame by frame (0.076/0.078 at 0, 0.497/0.507 at 30, 0.654/0.651 at 90); mean luma 0.650 vs 0.661; frame-to-frame change 0.0753 vs 0.0763"
+ ],
+ "misses": [
+  "pixel correlation is low (0.15 screenshot, 0.20 average) because the blob layout grows from small differences"
+ ],
+ "verdict": "understood on the first prediction (layout chaotic by construction)"
+}
