@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (before capture, r29 v1; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a dense, busy abstract field rather than a few drawn elements. A built-in stereo XY waveform drawn as dots and a custom line waveform supply small seeds. Four polygon-shape layers add to them: 32-sided (33 instances), 12-sided (92), 20-sided (1024, low alpha about 0.34 fill) and tiny triangles (311, radius about 0.01 NDC). These are repeated, moving polygons and points, not proven tracked particles. Two self-advecting shaders (warp and composite) let the image steer its own sampling, so the result should look smeared, flowing and liquid, with an angularly periodic wobble in the feedback mesh.
+
+Feedback and motion: the whole image expands from the screen centre by about 0.5% per frame, giving a slow zoom-out-of-centre flow. The warp transfer on flat content is strongly channel-selective and non-linear: red, green and blue are each nearly inverted or cleared in one step. Trails are therefore not simple fading echoes. Content is repeatedly re-shaped, so the picture is likely churning and high in motion. The calibrated display estimate puts mean flow around 0.6 screen widths per second (interval 0.32 to 1.09) and frame-to-frame change about 0.25.
+
+Colour: the source palette is unresolved. Shapes and waves carry grayscale ingredients, and the steady-state hue cue is grayscale. Audio routes move RGB on the shapes, so colour shifts with the music. The composite maps flat canvas through a gray ramp that lifts black to about 0.11 and saturates near white, which suggests a washed, bright-leaning grey-based look. The estimate gives moderate saturation (about 0.43, interval 0.15 to 0.70) and neutral warm/cool balance.
+
+Brightness: mid-bright overall, mean luminance about 0.39 (interval 0.20 to 0.63), with a lifted black floor.
+
+Audio reaction: bass, mid and treble (raw and attenuated) drive mesh translation in x and y, so the flow field shifts and drifts with the music. Bass, mid and treble also drive shape radius, opacity and RGB, and bass_att drives shape position. The reaction is continuous, not thresholded, and its strength is unquantified.
+
+Uncertain: actual hues, how much of the screen the shapes cover, whether it reads as sharp geometry or soft liquid, and visible trail behaviour. The estimated brightness-jump rate (about 133 per 10 s, very wide interval) may mean visible pulsing or flicker. Activity is estimated Intense, tagged Psychedelic, Geometric and Organic/Liquid, but these are approximate.

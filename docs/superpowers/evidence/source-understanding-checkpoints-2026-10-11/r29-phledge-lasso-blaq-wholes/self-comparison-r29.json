@@ -1,0 +1,72 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r29-v1",
+ "preset": "phledge lasso blaq wholes aren't natural wr divinge source ov leuchre.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0e37e0ee7406f70b65d5ed5dd8a4c0e1d1bd51f07d635b6ff61bad923de81fe7",
+  "prediction.json": "3d62ae5f7cfdf177e74e22fb39ce82ef5bc0c12a8e3a69f60a3194f70c851ed2",
+  "description.json": "dab63296b2c2fc06d2e9dbe5ee6f3e1144dae326867058ce1baeba56b99b21ab",
+  "recipe.json": "055cc1e15cd370d9f256da212eef6d34b9566399c17f52b4d196563ade5fdb11",
+  "llm-look-description-v1.txt": "a9397288c522c25ea86e5f1e4140b472c906fc3b9414153f5556c8883059bc27"
+ },
+ "capture_result_sha256": "89920c2236a13f5ca667c53d46080ab53c335c4acc51e277f7c7088088361655",
+ "review_measurements_v1": {
+  "prediction_luma": 0.619,
+  "screenshot_luma": 0.732,
+  "mean_rgb_prediction": [
+   0.589,
+   0.631,
+   0.591
+  ],
+  "mean_rgb_screenshot": [
+   0.689,
+   0.741,
+   0.758
+  ],
+  "saturation": [
+   0.319,
+   0.201
+  ],
+  "blurred_luma_correlation": 0.231,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.49,
+    0.474
+   ],
+   "rgb": [
+    [
+     0.447,
+     0.502,
+     0.508
+    ],
+    [
+     0.434,
+     0.485,
+     0.491
+    ]
+   ],
+   "saturation": [
+    0.122,
+    0.126
+   ],
+   "blurred_luma_correlation": 0.133
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.405,
+   0.342
+  ]
+ },
+ "agreements": [
+  "prediction: bright washed pastel field with green and magenta regions, dark glossy blobs with textured edges, strobe-level frame-to-frame change",
+  "SDK text: dense churning field from shape/wave seeds, grey-based washed bright palette with lifted black, mid-bright, possible visible flicker"
+ ],
+ "misses": [
+  {
+   "size": "small",
+   "observed": "single-frame layout and the instantaneous brightness differ (chaotic; luma swings 0.3-0.65 every few frames)",
+   "note": "time averages agree"
+  }
+ ],
+ "verdict": "understood on the first prediction (chaotic: judged on time averages)"
+}

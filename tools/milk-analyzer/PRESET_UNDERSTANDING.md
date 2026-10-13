@@ -1198,3 +1198,11 @@ repeated on correctly oriented frames. Probes and results:
   the r28 v3 SDK text describes the splatter spreading from the seed ring.
   Its brightness ("dim", from `display_estimate` 0.15, interval 0–0.39 against
   a measured 0.27) waits for a whole-pack refit that includes the mechanism.
+- **r29 (`phledge lasso blaq wholes …`) v1.** Understood on the first
+  prediction. Four instanced shape layers and two waves seed channel-selective,
+  self-advecting warp and composite shaders, so the field churns and strobes.
+  Single frames differ (luma swings 0.3–0.65 within a few frames). Over frames
+  60–149 the prediction matches: luma 0.490 vs 0.474, RGB within 0.02 per
+  channel, saturation 0.122 vs 0.126, frame difference 0.41 vs 0.34. The SDK
+  text gave a dense churning, washed, grey-based bright field with possible
+  flicker.
