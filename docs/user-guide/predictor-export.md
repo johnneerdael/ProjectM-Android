@@ -694,7 +694,7 @@ outputs are stable:
   endings and a presets array; decode UTF-8 strictly; check the JSON types of
   the fields it exposes; keep manifest order; ignore unknown fields; and hand
   out nothing from a rejected pack. Golden vectors in `golden-v1/` (one valid
-  pack, one with unknown fields, eleven packs that each break one rule) show
+  pack, one with unknown fields, twelve packs that each break one rule) show
   whether a reader in any language follows the contract.
 
 Display estimates and facets are calibrated estimates, not measurements.

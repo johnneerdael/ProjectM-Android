@@ -547,6 +547,7 @@
   "bad-crlf": "line ending",
   "bad-final-lf": "line ending",
   "bad-two-members": "gzip",
-  "bad-trailing-bytes": "gzip"
+  "bad-trailing-bytes": "gzip",
+  "bad-header-crc": "gzip"
  }
 }

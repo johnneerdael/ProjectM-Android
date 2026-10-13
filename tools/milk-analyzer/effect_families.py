@@ -470,6 +470,25 @@ def _weighted_samples(value):
     return found
 
 
+def _difference_directions(nodes):
+    """Offset directions of pure central differences among nodes: sums of image samples in which every
+    off-centre sample is cancelled by the opposite sample with the negated weight. One direction per
+    opposite pair."""
+    directions = set()
+    for node in nodes:
+        if node.op not in {'add', 'subtract'}:continue
+        weights = _weighted_samples(node)
+        if not weights:continue
+        pairs = [(key, weight) for key, weight in weights.items() if key[1] != _negated(key[1])]
+        if not pairs or any(weights.get((base, _negated(signature), sampler)) != -weight
+                            for (base, signature, sampler), weight in pairs):continue
+        directions |= {signature for (_, signature, _), _ in pairs}
+    unique = set()
+    for signature in directions:
+        if _negated(signature) not in unique:unique.add(signature)
+    return unique
+
+
 def _negated(signature):
     return tuple((-c+0., tuple((k, -v+0.) for k, v in terms)) for c, terms in signature)
 
@@ -1374,19 +1393,7 @@ class _Analysis:
         """Central differences of the image: one weighted set of samples at uv+d minus the same set at
         uv-d. The output then follows local slopes, so flat areas read as one level whatever their
         brightness and edges or texture stand out (emboss, relief or normal-map shading)."""
-        directions = set()
-        for node, _ in _walk(output, sample_coordinates=False):
-            if node.op not in {'add', 'subtract'}:continue
-            weights = _weighted_samples(node)
-            if not weights:continue
-            # A pure central difference: every off-centre sample is cancelled by the opposite sample.
-            pairs = [(key, weight) for key, weight in weights.items() if key[1] != _negated(key[1])]
-            if not pairs or any(weights.get((base, _negated(signature), sampler)) != -weight
-                                for (base, signature, sampler), weight in pairs):continue
-            directions |= {signature for (_, signature, _), _ in pairs}
-        unique = set()
-        for signature in directions:
-            if _negated(signature) not in unique:unique.add(signature)
+        unique = _difference_directions(node for node, _ in _walk(output, sample_coordinates=False))
         if unique:
             self.add('gradient_relief', prefix, output, 'paired opposite-offset image samples are subtracted (central difference)',
                      parameters={'directions': len(unique)})
@@ -1628,6 +1635,8 @@ class _Analysis:
         return phases
 
     def central_gradient(self, uv):
+        # Weighted central differences (2*GetBlur1(uv+d)-2*GetBlur1(uv-d)) along two or more directions.
+        if len(_difference_directions(node for node, _ in _walk(uv))) >= 2:return True
         differences = []
         for node, _ in _walk(uv):
             if node.op != 'subtract':

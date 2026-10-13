@@ -653,3 +653,17 @@ def test_central_differences_of_the_image_in_the_composite_are_gradient_relief()
     # A sum of opposite taps is a blur and a difference of unrelated points is not a gradient.
     assert not rows(analyze(shader('shader_body {ret=GetPixel(uv+float2(.002,0))+GetPixel(uv-float2(.002,0));}', 'comp')), 'gradient_relief')
     assert not rows(analyze(shader('shader_body {ret=GetPixel(uv)-GetPixel(uv*.5);}', 'comp')), 'gradient_relief')
+
+
+def test_scaled_blur_central_differences_steering_coordinates_are_gradient_driven():
+    # r71: dx=(2*GetBlur1(uv+d)-2*GetBlur1(uv-d))*0.5 is a central difference too.
+    record = analyze(shader('shader_body {float2 d=texsize.zw*8;'
+        'float3 dx=(2*GetBlur1(uv+float2(1,0)*d)-2*GetBlur1(uv-float2(1,0)*d))*0.5;'
+        'float3 dy=(2*GetBlur1(uv+float2(0,1)*d)-2*GetBlur1(uv-float2(0,1)*d))*0.5;'
+        'ret=tex2D(sampler_main, uv-float2(dx.x,dy.x)*texsize.zw).xyz;}', 'warp'))
+    assert 'gradient_driven_advection' in families(record)
+    # A single difference along one axis is not a gradient field.
+    one = analyze(shader('shader_body {float2 d=texsize.zw*8;'
+        'float3 dx=GetBlur1(uv+float2(1,0)*d)-GetBlur1(uv-float2(1,0)*d);'
+        'ret=tex2D(sampler_main, uv-float2(dx.x,0)*texsize.zw).xyz;}', 'warp'))
+    assert 'gradient_driven_advection' not in families(one)

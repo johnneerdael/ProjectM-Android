@@ -16,11 +16,13 @@ Inputs are the frozen recipes in <out-dir>/recipes/*.json. Outputs (all determin
     bad-final-lf/     the last line without its terminating LF, hashes consistent (must be rejected)
     bad-two-members/  each line in its own gzip member, file hash updated (must be rejected)
     bad-trailing-bytes/ one valid gzip member followed by extra bytes, file hash updated (must be rejected)
+    bad-header-crc/   a gzip header with FHCRC set and a wrong header CRC, file hash updated (must be rejected)
     expected.json     what a reader exposes for the accepted packs, and the rule each rejected pack breaks
 """
 import gzip
 import json
 import shutil
+import zlib
 import sys
 from pathlib import Path
 
@@ -72,7 +74,7 @@ def view(recipe):
 def generate(out=DEFAULT):
     out = Path(out)
     recipes = sorted((out / 'recipes').glob('*.json'))
-    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes'):
+    for name in ('valid', 'unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes', 'bad-header-crc'):
         shutil.rmtree(out / name, ignore_errors=True)
     K.build_from_recipes(recipes, out / 'valid', source='golden-v1 recipes')
     manifest = json.loads((out / 'valid' / 'manifest.json').read_text(encoding='utf-8'))
@@ -82,7 +84,7 @@ def generate(out=DEFAULT):
     (out / 'valid' / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
     lines = _lines(out / 'valid')
 
-    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes'):
+    for name in ('unknown-fields', 'bad-policy', 'bad-recipe-policy', 'bad-core-hash', 'bad-line-hash', 'bad-utf8', 'bad-field-type', 'bad-no-presets', 'bad-crlf', 'bad-final-lf', 'bad-two-members', 'bad-trailing-bytes', 'bad-header-crc'):
         shutil.copytree(out / 'valid', out / name)
     extended = []
     for line in lines:
@@ -109,7 +111,11 @@ def generate(out=DEFAULT):
     _rewrite(out / 'bad-no-presets', [], lambda m: (m.pop('presets'), m['counts'].update(presets=0)))
     _rewrite(out / 'bad-crlf', [line.encode('utf-8') + b'\r' for line in lines])
     _rewrite(out / 'bad-final-lf', lines, final_lf=False)
-    for name, data in (('bad-two-members', b''.join(gzip.compress(line.encode('utf-8') + b'\n', mtime=0) for line in lines)),
+    valid_core = (out / 'valid' / 'core.jsonl.gz').read_bytes()
+    header = bytes([valid_core[0], valid_core[1], valid_core[2], valid_core[3] | 2]) + valid_core[4:10]
+    wrong_crc = (zlib.crc32(header) & 0xffff) ^ 0xffff
+    for name, data in (('bad-header-crc', header + wrong_crc.to_bytes(2, 'little') + valid_core[10:]),
+                       ('bad-two-members', b''.join(gzip.compress(line.encode('utf-8') + b'\n', mtime=0) for line in lines)),
                        ('bad-trailing-bytes', (out / 'valid' / 'core.jsonl.gz').read_bytes() + b'\x00trailing')):
         (out / name / 'core.jsonl.gz').write_bytes(data)
         manifest = json.loads((out / name / 'manifest.json').read_text(encoding='utf-8'))
@@ -123,7 +129,7 @@ def generate(out=DEFAULT):
                    'bad-core-hash': 'core file hash', 'bad-line-hash': 'core line hash',
                    'bad-utf8': 'encoding', 'bad-field-type': 'recipe types',
                    'bad-no-presets': 'manifest structure', 'bad-crlf': 'line ending', 'bad-final-lf': 'line ending',
-                   'bad-two-members': 'gzip', 'bad-trailing-bytes': 'gzip'},
+                   'bad-two-members': 'gzip', 'bad-trailing-bytes': 'gzip', 'bad-header-crc': 'gzip'},
     }
     (out / 'expected.json').write_text(json.dumps(expected, indent=1) + '\n', encoding='utf-8')
     return expected
