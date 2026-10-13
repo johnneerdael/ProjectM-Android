@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r67-v1",
+ "preset": "Milkdrop Mashup Masters ADAMFX 2 raron + flexi  + Mr Zoolook Pin Wheel.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "dfde1b4266edcb2ba0ee7362a9ba9e1e2d9aded335faa5af7f1c31127a005f02",
+  "prediction.json": "aa95d3c2471fa4fec855a066a47d1b29c973c3a7632fd87c6f8c302e2746a27c",
+  "description.json": "691846e2f940e9b795893b1eee17b369eb666f5f96329e487bcabef91aa2baf5",
+  "recipe.json": "dd8d154d6438a1bc0650bc3dee1a1a1ab29912cd88e11b07f5274abaf441b40a",
+  "llm-look-description-v1.txt": "c5d7d1bc4a8fab05d9072e75817619395c2b9880e0cc6fa079feb89016b8bc74"
+ },
+ "capture_result_sha256": "3dd8467fc298a403ca2465b505de0b00d7da6405463af813c73fc57a589da6fe",
+ "review_measurements_v1": {
+  "prediction_luma": 0.178,
+  "screenshot_luma": 0.149,
+  "mean_rgb_prediction": [
+   0.19,
+   0.17,
+   0.225
+  ],
+  "mean_rgb_screenshot": [
+   0.202,
+   0.125,
+   0.227
+  ],
+  "blurred_luma_correlation": 0.863,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.131,
+    0.116
+   ],
+   "saturation": [
+    0.797,
+    0.83
+   ],
+   "blurred_luma_correlation": 0.947
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0507,
+   0.0483
+  ]
+ },
+ "agreements": [
+  "time-average map correlation 0.947, screenshot 0.863, frame-to-frame change 0.051 vs 0.048"
+ ],
+ "misses": [
+  "ours about 0.015 brighter on average"
+ ],
+ "verdict": "understood on the first prediction"
+}

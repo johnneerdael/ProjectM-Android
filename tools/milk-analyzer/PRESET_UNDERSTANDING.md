@@ -1552,3 +1552,14 @@ our frames change 1.7 times as much as the capture. The warp adds per-frame
 random spots scaled by the audio bands, and the composite's hue weight uses
 an exponent integrated from `|band - band_att|^2`. The GLES translation
 compiles, so the difference is not a fallback shader.
+
+### r66 (shifter, spincycle b) and r67 (Mashup Masters, Pin Wheel)
+
+r67 was understood on the first prediction (time-average correlation 0.947).
+In r66 the swirling red X matches, but our dim content persists: with
+`fDecay=1` our 8-bit round-to-nearest storage never loses dim levels, while
+the capture's dim red falls by about 3% per frame. A diagnostic run that
+truncates stored levels lowers our mean from 0.057 to 0.037 (capture 0.020),
+so storage rounding is at most part of the cause. It is not adopted, because
+it would change every preset without evidence of the GPU's conversion. The
+recipe also leaves persistence unresolved when `fDecay=1`. Open item.

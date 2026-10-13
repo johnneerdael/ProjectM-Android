@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r66-v1",
+ "preset": "shifter - spincycle b.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d6a83192aa082f2cf8c05416c50a559269b1730d4ddacb7d9fbdaa76d707187b",
+  "prediction.json": "175fd99a97df018e5bd625f6f1d2b4dd7990be8084285b6f6c2315e1b44b06e5",
+  "description.json": "5a9d3dabe8530d87c2df8b71b358c0d47a64a6d70d8e1a96ee1116a76a4b61ee",
+  "recipe.json": "e04dbfe5b784038e52bb5b0036718ca1116a90dad7e4929efbe82df5a305eed0",
+  "llm-look-description-v1.txt": "4a2359da0a8e0554492eadcd4709a84c8f6facb95d64b436171b587b0cb8ea38"
+ },
+ "capture_result_sha256": "47e268df9bbd37bf7125b046f3911de2e7109962f01161689ff2ee5ad8612468",
+ "review_measurements_v1": {
+  "prediction_luma": 0.047,
+  "screenshot_luma": 0.012,
+  "mean_rgb_prediction": [
+   0.182,
+   0.011,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.036,
+   0.006,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.684,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.057,
+    0.02
+   ],
+   "saturation": [
+    1.0,
+    1.0
+   ],
+   "blurred_luma_correlation": 0.804
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0455,
+   0.0287
+  ]
+ },
+ "agreements": [
+  "prediction: the same dark red swirling X with two vortices",
+  "time-average map correlation 0.80"
+ ],
+ "misses": [
+  "ours keeps a dim red haze everywhere (luma 0.057 vs 0.020 over frames 60-149); the capture lets dim content fall to black at about 3% per frame although fDecay is 1. Diagnostic: truncating instead of rounding the stored 8-bit levels lowers ours to 0.037, so storage rounding explains part at most; not adopted (it would change every preset without proof of the GPU's conversion). Recipe also leaves persistence unresolved for fDecay=1 (decay_gain null)"
+ ],
+ "verdict": "structure understood; dim persistence overestimated (open)"
+}
