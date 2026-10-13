@@ -6,7 +6,7 @@ is not committed; `full-pack-summary.json` records its identity, sizes and
 timings.
 
 - 9,606 recipes, 0 failures; `knowledge_pack.py check --presets` passed.
-- `core.jsonl.gz` 50 MB; `full/` 129 MB (9,606 files).
+- `core.jsonl.gz` 52.5 MB (52,454,337 bytes); `full/` 115 MB in 9,606 files.
 - Build: 2.1 hours with 4 workers. The builder streams results, so its main
   process peaked at 1.47 GB (the earlier in-memory version passed 2 GB and
   was still growing).
