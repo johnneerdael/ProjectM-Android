@@ -34,3 +34,22 @@ Same 200 presets, seed and frames (199 compared; `compare-44e4-4530.log`).
 
 Paired 44e4 → 4530: luma error 11 better / 4 worse, colour map error
 10 / 5, map correlation 8 / 7.
+
+## 908dea3b (r90–r94 fixes), corrected snapshot
+
+The first 908d pass used `git archive` snapshots without the `core` symlink
+(no bundled assets); its losses were measurement artifacts. Re-run with the
+link (`report-4530-908dc.json`):
+
+| Metric | 4530 | 908d |
+|---|---|---|
+| Luma error mean / median | 0.0568 / 0.0152 | 0.0538 / 0.0150 |
+| Colour map error mean / median | 0.0790 / 0.0419 | 0.0753 / 0.0416 |
+| Map correlation median / mean | 0.822 / 0.672 | 0.825 / 0.686 |
+| Luma within 0.05 | 72.1% | 71.6% |
+
+Paired: map correlation 49 better / 26 worse, luma error 45 / 36. The
+largest losses are random-draw variance ("fed - glowing 5", "rce-ordinary":
+0.007–0.168 across stepper seeds alone) and one exposed gap ("EoS+Phat -
+I_v2_Shape_v3": the clamp rule is right, a separate over-retention remains).
+Presets with per-frame `rand()` redraws should be measured over several seeds.

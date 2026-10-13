@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 197,
+ "failed": {
+  "4530": 1,
+  "908dc": 3
+ },
+ "versions": {
+  "4530": {
+   "luma_err": {
+    "mean": 0.0568,
+    "median": 0.0152
+   },
+   "rgb_err": {
+    "mean": 0.0626,
+    "median": 0.0204
+   },
+   "sat_err": {
+    "mean": 0.0697,
+    "median": 0.0279
+   },
+   "fd_err": {
+    "mean": 0.0154,
+    "median": 0.0042
+   },
+   "colour_map_err": {
+    "mean": 0.079,
+    "median": 0.0419
+   },
+   "map_corr": {
+    "mean": 0.6716,
+    "median": 0.8222,
+    "n": 190
+   },
+   "series_corr": {
+    "mean": 0.7557,
+    "median": 0.9128,
+    "n": 192
+   },
+   "luma_within_0.05": 0.721,
+   "map_corr_above_0.8": 0.503
+  },
+  "908dc": {
+   "luma_err": {
+    "mean": 0.0538,
+    "median": 0.015
+   },
+   "rgb_err": {
+    "mean": 0.0597,
+    "median": 0.0181
+   },
+   "sat_err": {
+    "mean": 0.0648,
+    "median": 0.0261
+   },
+   "fd_err": {
+    "mean": 0.0138,
+    "median": 0.0041
+   },
+   "colour_map_err": {
+    "mean": 0.0753,
+    "median": 0.0416
+   },
+   "map_corr": {
+    "mean": 0.686,
+    "median": 0.8251,
+    "n": 192
+   },
+   "series_corr": {
+    "mean": 0.7619,
+    "median": 0.9195,
+    "n": 194
+   },
+   "luma_within_0.05": 0.716,
+   "map_corr_above_0.8": 0.508
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 45,
+   "worse": 36
+  },
+  "rgb_err": {
+   "improved": 45,
+   "worse": 36
+  },
+  "fd_err": {
+   "improved": 42,
+   "worse": 34
+  },
+  "colour_map_err": {
+   "improved": 46,
+   "worse": 34
+  },
+  "map_corr": {
+   "improved": 49,
+   "worse": 26
+  }
+ },
+ "largest_gains": [
+  [
+   "Hexcollie - Surge",
+   0.342,
+   0.009
+  ],
+  [
+   "suksma - n6 - n777 - sth 1-ret",
+   0.542,
+   0.258
+  ],
+  [
+   "bdrv + al shifter - phasm mx",
+   0.34,
+   0.069
+  ],
+  [
+   "finchman nz",
+   0.133,
+   0.08
+  ],
+  [
+   "New Creations From Favorite - Milk F - X  Artist  - Martin n Flexi's Run in with AdamFX n Geiss - Willie Wonka n The Milk Factory ",
+   0.08,
+   0.035
+  ],
+  [
+   "suksma - coal drapes - mrt fsh behooval roam3- nz+ gene phreqshough slambspamb",
+   0.123,
+   0.084
+  ],
+  [
+   "AdamFX CollaborationFX of the best Remake  - Ft Martin - Orb - Flexi - WitchCraft Infection ",
+   0.099,
+   0.061
+  ],
+  [
+   "va ultramix2 - 364_1",
+   0.038,
+   0.002
+  ]
+ ],
+ "largest_losses": [
+  [
+   "fed - glowing 5 - fingers rmx nz+ half the stuff wanted jess alterna2",
+   0.037,
+   0.25
+  ],
+  [
+   "rce-ordinary - want (nevermore mix) nz+ tucks medicated pads",
+   0.084,
+   0.169
+  ],
+  [
+   "EoS+Phat - I_v2_Shape_v3",
+   0.152,
+   0.223
+  ],
+  [
+   "suksma - dotes hostile undertake + demonlord - blood in your eyes again - flacc nz+ sky vomit",
+   0.419,
+   0.468
+  ],
+  [
+   "stupid mash5 - men in black 3 'i like hogs' nz+",
+   0.168,
+   0.197
+  ],
+  [
+   "fed - glowing 5 - fingers rmx nz+ ends badly fieldlessness not angel day",
+   0.068,
+   0.096
+  ],
+  [
+   "EoS_Phat technicolor F breather E god gaia",
+   0.055,
+   0.081
+  ],
+  [
+   "fiShbRaiN - witchcraft (metropolish remix) - test - tillex  - shot ladd ap3+ roam2 nz+",
+   0.088,
+   0.113
+  ]
+ ]
+}
