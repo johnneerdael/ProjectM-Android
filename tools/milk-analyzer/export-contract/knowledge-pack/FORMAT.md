@@ -7,8 +7,14 @@ the contract for every reader (the ProjectM TV app, Milkbeat, tools). The
 golden vectors in [`golden-v1/`](golden-v1/) decide whether a reader is
 correct.
 
-`knowledge_pack.py build` produces packs; `knowledge_pack.load_core` is the
-reference reader.
+Implementations:
+
+- Producer and Python reference reader: `tools/milk-analyzer/knowledge_pack.py`
+  (`build`, `load_core`) on the predictor research branch
+  (`feat/predictor-static-output-bounds`).
+- Java reader: `nl.neerdael.projectm.core.PresetKnowledgePack` in the core
+  library, used by the ProjectM TV app and by Milkbeat through the released
+  core AAR. It has no Android dependency outside `load(AssetManager, …)`.
 
 ## Layout
 
@@ -99,7 +105,8 @@ for the packs a reader must accept, and the rule each rejected pack breaks:
 | `bad-core-hash` | reject: core file hash |
 | `bad-line-hash` | reject: core line hash |
 
-`knowledge_pack_golden.py` regenerates the vectors byte for byte from
-`golden-v1/recipes/`; `test_knowledge_pack_golden.py` checks the reference
-reader against them. A reader in another language should run the same six
-cases in its own tests.
+`knowledge_pack_golden.py` (predictor branch) regenerates the vectors byte for
+byte from `golden-v1/recipes/`. `test_knowledge_pack_golden.py` checks the
+Python reader against them and `PresetKnowledgePackTest` checks the Java
+reader. A reader in another language should run the same six cases in its own
+tests.
