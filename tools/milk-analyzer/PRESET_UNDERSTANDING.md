@@ -1799,3 +1799,26 @@ per-frame code writes `wrap`. 4,025 presets set `bTexWrap=0` and 274 write
 
 v2: screenshot correlation 0.456 → 0.998, frames 60–149 luma
 0.071 → 0.263 (engine 0.267), and per-frame luma within 0.01 of the capture.
+
+### r95: overlapping motion vectors and conditional borders
+
+r95 (Horizontology, White Mix) is a legacy preset with gamma 2.63 and the
+brighten, darken and invert filters, so a brighter canvas shows darker. A
+stretch of sx = 100 about the centre column turns everything into horizontal
+streaks. The canvas is fed by 768 long, near-white motion vectors (alpha
+about 0.11, length factor 4.5, a 0.5 rad per-frame rotation) and darkened by
+black full-screen borders whose alpha is `bass_att·0.2` on bass. The
+prediction stayed grey where the engine goes black and comes back on bass.
+
+- The motion vectors are alpha-blended GL lines. Crossing vectors compound,
+  but one NumPy assignment kept only the last write per pixel. They are now
+  composed in order like line waves.
+- Borders whose alpha range includes zero are reported `active: null`. The
+  border operator skipped anything not certainly active, so the bass-driven
+  borders never darkened the canvas. They are now drawn with the frame's
+  stepped alpha (zero draws nothing); `active: false` stays off.
+
+v3 (frozen v1 description): frames 60–149 luma 0.156 → 0.063 (engine 0.055),
+screenshot correlation 0.81 → 0.938, and the dark stretch over frames 30–90
+and the rise after frame 105 follow the capture. 1,226 presets can show motion
+vectors and 516 write a border alpha per frame.

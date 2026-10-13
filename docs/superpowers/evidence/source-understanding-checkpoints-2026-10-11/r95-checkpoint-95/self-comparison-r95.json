@@ -1,0 +1,80 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r95-v1",
+ "preset": "Dbleja - Horizontology (White Mix).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9e8105fd679b662c846dec2d221fa113eda4784de5d754802356dfa45df427ad",
+  "prediction.json": "643a778549d20ed8732cb8be914f5299de1a5dd35d561097bd1bcef9e626f231",
+  "description.json": "9b0004ce537ef2b4d44431d65b1ad8b8fa6b7bf3648689e7aabf784b31ceb14d",
+  "recipe.json": "043e40f54f0d289dc4779b2f4dcceb4369cf939bbb3926edead65c6d425bfd3d",
+  "llm-look-description-v1.txt": "e2c762a9984053f83e4dc8a5b388b95bb728878f1a9db80adecfba376ded0b67"
+ },
+ "capture_result_sha256": "060851749a0b7f6bc226b3f55cb89c1a7cdebe2f7164c1e5cf43f57cdd3c562a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.073,
+  "screenshot_luma": 0.199,
+  "mean_rgb_prediction": [
+   0.075,
+   0.073,
+   0.069
+  ],
+  "mean_rgb_screenshot": [
+   0.217,
+   0.192,
+   0.216
+  ],
+  "blurred_luma_correlation": 0.81,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.156,
+    0.055
+   ],
+   "saturation": [
+    0.142,
+    0.165
+   ],
+   "blurred_luma_correlation": 0.483
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0477,
+   0.0407
+  ]
+ },
+ "agreements": [
+  "horizontal streak texture from sx=100 stretch about the centre column under a large per-frame rotation",
+  "white start (inverted cleared canvas) at frame 0"
+ ],
+ "misses": [
+  "v1: display stayed grey because the canvas was too dark: overlapping motion vectors kept one layer per pixel",
+  "v2 (vectors fixed alone): display went fully black because the bass-driven black full-screen borders were skipped as not certainly active",
+  "corner tint hue differs (per-load random hue offsets)"
+ ],
+ "verdict": "understood after two general fixes (v3 expected image from the frozen v1 description): overlapping alpha-blended motion vectors compound like GL lines, and borders whose alpha can reach zero (active null) are drawn with the frame's stepped alpha instead of being skipped; frames 60-149 luma 0.156 -> 0.063 (engine 0.055), screenshot correlation 0.81 -> 0.938, the dark stretch over frames 30-90 and the rise after 105 follow the capture",
+ "review_measurements_v2": {
+  "time_average_frames_60_149": {
+   "luma": [
+    0.0,
+    0.055
+   ]
+  },
+  "note": "motion vectors compound, borders still skipped: canvas saturates and the inverted display goes black"
+ },
+ "review_measurements_v3": {
+  "prediction_luma": 0.23,
+  "screenshot_luma": 0.199,
+  "blurred_luma_correlation": 0.938,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.063,
+    0.055
+   ],
+   "blurred_luma_correlation": 0.785
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.046,
+   0.0407
+  ],
+  "note": "v2 and v3 re-render the frozen v1 description with the corrected illustrator"
+ }
+}

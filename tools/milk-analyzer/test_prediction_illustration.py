@@ -538,6 +538,31 @@ def test_main_warp_clamps_to_the_edge_texel_when_texture_wrap_is_off():
     assert P._main_wrap(facts, {'wrap': 1.}) is True
 
 
+def test_overlapping_motion_vectors_compound_their_alpha():
+    # Motion vectors are alpha-blended GL lines: where two vectors cross the same pixels the blends
+    # compound (.5 then .75), as for line waves (r95: long overlapping vectors under a large rotation).
+    from prediction_illustration import _draw_motion_vectors
+    image = np.zeros((10, 40, 3), np.float32)
+    marks = [((5., 5.), (35., 5.), None), ((5., 5.), (35., 5.), None)]
+    out = _draw_motion_vectors(image, marks, (1., 1., 1., .5))
+    assert np.allclose(out[5, 10:30, 0], .75, atol=1e-6) or np.allclose(out[4, 10:30, 0], .75, atol=1e-6)
+    assert image.max() == 0.  # the input canvas is not modified in place
+
+
+def test_conditionally_active_borders_follow_the_per_frame_alpha():
+    # active null: the alpha range includes 0 (r95: ib_a = bass_att*0.2 only on bass). The border is drawn
+    # with the frame's stepped alpha, and not at all when that alpha is 0; active false stays off.
+    from prediction_illustration import _dynamic_border_operators
+    row = {'border': 'outer', 'alpha_range': [0., .4], 'rgb_ranges': [[0., 0.]] * 3, 'active': None, 'inverted_inner_radius': False}
+    facts = {'/analysis/visual_description/static_behaviour/borders': {'status': 'described', 'borders': [row],
+             'control_ranges': {'ob_size': [.5, .5], 'ob_r': [0., 0.], 'ob_g': [0., 0.], 'ob_b': [0., 0.], 'ob_a': [0., .4]}}}
+    (mask, colour), = _dynamic_border_operators(facts, 8, 8, {'ob_a': .3})
+    assert np.isclose(mask.max(), .3) and np.all(colour == 0)
+    assert _dynamic_border_operators(facts, 8, 8, {'ob_a': 0.})[0][0].max() == 0.
+    row['active'] = False
+    assert _dynamic_border_operators(facts, 8, 8, {'ob_a': .3}) == []
+
+
 def test_noise_textures_are_rgba_with_random_alpha_and_shaders_read_it():
     # MilkdropNoise fills all four bytes; a shader offsetting by N.zw = noise*2-1 must see a zero-mean w,
     # not a padded alpha of 1 (which shifts the image half a texel every frame, r70).

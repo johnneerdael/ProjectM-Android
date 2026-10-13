@@ -625,6 +625,14 @@ def _mv_alpha(facts):
     return min(1.,max(0.,colour[3])) if len(colour)>3 and type(colour[3]) in (int,float) else 1.
 
 
+def _draw_motion_vectors(image,marks,rgba):
+    """Motion vectors as aliased 1 px alpha-blended GL lines in one colour; crossing vectors compound."""
+    height,width=image.shape[:2]
+    rows,cols,seg=_gl_line_pixels(*np.array([[a[0],a[1],b[0],b[1]] for a,b,_ in marks]).T,width,height,return_index=True)
+    alpha=np.full(len(marks),float(rgba[3]))
+    return _blend_over_in_order(image,rows,cols,seg,np.tile(np.array(rgba[:3],np.float64)*float(rgba[3]),(len(marks),1)),alpha)
+
+
 def _blend_over_in_order(image,rows,cols,seg,premultiplied,alpha):
     """GL SRC_ALPHA/ONE_MINUS_SRC_ALPHA blending of line fragments, each pixel's fragments in segment order.
 
@@ -896,7 +904,8 @@ def _dynamic_border_operators(facts,width,height,values):
     for row in record.get('borders') or []:
         rgb=row.get('rgb_ranges') or [];alpha=row.get('alpha_range')
         static=alpha is not None and alpha[0]==alpha[1] and rgb and all(c is not None and c[0]==c[1] for c in rgb)
-        if not row.get('active') or static or row.get('inverted_inner_radius'):continue
+        # active None: conditionally active (alpha can reach 0); the frame's stepped alpha decides.
+        if row.get('active') is False or static or row.get('inverted_inner_radius'):continue
         prefix='ob_' if row.get('border')=='outer' else 'ib_'
         size_outer=control('ob_size');size=control(prefix+'size');a=control(prefix+'a')
         colour=[control(prefix+c) for c in 'rgb']
@@ -1773,11 +1782,9 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 # GLES has no line smoothing, so they are aliased 1 px lines (sub-pixel endpoints).
                 marks=_motion_vector_marks(facts,sample,frame_time,width,height,vector_maps)
                 if marks:
-                    rows,cols=_gl_line_pixels(*np.array([[a[0],a[1],b[0],b[1]] for a,b,_ in marks]).T,width,height)
                     # Colour and alpha follow the per-frame program when it writes mv_r/g/b/a.
                     rgba=_mv_rgba(facts,held,set(frame_record.get('outputs') or {}) if stepper is not None else set())
-                    alpha=rgba[3]
-                    image=image.copy();image[rows,cols]=image[rows,cols]*(1-alpha)+np.array(rgba[:3],np.float32)*alpha
+                    image=_draw_motion_vectors(image,marks,rgba)
             older=previous;previous=image;canvas['previous_alpha']=canvas['alpha']
             # Per-frame base inputs, read by inlined per-frame graphs (e.g. a Q accumulating 30/fps per frame).
             # projectM's frame counter (m_frameCount) is 0 on the first rendered frame, which renders at
