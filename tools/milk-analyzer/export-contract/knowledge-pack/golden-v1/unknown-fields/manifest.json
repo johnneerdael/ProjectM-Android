@@ -1,0 +1,66 @@
+{
+ "policy": "preset-knowledge-pack-v1",
+ "recipe_policy": "preset-visual-recipe-v1",
+ "schema": {
+  "file": "export-contract/preset-recipe.schema.json",
+  "sha256": "2b1e943d2406e81cab32145bebdf752187772c7d3a2f15a42ef2b2c4e58c3a3c"
+ },
+ "producer": {
+  "commit": null,
+  "analyzer_dirty": null
+ },
+ "corpus_run": {
+  "directory": "golden-v1 recipes",
+  "run_manifest_sha256": null
+ },
+ "calibration_model_sha256": null,
+ "activity_reference_sha256": null,
+ "facet_definition_sha256": null,
+ "counts": {
+  "presets": 3,
+  "failed": 0
+ },
+ "core": {
+  "file": "core.jsonl.gz",
+  "sha256": "1d7fd8e7229224b1f3075e0d4b1def140299729ddd712dc53fe911389ee0c0e0",
+  "graphs_removed": [
+   "control_expressions",
+   "expression",
+   "expressions",
+   "frame_expression",
+   "frame_recurrence",
+   "point_recurrence",
+   "program",
+   "programs",
+   "terms",
+   "time_expression"
+  ]
+ },
+ "full": {
+  "directory": "full",
+  "present": false
+ },
+ "presets": [
+  {
+   "name": "Mr_Zoolook - Pinwheel (beat detect [synchro]).milk",
+   "sha256": "d0b4b95b4e37165cc5cc230d20871d7e06151acbcfd694e823cbfba3e8854a70",
+   "core_line_sha256": "b99f91ebfa555913797bda09b875e23a3ce9adcad4a89df9f205883ee842ff38"
+  },
+  {
+   "name": "Zylot - In death there is life (Wrong Portal mix).milk",
+   "sha256": "f094e7e9c04a45fdec089ff9309199338ef28ae2a213b74ee43d16f38616e070",
+   "core_line_sha256": "2b59e3c134825e87d6d936f5826afa5bdbe84b7dbd3d31c2831ac7f29e8a35c4"
+  },
+  {
+   "name": "suksma - commstruct lozengiac.milk",
+   "sha256": "a03c70ddf430ec68c73e72bf19a62c88cbcfd67807f878c25056d53cd8940e7a",
+   "core_line_sha256": "dc27f11212e9bd027a30b07a48b4ef1eb5488f4921382dff928fd6875beab3f1"
+  }
+ ],
+ "failures": {},
+ "uses_rendered_images": false,
+ "note": "Source-only recipes; display_estimate/facets are calibrated estimates, not measurements.",
+ "x_later_manifest_field": {
+  "note": "ignored by v1 readers"
+ }
+}

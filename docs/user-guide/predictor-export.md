@@ -37,6 +37,42 @@ The build requires exactly one style facts row per `presets.idx` preset (no miss
 
 `--check` verifies the bundle against `presets.idx`, the definition, the activity reference's SHA-256 and the manifest, compares the committed ruler results manifest (`--ruler-manifest`, default `docs/superpowers/evidence/mood-facets-ruler-2026-10-12/ruler-results-manifest.json`) with the SHA-256 recorded in the bundle manifest (a missing or changed file fails), hashes every bundled preset with a measured manifest row and compares it with that row's `preset_sha256` (a preset edited after measuring fails), requires every bundle row to be measured exactly when its manifest row is marked measured, requires each measured row's seven value columns to equal the manifest row's `metrics` and its activity column to equal the activity recomputed from the manifest's `activity_inputs` against the frozen reference (so edited values cannot be re-hashed into a passing bundle), recomputes every option membership from the stored values and style options, and recomputes the manifest's `schema`, `version`, `preset_count`, `measured_count` and `option_counts` from the bundle rows (a stale or hand-edited value fails). `tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
 
+## Preset knowledge pack reader (core library)
+
+A preset knowledge pack (`preset-knowledge-pack-v1`) holds source-only recipes
+for a whole preset collection: effects, audio reactivity, calibrated
+brightness and motion estimates, and facets. It is plain gzip, JSON and
+SHA-256, so any platform can read it. The reader contract is
+[`tools/milk-analyzer/export-contract/knowledge-pack/FORMAT.md`](https://github.com/johnneerdael/ProjectM-TV/blob/main/tools/milk-analyzer/export-contract/knowledge-pack/FORMAT.md):
+
+- check the pack and recipe policy strings;
+- check the core file hash, and each line's hash over the stored line bytes;
+- keep manifest order;
+- ignore fields you do not know.
+
+The core library's `PresetKnowledgePack` implements it for the app and for
+Milkbeat. `read(File)` and `read(manifest, core, visitor)` stream the core,
+check every line before parsing it, and keep only a per-preset view:
+
+- effects with their parameters;
+- reactivity as band, target, kind and response;
+- mean luminance and frame difference, each with an interval;
+- activity and activity bands;
+- facet options and values;
+- energy tags.
+
+A `RecipeVisitor` receives each full parsed recipe once while streaming, so
+memory follows the views rather than the recipes. `load(AssetManager, dir)`
+returns `null` for a missing or invalid pack. A pack that breaks a rule
+throws `InvalidPackException`, whose `rule` names the rule. Lookups work by
+preset name or by the preset file's SHA-256.
+
+The golden vectors in `export-contract/knowledge-pack/golden-v1/` (one valid
+pack, one with unknown fields, and four packs that each break one rule) are
+the shared tests for every reader. `PresetKnowledgePackTest` runs them on the
+JVM. Estimates and facets come from calibrated source analysis, not from
+rendered frames. No pack ships in the app yet.
+
 ## Static source-description contract
 
 Implementation checkpoint: `9c8ff632`, 2026-10-10, experimental

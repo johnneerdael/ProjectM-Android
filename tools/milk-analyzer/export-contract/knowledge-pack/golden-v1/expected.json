@@ -1,0 +1,545 @@
+{
+ "format": "preset-knowledge-pack-v1",
+ "recipe_policy": "preset-visual-recipe-v1",
+ "float_tolerance": 1e-09,
+ "accept": {
+  "valid": [
+   {
+    "name": "Mr_Zoolook - Pinwheel (beat detect [synchro]).milk",
+    "sha256": "d0b4b95b4e37165cc5cc230d20871d7e06151acbcfd694e823cbfba3e8854a70",
+    "effects": [
+     "trails",
+     "zoom_flow",
+     "drift",
+     "drift",
+     "audio_waveform",
+     "custom_waveform",
+     "shapes"
+    ],
+    "reactivity": [
+     [
+      "waveform",
+      "line shape follows the audio waveform",
+      "shape",
+      "continuous"
+     ]
+    ],
+    "mean_luminance": {
+     "value": 0.14360903995947447,
+     "interval": [
+      0.0,
+      0.3798510821140748
+     ]
+    },
+    "mean_abs_frame_difference": {
+     "value": 0.011443509504401714,
+     "interval": [
+      0.0,
+      0.04793582068661349
+     ]
+    },
+    "activity": 0.011,
+    "activity_bands": [
+     "Chill"
+    ],
+    "facet_options": [
+     "chill",
+     "dark",
+     "still",
+     "kaleidoscope",
+     "no_strobe"
+    ],
+    "facet_values": {
+     "activity": 0.1299,
+     "coloured_share": 0.4011,
+     "flow": 0.0323,
+     "frame_difference": 0.0132,
+     "jumps": 0.0,
+     "luminance": 0.1082,
+     "saturation": 0.415,
+     "warm_cool": -0.0155
+    },
+    "energy_tags": [
+     "Smooth",
+     "Hypnotic"
+    ]
+   },
+   {
+    "name": "Zylot - In death there is life (Wrong Portal mix).milk",
+    "sha256": "f094e7e9c04a45fdec089ff9309199338ef28ae2a213b74ee43d16f38616e070",
+    "effects": [
+     "trails",
+     "drift",
+     "drift",
+     "audio_waveform",
+     "shapes"
+    ],
+    "reactivity": [
+     [
+      "bass",
+      "wave_r",
+      "brightness",
+      "continuous"
+     ],
+     [
+      "bass",
+      "zoom",
+      "motion",
+      "continuous"
+     ],
+     [
+      "mid",
+      "wave_b",
+      "brightness",
+      "continuous"
+     ],
+     [
+      "treb",
+      "wave_g",
+      "brightness",
+      "continuous"
+     ],
+     [
+      "treb",
+      "zoom",
+      "motion",
+      "continuous"
+     ],
+     [
+      "waveform",
+      "line shape follows the audio waveform",
+      "shape",
+      "continuous"
+     ]
+    ],
+    "mean_luminance": {
+     "value": 0.2958967434667285,
+     "interval": [
+      0.10806950978575675,
+      0.5321387856213289
+     ]
+    },
+    "mean_abs_frame_difference": {
+     "value": 0.04029882378642731,
+     "interval": [
+      0.009672178810948685,
+      0.08623984232470641
+     ]
+    },
+    "activity": 0.4206,
+    "activity_bands": [
+     "Normal"
+    ],
+    "facet_options": [
+     "chill",
+     "normal",
+     "dark",
+     "drifting",
+     "particles",
+     "no_strobe"
+    ],
+    "facet_values": {
+     "activity": 0.3337,
+     "coloured_share": 0.1039,
+     "flow": 0.1165,
+     "frame_difference": 0.0336,
+     "jumps": 0.0,
+     "luminance": 0.0834,
+     "saturation": 0.0884,
+     "warm_cool": 0.0414
+    },
+    "energy_tags": [
+     "Smooth"
+    ]
+   },
+   {
+    "name": "suksma - commstruct lozengiac.milk",
+    "sha256": "a03c70ddf430ec68c73e72bf19a62c88cbcfd67807f878c25056d53cd8940e7a",
+    "effects": [
+     "trails",
+     "drift",
+     "drift",
+     "relief",
+     "blur",
+     "audio_waveform",
+     "custom_waveform"
+    ],
+    "reactivity": [
+     [
+      "bass",
+      "colour_b",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_g",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_r",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_b",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_g",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_r",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "treb",
+      "colour_b",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "treb",
+      "colour_g",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "treb",
+      "colour_r",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "waveform",
+      "line shape follows the audio waveform",
+      "shape",
+      "continuous"
+     ]
+    ],
+    "mean_luminance": {
+     "value": 0.2938273588650463,
+     "interval": [
+      0.10600012518407453,
+      0.5300694010196467
+     ]
+    },
+    "mean_abs_frame_difference": {
+     "value": 0.10550809736167825,
+     "interval": [
+      0.06064654137983039,
+      0.17280197093706512
+     ]
+    },
+    "activity": 0.9251,
+    "activity_bands": [
+     "Intense"
+    ],
+    "facet_options": [
+     "intense",
+     "balanced",
+     "vivid",
+     "drifting",
+     "kaleidoscope"
+    ],
+    "facet_values": {
+     "activity": 0.9121,
+     "coloured_share": 0.9165,
+     "flow": 0.2421,
+     "frame_difference": 0.1367,
+     "jumps": 112.0,
+     "luminance": 0.3099,
+     "saturation": 0.6526,
+     "warm_cool": 0.228
+    },
+    "energy_tags": [
+     "Smooth",
+     "Hypnotic",
+     "Reactive",
+     "Flashing"
+    ]
+   }
+  ],
+  "unknown-fields": [
+   {
+    "name": "Mr_Zoolook - Pinwheel (beat detect [synchro]).milk",
+    "sha256": "d0b4b95b4e37165cc5cc230d20871d7e06151acbcfd694e823cbfba3e8854a70",
+    "effects": [
+     "trails",
+     "zoom_flow",
+     "drift",
+     "drift",
+     "audio_waveform",
+     "custom_waveform",
+     "shapes"
+    ],
+    "reactivity": [
+     [
+      "waveform",
+      "line shape follows the audio waveform",
+      "shape",
+      "continuous"
+     ]
+    ],
+    "mean_luminance": {
+     "value": 0.14360903995947447,
+     "interval": [
+      0.0,
+      0.3798510821140748
+     ]
+    },
+    "mean_abs_frame_difference": {
+     "value": 0.011443509504401714,
+     "interval": [
+      0.0,
+      0.04793582068661349
+     ]
+    },
+    "activity": 0.011,
+    "activity_bands": [
+     "Chill"
+    ],
+    "facet_options": [
+     "chill",
+     "dark",
+     "still",
+     "kaleidoscope",
+     "no_strobe"
+    ],
+    "facet_values": {
+     "activity": 0.1299,
+     "coloured_share": 0.4011,
+     "flow": 0.0323,
+     "frame_difference": 0.0132,
+     "jumps": 0.0,
+     "luminance": 0.1082,
+     "saturation": 0.415,
+     "warm_cool": -0.0155
+    },
+    "energy_tags": [
+     "Smooth",
+     "Hypnotic"
+    ]
+   },
+   {
+    "name": "Zylot - In death there is life (Wrong Portal mix).milk",
+    "sha256": "f094e7e9c04a45fdec089ff9309199338ef28ae2a213b74ee43d16f38616e070",
+    "effects": [
+     "trails",
+     "drift",
+     "drift",
+     "audio_waveform",
+     "shapes"
+    ],
+    "reactivity": [
+     [
+      "bass",
+      "wave_r",
+      "brightness",
+      "continuous"
+     ],
+     [
+      "bass",
+      "zoom",
+      "motion",
+      "continuous"
+     ],
+     [
+      "mid",
+      "wave_b",
+      "brightness",
+      "continuous"
+     ],
+     [
+      "treb",
+      "wave_g",
+      "brightness",
+      "continuous"
+     ],
+     [
+      "treb",
+      "zoom",
+      "motion",
+      "continuous"
+     ],
+     [
+      "waveform",
+      "line shape follows the audio waveform",
+      "shape",
+      "continuous"
+     ]
+    ],
+    "mean_luminance": {
+     "value": 0.2958967434667285,
+     "interval": [
+      0.10806950978575675,
+      0.5321387856213289
+     ]
+    },
+    "mean_abs_frame_difference": {
+     "value": 0.04029882378642731,
+     "interval": [
+      0.009672178810948685,
+      0.08623984232470641
+     ]
+    },
+    "activity": 0.4206,
+    "activity_bands": [
+     "Normal"
+    ],
+    "facet_options": [
+     "chill",
+     "normal",
+     "dark",
+     "drifting",
+     "particles",
+     "no_strobe"
+    ],
+    "facet_values": {
+     "activity": 0.3337,
+     "coloured_share": 0.1039,
+     "flow": 0.1165,
+     "frame_difference": 0.0336,
+     "jumps": 0.0,
+     "luminance": 0.0834,
+     "saturation": 0.0884,
+     "warm_cool": 0.0414
+    },
+    "energy_tags": [
+     "Smooth"
+    ]
+   },
+   {
+    "name": "suksma - commstruct lozengiac.milk",
+    "sha256": "a03c70ddf430ec68c73e72bf19a62c88cbcfd67807f878c25056d53cd8940e7a",
+    "effects": [
+     "trails",
+     "drift",
+     "drift",
+     "relief",
+     "blur",
+     "audio_waveform",
+     "custom_waveform"
+    ],
+    "reactivity": [
+     [
+      "bass",
+      "colour_b",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_g",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_r",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_b",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_g",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "bass",
+      "colour_r",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "treb",
+      "colour_b",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "treb",
+      "colour_g",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "treb",
+      "colour_r",
+      "brightness",
+      "threshold_or_clamped"
+     ],
+     [
+      "waveform",
+      "line shape follows the audio waveform",
+      "shape",
+      "continuous"
+     ]
+    ],
+    "mean_luminance": {
+     "value": 0.2938273588650463,
+     "interval": [
+      0.10600012518407453,
+      0.5300694010196467
+     ]
+    },
+    "mean_abs_frame_difference": {
+     "value": 0.10550809736167825,
+     "interval": [
+      0.06064654137983039,
+      0.17280197093706512
+     ]
+    },
+    "activity": 0.9251,
+    "activity_bands": [
+     "Intense"
+    ],
+    "facet_options": [
+     "intense",
+     "balanced",
+     "vivid",
+     "drifting",
+     "kaleidoscope"
+    ],
+    "facet_values": {
+     "activity": 0.9121,
+     "coloured_share": 0.9165,
+     "flow": 0.2421,
+     "frame_difference": 0.1367,
+     "jumps": 112.0,
+     "luminance": 0.3099,
+     "saturation": 0.6526,
+     "warm_cool": 0.228
+    },
+    "energy_tags": [
+     "Smooth",
+     "Hypnotic",
+     "Reactive",
+     "Flashing"
+    ]
+   }
+  ]
+ },
+ "reject": {
+  "bad-policy": "pack policy",
+  "bad-recipe-policy": "recipe policy",
+  "bad-core-hash": "core file hash",
+  "bad-line-hash": "core line hash"
+ }
+}

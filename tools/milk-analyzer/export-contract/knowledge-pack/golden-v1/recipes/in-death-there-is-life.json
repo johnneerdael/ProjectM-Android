@@ -1,0 +1,1522 @@
+{
+ "conventions": {
+  "coordinates": "per-pixel x/y in [0,1] measured along the long viewport side (y=0 top); short axis spans a centred sub-range",
+  "feedback": "each frame the previous image is resampled through the warp map, multiplied by decay, then layers are drawn on top; the composite displays the result",
+  "fidelity": "approximate recipe for a similar effect, not a pixel-exact specification",
+  "time": "seconds since preset start; audio inputs bass/mid/treb are ~1 on average (attenuated *_att variants are smoothed)",
+  "warp_map": "source = 0.5+(p-0.5)/zoom^(zoomexp^(2*rad-1)), stretched/rotated about (cx,cy), minus (dx,dy); content therefore moves +dx right, +dy down"
+ },
+ "description": "Approximate source description of \"Zylot - In death there is life (Wrong Portal mix).milk\". Constructions: feedback transport, rotation, scaling, advection or nonlinear transformation; points/point cloud; independent particles unestablished; polygon/custom-shape primitive. Colour ingredients: mesh_warp source/feedback palette unresolved; shape_0 source/feedback palette unresolved; shader_warp source/feedback palette unresolved; shader_composite source/feedback palette unresolved. Final palette/dominance remain conditional. Native stereo_xy_trace_volume_alpha has intrinsic waveform inputs waveform_left, waveform_right; alpha policy: reference coefficient*1.3*treb^2 before volume ramp; authored wave_a is replaced; audio preprocessing/history, displayed contribution and band-specific strength unresolved. Audio routes: bass \u2192 zoom; treble \u2192 zoom; bass \u2192 wave_r; treble \u2192 wave_g; mid \u2192 wave_b; visible strength unresolved. Nominal unclipped geometry: shape_0 sides 4, configured instances 1, signed NDC radius 2.667. Per-pixel warp field (source-mesh-field-structure-v1): zoom varies across the screen with rad; horizontal offset component (combined with zoom/rotation) 0 px/s; vertical offset component (combined with zoom/rotation) 0 px/s. These are per-step sampling-map facts (zoom about the screen centre); visible motion depends on content, decay and composition. Source mechanisms: a custom waveform drawn as points (drawing); a filled or outlined polygon shape (drawing); a scaling of the previous frame inside the shader (zoom tunnel or expansion) (mesh_warp). Proven program constructions; how prominent each is on screen is conditional. Flat-field model: flat regions decay to black in about 0 s, displayed as grayscale [0.0, 0.0, 0.0] (black start displays as grayscale); feedback keeps an unknown share of retained content per frame and elements are drawn, so drawn content accumulates and this empty-canvas state does not describe the displayed picture; edges, drawn elements and advection make real content differ. Physical source facts: shape_0 nominal geometry_trajectory upper bound 0 viewport units/second (source_time_partial). Motion and brightness facts retain nominal rates/upper bounds and unresolved inputs; typical visible speed and flashing remain unverified. The strict source model records no eligible mood group; approximate LLM estimates remain separate.",
+ "display_estimate": {
+  "activity": {
+   "activity": 0.4206,
+   "activity_interval": [
+    0.015,
+    0.8511
+   ],
+   "bands": [
+    "Normal"
+   ],
+   "certain_bands": [],
+   "policy": "display-activity-v1",
+   "possible_bands": [
+    "Chill",
+    "Normal",
+    "Intense"
+   ],
+   "remapped": true
+  },
+  "note": "Calibrated from static source facts; intervals are the 10th-90th percentile out-of-fold residuals; not a rendered measurement of this preset",
+  "policy": "source-calibrated-display-estimate-v1",
+  "reference": "engine ruler: pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, frames 60-299",
+  "statistics": {
+   "global_brightness_jumps_per_10s": {
+    "evidence": "source-calibrated",
+    "interval": [
+     0.0,
+     4.532231595360238
+    ],
+    "label_source": "engine ruler: pinned patched projectM-TV source34 rendered offline (macOS GLES, SwiftShader), checkpoint audio",
+    "oof_spearman": 0.765,
+    "value": 0.496381191831601
+   },
+   "mean_abs_frame_difference": {
+    "evidence": "source-calibrated",
+    "interval": [
+     0.009672178810948685,
+     0.08623984232470641
+    ],
+    "label_source": "engine ruler: pinned patched projectM-TV source34 rendered offline (macOS GLES, SwiftShader), checkpoint audio",
+    "oof_spearman": 0.71,
+    "value": 0.04029882378642731
+   },
+   "mean_flow_screen_widths_per_s": {
+    "evidence": "source-calibrated",
+    "interval": [
+     0.058474220662471633,
+     0.3435295384740791
+    ],
+    "label_source": "engine ruler: pinned patched projectM-TV source34 rendered offline (macOS GLES, SwiftShader), checkpoint audio",
+    "oof_spearman": 0.681,
+    "value": 0.1620517381041127
+   },
+   "mean_luminance": {
+    "evidence": "source-calibrated",
+    "interval": [
+     0.10806950978575675,
+     0.5321387856213289
+    ],
+    "label_source": "engine ruler: pinned patched projectM-TV source34 rendered offline (macOS GLES, SwiftShader), checkpoint audio",
+    "oof_spearman": 0.646,
+    "value": 0.2958967434667285
+   },
+   "mean_saturation": {
+    "evidence": "source-calibrated",
+    "interval": [
+     0.0,
+     0.49706484904639564
+    ],
+    "label_source": "engine ruler: pinned patched projectM-TV source34 rendered offline (macOS GLES, SwiftShader), checkpoint audio",
+    "oof_spearman": 0.638,
+    "value": 0.22745067839790317
+   },
+   "warm_cool": {
+    "evidence": "source-calibrated",
+    "interval": [
+     -0.2721101859565056,
+     0.4164825787364652
+    ],
+    "label_source": "engine ruler: pinned patched projectM-TV source34 rendered offline (macOS GLES, SwiftShader), checkpoint audio",
+    "oof_spearman": 0.602,
+    "value": 0.0645090104023372
+   }
+  }
+ },
+ "facets": {
+  "activity_source": "engine-ruler-measured-bundle",
+  "bundle": {
+   "file": "core/src/main/assets/preset-attributes/attributes.tsv",
+   "sha256": "d21a7eacd35917fb6129455c43d26c82c32c03534b73277a243cdada7ae53e83"
+  },
+  "definition_sha256": "046aad75e5dcf3f6f9a909675a125c22c0edd9d0487fae7335cc42296e7822dc",
+  "evidence": "engine-ruler-measured",
+  "measurement": "engine ruler: pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, statistics over frames 60-299",
+  "options": [
+   "chill",
+   "normal",
+   "dark",
+   "drifting",
+   "particles",
+   "no_strobe"
+  ],
+  "policy": "preset-facets-v1",
+  "possible_options": [],
+  "style": [
+   "particles"
+  ],
+  "style_evidence": "source-structure-facts",
+  "unresolved_options": [],
+  "values": {
+   "activity": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.3337
+   },
+   "coloured_share": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.1039
+   },
+   "flow": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.1165
+   },
+   "frame_difference": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.0336
+   },
+   "jumps": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.0
+   },
+   "luminance": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.0834
+   },
+   "saturation": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.0884
+   },
+   "warm_cool": {
+    "evidence": "engine-ruler-measured",
+    "value": 0.0414
+   }
+  }
+ },
+ "intent": {
+  "effects": [
+   {
+    "decay_per_frame": 1.0,
+    "effect": "trails",
+    "faint_residue": false,
+    "half_life_s": null
+   },
+   {
+    "axis": "dx",
+    "effect": "drift",
+    "pixels_per_second": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "axis": "dy",
+    "effect": "drift",
+    "pixels_per_second": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "colour_cycles": true,
+    "effect": "audio_waveform",
+    "form": "stereo_xy_trace_volume_alpha",
+    "position": [
+     0.5,
+     0.5
+    ]
+   },
+   {
+    "effect": "shapes",
+    "instances": 1,
+    "moving": true,
+    "radius": 2.667180061340332,
+    "sides": 4
+   }
+  ],
+  "energy": {
+   "intensity": 16.51,
+   "smoothness": 90.2,
+   "tags": [
+    "Smooth"
+   ]
+  },
+  "guidance": "Rebuild the listed effects at any resolution and frame rate in a modern engine; keep the reactivity map (which band drives which parameter, continuous or thresholded, smoothed or raw) and the palette/energy character. Exact pixels are not a goal.",
+  "palette": {
+   "background_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hue_cycle_per_s": null,
+   "hue_variety_bins": 0.0,
+   "saturation": 0.0,
+   "warm_cool": null
+  },
+  "reactivity": [
+   {
+    "band": "bass",
+    "kind": "brightness",
+    "layer": "builtin_wave",
+    "linear_gain": 0.3,
+    "response": "continuous",
+    "smoothed": false,
+    "target": "wave_r"
+   },
+   {
+    "band": "bass",
+    "kind": "motion",
+    "layer": "mesh_warp",
+    "linear_gain": 0.01,
+    "response": "continuous",
+    "smoothed": false,
+    "target": "zoom"
+   },
+   {
+    "band": "mid",
+    "kind": "brightness",
+    "layer": "builtin_wave",
+    "linear_gain": 0.3,
+    "response": "continuous",
+    "smoothed": false,
+    "target": "wave_b"
+   },
+   {
+    "band": "treb",
+    "kind": "brightness",
+    "layer": "builtin_wave",
+    "linear_gain": 0.3,
+    "response": "continuous",
+    "smoothed": false,
+    "target": "wave_g"
+   },
+   {
+    "band": "treb",
+    "kind": "motion",
+    "layer": "mesh_warp",
+    "linear_gain": null,
+    "response": "continuous",
+    "smoothed": false,
+    "target": "zoom"
+   },
+   {
+    "band": "waveform",
+    "inputs": [
+     "waveform_left",
+     "waveform_right"
+    ],
+    "kind": "shape",
+    "layer": "builtin_wave",
+    "linear_gain": null,
+    "response": "continuous",
+    "smoothed": false,
+    "target": "line shape follows the audio waveform"
+   }
+  ]
+ },
+ "limitations": [
+  "Engine-neutral approximate recipe; drawn content, audio and native rounding make real frames differ",
+  "Mood values are editable research assumptions, not calibrated preferences"
+ ],
+ "mood": {
+  "activity_bands": [],
+  "assumed_features": [
+   "motion.speed_p95_vp_s",
+   "motion.acceleration_p95_vp_s2",
+   "motion.jerk_p95_vp_s3",
+   "flash.coherent_transitions_hz",
+   "flash.coherent_delta_peak",
+   "brightness.jump_p95",
+   "audio.bass_peak_rgb_effect",
+   "structure.symmetry",
+   "structure.nonlinear_warp",
+   "structure.organic",
+   "structure.fractal"
+  ],
+  "calibrated": false,
+  "confidence": "low",
+  "features": {
+   "audio.bass_peak_rgb_effect": {
+    "evidence": "assumed",
+    "evidence_paths": [
+     "/analysis/visual_description/elements/1/audio_routes/0",
+     "/analysis/visual_description/elements/1/audio_routes/1",
+     "/analysis/visual_description/elements/1/audio_routes/2"
+    ],
+    "interval": [
+     0.010000000000000002,
+     0.010000000000000002
+    ],
+    "note": "per audio-brightness element; displayed gain unresolved",
+    "value": 0.010000000000000002
+   },
+   "brightness.audio_drawing_jump_p95": {
+    "evidence": "unknown",
+    "evidence_paths": [],
+    "interval": null,
+    "note": "no closed-form audio-driven drawing",
+    "value": null
+   },
+   "brightness.audio_drawing_mean": {
+    "evidence": "unknown",
+    "evidence_paths": [],
+    "interval": null,
+    "note": "no closed-form audio-driven drawing",
+    "value": null
+   },
+   "brightness.jump_p95": {
+    "evidence": "assumed",
+    "evidence_paths": [
+     "/analysis/visual_description/elements/1/audio_routes/0",
+     "/analysis/visual_description/elements/1/audio_routes/1",
+     "/analysis/visual_description/elements/1/audio_routes/2"
+    ],
+    "interval": [
+     0.015,
+     0.3
+    ],
+    "value": 0.015
+   },
+   "brightness.mean_encoded_luma": {
+    "evidence": "unknown",
+    "evidence_paths": [],
+    "interval": null,
+    "note": "flat-field state not representative: feedback gain unknown with active drawing",
+    "value": null
+   },
+   "feedback.half_life_s": {
+    "evidence": "unknown",
+    "evidence_paths": [],
+    "interval": null,
+    "value": null
+   },
+   "flash.coherent_delta_peak": {
+    "evidence": "assumed",
+    "evidence_paths": [
+     "/analysis/visual_description/elements/1/audio_routes/0",
+     "/analysis/visual_description/elements/1/audio_routes/1",
+     "/analysis/visual_description/elements/1/audio_routes/2"
+    ],
+    "interval": [
+     0.03,
+     0.3
+    ],
+    "value": 0.03
+   },
+   "flash.coherent_transitions_hz": {
+    "evidence": "assumed",
+    "evidence_paths": [
+     "/analysis/visual_description/elements/1/audio_routes/0",
+     "/analysis/visual_description/elements/1/audio_routes/1",
+     "/analysis/visual_description/elements/1/audio_routes/2"
+    ],
+    "interval": [
+     0.8,
+     4.0
+    ],
+    "value": 0.8
+   },
+   "motion.acceleration_p95_vp_s2": {
+    "evidence": "assumed",
+    "evidence_paths": [
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/sampling_geometry/stages/warp/0/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/warp/1/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/composite/0/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/composite/1/sampling_motion",
+     "/analysis/visual_description/static_behaviour/motion/contributions/2"
+    ],
+    "interval": [
+     0.5654866776461628,
+     0.5654866776461628
+    ],
+    "note": "speed times assumed angular rate: beat-coupled 2.0 Hz, other 0.3 Hz",
+    "value": 0.5654866776461628
+   },
+   "motion.discontinuities_hz": {
+    "evidence": "source-estimate",
+    "evidence_paths": [],
+    "interval": [
+     0.0,
+     0.0
+    ],
+    "note": "no audio switch site found; absence is not proof",
+    "value": 0.0
+   },
+   "motion.jerk_p95_vp_s3": {
+    "evidence": "assumed",
+    "evidence_paths": [
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/sampling_geometry/stages/warp/0/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/warp/1/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/composite/0/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/composite/1/sampling_motion",
+     "/analysis/visual_description/static_behaviour/motion/contributions/2"
+    ],
+    "interval": [
+     1.0659172753176507,
+     1.0659172753176507
+    ],
+    "note": "speed times squared assumed angular rate",
+    "value": 1.0659172753176507
+   },
+   "motion.speed_p95_vp_s": {
+    "evidence": "source-estimate+assumed",
+    "evidence_paths": [
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/static_behaviour/mesh_field",
+     "/analysis/visual_description/sampling_geometry/stages/warp/0/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/warp/1/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/composite/0/sampling_motion",
+     "/analysis/visual_description/sampling_geometry/stages/composite/1/sampling_motion",
+     "/analysis/visual_description/static_behaviour/motion/contributions/2"
+    ],
+    "interval": [
+     0.0,
+     1.0
+    ],
+    "value": 0.3
+   },
+   "palette.coloured_support": {
+    "evidence": "source-estimate",
+    "evidence_paths": [
+     "/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field"
+    ],
+    "interval": [
+     0.0,
+     0.0
+    ],
+    "value": 0.0
+   },
+   "palette.effective_hue_bins": {
+    "evidence": "source-estimate",
+    "evidence_paths": [
+     "/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field"
+    ],
+    "interval": [
+     0.0,
+     0.0
+    ],
+    "value": 0.0
+   },
+   "palette.hue_rate_p95_cycles_s": {
+    "evidence": "unknown",
+    "evidence_paths": [],
+    "interval": null,
+    "value": null
+   },
+   "palette.mean_saturation": {
+    "evidence": "source-estimate",
+    "evidence_paths": [
+     "/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field"
+    ],
+    "interval": [
+     0.0,
+     0.0
+    ],
+    "value": 0.0
+   },
+   "palette.warm_cool": {
+    "evidence": "unknown",
+    "evidence_paths": [],
+    "interval": null,
+    "note": "no coloured support",
+    "value": null
+   },
+   "structure.feedback_complexity": {
+    "evidence": "mechanism-estimate",
+    "evidence_paths": [
+     "/analysis/families/2"
+    ],
+    "interval": [
+     0.3,
+     0.3
+    ],
+    "value": 0.3
+   },
+   "structure.fractal": {
+    "evidence": "assumed",
+    "evidence_paths": [],
+    "interval": [
+     0.0,
+     0.3
+    ],
+    "note": "no supporting mechanism found",
+    "value": 0.0
+   },
+   "structure.geometric": {
+    "evidence": "mechanism-estimate",
+    "evidence_paths": [
+     "/analysis/families/1"
+    ],
+    "interval": [
+     0.45,
+     0.45
+    ],
+    "value": 0.45
+   },
+   "structure.nonlinear_warp": {
+    "evidence": "assumed",
+    "evidence_paths": [],
+    "interval": [
+     0.0,
+     0.2
+    ],
+    "note": "no supporting mechanism found",
+    "value": 0.1
+   },
+   "structure.organic": {
+    "evidence": "assumed",
+    "evidence_paths": [],
+    "interval": [
+     0.0,
+     0.3
+    ],
+    "note": "no supporting mechanism found",
+    "value": 0.15
+   },
+   "structure.symmetry": {
+    "evidence": "assumed",
+    "evidence_paths": [],
+    "interval": [
+     0.0,
+     0.4
+    ],
+    "note": "no supporting mechanism found",
+    "value": 0.2
+   }
+  },
+  "limitations": [
+   "Initial research equations and editable assumptions over SDK facts; not calibrated against viewers",
+   "Acceleration/jerk use assumed angular rates; structure scores come from proven mechanisms, not measured appearance",
+   "Strict source eligibility (mood_scoring.py) is separate and unchanged"
+  ],
+  "policy": "approximate-feature-vector-v1",
+  "possible_activity_bands": [
+   "Chill",
+   "Normal",
+   "Intense"
+  ],
+  "possible_tags": [],
+  "profiles": {
+   "ambient-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 85.3
+   },
+   "chillout-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 90.7
+   },
+   "classical-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 96.1
+   },
+   "focus-v1": {
+    "constraints_unresolved": [
+     "flash.local_or_colour_pulses_hz",
+     "palette.hue_rate_p95_cycles_s"
+    ],
+    "constraints_violated": [
+     "motion.speed_upper_bound_vp_s",
+     "flash.coherent_transitions_hz"
+    ],
+    "preference_coverage": 0.8,
+    "suitability": 90.2
+   },
+   "gentle-home-tv-v1": {
+    "constraints_unresolved": [
+     "flash.local_or_colour_pulses_hz",
+     "palette.hue_rate_p95_cycles_s"
+    ],
+    "constraints_violated": [
+     "motion.speed_upper_bound_vp_s",
+     "flash.coherent_transitions_hz"
+    ],
+    "preference_coverage": 0.8,
+    "suitability": 90.2
+   },
+   "hardstyle-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 49.3
+   },
+   "hip-hop-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 82.8
+   },
+   "jazz-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 96.1
+   },
+   "melodic-techno-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 62.2
+   },
+   "neutral-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 1.0,
+    "suitability": 91.1
+   },
+   "party-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 1.0,
+    "suitability": 24.4
+   },
+   "pop-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 95.6
+   },
+   "psychedelic-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 1.0,
+    "suitability": 40.0
+   },
+   "techno-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 53.2
+   },
+   "trance-v1": {
+    "constraints_unresolved": [],
+    "constraints_violated": [],
+    "preference_coverage": 0.94,
+    "suitability": 60.6
+   }
+  },
+  "scores": {
+   "cold": {
+    "interval": [
+     0.0,
+     100.0
+    ],
+    "value": null
+   },
+   "intensity": {
+    "interval": [
+     5.43,
+     100.0
+    ],
+    "value": 16.51
+   },
+   "psychedelic": {
+    "interval": [
+     7.5,
+     30.5
+    ],
+    "value": 14.0
+   },
+   "smoothness": {
+    "interval": [
+     90.2,
+     90.2
+    ],
+    "value": 90.2
+   },
+   "warm": {
+    "interval": [
+     0.0,
+     100.0
+    ],
+    "value": null
+   }
+  },
+  "tags": [
+   {
+    "basis": "estimated",
+    "features": [
+     "score.smoothness"
+    ],
+    "tag": "Smooth"
+   }
+  ],
+  "unknown_features": [
+   "brightness.audio_drawing_mean",
+   "brightness.audio_drawing_jump_p95",
+   "palette.warm_cool",
+   "palette.hue_rate_p95_cycles_s",
+   "brightness.mean_encoded_luma",
+   "feedback.half_life_s"
+  ],
+  "uses_rendered_images": false
+ },
+ "policy": "preset-visual-recipe-v1",
+ "preset": {
+  "name": "Zylot - In death there is life (Wrong Portal mix).milk",
+  "relative_path": "Zylot - In death there is life (Wrong Portal mix).milk",
+  "sha256": "f094e7e9c04a45fdec089ff9309199338ef28ae2a213b74ee43d16f38616e070"
+ },
+ "render": {
+  "audio_bindings": [
+   {
+    "input": "bass",
+    "layer": "mesh_warp",
+    "linear_gain": 0.01,
+    "target": "zoom"
+   },
+   {
+    "input": "treb",
+    "layer": "mesh_warp",
+    "linear_gain": null,
+    "target": "zoom"
+   },
+   {
+    "input": "bass",
+    "layer": "builtin_wave",
+    "linear_gain": 0.3,
+    "target": "wave_r"
+   },
+   {
+    "input": "treb",
+    "layer": "builtin_wave",
+    "linear_gain": 0.3,
+    "target": "wave_g"
+   },
+   {
+    "input": "mid",
+    "layer": "builtin_wave",
+    "linear_gain": 0.3,
+    "target": "wave_b"
+   }
+  ],
+  "composite": {
+   "flat_transfer": {
+    "flat_areas_only": false,
+    "levels": [
+     0.0,
+     0.25,
+     0.5,
+     0.75,
+     1.0
+    ],
+    "rgb": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.6036749482154846,
+      0.8175113797187805,
+      0.4563920795917511
+     ],
+     [
+      1.0,
+      1.0,
+      1.0
+     ],
+     [
+      1.0,
+      1.0,
+      1.0
+     ],
+     [
+      1.0,
+      1.0,
+      1.0
+     ]
+    ],
+    "rgb_spread": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.9250577688217163,
+      0.26607799530029297,
+      0.7308268547058105
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "source": "exported composite shader evaluated on flat canvas colours",
+    "time_varying": true,
+    "times": [
+     2.0,
+     5.0,
+     8.0
+    ]
+   }
+  },
+  "feedback": {
+   "decay": null,
+   "evidence": [
+    "/analysis/visual_description/static_behaviour/feedback_persistence",
+    "/analysis/visual_description/static_behaviour/mesh_field",
+    "/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field"
+   ],
+   "flat_field": {
+    "composite_rgb_at_state": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "flat_region_behaviour": "decays_to_black",
+    "settle_seconds": 0.0,
+    "state_rgb": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "shader_advection": [],
+   "steady_state": {
+    "canvas_local_rgb": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "composite_model": "composite_transfer",
+    "display_local_rgb": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "display_spread_rgb": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "hue_family": "grayscale",
+    "level_note": "a lower bound for bright presets; use display_estimate for brightness",
+    "source": "feedback_equilibrium steady state (source facts, no frames stepped)",
+    "substitution_count": 4
+   },
+   "stored_level_floor": null,
+   "stored_level_halving_steps": null,
+   "warp_controls": {
+    "cx": {
+     "uniform": true,
+     "value_range": [
+      0.5,
+      0.5
+     ]
+    },
+    "cy": {
+     "uniform": true,
+     "value_range": [
+      0.5,
+      0.5
+     ]
+    },
+    "dx": {
+     "uniform": true,
+     "value_range": [
+      0.0,
+      0.0
+     ]
+    },
+    "dy": {
+     "uniform": true,
+     "value_range": [
+      0.0,
+      0.0
+     ]
+    },
+    "rot": {
+     "uniform": true,
+     "value_range": [
+      0.0,
+      0.0
+     ]
+    },
+    "sx": {
+     "uniform": true,
+     "value_range": [
+      1.0,
+      1.0
+     ]
+    },
+    "sy": {
+     "uniform": true,
+     "value_range": [
+      1.0,
+      1.0
+     ]
+    },
+    "warp": {
+     "uniform": true,
+     "value_range": [
+      0.0,
+      0.0
+     ]
+    },
+    "zoom": {
+     "uniform": false,
+     "value_range": [
+      0.9999999999999998,
+      1.089317016601563
+     ]
+    },
+    "zoomexp": {
+     "uniform": true,
+     "value_range": [
+      1.0,
+      1.0
+     ]
+    }
+   },
+   "warp_patterns": [
+    {
+     "control": "zoom",
+     "coordinates": [
+      "rad"
+     ],
+     "pattern": "spatially_varying_zoom",
+     "value_range": [
+      0.9999999999999998,
+      1.089317016601563
+     ]
+    },
+    {
+     "composed_feature_scale_per_step_range": null,
+     "composition": "zoom/stretch/centre/rotation/warp are not uniform bounded controls",
+     "control": "dx",
+     "cross_axis_coefficient": 0.0,
+     "fixed_point_range": null,
+     "offset_range": [
+      0.0,
+      0.0
+     ],
+     "pattern": "translation_component",
+     "raw_feature_scale_per_step": null,
+     "region": {},
+     "same_axis_coefficient": 0.0,
+     "screen_fraction": 1.0,
+     "thin_line_integrated_fraction_per_step": null,
+     "thin_line_mean_first_step_peak": null,
+     "translation_pixels_per_second_range": [
+      0.0,
+      0.0
+     ],
+     "translation_pixels_per_step_range": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "composed_feature_scale_per_step_range": null,
+     "composition": "zoom/stretch/centre/rotation/warp are not uniform bounded controls",
+     "control": "dy",
+     "cross_axis_coefficient": 0.0,
+     "fixed_point_range": null,
+     "offset_range": [
+      0.0,
+      0.0
+     ],
+     "pattern": "translation_component",
+     "raw_feature_scale_per_step": null,
+     "region": {},
+     "same_axis_coefficient": 0.0,
+     "screen_fraction": 1.0,
+     "thin_line_integrated_fraction_per_step": null,
+     "thin_line_mean_first_step_peak": null,
+     "translation_pixels_per_second_range": [
+      0.0,
+      0.0
+     ],
+     "translation_pixels_per_step_range": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "warp_transfer": {
+    "channel_selective": false,
+    "gain_rgb": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "halving_frames": null,
+    "levels": [
+     0.0,
+     0.25,
+     0.5,
+     0.75,
+     1.0
+    ],
+    "linear": false,
+    "offset_rgb": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "per_channel": {
+     "b": {
+      "gain": 1.0,
+      "halving_frames": null,
+      "linear": false,
+      "steady_level_from_full": 1.0
+     },
+     "g": {
+      "gain": 1.0,
+      "halving_frames": null,
+      "linear": false,
+      "steady_level_from_full": 1.0
+     },
+     "r": {
+      "gain": 1.0,
+      "halving_frames": null,
+      "linear": false,
+      "steady_level_from_full": 1.0
+     }
+    },
+    "retention_by_level": [
+     {
+      "level": 0.25,
+      "retention": 0.589
+     },
+     {
+      "level": 0.5,
+      "retention": 0.001
+     },
+     {
+      "level": 0.75,
+      "retention": 0.588
+     },
+     {
+      "level": 1.0,
+      "retention": 1.0
+     }
+    ],
+    "rgb": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.14732185006141663,
+      0.14732185006141663,
+      0.14732185006141663
+     ],
+     [
+      0.0006059781298972666,
+      0.0006059781298972666,
+      0.0006059781298972666
+     ],
+     [
+      0.4413624107837677,
+      0.4413624107837677,
+      0.4413624107837677
+     ],
+     [
+      1.0,
+      1.0,
+      1.0
+     ]
+    ],
+    "source": "exported warp shader evaluated on flat colours",
+    "steady_level_from_full": 1.0,
+    "wrap": null
+   }
+  },
+  "layers": [
+   {
+    "audio": [
+     {
+      "input_code": 1,
+      "linear_gain": 0.01,
+      "target": "zoom",
+      "threshold_or_clamp": false
+     },
+     {
+      "input_code": 3,
+      "linear_gain": null,
+      "target": "zoom",
+      "threshold_or_clamp": false
+     }
+    ],
+    "colour": {
+     "constant_rgb": null,
+     "guaranteed_visible": false,
+     "mode_code": null,
+     "palette_diversity": null
+    },
+    "constants": {
+     "dx": 0.0,
+     "dy": 0.0,
+     "native_output": "zoom",
+     "rot": 0.0,
+     "sx": 1.0,
+     "sy": 1.0,
+     "warp": 0.0,
+     "zoomexp": 1.0
+    },
+    "controls": [
+     {
+      "control": "zoom",
+      "control_unit": "source zoom ratio",
+      "curve_kind": "unknown"
+     },
+     {
+      "constant_value": 1.0,
+      "control": "radial_zoom",
+      "control_unit": "source zoom exponent",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "constant_value": 0.0,
+      "control": "rotation",
+      "control_unit": "rad/feedback step",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "constant_value": 0.0,
+      "control": "translation_x",
+      "control_unit": "source UV displacement",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "constant_value": 0.0,
+      "control": "translation_y",
+      "control_unit": "source UV displacement",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "constant_value": 1.0,
+      "control": "scale_x",
+      "control_unit": "source UV scale",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "constant_value": 1.0,
+      "control": "scale_y",
+      "control_unit": "source UV scale",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "constant_value": 0.0,
+      "control": "deformation",
+      "control_unit": "source warp control",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.0,
+       0.0
+      ]
+     }
+    ],
+    "evidence": [
+     "/analysis/visual_description/elements/0"
+    ],
+    "id": "mesh_warp",
+    "mechanisms": [
+     "radial_feedback_transform",
+     "native_feedback_transform_controls"
+    ],
+    "stage": "mesh_warp"
+   },
+   {
+    "audio": [
+     {
+      "input_code": 1,
+      "linear_gain": 0.3,
+      "target": "wave_r",
+      "threshold_or_clamp": false
+     },
+     {
+      "input_code": 3,
+      "linear_gain": 0.3,
+      "target": "wave_g",
+      "threshold_or_clamp": false
+     },
+     {
+      "input_code": 2,
+      "linear_gain": 0.3,
+      "target": "wave_b",
+      "threshold_or_clamp": false
+     }
+    ],
+    "builtin_wave": {
+     "additive": false,
+     "audio_inputs": [
+      "waveform_left",
+      "waveform_right"
+     ],
+     "dots": true,
+     "effective_mode": 3,
+     "form_name": "stereo_xy_trace_volume_alpha",
+     "path_topology": "points",
+     "thick": false,
+     "wave_x": 0.5,
+     "wave_y": 0.5
+    },
+    "colour": {
+     "blend": "source_alpha_over",
+     "channels": {
+      "wave_a": {
+       "constant_value": 0.800000011920929,
+       "curve_kind": "constant",
+       "nominal_value_range": [
+        0.800000011920929,
+        0.800000011920929
+       ]
+      },
+      "wave_b": {
+       "curve_kind": "unknown"
+      },
+      "wave_g": {
+       "curve_kind": "unknown"
+      },
+      "wave_r": {
+       "curve_kind": "unknown"
+      }
+     },
+     "max_normalise_rule": {
+      "above": "every channel is divided by the largest, so the largest becomes 1",
+      "at_or_below": "channels are drawn as authored (near black for small values)",
+      "threshold": 0.01
+     },
+     "max_normalised": true
+    },
+    "constants": {
+     "dots": true,
+     "mode": 3
+    },
+    "evidence": [
+     "/analysis/visual_description/elements/1"
+    ],
+    "id": "builtin_wave",
+    "mechanisms": [
+     "point_cloud_primitive"
+    ],
+    "stage": "drawing"
+   },
+   {
+    "centre_axes": [
+     {
+      "constant_value": 0.5,
+      "control": "x",
+      "control_unit": "authored shape coordinate",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.5,
+       0.5
+      ]
+     },
+     {
+      "constant_value": 0.5,
+      "control": "y",
+      "control_unit": "authored shape coordinate",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.5,
+       0.5
+      ]
+     }
+    ],
+    "centre_path": {
+     "center_source_xy": [
+      0.5,
+      0.5
+     ],
+     "maximum_source_speed_units_per_second": 0.0,
+     "path_kind": "stationary"
+    },
+    "colour": {
+     "constant_rgb": null,
+     "guaranteed_visible": false,
+     "mode_code": null,
+     "palette_diversity": null
+    },
+    "constants": {
+     "a": 0.20000000298023224,
+     "a2": 0.0,
+     "b": 1.0,
+     "b2": 1.0,
+     "border_a": 0.10000000149011612,
+     "border_b": 0.0,
+     "border_g": 0.0,
+     "border_r": 0.0,
+     "g": 1.0,
+     "g2": 1.0,
+     "instances": 1,
+     "r": 1.0,
+     "r2": 1.0,
+     "rad": 2.667180061340332,
+     "sides": 4.0,
+     "tex_ang": 0.0,
+     "tex_zoom": 0.4003399908542633,
+     "x": 0.5,
+     "y": 0.5
+    },
+    "controls": [
+     {
+      "constant_value": 0.5,
+      "control": "position_x",
+      "control_unit": "milkdrop shape coordinate",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.5,
+       0.5
+      ]
+     },
+     {
+      "constant_value": 0.5,
+      "control": "position_y",
+      "control_unit": "milkdrop shape coordinate",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       0.5,
+       0.5
+      ]
+     },
+     {
+      "constant_value": 2.667180061340332,
+      "control": "radius",
+      "control_unit": "milkdrop shape radius",
+      "curve_kind": "constant",
+      "maximum_absolute_control_rate_per_second": 0.0,
+      "nominal_value_range": [
+       2.667180061340332,
+       2.667180061340332
+      ]
+     },
+     {
+      "control": "rotation",
+      "control_unit": "rad",
+      "curve_kind": "unknown"
+     }
+    ],
+    "evidence": [
+     "/analysis/visual_description/elements/2"
+    ],
+    "geometry": {
+     "center_source_xy": [
+      0.5,
+      0.5
+     ],
+     "configured_instances": 1,
+     "effective_sides": 4,
+     "radius_ndc": 2.667180061340332
+    },
+    "id": "shape_0",
+    "mechanisms": [
+     "polygon_shape_primitive"
+    ],
+    "stage": "drawing"
+   },
+   {
+    "colour": {
+     "amplitude_rgb": null,
+     "bias_rgb": null,
+     "conditions": [
+      "selected RGB path, source input domains and later masks/storage retain the colour contribution",
+      "actual palette depends on sampled image/feedback contents"
+     ],
+     "constant_rgb": null,
+     "depends_on_time": null,
+     "distinct_channel_phases": null,
+     "guaranteed_visible": false,
+     "mode_code": 4,
+     "palette_diversity": null,
+     "phase_offsets_rad": null
+    },
+    "constants": {},
+    "evidence": [
+     "/analysis/visual_description/elements/3"
+    ],
+    "id": "shader_warp",
+    "mechanisms": [],
+    "stage": "warp"
+   },
+   {
+    "colour": {
+     "amplitude_rgb": null,
+     "bias_rgb": null,
+     "conditions": [
+      "selected RGB path, source input domains and later masks/storage retain the colour contribution",
+      "actual palette depends on sampled image/feedback contents"
+     ],
+     "constant_rgb": null,
+     "depends_on_time": null,
+     "distinct_channel_phases": null,
+     "guaranteed_visible": false,
+     "mode_code": 4,
+     "palette_diversity": null,
+     "phase_offsets_rad": null
+    },
+    "constants": {},
+    "evidence": [
+     "/analysis/visual_description/elements/4"
+    ],
+    "id": "shader_composite",
+    "mechanisms": [],
+    "stage": "composite"
+   }
+  ],
+  "mechanisms": [
+   {
+    "evidence": "/analysis/families/0",
+    "mechanism": "point_cloud_primitive",
+    "parameters": {
+     "dots": true,
+     "mode": 3
+    },
+    "stage": "drawing"
+   },
+   {
+    "evidence": "/analysis/families/1",
+    "mechanism": "polygon_shape_primitive",
+    "parameters": {
+     "instances": 1,
+     "sides": 4.0
+    },
+    "stage": "drawing"
+   },
+   {
+    "evidence": "/analysis/families/2",
+    "mechanism": "radial_feedback_transform",
+    "parameters": {
+     "native_output": "zoom"
+    },
+    "stage": "mesh_warp"
+   }
+  ],
+  "mirrors": {
+   "conditions": [
+    "Stretch and echo controls are uniform constants; the image is otherwise uncorrelated with its mirror",
+    "Echo zoom, per-step scale, a varying centre and later drawing make the symmetry inexact; score is an upper estimate"
+   ],
+   "flip_directions": [],
+   "fold": 1,
+   "operators": [],
+   "policy": "source-mirror-symmetry-v1",
+   "symmetry_score": 0.0,
+   "uses_rendered_images": false
+  },
+  "random_redraws": null
+ },
+ "uses_rendered_images": false
+}
