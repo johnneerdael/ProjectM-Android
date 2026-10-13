@@ -1,0 +1,64 @@
+{
+ "oof": "/Users/jneerdael/Scripts/Projectm-TV/.worktrees/predictor-memory-repair/build/calibration-2026-10-12/oof-r11v3.json",
+ "groups": {
+  "energy": 0.536,
+  "brightness": 0.599,
+  "colour": 0.503,
+  "movement": 0.637,
+  "comfort": 0.816
+ },
+ "options": {
+  "chill": {
+   "precision": 0.687,
+   "recall": 0.722
+  },
+  "normal": {
+   "precision": 0.689,
+   "recall": 0.665
+  },
+  "intense": {
+   "precision": 0.713,
+   "recall": 0.726
+  },
+  "dark": {
+   "precision": 0.583,
+   "recall": 0.586
+  },
+  "balanced": {
+   "precision": 0.586,
+   "recall": 0.582
+  },
+  "bright": {
+   "precision": 0.634,
+   "recall": 0.639
+  },
+  "vivid": {
+   "precision": 0.744,
+   "recall": 0.74
+  },
+  "warm": {
+   "precision": 0.645,
+   "recall": 0.648
+  },
+  "cool": {
+   "precision": 0.545,
+   "recall": 0.543
+  },
+  "still": {
+   "precision": 0.556,
+   "recall": 0.564
+  },
+  "drifting": {
+   "precision": 0.656,
+   "recall": 0.649
+  },
+  "fast": {
+   "precision": 0.661,
+   "recall": 0.666
+  },
+  "no_strobe": {
+   "precision": 0.818,
+   "recall": 0.82
+  }
+ }
+}
