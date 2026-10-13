@@ -1289,3 +1289,9 @@ repeated on correctly oriented frames. Probes and results:
   palette grey. Audio-driven shader colour channels leave the recipe without
   a hue, and the spiral form is not named. Open SDK gap: a hue summary for
   shader colour that the illustration resolves.
+- **Random redraws.** Per-frame state updated as `select(condition, …rand…,
+  itself)` (the random-palette template, about 1,480 bundled presets) is
+  reported as `render.random_redraws`: the q values it feeds, the event times
+  of the condition (first 60 s, bands at 1) and the period. r35's colour bands
+  are redrawn at 3.1 s and every 12.6 s; the v2 SDK text now says the palette
+  is a random draw that changes at those moments.

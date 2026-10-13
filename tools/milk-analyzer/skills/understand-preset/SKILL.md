@@ -103,6 +103,11 @@ required. Use a native file-read tool to inspect JSON and the summary.
    lists switches on `rand_preset`, drawn once per preset load: describe each
    branch with its `probability_true` (for example "60% of loads add a tunnel
    distortion, otherwise a plain mirrored glow"), never only one of them.
+   `render.random_redraws` lists per-frame state redrawn with `rand` when a
+   condition fires (the random-palette template). The `feeds` (q values) take
+   new random values at `event_times_s`, every `period_s`: colours or
+   thresholds that read them are a random draw that changes at those moments.
+   Say so instead of naming one palette.
    `render.composite.hue_shader` means the composite multiplies by projectM's
    cycling corner shades: name the cycle periods and the range, and say that
    the hue placement is random per preset load (do not name one fixed tint).

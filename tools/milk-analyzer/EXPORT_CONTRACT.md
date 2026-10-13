@@ -390,6 +390,13 @@ report a shader's use of `rand_preset` (four `floatRand()` values drawn when
 effect `per_load_variant` (stage, condition, `probability_true`) and as a
 sentence appended to the recipe `description`.
 
+`render.random_redraws` (or null) reports per-frame state whose update is
+`select(condition, …rand…, itself)`: `states`, the frame outputs they `feed`,
+`event_times_s` (first eight rising edges of the condition evaluated per frame
+over 60 s with bands at 1; null when the condition reads other state) and the
+median `period_s`. The intent gains `random_redraw` and the description a
+sentence. Draws come from projectm-eval's process-wide `rand` stream.
+
 `render.composite.hue_shader` (composites reading `hue_shader`/`_vDiffuse`)
 summarises `FinalComposite::ApplyHueShaderColors` from the element's
 `native_colour_generators` fact: `channels` read, `cycle_periods_seconds_rgb`

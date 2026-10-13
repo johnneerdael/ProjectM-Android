@@ -261,6 +261,56 @@ def _per_load_random(program):
             'source':'rand_preset: four uniform values drawn per preset load (MilkdropShader floatRand)'}
 
 
+def _subgraph(nodes,root):
+    """The nodes reachable from root, reindexed (root first)."""
+    order=[];index={}
+    def visit(i):
+        if i in index:return
+        index[i]=len(order);order.append(i)
+        for j in nodes[i].get('args') or []:visit(j)
+    visit(root)
+    return {'root':0,'nodes':[{**nodes[i],'args':[index[j] for j in nodes[i].get('args') or []]} for i in order]}
+
+
+def _random_redraws(frame):
+    """Per-frame state written as select(condition, ...rand..., itself): a random redraw whenever the
+    condition holds (the random-palette template: mq2x = if(above(chng,cthr), rand(n), mq2x)). The
+    condition is evaluated per frame (time = (k+1)/30 s, bands at 1) over the first 60 s."""
+    from time_expression import evaluate_inputs,input_names
+    states=[]
+    for name,entry in ((frame or {}).get('state') or {}).items():
+        graph=(entry or {}).get('update') or {};nodes=graph.get('nodes') or []
+        if not nodes or nodes[graph.get('root',0)].get('op')!='select':continue
+        condition,a,b=nodes[graph.get('root',0)]['args']
+        def has_rand(i,seen=None):
+            seen=seen if seen is not None else set()
+            if i in seen:return False
+            seen.add(i);return nodes[i].get('op')=='rand' or any(has_rand(j,seen) for j in nodes[i].get('args') or [])
+        own=lambda i:nodes[i].get('op')=='input' and nodes[i]['detail'].get('name') in (name,'state:per_frame_:'+name)
+        if (has_rand(a) and own(b)) or (has_rand(b) and own(a)):states.append((name,_subgraph(nodes,condition),has_rand(a)))
+    if not states:return None
+    name,condition,on_true=states[0]
+    times=[]
+    try:
+        names=input_names(condition) or set()
+        if names-{'time','bass','mid','treb','bass_att','mid_att','treb_att'}:raise ValueError('condition reads other state')
+        previous=False
+        for k in range(1800):
+            t=(k+1)/30;value=bool(evaluate_inputs(condition,{'time':t,**{n:1. for n in ('bass','mid','treb','bass_att','mid_att','treb_att')}}))
+            fired=value if on_true else not value
+            if fired and not previous:times.append(round(t,4))
+            previous=fired
+    except (ValueError,KeyError,TypeError,ZeroDivisionError):times=None
+    redrawn={n for n,_,_ in states}
+    feeds=sorted(out for out,graph in ((frame or {}).get('outputs') or {}).items()
+                 if any(node.get('op')=='input' and node['detail'].get('name') in redrawn|{'state:per_frame_:'+n for n in redrawn}
+                        for node in (graph or {}).get('nodes') or []))
+    gaps=[b-a for a,b in zip(times,times[1:])] if times else []
+    return {'states':sorted(redrawn),'feeds':feeds,'event_times_s':times[:8] if times is not None else None,
+            'period_s':sorted(gaps)[len(gaps)//2] if gaps else None,
+            'note':'values are redrawn with projectm-eval rand (one process-wide stream): each draw is a random outcome'}
+
+
 def _render(facts):
     persistence=facts.get(STATIC+'/feedback_persistence') or {}
     mesh=facts.get(STATIC+'/mesh_field') or {}
@@ -328,7 +378,8 @@ def _render(facts):
                'linear_gain':route['linear_gain']} for layer in layers for route in layer.get('audio',[])]
     from mirror_symmetry import mirror_operators
     if feedback_random[0]:feedback['warp_per_load_random']=feedback_random[0]
-    return {'feedback':feedback,'layers':layers,'composite':composite,'mechanisms':mechanisms,'audio_bindings':bindings,
+    redraws=_random_redraws(((facts.get(BASE+'/stage_programs') or {}).get('frame')))
+    return {'feedback':feedback,'layers':layers,'composite':composite,'mechanisms':mechanisms,'audio_bindings':bindings,'random_redraws':redraws,
             'mirrors':mirror_operators(facts)}
 
 
@@ -378,6 +429,12 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
     if display is not None:recipe['display_estimate']=display
     recipe['facets']=facets_block(summary,display)
     recipe['intent']=intent(recipe)
+    redraw=recipe['render'].get('random_redraws')
+    if redraw and redraw.get('feeds') and isinstance(recipe['description'],str):
+        when=(' first at about '+format(redraw['event_times_s'][0],'.3g')+' s' if redraw.get('event_times_s') else '')+(
+             ' and then every '+format(redraw['period_s'],'.3g')+' s' if redraw.get('period_s') else '')
+        recipe['description']+=' Random redraws: '+', '.join(redraw['feeds'])+' are redrawn at random'+when+\
+            ', so colours or shapes that depend on them are a random draw that changes at those moments.'
     variants=[e for e in recipe['intent']['effects'] if e['effect']=='per_load_variant']
     if variants and isinstance(recipe['description'],str):
         recipe['description']+=' Per-load variants: '+'; '.join(
@@ -676,6 +733,9 @@ def intent(recipe):
                        speed_px_s=osc.get('phase_speed_pixels_per_second') or osc.get('radial_phase_speed_pixels_per_second'),
                        direction=osc.get('travel_direction_xy'),lobes=osc.get('angular_lobes'),amplitude_px=pattern.get('amplitude_pixels_range'))
         if row['effect']:effects.append({k:v for k,v in row.items() if v is not None})
+    redraw=render.get('random_redraws')
+    if redraw:
+        effects.append({'effect':'random_redraw','feeds':redraw['feeds'],'first_s':(redraw['event_times_s'] or [None])[0],'period_s':redraw['period_s']})
     for stage,switches in (('composite',render['composite'].get('per_load_random')),('warp',fb.get('warp_per_load_random'))):
         for switch in (switches or {}).get('switches') or []:
             # The look branches once per preset load: both variants are real outcomes.

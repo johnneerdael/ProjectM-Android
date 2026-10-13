@@ -1,0 +1,13 @@
+LLM look description from the SDK recipe, source parts only (r35 v2; the recipe's engine-measured facets block was deliberately not used):
+
+Core picture: a dense, fully patterned screen rather than a dark field with a few drawn items. A single tiny 12-sided polygon (radius about 0.003, i.e. a dot-sized speck) is repeated 1,024 times, each instance wandering on sine/cosine paths with instance-dependent offsets. These specks are the seeds. The feedback warp is a custom shader in which the image steers its own sampling (self-advection using the previous frame, a blurred copy and noise), so the specks smear and grow into flowing, fluid or machinery-like structure. The composite uses a reciprocal-radius polar mapping, a tunnel-like candidate, so the structure may read as receding rings or radial streaks toward the centre. The tunnel look is not guaranteed.
+
+Feedback and motion: the mesh warp itself is neutral (zoom 1, no rotation or translation), so all motion comes from the shader advection. Trails are long: the warp keeps about 99.9% of mid and bright levels per frame, while dim content is cut harder (about 87% retention at 0.25). Expect persistent, slowly drifting smear. An outer border blends black each frame but covers about 0% of the screen.
+
+Colour: unresolved from source. The shader palettes are unknown, and the steady-state hue is grayscale-leaning, roughly neutral. Calibrated estimates give moderate saturation (about 0.4, wide range) and no clear warm or cool bias. The name suggests green, but nothing in the recipe supports it. Ten random q values are redrawn at about 3.1 s and then every 12.6 s, so colours or shapes tied to them change character at those moments.
+
+Brightness: the composite pushes mid-to-bright canvas levels to near white, so the picture is fairly bright. Estimated mean luminance is about 0.46 (range 0.27 to 0.70).
+
+Audio: bass, mid and treble all feed the red, green and blue of the warp and composite shaders through thresholds or clamps. These are brightness or colour pushes of unknown strength. There is no beat-triggered geometry. The source suggests possible brightness pulses (nominal cycle about 0.08 Hz), but flashing is unverified.
+
+Uncertain: exact palette, how much of the screen the tunnel pattern covers, and real speed. The editable mood estimate says Intense, but the calibrated display estimate says activity is low (Chill, with Normal and Intense still possible). I lean toward moderate, smooth, slow-evolving motion.

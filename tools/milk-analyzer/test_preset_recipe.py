@@ -1,5 +1,6 @@
 """Preset recipe: render facts, generic intent and music reactivity, optional program."""
 import json
+import math
 
 from preset_recipe import build_recipe
 
@@ -304,3 +305,23 @@ def test_per_load_random_switches_report_their_probability():
     variant = next(e for e in recipe['intent']['effects'] if e['effect'] == 'per_load_variant')
     assert variant == {'effect': 'per_load_variant', 'stage': 'composite', 'condition': 'rand_preset.x >= 0.4', 'probability_true': .6}
     assert 'rand_preset.x >= 0.4 (true in 60% of preset loads)' in recipe['description']
+
+
+def test_random_redraw_events_of_the_random_palette_template():
+    # mq21 = if(above(sin(time*.5), .9999), rand(3), mq21); q21 = mq21
+    update = {'root': 0, 'nodes': [
+        {'op': 'select', 'args': [1, 7, 9], 'detail': {}}, {'op': 'greater', 'args': [2, 6], 'detail': {}},
+        {'op': 'sin', 'args': [3], 'detail': {}}, {'op': 'multiply', 'args': [4, 5], 'detail': {}},
+        {'op': 'input', 'args': [], 'detail': {'name': 'time'}}, {'op': 'constant', 'args': [], 'detail': {'value': .5}},
+        {'op': 'constant', 'args': [], 'detail': {'value': .9999}}, {'op': 'rand', 'args': [8], 'detail': {}},
+        {'op': 'constant', 'args': [], 'detail': {'value': 3.}}, {'op': 'input', 'args': [], 'detail': {'name': 'mq21'}}]}
+    initial = {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': 0.}}]}
+    q21 = {'root': 0, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'mq21'}}]}
+    frame = {'status': 'exported', 'state': {'mq21': {'initial': initial, 'update': update}}, 'outputs': {'q21': q21}}
+    recipe = build_recipe(summary(('construction', BASE + '/stage_programs', {'frame': frame, 'stages': {}})))
+    redraw = recipe['render']['random_redraws']
+    assert redraw['states'] == ['mq21'] and redraw['feeds'] == ['q21']
+    # sin(t/2) > .9999 near t = pi + 4 pi k: first event about 3.1 s, then every 12.6 s.
+    assert abs(redraw['event_times_s'][0] - math.pi) < .1
+    assert abs(redraw['period_s'] - 4 * math.pi) < .1
+    assert any(e['effect'] == 'random_redraw' for e in recipe['intent']['effects'])
