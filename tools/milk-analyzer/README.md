@@ -1703,3 +1703,16 @@ follow-up work; no renderer or new producer schema is introduced by these docs.
 ## Automated 47-field corpus export
 
 Run `./tools/run-preset-corpus.command` from the prepared checkout for60frames at15fps,854×480, with resumable per-name JSON and paired ZIPs every100completed attempts in Downloads. No AI or native frame capture is involved. See [CORPUS_EXPORT.md](CORPUS_EXPORT.md) for inputs, failures, prerequisites and cadence limits.
+
+## Rebuilding prepared historical adapters
+
+The prepared suite reads historical adapters from `build/visual-loop/source-pr57`
+and `source-pr59`, among others (see the qualification environment JSON). If they
+are lost, `tools/milk-analyzer/rebuild_historical_adapters.sh <name> <tv-commit>`
+rebuilds one from git history: projectM at the pinned submodule commit, plus that
+commit's patch series, built through the source34 engine driver. The reader and
+translator come from the commit's own analyzer sources; the later audio, wave,
+noise, image, composite and random adapters come from the current sources. The
+patch identity must match the pinned value (`source-pr57` ← `62a68fca…`,
+`source-pr59` ← `be46967f…`). Verified 2026-10-13: the rebuilt adapters pass the
+prepared suite (4,299 tests).
