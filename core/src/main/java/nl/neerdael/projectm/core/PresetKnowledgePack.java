@@ -16,7 +16,10 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
+import java.util.zip.CRC32;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
+import java.util.zip.ZipException;
 
 /**
  * Reader for a preset knowledge pack (preset-knowledge-pack-v1): source-only recipes for a preset
@@ -204,7 +207,7 @@ public final class PresetKnowledgePack {
     private static void lines(Source core, List<Map<String, Object>> entries, LineHandler handler) throws IOException {
         Line line = new Line();
         int index = 0;
-        try (InputStream in = new BufferedInputStream(new GZIPInputStream(core.open(), 1 << 16), 1 << 16)) {
+        try (InputStream in = new BufferedInputStream(new GzipMember(core.open()), 1 << 16)) {
             while (line.next(in)) {
                 if (!line.terminated) throw new InvalidPackException("line ending", "the last core line has no terminating LF");
                 if (line.length > 0 && line.bytes[line.length - 1] == '\r')
@@ -222,6 +225,66 @@ public final class PresetKnowledgePack {
             }
         }
         if (index != entries.size()) throw new InvalidPackException("preset count", "manifest lists " + entries.size() + ", core holds " + index);
+    }
+
+    /**
+     * Decompresses exactly one gzip member (RFC 1952) and, at its end, checks the CRC-32 and size
+     * trailer and that no further member or byte follows. GZIPInputStream would silently accept
+     * concatenated members and ignore trailing bytes, which FORMAT.md rejects (rule "gzip").
+     */
+    private static final class GzipMember extends InflaterInputStream {
+        private final CRC32 crc = new CRC32();
+        private boolean checked;
+
+        GzipMember(InputStream in) throws IOException {
+            super(in, new Inflater(true), 1 << 16);
+            if (in.read() != 0x1f || in.read() != 0x8b || in.read() != 8) throw new InvalidPackException("gzip", "not a deflate gzip member");
+            int flags = in.read();
+            if (flags < 0 || (flags & 0xe0) != 0) throw new InvalidPackException("gzip", "bad header flags");
+            for (int i = 0; i < 6; i++) if (in.read() < 0) throw new InvalidPackException("gzip", "short header");
+            if ((flags & 4) != 0) {
+                int length = in.read() | (in.read() << 8);
+                for (int i = 0; i < length; i++) if (in.read() < 0) throw new InvalidPackException("gzip", "short extra field");
+            }
+            for (int field : new int[]{8, 16}) if ((flags & field) != 0) {
+                int b;
+                while ((b = in.read()) > 0) { /* zero-terminated name or comment */ }
+                if (b < 0) throw new InvalidPackException("gzip", "short header text");
+            }
+            if ((flags & 2) != 0 && (in.read() < 0 || in.read() < 0)) throw new InvalidPackException("gzip", "short header CRC");
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int count) throws IOException {
+            int n;
+            try {
+                n = super.read(buffer, offset, count);
+            } catch (ZipException | java.io.EOFException corrupt) {
+                throw new InvalidPackException("gzip", "corrupt deflate data: " + corrupt.getMessage());
+            }
+            if (n > 0) crc.update(buffer, offset, n);
+            else if (n < 0 && !checked) { checked = true; trailer(); }
+            return n;
+        }
+
+        private void trailer() throws IOException {
+            // Bytes the inflater read past the deflate stream start the trailer.
+            int remaining = inf.getRemaining();
+            byte[] tail = new byte[8];
+            int have = Math.min(remaining, 8);
+            System.arraycopy(buf, len - remaining, tail, 0, have);
+            if (remaining > 8) throw new InvalidPackException("gzip", "bytes after the gzip member");
+            while (have < 8) {
+                int b = in.read();
+                if (b < 0) throw new InvalidPackException("gzip", "short trailer");
+                tail[have++] = (byte) b;
+            }
+            long storedCrc = (tail[0] & 0xffL) | (tail[1] & 0xffL) << 8 | (tail[2] & 0xffL) << 16 | (tail[3] & 0xffL) << 24;
+            long storedSize = (tail[4] & 0xffL) | (tail[5] & 0xffL) << 8 | (tail[6] & 0xffL) << 16 | (tail[7] & 0xffL) << 24;
+            if (storedCrc != crc.getValue() || storedSize != (inf.getBytesWritten() & 0xffffffffL))
+                throw new InvalidPackException("gzip", "trailer CRC or size mismatch");
+            if (in.read() >= 0) throw new InvalidPackException("gzip", "bytes after the gzip member");
+        }
     }
 
     /** One line of the decompressed core, reusing its buffer; terminated is false for a last line without LF. */
