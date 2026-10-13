@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r75-v1",
+ "preset": "308.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f60bf9493028411145f6b4fe0475049c840e6405d3db32b81555a60c4a581b7e",
+  "prediction.json": "2290b42b9933202ecc2967a79610b884d65086dabdce73bc0f768a6363154896",
+  "description.json": "47aa95488b042ede55afbc0e42f34bb8023ba67943558401c6579aa854a00b6c",
+  "recipe.json": "7e72481662c5dee738ff80033f0ff3daf537204a92b43aa8b572d86c4c5064e7",
+  "llm-look-description-v1.txt": "08e51f40ccb3d2a13751019724fc8abab71c89984eeb1aea7eb88ba225827cbe"
+ },
+ "capture_result_sha256": "d2fa1efd2cf4b46b35bc19c866b43870f29fe667c02fe8f58ad653e805aa4506",
+ "review_measurements_v1": {
+  "prediction_luma": 0.239,
+  "screenshot_luma": 0.34,
+  "mean_rgb_prediction": [
+   0.34,
+   0.164,
+   0.683
+  ],
+  "mean_rgb_screenshot": [
+   0.477,
+   0.256,
+   0.774
+  ],
+  "blurred_luma_correlation": 0.957,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.217,
+    0.328
+   ],
+   "saturation": [
+    0.774,
+    0.687
+   ],
+   "blurred_luma_correlation": 0.971
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0244,
+   0.0265
+  ]
+ },
+ "agreements": [
+  "the same white and violet light streaks; screenshot correlation 0.957, time average 0.971; frame-to-frame change 0.0244 vs 0.0265"
+ ],
+ "misses": [
+  "ours accumulates more slowly from frame 45 and ends a third darker (time-average luma 0.217 vs 0.328); the drawn elements follow audio-smoothed q1-q3 (speed 0.92), so the build-up rate depends on band levels"
+ ],
+ "verdict": "understood; brightness builds up too slowly"
+}

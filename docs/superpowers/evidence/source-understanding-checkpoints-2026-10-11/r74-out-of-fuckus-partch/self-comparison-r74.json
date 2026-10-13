@@ -1,0 +1,49 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r74-v1",
+ "preset": "suksma - out of fuckus newband plays harry partch - shf.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "48f123aa1cab0f417295481d51748ac60c190f0b90ab781e48ea040982691dfa",
+  "prediction.json": "13a5550ab20816217032425bdb6531129e0664cb067d656c624a3c0e5702adfa",
+  "description.json": "6f96fd07dc9a4323831af6ecfd06512017eae2d98ffe41d8857bb32cb51421e3",
+  "recipe.json": "0f4d247eff030101867cafcaf0dcd014a4f8e01e2795078eacf97f7f4023f67f",
+  "llm-look-description-v1.txt": "f94450b3b91a73efd7b39a9a13d349a6b5723881be8a02fbf41bdb02dd0ad8cf"
+ },
+ "capture_result_sha256": "cc408f4b24ae5b65deae5f31ccbd3aa7d4283d56694f50c53e8c0dde1eba9aea",
+ "review_measurements_v1": {
+  "prediction_luma": 0.068,
+  "screenshot_luma": 0.063,
+  "mean_rgb_prediction": [
+   0.031,
+   0.077,
+   0.089
+  ],
+  "mean_rgb_screenshot": [
+   0.023,
+   0.072,
+   0.087
+  ],
+  "blurred_luma_correlation": 0.978,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.029,
+    0.03
+   ],
+   "saturation": [
+    0.896,
+    0.898
+   ],
+   "blurred_luma_correlation": 0.995
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0092,
+   0.0095
+  ]
+ },
+ "agreements": [
+  "screenshot correlation 0.978, time-average correlation 0.995; mean colour equal to 0.001; frame-to-frame change 0.0092 vs 0.0095; brightness matches frame by frame"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction"
+}

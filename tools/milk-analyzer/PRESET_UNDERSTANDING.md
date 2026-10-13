@@ -1609,3 +1609,11 @@ controls at band midpoints.
 
 The generalised gradient detector (r71) recognises gradient-driven flow or
 gradient relief in 167 of a 600-preset sample: 137 with flow, 93 with relief.
+
+### r74 (suksma, out of fuckus) and r75 (308)
+
+r74 is essentially exact (time-average correlation 0.995, mean colour within
+0.001). r75 matches its streaks (0.971) but builds brightness more slowly
+than the capture from frame 45 and ends a third darker. Its drawn elements
+follow audio-smoothed `q1`–`q3`, so the build-up rate depends on the band
+levels.
