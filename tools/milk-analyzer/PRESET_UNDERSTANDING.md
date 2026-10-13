@@ -1643,3 +1643,28 @@ r78's kaleidoscopic octagon matches and its average brightness agrees. The
 colours at 5 s differ because the recipe's random redraw of `q21`–`q31` at
 3.13 s (and every 12.6 s) picks a new palette: random by construction. r79
 was understood on the first prediction (time-average correlation 0.849).
+
+### r80 (Hexcollie n EoS, sunburst baboon) and r81 (shifter, mosaique simple)
+
+r80 was understood on the first prediction (time-average correlation 0.973,
+equal frame-to-frame change). r81's warp is a seed-propagation mosaic, and
+its composite colours the cells from `sampler_rand00`, a bundled image
+projectM picks at random on each load. The illustrator used a high-contrast
+noise stand-in for that image. It now uses the per-pixel mean of the bundled
+images matching the slot's name filter, which is the expectation over the
+engine's choice (221 presets sample random textures). In r81 the
+frame-to-frame change went from 0.117 to 0.030 (capture 0.022) and the
+brightness from 0.317 to 0.199. The remaining gap is this load's darker image
+draw. The recipe now lists random-texture slots, and the SKILL tells the
+describer that their colours change per load.
+
+### Nondeterministic predictions (found while checking a regression)
+
+The c2e1 group measure showed small losses, which I first put down to the
+noise redraw without checking. The cause was nondeterminism: the recurrence
+builders popped state names from a set, so the order of `rand()` draws
+followed per-process string hashing. The same snapshot gave `toffee cream`
+mean luma 0.170, 0.202 and 0.156 in three runs. Names are now processed in
+sorted order, and predictions are identical across `PYTHONHASHSEED` values
+(44e4fa2f). Earlier version-to-version group-measure differences partly
+reflected these random draws.

@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r81-v1",
+ "preset": "shifter - mosaique simple - foobar2000 - sth roam3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "86522cad316470bbd0faf1d8ffa40844c39232f0eab418471efffa7e3219d6d3",
+  "prediction.json": "f39beca922bfcb0e0b98a7de5c673999c30e68536851bac2b6f188baa9557769",
+  "description.json": "b9fbd97c74d06f1744498f5daa235dd638b02562ba0529a5921f32739bd6f40a",
+  "recipe.json": "e014de4ac6b32d4433c7ff6f9c3dbd2e5637897e37bd7747a0c369fd62d3c466",
+  "llm-look-description-v1.txt": "ff344608d455981c52965e79757e265cd00d6a50eb330789a057e9f5a55f5eb7"
+ },
+ "capture_result_sha256": "39a7b18a61febe9dceba9f44bd3eaa09c236581b05b79e138b24f93dc823fa83",
+ "review_measurements_v1": {
+  "prediction_luma": 0.397,
+  "screenshot_luma": 0.088,
+  "mean_rgb_prediction": [
+   0.407,
+   0.395,
+   0.393
+  ],
+  "mean_rgb_screenshot": [
+   0.203,
+   0.059,
+   0.032
+  ],
+  "blurred_luma_correlation": 0.395,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.317,
+    0.05
+   ],
+   "saturation": [
+    0.381,
+    0.874
+   ],
+   "blurred_luma_correlation": 0.783
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1173,
+   0.0218
+  ]
+ },
+ "agreements": [
+  "the same seed-propagation mosaic flow, ring at the same place, red-then-green colour sequence",
+  "v2 (random textures use the mean of the bundled images): frame-to-frame change 0.117 -> 0.030 (capture 0.022), luma 0.317 -> 0.199, time-average correlation 0.783 -> 0.818"
+ ],
+ "misses": [
+  "v1: the composite samples sampler_rand00, a bundled image chosen at random per load; the illustrator used a high-contrast noise stand-in, so ours was a bright psychedelic texture against the capture's dark smooth field",
+  "v2 is still brighter than this load (0.199 vs 0.050): the engine picked a darker image than the collection average"
+ ],
+ "verdict": "flow understood; random-texture colours fixed in v2 (expected image); brightness still above this load's draw"
+}
