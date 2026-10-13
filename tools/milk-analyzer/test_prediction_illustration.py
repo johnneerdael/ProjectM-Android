@@ -322,3 +322,20 @@ def test_point_samplers_read_exactly_one_texel():
     # Linear sampling between two texel centres still interpolates.
     halfway = np.array([[241 / width, .5]], np.float32)
     assert abs(_texture_lookup(source, halfway, wrap=True, linear=True)[0, 1] - .5) < 1e-4
+
+
+def test_hue_shader_interpolates_the_engine_corner_colours():
+    # FinalComposite::ApplyHueShaderColors: corner shades 0.6+0.3*sin(...), normalised by their max and
+    # mapped to 0.5+0.5*shade, then bilinear across the screen (x right, y up).
+    import math
+    from prediction_illustration import _hue_shader
+    t = 3.
+    def corner(i):
+        s = [.6 + .3 * math.sin(t * 30 * .0143 + 3 + i * 21), .6 + .3 * math.sin(t * 30 * .0107 + 1 + i * 13),
+             .6 + .3 * math.sin(t * 30 * .0129 + 6 + i * 9)]
+        m = max(s);return [.5 + .5 * v / m for v in s]
+    hue = _hue_shader(2, 2, t, cell_centres=False)
+    # Top-down rows: row 0 is y=1 (top). Corner order: 0 at (x=1,y=1), 1 at (0,1), 2 at (1,0), 3 at (0,0).
+    assert np.allclose(hue[0, 1, :3], corner(0), atol=1e-6) and np.allclose(hue[0, 0, :3], corner(1), atol=1e-6)
+    assert np.allclose(hue[1, 1, :3], corner(2), atol=1e-6) and np.allclose(hue[1, 0, :3], corner(3), atol=1e-6)
+    assert hue.shape == (2, 2, 4) and np.all(hue[..., 3] == 1.)

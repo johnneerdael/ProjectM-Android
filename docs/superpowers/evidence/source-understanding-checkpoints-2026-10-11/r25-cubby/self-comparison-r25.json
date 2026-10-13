@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r25-v1",
+ "preset": "suksma - pus on my cat - j4+ - cubby.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "66ff566841263c506e8a6fb17ddce63dba14187a1e7034e0507941adfe5dc890",
+  "prediction.json": "19f12748a17f885bc8357df144274e08436ba5d6364eb7cd38f5894efeb40c8e",
+  "description.json": "555940614a6d3d539ed069889b8073781fe8fb591a6f89eaa37ba6b5c606e069",
+  "recipe.json": "f2ec32ab7826e29f3ce93383ef81af868f5ee3b0b11ce838a039685065bb689f",
+  "llm-look-description-v1.txt": "95d78f153e2601e21eb253c9bfc1eef172de06132d76a23900c242f91055e7f6"
+ },
+ "capture_note": "a first capture attempt stopped with \"a frozen prediction file changed during capture\": the description agent rewrote its file a second time (only the final Expected line changed) after it first appeared; the capture used here started after the agent finished, with all five files frozen",
+ "capture_result_sha256": "8e3328f79d45f9b9063a96d48bf9c2fab96c183e41674d9d30131d61de262b51",
+ "review_measurements_v1": {
+  "prediction_luma": 0.472,
+  "screenshot_luma": 0.628,
+  "saturation": [
+   0.213,
+   0.49
+  ],
+  "blurred_luma_correlation": 0.167
+ },
+ "agreements_v1": [
+  "blocky rectangular tiles in both",
+  "SDK text: bright, fast, saturated, colour-shifting smear, Intense"
+ ],
+ "misses": [
+  {
+   "size": "large",
+   "observed": "v1 is mostly grey and darker (luma 0.47, saturation low); the capture is bright neon magenta/green/cyan with glossy embossed edges (luma 0.63)",
+   "cause": "the composite multiplies by pow(hue_shader, ret); hue_shader is _vDiffuse, the composite vertex colour that FinalComposite::ApplyHueShaderColors interpolates from four time-cycling corner shades (0.5-1 after normalisation). The illustrator supplied no _vDiffuse for composites",
+   "scope": "1200 bundled presets reference hue_shader",
+   "next": "done in v2"
+  }
+ ],
+ "general_fixes_v2": [
+  "composite stage evaluations bind _vDiffuse to the engine hue shader: corner shades 0.6+0.3*sin(time*30*f+phase+i*k+offset), normalised by their maximum, mapped to 0.5+0.5*shade and interpolated bilinearly; the per-load random offsets (PresetState::hueRandomOffsets) are taken as zero, so the cycling and range are exact and the hue placement illustrative"
+ ],
+ "review_measurements_v2": {
+  "prediction_luma": 0.647,
+  "screenshot_luma": 0.628,
+  "saturation": [
+   0.412,
+   0.49
+  ],
+  "blurred_luma_correlation_single_frame": 0.295
+ },
+ "status": "understood (v2): unsharp-masked noisy feedback blobs with an embossed hue-shader composite; luma 0.647 vs 0.628, saturation 0.41 vs 0.49",
+ "uses_rendered_images_for_classification": false
+}

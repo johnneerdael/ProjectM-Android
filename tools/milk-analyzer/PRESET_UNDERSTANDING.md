@@ -1117,3 +1117,14 @@ repeated on correctly oriented frames. Probes and results:
   Evidence: `fit-report-r8c.json`, `facet-agreement-r8c.json`,
   `band-eval-r8c-oof.json`.
 
+- **Composite hue shader.** Composite evaluations now bind `hue_shader` /
+  `_vDiffuse` to the engine's composite vertex colour
+  (`FinalComposite::ApplyHueShaderColors`). Four corner shades cycle with
+  time, are normalised to 0.5–1 and are interpolated bilinearly over the
+  screen. The engine's per-load random offsets are taken as zero, so the
+  cycling and range are exact and the hue placement is illustrative. 1,200
+  bundled presets read `hue_shader`.
+- **r25 (`suksma - pus on my cat - j4+ - cubby`) v1 → v2.** v1 was mostly grey,
+  while the capture shows bright neon blocks with glossy embossed edges. The
+  composite multiplies by `pow(hue_shader, ret)`, and v1 had no hue shader.
+  v2 matches: luma 0.647 vs 0.628, saturation 0.41 vs 0.49.

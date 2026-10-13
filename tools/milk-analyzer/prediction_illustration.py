@@ -1204,6 +1204,28 @@ def _frame_rand(time,fps):
     return np.random.default_rng(7340033+int(round(time*fps))).random(4).astype(np.float32)
 
 
+def _hue_shader(width,height,time,offsets=(0.,0.,0.,0.),cell_centres=True):
+    """Composite vertex colour (hue_shader/_vDiffuse) of FinalComposite::ApplyHueShaderColors.
+
+    Four corner shades 0.6+0.3*sin(time*30*f + phase + i*k + offset), divided by their maximum and mapped
+    to 0.5+0.5*shade, are interpolated bilinearly over the screen (x right, y up; rows top-down here).
+    The engine draws the random offsets per preset load (PresetState::hueRandomOffsets); zero offsets
+    keep the exact cycling and range with an illustrative hue placement.
+    """
+    import math
+    shade=[]
+    for i in range(4):
+        s=[.6+.3*math.sin(time*30.*.0143+3+i*21+offsets[3]),.6+.3*math.sin(time*30.*.0107+1+i*13+offsets[1]),
+           .6+.3*math.sin(time*30.*.0129+6+i*9+offsets[2])]
+        m=max(s);shade.append([.5+.5*v/m for v in s])
+    shade=np.array(shade,np.float32)
+    if cell_centres:xs=(np.arange(width)+.5)/width;ys=1-(np.arange(height)+.5)/height
+    else:xs=np.linspace(0.,1.,width);ys=np.linspace(1.,0.,height)
+    x,y=np.meshgrid(xs,ys)
+    rgb=(shade[0]*(x*y)[...,None]+shade[1]*((1-x)*y)[...,None]+shade[2]*(x*(1-y))[...,None]+shade[3]*((1-x)*(1-y))[...,None])
+    return np.concatenate([rgb,np.ones(rgb.shape[:2]+(1,),np.float32)],axis=-1).astype(np.float32)
+
+
 def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,controls=None,blur_image=None,stage='warp'):
     """Evaluate an exported stage program per pixel with the shared grid evaluator (source_stage_program).
 
@@ -1215,6 +1237,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
     inputs={'_uv':uv.astype(np.float32),'_uv_orig':uv[...,2:].astype(np.float32),'_rad_ang':_rad_ang(width,height,stage),
             **_lowlevel_uniforms(width,height),**blur_uniforms,**_declared_uniforms(width,height,time,fps,bands),
             'rand_frame':np.asarray(rand if rand is not None else [.5]*4,np.float32),'rand_preset':np.full(4,.5,np.float32)}
+    if diffuse is None and stage=='composite':diffuse=_hue_shader(width,height,float(time))
     if diffuse is not None:inputs['_vDiffuse']=np.asarray(diffuse,np.float32)
     def sample(detail,coordinates):
         texture=str(detail.get('canonical_texture','main'))
