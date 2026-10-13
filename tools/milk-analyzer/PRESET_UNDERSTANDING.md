@@ -1154,3 +1154,13 @@ repeated on correctly oriented frames. Probes and results:
   short smeared trails (luma 0.336 vs 0.317, saturation 0.61 vs 0.60, blurred
   correlation 0.86). The SDK text got the construction right but left the
   palette unresolved. The composite's flat transfer only reports grey levels.
+- **r9 whole-pack export (spectrum waves; not shipped).** Refitting on the
+  export with spectrum-mode waves leaves the calibration within noise
+  (luminance 0.644, frame difference 0.711, flow 0.678, jumps 0.765,
+  saturation 0.635, warm/cool 0.605). Facet agreement with remap is
+  marginally lower: Energy 0.532, Brightness 0.591, Colour 0.503, Movement
+  0.631, Comfort 0.813 (r8c-hue: 0.536, 0.592, 0.501, 0.634, 0.813). The
+  r8c-hue model stays the fixture. Spectrum waves change how 2,229 presets
+  look in the illustration, but the whole-pack statistics do not use the
+  per-point wave shape. Evidence: `fit-report-r9.json`,
+  `facet-agreement-r9.json`.

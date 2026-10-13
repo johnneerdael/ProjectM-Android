@@ -1,0 +1,64 @@
+{
+ "oof": "build/calibration-2026-10-12/oof-r9.json",
+ "groups": {
+  "energy": 0.486,
+  "brightness": 0.57,
+  "colour": 0.514,
+  "movement": 0.634,
+  "comfort": 0.792
+ },
+ "options": {
+  "chill": {
+   "precision": 0.859,
+   "recall": 0.332
+  },
+  "normal": {
+   "precision": 0.602,
+   "recall": 0.888
+  },
+  "intense": {
+   "precision": 0.74,
+   "recall": 0.678
+  },
+  "dark": {
+   "precision": 0.81,
+   "recall": 0.138
+  },
+  "balanced": {
+   "precision": 0.522,
+   "recall": 0.865
+  },
+  "bright": {
+   "precision": 0.698,
+   "recall": 0.495
+  },
+  "vivid": {
+   "precision": 0.752,
+   "recall": 0.707
+  },
+  "warm": {
+   "precision": 0.772,
+   "recall": 0.48
+  },
+  "cool": {
+   "precision": 0.748,
+   "recall": 0.304
+  },
+  "still": {
+   "precision": 0.786,
+   "recall": 0.206
+  },
+  "drifting": {
+   "precision": 0.594,
+   "recall": 0.899
+  },
+  "fast": {
+   "precision": 0.759,
+   "recall": 0.47
+  },
+  "no_strobe": {
+   "precision": 0.865,
+   "recall": 0.7
+  }
+ }
+}
