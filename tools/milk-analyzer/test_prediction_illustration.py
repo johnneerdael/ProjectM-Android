@@ -514,3 +514,15 @@ def test_shapes_with_per_frame_side_counts_are_drawn_with_the_clamped_frame_valu
     shape['controls']['side_count']['expression']['nodes'][0]['detail']['value'] = 6.9
     assert P._shape_sides(shape, 0., {}) == 6
     assert not P._textured_shapes({k: v for k, v in facts.items() if 'motion_controls' not in k}, {})
+
+
+def test_motion_vector_colour_follows_the_per_frame_program():
+    # suplient (r83): mv_r/g/b = sin(...)/2+.5 and mv_a = bass_att*.4 are written each frame; the static
+    # colour is unresolved, which drew opaque white vectors and a grey canvas.
+    import prediction_illustration as P
+    facts = {'/analysis/visual_description/static_behaviour/motion_vectors': {'colour_rgba': [None, None, None, [0., .8]]}}
+    held = {'mv_r': .9, 'mv_g': .2, 'mv_b': 1.4, 'mv_a': .3}
+    assert P._mv_rgba(facts, held, {'mv_r', 'mv_g', 'mv_b', 'mv_a'}) == [.9, .2, 1., .3]
+    assert P._mv_rgba(facts, {}, set()) == [1., 1., 1., .4]  # unresolved colour stays white; alpha range midpoint
+    static = {'/analysis/visual_description/static_behaviour/motion_vectors': {'colour_rgba': [.38, .38, .27, .03]}}
+    assert P._mv_rgba(static, held, set()) == [.38, .38, .27, .03]

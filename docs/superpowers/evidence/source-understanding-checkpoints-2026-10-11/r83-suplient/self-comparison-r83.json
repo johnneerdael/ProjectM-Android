@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r83-v1",
+ "preset": "suplient.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "389da750f23b8527c5cf4b67836e1e1bea3eac65b917ff4d33bee09537292843",
+  "prediction.json": "5aa0d7767a26b84dbe677bc21d9ca9594771b445e6f5bae2b8cc88ebe0d57fed",
+  "description.json": "50aaa2fb4c2e6519cf5496a7d7b2aedc841255e9856128e18f2517f707de12ea",
+  "recipe.json": "001e9a5384fd5b127563109711d42902d8a93d116a6862fab61db1a8d895e261",
+  "llm-look-description-v1.txt": "68a86c1766aae80fdea27bf4c4ef43ff6cccaa5516c4a9d04355be84afbfb1cd"
+ },
+ "capture_result_sha256": "4a98f0e9c222a777e84cbfd7d3347eb252de6f35202ca6a6995f9bed57008b2f",
+ "review_measurements_v1": {
+  "prediction_luma": 0.83,
+  "screenshot_luma": 0.661,
+  "mean_rgb_prediction": [
+   0.83,
+   0.83,
+   0.83
+  ],
+  "mean_rgb_screenshot": [
+   0.238,
+   0.755,
+   0.973
+  ],
+  "blurred_luma_correlation": 0.34,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.387,
+    0.538
+   ],
+   "saturation": [
+    0.0,
+    0.447
+   ],
+   "blurred_luma_correlation": -0.555
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.4012,
+   0.0785
+  ]
+ },
+ "agreements": [
+  "v2: mean colour 0.311/0.526/0.470 vs capture 0.333/0.603/0.496 (v1 flat grey 0.387); saturation 0.41 vs 0.45 (v1 0.0); time-average correlation -0.56 -> 0.43; frame-to-frame change 0.40 -> 0.12 (capture 0.08)"
+ ],
+ "misses": [
+  "v1: a 64x45 grid of long motion vectors takes its colour (mv_r/g/b from sines) and alpha (bass_att*0.4) from the frame program; the static colour was unresolved, so the illustrator drew opaque white vectors and the canvas turned grey",
+  "v2 remaining: flicker timing (the warp's sin(bass*90) blur radius and the 1-2x inversion)"
+ ],
+ "verdict": "colour fixed in v2 (per-frame motion-vector colour); flicker timing open"
+}

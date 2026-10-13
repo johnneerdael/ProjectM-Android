@@ -1668,3 +1668,33 @@ mean luma 0.170, 0.202 and 0.156 in three runs. Names are now processed in
 sorted order, and predictions are identical across `PYTHONHASHSEED` values
 (44e4fa2f). Earlier version-to-version group-measure differences partly
 reflected these random draws.
+
+### r82 (goadzoan) and r83 (suplient): per-frame motion-vector colour
+
+r82 was understood on the first prediction (mean luma 0.424 vs 0.425, equal
+frame-to-frame change). r83 draws a 64×45 grid of long motion vectors whose
+colour (`mv_r/g/b` from sines of an accumulating time) and alpha
+(`bass_att·0.4`) come from the frame program. The static colour was
+unresolved, and the illustrator turned unresolved channels and ranged alphas
+into 1, so it drew opaque white vectors and the canvas went grey. Motion
+vectors now take `mv_r/g/b/a` from the stepped frame program each frame
+(clamped to [0, 1]), with the static value or the midpoint of its range as
+the fallback. r83: mean colour from flat grey to 0.311/0.526/0.470 (capture
+0.333/0.603/0.496), saturation from 0 to 0.41 (0.45), time-average
+correlation −0.56 → 0.43. 1,241 presets write motion-vector colour or alpha
+per frame; in 754 of them the vectors can be visible.
+
+### Worst presets in the group measure (all four fixed generally)
+
+- Fitting Butterfly: `decay = decay + sin(bass_att)` left the static
+  persistence unknown, so only the fresh frame was drawn. The per-frame decay
+  clamped like PerPixelMesh gives the engine's solid white (luma 1.000).
+- Hexcollie Surge: per-frame side count on a full-screen textured triangle.
+  The shape was dropped and the canvas turned white. The side count is now
+  exported as `side_count` and evaluated per frame (0.980 → 0.668, engine
+  0.291).
+- Mosaic family (r81, suksma n6): random textures now use the expected
+  bundled image. The seed-propagation canvas stays brighter than the
+  engine's (open).
+- Threshold composites (r75, 312): display brightness is very sensitive to
+  blur2 levels. The cause is not established yet (open).

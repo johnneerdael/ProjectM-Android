@@ -591,6 +591,21 @@ def _composite(image,facts,controls=None):
     return image,None
 
 
+def _mv_rgba(facts,held,frame_outputs):
+    """Motion-vector colour for one frame: mv_r/g/b/a from the per-frame program when it writes them
+    (clamped to [0, 1]), else the static value, else the midpoint of a static range, else 1."""
+    vectors=facts.get('/analysis/visual_description/static_behaviour/motion_vectors') or {}
+    colour=list(vectors.get('colour_rgba') or [1,1,1,1])+[None]*4
+    out=[]
+    for index,name in enumerate(('mv_r','mv_g','mv_b','mv_a')):
+        value=held.get(name) if name in frame_outputs else None
+        if type(value) not in (int,float):
+            value=colour[index]
+            if isinstance(value,list) and len(value)==2 and all(type(v) in (int,float) for v in value):value=(value[0]+value[1])/2
+        out.append(min(1.,max(0.,float(value))) if type(value) in (int,float) else 1.)
+    return out
+
+
 def _mv_alpha(facts):
     vectors=facts.get('/analysis/visual_description/static_behaviour/motion_vectors') or {}
     colour=vectors.get('colour_rgba') or [1,1,1,1]
@@ -1696,8 +1711,10 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                 marks=_motion_vector_marks(facts,sample,frame_time,width,height,vector_maps)
                 if marks:
                     rows,cols=_gl_line_pixels(*np.array([[a[0],a[1],b[0],b[1]] for a,b,_ in marks]).T,width,height)
-                    alpha=float(_mv_alpha(facts))
-                    image=image.copy();image[rows,cols]=image[rows,cols]*(1-alpha)+np.array(marks[0][2],np.float32)*alpha
+                    # Colour and alpha follow the per-frame program when it writes mv_r/g/b/a.
+                    rgba=_mv_rgba(facts,held,set(frame_record.get('outputs') or {}) if stepper is not None else set())
+                    alpha=rgba[3]
+                    image=image.copy();image[rows,cols]=image[rows,cols]*(1-alpha)+np.array(rgba[:3],np.float32)*alpha
             older=previous;previous=image;canvas['previous_alpha']=canvas['alpha']
             # Per-frame base inputs, read by inlined per-frame graphs (e.g. a Q accumulating 30/fps per frame).
             # projectM's frame counter (m_frameCount) is 0 on the first rendered frame, which renders at
