@@ -1161,6 +1161,6 @@ repeated on correctly oriented frames. Probes and results:
   marginally lower: Energy 0.532, Brightness 0.591, Colour 0.503, Movement
   0.631, Comfort 0.813 (r8c-hue: 0.536, 0.592, 0.501, 0.634, 0.813). The
   r8c-hue model stays the fixture. Spectrum waves change how 2,229 presets
-  look in the illustration, but the whole-pack statistics do not use the
-  per-point wave shape. Evidence: `fit-report-r9.json`,
+  look in the illustration, but the refit shows no measurable gain from
+  them in the whole-pack statistics. Evidence: `fit-report-r9.json`,
   `facet-agreement-r9.json`.
