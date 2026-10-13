@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r85-v1",
+ "preset": "bdrv etAL Aderrasi - Accelerator (orbital Migraine)bdrv94 gdy neck problem solution (tense for hours) atrocious (adj) fellucinate (n).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a0fcdc43a56356abcb1c829b11041f9fcb241d32850f23033f002937f403e2c0",
+  "prediction.json": "e5f6f1ffe22497752b4ba92595416d89bd36f7df365875e5421d98c49d6d05ac",
+  "description.json": "2dbe964b59c66c985eb996b93b440ee089729ffa4aab616faaf967e7ab6f9dae",
+  "recipe.json": "cb14b3ed0eddce5358382d521a71536f736a19232b81bf9eea04975c25af600f",
+  "llm-look-description-v1.txt": "a0e4cc41322df5435e5d8e0da579b63da356a6c09cf3b63a794b1799ea501880"
+ },
+ "capture_result_sha256": "8d9351a102fd5f7c082ce1c8ba27393d7197e23366b79aadc359be0727de144c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.169,
+  "screenshot_luma": 0.048,
+  "mean_rgb_prediction": [
+   0.794,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.037,
+   0.053,
+   0.041
+  ],
+  "blurred_luma_correlation": 0.115,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.127,
+    0.044
+   ],
+   "saturation": [
+    1.0,
+    0.527
+   ],
+   "blurred_luma_correlation": 0.073
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0587,
+   0.0122
+  ]
+ },
+ "agreements": [
+  "composite inputs agree (q1 = q2 = 0 in both: x and y read 0 in per-frame code)"
+ ],
+ "misses": [
+  "ours pure red (0.597, 0, 0) vs the capture's dark near-neutral (0.061, 0.035, 0.075): a thin red outer border (alpha 0.16, decay 1) spreads over our canvas through the warp's sin(bass*90) blur, and the composite samples the canvas at coordinates set by its own colour direction, so a red canvas gives red output. Not resolved"
+ ],
+ "verdict": "open: our canvas turns red"
+}

@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r84-v1",
+ "preset": "i am only here slowly in pain as long as the law says you are not free (ngoad aintraephace).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "885ed4a78ffc6f82d51a0fa2a8f457d75dc1b6e30e8a67b6680a7a0b76c3db98",
+  "prediction.json": "95e4480a5e0dfb66666c610e62ecd05c69d91590fb5e93c825bd1fce1f5bbade",
+  "description.json": "06c2c18b0a36005c6d21eeb1e1b2a452113081f02a08a43e3abf585075ffaf15",
+  "recipe.json": "9d2dbde81d8430212399817713bbcd0635a180cca6562fcb4a1d2a7f4d40603a",
+  "llm-look-description-v1.txt": "1835d6df3c0a08772f9299caeb3adee4b5096967504d23c9efbbfb9bd0019949"
+ },
+ "capture_result_sha256": "1992a084f069482806eb315c6b911f2c24d7a33dd4654e4afe2b73b60084ac33",
+ "review_measurements_v1": {
+  "prediction_luma": 0.429,
+  "screenshot_luma": 0.332,
+  "mean_rgb_prediction": [
+   0.236,
+   0.508,
+   0.213
+  ],
+  "mean_rgb_screenshot": [
+   0.343,
+   0.329,
+   0.325
+  ],
+  "blurred_luma_correlation": -0.043,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.318,
+    0.33
+   ],
+   "saturation": [
+    0.027,
+    0.038
+   ],
+   "blurred_luma_correlation": 0.087
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1923,
+   0.2293
+  ]
+ },
+ "agreements": [
+  "time-average luma 0.318 vs 0.330, both near grey (saturation 0.03 vs 0.04); frame-to-frame change 0.192 vs 0.229; same full flash at frame 0"
+ ],
+ "misses": [
+  "pixel correlation low (0.09): the layout is chaotic"
+ ],
+ "verdict": "understood on averages (layout chaotic)"
+}
