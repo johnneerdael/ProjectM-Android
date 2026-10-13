@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 199,
+ "failed": {
+  "c2e1": 1,
+  "44e4": 1
+ },
+ "versions": {
+  "c2e1": {
+   "luma_err": {
+    "mean": 0.0699,
+    "median": 0.0159
+   },
+   "rgb_err": {
+    "mean": 0.0742,
+    "median": 0.0217
+   },
+   "sat_err": {
+    "mean": 0.0842,
+    "median": 0.0302
+   },
+   "fd_err": {
+    "mean": 0.017,
+    "median": 0.0052
+   },
+   "colour_map_err": {
+    "mean": 0.0911,
+    "median": 0.0453
+   },
+   "map_corr": {
+    "mean": 0.6457,
+    "median": 0.7983,
+    "n": 191
+   },
+   "series_corr": {
+    "mean": 0.7459,
+    "median": 0.9151,
+    "n": 188
+   },
+   "luma_within_0.05": 0.698,
+   "map_corr_above_0.8": 0.477
+  },
+  "44e4": {
+   "luma_err": {
+    "mean": 0.0653,
+    "median": 0.0157
+   },
+   "rgb_err": {
+    "mean": 0.0704,
+    "median": 0.0217
+   },
+   "sat_err": {
+    "mean": 0.0762,
+    "median": 0.0287
+   },
+   "fd_err": {
+    "mean": 0.0162,
+    "median": 0.0048
+   },
+   "colour_map_err": {
+    "mean": 0.0861,
+    "median": 0.0451
+   },
+   "map_corr": {
+    "mean": 0.6594,
+    "median": 0.8147,
+    "n": 192
+   },
+   "series_corr": {
+    "mean": 0.7426,
+    "median": 0.9128,
+    "n": 194
+   },
+   "luma_within_0.05": 0.698,
+   "map_corr_above_0.8": 0.487
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 8,
+   "worse": 7
+  },
+  "rgb_err": {
+   "improved": 7,
+   "worse": 8
+  },
+  "fd_err": {
+   "improved": 8,
+   "worse": 5
+  },
+  "colour_map_err": {
+   "improved": 11,
+   "worse": 5
+  },
+  "map_corr": {
+   "improved": 12,
+   "worse": 4
+  }
+ },
+ "largest_gains": [
+  [
+   "ShadowHarlequin - Fitting Butterfly - v4 - [Loadus & Geiss - FractalDrop 22] v2v2v2v2newcolorsv2",
+   1.0,
+   0.0
+  ],
+  [
+   "EoS + Phat - CAT Scan",
+   0.97,
+   0.643
+  ],
+  [
+   "amandio c - living boxes 2",
+   0.096,
+   0.003
+  ],
+  [
+   "Hexcollie - electronegativity",
+   0.288,
+   0.216
+  ],
+  [
+   "geiss - brain zoom 3 (random texture mix) [rotating palette mix]",
+   0.582,
+   0.533
+  ],
+  [
+   "suksma - n6 - n777 - sth 1-ret",
+   0.581,
+   0.542
+  ],
+  [
+   "Geiss - Calligraphy (Jelly)",
+   0.079,
+   0.065
+  ],
+  [
+   "shifter - mosaic mitosis - will they find me roam2 nz+ souprae more kootra minecraft",
+   0.05,
+   0.047
+  ]
+ ],
+ "largest_losses": [
+  [
+   "suksma - stone - rt mess",
+   0.027,
+   0.419
+  ],
+  [
+   "Redi Jedi - Shaking your reality",
+   0.115,
+   0.313
+  ],
+  [
+   "fiShbRaiN - toffee cream and icing sugar",
+   0.068,
+   0.085
+  ],
+  [
+   "LuxXx - HipHop UrethraFish I",
+   0.09,
+   0.094
+  ],
+  [
+   "Redi Jedi - pladman coaches womans vollyball",
+   0.271,
+   0.272
+  ],
+  [
+   "you are now leaving the materialistic sector - chloral reef, er",
+   0.071,
+   0.071
+  ],
+  [
+   "va ultramix2 - 364_1",
+   0.038,
+   0.038
+  ],
+  [
+   "va ultramix2 - 30",
+   0.0,
+   0.0
+  ]
+ ]
+}

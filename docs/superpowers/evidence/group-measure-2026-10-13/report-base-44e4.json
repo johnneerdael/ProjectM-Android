@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 199,
+ "failed": {
+  "base": 1,
+  "44e4": 1
+ },
+ "versions": {
+  "base": {
+   "luma_err": {
+    "mean": 0.084,
+    "median": 0.0219
+   },
+   "rgb_err": {
+    "mean": 0.0858,
+    "median": 0.0291
+   },
+   "sat_err": {
+    "mean": 0.0968,
+    "median": 0.0353
+   },
+   "fd_err": {
+    "mean": 0.0191,
+    "median": 0.0059
+   },
+   "colour_map_err": {
+    "mean": 0.1035,
+    "median": 0.0516
+   },
+   "map_corr": {
+    "mean": 0.6204,
+    "median": 0.7574,
+    "n": 192
+   },
+   "series_corr": {
+    "mean": 0.7268,
+    "median": 0.9046,
+    "n": 189
+   },
+   "luma_within_0.05": 0.643,
+   "map_corr_above_0.8": 0.452
+  },
+  "44e4": {
+   "luma_err": {
+    "mean": 0.0653,
+    "median": 0.0157
+   },
+   "rgb_err": {
+    "mean": 0.0704,
+    "median": 0.0217
+   },
+   "sat_err": {
+    "mean": 0.0762,
+    "median": 0.0287
+   },
+   "fd_err": {
+    "mean": 0.0162,
+    "median": 0.0048
+   },
+   "colour_map_err": {
+    "mean": 0.0861,
+    "median": 0.0451
+   },
+   "map_corr": {
+    "mean": 0.6594,
+    "median": 0.8147,
+    "n": 192
+   },
+   "series_corr": {
+    "mean": 0.7426,
+    "median": 0.9128,
+    "n": 194
+   },
+   "luma_within_0.05": 0.698,
+   "map_corr_above_0.8": 0.487
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 72,
+   "worse": 39
+  },
+  "rgb_err": {
+   "improved": 66,
+   "worse": 44
+  },
+  "fd_err": {
+   "improved": 57,
+   "worse": 39
+  },
+  "colour_map_err": {
+   "improved": 74,
+   "worse": 36
+  },
+  "map_corr": {
+   "improved": 55,
+   "worse": 45
+  }
+ },
+ "largest_gains": [
+  [
+   "ShadowHarlequin - Fitting Butterfly - v4 - [Loadus & Geiss - FractalDrop 22] v2v2v2v2newcolorsv2",
+   1.0,
+   0.0
+  ],
+  [
+   "New Creation Sensation -  AdamFx,Flexi,Amandio c n Martin - Star to Another World ft Hexocollie  n Shad6",
+   0.382,
+   0.005
+  ],
+  [
+   "EoS + Phat - CAT Scan",
+   0.97,
+   0.643
+  ],
+  [
+   "shifter + flexi - american pie 3 nz wear like chane",
+   0.457,
+   0.15
+  ],
+  [
+   "hexcollie - Starburst Hurricane",
+   0.316,
+   0.034
+  ],
+  [
+   "suksma - dotes hostile undertake - finished breathing sir flacc roam",
+   0.256,
+   0.023
+  ],
+  [
+   "stbenge - dripping_piles_B nz+",
+   0.219,
+   0.008
+  ],
+  [
+   "extreme paranoia and fear unleash in spontaneous suicide flails roam3",
+   0.259,
+   0.051
+  ]
+ ],
+ "largest_losses": [
+  [
+   "suksma - stone - rt mess",
+   0.033,
+   0.419
+  ],
+  [
+   "Redi Jedi - Shaking your reality",
+   0.115,
+   0.313
+  ],
+  [
+   "finchman nz",
+   0.036,
+   0.133
+  ],
+  [
+   "suksma - dotes hostile undertake + demonlord - blood in your eyes again - flacc nz+ sky vomit",
+   0.384,
+   0.419
+  ],
+  [
+   "shifter - bronchiole (EoS+Phat edit) tethered web nz+ shale pignth",
+   0.092,
+   0.124
+  ],
+  [
+   "suksma - shifter - urchin kali echos - bowel roams nz+",
+   0.068,
+   0.081
+  ],
+  [
+   "Martin - Diabolo --- Isosceles edit",
+   0.027,
+   0.039
+  ],
+  [
+   "Geiss - Two-Pointed Pulsagon - mash0000 - bubonic super-fluid centrifuge",
+   0.041,
+   0.053
+  ]
+ ]
+}
