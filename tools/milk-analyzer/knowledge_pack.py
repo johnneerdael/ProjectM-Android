@@ -154,7 +154,11 @@ def _core_lines(pack_dir):
     if manifest.get('policy') != PACK_POLICY:raise ValueError('unsupported pack policy %r' % manifest.get('policy'))
     data = (pack_dir / manifest['core']['file']).read_bytes()
     if _sha256(data) != manifest['core']['sha256']:raise ValueError('core file hash mismatch')
-    return manifest, [line for line in gzip.decompress(data).split(b'\n') if line]
+    text = gzip.decompress(data)
+    if text and not text.endswith(b'\n'):raise ValueError('line ending: the last core line has no terminating LF')
+    lines = [line for line in text.split(b'\n') if line]
+    if any(line.endswith(b'\r') for line in lines):raise ValueError('line ending: core lines end in CR LF, not LF')
+    return manifest, lines
 
 
 RECIPE_POLICY = 'preset-visual-recipe-v1'
@@ -207,7 +211,9 @@ def load_core(pack_dir):
     export-contract/knowledge-pack/FORMAT.md that a reader in another language must apply."""
     manifest, lines = _core_lines(pack_dir)
     if manifest.get('recipe_policy') != RECIPE_POLICY:raise ValueError('unsupported recipe policy %r' % manifest.get('recipe_policy'))
-    entries = manifest.get('presets') or []
+    entries = manifest.get('presets')
+    if not isinstance(entries, list) or not all(isinstance(entry, dict) for entry in entries):
+        raise ValueError('manifest structure: presets must be an array of objects')
     if len(entries) != len(lines):raise ValueError('manifest lists %d presets, core holds %d lines' % (len(entries), len(lines)))
     recipes = {}
     for entry, line in zip(entries, lines):
