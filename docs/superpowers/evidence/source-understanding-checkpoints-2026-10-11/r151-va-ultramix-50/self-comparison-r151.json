@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r151-v1",
+ "preset": "va ultramix - 50.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "321a26e170c8d1469e3e367434836862e1cb9046dcb673b71a25dffd0c3ed3f8",
+  "prediction.json": "c484d98c01edd708e0987a9bc20415b3e10feaf6e9e07dbdf3fdd0be385ef112",
+  "description.json": "6e50b26f79692e7228d10c441d71ee07b1be33c76ed39a1c1f47990346e5c94f",
+  "recipe.json": "6300797d7dc8e55e8a67d0f76e78af739d32eb0cdb235c53d1c3c9b5cdf876b3",
+  "llm-look-description-v1.txt": "6078e3a3df2276dc0f068c99bfb8e01709cb6ab62e024bbc8ac4268d886bd1c9"
+ },
+ "capture_result_sha256": "97e36ef08fc9bb512cc8387e1a7b2aa1c367bb0eae4bc000130169c8a49752ac",
+ "review_measurements_v1": {
+  "prediction_luma": 0.141,
+  "screenshot_luma": 0.142,
+  "mean_rgb_prediction": [
+   0.565,
+   0.027,
+   0.027
+  ],
+  "mean_rgb_screenshot": [
+   0.568,
+   0.027,
+   0.027
+  ],
+  "blurred_luma_correlation": 0.997,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.099,
+    0.099
+   ],
+   "saturation": [
+    0.822,
+    0.833
+   ],
+   "blurred_luma_correlation": 0.996
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0157,
+   0.0154
+  ]
+ },
+ "agreements": [
+  "frame-exact prediction",
+  "cyan centre glow, red",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK: red striped tunnel read as a border"
+ ],
+ "verdict": "understood: frozen prediction frame-exact (time-average map corr 0.996, luma series identical frame by frame, frame difference 0.0157 vs 0.0154): red striped tunnel with a soft cyan glow at the centre. SDK names the cyan disc, dark slow smooth look and no strobe, but describes the red as a border rather than a striped tunnel filling the screen."
+}

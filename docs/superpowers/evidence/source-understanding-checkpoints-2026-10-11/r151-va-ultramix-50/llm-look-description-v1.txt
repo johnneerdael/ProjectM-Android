@@ -1,0 +1,13 @@
+Overall this looks like a fairly dark, calm, slow picture with one large soft round shape inside a heavy frame. Everything below is from source facts only; nothing was rendered.
+
+Main structure: a single 100-sided polygon (effectively a circle) with signed radius about 0.49 in the shape's own units. It is drawn once per frame, with no rotation. Its centre colour is cyan (red 0, green 1, blue 1, alpha 1). The edge colour has alpha 0, so I expect a glowing cyan disc that fades toward its rim. Its centre position is authored to move somewhere within roughly 0.2 to 0.8 of the screen on both axes, but the exact path is unknown. So it may wander or sit near the middle, and I cannot say which. This is a large, single object, not particles.
+
+Frame: the source describes an outer border (about 15% of the screen) painted black every frame. Inside it is a second border (about 9%) painted pure red every frame. The picture is therefore probably a black margin with a red ring inside it, and the cyan disc over the middle. The source does not say whether the red ring reads as bright or thin on screen.
+
+Colour is uncertain. The drawn elements are cool (cyan), but the steady-state estimate is a dim reddish tone (about 0.09, 0.05, 0.05), which fits the red border. The calibrated display estimate gives moderate saturation (about 0.55) and leans slightly warm. I would call it dark-to-medium brightness (luminance about 0.18, wide uncertainty 0 to 0.42), red and cyan on black.
+
+Motion: feedback decay is 1, so earlier frames are not faded and trails could build up. The black and red borders erase what reaches them. The warp has a mild zoom that varies across the screen, a small warp amount of 0.01, no rotation, and a small shift of at most 0.01 per step. I expect slow drift and a gentle swell, not spinning. Estimated flow is low (about 0.05 screen widths per second).
+
+Audio: no audio routes were found, so I expect no reaction to the beat.
+
+Flashing: none found. Brightness jumps are estimated at 0, and the activity band is Chill, with Normal still possible. The look is a low-energy, smooth, probably non-strobing scene.
