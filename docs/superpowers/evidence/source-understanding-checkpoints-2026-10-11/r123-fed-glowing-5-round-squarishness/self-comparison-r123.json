@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r123-v1",
+ "preset": "fed - glowing 5 - fingers rmx nz+ round squarishness.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9195e2874280abde6f95557fda2f4dcd4dfdb39db2ae99dfd9f39ef49dff49a1",
+  "prediction.json": "a842f920d6bdd27ad1552921c6280f0f803b8b4dd753bf4578b5867491c586a5",
+  "description.json": "039b8333e9f1807bcc2be6eeeef5e420a4c23bb5e2ce93c4f55f7f42123150df",
+  "recipe.json": "013a21660a18c57724848e7a6ee41de86d8b48cdaf610f7825f3c47c58f514f3",
+  "llm-look-description-v1.txt": "53bdc179063181bad66aafc70fc845e829222e7a1fc2db675e692912003c6c66"
+ },
+ "capture_result_sha256": "161fb9326c91fe8837dd612354ee92fd28bfa66f3e584b99fea67938ab2b684b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.227,
+  "screenshot_luma": 0.183,
+  "mean_rgb_prediction": [
+   0.233,
+   0.224,
+   0.238
+  ],
+  "mean_rgb_screenshot": [
+   0.179,
+   0.185,
+   0.178
+  ],
+  "blurred_luma_correlation": -0.14,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.173,
+    0.181
+   ],
+   "saturation": [
+    0.471,
+    0.391
+   ],
+   "blurred_luma_correlation": 0.008
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0566,
+   0.0601
+  ]
+ },
+ "agreements": [
+  "colourful plaid line grid around a central blob in both",
+  "luma series 0.09/0.08, 0.156/0.126, 0.179/0.189, 0.254/0.245, 0.063/0.049; frames 60-149 luma 0.173 vs 0.181; frame difference 0.057 vs 0.060; neutral mean colour in both"
+ ],
+ "misses": [
+  "the arrangement of the coloured blobs differs (time-averaged map correlation 0.01): this preset family is known to vary between draws (earlier group-measure seeds gave 0.007-0.168 luma error)",
+  "time-averaged saturation 0.47 vs 0.39"
+ ],
+ "verdict": "understood in statistics and structure; arrangement differs"
+}
