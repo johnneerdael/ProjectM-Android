@@ -913,8 +913,10 @@ def _dynamic_border_operators(facts,width,height,values):
     for row in record.get('borders') or []:
         rgb=row.get('rgb_ranges') or [];alpha=row.get('alpha_range')
         static=alpha is not None and alpha[0]==alpha[1] and rgb and all(c is not None and c[0]==c[1] for c in rgb)
-        # active None: conditionally active (alpha can reach 0); the frame's stepped alpha decides.
-        if row.get('active') is False or static or row.get('inverted_inner_radius'):continue
+        # active None: conditionally active (alpha can reach 0); the frame's stepped alpha decides. A constant
+        # colour/alpha border is left to the sprite path only when its band is fixed too (an inner border
+        # moves with a per-frame ob_size).
+        if row.get('active') is False or (static and row.get('active') and row.get('ndc_band') is not None) or row.get('inverted_inner_radius'):continue
         prefix='ob_' if row.get('border')=='outer' else 'ib_'
         size_outer=control('ob_size');size=control(prefix+'size');a=control(prefix+'a')
         colour=[control(prefix+c) for c in 'rgb']

@@ -722,3 +722,18 @@ def test_point_state_restarts_t_and_q_from_their_frame_start_values():
     constant=lambda v:{'root':0,'nodes':[{'op':'constant','dtype':'float','args':[],'detail':{'value':v}}]}
     points={'state':{'t3':{'frame_start':constant(0.)},'mx':{}}}
     assert _restart_point_state(points,{'t3':111.,'mx':7.},{}) == {'t3':0.,'mx':7.}
+
+
+def test_constant_inner_border_follows_a_per_frame_outer_size():
+    # ib colour/alpha are constant but its band [1-ob_size-ib_size, 1-ob_size] moves with a per-frame
+    # ob_size (no static ndc_band): it is drawn on the per-frame path, never dropped.
+    from prediction_illustration import _dynamic_border_operators, _sprite_operators
+    record = {'status': 'described', 'control_ranges': {'ob_size': [0., .05], 'ib_size': [.1, .1]},
+              'borders': [{'border': 'outer', 'alpha_range': [1., 1.], 'rgb_ranges': [[.2, .4], [.4, .4], [.2, .2]], 'active': True, 'ndc_band': None},
+                          {'border': 'inner', 'alpha_range': [1., 1.], 'rgb_ranges': [[0., 0.], [0., 0.], [0., 0.]], 'active': True, 'ndc_band': None}]}
+    facts = {'/analysis/visual_description/static_behaviour/borders': record}
+    assert _sprite_operators(facts, 20, 20) == []
+    ops = _dynamic_border_operators(facts, 20, 20, {'ob_size': 0., 'ib_size': .1, 'ob_a': 1., 'ib_a': 1., 'ob_r': .3, 'ob_g': .4, 'ob_b': .2,
+                                                     'ib_r': 0., 'ib_g': 0., 'ib_b': 0.})
+    inner = ops[-1]
+    assert np.allclose(inner[1], 0.) and inner[0][10, 0] == 1. and inner[0][10, 10] == 0.
