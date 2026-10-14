@@ -65,3 +65,53 @@ with resolution; low-resolution statistics are not the full-resolution ones.
 Decision (owner, 2026-10-14): facets are precomputed offline, once per
 bundled preset, from full-resolution static predictions; nothing runs on the
 device, and speed work continues in parallel.
+
+## Held-out set (seed 20261014)
+
+Same method on 200 presets the analysis was never tuned on
+(`selection-heldout-20261014.json`: random draw, excluding the 285 presets of
+earlier selections and checkpoints), frozen snapshot `7501b10b`. 194
+presets finished with an engine reference. The table compares with the
+calibrated model's out-of-fold predictions on the same presets.
+
+| Spearman vs engine ruler (n=194) | Static prediction | Calibrated model |
+|---|---|---|
+| mean_luminance | 0.823 | 0.682 |
+| mean_abs_frame_difference | 0.891 | 0.753 |
+| mean_flow_screen_widths_per_s | 0.887 | 0.723 |
+| global_brightness_jumps_per_10s | 0.909 | 0.799 |
+| mean_saturation | 0.877 | 0.721 |
+| warm_cool | 0.828 (n=186) | 0.652 |
+
+| Facet group agreement | Static, direct | Static, remap | Calibrated, direct | Target |
+|---|---|---|---|---|
+| energy | 0.807 | 0.807 | 0.508 | 0.77 |
+| brightness | 0.807 | 0.840 | 0.572 | 0.73 |
+| colour | 0.749 | 0.749 | 0.540 | — |
+| movement | 0.834 | 0.824 | 0.615 | 0.84 |
+| comfort | 0.920 | 0.920 | 0.818 | — |
+| mean | 0.823 | 0.828 | 0.611 | — |
+
+The held-out numbers are lower than the tuned set's partial numbers and are
+the ones to quote. Energy and brightness meet their targets; movement is
+0.006 short.
+
+**No strobe** (a preset is predicted safe when it has fewer than one
+predicted global brightness jump per 10 s). 99 presets are predicted safe;
+**8 are false negatives**, where the engine flashes 1–13 times per 10 s.
+7 are false positives. This is the safety bar. The false negatives and what
+they exposed:
+
+| Preset | Engine jumps / 10 s | Cause found | Status |
+|---|---|---|---|
+| Rovastar - Tripmaker (Space Trip Mix) | 13 | Beat-switched textured shapes (`additive = q1`). The blend was read from the header, and the inlined beat test saw end-of-frame state. | Fixed (a73317a9). The canvas still saturates before the first beat (open). |
+| EoS - matrix cube F | 5 | Per-point q/t variables carried across frames instead of restarting from the wave's per-frame values. The cube collapsed to a few dim lines. | Fixed (84de1738). Validation pending. |
+| martin - city lights v2 | 4 | The composite failed on projectm-eval `&&` and on an inlined per-frame `loop()`, so the prediction was near black. | Fixed (a73317a9). Validation pending. |
+| out of the paradigm nz bulbuless, ougiel - floutest biohazmat, only glimpses of the reality…, shifter - orthoganal light CC beta6, suksma - chernobyl pie… | 1–2 | Not yet investigated. | Open |
+
+`flash_pass.py` runs `facet_precompute.random_flash`, the per-frame
+`rand_frame` tail probe, on the held-out presets with r13 summaries (100 of
+200). 17 of them read `rand_frame` in an exported shader program. The 8 with
+a positive flash probability already flash at the probed frame, and their
+static jump counts agree with the engine. No calm preset carried a hidden
+random-draw flash in this sample.
