@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r115-v1",
+ "preset": "suksma - gasfunk lipidmalarial causticidiary flounderdouse.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "700ef4ff2bb724793391a9f24439de208c20788e5d05ee1021cb9a2fe4ffeddf",
+  "prediction.json": "7209b98610a2601c49fb857b89aa7efc5222563a571d96bd618ad8ec1cc7b8eb",
+  "description.json": "f1b161a7f927a543e3e795b10c23b87fd6a1b821690d7ba6394c997f9ffbad16",
+  "recipe.json": "702d810599e5680f1575f4a2d3b40954fbdb38599460e2f03bcb2636984e8b95",
+  "llm-look-description-v1.txt": "d358aa5ba603accf343f0591621db22bb3cef344950556f8993c72185710cf30"
+ },
+ "capture_result_sha256": "d404aa68fb99c07ad3bc212bd2e1a4375f0fa1769f0c6fd8b3e108db9c2841b3",
+ "review_measurements_v1": {
+  "prediction_luma": 0.321,
+  "screenshot_luma": 0.501,
+  "mean_rgb_prediction": [
+   0.446,
+   0.263,
+   0.525
+  ],
+  "mean_rgb_screenshot": [
+   0.647,
+   0.448,
+   0.597
+  ],
+  "blurred_luma_correlation": 0.481,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.337,
+    0.316
+   ],
+   "saturation": [
+    0.511,
+    0.552
+   ],
+   "blurred_luma_correlation": 0.967
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1658,
+   0.1612
+  ]
+ },
+ "agreements": [
+  "frames 60-149 luma 0.337 vs 0.316, colour balance close (time-average correlation 0.967)",
+  "frame difference 0.166 vs 0.161; brightness envelope follows the capture"
+ ],
+ "misses": [
+  "consistent ~15% brightness excess per frame; load flash brighter (0.69 vs 0.44)",
+  "recipe is 25,097 lines; the SDK could not read it whole"
+ ],
+ "verdict": "understood in its statistics; about 15% bright frame by frame"
+}
