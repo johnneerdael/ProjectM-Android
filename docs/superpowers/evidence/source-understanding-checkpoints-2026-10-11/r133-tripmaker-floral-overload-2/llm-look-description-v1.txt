@@ -1,0 +1,11 @@
+Predicted look (source-only, approximate; no frames rendered).
+
+Overall this reads as a medium-bright, fairly saturated, cool-leaning kaleidoscopic picture. The calibrated display estimate gives mean luminance about 0.36 (interval 0.17-0.59), saturation about 0.5 (0.23-0.78) and a cool tilt (warm/cool -0.27, interval -0.61 to +0.08). The source steady state points to a cyan/white-cyan canvas (display about RGB 0.91, 1.0, 1.0). Specific hues are not established: shape palettes are marked unresolved, and the composite applies a hue tint whose placement is random per preset load. Expect cyan or blue-green leading, with other tints possible.
+
+Structure: four large polygon shapes with 100 sides (effectively circles), all centred on the screen. Two have a very large radius (about 1.79 NDC), so they likely fill or overflow the whole screen. One medium disc (0.92) and one tiny, very faint disc (0.14, alpha 0.05) sit in the middle. They are stationary. A 63x47 grid of cyan motion vectors is probably active, but at low alpha, so it adds a faint texture or fine lines rather than a clear grid. Because the composite mirrors the image left-right and top-bottom at 50% opacity, the picture is likely four-fold symmetric, like a kaleidoscope or flower. The four-fold symmetry is an upper estimate and not proved.
+
+Motion: the feedback warp has no rotation and no translation. All movement comes from an angle-dependent zoom, so petal-like or radial zoom breathing around the centre. Trails are short (decay 0.95, half-life about 0.47 s), with a faint residue floor. Speed is probably slow to moderate: estimated flow is about 0.13 screen widths per second, with a wide uncertainty range.
+
+Audio: bass, mid and attenuated bass drive zoom, radial zoom, shape red level, opacity and outline opacity, and bass changes texture zoom. These are thresholded or clamped, so the response is probably pulsing on beats. Strength is unknown.
+
+Flashing: no hard strobe is established. The calibrated estimate gives about 3 global brightness jumps per 10 s (interval 0.4-15), which may be noticeable on strong beats. Activity is Normal (0.41), but it could range from Chill to Intense. Confidence is low.

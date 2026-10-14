@@ -714,7 +714,9 @@ def _gl_line_pixels(x0,y0,x1,y1,width,height,return_index=False):
     k_last=np.floor(span-(first-a0)*step)
     view_lo=np.where(step>0,1-first,first-size+1);view_hi=np.where(step>0,size-first,first)
     lo=np.maximum(0.,view_lo);hi=np.minimum(k_last,view_hi)
-    counts=np.where(hi>=lo,hi-lo+1,0.).astype(np.int64)
+    # A non-finite vertex has no defined raster: such segments produce no pixels.
+    finite=np.isfinite(x0)&np.isfinite(y0)&np.isfinite(x1)&np.isfinite(y1)
+    counts=np.where(finite&(hi>=lo),hi-lo+1,0.).astype(np.int64)
     total=int(counts.sum())
     if not total:return (np.zeros(0,int),)*(3 if return_index else 2)
     segment=np.repeat(np.arange(len(counts)),counts)

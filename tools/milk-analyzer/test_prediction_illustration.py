@@ -914,3 +914,12 @@ def test_vectorised_line_raster_matches_the_per_exit_rule_including_off_screen_s
     x0 = np.array([3., 3., 2.5, 10.]); y0 = np.array([3., 3., 2.5, 1.]); x1 = np.array([3., 9., 2.5, 10.]); y1 = np.array([3., 3., 7.5, 30.])
     rows, cols, seg = _gl_line_pixels(x0, y0, x1, y1, 64, 36, return_index=True)
     assert set(zip(rows.tolist(), cols.tolist(), seg.tolist())) == _reference_gl_line_pixels(x0, y0, x1, y1, 64, 36)
+
+
+def test_line_segments_with_non_finite_endpoints_draw_nothing():
+    # A NaN or infinite vertex has no defined raster; casting NaN to int is platform-dependent (it can land on 0).
+    import numpy as np
+    from prediction_illustration import _gl_line_pixels
+    nan, inf = float('nan'), float('inf')
+    rows, cols, seg = _gl_line_pixels([nan, 5., 2., 1.], [3., nan, 2., 1.], [10., 20., inf, 30.], [3., 3., 2., 1.], 64, 36, return_index=True)
+    assert set(seg.tolist()) == {3} and len(rows) == 29

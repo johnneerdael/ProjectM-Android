@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r133-v1",
+ "preset": "Unchained vs Rovastar - Tripmaker (Floral Overload 2).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "7d32a39cc16b853d84d52bb24c4145321064b2af6a9f95445492e010939833c3",
+  "prediction.json": "407424db2ae4aaeca36800d73ff0fee6df5a9905e01c2c6fe310176d2074d3e9",
+  "description.json": "f44a3c4c453c8b3e04a90779072313ecb7705481df8f2e6e306ba30967b22def",
+  "recipe.json": "0281239c576d25cd7d5c56f5eccf1a3d447f33dfecffac8aff13ed3b09bf319a",
+  "llm-look-description-v1.txt": "aa55f60bfcca9423088701d66c0c2f58aefac35999ee365c56a0d46629983119"
+ },
+ "capture_result_sha256": "6774e292b4a9e8448db1b762704a135d6d76f43b6db400dc8b4fb07fd2d258cf",
+ "review_measurements_v1": {
+  "prediction_luma": 0.2,
+  "screenshot_luma": 0.271,
+  "mean_rgb_prediction": [
+   0.061,
+   0.241,
+   0.208
+  ],
+  "mean_rgb_screenshot": [
+   0.068,
+   0.336,
+   0.225
+  ],
+  "blurred_luma_correlation": 0.952,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.406,
+    0.431
+   ],
+   "saturation": [
+    0.383,
+    0.409
+   ],
+   "blurred_luma_correlation": 0.984
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.037,
+   0.0389
+  ]
+ },
+ "agreements": [
+  "map correlation 0.984 and frame-by-frame luma arc",
+  "four-fold mirror symmetry (composite echo)",
+  "centred discs and cyan side lobes",
+  "beat-driven pulsing"
+ ],
+ "misses": [
+  "SDK: dominant green not named (calibrated warm/cool only)"
+ ],
+ "verdict": "understood: frozen prediction matches the capture (time-average map corr 0.984, luma 0.406 vs 0.431, frame difference 0.037 vs 0.039) and follows the bright-then-dark arc frame by frame (frame 75: 0.815 vs 0.830; frame 135: 0.129 vs 0.150). The SDK text names the four-fold kaleidoscope, centred discs, cyan/blue-green palette, zoom breathing and beat pulses. It does not name green as the dominant hue (no simulated statistics; calibrated estimate says cool)."
+}
