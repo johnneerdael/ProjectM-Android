@@ -35,3 +35,11 @@ for label, path in (('static', out), ('calibrated', sub)):
         try: groups = json.loads(r.stdout)['groups']
         except Exception: groups = r.stderr[-300:]
         print(label, 'remap' if mode else 'direct', groups, 'mean', round(sum(groups.values()) / len(groups), 3) if isinstance(groups, dict) else '')
+# No strobe accuracy bar: presets the static prediction marks no_strobe (jumps < 1 per 10 s) that the engine
+# ruler measures as flashing (jumps >= 1) are false negatives, listed by name.
+fn = [(n, ours[n].get('global_brightness_jumps_per_10s'), ruler[n].get('global_brightness_jumps_per_10s')) for n in names
+      if (ours[n].get('global_brightness_jumps_per_10s') or 0) < 1 <= (ruler[n].get('global_brightness_jumps_per_10s') or 0)]
+fp = sum(1 for n in names if (ours[n].get('global_brightness_jumps_per_10s') or 0) >= 1 > (ruler[n].get('global_brightness_jumps_per_10s') or 0))
+safe = sum(1 for n in names if (ours[n].get('global_brightness_jumps_per_10s') or 0) < 1)
+print(f'no_strobe: predicted safe {safe}, false negatives (engine flashes) {len(fn)}, false positives (excluded but calm) {fp}')
+for n, a, b in fn: print('   FN', n[:70], 'predicted jumps', a, 'engine', b)
