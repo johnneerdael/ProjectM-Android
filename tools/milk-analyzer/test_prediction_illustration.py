@@ -878,3 +878,39 @@ def test_custom_wave_sample_count_follows_its_per_frame_program():
     assert _frame_sample_count({'sample_count': 102}, {}, 1.) == 102
     big = {'sample_count': 256, 'sample_count_program': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': 900.}}]}}
     assert _frame_sample_count(big, {}, 1.) == 512
+
+
+def _reference_gl_line_pixels(x0, y0, x1, y1, width, height):
+    # The per-exit loop the vectorised rasteriser replaced (same diamond-exit rule).
+    import numpy as np
+    x0, y0, x1, y1 = (np.asarray(v, np.float64).ravel() for v in (x0, y0, x1, y1))
+    dx, dy = x1 - x0, y1 - y0; xmajor = np.abs(dx) >= np.abs(dy)
+    a0 = np.where(xmajor, x0, y0); a1 = np.where(xmajor, x1, y1); b0 = np.where(xmajor, y0, x0); b1 = np.where(xmajor, y1, x1)
+    step = np.where(a1 >= a0, 1., -1.); span = np.abs(a1 - a0)
+    first = np.where(step > 0, np.floor(a0) + 1, np.ceil(a0) - 1)
+    out = set()
+    for k in range(int(np.ceil(span.max())) + 1 if len(span) else 0):
+        exit_ = first + step * k; offset = (exit_ - a0) * step
+        keep = (offset > 0) & (offset <= span)
+        centre = exit_ - .5 * step
+        t = np.clip(np.where(span > 0, (centre - a0) * step / np.where(span > 0, span, 1.), 0.), 0, 1)
+        minor = np.floor(b0 + (b1 - b0) * t); major = np.floor(centre)
+        col = np.where(xmajor, major, minor); row = np.where(xmajor, minor, major)
+        for s in np.nonzero(keep)[0]:
+            if 0 <= col[s] < width and 0 <= row[s] < height:out.add((int(row[s]), int(col[s]), int(s)))
+    return out
+
+
+def test_vectorised_line_raster_matches_the_per_exit_rule_including_off_screen_segments():
+    import numpy as np
+    from prediction_illustration import _gl_line_pixels
+    rng = np.random.default_rng(7)
+    for scale in (1., 5., 40.):
+        x0, x1 = rng.uniform(-scale * 64, scale * 64, (2, 300)) + 32; y0, y1 = rng.uniform(-scale * 36, scale * 36, (2, 300)) + 18
+        rows, cols, seg = _gl_line_pixels(x0, y0, x1, y1, 64, 36, return_index=True)
+        assert set(zip(rows.tolist(), cols.tolist(), seg.tolist())) == _reference_gl_line_pixels(x0, y0, x1, y1, 64, 36)
+        assert len(rows) == len(set(zip(rows.tolist(), cols.tolist(), seg.tolist())))
+    # Degenerate and exactly integer-aligned segments.
+    x0 = np.array([3., 3., 2.5, 10.]); y0 = np.array([3., 3., 2.5, 1.]); x1 = np.array([3., 9., 2.5, 10.]); y1 = np.array([3., 3., 7.5, 30.])
+    rows, cols, seg = _gl_line_pixels(x0, y0, x1, y1, 64, 36, return_index=True)
+    assert set(zip(rows.tolist(), cols.tolist(), seg.tolist())) == _reference_gl_line_pixels(x0, y0, x1, y1, 64, 36)

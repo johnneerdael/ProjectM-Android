@@ -5,6 +5,7 @@ operations and nonfinite domains raise rather than becoming plausible colours.
 Float operations use binary32; this is not a guarantee of GPU bit identity (FMA,
 transcendentals and driver handling of undefined domains can differ).
 """
+import functools
 import re
 import numpy as np
 from shader_fields import Field
@@ -93,7 +94,9 @@ def matrix_constructor(args,dtype,arg_types,*,count=None):
     return np.pad(flat,padding).reshape((count,rows,cols) if count is not None else (rows,cols))
 
 
+@functools.lru_cache(maxsize=None)
 def numeric_layout(dtype):
+    # Pure parse of a dtype string (a few distinct values, evaluated per node per frame): memoised.
     array=re.fullmatch(r'(.+)\[([1-9][0-9]*)\]',dtype)
     if array:
         base,shape=numeric_layout(array[1]);return base,(int(array[2]),)+shape

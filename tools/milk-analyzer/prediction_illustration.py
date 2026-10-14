@@ -707,20 +707,28 @@ def _gl_line_pixels(x0,y0,x1,y1,width,height,return_index=False):
     step=np.where(a1>=a0,1.,-1.);span=np.abs(a1-a0)
     # First exit vertex strictly after the start in the drawing direction (vertices sit on integers).
     first=np.where(step>0,np.floor(a0)+1,np.ceil(a0)-1)
-    rows=[];cols=[];segments=[]
-    for k in range(int(np.ceil(span.max()))+1 if len(span) else 0):
-        exit_=first+step*k;offset=(exit_-a0)*step
-        keep=(offset>0)&(offset<=span)
-        if not keep.any():continue
-        centre=exit_-.5*step
-        t=np.clip(np.where(span>0,(centre-a0)*step/np.where(span>0,span,1.),0.),0,1)
-        minor=np.floor(b0+(b1-b0)*t);major=np.floor(centre)
-        col=np.where(xmajor,major,minor)[keep].astype(int);row=np.where(xmajor,minor,major)[keep].astype(int)
-        inside=(col>=0)&(col<width)&(row>=0)&(row<height)
-        cols.append(col[inside]);rows.append(row[inside]);segments.append(np.nonzero(keep)[0][inside])
-    if not rows:return (np.zeros(0,int),)*(3 if return_index else 2)
-    if return_index:return np.concatenate(rows),np.concatenate(cols),np.concatenate(segments)
-    return np.concatenate(rows),np.concatenate(cols)
+    # Exit k (k = 0, 1, ...) lies at offset (first-a0)*step + k in (0, span]; its pixel's major index is
+    # first-1+k (forward) or first-k (backward). Only exits whose pixel is inside the viewport along the
+    # major axis are generated, so far off-screen segments cost nothing.
+    size=np.where(xmajor,width,height).astype(np.float64)
+    k_last=np.floor(span-(first-a0)*step)
+    view_lo=np.where(step>0,1-first,first-size+1);view_hi=np.where(step>0,size-first,first)
+    lo=np.maximum(0.,view_lo);hi=np.minimum(k_last,view_hi)
+    counts=np.where(hi>=lo,hi-lo+1,0.).astype(np.int64)
+    total=int(counts.sum())
+    if not total:return (np.zeros(0,int),)*(3 if return_index else 2)
+    segment=np.repeat(np.arange(len(counts)),counts)
+    starts=np.repeat(np.cumsum(counts)-counts,counts)
+    k=np.repeat(lo,counts)+(np.arange(total)-starts)
+    sa0,sb0,sb1,sstep,sspan=a0[segment],b0[segment],b1[segment],step[segment],span[segment]
+    centre=first[segment]+sstep*k-.5*sstep
+    t=np.clip(np.where(sspan>0,(centre-sa0)*sstep/np.where(sspan>0,sspan,1.),0.),0,1)
+    minor=np.floor(sb0+(sb1-sb0)*t);major=np.floor(centre)
+    major_x=xmajor[segment]
+    col=np.where(major_x,major,minor).astype(int);row=np.where(major_x,minor,major).astype(int)
+    inside=(col>=0)&(col<width)&(row>=0)&(row<height)
+    if return_index:return row[inside],col[inside],segment[inside]
+    return row[inside],col[inside]
 
 
 def _motion_vector_marks(facts,sample,time,width,height,maps=None,controls=None):
