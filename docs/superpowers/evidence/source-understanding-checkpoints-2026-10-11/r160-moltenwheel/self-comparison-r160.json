@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r160-v1",
+ "preset": "LuxXx - MoltenWheel i --- Isosceles edit4.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ed1d7fa644fe659951b732deeb2098099d9fccbfd2ca2ff541241b025b0cda75",
+  "prediction.json": "f89b0472df89af7df50cca332937e9cb7a83b332b7668bc4ce84b5a0a15ce493",
+  "description.json": "2eda29e6569ff59d06b38a253b59e98dc698eeda8ac38614cec64d2270758731",
+  "recipe.json": "99f6df52e689cd1fb75a6b8147d515ce6a17a75857487ee287c7008c1cd056de",
+  "llm-look-description-v1.txt": "1b52944eefa46dbdd87318d327e69646a2cb49247447d3e879117487fa08a02a"
+ },
+ "capture_result_sha256": "5c775980af2ba104b6ebe6f45adb39cdfb5fa45b32a0313cdbfaed3679363c86",
+ "review_measurements_v1": {
+  "prediction_luma": 0.158,
+  "screenshot_luma": 0.166,
+  "mean_rgb_prediction": [
+   0.42,
+   0.091,
+   0.051
+  ],
+  "mean_rgb_screenshot": [
+   0.435,
+   0.097,
+   0.054
+  ],
+  "blurred_luma_correlation": 0.204,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.158,
+    0.168
+   ],
+   "saturation": [
+    0.895,
+    0.893
+   ],
+   "blurred_luma_correlation": 0.446
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0216,
+   0.022
+  ]
+ },
+ "agreements": [
+  "palette: heat ramp, deep red with yellow-white highlights",
+  "structure: organic pattern growth seeded by faint waves",
+  "motion: slow outward spiral, Chill",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK brightness: closed-form calibrated luma 0.49 vs real 0.17 (thin filaments cover a small area; the steady-state estimate overshoots)",
+  "SDK structure: expected screen-filling splatter instead of a sparse filament network on dark red",
+  "placement chaotic (map corr 0.45)"
+ ],
+ "verdict": "frozen prediction right and statistically frame-exact (frames 60-149 luma 0.158 vs 0.168 with the same per-frame curve, RGB (0.42,0.09,0.05) vs (0.44,0.10,0.06), frame difference 0.0216 vs 0.0220): thin glowing yellow-white filaments over a deep red field from fine-minus-blur pattern growth. Filament placement is chaotic (map corr 0.45). The SDK reader got the heat palette, pattern growth, slow outward spiral and no strobe, but called it fairly bright: it used the closed-form calibrated luma 0.49 (0.30-0.73), which excludes the real 0.17."
+}
