@@ -576,7 +576,7 @@ def _composite(image,facts,controls=None):
         if type(tint) in (int,float) and tint>.001 and value.get('_illustration_time') is not None:
             from legacy_composite import corner_shades
             # Random per-preset hue offsets are unknown: illustrate with zero offsets (hue placement is not a prediction).
-            shades=corner_shades(value['_illustration_time'],[0.,0.,0.,0.],shader_amount=tint)
+            shades=corner_shades(value['_illustration_time'],list(_hue_offsets(_SEED[0])),shader_amount=tint)
             height,width=image.shape[:2]
             fx=np.linspace(0,1,width)[None,:,None];fy=np.linspace(0,1,height)[:,None,None]
             top=shades[0]*(1-fx)+shades[1]*fx;bottom=shades[2]*(1-fx)+shades[3]*fx
@@ -1149,6 +1149,15 @@ def _random_texture_standin(name):
     import re
     match=re.fullmatch(r'rand(\d{2})(?:_(\w+))?',str(name).lower())
     if match is None:return None
+    if _SEED[0] is not None:
+        # A seeded load draws one bundled image for the slot, as the engine does (not the mean).
+        key=('__random_draw__',match.group(1),match.group(2) or '',_SEED[0])
+        if key not in _NAMED:
+            names=[n for n in _texture_names() if not match.group(2) or n.startswith(match.group(2))]
+            images=[image for image in (_named_texture(n) for n in names) if image is not None]
+            pick=int(np.random.default_rng(_seed_shift()+int(match.group(1))).integers(0,len(images))) if images else None
+            _NAMED[key]=None if pick is None else cv2.resize(images[pick],(256,256),interpolation=cv2.INTER_AREA).astype(np.float32)
+        return _NAMED[key]
     key=('__random__',match.group(2) or '')
     if key not in _NAMED:
         names=[n for n in _texture_names() if not match.group(2) or n.startswith(match.group(2))]
@@ -1313,24 +1322,41 @@ def _noise_bytes(rng,shape,zoom):
     return (((rng.integers(0,span,shape)+span//2)%256)/255.).astype(np.float32)
 
 
+# Per-load randomness (hue offsets, noise, rand, random textures) for a seeded illustration; None keeps the
+# fixed illustrative draws. Facet statistics average several seeds, as the engine draws anew at every load.
+_SEED=[None]
+
+
+def _seed_shift():
+    return 0 if _SEED[0] is None else int(_SEED[0])*1000003
+
+
+def _hue_offsets(seed):
+    """PresetState::hueRandomOffsets for one load: rand()%64841, %53751, %42661, %31571, times 0.01."""
+    if seed is None:return (0.,0.,0.,0.)
+    rng=np.random.default_rng(31337+int(seed))
+    return tuple(float(int(rng.integers(0,2**31))%m)*.01 for m in (64841,53751,42661,31571))
+
+
 def _noise_texture(name):
     """Deterministic stand-in for projectM noise textures at the engine sizes (lq finest, hq smoothest):
     RGBA in [0,1], since MilkdropNoise fills all four bytes and shaders read .w."""
-    if name not in _NOISE:
+    key=name if _SEED[0] is None else (name,_SEED[0])
+    if key not in _NOISE:
         # MilkdropNoise: random texels every `zoom` texels, cubic in between (lq: every texel; hq: every 8th).
         size,zoom=NOISE_SIZES.get(name,(256,4))
-        rng=np.random.default_rng(sum(map(ord,name)))
+        rng=np.random.default_rng(sum(map(ord,name))+_seed_shift())
         if name.startswith('noisevol_'):
             # MilkdropNoise::generate3D: a size^3 volume (z, y, x), random every `zoom` texels, cubic between.
             cells=_noise_bytes(rng,(size//zoom,)*3+(4,),zoom)
             if zoom>1:
                 from scipy.ndimage import zoom as upsample
                 cells=upsample(cells,(zoom,zoom,zoom,1),order=3,mode='grid-wrap').clip(0,1).astype(np.float32)
-            _NOISE[name]=cells
+            _NOISE[key]=cells
             return cells
         cells=_noise_bytes(rng,(size//zoom,size//zoom,4),zoom)
-        _NOISE[name]=cells if zoom==1 else cv2.resize(cells,(size,size),interpolation=cv2.INTER_CUBIC).clip(0,1)
-    return _NOISE[name]
+        _NOISE[key]=cells if zoom==1 else cv2.resize(cells,(size,size),interpolation=cv2.INTER_CUBIC).clip(0,1)
+    return _NOISE[key]
 
 
 def _render_constants(context):
@@ -1432,7 +1458,7 @@ def _declared_uniforms(width,height,time,fps,bands):
 
 def _frame_rand(time,fps):
     """Seeded per-frame stand-in for the engine's rand_frame (a new uniform vector every frame)."""
-    return np.random.default_rng(7340033+int(round(time*fps))).random(4).astype(np.float32)
+    return np.random.default_rng(7340033+int(round(time*fps))+_seed_shift()).random(4).astype(np.float32)
 
 
 def _hue_shader(width,height,time,offsets=(0.,0.,0.,0.),cell_centres=True):
@@ -1469,7 +1495,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
     inputs={'_uv':uv.astype(np.float32),'_uv_orig':uv[...,2:].astype(np.float32),'_rad_ang':_rad_ang(width,height,stage),
             **_lowlevel_uniforms(width,height),**blur_uniforms,**_declared_uniforms(width,height,time,fps,bands),
             'rand_frame':np.asarray(rand if rand is not None else [.5]*4,np.float32),'rand_preset':np.full(4,.5,np.float32)}
-    if diffuse is None and stage=='composite':diffuse=_hue_shader(width,height,float(time))
+    if diffuse is None and stage=='composite':diffuse=_hue_shader(width,height,float(time),offsets=_hue_offsets(_SEED[0]))
     if diffuse is not None:inputs['_vDiffuse']=np.asarray(diffuse,np.float32)
     def sample(detail,coordinates):
         texture=str(detail.get('canonical_texture','main'))
@@ -1538,7 +1564,7 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
     columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
     uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,columns,rows],axis=-1).astype(np.float32)
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
-    rng=np.random.default_rng(1000003+frame_index)
+    rng=np.random.default_rng(1000003+frame_index+_seed_shift())
     blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,_TERM_CONTEXT.get('bands'))
     controls=_TERM_CONTEXT.get('stage') or _TERM_CONTEXT.get('bands') or {}
     inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height),**_lowlevel_uniforms(width,height),**blur_uniforms,
@@ -1643,7 +1669,8 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
     shown,note=_composite(image,facts,_TERM_CONTEXT.get('stage'))
     if any(type(v.get('tint_amount')) in (int,float) and v['tint_amount']>.001 for p,v in facts.items()
            if p.endswith('/legacy_response') and isinstance(v,dict)):
-        limitations.append('legacy fShader corner tint applied with zero random hue offsets (tint strength known; hue placement illustrative)')
+        limitations.append('legacy fShader corner tint applied with zero random hue offsets (tint strength known; hue placement illustrative)' if _SEED[0] is None
+                           else 'legacy fShader corner tint applied with hue offsets drawn for seed %s'%_SEED[0])
     if note:limitations.append(note)
     return shown
 
@@ -1692,7 +1719,13 @@ def _stored(values):
     return np.clip(np.nan_to_num(np.asarray(values,np.float32),nan=0.,posinf=1.,neginf=0.),0,1)
 
 
-def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None):
+def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None,seed=None):
+    previous_seed=_SEED[0];_SEED[0]=seed
+    try:return _illustrate_field(summary,time=time,fps=fps,history_steps=history_steps,audio=audio,viewport=viewport,frame_callback=frame_callback)
+    finally:_SEED[0]=previous_seed
+
+
+def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None):
     """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite.
 
     viewport overrides the declared size (all geometry is resolution-independent); frame_callback,
@@ -1704,7 +1737,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     width,height=viewport or context['viewport']
     _DRAW_SCALE[0]=width/float(context['viewport'][0])
     aspect=(1.0,height/width) if width>=height else (width/height,1.0)
-    limitations=[]
+    limitations=[] if _SEED[0] is None else ['per-load randomness (hue offsets, noise, rand, random textures) drawn for seed %s'%_SEED[0]]
     # Stored canvas alpha starts cleared; it weights textured copies of the previous frame.
     canvas={'alpha':np.zeros((height,width),np.float32)}
     flat=facts.get('/analysis/visual_description/nonlinear_texture_colour_bounds/flat_field')
@@ -1713,7 +1746,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None;transfer_gain=False
     frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
-    stepper=_FrameStepper(frame_record,constants=_render_constants(context)) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
+    stepper=_FrameStepper(frame_record,rng_seed=8191+_seed_shift(),constants=_render_constants(context)) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
     programs=(facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}
     warp_program=(programs.get('warp') or {}).get('program') if (programs.get('warp') or {}).get('status')=='exported' else None
     composite_program=(programs.get('composite') or {}).get('program') if (programs.get('composite') or {}).get('status')=='exported' else None
@@ -1811,7 +1844,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
             # Shader programs and per-pixel terms inline Q graphs over start-of-frame state: their inputs
             # take those values.
             stage_controls={**held,**(stepper.start if stepper is not None else {})}
-            _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))),
+            _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))+_seed_shift()),
                                  bands={k:v for k,v in stage_controls.items() if isinstance(v,(int,float))})
             _TERM_CONTEXT['stage']=stage_controls
             if sample is not None and history_steps:
@@ -1897,7 +1930,7 @@ def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,f
                             cv2.polylines(mask,[pixel+[ox,oy]],bool(loop),1.0,1,cv2.LINE_8,4)
                     image,canvas['alpha']=_blend_wave_layer(image,canvas['alpha'],layer,mask,alpha,additive)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
-            rng=_FrameSiteRandom(np.random.default_rng(7919+int(round(frame_time*fps))))
+            rng=_FrameSiteRandom(np.random.default_rng(7919+int(round(frame_time*fps))+_seed_shift()))
             for shape_index,shape in enumerate(textured):
                 recurrence=shape.get('frame_recurrence')
                 for instance in range(shape.get('instances',1)):

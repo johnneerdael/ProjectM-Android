@@ -640,3 +640,21 @@ def test_texture_lookup_fast_path_matches_the_reference_bilinear_and_nearest_rul
             fast = P._texture_lookup(source, coords, wrap=wrap, linear=linear)
             ref = P._texture_lookup_reference(source, coords, wrap=wrap, linear=linear)
             assert np.allclose(fast, ref, atol=2e-6), (wrap, linear)
+
+
+def test_seeded_illustrations_draw_per_load_randomness_reproducibly():
+    # Facet precompute: per-load randomness (hue offsets, noise, rand) is sampled per seed. Without a seed
+    # the illustration is unchanged; a seed is reproducible; different seeds draw different hue offsets.
+    import prediction_illustration as P
+    assert P._hue_offsets(None) == (0., 0., 0., 0.)
+    a, b = P._hue_offsets(1), P._hue_offsets(2)
+    assert a == P._hue_offsets(1) and a != b
+    assert all(0 <= v < limit for v, limit in zip(a, (648.41, 537.51, 426.61, 315.71)))
+    lq0 = P._noise_texture('noise_lq')
+    P._SEED[0] = 3
+    try:
+        lq3 = P._noise_texture('noise_lq')
+        assert not np.array_equal(lq0, lq3) and abs(float(lq3[..., 3].mean()) - .5) < .01
+    finally:
+        P._SEED[0] = None
+    assert np.array_equal(P._noise_texture('noise_lq'), lq0)
