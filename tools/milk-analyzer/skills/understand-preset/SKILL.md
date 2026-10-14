@@ -123,7 +123,16 @@ full recipe tens of thousands of lines long.
    `render.feedback.steady_state` gives the settled canvas/display colour from
    source (`hue_family` when it is visibly above black). Use it as the hue cue
    for the overall palette; its level is a lower bound, so take brightness from
-   `display_estimate`. When `steady_state.exact` is true, nothing feeds the
+   `display_estimate`. For how saturated and how warm or cool the picture is,
+   use `display_estimate` (`mean_saturation`, `warm_cool`), not the mood
+   `palette.*` features. Those features describe the drawn elements' own
+   colours before feedback and composite. Against 88 emulator captures,
+   `palette.mean_saturation` did not track displayed saturation (Spearman
+   0.02), while the calibrated estimate did (0.55). A composite that amplifies
+   the canvas (flat transfer rising steeply, e.g. 0.125 shows as 0.62) pushes
+   `steady_state` display colours to white channel by channel; then trust the
+   canvas hue (`canvas_local_rgb`) and the calibrated saturation over a pale
+   display colour. When `steady_state.exact` is true, nothing feeds the
    canvas and the composite output is constant: the whole screen is
    `display_local_rgb` at every moment (for example plain white). Say so, and
    do not describe texture, motion or `display_estimate` brightness.

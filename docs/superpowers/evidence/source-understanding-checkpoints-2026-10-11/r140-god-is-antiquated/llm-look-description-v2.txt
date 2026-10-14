@@ -1,0 +1,15 @@
+Prediction from the source-only recipe (no renders viewed).
+
+Overall look: a fairly bright, saturated, organic feedback picture, with most of the screen patterned rather than a dark background with a few drawn items. The warp stage is a blur-difference "pattern growth" feedback combined with self-advection, gradient flow and noise displacement. Small seeds should grow into blobs, cells, splatter or smeared fluid-like structure that spreads over the canvas. The calibrated display estimate gives mean luminance about 0.45 (10-90% interval 0.26-0.69), mean saturation about 0.73 (0.46-1.0) and a warm lean (warm_cool 0.42, interval 0.08-0.77).
+
+Colour: the feedback converges toward an orange-red canvas (canvas_local_rgb about 0.97, 0.39, 0.06). The green channel decays (halving about 47 frames) while red and blue persist, which supports a red/orange-led palette. The composite is a neutral grey ramp that multiplies the canvas up to white at about 0.25 canvas level. Bright areas should therefore clip toward yellow-white, and the steady-state display hue is yellow. I expect orange and yellow textures with white-hot highlights. The only drawn colours are white (dim, additive) and a faint pink point cluster. Pink is only a minor tint. A saturated multicolour palette is not supported.
+
+Drawn elements: a built-in two-trace waveform (mode 7, additive) with alpha 0.001, so it is almost invisible. Four 512-point custom waves are drawn. One, a small pink, low-alpha (0.1) cluster, sits tightly near the screen centre (x 0.50-0.55, y 0.46-0.50). The others have unresolved positions and colours. These are seeds for the feedback, not crisp outlines.
+
+Motion: constant outward zoom of 1.3% per frame from the centre plus a time-varying rotation up to about +/-0.01 rad per frame, so content spirals or streams outward and smears. Noise and self-advection add shimmer and turbulence. Calibrated flow is about 0.10 screen widths per second (0.02-0.25), and frame-to-frame change is moderate (0.039). The stored decay is not exactly known, but the trails are long on red and blue.
+
+Audio: the only established route is smoothed bass moving the position of the faint waveform, which is barely visible. No bass-to-brightness route exists. Beat reaction should be weak; the waveform shape follows the audio but is faint.
+
+Flashing: the source shows no flash mechanism. The estimate is about 0.56 global brightness jumps per 10 s, with an interval of 0 to 4.75, so it is uncertain. I do not predict strobing, but that is not certified.
+
+Uncertain: exact brightness (the estimate interval is wide), how much white clipping occurs, the other wave positions and colours, and whether the texture reads as fine splatter or smooth fluid. Strict mood: no eligible group; approximate: Chill to Normal, organic/liquid.
