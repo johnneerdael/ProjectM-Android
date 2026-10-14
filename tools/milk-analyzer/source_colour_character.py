@@ -252,8 +252,9 @@ def _wave_recurrence(frame_prefix,init,frame,programs):
         name=min(pending);pending.discard(name)
         if name in done:continue
         done.add(name)
-        update=_expression(frame.environment.get(name,Field('unknown')))
-        initial=_expression(init.environment.get(name,Field('constant',detail={'value':0.})))
+        # State updates inline main per-frame graphs (Q values) as large as the point programs they feed.
+        update=_expression(frame.environment.get(name,Field('unknown')),POINT_PROGRAM_NODES)
+        initial=_expression(init.environment.get(name,Field('constant',detail={'value':0.})),POINT_PROGRAM_NODES)
         if update is None or initial is None:return None
         state[name]={'initial':initial,'update':update}
         pending|=states_of(update)-done
@@ -291,8 +292,8 @@ def _point_recurrence(point_prefix,init,controls,programs,frame=None):
         name=min(pending);pending.discard(name)
         if name in done:continue
         done.add(name)
-        update=_expression(controls.get(name,Field('unknown')))
-        initial=_expression(init.environment.get(name,Field('constant',detail={'value':0.})))
+        update=_expression(controls.get(name,Field('unknown')),POINT_PROGRAM_NODES)
+        initial=_expression(init.environment.get(name,Field('constant',detail={'value':0.})),POINT_PROGRAM_NODES)
         if update is None or initial is None:return None
         state[name]={'initial':initial,'update':update}
         if _FRAME_COPIED.match(name):

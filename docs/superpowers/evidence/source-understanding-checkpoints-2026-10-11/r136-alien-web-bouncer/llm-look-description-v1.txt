@@ -1,0 +1,13 @@
+Predicted look (source-only, approximate; no frames seen).
+
+Overall brightness and colour: This looks like a fairly bright, pale picture rather than a dark one. The composite shader shows an empty canvas as a pale cream-yellow (about RGB 0.96, 1.0, 0.83), and the settled steady state is a yellow-family cream (display_local_rgb 0.97, 0.99, 0.81). Drawn content is shown through a colour ramp. Dim content turns peach, mid-level content turns orange (about 1.0, 0.55, 0), and the brightest content (level 1.0) turns saturated cyan-blue (0.16, 0.72, 0.88). So I expect a cream background with orange to cyan-blue structures on it. The calibrated display estimate gives medium luminance, about 0.40 with a wide range of 0.21 to 0.63. Saturation is about 0.53 and the warm/cool balance is slightly warm.
+
+Shapes: Four custom waveforms are drawn, each with 512 points and an authored cyan colour. One is a horizontal line spanning the full screen width, sitting in a band slightly above to just below the vertical centre (y 0.46 to 0.62). Three are parametric radial curves, probably ring or spiral-like, but their positions are unresolved and an exact circle is not proven. A very thin blue inner border is redrawn every frame.
+
+Motion: Feedback keeps about 99.25% of the image per frame, a half-life of roughly 3 seconds, so there are long soft trails. The warp shader adds band-pass sharpening, which should grow seeds into blobs, cells or splatter across much of the screen. It also repeats the image in tiles and lets the image steer its own sampling (a smeared, fluid look). The uniform zoom and rotation are neutral, so the motion is mostly drift from translation. Expect slow, smooth, organic flow. The estimated speed is low, and this is a Chill-leaning estimate.
+
+Audio: Smoothed bass and treble move the translation x and y of the feedback, so the drift should shift gently with the music. The gain is unknown and clamped, so the strength is uncertain. No direct brightness route from audio was found.
+
+Flashing: No strobe or flash mechanism was found, and the estimated brightness jumps are zero. This is not proven, because the flash features are marked unknown.
+
+Uncertain: the layout of the three curves, how much of the screen the patterned growth covers, and the exact palette mix.

@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r136-v1",
+ "preset": "Flexi - alien web bouncer [39].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "6875c88fd4f4c07d20450aba4129fcfd0b16dce14f809f17503ea59f7c4f5fa4",
+  "prediction.json": "d8a0cbc3e9a854089b97ea9028d1431be7e23dab2397c34c849abfbe272239a4",
+  "description.json": "775127841266f4c609fc1dfca1acf1de919f2a39dcf6cb5b48fb12ead948f5c6",
+  "recipe.json": "04cad4226616cffdbd4c1ab812d10597efcad1b7b8f98ff9b992f636e1c25684",
+  "llm-look-description-v1.txt": "5f77fc0b34ece6fc0f1f6b5fd6158410b885f262e5b5a8d6ea1736dd271832a5"
+ },
+ "capture_result_sha256": "65b05f8311fae89e4e8484a230410376b066382044e7942adb7a6111747ae047",
+ "review_measurements_v1": {
+  "prediction_luma": 0.574,
+  "screenshot_luma": 0.503,
+  "mean_rgb_prediction": [
+   0.799,
+   0.537,
+   0.283
+  ],
+  "mean_rgb_screenshot": [
+   0.793,
+   0.466,
+   0.016
+  ],
+  "blurred_luma_correlation": -0.44,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.426,
+    0.348
+   ],
+   "saturation": [
+    0.857,
+    0.957
+   ],
+   "blurred_luma_correlation": -0.133
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0126,
+   0.0176
+  ]
+ },
+ "agreements": [
+  "brightness arc (0.98 start, dip near frame 60)",
+  "organic cell structure"
+ ],
+ "misses": [
+  "frozen v1: blue-filled cells (waves 1-3 undrawn)",
+  "v1 luma 0.426 vs 0.348, map corr -0.133",
+  "after fix still dimmer late (0.29 vs 0.46 at frame 145) and bouncing bodies fainter"
+ ],
+ "verdict": "large miss found and fixed generally: three of four custom waves (rot = rot + q6, q6 inlining 474-768 nodes of main per-frame physics) lost their wave recurrence to the 256-node export budget, so they were never drawn; the canvas lacked their red/blue feed and the composite's lerp toward (1,1,2) turned cells blue. With the 1024-node point-program budget for recurrences the prediction matches the native layout and orange palette (frame 145 rgb ours 0.53/0.24/0.06, native 0.72/0.43/0.05; was blue-tinted, map corr -0.13)."
+}

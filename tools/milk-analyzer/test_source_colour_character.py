@@ -429,3 +429,15 @@ def test_per_frame_sample_count_keeps_the_wave_with_its_count_program():
     assert record['status']=='closed_form_point_colours' and record['sample_count']==256
     program=record['sample_count_program']
     assert abs(float(evaluate_np(program,{'time':1.}))-(256+50*math.sin(.939493949)))<1e-6
+
+
+def test_wave_state_fed_by_a_large_main_per_frame_graph_keeps_its_recurrence():
+    # Flexi - alien web bouncer: rot = rot + q6, where q6 inlines the main per-frame physics (474-768 nodes).
+    # The recurrence used the 256-node default, so it was dropped and the waves reading rot were never drawn.
+    q6 = '+'.join(f'sin(x1*{i}.5)*.0001' for i in range(1, 121))
+    result = source_character('per_frame_1=x1=x1+.01;\nper_frame_2=q6=' + q6 + ';\nwavecode_0_enabled=1\nwavecode_0_samples=64\n'
+        'wave_0_per_frame1=rot = rot + q6;\nwave_0_per_frame2=t2 = rot;\n'
+        'wave_0_per_point1=x=.5+.2*sin(t2+sample*6);y=.5+.2*cos(t2+sample*6);r=1;g=0;b=0;a=1;\n')
+    record = result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['positions_closed_form'] is True and record.get('frame_recurrence')
+    assert 'rot' in record['frame_recurrence']['state']
