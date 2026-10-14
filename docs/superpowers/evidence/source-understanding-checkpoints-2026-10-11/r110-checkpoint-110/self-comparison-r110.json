@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r110-v1",
+ "preset": "shifter - glassworms trio.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "29f93107e86721b2e1e24dd39c8d0a607d7d4554863272e6139b01d50dc9c262",
+  "prediction.json": "7d94778d683fb4c0cb36b64e27b045b915e01b3beb1f8909e488ff70fd05a4f9",
+  "description.json": "c3fde5e111559e78a26ef62281e8b25929739cb9c54dd3e2a5d334fc8ae33780",
+  "recipe.json": "434748d7c6b2f3f71764f623471461d29f9f6d9ef6b3230c98b9b2f2424ac044",
+  "llm-look-description-v1.txt": "69a3595cc81329772c4f8ac20e89862a7ff0387fce86fc5f464b2f69076d96dc"
+ },
+ "capture_result_sha256": "96f12032e8f5074d0086a8e1c1c8ac4d2cbb158fe3a3655333e2eef94924a838",
+ "review_measurements_v1": {
+  "prediction_luma": 0.26,
+  "screenshot_luma": 0.251,
+  "mean_rgb_prediction": [
+   0.258,
+   0.26,
+   0.257
+  ],
+  "mean_rgb_screenshot": [
+   0.25,
+   0.251,
+   0.251
+  ],
+  "blurred_luma_correlation": 0.945,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.192,
+    0.188
+   ],
+   "saturation": [
+    0.033,
+    0.041
+   ],
+   "blurred_luma_correlation": 0.962
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0628,
+   0.0624
+  ]
+ },
+ "agreements": [
+  "grey, near-colourless picture brightening steadily over five seconds, as in the capture",
+  "per-frame luma within 0.01 at every sampled frame",
+  "frame difference 0.0628 vs 0.0624; time-average correlation 0.962"
+ ],
+ "misses": [],
+ "verdict": "understood on the first prediction (frame by frame)"
+}
