@@ -1,0 +1,11 @@
+Prediction (source-only, uncertain): a bright, washed-out, tunnel-like picture built almost entirely from feedback rather than from drawn lines.
+
+Brightness and colour: the calibrated estimate says medium-bright (mean luminance about 0.53, range 0.34 to 0.76) and only weakly saturated (about 0.21), with no clear warm or cool lean. The composite brightens up to roughly 2x (gamma 1.98) and blends a 50% copy of the image over itself, which should push the picture toward pale, near-white tones. The source does not fix the hues. A cycling hue tint is placed randomly at each preset load, so the colour family differs between loads. Expect pastel or tinted whites rather than a strong palette. I could not establish a dominant colour.
+
+Structure: three shapes sit at the screen centre. Two are squares, one slightly smaller than the screen and one larger than it. The third is a 17-sided polygon about 0.73 in radius. Each shape draws a copy of the previous frame into itself, so the copies nest recursively. That should give a repeating, droste-style stack of squares and a many-sided polygon around the middle. The squares and polygon rotate slowly (periods of about 126 s and 75 s), so the nested pattern slowly turns. A faint diagonal pair of waveform traces is drawn, but its alpha is only 0.001, so it is almost certainly invisible. A thin dark-red outer border and a slight darkening of the centre are also present.
+
+Motion: the feedback never decays (decay 1.0), so content persists. A constant outward zoom, very slight at the centre and strong toward the edges, keeps stretching detail outward from the centre, like a slow tunnel. Overall flow is estimated as gentle (about 0.05 screen widths per second), so the picture reads as calm, near-static, with slow rotation and expansion.
+
+Audio: bass, mid and treble only modulate the colour of the nearly invisible wave, so audio reaction should be negligible. I see no beat-locked pulses.
+
+Flashing: unlikely. The estimated brightness jumps are near zero. Uncertainty is high because the final palette and the persistence behaviour are unresolved.

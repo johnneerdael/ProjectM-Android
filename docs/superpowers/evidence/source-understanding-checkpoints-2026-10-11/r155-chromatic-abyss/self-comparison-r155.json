@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r155-v1",
+ "preset": "Phat_Aderrasi - Chromatic Abyss (the other side)_PhatColours6.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "632ff6b8a178d6c7a95dba6c30be540f8c2f051ac6da1843d02bbf8cd7170cbb",
+  "prediction.json": "3f4eefe1813c43ecd8d186f241d12d14ae6c5d6d4572d8f25d0917d879e18e06",
+  "description.json": "20cdf59b9e7907b3f7ca79f97371a96632fd566dda12360efaa0413a12862071",
+  "recipe.json": "59e5cd91367660ce456cfc7684105c2788e2bf992a0ef38abbe97b14858a3ab5",
+  "llm-look-description-v1.txt": "e5f5651bc71b0c154d09a1b8030cbcd8785d7cc462d08553ce37a04be942cf69"
+ },
+ "capture_result_sha256": "337399455781e7274cdab4d5bdfaedfbf34886f9cba765e46c877b63b00af398",
+ "review_measurements_v1": {
+  "prediction_luma": 0.261,
+  "screenshot_luma": 0.219,
+  "mean_rgb_prediction": [
+   0.278,
+   0.26,
+   0.23
+  ],
+  "mean_rgb_screenshot": [
+   0.256,
+   0.204,
+   0.264
+  ],
+  "blurred_luma_correlation": 0.988,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.4,
+    0.396
+   ],
+   "saturation": [
+    0.184,
+    0.16
+   ],
+   "blurred_luma_correlation": 0.997
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0303,
+   0.0282
+  ]
+ },
+ "agreements": [
+  "frame-exact fade",
+  "nested-square tunnel with rotation",
+  "per-load hue",
+  "no strobe"
+ ],
+ "misses": [],
+ "verdict": "understood: frozen prediction frame-exact (time-average map corr 0.997, luma 0.400 vs 0.396, fade from white 0.996 -> 0.293 vs 0.997 -> 0.268 frame by frame). SDK names a pale tunnel of nested centred squares turning slowly and expanding, per-load hue tint, little audio reaction and low flash risk."
+}
