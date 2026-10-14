@@ -996,8 +996,10 @@ def _shape_blend(shape,inputs,time,rng=None):
     """The frame's blend: the static mode, else the per-frame additive value ((int) truncation, as
     CustomShape::Draw reads it after the instance's per-frame code); None when neither is known."""
     if shape.get('blend') is not None:return shape['blend']
-    value=_value_at({'expression':(shape.get('flags') or {}).get('additive')},'none','expression',inputs,time,rng)
-    if value is None or not math.isfinite(value):return None
+    expression=(shape.get('flags') or {}).get('additive')
+    if expression is None:return None
+    try:value=_eval_filled(expression,{**inputs,'time':time},rng)  # unset variables read 0, as in projectm-eval
+    except (ValueError,TypeError,KeyError):return None
     return 'source_alpha_additive' if math.trunc(value)!=0 else 'source_alpha_over'
 
 

@@ -784,6 +784,15 @@ def test_dynamic_additive_flag_exports_its_per_frame_expression():
     assert float(evaluate_np(expression,{'bass':2.})) == 1. and float(evaluate_np(expression,{'bass':1.})) == 0.
 
 
+def test_shape_state_read_only_by_the_blend_flag_is_stepped():
+    # additive = flip with a persistent flip (EoS - dark side of the moon): the recurrence must include
+    # flip, or the frame's blend cannot be evaluated.
+    source=read('fWaveAlpha=0\nshapecode_0_enabled=1\nshapecode_0_textured=1\n'
+        'shape_0_per_frame1=flip=(flip+.6)*below(flip,1.1);additive=flip;\n')
+    element=next(e for e in appearance(source)['elements'] if e['id']=='shape_0')
+    assert 'flip' in element['frame_recurrence']['state']
+
+
 def test_negative_border_alpha_can_wrap_positive_but_outline_stays_disabled():
     source=read('fWaveAlpha=0\nshapecode_0_enabled=1\nshape_0_per_frame1=border_a=-.2;\n')
     material=next(e for e in appearance(source)['elements'] if e['id']=='shape_0')['material']

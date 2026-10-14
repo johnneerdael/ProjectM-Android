@@ -619,7 +619,8 @@ def _shape_recurrence(identity,controls,init):
             if name.startswith(marker):found.add(name[len(marker):])
             elif name not in standard and name in controls and ':' not in name:found.add(name)
         return found
-    drawn=[controls.get(name) for name in ('x','y','rad','ang','r','g','b','a','r2','g2','b2','a2','border_r','border_g','border_b','border_a','tex_zoom','tex_ang')]
+    drawn=[controls.get(name) for name in ('x','y','rad','ang','r','g','b','a','r2','g2','b2','a2','border_r','border_g','border_b','border_a','tex_zoom','tex_ang',
+                                           'additive','textured','sides')]
     pending=set()
     for field in drawn:
         if field is not None:pending|=states_of(_expression(field))

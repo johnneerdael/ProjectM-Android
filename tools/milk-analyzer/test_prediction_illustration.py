@@ -771,3 +771,10 @@ def test_cold_stream_follows_projectm_eval_rand():
     stream = _cold_eval_stream()
     assert int(stream.random() * 60) == 13 and int(stream.random() * 60) == 20
     assert abs(float(_cold_eval_stream().random()) - 978073627 / 4294967295) < 1e-12
+
+
+def test_unevaluable_blend_flag_falls_back_to_unset_inputs_reading_zero():
+    # A flag whose inputs are missing must not drop the shape: projectm-eval reads unset variables as 0.
+    from prediction_illustration import _shape_blend
+    expression = {'root': 0, 'nodes': [{'op': 'input', 'dtype': 'float', 'args': [], 'detail': {'name': 'flip'}}]}
+    assert _shape_blend({'blend': None, 'flags': {'additive': expression}}, {}, 0.) == 'source_alpha_over'
