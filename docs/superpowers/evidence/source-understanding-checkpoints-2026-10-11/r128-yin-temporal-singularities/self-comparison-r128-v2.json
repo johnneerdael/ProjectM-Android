@@ -1,0 +1,63 @@
+{
+ "checkpoint": "r128-v2",
+ "analyzer_commit": "3f66a21a",
+ "luma_every_15_frames_prediction_capture": [
+  [
+   0,
+   0.008,
+   0.011
+  ],
+  [
+   15,
+   0.436,
+   0.779
+  ],
+  [
+   30,
+   0.251,
+   0.29
+  ],
+  [
+   45,
+   0.249,
+   0.272
+  ],
+  [
+   60,
+   0.371,
+   0.407
+  ],
+  [
+   75,
+   0.408,
+   0.441
+  ],
+  [
+   90,
+   0.475,
+   0.531
+  ],
+  [
+   105,
+   0.53,
+   0.594
+  ],
+  [
+   120,
+   0.557,
+   0.654
+  ],
+  [
+   135,
+   0.699,
+   0.77
+  ]
+ ],
+ "time_average_frames_60_149_luma": [
+  0.433,
+  0.5
+ ],
+ "cause": "the mesh map matched the engine (u/v within 0.006-0.007 of the engine's rendered map); the deficit was the mode-7 dots: the engine on main caps line waves at width/3 raw samples (160 at 480 px, continuous 2 px runs, confirmed with a native probe) where the analyzer divided by three (80)",
+ "verdict": "improved: frames 60-149 luma 0.433 vs 0.500 (v1 0.359); frame 15 still differs (0.436 vs 0.779)",
+ "note": "fresh v2 prediction after the capture; v1 stays frozen"
+}
