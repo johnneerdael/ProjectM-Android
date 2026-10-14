@@ -34,3 +34,12 @@ flickering presets; q-variables from audio 1.6, noise textures 1.5. Everything e
 quantity needed is the audio-to-brightness gain chain: displayed brightness change per frame-to-frame band change,
 through bindings, element areas and composite gain. Next step: derive it from the recipe's audio bindings and
 transfers, then validate the gate against the ruler, aiming for zero strobing admitted.
+
+## Tried and reverted: direct audio-route sensitivity
+
+For each recipe audio route, its closed form was evaluated while the band moved over its reference 10–90%
+range, giving the expected per-frame jump for the reference frame-to-frame band change. On the 200 set only
+518 of 3,896 routes (13%) could be evaluated: most go through per-frame state (q-variables, accumulators,
+beat detectors). The proxy carries no signal: Spearman 0.025 against ruler jumps. So the audio-to-brightness
+chain needs the per-frame state recurrence (beat detectors and counters as static maps over band statistics),
+not direct band formulas.
