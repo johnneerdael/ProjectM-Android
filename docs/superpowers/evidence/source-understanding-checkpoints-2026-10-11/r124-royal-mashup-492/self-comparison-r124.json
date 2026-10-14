@@ -1,0 +1,27 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r124-v1",
+ "preset": "$$$ Royal - Mashup (492).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "c1dad73f2eefef3ee92b4f2f1876ecaa277ee9a332a967eb3f0ff45f2358629a",
+  "description.json": "51616f9f835a7e7697d8f00484135de0ccd3c4a93bb8532c8d45c287dd33c8b9",
+  "recipe.json": "72c2277c8d37f6b362c72d2dcf575aafaf40f9f60b3e9f9539f6fb125e8a91df",
+  "llm-look-description-v1.txt": "272561f2cd0816c2ecf082cce50312a0153fcc070ba33e6e72f281061737e551"
+ },
+ "capture_result_sha256": "d6eff0e4cbe4d8bf80274942ecbda5b7a9c26eaef1c32e5b82b527089a3da7b6",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.0008
+  ]
+ },
+ "agreements": [
+  "the prediction is black on every frame (luma 0.000) and so is the capture (0.001); frame difference 0 vs 0.0008"
+ ],
+ "misses": [
+  "the SDK description expected a mostly dark screen with possible bright pink polygons: the recipe leaves the 256 pentagons' positions and visibility unresolved, so the reader could not rule them out; calibrated luminance 0.10 (0-0.34)"
+ ],
+ "verdict": "understood: the screen stays black"
+}
