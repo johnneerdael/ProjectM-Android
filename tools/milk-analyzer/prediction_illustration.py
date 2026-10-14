@@ -1517,6 +1517,9 @@ class _EvalStream:
         count=1 if shape in (None,()) else int(np.prod(shape))
         values=self._state._bit_generator.random_raw(count).astype(np.float64)/4294967295.
         return float(values[0]) if shape in (None,()) else values.reshape(shape)
+    def skip(self,count):
+        """Advance past draws other code blocks take from the same stream."""
+        if count>0:self._state._bit_generator.random_raw(int(count))
 
 
 def _cold_eval_stream():
@@ -1525,7 +1528,7 @@ def _cold_eval_stream():
 
 class _FrameStepper:
     """Steps the exported per-frame recurrence (stage_programs.frame) under declared bands."""
-    def __init__(self,frame,rng_seed=8191,constants=None,deadline=None):
+    def __init__(self,frame,rng_seed=8191,constants=None,deadline=None,rand_skips=(0,0)):
         # Readonly render values the engine loads before frame code (aspect, viewport, mesh).
         self.constants=dict(constants or {});self.deadline=deadline
         self.state_programs=(frame or {}).get('state') or {}
@@ -1534,6 +1537,9 @@ class _FrameStepper:
         # engine). Seeded runs stand for other stream positions (the app's stream continues across presets).
         self.values=None;self.start={};self.failed=set();self.zero_inputs=set()
         self.rng=_cold_eval_stream() if rng_seed is None else np.random.default_rng(rng_seed)
+        # (draws after the main init at load, draws after the main per-frame code each frame) by the other
+        # blocks sharing projectm-eval's stream (source_rand_stream); only the cold stream follows them.
+        self.rand_skips=tuple(int(v) for v in rand_skips)
     def _eval(self,program,inputs):
         # projectm-eval reads a variable that is never written as 0 (for example 'cyyspeed' produced by
         # MilkDrop's joining of a line split across numbered records).
@@ -1565,6 +1571,7 @@ class _FrameStepper:
             for name,programs in self.state_programs.items():
                 try:self.values[name]=self._eval(programs['initial'],init_inputs)
                 except Exception:self.values[name]=0.;self.failed.add(name)  # noqa: BLE001
+            if hasattr(self.rng,'skip'):self.rng.skip(self.rand_skips[0])
         inputs={**base,**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()}}
         # Start-of-frame state: inlined per-frame graphs in shader programs read these values.
         self.start={**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()}}
@@ -1584,6 +1591,7 @@ class _FrameStepper:
                 if math.isfinite(value):outputs[name]=value
             except Exception:self.failed.add(name)  # noqa: BLE001
         self.values=updated
+        if hasattr(self.rng,'skip'):self.rng.skip(self.rand_skips[1])
         return {**{name:_absent(name) for name in self.zero_inputs},**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()},**outputs}
 
 
@@ -1983,7 +1991,9 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None;transfer_gain=False
     frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
-    stepper=_FrameStepper(frame_record,rng_seed=None if _SEED[0] is None else 8191+_seed_shift(),constants=_render_constants(context)) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
+    layout=facts.get('/analysis/visual_description/rand_stream') or {}
+    skips=(int(layout.get('load_draws_after_main_init') or 0),int(layout.get('frame_draws_after_main') or 0))
+    stepper=_FrameStepper(frame_record,rng_seed=None if _SEED[0] is None else 8191+_seed_shift(),constants=_render_constants(context),rand_skips=skips) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
     programs=(facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}
     warp_program=(programs.get('warp') or {}).get('program') if (programs.get('warp') or {}).get('status')=='exported' else None
     composite_program=(programs.get('composite') or {}).get('program') if (programs.get('composite') or {}).get('status')=='exported' else None

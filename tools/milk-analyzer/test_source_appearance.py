@@ -995,3 +995,20 @@ def test_per_frame_side_count_is_exported_as_a_motion_control():
     assert [c['control'] for c in shape['motion_controls']].count('side_count') == 1
     fixed = appearance(read('shapecode_0_enabled=1\nshapecode_0_sides=5\n'))
     assert 'side_count' not in [c['control'] for e in fixed['elements'] if e.get('id') == 'shape_0' for c in e['motion_controls']]
+
+
+def test_rand_stream_counts_draws_per_block_in_engine_order():
+    # projectm-eval's rand is one stream: main init, then every wave and shape init at load; per frame the
+    # main code, per-pixel code per vertex, enabled shapes per instance, enabled waves per frame and point.
+    source=read('fWaveAlpha=0\nper_frame_init_1=a=rand(5);\nper_frame_1=b=if(above(bass,1),rand(2),b);c=rand(3);\n'
+        'shapecode_0_enabled=1\nshapecode_0_num_inst=3\nshape_0_init1=r0=rand(20);\nshape_0_per_frame1=r=rand(10);\n'
+        'shapecode_1_enabled=0\nshape_1_init1=q=rand(4)+rand(4);\n'
+        'wavecode_0_enabled=1\nwavecode_0_samples=100\nwave_0_per_point1=y=rand(2);\n')
+    stream=appearance(source)['rand_stream']
+    blocks=stream['blocks']
+    assert blocks['per_frame_init_']=={'calls':1,'conditional':0}
+    assert blocks['per_frame_']=={'calls':2,'conditional':1}
+    assert blocks['shape_0_init']['calls']==1 and blocks['shape_1_init']['calls']==2
+    assert stream['load_draws_after_main_init']==3          # shape 0 and shape 1 init run whether enabled or not
+    assert stream['frame_draws_after_main']==3*1+100*1      # enabled shape 0 x 3 instances, wave 0 per point x 100
+    assert stream['exact'] is True

@@ -817,3 +817,16 @@ def test_builtin_wave_mode_and_flags_follow_the_frame():
     held = {'wave_usedots': 1., 'wave_thick': 0., 'wave_additive': .5}
     assert _frame_wave_flags({'dots': False, 'thick': True}, held, outputs, False) == (True, False, True)
     assert _frame_wave_flags({'dots': False, 'thick': True}, {}, set(), False) == (False, True, False)
+
+
+def test_cold_stream_skips_draws_of_other_blocks_in_engine_order():
+    # A shape init draw at load and per-frame wave draws take values from the same projectm-eval stream: the
+    # main per-frame rand reads the stream after them (Willie Wonka: shape_0_init red=rand(20)).
+    import numpy as np
+    from prediction_illustration import _FrameStepper
+    rand = {'root': 0, 'nodes': [{'op': 'rand', 'args': [1], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': 1.}}]}
+    program = {'state': {}, 'outputs': {'q1': rand}}
+    raw = np.random.RandomState(0x4141f00d)._bit_generator.random_raw(20).astype(np.float64) / 4294967295.
+    stepper = _FrameStepper(program, rng_seed=None, rand_skips=(1, 2))
+    first = stepper.step(1 / 30, 30, {}, 0)['q1']; second = stepper.step(2 / 30, 30, {}, 1)['q1']
+    assert abs(first - raw[1]) < 1e-12 and abs(second - raw[4]) < 1e-12

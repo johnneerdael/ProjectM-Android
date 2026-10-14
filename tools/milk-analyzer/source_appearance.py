@@ -93,6 +93,12 @@ def _colour_number(value,depth=0):
     return None
 
 
+def _rand_stream(analysis):
+    from source_rand_stream import rand_stream
+    try:return rand_stream(analysis)
+    except (ValueError,TypeError,KeyError,RecursionError) as error:return {'policy':'source-rand-stream-layout-v1','status':'unknown','reason':str(error)[:200]}
+
+
 def _stage_programs(analysis):
     from source_stage_program import stage_programs
     try:return stage_programs(analysis)
@@ -577,6 +583,7 @@ def appearance_from_analysis(analysis):
         'texture_colour_envelopes':texture_colour_envelopes(texture_transfer),
         'nonlinear_texture_colour_bounds':nonlinear_texture_colour_bounds(analysis,feedback['vertex_colour_binding']['rgba']),
         'stage_programs':_stage_programs(analysis),
+        'rand_stream':_rand_stream(analysis),
         'execution_unknowns':list(analysis.unknowns),
         'uses_rendered_images':False,'uses_shader_execution':False,
         'uses_equation_execution':False,'appearance_match_accuracy':None,
