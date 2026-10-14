@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r128-v1",
+ "preset": "yin - 191 - Temporal singularities aaa.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b1e3307cb3d2ede65420f83450e1fb10d901ecc7c189ccbff614c4ba596088f3",
+  "prediction.json": "b40ff25ab1c8cbf6cb477542831dcb04c8ecb3ae99392825d1e8967153e6d17e",
+  "description.json": "cac82f4ecc941fea5ee0b9dee0ebb810a1e2108a914e9a71d105a2db1b822110",
+  "recipe.json": "3889f8d8f7ed6b52785b8c979ba33b6295aa2e985e0aa2c8a57db51180b93895",
+  "llm-look-description-v1.txt": "0799549a6be6a94f72350d81600926db2110b975f73372bcab33a61126f2f442"
+ },
+ "capture_result_sha256": "6e573cbbd9b97fbfcde5929169b28583ca60975fd0ff3d6606cd328615690ba4",
+ "review_measurements_v1": {
+  "prediction_luma": 0.411,
+  "screenshot_luma": 0.555,
+  "mean_rgb_prediction": [
+   0.352,
+   0.435,
+   0.341
+  ],
+  "mean_rgb_screenshot": [
+   0.523,
+   0.573,
+   0.475
+  ],
+  "blurred_luma_correlation": 0.325,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.359,
+    0.5
+   ],
+   "saturation": [
+    0.213,
+    0.136
+   ],
+   "blurred_luma_correlation": 0.828
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1881,
+   0.2096
+  ]
+ },
+ "agreements": [
+  "beat flashes on the same frames; time-averaged map correlation 0.828; frame difference 0.188 vs 0.210",
+  "the per-pixel dy term equals a hand evaluation of the per-pixel code at every test vertex (with projectM's aspect-scaled y in 0.219-0.781)"
+ ],
+ "misses": [
+  "the identity-composite canvas is darker (frames 60-149 mean 0.34 vs 0.48); one warp step applied to the engine's canvas loses about 20% brightness where the engine's next frame keeps it, so the displacement or sampling of this luminance-advection warp still differs",
+  "open: isolate the warp step with the engine's own uv map"
+ ],
+ "verdict": "partly understood: structure and timing match, the canvas is about 30% dark (open)"
+}
