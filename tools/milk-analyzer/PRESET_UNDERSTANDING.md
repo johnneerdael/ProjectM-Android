@@ -1938,8 +1938,21 @@ ruler, emulator capture) therefore always gets the same draws, and four
 stream continues from earlier presets, so users see a different draw at
 each load. Averaging seeds, as the facet precompute does, models that. Six
 illustration seeds give frames 60–149 luma 0.49–0.69 around the engine's
-0.57. Reproducing the cold stream exactly would need statement-order
-execution of the equations, which this predictor does not do.
+0.57.
+
+The unseeded prediction now uses the cold-load stream itself:
+`genrand_int32() / 0xFFFFFFFF` from MT19937 with seed 0x4141f00d.
+projectm-eval's `if()`, `&&` and `||` evaluate only the branch they need,
+so a `rand` in the other branch draws nothing. The EEL evaluator now does
+the same for scalar conditions. Before, it advanced the stream every frame
+for `x = if(beat, rand(60), x)`. With both changes, r120 (Stahlregen - Spiral
+Beats_1) matches the capture frame by frame: frames 60–149 luma 0.236 vs
+0.240, from 0.311. Its frame-0 beat draws x = 0.33 and y = 0.40, giving a
+vertical mode-6 line. r119 moves from 0.787 to 0.568 (capture 0.579).
+Exactness holds while the main per-frame and init code are the only `rand`
+consumers and draws follow program order. Per-pixel, custom wave and shape
+code share the engine's stream but draw from separate stand-in streams
+here.
 
 While checking the composite, `MilkdropNoise` was ported exactly. Texel
 bytes are `(rand % RANGE) + RANGE/2`, packed with a top-byte wrap and a
