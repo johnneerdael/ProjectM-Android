@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r141-v1",
+ "preset": "Mig_Oscilloscope005.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "425bccfbea972a699c5f20774f729e600c7b8973f7cf630d0d128512cec0ce38",
+  "prediction.json": "eeecd8ede3968685ec21ea1cfdb1f391bf543a91f6841a1a56d2fd73865cbca1",
+  "description.json": "444616cd3d1db060f67d912d08a13f5dc0c0dc71f83c7decc239b9036cdf9fed",
+  "recipe.json": "7c927c2cc445f4f58e48e201d7a88053e2b3f8ed01ed0fd2d78ec93d029b3a18",
+  "llm-look-description-v1.txt": "bfb21e51435bf6e6fa79c99b6fbf0528640ee2783fdf62450075f25427226600"
+ },
+ "capture_result_sha256": "cfdf0a40b89ae2a319d169209c7348b82ed9157a52aca2a70ea347c4b8462b11",
+ "review_measurements_v1": {
+  "prediction_luma": 0.011,
+  "screenshot_luma": 0.032,
+  "mean_rgb_prediction": [
+   0.01,
+   0.01,
+   0.024
+  ],
+  "mean_rgb_screenshot": [
+   0.029,
+   0.029,
+   0.073
+  ],
+  "blurred_luma_correlation": 0.841,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.007,
+    0.027
+   ],
+   "saturation": [
+    0.238,
+    0.294
+   ],
+   "blurred_luma_correlation": 0.75
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0022,
+   0.004
+  ]
+ },
+ "agreements": [
+  "XY dot-trace layout and blue palette",
+  "SDK: dim cool-blue XY dot trace, outward-zooming trails, no flashing"
+ ],
+ "misses": [
+  "luma 4x low (canvas fades too fast; cause open)"
+ ],
+ "verdict": "structure understood (blue XY dot trace with spreading glow on black; map corr 0.75-0.84), but the prediction is about 4x too dim (luma 0.007 vs 0.027, same 'dark' class). Canvas test with gamma 1 and 2: gamma doubles both equally; our canvas fades faster (native 0.024 -> 0.008, ours 0.016 -> 0.001 over the clip). Warp output is already 8-bit quantised, so the open cause is how thick additive dots survive the warp's sub-pixel colour-driven displacement and ret -= 0.005, or the volume-modulated wave alpha."
+}

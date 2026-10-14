@@ -1,0 +1,13 @@
+Approximate look (source-derived prediction, not a rendering): a dim, calm, mostly dark picture with a soft cool blue-grey cast, built from a stereo oscilloscope-style trace drawn as individual glowing dots and smeared into slow, soft trails.
+
+Drawn element: a built-in waveform in the "stereo XY trace" form (mode 2, dots on, thick, additive), centred at the middle of the screen (wave_x 0.5, wave_y 0.5). The left and right audio channels steer the dot positions, so the dots scatter into a Lissajous-like cloud or loop around the centre that changes shape continuously with the music. Its colour is a muted periwinkle blue (authored RGB about 0.5, 0.5, 0.8, alpha about 0.30). It is max-normalised, so when the line is non-trivial it is scaled up to a fully bright blue-white tint, but the low alpha keeps each dot faint; additive blending lets overlapping dots build up brighter.
+
+Motion and trails: the previous frame is zoomed outward from the centre by 0.2% per step with no rotation and no translation, and kept at about 99.5% per frame (halving in roughly 138 frames, about 4.6 s at 30 fps). The dots therefore leave long, slowly expanding, fading streaks radiating gently outward from the middle. A custom warp shader adds image-driven advection with very small offsets (under 0.1% of the screen), so the trails should look slightly smeared or fluid, but gently. No rotation, mirroring or tiling is indicated.
+
+Brightness and colour: the calibrated estimate is dim to moderate (mean luminance about 0.16, interval 0 to 0.39), low saturation (about 0.28), and slightly cool (warm/cool about -0.19). The composite doubles brightness (gamma 2), which may lift the accumulated trails somewhat. Blue is the only hue family named; no colour cycling.
+
+Audio: the only route is the waveform shape itself, continuous and unsmoothed. No bass/mid/treble routes to colour, size or brightness were found, so there are no beat pulses.
+
+Flashing: none expected. Activity is predicted as Chill (about 0.06, possibly Normal), with frame difference about 0.017 and essentially zero global brightness jumps.
+
+Uncertain: how large the XY cloud is on screen, how dense the trails become, and overall brightness (the audio-driven drawing brightness is unknown).
