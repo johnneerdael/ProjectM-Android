@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r120-v1",
+ "preset": "Stahlregen - Spiral Beats_1.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1a5f49a104c15e5f2b86f78d3d395e4434c82ce4a17bc7c3d9c66ea62cae3b86",
+  "prediction.json": "763615ae4d9b4767f8e177dea519838a9b89af864d346cca9483ea61ee01b9d6",
+  "description.json": "e5790945436b72e4628b45fca3f1664dcaea9c287902ac9a47e5e5920d75d670",
+  "recipe.json": "40a681538d3dc1e0f712072b6872c67c44de988a1877346a8baf7f351243a2d7",
+  "llm-look-description-v1.txt": "56e564d007ed7d4fa82e6fbb20f1cf5853d04b30924408f886e70c29fc15a54a"
+ },
+ "capture_result_sha256": "573503f85ad44cefd94c6a95e0d8393869adcc9d285c1ac6211fdb9e966b9a3d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.517,
+  "screenshot_luma": 0.508,
+  "mean_rgb_prediction": [
+   0.318,
+   0.57,
+   0.576
+  ],
+  "mean_rgb_screenshot": [
+   0.317,
+   0.56,
+   0.547
+  ],
+  "blurred_luma_correlation": 0.615,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.311,
+    0.24
+   ],
+   "saturation": [
+    0.441,
+    0.599
+   ],
+   "blurred_luma_correlation": 0.55
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0445,
+   0.036
+  ]
+ },
+ "agreements": [
+  "frame-150 screenshot luma 0.517 vs 0.508, colour 0.318/0.570/0.576 vs 0.317/0.560/0.547",
+  "without the textured shape the identity-composite canvas matches the native engine frame by frame (frames 60-149 mean RGB 0.138/0.130/0.245 vs 0.138/0.146/0.289)",
+  "the textured square's geometry (241x241 px) and texture coordinates (1.21x minified, GL_REPEAT) follow CustomShape exactly"
+ ],
+ "misses": [
+  "frames 15-90 twice as bright (canvas 0.36 vs 0.17 at frame 12): the textured shape copies with alpha 0.9 x the stored canvas alpha, and our alpha field differs (centre 0.31 vs 0.077, edges 0.45 vs 0.69, measured with a .www composite); the alpha comes from the mode-6 line (alignment omitted in the illustration) and moves with the 0.96 zoom-out",
+  "open: canvas alpha transport and built-in wave placement; the SDK description's tunnel-like picture with one audio-driven line matches the engine's structure"
+ ],
+ "verdict": "partly understood: everything but the shape's alpha-gated copy matches"
+}
