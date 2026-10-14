@@ -42,6 +42,23 @@ def peak_brightness_change(frames, start=60):
     return float(np.abs(np.diff(grey)).max()) if len(grey) > 1 else 0.
 
 
+_PER_LOAD = re.compile(r'"op": "rand"|"rand_frame"|"rand_preset"|"_vDiffuse"|"hue_shader"|"canonical_texture": "(?:noise|rand)')
+
+
+def per_load_random(summary):
+    """True when per-load randomness can reach the prediction, read from the source facts: rand calls,
+    rand_frame/rand_preset, the composite hue shader (random hue offsets), noise or random textures, or the
+    legacy corner tint. No frames are predicted (depends_on_seed is the two-run check it was validated with)."""
+    if _PER_LOAD.search(json.dumps(summary)):return True
+    for group in (summary.get('facts') or {}).values():
+        for fact in group:
+            value = fact.get('value')
+            if str(fact.get('path', '')).endswith('/legacy_response') and isinstance(value, dict):
+                tint = value.get('tint_amount')
+                if type(tint) in (int, float) and tint > .001:return True
+    return False
+
+
 def depends_on_seed(summary, audio):
     """True when two seeds give different frames on a short, small run (per-load randomness reaches the output)."""
     import numpy as np
@@ -52,7 +69,7 @@ def depends_on_seed(summary, audio):
 
 def preset_statistics(summary, audio, measure):
     started = time.perf_counter()
-    stochastic = depends_on_seed(summary, audio)
+    stochastic = per_load_random(summary)
     # Seed None is the cold load (projectm-eval's stream from a fresh engine, what a capture right after app
     # start shows); the numbered seeds stand for other stream positions (the app's stream runs on across presets).
     seeds = (None,) + SEEDS if stochastic else (None,)

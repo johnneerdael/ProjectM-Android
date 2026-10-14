@@ -13,7 +13,7 @@ def test_summary_is_read_from_the_compressed_corpus_row_or_inline():
 def test_statistics_average_the_seeds_and_skip_missing_values(monkeypatch):
     import numpy as np
     import facet_precompute as F
-    monkeypatch.setattr(F, 'depends_on_seed', lambda summary, audio: True)
+    monkeypatch.setattr(F, 'per_load_random', lambda summary: True)
     monkeypatch.setattr(F, 'random_flash', lambda summary, audio: {'reads_rand_frame': False})
     monkeypatch.setattr(F, '_frames', lambda summary, audio, seed, w, h, n: (np.zeros((2, 2, 2, 3), np.uint8), []))
     # The cold load (seed None: a fresh engine's first draws, what a capture after app start shows) joins the seeds.
@@ -89,3 +89,28 @@ def test_random_texture_dependence_is_detected_from_the_exported_programs():
     assert F.random_texture_dependent({'facts': {'g': [{'path': '/p', 'value': {'nodes': [node('rand00')]}}]}})
     assert F.random_texture_dependent({'facts': {'g': [{'path': '/p', 'value': {'nodes': [node('rand03_smalltiled')]}}]}})
     assert not F.random_texture_dependent({'facts': {'g': [{'path': '/p', 'value': {'nodes': [node('noise_lq'), node('main')]}}]}})
+
+
+def test_per_load_randomness_is_read_from_the_source_facts():
+    # Seeds reach a prediction only through rand calls, rand_frame/rand_preset, the hue shader (random hue
+    # offsets), noise or random textures and the legacy corner tint. Checked against two-seed runs on 117
+    # checkpoint descriptions: no preset the runs found seed-dependent was missed.
+    from facet_precompute import per_load_random
+    plain = {'facts': {'motion': [{'path': '/x', 'value': {'nodes': [{'op': 'add'}]}}]}}
+    assert per_load_random(plain) is False
+    assert per_load_random({'facts': {'motion': [{'path': '/x', 'value': {'nodes': [{'op': 'rand'}]}}]}}) is True
+    assert per_load_random({'facts': {'colour': [{'path': '/s', 'value': {'inputs': ['rand_frame']}}]}}) is True
+    assert per_load_random({'facts': {'colour': [{'path': '/s', 'value': {'canonical_texture': 'noise_lq'}}]}}) is True
+    assert per_load_random({'facts': {'colour': [{'path': '/a/legacy_response', 'value': {'tint_amount': .2}}]}}) is True
+    assert per_load_random({'facts': {'colour': [{'path': '/a/legacy_response', 'value': {'tint_amount': 0.}}]}}) is False
+
+
+def test_statistics_run_only_the_cold_load_without_per_load_randomness(monkeypatch):
+    import numpy as np
+    import facet_precompute as F
+    monkeypatch.setattr(F, 'per_load_random', lambda summary: False)
+    monkeypatch.setattr(F, 'random_flash', lambda summary, audio: {'reads_rand_frame': False})
+    seeds = []
+    monkeypatch.setattr(F, '_frames', lambda summary, audio, seed, w, h, n: (seeds.append(seed), (np.zeros((2, 2, 2, 3), np.uint8), []))[1])
+    record = F.preset_statistics({}, {}, lambda path: {'mean_luminance': .3})
+    assert seeds == [None] and record['seeds'] == [None] and record['depends_on_seed'] is False
