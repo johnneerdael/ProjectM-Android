@@ -1,0 +1,11 @@
+Approximate look (source-only, uncertain): a medium-bright, blue-dominated, softly swirling feedback picture, a bit like a blue-white tunnel or vortex that is constantly sucked toward the centre and twisted.
+
+Colour and brightness: the simulated statistics (display_estimate.simulated) say about 99% of coloured pixels are blue, a trace of cyan, roughly 90% of the screen coloured, mean luminance about 0.39 (mid brightness, not dark), moderate saturation about 0.42, and a cool bias. The composite maps flat canvas through a pale blue-grey ramp, so bright areas read as pale, slightly bluish white rather than saturated blue. The two custom waves and several shapes are authored in light blue (about 0.45, 0.65, 1.0) with very low alpha, so they add a faint blue haze rather than crisp lines. The built-in dotted stereo waveform cycles through orange, pink, green, yellow and red in its source colour, but its alpha is only 0.001, so those hues are probably barely visible. Per-load randomness does not change the hue much.
+
+Structure: five-sided shapes (radii roughly 0.29 to 0.48) and a smaller 15-sided shape (radius 0.18) sit at and around the centre, with some placed lower right (y about 0.76, x about 0.7). Two of the pentagons rotate (about -0.5 and -2 rad/s). A dotted left/right waveform trace and two 512-point waves are drawn, but most of their positions fall off screen or are faint. The composite adds noise-driven shimmer and a reciprocal-radius polar mapping, which suggests a tunnel-like look, though the recipe says a tunnel is not guaranteed.
+
+Motion: strong feedback. Each step the image contracts toward the centre by about 2 to 10% (stronger toward the edge) and rotates by up to plus or minus 0.3 rad per step, with trails fading with a half-life of about 1.8 s. Expect inward spiral streaks and swirling smears rather than crisp outlines. Estimated flow is fairly fast, about 0.4 screen widths per second.
+
+Audio: bass, mid and treble each drive the opacity of one pentagon and the 15-gon, with thresholded or clamped responses, and the waveform trace follows the left and right audio. The size of the response is unresolved.
+
+Flashing: low risk. Simulated global brightness jumps are 0 and the peak frame-to-frame brightness change is 0.0085. Opacity changes on the shapes could produce soft local pulses, but not whole-screen strobing.

@@ -169,6 +169,12 @@ full recipe tens of thousands of lines long.
    patterned rather than a dark background with a few drawn elements, and read
    its look through the composite palette. Its flat-content gain is
    `flat_gain_by_lane`; flat-content persistence alone understates coverage.
+   A `radial_streaks` effect means a strong one-way zoom combined with slow
+   trails. Every retained copy is scaled again, so drawn or textured detail
+   becomes streaks along rays through the zoom centre: a starburst or
+   warp-speed look, where `radial_scale_over_half_life` far from 1 means long
+   streaks. When `spiral` is true they bend into a swirl. Drawn shapes then
+   read as the source of the streaks rather than as crisp outlines.
    A `tiling` effect (mechanism `repeat_tiling`) means the image repeats in
    tiles across the screen, mirrored when `mirrored` is true: describe it as a
    tiled or kaleidoscopic pattern.

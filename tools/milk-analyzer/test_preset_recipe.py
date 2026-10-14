@@ -432,3 +432,15 @@ def test_simulated_display_reports_hues_and_per_load_variety():
     assert list(simulated['hue_shares'])[0] == 'green' and math.isclose(simulated['coloured_share'], .61)
     assert [row['top_hues'] for row in simulated['per_load']] == [['green', 'orange', 'blue'], ['blue', 'green', 'orange']]
     assert simulated['per_load'][1]['warm_cool'] == -.12
+
+
+def test_strong_zoom_with_slow_trails_reads_as_radial_streaks():
+    # r132: contraction of 2-10% per frame with a 1.8 s half-life smears every drawn detail into streaks toward
+    # the centre (each retained copy is scaled again). The effect states the scale reached over one half-life.
+    from preset_recipe import intent
+    recipe=build_recipe(record())
+    assert 'radial_streaks' not in [e['effect'] for e in recipe['intent']['effects']]  # 7-frame half-life
+    recipe['mood']['features']['feedback.half_life_s']={'value':1.8}
+    (streaks,)=[e for e in intent(recipe)['effects'] if e['effect']=='radial_streaks']
+    assert streaks['direction']=='inward' and streaks['half_life_frames']==54
+    assert math.isclose(streaks['radial_scale_over_half_life'],(1-.045)**54,rel_tol=1e-9)

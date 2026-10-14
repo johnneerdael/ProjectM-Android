@@ -786,6 +786,31 @@ def _reactivity(render):
     return sorted(rows.values(),key=lambda r:(r['band'],r['layer'],r['target']))
 
 
+STREAK_MIN_PERCENT=1.     # whole-screen zoom per frame, one direction throughout
+STREAK_MIN_HALF_FRAMES=10 # retained copies must last this long to overlap into streaks
+
+
+def _radial_streaks(effects,half_life_s):
+    """Strong one-way zoom with slow trails: every frame keeps a copy of the last one scaled by the zoom,
+    so drawn detail is smeared along rays through the zoom centre. radial_scale_over_half_life is the
+    scale a retained copy reaches (median zoom compounded over one half-life): far from 1 means long
+    streaks. Rotation in the same feedback bends them into spirals."""
+    if not half_life_s:return None
+    frames=round(half_life_s*30)
+    if frames<STREAK_MIN_HALF_FRAMES:return None
+    for row in effects:
+        span=row.get('percent_per_frame') if row['effect']=='zoom_flow' and not row.get('region') else None
+        if not isinstance(span,list) or len(span)!=2 or not all(type(v) in (int,float) and math.isfinite(v) for v in span):continue
+        if min(abs(v) for v in span)<STREAK_MIN_PERCENT or span[0]*span[1]<=0:continue
+        median=(span[0]+span[1])/2
+        spin=any(e['effect']=='rotation_flow' and isinstance(e.get('radians_per_frame'),list) and
+                 max(abs(v) for v in e['radians_per_frame'] if type(v) in (int,float))>.01 for e in effects)
+        return {'effect':'radial_streaks','direction':'inward' if median<0 else 'outward','half_life_frames':frames,
+                'radial_scale_over_half_life':(1+median/100)**frames,'spiral':spin,
+                'condition':'drawn or textured detail smears along rays through the zoom centre; smooth content shows no streaks'}
+    return None
+
+
 def intent(recipe):
     """Generic, engine-neutral effect list plus music-reactivity map for an 'alike' rebuild."""
     render=recipe['render'];mood=recipe['mood'];features=mood['features']
@@ -823,6 +848,8 @@ def intent(recipe):
                        speed_px_s=osc.get('phase_speed_pixels_per_second') or osc.get('radial_phase_speed_pixels_per_second'),
                        direction=osc.get('travel_direction_xy'),lobes=osc.get('angular_lobes'),amplitude_px=pattern.get('amplitude_pixels_range'))
         if row['effect']:effects.append({k:v for k,v in row.items() if v is not None})
+    streaks=_radial_streaks(effects,half)
+    if streaks:effects.append(streaks)
     redraw=render.get('random_redraws')
     if redraw:
         effects.append({'effect':'random_redraw','feeds':redraw['feeds'],'first_s':(redraw['event_times_s'] or [None])[0],'period_s':redraw['period_s']})
