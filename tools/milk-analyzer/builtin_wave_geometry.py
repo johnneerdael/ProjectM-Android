@@ -81,8 +81,8 @@ def vertices(mode,*,left,right=None,wave_x=.5,wave_y=.5,mystery=0.,scale=1.,smoo
         i=np.arange(WAVEFORM_SAMPLES)
         lines=[np.stack([R[i]*aspect_y+wx,L[i+32]*aspect_x+wy],-1)]
     elif mode==4:
-        n=WAVEFORM_SAMPLES
-        if n>width/3:n//=3
+        # MilkDrop 2.25c caps line waves at width/3 raw samples (engine line-sample patch; two-point floor).
+        n=min(WAVEFORM_SAMPLES,max(2,int(width)//3))
         off=(WAVEFORM_SAMPLES-n)//2
         w1=.45+.5*(mystery*.5+.5);w2=1-w1
         pts=np.zeros((n,2))
@@ -96,8 +96,7 @@ def vertices(mode,*,left,right=None,wave_x=.5,wave_y=.5,mystery=0.,scale=1.,smoo
         x0=R[i]*L[i+32]+L[i]*R[i+32];y0=R[i]*R[i]-L[i+32]*L[i+32]
         lines=[np.stack([(x0*c-y0*s)*aspect_y+wx,(x0*s+y0*c)*aspect_x+wy],-1)]
     else:
-        n=WAVEFORM_SAMPLES//2
-        if n>width/3:n//=3
+        n=min(WAVEFORM_SAMPLES//2,max(2,int(width)//3))
         ex,ey,sx,sy,px,py=_clip_edges(1.57*mystery,wx,n)
         off=(WAVEFORM_SAMPLES-n)//2;i=np.arange(n)
         base=np.stack([ex+sx*i,ey+sy*i],-1);perp=np.array([px,py])

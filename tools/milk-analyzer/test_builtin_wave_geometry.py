@@ -9,7 +9,7 @@ def test_line_mode_with_silence_is_a_horizontal_line_at_wave_x_offset():
     assert not loop
     assert np.allclose(line[:, 1], 0., atol=1e-9)  # angle 0 line through the centre
     assert line[0, 0] < -1 and line[-1, 0] > .9  # spans the screen, clipped at +-1.1
-    assert len(line) == 2 * 80 - 1  # 240 samples, /3 below 720 px, then midpoint insertion
+    assert len(line) == 2 * 160 - 1  # 240 samples capped at 480/3 (MilkDrop 2.25c), then midpoint insertion
 
 
 def test_circle_mode_radius_and_aspect():
@@ -68,3 +68,16 @@ def test_spectrum_custom_wave_values_resample_and_scale_like_projectm():
     assert np.allclose(left, spec[::2] * .15) and np.allclose(right, left)
     left, _ = custom_spectrum_values(spec, spec, sample_count=512, scaling=1., wave_scale=1., smoothing=0., sep=256)
     assert np.allclose(left, spec[(np.arange(512) * .5).astype(int)] * .15)
+
+
+def test_line_modes_cap_their_samples_at_a_third_of_the_width():
+    # MilkDrop 2.25c (milkdropfs.cpp) and the engine's line-sample patch: line waves use
+    # min(samples, max(2, width/3)) raw samples, not samples/3 (480 px: 160 per line, not 80).
+    import numpy as np
+    from builtin_wave_geometry import vertices
+    window = np.zeros(576)
+    for mode, raw in ((6, 160), (7, 160), (4, 160)):
+        lines, _ = vertices(mode, left=window, right=window, viewport=(480, 270))
+        assert all(len(line) == 2 * raw - 1 for line in lines), (mode, [len(line) for line in lines])
+    lines, _ = vertices(6, left=window, right=window, viewport=(1920, 1080))
+    assert len(lines[0]) == 2 * 240 - 1
