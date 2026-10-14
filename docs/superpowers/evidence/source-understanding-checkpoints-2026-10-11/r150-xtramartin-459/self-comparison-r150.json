@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r150-v1",
+ "preset": "xtramartin (459).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f96cf23790a75e19027a7c163d864c2f293a026acb7c0c0ae014ab0158ee4343",
+  "prediction.json": "85c1d07ccd520705f5a7e84687a7131adca539b5a5ad11504459d5493fcef7ef",
+  "description.json": "1158a753a1274b824d2c0141b4b4fa692979c6775c0b75cf5eb7e009f1c308b7",
+  "recipe.json": "d9dfd268f73a50468465e854243fa75953023910c9ce18366d797196185733ea",
+  "llm-look-description-v1.txt": "aed44b0279f10906037d3df017a0850c6f8f823440142c5a103b561b65cfa795"
+ },
+ "capture_result_sha256": "339721d730a9ec2ee9ce4e425b01923ccca7d8b52fc2c317508bbfb70e4e24b6",
+ "review_measurements_v1": {
+  "prediction_luma": 0.337,
+  "screenshot_luma": 0.345,
+  "mean_rgb_prediction": [
+   0.235,
+   0.36,
+   0.406
+  ],
+  "mean_rgb_screenshot": [
+   0.244,
+   0.367,
+   0.428
+  ],
+  "blurred_luma_correlation": 0.194,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.225,
+    0.222
+   ],
+   "saturation": [
+    0.396,
+    0.461
+   ],
+   "blurred_luma_correlation": 0.645
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1186,
+   0.1209
+  ]
+ },
+ "agreements": [
+  "time averages and late arc",
+  "cyan/magenta radial beams, blue lead",
+  "pulsing"
+ ],
+ "misses": [
+  "early flash at frames 15-30 missed (0.14 vs 0.36)"
+ ],
+ "verdict": "time averages match (luma 0.225 vs 0.222, frame difference 0.119 vs 0.121, time-average map corr 0.65) and the late arc tracks, but frames 15-30 are too dark (0.14 vs 0.32-0.36: an early flash missed). SDK: dim, blue-led, mirrored tunnel-like picture that pulses on loud music."
+}
