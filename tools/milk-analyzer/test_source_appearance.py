@@ -772,6 +772,18 @@ def test_fractional_material_style_flags_follow_native_integer_conversion():
     assert material['texture']['role']=='untextured_vertex_gradient'
 
 
+def test_dynamic_additive_flag_exports_its_per_frame_expression():
+    # CustomShape::Draw reads additive after each instance's per-frame code: a beat-switched blend
+    # (additive = q1) must reach readers as an expression, not only as an unknown blend mode.
+    source=read('fWaveAlpha=0\nshapecode_0_enabled=1\nper_frame_1=q1=above(bass,1.5);\n'
+        'shape_0_per_frame1=additive=q1;\n')
+    material=next(e for e in appearance(source)['elements'] if e['id']=='shape_0')['material']
+    assert material['blend_mode'] is None
+    expression=material['flag_expressions']['additive']
+    from eel_memory import evaluate_np
+    assert float(evaluate_np(expression,{'bass':2.})) == 1. and float(evaluate_np(expression,{'bass':1.})) == 0.
+
+
 def test_negative_border_alpha_can_wrap_positive_but_outline_stays_disabled():
     source=read('fWaveAlpha=0\nshapecode_0_enabled=1\nshape_0_per_frame1=border_a=-.2;\n')
     material=next(e for e in appearance(source)['elements'] if e['id']=='shape_0')['material']

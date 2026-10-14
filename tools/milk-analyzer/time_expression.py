@@ -26,8 +26,9 @@ UNARY={'sin':math.sin,'cos':math.cos,'tan':math.tan,'abs':abs,'negate':lambda v:
        'asin':lambda v:math.asin(v) if -1<=v<=1 else 0.,'acos':lambda v:math.acos(v) if -1<=v<=1 else 0.}
 
 
-# projectm-eval boolean functions (COMPARE_CLOSEFACTOR 1e-5): bnot(x)=|x|<1e-5, band/bor on |x|>1e-5.
-BOOLEAN={'bnot','band','bor'}
+# projectm-eval boolean functions (COMPARE_CLOSEFACTOR 1e-5): bnot(x)=|x|<1e-5, band/bor on |x|>1e-5; the
+# operators && and || (_and/_or) use the same truth test and skip the right side when the left decides.
+BOOLEAN={'bnot','band','bor','_and','_or'}
 BINARY_FUNCTIONS={'atan2','sigmoid'}
 SUPPORTED={'constant','input','add','subtract','multiply','divide','eel_divide','min','max','pow','sqrt',
            'less','greater','less_equal','greater_equal','select','remainder','eel_equal',*UNARY,*BOOLEAN,*BINARY_FUNCTIONS}
@@ -90,8 +91,8 @@ def evaluate_inputs(expression,inputs,rng=None):
         elif op=='sigmoid':
             t=1+math.exp(min(700.,-args[0]*args[1]));result=1/t if abs(t)>1e-5 else 0.
         elif op=='bnot':result=float(abs(args[0])<1e-5)
-        elif op=='band':result=float(abs(args[0])>1e-5 and abs(args[1])>1e-5)
-        elif op=='bor':result=float(abs(args[0])>1e-5 or abs(args[1])>1e-5)
+        elif op in ('band','_and'):result=float(abs(args[0])>1e-5 and abs(args[1])>1e-5)
+        elif op in ('bor','_or'):result=float(abs(args[0])>1e-5 or abs(args[1])>1e-5)
         elif op=='min':result=min(args)
         elif op=='max':result=max(args)
         elif op=='pow':

@@ -100,8 +100,8 @@ def _apply(op, node, args, rng, batch_shape=None):
         if op == 'sigmoid':
             t = 1 + np.exp(np.minimum(700., -args[0] * args[1]));return np.where(np.abs(t) > 1e-5, 1 / t, 0.)
         if op == 'bnot':return (np.abs(args[0]) < 1e-5).astype(np.float64)
-        if op == 'band':return ((np.abs(args[0]) > 1e-5) & (np.abs(args[1]) > 1e-5)).astype(np.float64)
-        if op == 'bor':return ((np.abs(args[0]) > 1e-5) | (np.abs(args[1]) > 1e-5)).astype(np.float64)
+        if op in ('band', '_and'):return ((np.abs(args[0]) > 1e-5) & (np.abs(args[1]) > 1e-5)).astype(np.float64)
+        if op in ('bor', '_or'):return ((np.abs(args[0]) > 1e-5) | (np.abs(args[1]) > 1e-5)).astype(np.float64)
         if op == 'min':return np.minimum(args[0], args[1])
         if op == 'max':return np.maximum(args[0], args[1])
         if op == 'pow':

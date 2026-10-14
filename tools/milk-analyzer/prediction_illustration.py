@@ -964,10 +964,20 @@ def _textured_shapes(facts,held):
                        'sides':int(sides) if type(sides) in (int,float) else None,
                        'textured':texture.get('role')=='previous_main',
                        'channels':material.get('channel_expressions') or {},'blend':material.get('blend_mode'),
+                       'flags':material.get('flag_expressions') or {},
                        'rgb':(material.get('centre_vertex_rgba') or [1,1,1,None])[:3],
                        'thick_outline':bool(material.get('thick_outline')),'held':held,'instances':int(instances),
                        'frame_recurrence':facts.get(element+'/frame_recurrence')})
     return shapes
+
+
+def _shape_blend(shape,inputs,time,rng=None):
+    """The frame's blend: the static mode, else the per-frame additive value ((int) truncation, as
+    CustomShape::Draw reads it after the instance's per-frame code); None when neither is known."""
+    if shape.get('blend') is not None:return shape['blend']
+    value=_value_at({'expression':(shape.get('flags') or {}).get('additive')},'none','expression',inputs,time,rng)
+    if value is None or not math.isfinite(value):return None
+    return 'source_alpha_additive' if math.trunc(value)!=0 else 'source_alpha_over'
 
 
 def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None):
@@ -999,7 +1009,8 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
     alphas=[channel('centre','a'),channel('perimeter','a2')]
     centre_rgb=[channel('centre',c) for c in 'rgb'];edge_rgb=[channel('perimeter',c+'2') for c in 'rgb']
     border=[channel('border','border_'+c) for c in 'rgba']
-    if None in (x,y,radius,angle,zoom,tex_angle) or None in alphas or zoom==0 or radius<=0:return image,False
+    blend=_shape_blend(shape,held,time,rng)
+    if None in (x,y,radius,angle,zoom,tex_angle,blend) or None in alphas or zoom==0 or radius<=0:return image,False
     # Only the polygon's bounding box can be covered: |dx| <= radius*aspect/2, |dy| <= radius/2 (screen fractions).
     full_image=image;orig_canvas=canvas;full_alpha=canvas['alpha'] if canvas is not None else None
     x0=max(0,int(math.floor((x-radius*aspect*.5)*width))-1);x1=min(width,int(math.ceil((x+radius*aspect*.5)*width))+2)
@@ -1037,8 +1048,8 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
             stored=cv2.remap(canvas['previous_alpha'],map_x,map_y,cv2.INTER_LINEAR,borderMode=wrap_mode)
             alpha=alpha*stored[...,None]
         a=alpha[...,0]
-        canvas['alpha']=np.clip(canvas['alpha']+a*a if shape['blend']=='source_alpha_additive' else a*a+canvas['alpha']*(1-a),0,1)
-    if shape['blend']=='source_alpha_additive':image=np.clip(image+sampled*alpha,0,1)
+        canvas['alpha']=np.clip(canvas['alpha']+a*a if blend=='source_alpha_additive' else a*a+canvas['alpha']*(1-a),0,1)
+    if blend=='source_alpha_additive':image=np.clip(image+sampled*alpha,0,1)
     else:image=image*(1-alpha)+sampled*alpha
     full_image=full_image.copy();full_image[y0:y1,x0:x1]=image;image=full_image
     if canvas is not None:full_alpha[y0:y1,x0:x1]=canvas['alpha']
@@ -1570,10 +1581,86 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
             values=_texture_lookup_3d(source,coordinates,wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
         else:values=_texture_lookup(source,coordinates[:,:2],wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
         return values if values.shape[1]==4 else np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
+    program=_fold_eel_loops(program,{**{k:v for k,v in (controls or {}).items()},'time':float(time),'fps':float(fps),
+                                     'frame':float(max(0,int(round(time*fps))-1))},_TERM_CONTEXT.get('rng'))
     fitted=_fit_inputs(program,inputs,controls)
     value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32)
     value=value.reshape(height,width,-1)
     return value[...,:3]
+
+
+_EEL_LOOP_OPS={'loop_eel_result','loop_eel_slot'}
+_EEL_FOLDS={}
+
+
+def _eel_subgraph(nodes,plans,index):
+    """The graph rooted at index with every node it cannot reach (through arguments or loop plans) replaced
+    by a constant, so node indices and plan references stay valid."""
+    reached=set();pending=[index]
+    while pending:
+        current=pending.pop()
+        if current in reached:continue
+        reached.add(current);node=nodes[current]
+        pending.extend(node['args'])
+        ref=(node.get('detail') or {}).get('plan_ref')
+        if node['op'] in _EEL_LOOP_OPS and isinstance(ref,int) and 0<=ref<len(plans):
+            plan=plans[ref]
+            pending.extend(v for v in (plan.get('updates') or {}).values() if isinstance(v,int))
+            pending.extend(v for v in [plan.get('condition'),*(plan.get('effects') or [])] if isinstance(v,int))
+    zero={'op':'constant','dtype':'float','args':[],'detail':{'value':0.}}
+    return {'root':index,'nodes':[node if i in reached else zero for i,node in enumerate(nodes)],'plans':plans}
+
+
+def _eel_fold_roots(program):
+    """Topmost nodes above an inlined projectm-eval loop that the EEL evaluator can compute without pixel
+    inputs (shader inputs are '_'-prefixed): [(subgraph, input names)], cached per exported program."""
+    key=id(program)
+    if key in _EEL_FOLDS and _EEL_FOLDS[key][0] is program:return _EEL_FOLDS[key][1]
+    from eel_memory import input_names
+    nodes=program.get('nodes') or [];plans=program.get('plans') or []
+    above={}
+    def reaches(index):
+        if index not in above:
+            above[index]=False
+            node=nodes[index]
+            above[index]=node['op'] in _EEL_LOOP_OPS or any(reaches(arg) for arg in node['args'])
+        return above[index]
+    roots=[];pending=[program['root']];seen=set()
+    while pending:
+        index=pending.pop()
+        if index in seen or not reaches(index):continue
+        seen.add(index)
+        sub=_eel_subgraph(nodes,plans,index);names=input_names(sub,stochastic=True)
+        if names is not None and not any(name.startswith('_') or name in ('rand_frame','rand_preset') for name in names):
+            roots.append((sub,sorted(names)))
+        else:pending.extend(nodes[index]['args'])
+    _EEL_FOLDS[key]=(program,roots)
+    return roots
+
+
+def _fold_eel_loops(program,values,rng=None):
+    """The program with inlined projectm-eval loops replaced by this frame's values.
+
+    The grid evaluator runs shader loops only. Per-frame loop()/while() code reaches shader programs through
+    inlined Q graphs, which read per-frame state and bands and are the same at every pixel: they are
+    evaluated once (the EEL evaluator; never-written variables read 0) and enter as constants."""
+    if not any(node['op'] in _EEL_LOOP_OPS for node in program.get('nodes') or []):return program
+    roots=_eel_fold_roots(program)
+    if not roots:return program
+    from eel_memory import evaluate_many_np
+    inputs={}
+    for _,names in roots:
+        for name in names:
+            value=values.get(name,values.get('state:per_frame_:'+name))
+            inputs[name]=float(value) if type(value) in (int,float) or isinstance(value,np.floating) else _absent(name)
+    try:results=evaluate_many_np([sub for sub,_ in roots],inputs,rng or np.random.default_rng(0))
+    except (ValueError,TypeError,KeyError):return program
+    nodes=list(program['nodes'])
+    for (sub,_),value in zip(roots,results):
+        if isinstance(value,Memory) or np.ndim(value):continue
+        index=sub['root']
+        nodes[index]={'op':'constant','dtype':nodes[index].get('dtype','float'),'args':[],'detail':{'value':float(value)}}
+    return {**program,'nodes':nodes}
 
 
 def _fit_field_inputs(field,inputs,controls):
@@ -1863,7 +1950,7 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
     if type(header_wrap) in (int,float):held.setdefault('wrap',float(header_wrap))
     textured=_textured_shapes(facts,held)
     wrap=True
-    if textured:limitations.append('textured shapes redraw the previous frame through their polygon (GL texture orientation; audio-driven alpha/zoom held at band midpoints, so beat toggles are not shown)')
+    if textured:limitations.append('textured shapes redraw the previous frame through their polygon (GL texture orientation; controls, colours and a per-frame blend evaluated from the start-of-frame state and bands)')
     if sprites or _dynamic_border_operators(facts,8,8,{}):limitations.append('borders and darken-centre blended into the feedback canvas every frame (time-varying border colours from the per-frame program)')
     if clouds:limitations.append('closed-form custom-wave point clouds drawn per frame (declared per-frame audio when given, else midpoints; wave per-frame state stepped from its exported recurrence; long-side square projection)')
     for path,(colour,note) in colours.items():limitations.append(path+': '+note)
@@ -1994,21 +2081,24 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                     image,canvas['alpha']=_blend_wave_layer(image,canvas['alpha'],layer,mask,alpha,additive)
             # Textured shapes sample the previous frame (the warp's input), not the warped canvas.
             rng=_FrameSiteRandom(np.random.default_rng(7919+int(round(frame_time*fps))+_seed_shift()))
+            # Shape controls inline main per-frame graphs over start-of-frame state, as shader programs and
+            # custom-wave clouds do (a beat test inlined from q1 must see last frame's lastbeat).
+            shape_inputs=dict(stage_controls)
             for shape_index,shape in enumerate(textured):
+                shape['held']=shape_inputs
                 recurrence=shape.get('frame_recurrence')
                 for instance in range(shape.get('instances',1)):
-                    held['instance']=float(instance)
+                    shape_inputs['instance']=float(instance)
                     if recurrence:
                         # Shape per-frame code runs once per instance; its variables persist across instances
                         # and frames. Controls read the start values; the update gives the next run's start.
                         state=shape_states.get(shape_index)
-                        if state is None:state=shape_states[shape_index]={n:_eval_filled(e['initial'],{**held,'time':frame_time},rng) for n,e in recurrence['state'].items()}
+                        if state is None:state=shape_states[shape_index]={n:_eval_filled(e['initial'],{**shape_inputs,'time':frame_time},rng) for n,e in recurrence['state'].items()}
                         for name,entry in recurrence['state'].items():
-                            for alias in entry.get('inputs') or [name]:held[alias]=state[name]
-                        values={**held,'time':frame_time}
+                            for alias in entry.get('inputs') or [name]:shape_inputs[alias]=state[name]
+                        values={**shape_inputs,'time':frame_time}
                         shape_states[shape_index]={n:_eval_filled(e['update'],values,rng) for n,e in recurrence['state'].items()}
                     image,_=_draw_textured_shape(image,shape,frame_time,wrap,previous,canvas,rng)
-            held.pop('instance',None)
             for index,(_,record) in enumerate(clouds):
                 inputs=dict(bands or {})
                 if record.get('frame_inputs'):

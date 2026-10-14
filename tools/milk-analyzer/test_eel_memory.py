@@ -149,6 +149,14 @@ def test_bitwise_operators_truncate_to_integers_like_projectm_eval():
     assert M.input_names(serialise(model.environment['a'])) == set()
 
 
+def test_boolean_and_or_use_the_eel_truth_tolerance():
+    # projectm-eval && and || (_and/_or): |x| > 1e-5 is true; the result is 1 or 0.
+    tree = seq(assign(var('a'), call('_and', var('x'), var('y'))), assign(var('o'), call('_or', var('x'), var('y'))))
+    model = lowered(tree)
+    assert value(model, 'a', {'x': 2., 'y': -3.}) == 1. and value(model, 'a', {'x': 2., 'y': 1e-6}) == 0.
+    assert value(model, 'o', {'x': 1e-6, 'y': 0.}) == 0. and value(model, 'o', {'x': 0., 'y': .5}) == 1.
+
+
 def test_evaluation_stops_at_its_deadline():
     import time
     import pytest

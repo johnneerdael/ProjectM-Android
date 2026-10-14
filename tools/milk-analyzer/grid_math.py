@@ -422,8 +422,10 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
             elif op=='negate':raw=-args[0]
             elif op=='sqr':raw=args[0]*args[0]
             elif op=='int':raw=np.floor(args[0])  # time_expression's projectm-eval int
-            elif op in {'band','bor'}:
-                a,b=align(args);combine=np.logical_and if op=='band' else np.logical_or
+            elif op in {'band','bor','_and','_or'}:
+                # Inlined projectm-eval graphs: && and || share band/bor's |x| > 1e-5 truth test (their skipped
+                # right side has no effect on a pure graph's value).
+                a,b=align(args);combine=np.logical_and if op in ('band','_and') else np.logical_or
                 raw=np.asarray(combine(np.abs(a)>1e-5,np.abs(b)>1e-5),dtype=np.float32)
             elif op in {'all','any'}:
                 function=np.all if op=='all' else np.any

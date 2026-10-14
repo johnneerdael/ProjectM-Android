@@ -49,6 +49,18 @@ class GridMathTest(unittest.TestCase):
             actual=module.evaluate_grid(field,batch_shape=(3,),inputs={'_uv':uv})
             np.testing.assert_allclose(actual,np.repeat(np.array(expected)[:,None],3,axis=1))
 
+    def test_inlined_eel_boolean_operators_follow_the_eel_truth_tolerance(self):
+        module=importlib.import_module('grid_math')
+        from prediction_illustration import _field_from_expression
+        graph={'root':0,'nodes':[{'op':'_and','dtype':'float','args':[1,2],'detail':{}},
+                                 {'op':'input','dtype':'float','args':[],'detail':{'name':'a'}},
+                                 {'op':'input','dtype':'float','args':[],'detail':{'name':'b'}}]}
+        a=np.array([2,2,1e-6],np.float32);b=np.array([-3,1e-6,5],np.float32)
+        np.testing.assert_array_equal(module.evaluate_grid(_field_from_expression(graph),batch_shape=(3,),inputs={'a':a,'b':b}),[1,0,0])
+        graph['nodes'][0]['op']='_or'
+        np.testing.assert_array_equal(module.evaluate_grid(_field_from_expression(graph),batch_shape=(3,),inputs={'a':a,'b':b}),[1,1,1])
+        np.testing.assert_array_equal(module.evaluate_grid(_field_from_expression(graph),batch_shape=(2,),inputs={'a':np.zeros(2,np.float32),'b':np.array([0,.5],np.float32)}),[0,1])
+
     def test_native_vector_operations_match_known_value_and_scalar_execution(self):
         module=importlib.import_module('grid_math')
         from field_math import evaluate

@@ -11,6 +11,12 @@ def _flag(field):
     return math.trunc(number)!=0
 
 
+def _flag_expression(field):
+    from source_appearance import _expression
+    try:return _expression(field)
+    except ValueError:return None  # export budget exceeded: the flag stays an unknown
+
+
 def shape_material(controls,requested_image):
     from source_appearance import _phase_literal,_expression
     groups={'centre':['r','g','b','a'],'perimeter':['r2','g2','b2','a2'],
@@ -42,6 +48,8 @@ def shape_material(controls,requested_image):
         'border_enable_threshold':float(np.float32(.0001)),
         'thick_outline':_flag(controls['thick']) if 'thick' in controls else None,
         'channel_expressions':programs,
+        # CustomShape::Draw reads these after each instance's per-frame code (a beat can switch the blend).
+        'flag_expressions':{name:_flag_expression(controls[key]) for name,key in (('additive','additive'),('textured','textured')) if key in controls},
         'colour_conversion':'qualified native float32 euclidean modulo256/255 before interpolation/storage',
         'blend_mode':None if additive is None else 'source_alpha_additive' if additive else 'source_alpha_over',
         'source_blend_factor':'source_alpha',

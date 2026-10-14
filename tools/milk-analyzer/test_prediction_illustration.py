@@ -684,3 +684,34 @@ def test_noise_volume_smoothing_touches_only_the_first_two_slices():
     assert not np.array_equal(volume[:2], raw[:2])
     values = set(np.unique(volume[2:]).tolist())
     assert values <= set(range(0, 68)) | set(range(108, 256)) and 0 in values and 255 in values
+
+
+def test_shape_blend_follows_the_frame_additive_value():
+    from prediction_illustration import _shape_blend
+    expression={'root':0,'nodes':[{'op':'input','dtype':'float','args':[],'detail':{'name':'q1'}}]}
+    shape={'blend':None,'flags':{'additive':expression}}
+    assert _shape_blend(shape,{'q1':1.},0.) == 'source_alpha_additive'
+    assert _shape_blend(shape,{'q1':.9},0.) == 'source_alpha_over'  # (int) truncation
+    assert _shape_blend({'blend':'source_alpha_over','flags':{}},{},0.) == 'source_alpha_over'
+    assert _shape_blend({'blend':None,'flags':{}},{},0.) is None
+
+
+def test_inlined_eel_loops_fold_to_their_frame_value_before_grid_evaluation():
+    # A Q graph with a projectm-eval loop reaches a shader program; the grid evaluator runs shader loops
+    # only, so the loop (no pixel inputs) is evaluated once for the frame and enters as a constant.
+    from test_eel_memory import seq, assign, var, num, call, lowered
+    from source_stage_program import serialise
+    from prediction_illustration import _fold_eel_loops
+    tree = seq(assign(var('s'), num(0)), call('loop', num(3), assign(var('s'), call('_add', var('s'), var('b')))))
+    loop = serialise(lowered(tree).environment['s'])
+    assert any(n['op'].startswith('loop_eel') for n in loop['nodes'])
+    nodes = list(loop['nodes']); base = len(nodes)
+    nodes.append({'op': 'input', 'dtype': 'float', 'args': [], 'detail': {'name': '_uv'}})
+    nodes.append({'op': 'multiply', 'dtype': 'float', 'args': [loop['root'], base], 'detail': {}})
+    program = {'root': base + 1, 'nodes': nodes, 'plans': loop.get('plans', [])}
+    folded = _fold_eel_loops(program, {'b': 2.})
+    root = folded['nodes'][folded['root']]
+    constant = folded['nodes'][root['args'][0]]
+    assert constant['op'] == 'constant' and constant['detail']['value'] == 6.
+    assert folded['nodes'][root['args'][1]]['detail']['name'] == '_uv'
+    assert program['nodes'][loop['root']]['op'] != 'constant'  # the exported program is not edited
