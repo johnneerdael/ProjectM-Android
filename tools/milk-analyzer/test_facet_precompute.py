@@ -79,3 +79,12 @@ def test_peak_global_brightness_change_uses_the_ruler_grey_from_frame_60():
     frames[30] = 255                      # before frame 60: ignored
     frames[65:] = 20                      # a step of 20/255 at frame 65
     assert abs(F.peak_brightness_change(frames) - 20 / 255) < 1e-3
+
+
+def test_random_texture_dependence_is_detected_from_the_exported_programs():
+    # A shader that samples randNN shows a texture drawn at every load: flash statistics depend on the draw.
+    import facet_precompute as F
+    node = lambda name: {'op': 'sample', 'detail': {'canonical_texture': name}}
+    assert F.random_texture_dependent({'facts': {'g': [{'path': '/p', 'value': {'nodes': [node('rand00')]}}]}})
+    assert F.random_texture_dependent({'facts': {'g': [{'path': '/p', 'value': {'nodes': [node('rand03_smalltiled')]}}]}})
+    assert not F.random_texture_dependent({'facts': {'g': [{'path': '/p', 'value': {'nodes': [node('noise_lq'), node('main')]}}]}})

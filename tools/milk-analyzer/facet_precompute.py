@@ -6,7 +6,7 @@ ruler's statistics (frames 60-299). Presets whose prediction depends on per-load
 comparing two seeds on a short low-resolution run) are averaged over several seeds, as the engine draws
 anew at every load. Output: one JSON per preset plus the measured statistics; nothing runs on a device.
 """
-import argparse, base64, gzip, importlib.util, json, os, sys, tempfile, time
+import argparse, base64, gzip, importlib.util, json, os, re, sys, tempfile, time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -67,7 +67,7 @@ def preset_statistics(summary, audio, measure):
     # Safety statistic: the worst seed, not the mean (a flash under any per-load draw counts).
     mean['peak_brightness_change'] = max((r.get('peak_brightness_change') or 0.) for r in runs) if runs else None
     return {'policy': POLICY, 'status': 'predicted', 'depends_on_seed': stochastic, 'seeds': list(seeds), 'statistics': mean,
-            'random_flash': random_flash(summary, audio), 'runs': runs, 'limitations': limits, 'seconds': round(time.perf_counter() - started, 2),
+            'random_flash': random_flash(summary, audio), 'random_texture_dependent': random_texture_dependent(summary), 'runs': runs, 'limitations': limits, 'seconds': round(time.perf_counter() - started, 2),
             'uses_rendered_images': False, 'uses_engine_execution': False}
 
 
@@ -120,6 +120,16 @@ def _either(*probabilities):
     miss = 1.
     for p in probabilities:miss *= 1 - p
     return 1 - miss
+
+
+_RANDOM_TEXTURE = re.compile(r'"canonical_texture": "rand\d\d')
+
+
+def random_texture_dependent(summary):
+    """True when an exported shader program samples a randNN texture: the engine draws that image from the
+    texture library at every load, so displayed brightness and flashing depend on the draw (a seeded
+    stand-in shows one candidate)."""
+    return bool(_RANDOM_TEXTURE.search(json.dumps(summary)))
 
 
 def random_flash(summary, audio, frames=150):
