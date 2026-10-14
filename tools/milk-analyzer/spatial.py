@@ -266,12 +266,15 @@ def sample2d(texture,uv,*,wrap:bool,linear:bool,origin:str):
     if not linear:
         index=np.floor(q).astype(np.int64)
         return fetch(index[...,0],index[...,1])
-    q-=np.float32(.5);index=np.floor(q).astype(np.int64)
-    fraction=(q-index).astype(np.float32)
-    x,y=index[...,0],index[...,1]
-    fx,fy=fraction[...,0],fraction[...,1]
-    if field.ndim==3:fx=fx[...,None];fy=fy[...,None]
-    return (fetch(x,y)*(1-fx)+fetch(x+1,y)*fx)*(1-fy)+(fetch(x,y+1)*(1-fx)+fetch(x+1,y+1)*fx)*fy
+    q-=np.float32(.5)
+    # Same bilinear rule in scipy's C map_coordinates (wrap: grid-wrap; clamp: nearest edge).
+    from scipy import ndimage
+    source=field[::-1] if origin=='bottom' else field
+    planes=source.reshape(height,width,-1);points=q.reshape(-1,2)
+    mode='grid-wrap' if wrap else 'nearest'
+    out=np.stack([ndimage.map_coordinates(planes[...,c],[points[:,1],points[:,0]],order=1,mode=mode,prefilter=False)
+                  for c in range(planes.shape[2])],axis=-1)
+    return out.reshape(q.shape[:-1]+field.shape[2:]).astype(np.float32)
 
 
 def sample3d(volume,uvw,*,wrap:bool,linear:bool):

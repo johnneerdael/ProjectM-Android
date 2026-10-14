@@ -1488,7 +1488,7 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
         else:values=_texture_lookup(source,coordinates[:,:2],wrap=_sampler_wraps(policy,controls),linear=policy.get('linear') is not False)
         return values if values.shape[1]==4 else np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     fitted=_fit_inputs(program,inputs,controls)
-    value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32)
+    value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32)
     value=value.reshape(height,width,-1)
     return value[...,:3]
 
@@ -1556,12 +1556,12 @@ def _evaluate_injection(lanes,image,map_x,map_y,time,frame_index,coordinates=Non
         values=_texture_lookup_3d(source,coordinates,wrap=wrap,linear=linear) if source.ndim==4 else _texture_lookup(source,coordinates[:,:2],wrap=wrap,linear=linear)
         return values if values.shape[1]==4 else np.concatenate([values,np.ones((len(values),1),np.float32)],axis=1)
     if coordinates is not None:
-        value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width,-1)
+        value=np.asarray(evaluate_grid(coordinates,batch_shape=(height,width),inputs=_fit_field_inputs(coordinates,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32).reshape(height,width,-1)
         return value[...,0]*width-.5,value[...,1]*height-.5
     out=np.zeros((height,width,3),np.float32)
     for index,lane in enumerate(lanes or []):
         if lane is None:continue
-        value=evaluate_grid(lane,batch_shape=(height,width),inputs=_fit_field_inputs(lane,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION)
+        value=evaluate_grid(lane,batch_shape=(height,width),inputs=_fit_field_inputs(lane,inputs,controls),sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1')
         out[...,index]=np.asarray(value,np.float32).reshape(height,width)
     return out
 
@@ -1602,13 +1602,13 @@ def _affine_composite(image,facts,time,fps,blur_image=None):
         for site in stage['sample_contributions']:
             source=texture(site.get('canonical_texture','main'))
             expression=site['coordinate_expression']
-            coordinates=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs),numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width,-1)
+            coordinates=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs),numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32).reshape(height,width,-1)
             u=np.mod(coordinates[...,0]*width-.5,width).astype(np.float32);v=np.mod(coordinates[...,1]*height-.5,height).astype(np.float32)
             sampled=cv2.remap(source,u,v,cv2.INTER_LINEAR,borderMode=cv2.BORDER_WRAP)
             rgba=np.concatenate([sampled,np.ones((height,width,1),np.float32)],axis=-1)
             out+=np.einsum('ij,hwj->hwi',np.asarray(site['matrix_rgb_rgba'],np.float32),rgba)
         for lane,expression in enumerate(stage.get('offset_expressions') or []):
-            if expression:out[...,lane]+=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs),numeric_policy=GLES_IEEE_ILLUSTRATION),np.float32).reshape(height,width)
+            if expression:out[...,lane]+=np.asarray(evaluate_grid(_field_from_expression(expression),batch_shape=(height,width),inputs=_fit_inputs(expression,inputs),numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32).reshape(height,width)
         return np.clip(out,0,1)
     except Exception:  # noqa: BLE001 - fall back to the legacy display model
         return None
