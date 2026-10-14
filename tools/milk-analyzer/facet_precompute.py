@@ -55,8 +55,68 @@ def preset_statistics(summary, audio, measure):
         values = [r[key] for r in runs if isinstance(r.get(key), (int, float))]
         mean[key] = sum(values) / len(values) if values else None
     return {'policy': POLICY, 'status': 'predicted', 'depends_on_seed': stochastic, 'seeds': list(seeds), 'statistics': mean,
-            'runs': runs, 'limitations': limits, 'seconds': round(time.perf_counter() - started, 2),
+            'random_flash': random_flash(summary, audio), 'runs': runs, 'limitations': limits, 'seconds': round(time.perf_counter() - started, 2),
             'uses_rendered_images': False, 'uses_engine_execution': False}
+
+
+# rand_frame is a fresh uniform draw for every shader every frame (MilkdropShader::LoadVariables). A term that is
+# singular in the draw (e.g. 1/length(sin(uv*rand_frame.xy))) can flood the screen on rare draws, which a few
+# seeded runs never show. The flash probe integrates the draw's distribution on a log grid instead.
+FLASH_JUMP = .08  # the ruler's global brightness jump (mean grey change between frames)
+PROBE_SIZE = (160, 90)
+_GRID = ((.001, .003), (.01, .027), (.1, .27), (.5, .4), (.9, .27), (.99, .027), (.999, .003))
+_COARSE = ((.005, .01), (.5, .98), (.995, .01))
+
+
+def _grey(image):
+    import numpy as np
+    image = np.clip(np.nan_to_num(np.asarray(image, np.float32)), 0, 1)
+    return float((image[..., :3] @ np.array([.299, .587, .114], np.float32)).mean())
+
+
+def random_flash_risk(evaluate, draw, base_jump):
+    """Probability that this frame's rand_frame draw makes a global brightness jump (> FLASH_JUMP).
+
+    evaluate(vector) gives the frame's display under that draw; draw is the frame's own draw and base_jump the
+    displayed grey change into this frame with it. Components whose extremes change the display are active; the
+    draw's uniform distribution over them is integrated cell by cell (log grid near 0 and 1, where singular terms
+    live; a coarse grid for more than two active components); the others keep their own draw."""
+    import itertools
+    import numpy as np
+    shown = np.asarray(evaluate(draw), np.float32); reference = _grey(shown)
+    active = []
+    for component in range(4):
+        # Any change counts: a component can matter only jointly with another (1/|rand.xy| needs both small).
+        for value in (.001, .999):
+            vector = list(draw); vector[component] = value
+            if np.abs(np.nan_to_num(np.asarray(evaluate(vector), np.float32) - shown)).max() > 1e-6:active.append(component);break
+    grid = _GRID if len(active) <= 2 else _COARSE
+    probability, worst, worst_vector = 0., abs(base_jump), list(draw)
+    for cell in itertools.product(grid, repeat=len(active)):
+        vector = list(draw); weight = 1.
+        for component, (value, width) in zip(active, cell):vector[component] = value; weight *= width
+        jump = _grey(evaluate(vector)) - reference + base_jump
+        if abs(jump) > FLASH_JUMP:probability += weight
+        if abs(jump) > worst:worst, worst_vector = abs(jump), vector
+    return {'active_components': active, 'max_jump': round(worst, 4), 'flash_probability_per_frame': round(probability, 6),
+            'worst_vector': [round(v, 4) for v in worst_vector]}
+
+
+def random_flash(summary, audio, frames=150):
+    """Probe the loudest declared frame in 60..frames-1 of a preset whose shaders read rand_frame.
+
+    The warp and composite share the probed draw (the engine draws for each shader separately): the joint
+    extreme is the conservative case."""
+    if 'rand_frame' not in json.dumps(summary):return {'reads_rand_frame': False}
+    from prediction_illustration import illustrate_field
+    loudness = [sum(row.get(b, 0.) for b in ('bass', 'mid', 'treb')) for row in audio['frames'][:frames]]
+    # Native frame k renders with declared row k (time (k+1)/fps).
+    k = max(range(60, len(loudness)), key=loudness.__getitem__)
+    greys, result = [], {}
+    probe = {'frame': k, 'probe': lambda evaluate, draw: result.update(random_flash_risk(evaluate, draw, greys[-1] - greys[-2] if len(greys) > 1 else 0.))}
+    illustrate_field(summary, time=(k + 1) / FPS, fps=FPS, history_steps=k + 1, audio=audio, viewport=list(PROBE_SIZE), rand_probe=probe,
+                     frame_callback=lambda t, im: greys.append(_grey(im)))
+    return {'reads_rand_frame': True, 'probe_frame': k, **result}
 
 
 _STATE = {}

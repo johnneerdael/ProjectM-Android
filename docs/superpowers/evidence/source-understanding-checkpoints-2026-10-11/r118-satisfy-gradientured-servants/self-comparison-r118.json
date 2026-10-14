@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r118-v1",
+ "preset": "suksma - satisfy gradientured servants.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "661bbe4e6df53d2589d2291f64016182b926a46dd64a6efb8643e729034f08fb",
+  "prediction.json": "799fef4200b12c7ff93eed01a945391b59d2a23c5c3d6288f214e6fd59ba9e2f",
+  "description.json": "eafa43c6f7c120f2b494b6263b9bb1eb25f1020c14779f79e7eed99886f9193c",
+  "recipe.json": "cbfe03693e8641c621943e3d174a91c58dde72aca6e6cf2d4982b823ae2efde6",
+  "llm-look-description-v1.txt": "82508405fe3e0f46ab34956bcb16140b8836d0a092b4f12b07c51609471d6e51"
+ },
+ "capture_result_sha256": "9e6a403b7835057b2c5f3df0bec08628e8f79a12b42c62b0484a111b282de010",
+ "review_measurements_v1": {
+  "prediction_luma": 0.355,
+  "screenshot_luma": 0.333,
+  "mean_rgb_prediction": [
+   0.075,
+   0.412,
+   0.62
+  ],
+  "mean_rgb_screenshot": [
+   0.044,
+   0.391,
+   0.612
+  ],
+  "blurred_luma_correlation": 0.855,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.367,
+    0.4
+   ],
+   "saturation": [
+    0.907,
+    0.876
+   ],
+   "blurred_luma_correlation": 0.974
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0368,
+   0.0371
+  ]
+ },
+ "agreements": [
+  "time-averaged picture (frames 60-149) correlates 0.974 with the capture; colour 0.078/0.427/0.630 vs 0.093/0.465/0.661",
+  "frame difference 0.0368 vs 0.0371",
+  "blue-cyan cell field, centre burst and dot figure match",
+  "the native engine with the same audio and four random seeds shows no flash at frame 115 (luma 0.22 to 0.27-0.31), like the prediction (0.32 to 0.42)"
+ ],
+ "misses": [
+  "the emulator capture flashes at frame 115 (red 0.02 to 0.49, luma 0.27 to 0.75): forcing rand_frame.xy to (0.05,0.01) or (0.03,0.02) at that frame reproduces the white central blob (luma 0.59-0.65); the warp's mus=.051/length(.4*sin(uv1*18*rand_frame.xy)) is singular in the draw, and the frame-114 treble hit (4.72) widens it",
+  "the SDK description said 'not a hard strobe': the recipe carries no random-draw flash risk",
+  "new facet_precompute.random_flash probe (loudest frame, log grid over active rand_frame components) estimates flash probability 0.009 per frame at frame 114 (worst jump 0.69), 7.4 s"
+ ],
+ "verdict": "understood; the one engine flash is a rare per-frame random draw, now probed from the source"
+}

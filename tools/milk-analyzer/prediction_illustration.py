@@ -1456,8 +1456,14 @@ def _declared_uniforms(width,height,time,fps,bands):
     return values
 
 
+_RAND_OVERRIDE=[None]
+
+
 def _frame_rand(time,fps):
-    """Seeded per-frame stand-in for the engine's rand_frame (a new uniform vector every frame)."""
+    """Seeded per-frame stand-in for the engine's rand_frame (a new uniform vector every frame).
+
+    _RAND_OVERRIDE[0], when set, is the draw (a rand_probe evaluates the frame under chosen draws)."""
+    if _RAND_OVERRIDE[0] is not None:return np.asarray(_RAND_OVERRIDE[0],np.float32)
     return np.random.default_rng(7340033+int(round(time*fps))+_seed_shift()).random(4).astype(np.float32)
 
 
@@ -1719,13 +1725,18 @@ def _stored(values):
     return np.clip(np.nan_to_num(np.asarray(values,np.float32),nan=0.,posinf=1.,neginf=0.),0,1)
 
 
-def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None,seed=None):
+def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None,seed=None,rand_probe=None):
+    """rand_probe={'frame':k,'probe':fn}: at native frame k, fn(evaluate,draw) is called after the frame is made;
+    evaluate(vector) returns that frame's display with rand_frame=vector in the warp and composite (warp
+    re-evaluated from the frame's input canvas; waves/shapes of frame k left out) and draw is the frame's own
+    draw. Make k the last frame: later frames would follow the probe's random-number use."""
     previous_seed=_SEED[0];_SEED[0]=seed
-    try:return _illustrate_field(summary,time=time,fps=fps,history_steps=history_steps,audio=audio,viewport=viewport,frame_callback=frame_callback)
-    finally:_SEED[0]=previous_seed
+    try:return _illustrate_field(summary,time=time,fps=fps,history_steps=history_steps,audio=audio,viewport=viewport,frame_callback=frame_callback,
+                                 rand_probe=rand_probe)
+    finally:_SEED[0]=previous_seed;_RAND_OVERRIDE[0]=None
 
 
-def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None):
+def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None,rand_probe=None):
     """Fact-driven feedback illustration: backward map, RGBA8 decay, waves, vectors, composite.
 
     viewport overrides the declared size (all geometry is resolution-independent); frame_callback,
@@ -1857,6 +1868,7 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                     except Exception as error:  # noqa: BLE001 - fall back to the mesh map
                         limitations.append('shader sample coordinates not evaluated: '+str(error)[:120]);main_coordinates=None
                 program_done=False
+                probe_input=image
                 if warp_program is not None:
                     try:
                         uv=np.stack([(map_x+.5)/width,(map_y+.5)/height,*np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)],axis=-1)
@@ -1999,6 +2011,19 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
             if frame_callback is not None:frame_callback(frame_time,_display(image,facts,frame_time,fps,[],previous))
+            if rand_probe is not None and frame_number==rand_probe['frame']:
+                final=image
+                def evaluate(vector,final=final,frame_time=frame_time,previous=previous,older=older,stage_controls=stage_controls):
+                    _RAND_OVERRIDE[0]=[float(v) for v in vector]
+                    try:
+                        canvas_image=final
+                        if warp_program is not None and sample is not None:
+                            warped=_evaluate_stage(warp_program,probe_input,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},
+                                                   diffuse,rand=_frame_rand(frame_time,fps),controls=stage_controls,blur_image=older if warp_samples_blur else previous)
+                            canvas_image=np.round(np.clip(np.round(_stored(warped)*255)/255,0,1)*255)/255
+                        return _display(canvas_image,facts,frame_time,fps,[],previous)
+                    finally:_RAND_OVERRIDE[0]=None
+                rand_probe['probe'](evaluate,[float(v) for v in _frame_rand(frame_time,fps)])
         if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
     except ValueError as error:
         limitations.append('field illustration stopped: '+str(error))
