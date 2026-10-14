@@ -416,7 +416,11 @@ def evaluate_grid(field:Field,*,batch_shape:tuple[int,...],inputs=None,sample=No
                 # per-frame graph) gets one draw per evaluation; this is a seeded Monte Carlo stand-in,
                 # not the engine's random stream.
                 limit=np.maximum(1.,np.floor(np.asarray(args[0],dtype=np.float64)))
-                if limit.size and np.all(limit==limit.flat[0]):raw=np.full(limit.shape,_GRID_RAND.random()*limit.flat[0],dtype=np.float32)
+                site=(node.detail.get('equation_phase'),node.detail.get('site_index'))
+                if site[1] is not None and hasattr(_GRID_RAND,'site_value'):
+                    # An inlined main per-frame call site: that frame's single draw (prediction_illustration).
+                    raw=(_GRID_RAND.site_value(site)*limit).astype(np.float32)
+                elif limit.size and np.all(limit==limit.flat[0]):raw=np.full(limit.shape,_GRID_RAND.random()*limit.flat[0],dtype=np.float32)
                 else:raw=(_GRID_RAND.random(limit.shape)*limit).astype(np.float32)
             elif op=='bnot':raw=np.asarray(np.abs(args[0])<1e-5,dtype=np.float32)
             elif op=='negate':raw=-args[0]

@@ -211,7 +211,9 @@ def run(plan, *, batch_shape, inputs, sample, rng):
                 a, b = _align(args);raw = np.asarray(np.abs(a - b) < 1e-5, dtype=np.float32)
             elif op == 'rand':
                 limit = np.maximum(1., np.floor(np.asarray(args[0], dtype=np.float64)))
-                if limit.size and np.all(limit == limit.flat[0]):raw = np.full(limit.shape, rng.random() * limit.flat[0], dtype=np.float32)
+                site = (detail.get('equation_phase'), detail.get('site_index'))
+                if site[1] is not None and hasattr(rng, 'site_value'):raw = (rng.site_value(site) * limit).astype(np.float32)
+                elif limit.size and np.all(limit == limit.flat[0]):raw = np.full(limit.shape, rng.random() * limit.flat[0], dtype=np.float32)
                 else:raw = (rng.random(limit.shape) * limit).astype(np.float32)
             elif op == 'bnot':raw = np.asarray(np.abs(args[0]) < 1e-5, dtype=np.float32)
             elif op == 'negate':raw = -args[0]

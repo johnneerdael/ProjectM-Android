@@ -1712,9 +1712,25 @@ def _hue_shader(width,height,time,offsets=(0.,0.,0.,0.),cell_centres=True):
 _COMPILED_STAGES=[True]
 
 
-def _grid_rand():
-    from grid_math import _GRID_RAND
-    return _GRID_RAND
+class _StageRandom:
+    """rand() for one stage evaluation. A shader that inlines a main per-frame call site reads the draw the
+    frame stepper took for that site this frame; without one, each site draws once per evaluation from a
+    stream fixed by stage, frame and seed (so repeated evaluations agree)."""
+    def __init__(self,sites,generator):
+        self.sites=dict(getattr(sites,'cache',None) or {});self.generator=generator;self.drawn={}
+
+    def site_value(self,key):
+        if key in self.sites:return self.sites[key]
+        if key not in self.drawn:self.drawn[key]=float(self.generator.random())
+        return self.drawn[key]
+
+    def random(self,shape=None):
+        return self.generator.random(shape) if shape is not None else self.generator.random()
+
+
+def _stage_random(time,fps,stage):
+    frame=int(round(time*fps))
+    return _StageRandom(_TERM_CONTEXT.get('site_rng'),np.random.default_rng(_STAGE_RAND_BASE.get(stage,0)+7+frame+_seed_shift()))
 
 
 def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,controls=None,blur_image=None,stage='warp'):
@@ -1751,6 +1767,18 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
                                      'frame':float(max(0,int(round(time*fps))-1))},_TERM_CONTEXT.get('rng'))
     fitted=_fit_inputs(program,inputs,controls)
     value=None
+    import grid_math
+    stage_rng=_stage_random(time,fps,stage);previous_rng=grid_math._GRID_RAND;grid_math._GRID_RAND=stage_rng
+    try:value=_evaluate_stage_program(program,fitted,sample,height,width,stage_rng)
+    finally:grid_math._GRID_RAND=previous_rng
+    value=value.reshape(height,width,-1)
+    return value[...,:3]
+
+
+def _evaluate_stage_program(program,fitted,sample,height,width,stage_rng):
+    from grid_math import evaluate_grid
+    from field_math import GLES_IEEE_ILLUSTRATION
+    value=None
     if _COMPILED_STAGES[0]:
         # The same arithmetic as one ordered numpy plan per program (stage_compiled); the strict
         # interpreter remains the reference and the fallback for anything the plan does not cover.
@@ -1758,12 +1786,11 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
         from field_math import UnresolvedMath
         plan=compile_program(program)
         if plan is not None:
-            try:value=np.asarray(run(plan,batch_shape=(height,width),inputs=fitted,sample=sample,rng=_grid_rand()),np.float32)
+            try:value=np.asarray(run(plan,batch_shape=(height,width),inputs=fitted,sample=sample,rng=stage_rng),np.float32)
             except UnresolvedMath:value=None
     if value is None:
         value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32)
-    value=value.reshape(height,width,-1)
-    return value[...,:3]
+    return value
 
 
 _EEL_LOOP_OPS={'loop_eel_result','loop_eel_slot'}
@@ -2175,6 +2202,8 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
             _TERM_CONTEXT.update(rng=np.random.default_rng(104729+int(round(frame_time*fps))+_seed_shift()),
                                  bands={k:v for k,v in stage_controls.items() if isinstance(v,(int,float))})
             _TERM_CONTEXT['stage']=stage_controls
+            # This frame's main per-frame rand draws (site order), read by shaders that inline those sites.
+            _TERM_CONTEXT['site_rng']=stepper.rng if stepper is not None else None
             if sample is not None and history_steps:
                 map_x,map_y=sample(frame_time)
                 vector_maps=(map_x,map_y)

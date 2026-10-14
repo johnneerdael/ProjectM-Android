@@ -71,3 +71,40 @@ def test_compiled_stage_plan_matches_the_reference_evaluator(stage, code, monkey
     compiled = P._evaluate_stage(programs[stage]['program'], image, uv, 1.5, 30., {'bass': 1.2, 'treb': .8})
     assert used, 'compiled plan was not used'
     assert np.array_equal(reference, compiled)
+
+
+def _rand_site_program():
+    # ret = rand(10)*.05 as a shader that inlines a main per-frame site (q1 = rand(10)).
+    nodes = [{'op': 'multiply', 'dtype': 'float', 'args': [1, 3], 'detail': {}},
+             {'op': 'rand', 'dtype': 'float', 'args': [2], 'detail': {'site_index': 0, 'equation_phase': 'per_frame_'}},
+             {'op': 'constant', 'dtype': 'float', 'args': [], 'detail': {'value': 10.}},
+             {'op': 'constant', 'dtype': 'float', 'args': [], 'detail': {'value': .05}}]
+    return {'root': 0, 'nodes': nodes, 'plans': []}
+
+
+@pytest.mark.parametrize('compiled', [False, True])
+def test_inlined_per_frame_rand_reads_the_frame_steppers_draw(compiled, monkeypatch):
+    # The engine ran the main per-frame code once this frame; the shader sees that frame's value of the site.
+    import prediction_illustration as P
+    monkeypatch.setattr(P, '_COMPILED_STAGES', [compiled])
+    class Sites:
+        cache = {('per_frame_', 0): .25}
+    monkeypatch.setitem(P._TERM_CONTEXT, 'site_rng', Sites())
+    image = np.zeros((4, 4, 3), np.float32)
+    columns, rows = np.meshgrid((np.arange(4) + .5) / 4, (np.arange(4) + .5) / 4)
+    uv = np.stack([columns, rows, columns, rows], -1)
+    out = P._evaluate_stage(_rand_site_program(), image, uv, 1., 30., {})
+    assert np.allclose(out, .25 * 10 * .05)
+
+
+@pytest.mark.parametrize('compiled', [False, True])
+def test_stage_rand_without_a_stepper_is_deterministic_per_frame(compiled, monkeypatch):
+    import prediction_illustration as P
+    monkeypatch.setattr(P, '_COMPILED_STAGES', [compiled])
+    monkeypatch.setitem(P._TERM_CONTEXT, 'site_rng', None)
+    image = np.zeros((4, 4, 3), np.float32)
+    columns, rows = np.meshgrid((np.arange(4) + .5) / 4, (np.arange(4) + .5) / 4)
+    uv = np.stack([columns, rows, columns, rows], -1)
+    first = P._evaluate_stage(_rand_site_program(), image, uv, 1., 30., {})
+    second = P._evaluate_stage(_rand_site_program(), image, uv, 1., 30., {})
+    assert np.array_equal(first, second)
