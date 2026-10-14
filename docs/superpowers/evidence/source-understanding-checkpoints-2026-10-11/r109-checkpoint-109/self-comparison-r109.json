@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r109-v1",
+ "preset": "TonyMilkdrop - Nuclear [Flexi - help out + alien complex] --- Isosceles edit2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "8e1b3afe0f1a59049325f2e6c87cb8337f95fd06c587ecf0979dc5f79d62e72a",
+  "prediction.json": "5f595ade5f2c158eb1388c1a8028f35edac7bc5b6f24fd2bfbc8ce8ce007389d",
+  "description.json": "427f503d9198bf4decce5f00eb9e4dea9fd6a7aa351b00dce9ae66c328de5582",
+  "recipe.json": "39d7f39dcd97509b4cacbfd11f82877022dac1bc6e7e4556b6a04decec72235d",
+  "llm-look-description-v1.txt": "807a0389c2a961efb2ccbf436e08e49a163f1a99e652c636dfd6b284b848b684"
+ },
+ "capture_result_sha256": "2a72412eea3201bf43de3b2e97110d8f79ad2774a0e0fcc7cfa83264f6d180ca",
+ "review_measurements_v1": {
+  "prediction_luma": 0.482,
+  "screenshot_luma": 0.512,
+  "mean_rgb_prediction": [
+   0.308,
+   0.551,
+   0.308
+  ],
+  "mean_rgb_screenshot": [
+   0.648,
+   0.483,
+   0.393
+  ],
+  "blurred_luma_correlation": -0.407,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.469,
+    0.492
+   ],
+   "saturation": [
+    0.466,
+    0.561
+   ],
+   "blurred_luma_correlation": 0.096
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0859,
+   0.0894
+  ]
+ },
+ "agreements": [
+  "liquid swirl with a spiral centre; frame 75 nearly the same picture",
+  "frames 60-149 luma 0.469 vs 0.492; frame difference 0.086 vs 0.089"
+ ],
+ "misses": [
+  "palette differs at other moments (ours green/purple, capture pink/orange): a different per-load hue draw, not a math gap",
+  "for facets, presets with per-load randomness need statistics averaged over several seeds"
+ ],
+ "verdict": "understood in structure, brightness and motion; colours are per-load random (composite colours through pow(hue_shader, 8), whose corner hues projectM randomises at every load)"
+}
