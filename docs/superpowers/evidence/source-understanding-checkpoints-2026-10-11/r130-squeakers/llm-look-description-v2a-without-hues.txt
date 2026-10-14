@@ -1,0 +1,11 @@
+Predicted look (source-only, approximate; no frames seen).
+
+Overall: a mid-dark to medium-bright, feedback-smeared picture with a cool, bluish-white cast. The simulated display estimate gives mean luminance about 0.25 (calibrated interval 0.03-0.45) and saturation about 0.5 (simulated) versus 0.33 (calibrated), so colour is present but not garish. Warm/cool is near neutral to slightly warm in the estimates, while the source palette hints lean cool; I treat hue as uncertain. The steady-state canvas is almost black (about 0.003), so the picture is built by whatever is drawn and fed back, not a bright wash. Brightness comes mostly from the composite stage, which shows flat canvas through a lifted, slightly cool ramp (mid-grey maps to roughly 0.8, 0.86, 0.87).
+
+Structures: one built-in audio waveform (stereo X/Y trace, thick, additive, centred at 0.5,0.5, normalised to full colour when its source colour exceeds 0.01) and one five-sided polygon whose position, size and colour are not resolved. The composite stage adds embossed relief shading, an unmirrored tiled repeat and several self-steering flow stages, so expect a textured, fluid, smeared pattern over much of the screen rather than a few clean lines. The tiling suggests repeated copies.
+
+Motion: constant expansion from the centre of about 0.9% per frame, with a small rotation (up to about 0.004 rad/frame, driven by treble). Trails are channel-selective: red persists (about 0.98 gain), green fades in about 5 frames and blue in about 3, so older trails drift toward red-orange while fresh content looks cooler. The estimated flow is about 0.12-0.16 screen widths per second, moderate.
+
+Audio: waveform shape follows the sound directly; bass, mid and treble all push translation and the colour channels in the warp and composite, but gains are unresolved. Treble drives rotation. Ten random values are redrawn about 3 s in and every 12.6 s, so colours or shapes change abruptly at those moments.
+
+Flashing: the estimates disagree. The heuristic flags possible flashing (up to about 4 Hz, delta 0.26-0.3), but the simulation gives a peak brightness change of only 0.08 and about 0.3 jumps per 10 s. I expect occasional soft brightness surges, not strobing, with low certainty. The scored activity is Normal to Intense and the preset likely feels busy.

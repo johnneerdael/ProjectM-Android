@@ -1,0 +1,81 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r130-v2",
+ "preset": "suksma - ed geining hateops - squeakers.milk",
+ "analysis_commits": [
+  "8cb212ff",
+  "85635aa4"
+ ],
+ "cold_load_static_prediction_vs_emulator_capture": {
+  "mean_luminance": [
+   0.199,
+   0.184
+  ],
+  "mean_saturation": [
+   0.586,
+   0.585
+  ],
+  "warm_cool": [
+   0.643,
+   0.624
+  ],
+  "hue_shares_prediction": {
+   "orange": 0.727,
+   "pink": 0.165,
+   "red": 0.05,
+   "blue": 0.03,
+   "yellow": 0.013,
+   "green": 0.009,
+   "purple": 0.005,
+   "cyan": 0.001
+  },
+  "hue_shares_capture": {
+   "orange": 0.708,
+   "pink": 0.171,
+   "red": 0.055,
+   "blue": 0.029,
+   "yellow": 0.016,
+   "green": 0.011,
+   "purple": 0.009,
+   "cyan": 0.002
+  },
+  "measure": "native-ruler-2026-10-12 measure() on 300 frames 480x270 (prediction) and the emulator capture frames"
+ },
+ "per_load_leading_hues": [
+  {
+   "seed": null,
+   "top_hues": [
+    "orange",
+    "pink",
+    "red"
+   ]
+  },
+  {
+   "seed": 1,
+   "top_hues": [
+    "green",
+    "orange",
+    "blue"
+   ]
+  },
+  {
+   "seed": 2,
+   "top_hues": [
+    "blue",
+    "green",
+    "orange"
+   ]
+  },
+  {
+   "seed": 3,
+   "top_hues": [
+    "green",
+    "pink",
+    "orange"
+   ]
+  }
+ ],
+ "sdk_v2a": "with simulated statistics but no hues: still led with a cool cast (palette hints)",
+ "sdk_v2": "with hue shares and per-load rows: orange/green/pink/blue palette that changes per load; one load orange-pink-red led (the capture)",
+ "verdict": "understood: the cold-load static prediction reproduces the capture statistics and hues; the reader now names the colours and their per-load variety"
+}
