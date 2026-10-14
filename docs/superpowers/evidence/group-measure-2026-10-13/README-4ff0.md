@@ -116,3 +116,7 @@ The largest loss is 0.014 (shifter + Flexi liquid circuitry, 0.048 → 0.062). F
 ## 90b63b14 → 054df663 (shared reg00–reg99 registers, per-pixel memory reads)
 
 No preset in the 200-preset selection changed: every metric is identical, with 0 better and 0 worse. 186 of the 9606 presets use the registers, and none in the selection depended on them. The fix is neutral here. It repairs r137 (martin + flexi - carpet weaver bipolar 02), which was black and now matches the engine's green/magenta carpet.
+
+## 054df663 → f9042762 (mode 2/5 built-in wave texture-size bucket gain)
+
+Neutral on the selection. Mean luma error went from 0.0364 to 0.0366, and paired luma was 3 better and 3 worse; no preset moved by more than 0.006. Luma within 0.05 fell from 82.4% to 81.9% because one preset crossed the line.
