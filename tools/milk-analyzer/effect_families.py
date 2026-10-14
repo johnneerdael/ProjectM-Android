@@ -717,7 +717,8 @@ def _trig_pair(value):
 
 
 def _radial_curve(x, y):
-    """Require the paired angular factors on separate projected position lanes."""
+    """Require the paired angular factors on separate projected position lanes. The lanes' spatial radius
+    factors must agree; per-lane uniform scales (texsize.zw, aspect) only make the curve elliptical."""
     for cx, tx in _terms(x):
         scale_x, factors_x = _product(tx)
         for cy, ty in _terms(y):
@@ -726,8 +727,8 @@ def _radial_curve(x, y):
                 for b in factors_y:
                     if {a.op, b.op} != {'sin', 'cos'} or not _same(a.args[0], b.args[0]):
                         continue
-                    radius_x = [f for f in factors_x if f is not a]
-                    radius_y = [f for f in factors_y if f is not b]
+                    radius_x = [f for f in factors_x if f is not a and _spatial(f)]
+                    radius_y = [f for f in factors_y if f is not b and _spatial(f)]
                     if cx*scale_x == 0 or cy*scale_y == 0 or sorted(_key(f) for f in radius_x) != sorted(_key(f) for f in radius_y):
                         continue
                     return a.args[0]
@@ -755,16 +756,28 @@ def _sector_count(phase):
     return None
 
 
+def _symbolic_scaled(coefficient, term):
+    """(coefficient, core, denominator key): a division by a non-numeric value (frac(a*n)/n, .5/n) keeps
+    its denominator as a shared symbolic scale."""
+    term = _strip(term)
+    if term.op == 'divide' and _number(term.args[1]) is None:
+        return [(coefficient*c, core, _key(term.args[1])) for c, core in _terms(term.args[0])]
+    return [(coefficient, term, None)]
+
+
 def _angular_fold(phase):
+    """A reflected periodic angle: |c*wrap(angle) + d| with d/c = -1/2, i.e. a reflection about the middle of
+    every period (abs(frac(a*n)*2-1), or |frac(a*n)-.5|/n with a shared symbolic scale such as 1/n)."""
     for node, _ in _walk(phase):
         if node.op != 'abs':
             continue
-        terms = _terms(node.args[0])
-        wrapped = [(coefficient, term) for coefficient, term in terms
-                   if term.op in {'frac', 'fmod', 'remainder'} and _angle(term.args[0])]
-        offset = sum(coefficient*(_number(term) or 0) for coefficient, term in terms if _number(term) is not None)
-        if any(abs(coefficient) == 2 for coefficient, _ in wrapped) and abs(offset) == 1:
-            return True
+        entries = [row for coefficient, term in _terms(node.args[0]) for row in _symbolic_scaled(coefficient, term)]
+        for coefficient, core, scale in entries:
+            if core.op not in {'frac', 'fmod', 'remainder'} or not _angle(core.args[0]) or coefficient == 0:
+                continue
+            offset = sum(c*_number(t) for c, t, k in entries if k == scale and _number(t) is not None)
+            if abs(offset/coefficient+.5) < 1e-6:
+                return True
     return False
 
 
@@ -1471,7 +1484,7 @@ class _Analysis:
         # coordinate (frac(1-uv)) or a parity floor(frac(uv/2)*2) selects mirrored tiles.
         wraps = [n for n in coordinate_nodes if n.op in ('frac', 'floor') and n.args]
         below = _ops_below(wraps, ('sample', 'frac')) if wraps else {}
-        fracs = [n for n in wraps if n.op == 'frac' and _spatial(n.args[0]) and 'sample' not in below[id(n.args[0])]]
+        fracs = [n for n in wraps if n.op == 'frac' and _spatial(n.args[0]) and not _angle(n.args[0]) and 'sample' not in below[id(n.args[0])]]  # an angle wrap repeats sectors, not the image
         if fracs:
             mirrored = len({_key(n.args[0]) for n in fracs}) >= 2 or any(
                 n.op == 'floor' and 'frac' in below[id(n.args[0])] for n in wraps)

@@ -1,0 +1,55 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r134-v1",
+ "preset": "Hexcollie - Personal Mashup3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b0437f2ba376ac6812202753538fd1e7e27c7555f50125f420c8e028e399ddf0",
+  "prediction.json": "45f8677e8e630b24d4c4897f3a4eccd0091ccc9a2214d4d2f665dbaea5b392f5",
+  "description.json": "9f6cb72d4a4e7c96591c19e5f294752ee14155898a6c8f945ccc8fe075aeaaee",
+  "recipe.json": "489622b0e63b7983d2759c2cfb735aad0ea7ed9f7554ddc00b3b6356f599c8ae",
+  "llm-look-description-v1.txt": "8ba63c16206522a4eb2bbc21353be3912dba417e3c1916ddbbaf068ac2640057"
+ },
+ "capture_result_sha256": "742e6e16e09d847bb2398f01077b3fe8d058cc2d0d957bbeb783aa4fa0fb1e74",
+ "review_measurements_v1": {
+  "prediction_luma": 0.408,
+  "screenshot_luma": 0.423,
+  "mean_rgb_prediction": [
+   0.306,
+   0.442,
+   0.358
+  ],
+  "mean_rgb_screenshot": [
+   0.289,
+   0.467,
+   0.369
+  ],
+  "blurred_luma_correlation": 0.281,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.367,
+    0.364
+   ],
+   "saturation": [
+    0.167,
+    0.147
+   ],
+   "blurred_luma_correlation": 0.216
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0715,
+   0.0714
+  ]
+ },
+ "agreements": [
+  "brightness, frame difference and luma arc",
+  "ring of cyan blobs, magenta centre, green lobes",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK: kaleidoscope read as unmirrored tiling (fold detector required abs(frac*2-1) and equal lane scales)",
+  "SDK: grey-white instead of green (shape colours unresolved; steady state grayscale)",
+  "per-load sector count (3-8) not stated"
+ ],
+ "verdict": "frozen prediction understood (luma 0.367 vs 0.364, frame difference 0.0715 vs 0.0714, luma arc frame by frame; the same ring of cyan blobs and green lobes; low map correlation from the per-load sector count: 5 predicted, 6 on this load). SDK missed the kaleidoscope (read as plain tiling) and the green palette. The kaleidoscope miss was an analysis gap, fixed generally: scaled folds |frac(a*n)-.5|/n, per-lane pixel scales in the angular reconstruction, and angle wraps no longer counted as image tiling."
+}

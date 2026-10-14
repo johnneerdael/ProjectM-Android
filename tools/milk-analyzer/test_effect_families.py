@@ -667,3 +667,36 @@ def test_scaled_blur_central_differences_steering_coordinates_are_gradient_drive
         'float3 dx=GetBlur1(uv+float2(1,0)*d)-GetBlur1(uv-float2(1,0)*d);'
         'ret=tex2D(sampler_main, uv-float2(dx.x,0)*texsize.zw).xyz;}', 'warp'))
     assert 'gradient_driven_advection' not in families(one)
+
+
+def test_scaled_angular_fold_is_a_kaleidoscope():
+    # Hexcollie - Personal Mashup3: a=frac(a*fins)/fins; a=abs(a-.5/fins) is |frac(a*fins)-.5|/fins, the same
+    # reflection about the middle of each sector as abs(frac(a*n)*2-1), scaled by 1/fins.
+    record = analyze(shader('shader_body {float a=ang*M_INV_PI_2+time*.025; a=frac(a*6)/6; a=abs(a-.5/6);'
+        'a*=M_PI_2; float2 p=.5+rad*.4*float2(cos(a),sin(a)); ret=GetPixel(p);}', 'comp'))
+    assert 'angular_mirror_fold' in families(record)
+    assert rows(record, 'angular_mirror_fold')[0]['parameters']['sector_count'] == 6
+
+
+def test_per_load_sector_count_still_reads_as_a_kaleidoscope():
+    # fins = 3 + floor(rand_preset.z*5.95): 3 to 8 sectors, drawn at every preset load.
+    record = analyze(shader('shader_body {float fins=3+floor(rand_preset.z*5.95); float a=ang*M_INV_PI_2;'
+        'a=frac(a*fins)/fins; a=abs(a-.5/fins); a*=M_PI_2;'
+        'float2 p=.5+rad*.4*float2(cos(a),sin(a)); ret=GetPixel(p);}', 'comp'))
+    assert 'angular_mirror_fold' in families(record)
+
+
+def test_angular_fold_with_per_lane_pixel_scales_is_a_kaleidoscope():
+    # The real Hexcollie composite rebuilds the sample point in pixels: .5 + r*float2(cos(a),sin(a))*texsize.zw.
+    # Per-lane uniform scales (texsize.z vs .w) make the curve elliptical, not a different construction.
+    record = analyze(shader('shader_body {float r=rad*length(texsize.xy)*.5*.8; float a=ang*M_INV_PI_2+time*.025;'
+        'a=frac(a*6)/6; a=abs(a-.5/6); a*=M_PI_2;'
+        'float2 p=.5+r*float2(cos(a),sin(a))*texsize.zw; ret=tex2D(sampler_main,p).xyz;}', 'comp'))
+    assert 'angular_mirror_fold' in families(record)
+
+
+def test_angle_wrap_of_a_kaleidoscope_is_not_image_tiling():
+    record = analyze(shader('shader_body {float a=ang*M_INV_PI_2; a=frac(a*6)/6; a=abs(a-.5/6); a*=M_PI_2;'
+        'float2 p=.5+rad*.4*float2(cos(a),sin(a)); ret=GetPixel(p);}', 'comp'))
+    assert 'angular_mirror_fold' in families(record) and 'repeat_tiling' not in families(record)
+    assert 'repeat_tiling' in families(analyze(shader('shader_body {ret=GetPixel(frac(uv*3));}', 'comp')))
