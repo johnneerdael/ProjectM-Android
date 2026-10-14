@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r152-v1",
+ "preset": "Serge + martin - crystal palace007d.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "455d4ec99e0461e81ccb776d0332db00cb116bbf2c2aad5a877f5a79d7bb8000",
+  "prediction.json": "05dd622c1572c6dbf18c49bbd5b838debeb87e37523f1decf19cad248bac2cf4",
+  "description.json": "67946284b6341ccd6a81057098b46921b0cb52dabf069b37464c7a3a70617da0",
+  "recipe.json": "0a11415316a833e13db363d644316687930d286ee5a3aeafa33128d02b0ff14f",
+  "llm-look-description-v1.txt": "3ee5c459791512ccd1dc536ebdf3b036826b9a7417008db810e7b291a66bb189"
+ },
+ "capture_result_sha256": "13e790da8004395a1dc36db829f0b989f9c814011ce51c48d41d51f7778e1953",
+ "review_measurements_v1": {
+  "prediction_luma": 0.386,
+  "screenshot_luma": 0.397,
+  "mean_rgb_prediction": [
+   0.397,
+   0.386,
+   0.355
+  ],
+  "mean_rgb_screenshot": [
+   0.406,
+   0.397,
+   0.365
+  ],
+  "blurred_luma_correlation": 0.806,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.483,
+    0.483
+   ],
+   "saturation": [
+    0.232,
+    0.23
+   ],
+   "blurred_luma_correlation": 0.989
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0729,
+   0.064
+  ]
+ },
+ "agreements": [
+  "map correlation 0.989",
+  "brightness arc",
+  "white/grey palette",
+  "outward zoom"
+ ],
+ "misses": [
+  "SDK: starburst streaks not named"
+ ],
+ "verdict": "understood: frozen prediction matches the capture (time-average map corr 0.989, luma 0.483 vs 0.483, mean rgb identical to 0.001, luma arc frame by frame). SDK: mid-bright near-grey/white mottled texture, tunnel-like tiled lookup, steady outward zoom; it does not name the white/yellow starburst streaks."
+}
