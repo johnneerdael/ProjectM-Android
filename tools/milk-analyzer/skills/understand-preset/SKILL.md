@@ -253,7 +253,16 @@ full recipe tens of thousands of lines long.
    image per slot at every load (only names starting with `name_filter` when
    one is given). Colours and brightness that come from those samples are a
    random draw: say which stage they colour and that they change per load.
-5. Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
+5. Judge flashing on the same scale as the Comfort facet. A global brightness
+   jump is a frame-to-frame change of at least 0.08 in mean grey. "No strobe"
+   requires fewer than 1 per 10 s. Read `display_estimate` jumps per 10 s
+   (value and interval) as follows: under 1 is steady; 1 to 10 is occasional
+   pulses; 10 to 30 is frequent flicker; above 30 is strobe-like. When the
+   interval's lower end is 1 or more, never call the preset gentle, calm or
+   free of strobing. Say it flickers at that rate, even if no explicit flash
+   mechanism was found, because chaotic feedback and thresholded audio routes
+   flicker without one.
+   Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.
    Its derivative can be zero while feedback rotates every frame. A backward
