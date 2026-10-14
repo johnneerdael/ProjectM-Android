@@ -93,3 +93,22 @@ smaller is a different system.
 The grid also missed the time budget: a 150-frame prediction took a median
 3.9 s, a 90th percentile of 78 s and a maximum of 310 s. The cost of
 per-instance shapes and per-point waves does not depend on the grid.
+
+## a0466ceb → 90b63b14 (per-frame wave sample counts, compiled stage plans, frame-site shader rand, negative shape radius, kaleidoscope folds, recurrence node budget)
+
+| Metric (mean) | a0466ceb | 90b63b14 |
+|---|---|---|
+| luma error | 0.0405 | 0.0367 |
+| RGB error | 0.0461 | 0.0422 |
+| map correlation | 0.701 | 0.717 |
+| series correlation | 0.802 | 0.806 |
+| luma within 0.05 | 81.2% | 82.2% |
+
+Paired: luma 20 better and 11 worse, RGB 20 and 12, map correlation 20 and 9.
+
+Largest gains:
+
+- suksma dotes hostile + demonlord: 0.464 → 0.016. Its opaque black wave sets its sample count per frame and is now drawn.
+- anglican't americouldn't - zhuGan: 0.196 → 0.006.
+
+The largest loss is 0.014 (shifter + Flexi liquid circuitry, 0.048 → 0.062). Failures fell from 2 to 1: Acid Mandala, whose unresolved loop plans used to crash the run, now predicts.
