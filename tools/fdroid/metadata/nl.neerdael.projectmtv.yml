@@ -14,9 +14,9 @@ Binaries:
   https://github.com/johnneerdael/ProjectM-Android/releases/download/v%v/projectM-TV-FDroid-%v.apk
 
 Builds:
-  - versionName: 2.3.39
-    versionCode: 88
-    commit: a562f72a38651d4b7ff21726e14d3fa83c6972ae
+  - versionName: 2.3.48
+    versionCode: 97
+    commit: 6aaeff4bc9fb57b680d22ea1b4bc9ef93b1e0ead
     subdir: app
     submodules: true
     sudo: sdkmanager 'cmake;3.22.1'
@@ -24,6 +24,7 @@ Builds:
       - fdroidTv
     rm:
       - docs/superpowers/evidence
+      - tools/milk-analyzer/export-contract/knowledge-pack/golden-v1
     ndk: 27.3.13750724
     gradleprops:
       - projectmDistribution=fdroid
@@ -36,5 +37,5 @@ UpdateCheckMode: Tags ^v\d+\.\d+\.\d+$
 UpdateCheckName: Ignore
 UpdateCheckData: 
   gradle.properties|projectmReleaseVersionCode=(\d+)|.|projectmReleaseVersion=(\d+\.\d+\.\d+)
-CurrentVersion: 2.3.39
-CurrentVersionCode: 88
+CurrentVersion: 2.3.48
+CurrentVersionCode: 97

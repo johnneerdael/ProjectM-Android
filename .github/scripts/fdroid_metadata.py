@@ -78,8 +78,9 @@ def generate_metadata(release, target, existing=None):
     build.commit = release['source_sha']
     build.subdir = 'app'
     build.submodules = True
-    # Historical research archives are neither app source nor runtime assets.
-    build.rm = ['docs/superpowers/evidence']
+    # Research archives and compressed host-test vectors are not APK build inputs.
+    build.rm = ['docs/superpowers/evidence',
+                'tools/milk-analyzer/export-contract/knowledge-pack/golden-v1']
     build.sudo = ["sdkmanager 'cmake;3.22.1'"]
     build.gradle = [flavor]
     build.gradleprops = ['projectmDistribution=fdroid', 'androidTouchscreen=' + str(target == 'android').lower()]
