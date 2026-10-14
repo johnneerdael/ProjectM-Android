@@ -1,0 +1,185 @@
+{
+ "presets_selected": 200,
+ "ruler_measured": 200,
+ "compared": 195,
+ "failed": {
+  "908dc": 3,
+  "7d1c84e3": 5
+ },
+ "versions": {
+  "908dc": {
+   "luma_err": {
+    "mean": 0.0542,
+    "median": 0.015
+   },
+   "rgb_err": {
+    "mean": 0.0601,
+    "median": 0.0181
+   },
+   "sat_err": {
+    "mean": 0.0649,
+    "median": 0.0261
+   },
+   "fd_err": {
+    "mean": 0.0134,
+    "median": 0.0041
+   },
+   "colour_map_err": {
+    "mean": 0.0757,
+    "median": 0.0416
+   },
+   "map_corr": {
+    "mean": 0.6872,
+    "median": 0.8251,
+    "n": 190
+   },
+   "series_corr": {
+    "mean": 0.7622,
+    "median": 0.9195,
+    "n": 192
+   },
+   "luma_within_0.05": 0.713,
+   "map_corr_above_0.8": 0.508
+  },
+  "7d1c84e3": {
+   "luma_err": {
+    "mean": 0.053,
+    "median": 0.0149
+   },
+   "rgb_err": {
+    "mean": 0.059,
+    "median": 0.0179
+   },
+   "sat_err": {
+    "mean": 0.0622,
+    "median": 0.0243
+   },
+   "fd_err": {
+    "mean": 0.013,
+    "median": 0.004
+   },
+   "colour_map_err": {
+    "mean": 0.0747,
+    "median": 0.0417
+   },
+   "map_corr": {
+    "mean": 0.6836,
+    "median": 0.829,
+    "n": 190
+   },
+   "series_corr": {
+    "mean": 0.7645,
+    "median": 0.9172,
+    "n": 192
+   },
+   "luma_within_0.05": 0.733,
+   "map_corr_above_0.8": 0.518
+  }
+ },
+ "paired": {
+  "luma_err": {
+   "improved": 7,
+   "worse": 8
+  },
+  "rgb_err": {
+   "improved": 8,
+   "worse": 6
+  },
+  "fd_err": {
+   "improved": 8,
+   "worse": 5
+  },
+  "colour_map_err": {
+   "improved": 9,
+   "worse": 6
+  },
+  "map_corr": {
+   "improved": 5,
+   "worse": 7
+  }
+ },
+ "largest_gains": [
+  [
+   "suksma - superprison - occulted by massive orbiting conglomerations of tomatoes",
+   0.346,
+   0.099
+  ],
+  [
+   "suksma - chemosynthetic nosferatu - automating transformation with b n s3 - claim form fsh shf flx obl nz+",
+   0.176,
+   0.072
+  ],
+  [
+   "suksma - Dbleja - Escape (Blue Mix) - k me as an xmas grift",
+   0.149,
+   0.05
+  ],
+  [
+   "Martin - QBikal - Surface Turbulence IIe6 (by hakanh mash-up)",
+   0.091,
+   0.042
+  ],
+  [
+   "390 threx no more warningsce Rumbo Pal Recodo calmer less agile better sorcery",
+   0.076,
+   0.063
+  ],
+  [
+   "Serge + martin - crystal palace kad002",
+   0.163,
+   0.156
+  ],
+  [
+   "suksma - distort crops of horror torture - gdy neck problem solution (tense for hours) we never will cr3",
+   0.007,
+   0.005
+  ],
+  [
+   "EoS_Phat technicolor F breather E god gaia",
+   0.081,
+   0.079
+  ]
+ ],
+ "largest_losses": [
+  [
+   "Rovastar & Illusion - Further Basic Electronica 2 + cope",
+   0.0,
+   0.299
+  ],
+  [
+   "anglican't americouldn't - zhuGan roam3",
+   0.168,
+   0.202
+  ],
+  [
+   "suksma + aderassi geiss - the sick assumptions you make about my car [shifter's esc shader] nz+",
+   0.035,
+   0.036
+  ],
+  [
+   "Redi Jedi - Shaking your reality",
+   0.021,
+   0.022
+  ],
+  [
+   "Rovastar - Fractopia (Galaxy Swirl Mix 2)",
+   0.08,
+   0.08
+  ],
+  [
+   "nontuplet corpse sterility",
+   0.005,
+   0.005
+  ],
+  [
+   "shifter + Flexi - liquid circuitry from the oblivion hive rw4 nz+ mbor qoinmbonstre",
+   0.014,
+   0.014
+  ],
+  [
+   "GreatWho + Flexi - Lasershow [bipolar showoff party]",
+   0.116,
+   0.116
+  ]
+ ]
+}

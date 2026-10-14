@@ -53,3 +53,25 @@ largest losses are random-draw variance ("fed - glowing 5", "rce-ordinary":
 0.007–0.168 across stepper seeds alone) and one exposed gap ("EoS+Phat -
 I_v2_Shape_v3": the clamp rule is right, a separate over-retention remains).
 Presets with per-frame `rand()` redraws should be measured over several seeds.
+
+## 7d1c84e3 (r95–r104 fixes)
+
+Same 200 presets against the corrected 908d baseline (`report-908dc-7d1c84e3.json`):
+
+| Metric | 908d | 7d1c |
+|---|---|---|
+| Luma error mean / median | 0.0542 / 0.0150 | 0.0530 / 0.0149 |
+| Colour map error mean | 0.0757 | 0.0747 |
+| Map correlation median | 0.825 | 0.829 |
+| Luma within 0.05 | 71.3% | 73.3% |
+
+Most presets are unchanged; three suksma presets gain strongly (for example
+0.346 → 0.099). One large loss: "Rovastar & Illusion - Further Basic
+Electronica 2 + cope" (0.000 → 0.299; engine solid white). Its warp computes
+`frac(pow(ret, 2*sand))*2`; the old evaluator refused `pow` and fell back to a
+gain model that happened to give white. Emulator probes (`pow-probes/`) show
+the engine returns exactly 1 for `pow(1, y)` with runtime inputs and ≈0.9996
+for `pow(0.999, y)`, matching our rule. Our canvas reaches exactly 1, `frac`
+resets it to 0.45 and it cycles (brightened 0.70); the engine's stays white,
+most likely because its warp-mesh UVs leave sampled values a hair below 1.
+A numerical knife-edge, open; the pow rule itself is confirmed.
