@@ -1,0 +1,13 @@
+Approximate look (prediction from source recipe only, no frames seen)
+
+Overall this reads as a fairly dark to medium-dim picture: sparse coloured dots drifting over a black background, with soft smeared trails. The composite flat transfer maps every flat canvas level to pure black, so empty regions stay black and only textured or drawn content shows. The calibrated estimate gives mean luminance about 0.15 (interval 0 to 0.38), so it could be anywhere from nearly black to moderately lit. Saturation is modest to medium (about 0.35).
+
+Structures: the built-in wave is a stereo X/Y dot trace centred on the screen, but its alpha is 0.001, so it is essentially invisible. Three custom point clouds carry the colour: an orange cloud (512 points, alpha about 0.59), a pale green cloud (252 points) and a blue cloud (252 points). A fourth white cloud (252 points) is nearly transparent (alpha about 0.06) and probably adds only faint haze. Positions are closed-form in time and in per-frame state, so I cannot say where they sit or what shape they trace. A single large square shape (radius about 1.0, centred) is configured, but its visibility is unresolved. The final hue mix is conditional, so expect orange, green and blue dots rather than one dominant colour.
+
+Motion: the base map has no zoom or rotation, only a very slow downward drift of about 14 px/s. The warp shader is image-driven, with self-advection plus a band-pass sharpening of the fed-back image. That should make small dots grow into smeared, fluid, splatter-like blobs that flow rather than moving in rigid patterns. Trails persist with a half-life of about 13 frames (about 0.6 s). The overall flow is gentle (about 0.09 screen widths per second, wide interval).
+
+Audio: treble, bass and mid steer the red, green and blue channels in the warp shader, so colour balance should shift continuously with the music. The gains are unknown, so how strong the shift is remains uncertain. The waveform trace itself is nearly invisible.
+
+Flashing: no explicit flash mechanism was found. Brightness jumps are estimated at about 2 per 10 s, with a wide interval of 0 to 10, and the coherent-transition figures are assumed rather than derived. It probably does not strobe, but audio-colour pulses cannot be excluded.
+
+Uncertain: actual brightness, where the points sit, and how much the advection fills the screen. Low confidence overall.

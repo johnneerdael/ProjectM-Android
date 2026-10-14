@@ -1,0 +1,11 @@
+Predicted look (source-only, approximate): a mostly dark, low-to-moderate brightness picture (calibrated mean luminance about 0.15, interval 0 to 0.38) built from a soft, grainy, slowly evolving feedback texture with scattered dotted points in orange, green and blue, shown with left-right mirror symmetry.
+
+Structure: Four custom point-clouds (512 orange points, 252 green, 252 blue, and 252 near-invisible white at alpha about 0.06) are drawn each frame, plus a built-in waveform drawn as dots (stereo XY trace at screen centre, alpha 0.001, so essentially invisible). A single square shape (4 sides, radius about 1.0, centred at 0.4997/0.498, white fading to alpha 0.3) is a stationary, nearly screen-filling element. Where the points sit on screen is not resolved: their positions depend on time and per-frame state, and there are no position bounds. I expect dotted curves or clouds, not solid shapes.
+
+Colour: Orange, green and blue dots have moderate saturation (about 0.5 to 0.8). The overall palette is mean saturation about 0.35 (interval 0.07 to 0.62), roughly neutral between warm and cool. The composite is a mirror: the final picture is probably two-fold left-right symmetric. The composite maps flat canvas levels oddly (very dim levels go to white, bright flat levels go to black), so flat regions can look black or inverted. Steady-state display colour of flat areas is black.
+
+Motion: Feedback runs with no zoom or rotation, only a slow downward drift (about 14 px/s). A blur-difference sharpening and image-driven advection in the warp make small seeds grow into blobs, cells or splatter and smear fluidly, so the screen is probably covered by organic, liquid-like grain rather than clean lines. Trails persist: half-life about 0.6 s (14 frames), gain 0.95 per frame. Overall flow is slow to moderate (about 0.09 screen widths per second).
+
+Audio: Treble, bass and mid drive the red, green and blue colour channels in the warp, continuously and with unknown gain, so colour balance drifts with the music. The waveform follows the audio but is faint.
+
+Flashing: Not established. The estimate allows about 1.9 global brightness jumps per 10 s (interval 0 to 9.7). Activity is Chill to Normal, with low confidence. I see no threshold-driven strobe, but the audio colour routes could cause brightness changes of unknown size.

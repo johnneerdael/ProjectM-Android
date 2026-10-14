@@ -1,0 +1,58 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r129-v1",
+ "preset": "suksma - kcigam spoo.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "37fdcb44ef9e83a29471f75eb231df88cced6616de406a5035ae616991eb44c2",
+  "prediction.json": "694d3ce22564801d8b9ec0df8aa69e1b38b666f9a222654c787188c19a59d97b",
+  "description.json": "46b52103cb4da67bf17b0f784f650aa461f803f32944abbca7c5f2c455224ea6",
+  "recipe.json": "bfbcf7cdb1c66dbab8a34f78b26790ca55d9abc72118cd05e7c82befc50ff8f5",
+  "llm-look-description-v1.txt": "d9f373f5f8e70a837877b411380020a4bb6158416f308734696a657bf3033fc0"
+ },
+ "capture_result_sha256": "96013a47eb1a82a322bf481b25fccbc53dcc6849266a3a2cc5eb127a0e2ad2a3",
+ "review_measurements_v1": {
+  "prediction_luma": 0.137,
+  "screenshot_luma": 0.136,
+  "mean_rgb_prediction": [
+   0.188,
+   0.118,
+   0.174
+  ],
+  "mean_rgb_screenshot": [
+   0.217,
+   0.114,
+   0.114
+  ],
+  "blurred_luma_correlation": 0.645,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.107,
+    0.112
+   ],
+   "saturation": [
+    0.414,
+    0.412
+   ],
+   "blurred_luma_correlation": 0.832
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1145,
+   0.1098
+  ]
+ },
+ "agreements": [
+  "mean luma and saturation within 0.01",
+  "left-right mirror and black centre in the frozen image",
+  "saturated red/green/blue/magenta bands",
+  "frame difference",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK v1: no mirror (mirror_symmetry ignored composite shaders)",
+  "SDK v1: 'every flat level maps to black' (flat transfer missed levels below 0.02)",
+  "SDK v1/v2: 'scattered dots' undersells the dense splatter coverage",
+  "top-bottom near-symmetry from the warp's symmetric sin pattern injection is not a measured mirror"
+ ],
+ "verdict": "frozen prediction image understood: mirrored, solarized splatter bands; luma 0.107 vs 0.112, map corr 0.832, frame difference 0.115 vs 0.110. SDK v1 text missed the left-right mirror and the faint-level composite banding; both were analysis gaps (composite-shader mirrors unmeasured; flat transfer sampled only quarters). Fixed generally in 85b5a219; SDK v2 now reports the mirror and the dim-to-white/bright-to-black composite."
+}
