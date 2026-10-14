@@ -712,3 +712,14 @@ def test_global_registers_written_by_main_code_reach_per_pixel_and_shape_code():
     assert _number(analysis.mesh_controls['zoom']) == 1.5
     analysis.primitives()
     assert abs(_number(analysis.component_controls['shape_0']['rad']) - .2) < 1e-6
+
+
+def test_blur_difference_survives_noise_and_a_luminance_mix():
+    # Geiss - Reaction Diffusion - Simple Squamous Mix: crisp minus a blur mix added back (spots and stripes),
+    # then noise and lerp(ret, lum(ret), .2) to keep the globs white. The channel mix must not hide the band-pass.
+    record = analyze(shader('shader_body {ret.xyz = tex2D(sampler_main, uv).xyz;'
+        'float3 b = GetBlur1(uv)*0.3 + GetBlur2(uv)*0.4 + GetBlur3(uv)*0.3; ret.xyz += (ret.xyz - b)*0.3; ret.xyz *= 0.9;'
+        'float2 dither_uv = uv_orig*texsize.xy*texsize_noise_lq.zw*0.4 + rand_frame.xy;'
+        'ret.xyz += (tex2D(sampler_noise_lq, dither_uv).xyz-0.5)/256.0*122*(saturate(treb_att-1)*0.4+0.3);'
+        'ret.xyz = lerp(ret.xyz, lum(ret.xyz), 0.2);}', 'warp'))
+    assert 'blur_difference_feedback' in families(record)

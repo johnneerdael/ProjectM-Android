@@ -183,6 +183,20 @@ def _surface_terms(value, scale=1., depth=0):
                 found.append((coefficient, level))
         elif unwrapped and depth < 4 and node.op in {'add', 'subtract', 'multiply', 'divide'}:
             found.extend(_surface_terms(node, coefficient, depth+1))
+        elif depth < 4 and node.op == 'lerp' and len(node.args) == 3 and _number(node.args[2]) is not None:
+            # lerp(a, b, t) with constant t is (1-t)*a + t*b.
+            t = _number(node.args[2])
+            found.extend(_surface_terms(node.args[0], coefficient*(1-t), depth+1))
+            found.extend(_surface_terms(node.args[1], coefficient*t, depth+1))
+        elif depth < 4 and node.op == 'dot' and len(node.args) == 2:
+            # A constant-weight channel mix (lum(x) = dot(x, weights)): each component enters with its weight.
+            for vector, weights in ((node.args[0], node.args[1]), (node.args[1], node.args[0])):
+                vector, weights = _strip(vector), _strip(weights)
+                numbers = [_number(w) for w in weights.args] if weights.op in {'construct', 'components'} else []
+                if vector.op == 'components' and numbers and None not in numbers and len(numbers) == len(vector.args):
+                    for weight, part in zip(numbers, vector.args):
+                        found.extend(_surface_terms(part, coefficient*weight, depth+1))
+                    break
     return found
 
 
