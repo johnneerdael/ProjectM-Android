@@ -1,0 +1,76 @@
+{
+ "checkpoint": "r120-v2",
+ "analyzer_commit": "61a868d6",
+ "prediction": "unseeded illustration with the cold-start projectm-eval rand stream and lazy if()",
+ "luma_every_15_frames_prediction_capture": [
+  [
+   0,
+   0.0,
+   0.0
+  ],
+  [
+   15,
+   0.198,
+   0.213
+  ],
+  [
+   30,
+   0.285,
+   0.291
+  ],
+  [
+   45,
+   0.241,
+   0.263
+  ],
+  [
+   60,
+   0.192,
+   0.196
+  ],
+  [
+   75,
+   0.144,
+   0.148
+  ],
+  [
+   90,
+   0.111,
+   0.116
+  ],
+  [
+   105,
+   0.179,
+   0.176
+  ],
+  [
+   120,
+   0.302,
+   0.317
+  ],
+  [
+   135,
+   0.381,
+   0.386
+  ]
+ ],
+ "time_average_frames_60_149": {
+  "luma": [
+   0.234,
+   0.24
+  ],
+  "rgb_prediction": [
+   0.181,
+   0.232,
+   0.403
+  ],
+  "rgb_capture": [
+   0.188,
+   0.237,
+   0.415
+  ]
+ },
+ "cause": "the frame-0 beat draws x = int(rand(60))*.01+.2 = 0.33 and y = 0.40 from projectm-eval's fixed-seed Mersenne Twister (cold load), so wave_mystery = -1 (vertical mode-6 line); the v1 prediction drew x > y (horizontal line) and its eager if() advanced the stream every frame",
+ "verdict": "understood frame by frame (v2)",
+ "note": "a fresh v2 prediction made after the capture for validation of the corrected math; the frozen v1 prediction stays as recorded"
+}
