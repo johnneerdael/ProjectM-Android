@@ -106,8 +106,10 @@ they exposed:
 |---|---|---|---|
 | Rovastar - Tripmaker (Space Trip Mix) | 13 | Beat-switched textured shapes (`additive = q1`). The blend was read from the header, and the inlined beat test saw end-of-frame state. The constant black inner border on a per-frame band was not drawn. | Fixed (a73317a9, f79a6e9b). Now 4 predicted jumps (frames 95, 157, 158, 245), so it is excluded from No strobe. Still brighter than the engine (grey 0.91 vs 0.69). |
 | EoS - matrix cube F | 5 | Per-point q/t variables carried across frames, and the display used the midpoint of a loose static gamma range [0, 8] (4× too bright) instead of the frame's `gamma = 1 + beatdrop*.28`. | Fixed (84de1738, a8a70a3a). Jumps at frames 147, 212, 245, 278 against the engine's 147, 180, 212, 245, 278; mean grey 0.913 vs 0.917. |
-| martin - city lights v2 | 4 | The composite failed on projectm-eval `&&` and on an inlined per-frame `loop()`, so the prediction was near black. | Fixed (a73317a9). Validation pending. |
-| out of the paradigm nz bulbuless, ougiel - floutest biohazmat, only glimpses of the reality…, shifter - orthoganal light CC beta6, suksma - chernobyl pie… | 1–2 | Not yet investigated. | Open |
+| martin - city lights v2 | 4 | The composite failed on projectm-eval `&&` and on an inlined per-frame `loop()`, so the prediction was near black. | Fixed (a73317a9). Now 6 predicted jumps, so it is excluded. Brighter than the engine (0.31 vs 0.18). |
+| out of the paradigm nz bulbuless | 1 (peak 0.085) | Its summary predated the per-point q/t restart: the custom waves drew nothing and the canvas stayed black. The composite on the engine's canvas matches the engine frame by frame. | Fixed by re-export (84de1738 and later). Now 4 predicted jumps, so it is excluded (grey 0.76 vs 0.63). |
+| ougiel - floutest biohazmat, shifter - orthoganal light CC beta6 | 1–2 (peaks 0.086–0.111) | Prediction peaks below the 0.08 jump (0.049–0.066) with similar brightness. | Open. The peak statistic gives a headroom rule. |
+| only glimpses of the reality…, suksma - chernobyl pie… morriband flame goate | 1–2 | Not yet investigated. | Open |
 
 `flash_pass.py` runs `facet_precompute.random_flash`, the per-frame
 `rand_frame` tail probe, on the held-out presets with r13 summaries (100 of
