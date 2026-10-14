@@ -67,3 +67,29 @@ already a large miss. The ruler goes almost black for frames 15–100, while
 the prediction stays bright. It is an open case and is not caused by the
 stream order. The other losses are 0.015 or less. The same two presets time
 out in both runs.
+
+## Tiny-grid validation (e5cf833b, 2026-10-14): rejected
+
+The facet statistics needed to cost at most 1 s per preset. A 64×36 grid with
+the same source maths was tested against the native ruler on the 200-preset
+selection, using frames 60–149, cold load only (`tiny_one.py`, `tiny_pass.py`).
+The 197 presets measured in all three runs:
+
+| vs ruler | 64×36 | full resolution (a0466ceb) |
+|---|---|---|
+| luma error (mean) | 0.130 | 0.041 |
+| luma within 0.05 | 39.6% | 81.2% |
+| saturation error | 0.147 | 0.054 |
+| frame difference error | 0.033 | 0.011 |
+| Spearman luma / saturation / frame difference | 0.756 / 0.674 / 0.740 | 0.924 / 0.922 / 0.924 |
+
+The misses are flips, not drift: Rovastar voovsnakedmov predicts 0.960 at
+64×36, 0.089 at full resolution and 0.097 on the ruler, and suksma purple 9-d
+predicts 0.046, 0.887 and 0.888. MilkDrop feedback depends on pixel scale.
+Shader offsets are written in texels (`texsize.zw*8`), lines and dots are one
+pixel wide, and blur kernels are fixed in pixels, so a grid eight times
+smaller is a different system.
+
+The grid also missed the time budget: a 150-frame prediction took a median
+3.9 s, a 90th percentile of 78 s and a maximum of 310 s. The cost of
+per-instance shapes and per-point waves does not depend on the grid.
