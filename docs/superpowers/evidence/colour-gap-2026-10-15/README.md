@@ -36,3 +36,7 @@ Pooling plateaus near 50% (44% held out). The remaining misses are colour create
 random textures and per-load tints, plus presets whose colour comes from audio-gated routes. Next: the warp's
 colour transform as an iterated map (per-channel and cross-channel gains under coloured probes), the second
 colour row of the gap table.
+
+Tried and reverted: the hue of a channel-selective warp's gain vector as a source (20% of exported warps keep
+only some channels). 200 set 51% (unchanged), held-out 44% → 42%. More sources no longer help; pooling has hit
+its ceiling.
