@@ -104,8 +104,8 @@ they exposed:
 
 | Preset | Engine jumps / 10 s | Cause found | Status |
 |---|---|---|---|
-| Rovastar - Tripmaker (Space Trip Mix) | 13 | Beat-switched textured shapes (`additive = q1`). The blend was read from the header, and the inlined beat test saw end-of-frame state. | Fixed (a73317a9). The canvas still saturates before the first beat (open). |
-| EoS - matrix cube F | 5 | Per-point q/t variables carried across frames instead of restarting from the wave's per-frame values. The cube collapsed to a few dim lines. | Fixed (84de1738). Validation pending. |
+| Rovastar - Tripmaker (Space Trip Mix) | 13 | Beat-switched textured shapes (`additive = q1`). The blend was read from the header, and the inlined beat test saw end-of-frame state. The constant black inner border on a per-frame band was not drawn. | Fixed (a73317a9, f79a6e9b). Now 4 predicted jumps (frames 95, 157, 158, 245), so it is excluded from No strobe. Still brighter than the engine (grey 0.91 vs 0.69). |
+| EoS - matrix cube F | 5 | Per-point q/t variables carried across frames, and the display used the midpoint of a loose static gamma range [0, 8] (4× too bright) instead of the frame's `gamma = 1 + beatdrop*.28`. | Fixed (84de1738, a8a70a3a). Jumps at frames 147, 212, 245, 278 against the engine's 147, 180, 212, 245, 278; mean grey 0.913 vs 0.917. |
 | martin - city lights v2 | 4 | The composite failed on projectm-eval `&&` and on an inlined per-frame `loop()`, so the prediction was near black. | Fixed (a73317a9). Validation pending. |
 | out of the paradigm nz bulbuless, ougiel - floutest biohazmat, only glimpses of the reality…, shifter - orthoganal light CC beta6, suksma - chernobyl pie… | 1–2 | Not yet investigated. | Open |
 
