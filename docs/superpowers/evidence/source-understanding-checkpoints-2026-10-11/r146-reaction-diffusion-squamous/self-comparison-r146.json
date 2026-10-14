@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r146-v1",
+ "preset": "Geiss - Reaction Diffusion - Simple Squamous Mix.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f2942fda920b6d31f9b6725bcd20b3eee2babd55724ef8bd5a0eb10fb6db5989",
+  "prediction.json": "c7ae3dea6664ea37ce745b06ac8e2518acd464eb5155c18052f226180b4cf201",
+  "description.json": "4ae35e4889227a375efd63c69d0d0512ac545adf8f0dd026c3536fce0aa1178c",
+  "recipe.json": "f82645fbbeb3928a1dd55bcaf0198293c32eaaca2f0585d940fa7e2bc01dede7",
+  "llm-look-description-v1.txt": "8eb253f1178a839216a27db3594c7c7da3a55aa244090ca50d64af58b42c84f6"
+ },
+ "capture_result_sha256": "7cad6372dd3939e224e78640901ec954acde297bcabc1be55a3d0cc1d2c784d0",
+ "review_measurements_v1": {
+  "prediction_luma": 0.308,
+  "screenshot_luma": 0.312,
+  "mean_rgb_prediction": [
+   0.384,
+   0.294,
+   0.221
+  ],
+  "mean_rgb_screenshot": [
+   0.384,
+   0.298,
+   0.228
+  ],
+  "blurred_luma_correlation": -0.065,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.298,
+    0.303
+   ],
+   "saturation": [
+    0.355,
+    0.354
+   ],
+   "blurred_luma_correlation": -0.091
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.08,
+   0.0814
+  ]
+ },
+ "agreements": [
+  "all display statistics and luma arc",
+  "white cells on speckled amber (frozen prediction)",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK: does not name the white reaction-diffusion cells",
+  "placement chaotic (map corr ~0)"
+ ],
+ "verdict": "frozen prediction statistically exact (luma 0.298 vs 0.303, mean rgb 0.35/0.29/0.24 vs 0.36/0.29/0.25, saturation 0.355 vs 0.354, frame difference 0.080 vs 0.081, luma arc frame by frame); the same white reaction-diffusion cells on speckled amber, placed differently (map corr ~0: chaotic placement, expected for reaction-diffusion). SDK names the warm amber full-screen texture and no strobe, but not the white cell-like blobs."
+}

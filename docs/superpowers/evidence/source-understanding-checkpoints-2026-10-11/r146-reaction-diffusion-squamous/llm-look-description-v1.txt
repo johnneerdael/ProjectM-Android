@@ -1,0 +1,11 @@
+Approximate look (source-only prediction, no render viewed).
+
+This is a feedback-driven, shader-based preset: the picture is made by repeatedly resampling the previous frame, not by crisp drawn shapes. The recipe lists no drawn waves, shapes or particles (layers are only a custom warp shader, a custom composite shader and the native mesh warp), so I expect a full-screen, organic, textured field (reaction-diffusion style blobs, cells or veins) that grows from seeds. That growth behaviour is inferred from the shader-based construction, not from a stated mechanism; the recipe names no pattern_growth effect, so the exact texture is uncertain.
+
+Colour and brightness: the composite maps the canvas through a warm ramp (flat_transfer): dark content shows as deep red/brown, mid levels orange, bright levels go to white. The steady-state hue family is orange (display_local_rgb about 0.42, 0.27, 0.05), so I expect an orange-amber, fairly saturated picture with brown shadows and pale yellow-white highlights. The calibrated estimate gives mean luminance about 0.36 (range 0.17 to 0.59), saturation about 0.66, and warm/cool near neutral with a wide interval, so the warm reading is moderately confident, the exact brightness is not.
+
+Motion: the whole image expands from the screen centre by 1.4 to 2.4 percent per frame, with slow rotation of up to plus or minus 0.01 rad per frame (direction changing over time). Trails are short: warp transfer gain is about 0.91 per frame, halving in about 7.5 frames (roughly a quarter second), so the picture keeps churning rather than building long streaks. Calibrated flow is about 0.25 screen widths per second and frame difference is moderate, so it reads as constantly flowing outward and fairly active (predicted Intense, low confidence).
+
+Audio: only attenuated treble is routed to the warp shader's colour channels, with thresholds or clamps, so treble should shift colour or brightness smoothly; strength is unknown. No bass or mid routes were found.
+
+Flashing: the calibrated estimate expects few global brightness jumps (about 0.4 per 10 seconds, interval 0 to 4), but the mood layer's flash figures are assumptions. Strobing is not expected, though it cannot be ruled out.
