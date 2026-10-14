@@ -252,13 +252,22 @@ def test_packed_shader_predicate_does_not_erase_native_arithmetic_to_force_proof
     from test_effect_families import shader
     python=os.environ.get('MILK_PROOF_PYTHON')
     if not python:pytest.skip('pinned Z3 worker required')
-    a=_Analysis(shader('shader_body {ret=(bass*bass<0) ? 1 : .2;}'),'gles300',{})
-    a.input_scenario=validate_scenario({'schema_version':1,'name':'declared-bass','audio_band_ranges':{'bass':[0,2]}})
-    a.main_equations();a.primitives();a.shader('warp','warp_');a.shader('composite','comp_');a.contribution_gates()
-    with ProofSession(python):
-        result=flash_evidence(a,appearance_from_analysis(a),{'viewport':[1920,1080],'feedback_fps':30})
+    def run(body):
+        a=_Analysis(shader('shader_body {'+body+'}'),'gles300',{})
+        a.input_scenario=validate_scenario({'schema_version':1,'name':'declared-bass','audio_band_ranges':{'bass':[0,2]}})
+        a.main_equations();a.primitives();a.shader('warp','warp_');a.shader('composite','comp_');a.contribution_gates()
+        with ProofSession(python):
+            return flash_evidence(a,appearance_from_analysis(a),{'viewport':[1920,1080],'feedback_fps':30})
+    # A reachable packed product predicate keeps its full brightness change.
+    result=run('ret=(bass*bass<1) ? 1 : .2;')
     assert shader_record(result)['brightness_delta_range'][1]>.79
     assert not result['rejected_predicates']
+    # A square is exactly >= 0 under IEEE rounding (and GLSL ES precision), so bass*bass<0 is unreachable like any
+    # other branch outside the nominal domain; it is rejected by the envelope, not by a native certificate.
+    result=run('ret=(bass*bass<0) ? 1 : .2;')
+    assert shader_record(result)['brightness_delta_range']==[0.,0.]
+    assert [r['reason'] for r in result['rejected_predicates']]==['unreachable branch in qualified nominal input domain']
+    assert not result['rejected_predicates'][0]['native_numeric_certified']
 
 
 def test_real_eel_shape_uses_sympy_to_tighten_nominal_material_rate():

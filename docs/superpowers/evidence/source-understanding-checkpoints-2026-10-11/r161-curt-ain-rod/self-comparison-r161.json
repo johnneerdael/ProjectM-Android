@@ -1,0 +1,55 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r161-v1",
+ "preset": "whoraeckle' - curt ain Rod --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a7fdb816f2d19de2cfc907a17369177bd7344ea9edc8a31a91a6855b15ff4ff7",
+  "prediction.json": "29688c58d81c2f16574df297d99981bdc9a039e58d65495347e4ba7e3d8a1f8f",
+  "description.json": "84a67e7fcabedeb85bf48afa02362968fe453e7333f024653691debdc8b411cf",
+  "recipe.json": "a2e965b7808e8dcd5f4230a5db113b92b09806c610e9b3b466ca031b25489c4e",
+  "llm-look-description-v1.txt": "916299fc2396ab4f6b8548b13cb46f36a1c41cfd1f3180d1d1d33aed2705910e"
+ },
+ "capture_result_sha256": "d627c62a012038d0342d674c8e5b992cba117ebfcb7f0b7bf55b684d378b78f5",
+ "review_measurements_v1": {
+  "prediction_luma": 0.147,
+  "screenshot_luma": 0.075,
+  "mean_rgb_prediction": [
+   0.305,
+   0.101,
+   0.14
+  ],
+  "mean_rgb_screenshot": [
+   0.145,
+   0.056,
+   0.056
+  ],
+  "blurred_luma_correlation": 0.316,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.06,
+    0.089
+   ],
+   "saturation": [
+    0.456,
+    0.626
+   ],
+   "blurred_luma_correlation": 0.859
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.03,
+   0.0393
+  ]
+ },
+ "agreements": [
+  "darkness and short trails: SDK dark scene with brighter coloured patches; real mean luma 0.09",
+  "no shapes visible: the three polygons sit off-screen at y=1.8",
+  "no strobe mechanism (the swells are content sweeping on and off screen)"
+ ],
+ "misses": [
+  "motion: per-pixel lens about a travelling centre described as slow uniform contraction (recipe bounds missing)",
+  "brightness swells/blackouts not anticipated",
+  "calibrated luma 0.21 vs real 0.09"
+ ],
+ "verdict": "frozen prediction right on window statistics (frames 60-149 luma 0.060 vs 0.089, map corr 0.86, frame difference 0.030 vs 0.039): dark field with magenta-orange smeared light sweeping in and out, including full blackouts (real frames 75-83 black). The SDK reading missed the motion: the recipe left sx/sy and cx/cy unbounded (value_range null) because the bounder gave up on an EEL division inside cos (musictime += mid^3*.02*(75/fps)), on atan, and on a 0 endpoint rounded to -5e-324 under sqrt; so the reader described the 0.9995 base zoom ('contracts slowly') instead of a per-pixel radial lens (sx=sy=zm*rd about a centre orbiting a music-clocked Lissajous)."
+}

@@ -43,6 +43,11 @@ def compound_time_bounds(field,*,_value_only=False,_input_domains=None,_response
             rate=math.nextafter(rate,math.inf)
             if not math.isfinite(rate):rate=None
         return span,rate,kind
+    def nonnegative(result):
+        # Squares and sums/products of same-signed operands are exactly >= 0 under IEEE rounding: the outward
+        # rounding step must not move a 0 endpoint below zero.
+        span,rate,kind=result
+        return ([max(0.,span[0]),span[1]] if span is not None else None),rate,kind
     def visit(node,depth=0):
         key=id(node)
         if key in memo and memo[key][0] is node:return memo[key][1]
@@ -260,11 +265,18 @@ def compound_time_bounds(field,*,_value_only=False,_input_domains=None,_response
                 return checked([min(a[0],b[0]),max(a[1],b[1])],None,'unknown')
             if node.op!='select' and len(args)==2:return ([0.,1.],None,'unknown')
             return None
+        if _value_only and node.op=='atan' and len(node.args)==1:
+            child=visit(node.args[0],depth+1)
+            if child is None or child[0] is None:return None
+            return checked([math.atan(child[0][0]),math.atan(child[0][1])],None,'unknown')  # monotone onto (-pi/2, pi/2)
+        if _value_only and node.op=='atan2' and len(node.args)==2:
+            if any(visit(arg,depth+1) is None for arg in node.args):return None
+            return checked([-math.pi,math.pi],None,'unknown')
         if _value_only and node.op=='sqr' and len(node.args)==1:
             child=visit(node.args[0],depth+1)
             if child is None or child[0] is None:return None
             lo,hi=child[0];low=0. if lo<=0<=hi else min(lo*lo,hi*hi)
-            return checked([low,max(lo*lo,hi*hi)],None,'unknown')
+            return nonnegative(checked([low,max(lo*lo,hi*hi)],None,'unknown'))
         if node.op in {'cast','narrow','construct','components','negate','sin','cos','abs'} and len(node.args)==1:
             child=visit(node.args[0],depth+1)
             if child is None:return None
@@ -286,11 +298,14 @@ def compound_time_bounds(field,*,_value_only=False,_input_domains=None,_response
         x,dx,_=a;y,dy,_=b;kind=continuity(a,b)
         if node.op in {'add','subtract'}:
             span=None if x is None or y is None else ([x[0]+y[0],x[1]+y[1]] if node.op=='add' else [x[0]-y[1],x[1]-y[0]])
-            return checked(span,add_rates(dx,dy),kind)
+            result=checked(span,add_rates(dx,dy),kind)
+            return nonnegative(result) if node.op=='add' and span is not None and x[0]>=0 and y[0]>=0 else result
         if node.op=='multiply':
             products=None if x is None or y is None else [0. if u==0 or v==0 else u*v for u in x for v in y]
             span=None if products is None else [min(products),max(products)]
-            return checked(span,add_rates(product_term(dx,y),product_term(dy,x)),kind)
+            result=checked(span,add_rates(product_term(dx,y),product_term(dy,x)),kind)
+            same_sign=span is not None and (x[0]>=0 and y[0]>=0 or x[1]<=0 and y[1]<=0)
+            return nonnegative(result) if same_sign else result
         if node.op in {'min','max'}:
             if x is not None and y is not None:
                 if x[1]<=y[0]:return a if node.op=='min' else b
@@ -303,6 +318,9 @@ def compound_time_bounds(field,*,_value_only=False,_input_domains=None,_response
         if node.op=='eel_divide' and -.00001<y[0]<=y[1]<.00001:
             return ([0.,0.],0.,'smooth_nominal')
         minimum=min(map(abs,y))
+        if _value_only and node.op=='eel_divide' and (y[0]<=0<=y[1] or minimum<.00001):
+            # projectm-eval returns 0 for |divisor| < 1e-5: the quotient of finite operands is an arbitrary finite value.
+            return ([-math.inf,math.inf],None,'unknown')
         if y[0]<=0<=y[1] or node.op=='eel_divide' and minimum<.00001:return None
         span=None if x is None else [min(u/v for u in x for v in y),max(u/v for u in x for v in y)]
         # Quotient rule: Df/|g|min + Dg*|f|max/|g|min^2.

@@ -168,6 +168,13 @@ full recipe tens of thousands of lines long.
    thin-line integrated fraction with the decay to judge whether converging
    lines pile up or fade (beaded remnants can stay brighter). Zoom acts about
    the screen centre; zoomexp makes it vary with radius. Read
+   `render.feedback.warp_controls` for each mesh control's value range over the
+   screen and time. The engine samples `(p - c)/s + c` about the centre (cx, cy):
+   stretch s > 1 expands content outward each frame, s < 1 pulls it inward, and
+   s near 0 pulls in distant parts of the image. A non-uniform sx/sy whose range
+   spans far from 1 is a per-pixel lens, and it dominates a base zoom near 1.
+   A centre range wider than a few hundredths means that lens or zoom centre
+   travels. Describe that motion instead of the base zoom. Read
    `approximate_mood.py` output as an editable estimate with labelled drivers;
    keep it separate from strict eligible bands. Read `motion_vectors` for a drawn vector grid and the composite
    gamma/echo sentence for doubling or brightening. All are source facts, not

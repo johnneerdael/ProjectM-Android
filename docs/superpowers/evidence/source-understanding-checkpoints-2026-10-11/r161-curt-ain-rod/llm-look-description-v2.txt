@@ -1,0 +1,13 @@
+Approximate look: a mostly dark, low-content picture with soft, smeared, mirrored haze rather than crisp shapes. The source evidence says almost nothing is being drawn, so it is probably sparse.
+
+Brightness and colour: The settled flat-field and steady-state colour is essentially black (display about 0.0002, canvas about 0.007, no hue family). Nothing in the source fixes a palette: all colour ingredients (warp, composite and the three shapes) are marked unresolved. The only drawn colours are red shape fills with faint white borders, and these may not reach the screen. The composite is a steep, greyscale-neutral brightener: 0.25 maps to 0.25 and 0.5 or above maps to 1.0. Any content that does appear can therefore look hard and contrasty, and mid-level content can clip to white. The calibrated display estimate disagrees with the near-black source reading. It gives mean luminance about 0.21 (interval 0.02 to 0.45) and moderate saturation about 0.5 (interval 0.22 to 0.76), with warm versus cool undetermined. I treat the real brightness as uncertain, leaning dark to dim.
+
+Structures: Three identical small four-sided shapes (radius 0.1) sit at one point, x=0.5, y=1.8. That is outside the 0 to 1 range and probably below the visible screen. They are likely off-screen or only barely contributing. They are stationary and textured with the previous frame. There are no waves, particles or recognised tunnels. The warp shader folds and mirrors the image, so any content comes out symmetric or kaleidoscope-like.
+
+Motion: Trails are extremely short. Content retains about 57% per frame, a half-life of roughly 1.2 frames. A very slight uniform inward contraction (0.049% per step) acts about the centre. There is no rotation and no net drift. A per-pixel lens, with stretch values from 0 to about 2.7 and a centre that moves, together with self-advection and an 8-tap blur whose strength grows toward the edges, would smear and ripple whatever is present into soft fluid-like haze. The estimated flow is about 0.15 screen widths per second, and it is uncertain.
+
+Audio: Mid-band drives the scale or stretch lens in the mesh. Its gain and strength are unknown, so expect continuous, smooth modulation rather than beat pulses.
+
+Flashing: No flash mechanisms were found. Calibrated brightness-jump estimates are wide (about 1.6 to 28 per 10 seconds), so I cannot rule out a pulsing or strobing look. This is not a strobe-safety claim.
+
+Overall mood estimate: a dark, smooth, hypnotic and liquid preset of normal-to-low activity. Confidence is low.
