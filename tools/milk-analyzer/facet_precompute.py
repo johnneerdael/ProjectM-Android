@@ -124,7 +124,8 @@ def random_flash(summary, audio, frames=150):
     def probe(evaluate, draws):
         jump = greys[-1] - greys[-2] if len(greys) > 1 else 0.
         stages = {stage: random_flash_risk(lambda v, stage=stage: evaluate(v, stage), draw, jump) for stage, draw in draws.items()}
-        result.update(stages=stages, max_jump=max(r['max_jump'] for r in stages.values()),
+        # base_jump > FLASH_JUMP: the probed frame flashes whatever the draw (probability 1 by itself).
+        result.update(stages=stages, base_jump=round(jump, 4), max_jump=max(r['max_jump'] for r in stages.values()),
                       flash_probability_per_frame=round(_either(*(r['flash_probability_per_frame'] for r in stages.values())), 6))
     illustrate_field(summary, time=(k + 1) / FPS, fps=FPS, history_steps=k + 1, audio=audio, viewport=list(PROBE_SIZE), rand_probe={'frame': k, 'probe': probe},
                      frame_callback=lambda t, im: greys.append(_grey(im)))

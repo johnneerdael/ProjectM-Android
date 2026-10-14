@@ -1315,11 +1315,61 @@ def _sampler_wraps(policy,controls=None):
 _NOISE={}
 
 
-def _noise_bytes(rng,shape,zoom):
-    """MilkdropNoise texel bytes in [0,1]: each of R, G, B and A is (rand % RANGE) + RANGE/2 stored in 8 bits,
-    RANGE 256 for unsmoothed textures (uniform) and 216 for smoothed ones (wraps to 108-255 and 0-67)."""
+def _milkdrop_bytes(rng,count,zoom):
+    """MilkdropNoise texels as RGBA8 bytes: four draws (rand % RANGE) + RANGE/2 packed with <<24, <<16, <<8, <<0
+    into one uint32 (RANGE 256 unsmoothed, 216 smoothed). Values above 255 wrap in the top byte and OR their
+    ninth bit into the next byte up; the little-endian word gives bytes R, G, B, A."""
     span=216 if zoom>1 else 256
-    return (((rng.integers(0,span,shape)+span//2)%256)/255.).astype(np.float32)
+    v=rng.integers(0,span,(count,4)).astype(np.uint64)+np.uint64(span//2)
+    packed=((v[:,0]<<np.uint64(24))|(v[:,1]<<np.uint64(16))|(v[:,2]<<np.uint64(8))|v[:,3])&np.uint64(0xFFFFFFFF)
+    return np.stack([(packed>>np.uint64(s))&np.uint64(0xFF) for s in (0,8,16,24)],-1).astype(np.uint8)
+
+
+def _dw_cubic(y0,y1,y2,y3,t):
+    """MilkdropNoise::dwCubicInterpolate: per byte, fCubicInterpolate on value/255 in float, clamped to [0,1]
+    and truncated by (uint32)(f*255)."""
+    a,b,c,d=(np.asarray(v,np.float32)/np.float32(255) for v in (y0,y1,y2,y3))
+    t=np.asarray(t,np.float32);t2=t*t
+    a0=d-c-a+b;a1=a-b-a0;a2=c-a
+    return (np.clip(a0*t*t2+a1*t2+a2*t+b,0,1)*np.float32(255)).astype(np.uint8)
+
+
+def _milkdrop_noise_2d(rng,size,zoom,keep_raw=False):
+    """MilkdropNoise::generate2D: random texels; smoothed textures interpolate cubically across the lattice rows
+    (every zoom-th row), then down every column. The per-row random pixel swaps permute i.i.d. texels and are
+    left out (the draws themselves are a seeded stand-in)."""
+    d=_milkdrop_bytes(rng,size*size,zoom).reshape(size,size,4);raw=d.copy()
+    if zoom>1:
+        n=np.arange(size);off=n[n%zoom!=0];base=(off//zoom)*zoom+size
+        t=(off%zoom).astype(np.float32)/np.float32(zoom)
+        for y in range(0,size,zoom):
+            row=d[y].copy()
+            d[y,off]=_dw_cubic(row[(base-zoom)%size],row[base%size],row[(base+zoom)%size],row[(base+2*zoom)%size],t[:,None])
+        d[off]=_dw_cubic(d[(base-zoom)%size],d[base%size],d[(base+zoom)%size],d[(base+2*zoom)%size],t[:,None,None])
+    return (raw,d) if keep_raw else d
+
+
+def _milkdrop_noise_3d(rng,size,zoom,keep_raw=False):
+    """MilkdropNoise::generate3D, including its indexing: the smoothing passes address texel (x, y, z) as
+    z*size + y*size + x (not z*size*size), so they read and write only the first two slices' memory and the
+    other slices keep the raw bytes. Returned as (z, y, x, RGBA) bytes."""
+    f=_milkdrop_bytes(rng,size**3,zoom);raw=f.copy()
+    if zoom>1:
+        n=np.arange(size);off=n[n%zoom!=0];base=(off//zoom)*zoom+size
+        t=(off%zoom).astype(np.float32)/np.float32(zoom)
+        taps=[(base+k*zoom)%size for k in (-1,0,1,2)]
+        for z in range(0,size,zoom):            # across X, on the main lines
+            for y in range(0,size,zoom):
+                row=z*size+y*size
+                f[row+off]=_dw_cubic(*(f[row+tap] for tap in taps),t[:,None])
+        for z in range(0,size,zoom):            # down Y, on the main slices
+            rows=[(tap[:,None]+z)*size+n[None,:] for tap in taps]
+            f[((off[:,None]+z)*size+n[None,:]).ravel()]=_dw_cubic(*(f[r.ravel()] for r in rows),np.repeat(t,size)[:,None])
+        for y in range(size):                   # through Z, everywhere (all x at once: columns are independent)
+            rows=[((tap[:,None]+y)*size+n[None,:]).ravel() for tap in taps]
+            f[((off[:,None]+y)*size+n[None,:]).ravel()]=_dw_cubic(*(f[r] for r in rows),np.repeat(t,size)[:,None])
+    shape=(size,size,size,4)
+    return (raw.reshape(shape),f.reshape(shape)) if keep_raw else f.reshape(shape)
 
 
 # Per-load randomness (hue offsets, noise, rand, random textures) for a seeded illustration; None keeps the
@@ -1343,19 +1393,14 @@ def _noise_texture(name):
     RGBA in [0,1], since MilkdropNoise fills all four bytes and shaders read .w."""
     key=name if _SEED[0] is None else (name,_SEED[0])
     if key not in _NOISE:
-        # MilkdropNoise: random texels every `zoom` texels, cubic in between (lq: every texel; hq: every 8th).
+        # MilkdropNoise: random texels every `zoom` texels, cubic in between (lq: every texel; hq: every 8th);
+        # the volumes keep generate3D's slice addressing (only slices 0-1 smoothed).
         size,zoom=NOISE_SIZES.get(name,(256,4))
         rng=np.random.default_rng(sum(map(ord,name))+_seed_shift())
         if name.startswith('noisevol_'):
-            # MilkdropNoise::generate3D: a size^3 volume (z, y, x), random every `zoom` texels, cubic between.
-            cells=_noise_bytes(rng,(size//zoom,)*3+(4,),zoom)
-            if zoom>1:
-                from scipy.ndimage import zoom as upsample
-                cells=upsample(cells,(zoom,zoom,zoom,1),order=3,mode='grid-wrap').clip(0,1).astype(np.float32)
-            _NOISE[key]=cells
-            return cells
-        cells=_noise_bytes(rng,(size//zoom,size//zoom,4),zoom)
-        _NOISE[key]=cells if zoom==1 else cv2.resize(cells,(size,size),interpolation=cv2.INTER_CUBIC).clip(0,1)
+            _NOISE[key]=(_milkdrop_noise_3d(rng,size,zoom)/np.float32(255)).astype(np.float32)
+            return _NOISE[key]
+        _NOISE[key]=(_milkdrop_noise_2d(rng,size,zoom)/np.float32(255)).astype(np.float32)
     return _NOISE[key]
 
 

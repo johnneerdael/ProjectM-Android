@@ -394,9 +394,7 @@ def test_noise_volumes_are_32_cubed_and_sampled_in_three_dimensions():
     volume = _noise_texture('noisevol_hq')
     assert volume.shape == (32, 32, 32, 4)
     assert list(_texsize('noisevol_hq', 480, 270)[:2]) == [32, 32]
-    # hq is smooth (random every 4th texel); lq varies texel to texel.
     lq = _noise_texture('noisevol_lq')
-    assert np.abs(np.diff(volume, axis=2)).mean() < np.abs(np.diff(lq, axis=2)).mean()
     # Texel centres read the texel; z selects the slice; wrap repeats.
     c = (np.array([[3, 5, 7]]) + .5) / 32
     assert np.allclose(_texture_lookup_3d(lq, c, wrap=True, linear=True)[0], lq[7, 5, 3])
@@ -658,3 +656,31 @@ def test_seeded_illustrations_draw_per_load_randomness_reproducibly():
     finally:
         P._SEED[0] = None
     assert np.array_equal(P._noise_texture('noise_lq'), lq0)
+
+
+def test_milkdrop_cubic_interpolation_is_per_byte_clamped_and_truncated():
+    from prediction_illustration import _dw_cubic
+    # fCubicInterpolate(a0=y3-y2-y0+y1, a1=y0-y1-a0, a2=y2-y0, a3=y1) on bytes/255; clamp; (uint32)(f*255).
+    out = _dw_cubic(*[np.array([[v, v, v, v]], np.uint8) for v in (0, 255, 255, 0)], .5)
+    f = (0 - 1 - 0 + 1) * .125 + (0 - 1 - 0) * .25 + (1 - 0) * .5 + 1
+    assert out.dtype == np.uint8 and out[0, 0] == int(min(1., f) * 255)
+    assert _dw_cubic(*[np.array([[v] * 4], np.uint8) for v in (40, 80, 120, 160)], 0.)[0, 0] == 80
+
+
+def test_noise_2d_keeps_lattice_texels_and_smooths_between():
+    from prediction_illustration import _milkdrop_noise_2d
+    raw, smooth = _milkdrop_noise_2d(np.random.default_rng(5), 32, 4, keep_raw=True)
+    assert smooth.shape == (32, 32, 4) and smooth.dtype == np.uint8
+    assert np.array_equal(smooth[::4, ::4], raw[::4, ::4])
+    assert not np.array_equal(smooth[1::4], raw[1::4])
+
+
+def test_noise_volume_smoothing_touches_only_the_first_two_slices():
+    # MilkdropNoise::generate3D indexes z*size instead of z*size*size: every smoothing access lands below flat
+    # index 2048, so slices 2..31 keep the raw bytes, (rand % 216) + 108 wrapped to 108..255 and 0..67.
+    from prediction_illustration import _milkdrop_noise_3d
+    raw, volume = _milkdrop_noise_3d(np.random.default_rng(3), 32, 4, keep_raw=True)
+    assert np.array_equal(volume[2:], raw[2:])
+    assert not np.array_equal(volume[:2], raw[:2])
+    values = set(np.unique(volume[2:]).tolist())
+    assert values <= set(range(0, 68)) | set(range(108, 256)) and 0 in values and 255 in values
