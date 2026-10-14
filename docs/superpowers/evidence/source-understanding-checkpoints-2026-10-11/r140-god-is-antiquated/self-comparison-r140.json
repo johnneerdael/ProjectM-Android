@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r140-v1",
+ "preset": "LuxXx - God is Antiquated.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d84e884f5df00770238f983b65a5de591e0fd64cd55b8af2651d3407c53e0916",
+  "prediction.json": "abbaaaac38a441c0335772e2813ddf0a78d2fa08177757328aff1c89e00fa533",
+  "description.json": "ddfdeb44f9519a49ff4ca24ffcb416ac1da08d3e9163c0f542392a6d471682d9",
+  "recipe.json": "69c577f347578a4e58717e433faa49731b3e31150fa4d6f30f669952a3e5d245",
+  "llm-look-description-v1.txt": "08dabf18b46a0615a7cb98e48b66055d6c7044f9a6864e48770bea346cf744db"
+ },
+ "capture_result_sha256": "e7814e50a0a7aaeba24c57393678fdf12434ac0c08944021def29e9b773eb3c7",
+ "review_measurements_v1": {
+  "prediction_luma": 0.464,
+  "screenshot_luma": 0.381,
+  "mean_rgb_prediction": [
+   0.935,
+   0.32,
+   0.506
+  ],
+  "mean_rgb_screenshot": [
+   0.908,
+   0.228,
+   0.354
+  ],
+  "blurred_luma_correlation": -0.012,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.401,
+    0.419
+   ],
+   "saturation": [
+    0.757,
+    0.752
+   ],
+   "blurred_luma_correlation": 0.155
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.03,
+   0.0261
+  ]
+ },
+ "agreements": [
+  "brightness arc",
+  "palette and saturation in the frozen prediction",
+  "smooth fluid motion, no strobe"
+ ],
+ "misses": [
+  "SDK: pale yellow-white/grey vs vivid magenta-red-yellow (closed-form colour)",
+  "map correlation 0.155 (chaotic placement)"
+ ],
+ "verdict": "frozen prediction statistics match the capture (luma 0.401 vs 0.419, mean rgb 0.90/0.26/0.34 vs 0.90/0.28/0.34, saturation 0.757 vs 0.752, frame difference 0.030 vs 0.026); low map correlation is the placement of a chaotic fluid texture. SDK said pale yellow-white and grey: the closed-form colour facts miss the vivid magenta/red/yellow palette that only the stepped prediction shows (recurring closed-form colour gap)."
+}
