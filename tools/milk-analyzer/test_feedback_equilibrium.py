@@ -249,3 +249,17 @@ def test_shape_with_a_previous_frame_texture_adds_no_light():
     assert E._shape_terms(facts, notes) == [] and any('copies the canvas' in n for n in notes)
     facts[base + '/material']['texture'] = {'role': 'untextured_vertex_gradient'}
     assert len(E._shape_terms(facts, [])) == 1
+
+
+def test_composite_colour_matrix_captures_channel_swaps(monkeypatch):
+    # Grey flat probes cannot see a composite that swaps channels (ret = tex.zxy): a red canvas shows green.
+    # Coloured flat probes give the response matrix that maps element colours to displayed colours.
+    import numpy as np
+    import prediction_illustration as P
+    facts = {'/analysis/visual_description/stage_programs': {'stages': {'composite': {'status': 'exported',
+                 'program': {'root': 0, 'nodes': []}}}},
+             '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, *a, **k: image[..., [2, 0, 1]].astype(np.float32))
+    m = E.composite_colour_matrix(facts, level=.5)
+    out = E.apply_colour_matrix(m, [1., 0., 0.])
+    assert out[1] > .9 and out[0] < .1 and out[2] < .1

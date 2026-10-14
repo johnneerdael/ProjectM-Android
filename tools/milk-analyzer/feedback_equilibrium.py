@@ -170,6 +170,39 @@ def composite_load_spread(facts,level=.5,draws=8,time=5.,size=(48,27)):
             'meaning':'displayed colour of a flat canvas under different random per-load hue tints'}
 
 
+def composite_colour_matrix(facts,level=.5,time=5.,size=(48,27)):
+    """Composite response to coloured flat canvases: mean output for black and for (l,0,0), (0,l,0), (0,0,l).
+
+    Grey probes (stage_transfer) assume channel independence; channel swaps and mixes (ret = tex.zxy,
+    dot(ret, ...)) need coloured probes. Four evaluations of the exported composite, neutral audio, one
+    declared time; the result is a local linear map around black at the probe level. No frames are stepped.
+    """
+    import numpy as np
+    import prediction_illustration as P
+    program=(((facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}).get('composite') or {})
+    if program.get('status')!='exported':return None
+    width,height=size
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+    uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
+    bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
+    controls=_stage_controls(facts,bands,(time,))
+    outputs=[]
+    for colour in ((0.,0.,0.),(level,0.,0.),(0.,level,0.),(0.,0.,level)):
+        image=np.broadcast_to(np.array(colour,np.float32),(height,width,3)).copy()
+        try:out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,controls=dict(controls[time]),stage='composite')
+        except Exception:return None  # noqa: BLE001 - an unevaluable program leaves the matrix unknown
+        outputs.append([float(v) for v in np.clip(np.where(np.isfinite(out),out,0.),0,1).reshape(-1,3).mean(0)])
+    base=outputs[0]
+    return {'level':level,'black_rgb':base,'columns_rgb':[[outputs[c+1][i]-base[i] for i in range(3)] for c in range(3)],
+            'meaning':'displayed rgb ~= black_rgb + sum_c (input_c / level) * columns_rgb[c] near the probe level'}
+
+
+def apply_colour_matrix(matrix,rgb):
+    """Displayed colour of a canvas colour through a composite_colour_matrix (clamped to [0, 1])."""
+    level=matrix['level'];base=matrix['black_rgb'];columns=matrix['columns_rgb']
+    return [min(1.,max(0.,base[i]+sum(rgb[c]/level*columns[c][i] for c in range(3)))) for i in range(3)]
+
+
 STAGE_CONTROL_BUDGET_SECONDS=3.
 
 

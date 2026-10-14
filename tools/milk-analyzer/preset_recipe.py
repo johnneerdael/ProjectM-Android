@@ -374,7 +374,7 @@ def shape_colour_over_time(material,times=COLOUR_TIMES):
 # Ordered by each source's measured agreement with engine-ruler hues (200-preset set: composite detail and
 # steady state 64%, shape fills 50%, wave colours 37%); drawn colours pass through feedback and the composite
 # before display, so the stages nearest the display weigh most.
-PALETTE_WEIGHTS={'composite_detail':3.,'steady_state':1.5,'shape_fill':1.,'wave':.3,'point_cloud':.3}
+PALETTE_WEIGHTS={'composite_detail':3.,'steady_state':1.5,'warp_detail':1.,'shape_fill':1.,'wave':.3,'point_cloud':.3}
 
 
 def _channel_value(channel,time):
@@ -385,6 +385,10 @@ def _channel_value(channel,time):
     if channel.get('curve_kind')=='constant' and type(channel.get('constant_value')) in (int,float):return float(channel['constant_value'])
     span=channel.get('nominal_value_range')
     return (span[0]+span[1])/2 if isinstance(span,list) and len(span)==2 and None not in span else None
+
+
+HUE_CENTRE_RGB={'red':(1.,.15,.15),'orange':(1.,.55,.1),'yellow':(1.,.95,.15),'green':(.2,1.,.25),'cyan':(.15,1.,1.),
+                'blue':(.2,.35,1.),'purple':(.6,.2,1.),'pink':(1.,.25,.75)}
 
 
 def display_palette(recipe,times=COLOUR_TIMES):
@@ -398,7 +402,23 @@ def display_palette(recipe,times=COLOUR_TIMES):
     """
     from time_expression import hue_family
     render=recipe.get('render') or {};sources=[]
-    def add(name,shares,weight):
+    matrix=(render.get('composite') or {}).get('colour_matrix')
+    # Edge-based composites barely respond to flat input; their matrix is dominated by the black level and would
+    # recolour elements arbitrarily, so it is used only when flat colour passes through (a column above 0.1).
+    if matrix and max(max(abs(v) for v in column) for column in matrix['columns_rgb'])<.1:matrix=None
+    def displayed(shares):
+        # Element colours reach the display through the composite: map each hue family's representative
+        # colour, at the probe level, through the composite's coloured-probe response matrix.
+        if not matrix:return shares
+        from feedback_equilibrium import apply_colour_matrix
+        out={}
+        for family,v in (shares or {}).items():
+            rgb=HUE_CENTRE_RGB.get(family)
+            target=hue_family(apply_colour_matrix(matrix,[c*matrix['level'] for c in rgb])) if rgb else family
+            out[target]=out.get(target,0)+v
+        return out
+    def add(name,shares,weight,element=True):
+        shares=displayed(shares) if element else shares
         shares={k:v for k,v in (shares or {}).items() if k!='grayscale' and v>0}
         total=sum(shares.values())
         if total>0 and weight>0:sources.append((name,{k:v/total for k,v in shares.items()},weight))
@@ -421,10 +441,12 @@ def display_palette(recipe,times=COLOUR_TIMES):
                 if layer['colour'].get('max_normalised') and max(rgb)>.01:rgb=[v/max(rgb) for v in rgb]
                 family=hue_family(rgb);counts[family]=counts.get(family,0)+1
             add(layer.get('id'),counts,PALETTE_WEIGHTS['wave'])
+    warp_detail=(render.get('feedback') or {}).get('warp_detail_response') or {}
+    if (warp_detail.get('coloured_share') or 0)>.3:add('warp_detail',warp_detail.get('hue_shares'),PALETTE_WEIGHTS['warp_detail'])
     steady=((render.get('feedback') or {}).get('steady_state') or {}).get('hue_family')
-    if steady and steady!='grayscale':add('steady_state',{steady:1.},PALETTE_WEIGHTS['steady_state'])
+    if steady and steady!='grayscale':add('steady_state',{steady:1.},PALETTE_WEIGHTS['steady_state'],element=False)
     composite=render.get('composite') or {};detail=composite.get('detail_response') or {}
-    if (detail.get('coloured_share') or 0)>.5:add('composite_detail',detail.get('hue_shares'),PALETTE_WEIGHTS['composite_detail'])
+    if (detail.get('coloured_share') or 0)>.5:add('composite_detail',detail.get('hue_shares'),PALETTE_WEIGHTS['composite_detail'],element=False)
     pooled={}
     for _,shares,weight in sources:
         for k,v in shares.items():pooled[k]=pooled.get(k,0)+v*weight
@@ -496,6 +518,14 @@ def ray_sampling(mesh,size=(96,54),draws=3):
             'method':'closed-form backward map, frame-state inputs drawn in [-3, 3]; minimum share over draws'}
 
 
+def _warp_detail(facts):
+    # Colour the warp shader creates from texture (channel-dependent ops, coloured noise), like the composite's
+    # detail_response: a grey multi-scale texture through the exported warp program.
+    from feedback_equilibrium import stage_detail_response
+    detail=stage_detail_response(facts,'warp')
+    return {k:detail[k] for k in ('mean_luma','mean_saturation','coloured_share','hue_shares','input')} if detail else None
+
+
 def _ray_sampling_if_spatial(mesh):
     # A uniform scale has d r_src/d r_dst = 1/s everywhere: only a scale that varies over the screen can be ray-constant.
     controls=(mesh or {}).get('controls') or {}
@@ -520,6 +550,7 @@ def _render(facts):
                          for name,row in (mesh.get('controls') or {}).items() if row.get('status')=='described'},
         'shader_advection':advection,
         'ray_sampling':_ray_sampling_if_spatial(mesh),
+        'warp_detail_response':_warp_detail(facts),
         'flat_field':{k:flat.get(k) for k in ('state_rgb','flat_region_behaviour','settle_seconds','composite_rgb_at_state') if flat.get(k) is not None} or None,
         'warp_transfer':_warp_transfer(facts) if persistence.get('decay_gain') is None else None,
         'evidence':[p for p in (STATIC+'/feedback_persistence',STATIC+'/mesh_field',BASE+'/nonlinear_texture_colour_bounds/flat_field') if p in facts]}
@@ -572,6 +603,9 @@ def _render(facts):
         from feedback_equilibrium import stage_detail_response
         detail=stage_detail_response(facts,'composite')
         if detail is not None:composite['detail_response']={**detail,'source':'exported composite shader evaluated on a grey multi-scale texture'}
+        from feedback_equilibrium import composite_colour_matrix
+        matrix=composite_colour_matrix(facts,level=.3)
+        if matrix is not None:composite['colour_matrix']=matrix
         from feedback_equilibrium import composite_load_spread
         rows=[composite_load_spread(facts,level=level) for level in (.05,.1,.2)]
         rows=[r for r in rows if r]
