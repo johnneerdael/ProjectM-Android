@@ -1,0 +1,55 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r163-v1",
+ "preset": "suksma - tetraxectsual aeliaen kkuhltz --- Isosceles edit16.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9ede25a423b517fb29a9057daca3c206be8a39f62cbc66183f11eb7a21f4b976",
+  "prediction.json": "e318b73aaaeb859344e43be3e9966b9c3201b84298dc011ef5a5a1e163ab55b1",
+  "description.json": "d70692a1e18f9c751167390e510641e60bfdf558ca8d44d4b8df195183a25848",
+  "recipe.json": "fe5a694fd2b51bc3eedcda476986ed41c35ae5c8d26d6047bd1ab72e4e27fa5a",
+  "llm-look-description-v1.txt": "a2c971c6aab3068463aaf39cda1858090d292972f70c66ad3629cc959e9e5b5e"
+ },
+ "capture_result_sha256": "dba84a3498d783f78861777d2ac55df5710432ee53d4103ba7449de67bc07053",
+ "review_measurements_v1": {
+  "prediction_luma": 0.587,
+  "screenshot_luma": 0.765,
+  "mean_rgb_prediction": [
+   0.836,
+   0.573,
+   0.005
+  ],
+  "mean_rgb_screenshot": [
+   0.924,
+   0.789,
+   0.055
+  ],
+  "blurred_luma_correlation": 0.752,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.437,
+    0.541
+   ],
+   "saturation": [
+    0.994,
+    0.982
+   ],
+   "blurred_luma_correlation": 0.981
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1056,
+   0.0884
+  ]
+ },
+ "agreements": [
+  "palette: red-orange-yellow fire ramp, near-zero blue",
+  "structure: nested ring tunnel with central spokes",
+  "bright and saturated",
+  "audio-driven pulsing flagged as possible"
+ ],
+ "misses": [
+  "brightness about 20% low (canvas 0.48 vs about 0.58 behind a steep composite curve)",
+  "pulse phase differs frame by frame"
+ ],
+ "verdict": "frozen prediction right on structure and palette (map corr 0.981; frames 60-149 RGB (0.73,0.40,0.01) vs (0.80,0.52,0.02)): a yellow-orange field with a nested ring tunnel, bright spokes from the centre and a diagonal line. Our level is about 20% low (luma 0.437 vs 0.541). The composite maps the red canvas channel through lerp(blur1+blur3, main, main) and then pow(ret,(.3,.9,8))*1.25-.25; inverting green puts the real canvas near 0.58 against our 0.48, which is plausibly blur-level fidelity in the lerp term. Per-frame luma swings strongly with audio in both (out of phase). The SDK reading matched: bright warm fire ramp, rays from the centre, spiral or tunnel rings, continuous motion."
+}
