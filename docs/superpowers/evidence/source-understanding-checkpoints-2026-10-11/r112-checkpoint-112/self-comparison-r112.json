@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r112-v1",
+ "preset": "A Feature Preset Master Exclusive ORB - Planetary Alignment Acidburn - Hexocollie, Flexi AdamFX,Martin  b.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0ae47b0c9c076dda00d2502ebbd9b495783a02121e7a7388e334777905f5bd50",
+  "prediction.json": "00ba98670979a2c4be90a213b2fc6413bf9ccd3616c53b57afb092252666dca0",
+  "description.json": "e07c7562ef4f149d7c6c865f68b0bdb4d57967c385186dc26f4f1a60a7febc01",
+  "recipe.json": "dadf760afb80a31f89e31e469c3ef11c6741558bebd3dcef9f9f18add40bfb43",
+  "llm-look-description-v1.txt": "7dd620b6b4cdb26e788bae169700d5136d69e902d0f7af0e5dd70212d270a8ab"
+ },
+ "capture_result_sha256": "7315103ef4ea272ca5e0c475ac1bd7924119e1e903d6422010556d3bbe7b2ce6",
+ "review_measurements_v1": {
+  "prediction_luma": 0.384,
+  "screenshot_luma": 0.346,
+  "mean_rgb_prediction": [
+   0.412,
+   0.375,
+   0.387
+  ],
+  "mean_rgb_screenshot": [
+   0.345,
+   0.346,
+   0.348
+  ],
+  "blurred_luma_correlation": -0.059,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.275,
+    0.265
+   ],
+   "saturation": [
+    0.068,
+    0.042
+   ],
+   "blurred_luma_correlation": 0.387
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2186,
+   0.1969
+  ]
+ },
+ "agreements": [
+  "frames 60-149 luma 0.275 vs 0.265; near-grey palette in both",
+  "strong frame-to-frame flashing predicted, so it would correctly stay out of No strobe"
+ ],
+ "misses": [
+  "per-frame brightness sequence differs (flash timing), screenshot layout uncorrelated"
+ ],
+ "verdict": "understood in its statistics: a hard-flashing preset, and the prediction flashes as hard (frame difference 0.219 vs 0.197); per-frame flash timing differs"
+}
