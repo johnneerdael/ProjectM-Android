@@ -1459,12 +1459,18 @@ def _declared_uniforms(width,height,time,fps,bands):
 _RAND_OVERRIDE=[None]
 
 
-def _frame_rand(time,fps):
+_STAGE_RAND_BASE={'warp':7340033,'composite':9437189}
+
+
+def _frame_rand(time,fps,stage='warp'):
     """Seeded per-frame stand-in for the engine's rand_frame (a new uniform vector every frame).
 
-    _RAND_OVERRIDE[0], when set, is the draw (a rand_probe evaluates the frame under chosen draws)."""
-    if _RAND_OVERRIDE[0] is not None:return np.asarray(_RAND_OVERRIDE[0],np.float32)
-    return np.random.default_rng(7340033+int(round(time*fps))+_seed_shift()).random(4).astype(np.float32)
+    MilkdropShader::LoadVariables draws for each shader, so the warp and composite draws of a frame are
+    independent streams. _RAND_OVERRIDE[0], when set, maps a stage to its draw (a rand_probe evaluates the
+    frame under chosen draws)."""
+    override=(_RAND_OVERRIDE[0] or {}).get(stage)
+    if override is not None:return np.asarray(override,np.float32)
+    return np.random.default_rng(_STAGE_RAND_BASE[stage]+int(round(time*fps))+_seed_shift()).random(4).astype(np.float32)
 
 
 def _hue_shader(width,height,time,offsets=(0.,0.,0.,0.),cell_centres=True):
@@ -1623,7 +1629,7 @@ def _affine_composite(image,facts,time,fps,blur_image=None):
     aspect_x=min(1.,width/height);aspect_y=min(1.,height/width)
     blurred,blur_uniforms=_blur_bank(image if blur_image is None else blur_image,_TERM_CONTEXT.get('bands'))
     inputs={'_uv':uv,'_rad_ang':_rad_ang(width,height,'composite'),**_lowlevel_uniforms(width,height),**blur_uniforms,
-            ':native-render-time-f32':np.float32(time),'rand_frame':_frame_rand(time,fps)}
+            ':native-render-time-f32':np.float32(time),'rand_frame':_frame_rand(time,fps,'composite')}
     def texture(name):
         if name=='main':return image
         if not name.startswith('blur'):raise ValueError('composite texture not illustrated: '+name)
@@ -1657,7 +1663,7 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
             height,width=image.shape[:2]
             columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
             uv=np.stack([columns,rows,columns,rows],axis=-1)
-            shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'),rand=_frame_rand(time,fps),
+            shown=_evaluate_stage(program['program'],image,uv,time,fps,_TERM_CONTEXT.get('bands'),rand=_frame_rand(time,fps,'composite'),
                                   controls=_TERM_CONTEXT.get('stage') or _TERM_CONTEXT.get('bands'),
                                  blur_image=blur_image,stage='composite')
             limitations.append('composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)')
@@ -1726,10 +1732,10 @@ def _stored(values):
 
 
 def illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,frame_callback=None,seed=None,rand_probe=None):
-    """rand_probe={'frame':k,'probe':fn}: at native frame k, fn(evaluate,draw) is called after the frame is made;
-    evaluate(vector) returns that frame's display with rand_frame=vector in the warp and composite (warp
-    re-evaluated from the frame's input canvas; waves/shapes of frame k left out) and draw is the frame's own
-    draw. Make k the last frame: later frames would follow the probe's random-number use."""
+    """rand_probe={'frame':k,'probe':fn}: at native frame k, fn(evaluate,draws) is called after the frame is made;
+    evaluate(vector,stage) returns that frame's display with that stage's rand_frame=vector (a warp draw
+    re-evaluates the warp from the frame's input canvas, leaving out frame k's waves/shapes) and draws maps
+    each stage to the frame's own draw. Make k the last frame: later frames would follow the probe's random-number use."""
     previous_seed=_SEED[0];_SEED[0]=seed
     try:return _illustrate_field(summary,time=time,fps=fps,history_steps=history_steps,audio=audio,viewport=viewport,frame_callback=frame_callback,
                                  rand_probe=rand_probe)
@@ -2013,17 +2019,17 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
             if frame_callback is not None:frame_callback(frame_time,_display(image,facts,frame_time,fps,[],previous))
             if rand_probe is not None and frame_number==rand_probe['frame']:
                 final=image
-                def evaluate(vector,final=final,frame_time=frame_time,previous=previous,older=older,stage_controls=stage_controls):
-                    _RAND_OVERRIDE[0]=[float(v) for v in vector]
+                def evaluate(vector,stage='warp',final=final,frame_time=frame_time,previous=previous,older=older,stage_controls=stage_controls):
+                    _RAND_OVERRIDE[0]={stage:[float(v) for v in vector]}
                     try:
                         canvas_image=final
-                        if warp_program is not None and sample is not None:
+                        if stage=='warp' and warp_program is not None and sample is not None:
                             warped=_evaluate_stage(warp_program,probe_input,uv,frame_time,fps,{k:v for k,v in held.items() if k in BANDS or (k[:1]=='q' and k[1:].isdigit())},
                                                    diffuse,rand=_frame_rand(frame_time,fps),controls=stage_controls,blur_image=older if warp_samples_blur else previous)
                             canvas_image=np.round(np.clip(np.round(_stored(warped)*255)/255,0,1)*255)/255
                         return _display(canvas_image,facts,frame_time,fps,[],previous)
                     finally:_RAND_OVERRIDE[0]=None
-                rand_probe['probe'](evaluate,[float(v) for v in _frame_rand(frame_time,fps)])
+                rand_probe['probe'](evaluate,{stage:[float(v) for v in _frame_rand(frame_time,fps,stage)] for stage in _STAGE_RAND_BASE})
         if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
     except ValueError as error:
         limitations.append('field illustration stopped: '+str(error))

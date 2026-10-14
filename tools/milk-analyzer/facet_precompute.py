@@ -84,6 +84,7 @@ def random_flash_risk(evaluate, draw, base_jump):
     import itertools
     import numpy as np
     shown = np.asarray(evaluate(draw), np.float32); reference = _grey(shown)
+    if not np.isfinite(reference):reference = 0.
     active = []
     for component in range(4):
         # Any change counts: a component can matter only jointly with another (1/|rand.xy| needs both small).
@@ -102,19 +103,30 @@ def random_flash_risk(evaluate, draw, base_jump):
             'worst_vector': [round(v, 4) for v in worst_vector]}
 
 
+def _either(*probabilities):
+    """Probability that at least one of independent events happens."""
+    miss = 1.
+    for p in probabilities:miss *= 1 - p
+    return 1 - miss
+
+
 def random_flash(summary, audio, frames=150):
     """Probe the loudest declared frame in 60..frames-1 of a preset whose shaders read rand_frame.
 
-    The warp and composite share the probed draw (the engine draws for each shader separately): the joint
-    extreme is the conservative case."""
+    The warp and composite draw independently (MilkdropShader::LoadVariables per shader): each stage's draw is
+    probed with the other at its own draw, and the stage probabilities combine as independent events."""
     if 'rand_frame' not in json.dumps(summary):return {'reads_rand_frame': False}
     from prediction_illustration import illustrate_field
     loudness = [sum(row.get(b, 0.) for b in ('bass', 'mid', 'treb')) for row in audio['frames'][:frames]]
     # Native frame k renders with declared row k (time (k+1)/fps).
     k = max(range(60, len(loudness)), key=loudness.__getitem__)
     greys, result = [], {}
-    probe = {'frame': k, 'probe': lambda evaluate, draw: result.update(random_flash_risk(evaluate, draw, greys[-1] - greys[-2] if len(greys) > 1 else 0.))}
-    illustrate_field(summary, time=(k + 1) / FPS, fps=FPS, history_steps=k + 1, audio=audio, viewport=list(PROBE_SIZE), rand_probe=probe,
+    def probe(evaluate, draws):
+        jump = greys[-1] - greys[-2] if len(greys) > 1 else 0.
+        stages = {stage: random_flash_risk(lambda v, stage=stage: evaluate(v, stage), draw, jump) for stage, draw in draws.items()}
+        result.update(stages=stages, max_jump=max(r['max_jump'] for r in stages.values()),
+                      flash_probability_per_frame=round(_either(*(r['flash_probability_per_frame'] for r in stages.values())), 6))
+    illustrate_field(summary, time=(k + 1) / FPS, fps=FPS, history_steps=k + 1, audio=audio, viewport=list(PROBE_SIZE), rand_probe={'frame': k, 'probe': probe},
                      frame_callback=lambda t, im: greys.append(_grey(im)))
     return {'reads_rand_frame': True, 'probe_frame': k, **result}
 

@@ -46,10 +46,25 @@ def test_random_flash_is_absent_when_the_draw_only_moves_texture():
     assert risk['active_components'] == [2] and risk['flash_probability_per_frame'] == 0 and risk['max_jump'] < .08
 
 
-def test_rand_override_replaces_the_frame_draw():
+def test_rand_override_replaces_one_stage_draw():
     import numpy as np
     import prediction_illustration as P
-    P._RAND_OVERRIDE[0] = [.1, .2, .3, .4]
-    try:assert np.allclose(P._frame_rand(1., 30), [.1, .2, .3, .4])
+    P._RAND_OVERRIDE[0] = {'warp': [.1, .2, .3, .4]}
+    try:
+        assert np.allclose(P._frame_rand(1., 30), [.1, .2, .3, .4])
+        assert not np.allclose(P._frame_rand(1., 30, 'composite'), [.1, .2, .3, .4])
     finally:P._RAND_OVERRIDE[0] = None
     assert not np.allclose(P._frame_rand(1., 30), [.1, .2, .3, .4])
+
+
+def test_warp_and_composite_draw_rand_frame_separately():
+    # MilkdropShader::LoadVariables calls floatRand for each shader: the two draws of a frame are independent.
+    import numpy as np
+    import prediction_illustration as P
+    assert not np.allclose(P._frame_rand(1., 30, 'warp'), P._frame_rand(1., 30, 'composite'))
+    assert np.allclose(P._frame_rand(1., 30, 'composite'), P._frame_rand(1., 30, 'composite'))
+
+
+def test_flash_probabilities_of_independent_stage_draws_combine():
+    import facet_precompute as F
+    assert abs(F._either(.1, .2) - .28) < 1e-12 and F._either(0., 0.) == 0.
