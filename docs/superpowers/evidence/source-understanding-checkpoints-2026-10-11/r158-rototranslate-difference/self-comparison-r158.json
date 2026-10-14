@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r158-v1",
+ "preset": "Stahlregen + Amandio C - Rototranslate difference layers 2 + on dotes2 roams.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "7ccf32c0928d568cf8cac69c35c677bbaf328faeaabee56de5053d2d90d99040",
+  "prediction.json": "a23c2b99c49306faab88b8db4aa11fdf2fcf4ef24e14ddc1882f32496d539a76",
+  "description.json": "73dcc48bc86dd58ee080a6fca7a85ba9d227d292c71b7e15999949aab0a807f8",
+  "recipe.json": "4f3c1b320d9133628349db391f39e34c1cc0b326fa2981544582625e22513793",
+  "llm-look-description-v1.txt": "609441d7e10a53367f342f996b18bb98864ebb8357692521af771546090d1b75"
+ },
+ "capture_result_sha256": "4544b64048bd644228f673b0e9f1b203e03ab27018907c11ee15addd7c34e98e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.262,
+  "screenshot_luma": 0.256,
+  "mean_rgb_prediction": [
+   0.301,
+   0.246,
+   0.306
+  ],
+  "mean_rgb_screenshot": [
+   0.202,
+   0.275,
+   0.231
+  ],
+  "blurred_luma_correlation": -0.089,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.331,
+    0.291
+   ],
+   "saturation": [
+    0.082,
+    0.114
+   ],
+   "blurred_luma_correlation": 0.381
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2426,
+   0.2158
+  ]
+ },
+ "agreements": [
+  "very high frame difference (intense, flicker)",
+  "multicolour haze with circles"
+ ],
+ "misses": [
+  "per-frame swings not frame-aligned (chaotic)",
+  "luma 14% high"
+ ],
+ "verdict": "partly understood: a chaotic, fast-changing difference-layer preset. Frozen prediction statistics are close (luma 0.331 vs 0.291, frame difference 0.243 vs 0.216, both very high) with chaotic placement (map corr 0.38) and swings at different frames (frame 75: 0.468 vs 0.135). SDK calls it intense with likely strobing, bass-pulsed zoom and fluid smearing, consistent with the large frame-to-frame swings."
+}
