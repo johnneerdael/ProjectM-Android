@@ -316,6 +316,73 @@ def _random_redraws(frame):
             'note':'values are redrawn with projectm-eval rand (one process-wide stream): each draw is a random outcome'}
 
 
+RAY_MIN_SHARE=.5  # screen share reading one point per ray for the radial_rays effect
+RAY_GAIN=.15  # |d r_source / d r_screen| below this: a pixel's ray reads (nearly) one source point
+
+
+def ray_sampling(mesh,size=(96,54),draws=3):
+    """How much of the screen samples one source point per ray through the warp centre.
+
+    The engine samples c + (p - c)/s (zoom about the screen centre, stretch about (cx, cy)). When the
+    effective scale grows in proportion to the distance from c (for example s = k*|p - c|), the source
+    radius no longer depends on the screen radius: every pixel on a ray reads the same point and each
+    frame becomes rays converging on c. The share is the fraction of pixels with |d r_src/d r_dst| <
+    RAY_GAIN, from the closed-form backward map evaluated with frame-state inputs drawn arbitrarily
+    (the minimum over draws, so it holds whatever the state); no frames are stepped.
+    """
+    import numpy as np
+    import prediction_illustration as P
+    from eel_memory import input_names
+    controls=(mesh or {}).get('controls') or {}
+    names=set()
+    for row in controls.values():
+        for term in row.get('terms') or []:
+            if term.get('expression'):names|={n for n in (input_names(term['expression']) or ()) if isinstance(n,str)}
+    names-={'x','y','rad','ang','time','bass','mid','treb','bass_att','mid_att','treb_att'}
+    width,height=size;long=max(width,height)
+    columns,rows=np.meshgrid(np.arange(width,dtype=np.float64),np.arange(height,dtype=np.float64))
+    saved,unresolved=dict(P._TERM_CONTEXT),set(P._UNRESOLVED_TERMS)
+    shares,centres=[],[]
+    try:
+        for draw in range(draws):
+            rng=np.random.default_rng(draw)
+            P._TERM_CONTEXT.clear()
+            P._TERM_CONTEXT.update(stage={n:float(rng.uniform(-3,3)) for n in sorted(names)},rng=np.random.default_rng(draw),
+                                   bands={b:1. for b in ('bass','mid','treb','bass_att','mid_att','treb_att')})
+            sample=P._backward_map(mesh,width,height,grid=None)
+            if sample is None:return None
+            time=2.+1.7*draw
+            with np.errstate(all='ignore'):
+                map_x,map_y=(np.asarray(m,np.float64) for m in sample(time))
+                probe=np.array([[.5]])
+                cx=float(P._control_field(controls['cx'],'cx',probe,probe,time).ravel()[0])
+                cy=float(P._control_field(controls['cy'],'cy',probe,probe,time).ravel()[0])
+                # Rays through the stretch centre (the zoom centre when there is no stretch field).
+                px,py=(cx-.5)*long+width/2-.5,(cy-.5)*long+height/2-.5
+                dxdy,dxdx=np.gradient(map_x);dydy,dydx=np.gradient(map_y)
+                rx,ry=columns-px,rows-py;rd=np.hypot(rx,ry);ux,uy=rx/rd,ry/rd
+                sx,sy=map_x-px,map_y-py;rs=np.hypot(sx,sy)
+                gain=(sx*(dxdx*ux+dxdy*uy)+sy*(dydx*ux+dydy*uy))/rs
+            valid=(rd>3)&(rs>1e-9)&np.isfinite(gain)
+            shares.append(float(np.mean(np.abs(gain[valid])<RAY_GAIN)) if valid.any() else 0.)
+            centres.append((cx,cy))
+    finally:
+        P._TERM_CONTEXT.clear();P._TERM_CONTEXT.update(saved)
+        P._UNRESOLVED_TERMS.clear();P._UNRESOLVED_TERMS.update(unresolved)
+    xs,ys=[c[0] for c in centres],[c[1] for c in centres]
+    return {'ray_constant_share':round(min(shares),4),'centre_xy':[round(sum(xs)/len(xs),4),round(sum(ys)/len(ys),4)],
+            'centre_range_xy':[[round(min(xs),4),round(max(xs),4)],[round(min(ys),4),round(max(ys),4)]],'state_draws':draws,
+            'method':'closed-form backward map, frame-state inputs drawn in [-3, 3]; minimum share over draws'}
+
+
+def _ray_sampling_if_spatial(mesh):
+    # A uniform scale has d r_src/d r_dst = 1/s everywhere: only a scale that varies over the screen can be ray-constant.
+    controls=(mesh or {}).get('controls') or {}
+    if not any(controls.get(n,{}).get('uniform_across_mesh') is False for n in ('zoom','sx','sy')):return None
+    try:return ray_sampling(mesh)
+    except (ValueError,TypeError,KeyError,ArithmeticError):return None
+
+
 def _render(facts):
     persistence=facts.get(STATIC+'/feedback_persistence') or {}
     mesh=facts.get(STATIC+'/mesh_field') or {}
@@ -331,6 +398,7 @@ def _render(facts):
         'warp_controls':{name:{'uniform':row.get('uniform_across_mesh'),'value_range':row.get('value_range'),'terms':copy.deepcopy(row.get('terms'))}
                          for name,row in (mesh.get('controls') or {}).items() if row.get('status')=='described'},
         'shader_advection':advection,
+        'ray_sampling':_ray_sampling_if_spatial(mesh),
         'flat_field':{k:flat.get(k) for k in ('state_rgb','flat_region_behaviour','settle_seconds','composite_rgb_at_state') if flat.get(k) is not None} or None,
         'warp_transfer':_warp_transfer(facts) if persistence.get('decay_gain') is None else None,
         'evidence':[p for p in (STATIC+'/feedback_persistence',STATIC+'/mesh_field',BASE+'/nonlinear_texture_colour_bounds/flat_field') if p in facts]}
@@ -855,6 +923,13 @@ def intent(recipe):
         if row['effect']:effects.append({k:v for k,v in row.items() if v is not None})
     streaks=_radial_streaks(effects,half)
     if streaks:effects.append(streaks)
+    rays=fb.get('ray_sampling')
+    if rays and rays['ray_constant_share']>=RAY_MIN_SHARE:
+        spread=max(b-a for a,b in rays['centre_range_xy'])
+        effects.append({'effect':'radial_rays','screen_share':rays['ray_constant_share'],'centre_xy':rays['centre_xy'],
+                        'centre_moves':spread>.02,'centre_range_xy':rays['centre_range_xy'],
+                        'condition':'the warp reads one source point per ray through the centre: every frame becomes rays '
+                                    'converging on it, colour varying with angle only; drawn content is smeared into streaks'})
     redraw=render.get('random_redraws')
     if redraw:
         effects.append({'effect':'random_redraw','feeds':redraw['feeds'],'first_s':(redraw['event_times_s'] or [None])[0],'period_s':redraw['period_s']})

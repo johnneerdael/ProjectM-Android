@@ -458,3 +458,29 @@ def test_textured_shape_copying_the_previous_frame_reads_as_a_recursive_frame_co
     assert layer['texture']=={'role':'previous_main','tex_zoom':.534,'tex_angle_rad':.94}
     (copy,)=[e for e in recipe['intent']['effects'] if e['effect']=='frame_copy']
     assert copy['layer']=='shape_0' and copy['tex_zoom']==.534 and copy['tex_angle_rad']==.94
+
+
+def _mesh(sx_terms, zoom=1.):
+    const = lambda v: {'status': 'described', 'uniform_across_mesh': True, 'value_range': [v, v], 'terms': [{'sign': 1, 'kind': 'constant', 'value': v}]}
+    controls = {name: const(value) for name, value in (('zoom', zoom), ('zoomexp', 1.), ('rot', 0.), ('warp', 0.), ('cx', .4), ('cy', .6), ('dx', 0.), ('dy', 0.))}
+    field = {'status': 'described', 'uniform_across_mesh': False, 'value_range': None, 'terms': sx_terms}
+    return {'status': 'described', 'controls': {**controls, 'sx': field, 'sy': field}}
+
+
+def _radius_terms(k=2.):
+    # k*sqrt(sqr(x-.4)+sqr(y-.6)) as an exported expression graph
+    n = lambda op, *args, **detail: {'op': op, 'dtype': 'float', 'args': list(args), 'detail': detail}
+    nodes = [n('multiply', 1, 2), n('constant', value=k), n('sqrt', 3), n('add', 4, 8), n('sqr', 5), n('subtract', 6, 7),
+             n('input', name='x'), n('constant', value=.4), n('sqr', 9), n('subtract', 10, 11), n('input', name='y'), n('constant', value=.6)]
+    return [{'sign': 1, 'kind': 'nonlinear_coordinate_term', 'expression': {'root': 0, 'nodes': nodes}}]
+
+
+def test_stretch_proportional_to_radius_samples_one_point_per_ray():
+    # r162 fat cancer: sx=sy=zm*rd about (cx, cy). The engine samples c+(p-c)/s, so with s proportional to the
+    # distance from c every pixel on a ray reads the same source point: each frame becomes rays converging on c.
+    from preset_recipe import ray_sampling
+    rays = ray_sampling(_mesh(_radius_terms()))
+    assert rays['ray_constant_share'] > .9 and rays['centre_xy'] == [.4, .6]
+    const = {'sign': 1, 'kind': 'constant', 'value': 1.1}
+    assert ray_sampling(_mesh([const]))['ray_constant_share'] < .05     # a uniform stretch keeps radial structure
+    assert ray_sampling(_mesh([{**const, 'value': 1.}], zoom=1.02))['ray_constant_share'] < .05

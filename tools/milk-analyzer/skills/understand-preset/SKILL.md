@@ -203,6 +203,13 @@ full recipe tens of thousands of lines long.
    warp-speed look, where `radial_scale_over_half_life` far from 1 means long
    streaks. When `spiral` is true they bend into a swirl. Drawn shapes then
    read as the source of the streaks rather than as crisp outlines.
+   A `radial_rays` effect means the warp reads one source point per ray
+   through `centre_xy`, on `screen_share` of the screen. Each frame the picture
+   turns into rays converging on that point, coloured by angle only, and drawn
+   content becomes the coloured spokes. This happens whatever the trail length,
+   and it usually fills the screen. When `centre_moves` is true, the
+   convergence point travels within `centre_range_xy`, possibly partly off
+   screen. Lead with the rays, not with any shape drawn on top.
    A `tiling` effect (mechanism `repeat_tiling`) means the image repeats in
    tiles across the screen, mirrored when `mirrored` is true: describe it as a
    tiled or kaleidoscopic pattern.

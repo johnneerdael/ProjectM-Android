@@ -1,0 +1,13 @@
+Approximate look, from source facts only (no frames, so treat all of this as a hypothesis).
+
+Overall picture: probably a mostly dark screen with dim to moderate, fairly saturated colour, not a bright wash. The composite stage maps flat canvas levels to very low greys (a full-white canvas shows as only about 0.01, the peak is about 0.02 near a dim 0.125 level), and the settled background is black. The calibrated estimate says mean luminance about 0.16 with a very wide 0 to 0.40 range, saturation about 0.56, and no warm or cool lean (warm_cool about 0.03). I would expect dark with coloured streaky content rather than full-screen colour. Brightness is the least certain part.
+
+Structure: the only drawn element is a custom waveform of 512 points. It is a closed-form radial or curved line confined to the central region (x and y both roughly 0.3 to 0.7), so a ring or loop-like curve in the middle of the screen, not proven to be an exact circle. Its colours are a broad mix: pink about 25%, green 18%, orange 14%, blue 14%, with red, cyan, purple and yellow. The mean alpha is about 0.56. Which of these actually survives the warp and composite is unresolved.
+
+Motion: the warp shader is a radial-rays effect covering the whole screen. Each frame the picture is pulled toward a single convergence point at about (0.70, 0.87), low and right of centre. That point travels sideways along y=0.87 between roughly x=0.40 and x=1.08, partly off screen. The drawn curve should smear into coloured spokes or streaks fanning toward that point. A very slight uniform contraction toward the centre (0.05% per step) adds to this. There is no rotation and no constant drift. The calibrated estimate gives moderate flow of about 0.19 screen widths per second and a mid activity level, bands Normal, possibly Chill or Intense.
+
+Trails: the warp does not fade content evenly. Mid-grey level 0.5 is almost erased (retention 0.001), while very bright content is kept and dim content is mostly kept (retention 0.57 to 0.93). That suggests uneven, banded or contour-like persistence rather than a smooth fade. The overall trail length is unknown.
+
+Audio: the only audio route found is mid band driving the mesh scale_x and scale_y. The gain and sign are unknown, so there may be a continuous, mid-reactive stretch or lens wobble. No beat-triggered brightness route was found.
+
+Flashing: no flash mechanism was found, but this is unverified. The estimate gives about 1.3 global brightness jumps per 10 s, with an interval from 0 to 7.6. Confidence is low.

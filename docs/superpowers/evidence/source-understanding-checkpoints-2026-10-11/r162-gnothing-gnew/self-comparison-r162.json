@@ -1,0 +1,55 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r162-v1",
+ "preset": "fat cancer gnothing gnew.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "853aadbf03e11a21fe3bdb132184bfdd275964f9b80d71f12aa6e2d96ca7e8c7",
+  "prediction.json": "2f937f531419e28b3a376819f05146029bd89294b2255368fb983b409f8cf223",
+  "description.json": "435205173b020b51155358bbe8d6096a1d43c467cfe42c284dfe3e8fa057ce9c",
+  "recipe.json": "6b0da7b057b3159c94d2e52e8d57d0cf4cc39aa0829f9d44844506f203d2b026",
+  "llm-look-description-v1.txt": "7b4076467ff731a6ef2453c00830d577d28d3a42cb29a4985dd79ff8fd965602"
+ },
+ "capture_result_sha256": "5d66c7b85609505f4592e8aa3c6835fd70c586cc6763cba48db2f71fa61d4b77",
+ "review_measurements_v1": {
+  "prediction_luma": 0.032,
+  "screenshot_luma": 0.036,
+  "mean_rgb_prediction": [
+   0.04,
+   0.029,
+   0.036
+  ],
+  "mean_rgb_screenshot": [
+   0.039,
+   0.035,
+   0.031
+  ],
+  "blurred_luma_correlation": 0.115,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.027,
+    0.026
+   ],
+   "saturation": [
+    0.598,
+    0.638
+   ],
+   "blurred_luma_correlation": 0.228
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.034,
+   0.032
+  ]
+ },
+ "agreements": [
+  "dark field and multi-hue central curve",
+  "lens and moving centre (v1, after the r161 bounds)",
+  "v2: radial spokes converging low and right",
+  "no strobe"
+ ],
+ "misses": [
+  "v1: the screen-filling radial rays were not described (no ray measure in the recipe)",
+  "ray placement chaotic (map corr 0.23)"
+ ],
+ "verdict": "frozen prediction right (frames 60-149 luma 0.027 vs 0.026, saturation 0.60 vs 0.64, frame difference 0.034 vs 0.032): a dotted multi-hue circle at the centre with coloured radial streaks converging low on screen. Ray placement is chaotic (map corr 0.23). The v1 SDK reading missed the dominant rays: the per-pixel stretch sx=sy=zm*rd about (cx, cy) makes the engine sample c+(p-c)/s, a unit step along each pixel's own ray, so every ray reads one source point. v2 adds a static ray_sampling measure (|d r_src/d r_dst| over the closed-form backward map, frame-state inputs drawn arbitrarily) and a radial_rays effect; the v2 reading describes spokes converging on a moving point low on screen."
+}
