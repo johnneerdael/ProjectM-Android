@@ -147,6 +147,11 @@ def _layer(facts,index):
                 'at_or_below':'channels are drawn as authored (near black for small values)'}
     elif isinstance(facts.get(path+'/colour'),dict):
         layer['colour']=copy.deepcopy(facts[path+'/colour'])
+    shape_material=facts.get(path+'/material')
+    if isinstance(shape_material,dict) and shape_material.get('channel_expressions'):
+        try:over_time=shape_colour_over_time(shape_material)
+        except (ValueError,TypeError,KeyError,ArithmeticError):over_time=None
+        if over_time:layer['colour_over_time']=over_time
     for colour_path,colour_row in facts.items():
         if not colour_path.startswith(STATIC+'/colour/components/') or not isinstance(colour_row,dict):continue
         if colour_row.get('component_id')!=identity:continue
@@ -316,6 +321,51 @@ def _random_redraws(frame):
             'note':'values are redrawn with projectm-eval rand (one process-wide stream): each draw is a random outcome'}
 
 
+COLOUR_TIMES=tuple(.5*k for k in range(1,61))  # 0.5..30 s
+
+
+def shape_colour_over_time(material,times=COLOUR_TIMES):
+    """Shape fill colours over time from closed-form channel expressions (neutral audio, bands 1).
+
+    Each sample applies projectM's colour modulo (256/255) and clamps, as CustomShape draws them; centre and
+    edge colours are reported separately and pooled for hue shares (time-weighted, coloured samples only:
+    saturation >= 0.25 and largest channel >= 0.1). None unless every RGB channel evaluates.
+    """
+    import colorsys
+    import prediction_illustration as P
+    from time_expression import HUE_BANDS
+    channels=(material or {}).get('channel_expressions') or {}
+    groups={'centre':('r','g','b'),'perimeter':('r2','g2','b2')}
+    held={b:1. for b in ('bass','mid','treb','bass_att','mid_att','treb_att')}
+    period=256/255
+    samples={}
+    for group,names in groups.items():
+        rows=[]
+        for time in times:
+            rgb=[]
+            for name in names:
+                expression=(channels.get(group) or {}).get(name)
+                value=P._value_at({'expression':expression},'none','expression',held,time,None) if expression else None
+                if value is None or not math.isfinite(value):return None
+                rgb.append(min(1.,max(0.,math.fmod(math.fmod(value,period)+period,period))))
+            rows.append(rgb)
+        samples[group]=rows
+    pooled=samples['centre']+samples['perimeter'];hues=[];sats=[]
+    for rgb in pooled:
+        h,sat,v=colorsys.rgb_to_hsv(*rgb);sats.append(sat)
+        if sat>=.25 and v>=.1:hues.append(h*360)
+    shares={}
+    for name,spans in HUE_BANDS.items():
+        count=sum(1 for h in hues if any(a<=h<b for a,b in spans))
+        if hues and count/len(pooled)>=.05:shares[name]=round(count/len(pooled),3)
+    span=lambda rows:[[round(min(r[i] for r in rows),4),round(max(r[i] for r in rows),4)] for i in range(3)]
+    return {'centre_rgb_range':span(samples['centre']),'edge_rgb_range':span(samples['perimeter']),
+            'mean_saturation':round(sum(sats)/len(sats),4),'coloured_share':round(len(hues)/len(pooled),4),
+            'hue_shares':dict(sorted(shares.items(),key=lambda kv:-kv[1])),
+            'samples_rgb':{g:[[round(c,3) for c in rows[k]] for k in range(0,len(rows),10)] for g,rows in samples.items()},
+            'times_s':[times[0],times[-1]],'audio':'bands held at 1'}
+
+
 RAY_MIN_SHARE=.5  # screen share reading one point per ray for the radial_rays effect
 RAY_GAIN=.15  # |d r_source / d r_screen| below this: a pixel's ray reads (nearly) one source point
 
@@ -448,6 +498,9 @@ def _render(facts):
         # Mostly NaN/inf output (e.g. 0/0 from never-written q values): GLSL ES leaves the displayed result undefined.
         composite['flat_transfer']['output_undefined']=bool((flat.get('nonfinite_share') or 0.)>.5)
         composite['flat_transfer']['flat_areas_only']=any(m['mechanism']=='gradient_relief' and m['stage']=='composite' for m in mechanisms)
+        from feedback_equilibrium import stage_detail_response
+        detail=stage_detail_response(facts,'composite')
+        if detail is not None:composite['detail_response']={**detail,'source':'exported composite shader evaluated on a grey multi-scale texture'}
     palette=facts.get(BASE+'/nonlinear_texture_colour_bounds/stages/composite/scalar_palette')
     if isinstance(palette,dict):
         composite['scalar_palette']={'ramp':[{'scalar':row['scalar'],'rgb':row['clamped_rgb']} for row in palette.get('samples') or []],

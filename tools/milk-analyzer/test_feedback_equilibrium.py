@@ -196,3 +196,25 @@ def test_flat_transfer_resolves_faint_canvas_levels():
     table = stage_transfer(facts, 'composite')
     bright = [level for level, rgb in zip(table['levels'], table['rgb']) if rgb[0] > .9]
     assert bright and max(bright) < .02 and table['rgb'][-1][0] == 0.
+
+
+def test_detail_response_reports_colour_a_composite_creates_from_structure(monkeypatch):
+    # r165 Sunflower Passion: the composite colours detail (greens and magentas from structure) while a flat
+    # canvas maps to near black, so flat-colour probes leave the palette unresolved. A grey multi-scale
+    # texture through the composite shows the colour the shader itself creates.
+    import numpy as np
+    import prediction_illustration as P
+    def facts():
+        return {'/analysis/visual_description/stage_programs': {'stages': {'composite': {'status': 'exported',
+                    'program': {'root': 0, 'nodes': []}}}},
+                '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    def detail_green(program, image, uv, time, fps, bands, controls=None, stage='composite', **_):
+        g = np.clip(np.abs(image[..., 1] - .5) * 4, 0, 1)
+        return np.stack([np.zeros_like(g), g, np.zeros_like(g)], -1).astype(np.float32)
+    monkeypatch.setattr(P, '_evaluate_stage', detail_green)
+    r = E.stage_detail_response(facts())
+    assert r['hue_shares'] and next(iter(r['hue_shares'])) == 'green' and r['coloured_share'] > .5
+    assert r['mean_saturation'] > .5 and r['mean_rgb'][1] > r['mean_rgb'][0]
+    monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, *a, **k: image.astype(np.float32))
+    grey = E.stage_detail_response(facts())
+    assert grey['coloured_share'] == 0. and grey['hue_shares'] == {} and abs(grey['mean_luma'] - .5) < .05

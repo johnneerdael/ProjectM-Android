@@ -85,6 +85,60 @@ def stage_transfer(facts,stage,levels=LEVELS,times=TIMES,size=(48,27)):
     return {'levels':list(levels),'rgb':table,'rgb_spread':spread,'times':list(times),'nonfinite_share':float(np.mean(nonfinite))}
 
 
+DETAIL_SATURATION=.25  # a pixel counts as coloured at this saturation and DETAIL_VALUE brightness
+DETAIL_VALUE=.1
+
+
+def stage_detail_response(facts,stage='composite',level=.5,amplitude=.2,time=5.,size=REFERENCE,seed=0):
+    """Colour an exported stage creates from structure: a grey multi-scale texture through the program.
+
+    Flat-colour probes (stage_transfer) cannot see colour a shader derives from detail (gradients,
+    blur differences, loops over offset samples). The input is deterministic grey noise at level +/-
+    amplitude, smoothed at 1, 4 and 16 px and equal in every channel, at the reference size so texel
+    offsets keep their meaning; one evaluation at a declared time with neutral audio. The result
+    describes the program's response to texture, not any particular frame's content.
+    """
+    import numpy as np
+    import cv2
+    import prediction_illustration as P
+    from time_expression import HUE_BANDS
+    program=(((facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}).get(stage) or {})
+    if program.get('status')!='exported':return None
+    width,height=size
+    rng=np.random.default_rng(seed)
+    noise=sum(cv2.GaussianBlur(rng.standard_normal((height,width)).astype(np.float32),(0,0),sigma) for sigma in (1.,4.,16.))
+    noise=noise/max(float(noise.std()),1e-9)
+    image=np.repeat(np.clip(level+amplitude*noise,0,1)[...,None],3,-1).astype(np.float32)
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+    uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
+    bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
+    controls=_stage_controls(facts,bands,(time,))
+    try:
+        out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,controls=dict(controls[time]),stage=stage)
+    except Exception:  # noqa: BLE001 - an unevaluable program leaves the response unknown
+        return None
+    out=np.asarray(out,np.float64)
+    nonfinite=float(np.mean(~np.isfinite(out)))
+    out=np.clip(np.where(np.isfinite(out),out,0.),0,1).reshape(-1,3)
+    high,low=out.max(1),out.min(1)
+    saturation=np.where(high>1e-9,(high-low)/np.maximum(high,1e-9),0.)
+    coloured=(saturation>=DETAIL_SATURATION)&(high>=DETAIL_VALUE)
+    r,g,b=out[:,0],out[:,1],out[:,2];delta=np.maximum(high-low,1e-12)
+    hue=np.where(high==r,((g-b)/delta)%6,np.where(high==g,(b-r)/delta+2,(r-g)/delta+4))*60
+    shares={}
+    if coloured.any():
+        for name,spans in HUE_BANDS.items():
+            inside=np.zeros(len(hue),bool)
+            for a,b_ in spans:inside|=(hue>=a)&(hue<b_)
+            share=float(np.mean(inside[coloured]))
+            if share>=.05:shares[name]=round(share,3)
+    return {'mean_rgb':[round(float(v),4) for v in out.mean(0)],'mean_luma':round(float(_luma(out.mean(0))),4),
+            'mean_saturation':round(float(saturation.mean()),4),'coloured_share':round(float(coloured.mean()),4),
+            'hue_shares':dict(sorted(shares.items(),key=lambda kv:-kv[1])),'nonfinite_share':nonfinite,
+            'input':{'kind':'grey multi-scale noise','level':level,'amplitude':amplitude,'smoothing_px':[1,4,16],'size':list(size),'time':time},
+            'coloured_rule':'saturation >= %.2f and max channel >= %.2f'%(DETAIL_SATURATION,DETAIL_VALUE)}
+
+
 STAGE_CONTROL_BUDGET_SECONDS=3.
 
 

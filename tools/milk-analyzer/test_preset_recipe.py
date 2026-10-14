@@ -484,3 +484,21 @@ def test_stretch_proportional_to_radius_samples_one_point_per_ray():
     const = {'sign': 1, 'kind': 'constant', 'value': 1.1}
     assert ray_sampling(_mesh([const]))['ray_constant_share'] < .05     # a uniform stretch keeps radial structure
     assert ray_sampling(_mesh([{**const, 'value': 1.}], zoom=1.02))['ray_constant_share'] < .05
+
+
+def _sine_channel(k, base=.25, amp=.25):
+    n = lambda op, *args, **detail: {'op': op, 'args': list(args), 'detail': detail}
+    return {'root': 0, 'nodes': [n('add', 1, 2), n('constant', value=base), n('multiply', 3, 4), n('constant', value=amp),
+                                 n('sin', 5), n('multiply', 6, 7), n('input', name='time'), n('constant', value=k)]}
+
+
+def test_shape_colour_over_time_samples_closed_form_channels():
+    # r165: shape channels are .25+.25*sin(time*k) with a different k per channel, so the hue drifts over time;
+    # the recipe reported the palette as unresolved although every channel is a closed-form function of time.
+    from preset_recipe import shape_colour_over_time
+    channels = {'centre': {'r': _sine_channel(.7679), 'g': _sine_channel(.8079), 'b': _sine_channel(.7339), 'a': _sine_channel(0, 1, 0)},
+                'perimeter': {'r2': _sine_channel(.6979), 'g2': _sine_channel(.849), 'b2': _sine_channel(.8079), 'a2': _sine_channel(0, 1, 0)}}
+    c = shape_colour_over_time({'channel_expressions': channels})
+    assert c['centre_rgb_range'][0][0] >= 0 and c['centre_rgb_range'][0][1] <= .5 + 1e-6
+    assert c['mean_saturation'] > .2 and len(c['hue_shares']) >= 3
+    assert shape_colour_over_time({'channel_expressions': {'centre': {'r': None}}}) is None

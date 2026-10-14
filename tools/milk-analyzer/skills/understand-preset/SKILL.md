@@ -179,6 +179,15 @@ full recipe tens of thousands of lines long.
    keep it separate from strict eligible bands. Read `motion_vectors` for a drawn vector grid and the composite
    gamma/echo sentence for doubling or brightening. All are source facts, not
    observed motion.
+   Read `composite.detail_response` as the colour the composite itself creates
+   from texture: grey detail in, `hue_shares` and `mean_saturation` out. Vivid
+   output means the composite colours whatever structure the canvas has (heat
+   ramps, channel-split edges). Grey output means displayed colour comes from
+   the drawn elements and the feedback, so read the layers' colours.
+   `colour_over_time` on a shape layer gives its fill colours over 30 s from
+   closed-form channels: ranges, `mean_saturation` and time-weighted
+   `hue_shares`. A composite that amplifies edges (gain well above 1 in its
+   detail response) makes even dim, low-range shape colours read as vivid.
    Read shader `scalar_palette` records as the colour ramp content is shown
    through (black- and white-content colours are exact), and `flat_field` for
    the steady colour of flat regions (background) under a custom warp. Read
