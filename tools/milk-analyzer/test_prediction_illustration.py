@@ -830,3 +830,37 @@ def test_cold_stream_skips_draws_of_other_blocks_in_engine_order():
     stepper = _FrameStepper(program, rng_seed=None, rand_skips=(1, 2))
     first = stepper.step(1 / 30, 30, {}, 0)['q1']; second = stepper.step(2 / 30, 30, {}, 1)['q1']
     assert abs(first - raw[1]) < 1e-12 and abs(second - raw[4]) < 1e-12
+
+
+def test_stepper_draws_rand_sites_in_statement_order_and_shares_copies():
+    # per_frame_init: index4=int(rand(2)); index3=int(rand(4)) (suksma byT). The engine draws site 0 then site 1
+    # whatever order the state variables are listed in, and a variable that copies a site reads the same draw.
+    import numpy as np
+    from prediction_illustration import _FrameStepper
+    def rand_site(site, phase, limit):
+        return {'root': 0, 'nodes': [{'op': 'rand', 'args': [1], 'detail': {'site_index': site, 'equation_phase': phase}},
+                                     {'op': 'constant', 'args': [], 'detail': {'value': limit}}]}
+    keep = lambda name: {'root': 0, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': name}}]}
+    state = {'a_late': {'initial': rand_site(1, 'per_frame_init_', 100.), 'update': keep('a_late')},
+             'b_copy': {'initial': rand_site(0, 'per_frame_init_', 100.), 'update': keep('b_copy')},
+             'c_early': {'initial': rand_site(0, 'per_frame_init_', 100.), 'update': keep('c_early')}}
+    outputs = {'q1': rand_site(1, 'per_frame_', 1.), 'q2': rand_site(0, 'per_frame_', 1.)}
+    raw = np.random.RandomState(0x4141f00d)._bit_generator.random_raw(8).astype(np.float64) / 4294967295.
+    values = _FrameStepper({'state': state, 'outputs': outputs}, rng_seed=None).step(1 / 30, 30, {}, 0)
+    assert abs(values['c_early'] - 100 * raw[0]) < 1e-9 and values['b_copy'] == values['c_early']
+    assert abs(values['a_late'] - 100 * raw[1]) < 1e-9
+    assert abs(values['q2'] - raw[2]) < 1e-12 and abs(values['q1'] - raw[3]) < 1e-12
+
+
+def test_stepper_guarded_rand_site_draws_only_when_its_branch_runs():
+    # q1=if(0, rand(1), 5); q2=rand(1): the guarded site never runs, so q2 reads the first draw.
+    import numpy as np
+    from prediction_illustration import _FrameStepper
+    guarded = {'root': 0, 'nodes': [{'op': 'select', 'args': [1, 2, 4], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': 0.}},
+                                    {'op': 'rand', 'args': [3], 'detail': {'site_index': 0, 'equation_phase': 'per_frame_'}},
+                                    {'op': 'constant', 'args': [], 'detail': {'value': 1.}}, {'op': 'constant', 'args': [], 'detail': {'value': 5.}}]}
+    plain = {'root': 0, 'nodes': [{'op': 'rand', 'args': [1], 'detail': {'site_index': 1, 'equation_phase': 'per_frame_'}},
+                                  {'op': 'constant', 'args': [], 'detail': {'value': 1.}}]}
+    raw = np.random.RandomState(0x4141f00d)._bit_generator.random_raw(4).astype(np.float64) / 4294967295.
+    values = _FrameStepper({'state': {}, 'outputs': {'q1': guarded, 'q2': plain}}, rng_seed=None).step(1 / 30, 30, {}, 0)
+    assert values['q1'] == 5. and abs(values['q2'] - raw[0]) < 1e-12

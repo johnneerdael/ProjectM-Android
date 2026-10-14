@@ -777,6 +777,45 @@ class _FrameSiteRandom:
         return getattr(self.generator,name)
 
 
+_LAZY_ARGS={'select':(1,2),'_and':(1,),'_or':(1,)}
+
+
+def _unguarded_sites(programs,phase):
+    """Rand call sites of one equation phase that run every time the block runs: not inside an if()
+    branch, the right side of && / ||, or a loop body (those draw only when, and as often as, they run)."""
+    found=set()
+    for program in programs:
+        nodes=program.get('nodes') or [];seen=set();todo=[(program.get('root'),False)]
+        while todo:
+            index,guarded=todo.pop()
+            if index is None or (index,guarded) in seen or (guarded and (index,False) in seen):continue
+            seen.add((index,guarded));node=nodes[index];detail=node.get('detail') or {}
+            if node.get('op')=='rand' and not guarded and 'plan_ref' not in detail and detail.get('equation_phase')==phase and detail.get('site_index') is not None:
+                found.add(detail['site_index'])
+            lazy=_LAZY_ARGS.get(node.get('op'),())
+            todo.extend((arg,guarded or position in lazy) for position,arg in enumerate(node.get('args') or []))
+    return sorted(found)
+
+
+class _OrderedSiteRandom:
+    """projectm-eval's stream as a block of code consumes it: before the block runs, every rand call site
+    that always runs takes one draw in statement (site) order, and each copy of the site inlined into
+    another variable's graph reads that draw. Guarded sites draw when they run."""
+    site_phases=('per_frame_init_','per_frame_')
+
+    def __init__(self,generator):
+        self.generator=generator;self.cache={}
+
+    def prepare(self,programs,phase):
+        self.cache={(phase,site):float(self.generator.random()) for site in _unguarded_sites(programs,phase)}
+
+    def site_draw(self,key,limit):
+        return (self.cache[key] if key in self.cache else float(self.generator.random()))*limit
+
+    def __getattr__(self,name):
+        return getattr(self.generator,name)
+
+
 def _evaluate_np(expression,inputs,rng=None,batch_shape=None):
     """Vectorised evaluation with projectm-eval semantics (eel_memory: loops and megabuf included).
 
@@ -1536,7 +1575,7 @@ class _FrameStepper:
         # Unseeded: the cold-load stream of projectm-eval's rand (the first draws after preset load in a fresh
         # engine). Seeded runs stand for other stream positions (the app's stream continues across presets).
         self.values=None;self.start={};self.failed=set();self.zero_inputs=set()
-        self.rng=_cold_eval_stream() if rng_seed is None else np.random.default_rng(rng_seed)
+        self.rng=_OrderedSiteRandom(_cold_eval_stream() if rng_seed is None else np.random.default_rng(rng_seed))
         # (draws after the main init at load, draws after the main per-frame code each frame) by the other
         # blocks sharing projectm-eval's stream (source_rand_stream); only the cold stream follows them.
         self.rand_skips=tuple(int(v) for v in rand_skips)
@@ -1568,6 +1607,7 @@ class _FrameStepper:
         if self.values is None:
             init_inputs={**base,**{'init:per_frame_init_:'+k:v for k,v in base.items()}}
             self.values={}
+            self.rng.prepare([p['initial'] for p in self.state_programs.values()],'per_frame_init_')
             for name,programs in self.state_programs.items():
                 try:self.values[name]=self._eval(programs['initial'],init_inputs)
                 except Exception:self.values[name]=0.;self.failed.add(name)  # noqa: BLE001
@@ -1576,6 +1616,7 @@ class _FrameStepper:
         # Start-of-frame state: inlined per-frame graphs in shader programs read these values.
         self.start={**self.values,**{'state:per_frame_:'+k:v for k,v in self.values.items()}}
         updated={}
+        self.rng.prepare([p['update'] for p in self.state_programs.values()]+list(self.output_programs.values()),'per_frame_')
         joint=self._eval_all({**{('state',n):p['update'] for n,p in self.state_programs.items()},
                               **{('output',n):p for n,p in self.output_programs.items()}},inputs)
         for name,programs in self.state_programs.items():

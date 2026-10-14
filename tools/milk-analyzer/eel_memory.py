@@ -79,10 +79,10 @@ def _apply(op, node, args, rng, batch_shape=None):
     with np.errstate(all='ignore'):
         if op == 'rand' and rng is not None and hasattr(rng, 'site_draw'):
             detail = node.get('detail') or {}
-            if detail.get('equation_phase') == 'per_frame_' and detail.get('site_index') is not None:
-                # A per-frame rand inlined into a component runs once per frame in the engine: every
-                # place that inlines the same call site sees one draw.
-                return rng.site_draw(('per_frame_', detail['site_index']), np.maximum(1., np.floor(args[0])))
+            if detail.get('equation_phase') in getattr(rng, 'site_phases', ('per_frame_',)) and detail.get('site_index') is not None:
+                # A main-code rand call site runs once per block in the engine (once per frame for per-frame
+                # code, once per load for init code): every place that inlines the same site sees one draw.
+                return rng.site_draw((detail['equation_phase'], detail['site_index']), np.maximum(1., np.floor(args[0])))
         if op == 'rand' and rng is not None:
             # projectm-eval rand(x): continuous uniform on [0, max(1, floor(x))], one draw per call.
             limit = np.maximum(1., np.floor(args[0]))
