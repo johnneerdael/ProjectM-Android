@@ -697,18 +697,32 @@ def _gl_line_pixels(x0,y0,x1,y1,width,height,return_index=False):
     return np.concatenate(rows),np.concatenate(cols)
 
 
-def _motion_vector_marks(facts,sample,time,width,height,maps=None):
+def _motion_vector_marks(facts,sample,time,width,height,maps=None,controls=None):
+    """controls: this frame's stepped mv_* values; with per-frame grid counts or offsets (status 'partial')
+    they give the frame's grid by the exporter's MotionVectors rule."""
     vectors=facts.get('/analysis/visual_description/static_behaviour/motion_vectors')
-    if not isinstance(vectors,dict) or vectors.get('status')!='described' or not vectors.get('vector_count'):return []
-    if sample is None:return []
+    if not isinstance(vectors,dict) or sample is None:return []
+    frame={k:float(v) for k,v in (controls or {}).items() if k.startswith('mv_') and type(v) in (int,float)}
+    if vectors.get('status')=='described' and vectors.get('vector_count'):
+        columns,rows=vectors['columns_screen_fraction'],vectors['rows_screen_fraction_from_top']
+        length=_mid(vectors.get('length_scale')) or .9
+    elif vectors.get('status')=='partial' and vectors.get('activation')!='inactive' and {'mv_x','mv_y'}<=set(frame):
+        from source_motion_vector_element import _positions
+        ranges=vectors.get('control_ranges') or {}
+        value=lambda name,default:frame.get(name,_mid(ranges.get(name)) if ranges.get(name) else default)
+        if value('mv_a',0.)<float(np.float32(.0001)):return []
+        columns=_positions(frame['mv_x'],value('mv_dx',0.),1,64)
+        rows=[1-v for v in _positions(frame['mv_y'],value('mv_dy',0.),-1,48)]
+        length=value('mv_l',.9)
+    else:return []
+    if not columns or not rows:return []
     map_x,map_y=maps if maps is not None else sample(time)
-    length=_mid(vectors.get('length_scale')) or .9
     colour=vectors.get('colour_rgba') or [1,1,1,1]
     shade=tuple(float(v) if type(v) in (int,float) else 1.0 for v in colour[:3])
     minimum=math.hypot(1.25/width,1.25/height)
     marks=[]
-    for fx in vectors['columns_screen_fraction']:
-        for fy in vectors['rows_screen_fraction_from_top']:
+    for fx in columns:
+        for fy in rows:
             px,py=fx*width,fy*height
             i,j=min(height-1,int(py)),min(width-1,int(px))
             # PresetMotionVectorsVertexShader works in texture units: dist=(old-pos)*mv_l, lengthened to
@@ -2025,7 +2039,7 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                 # MilkdropPreset::RenderFrame draws motion vectors into the previous frame before warping it,
                 # from the u/v map the previous warp wrote: they reach the screen only through one warp.
                 # GLES has no line smoothing, so they are aliased 1 px lines (sub-pixel endpoints).
-                marks=_motion_vector_marks(facts,sample,frame_time,width,height,vector_maps)
+                marks=_motion_vector_marks(facts,sample,frame_time,width,height,vector_maps,controls=held)
                 if marks:
                     # Colour and alpha follow the per-frame program when it writes mv_r/g/b/a.
                     rgba=_mv_rgba(facts,held,set(frame_record.get('outputs') or {}) if stepper is not None else set())
@@ -2216,7 +2230,7 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                         return _display(canvas_image,facts,frame_time,fps,[],previous)
                     finally:_RAND_OVERRIDE[0]=None
                 rand_probe['probe'](evaluate,{stage:[float(v) for v in _frame_rand(frame_time,fps,stage)] for stage in _STAGE_RAND_BASE})
-        if _motion_vector_marks(facts,sample,time,width,height):limitations.append('motion vectors drawn from the illustrated backward map')
+        if _motion_vector_marks(facts,sample,time,width,height,controls=held):limitations.append('motion vectors drawn from the illustrated backward map')
     except ValueError as error:
         limitations.append('field illustration stopped: '+str(error))
     mesh=facts.get('/analysis/visual_description/static_behaviour/mesh_field') or {}

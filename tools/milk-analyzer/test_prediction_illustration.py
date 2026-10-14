@@ -778,3 +778,18 @@ def test_unevaluable_blend_flag_falls_back_to_unset_inputs_reading_zero():
     from prediction_illustration import _shape_blend
     expression = {'root': 0, 'nodes': [{'op': 'input', 'dtype': 'float', 'args': [], 'detail': {'name': 'flip'}}]}
     assert _shape_blend({'blend': None, 'flags': {'additive': expression}}, {}, 0.) == 'source_alpha_over'
+
+
+def test_motion_vectors_with_per_frame_grid_counts_use_the_frames_values():
+    # mv_x written per frame (Martin - QBikal - Surface Turbulence: 54-64 on beats) leaves no static grid;
+    # the frame's stepped counts give MotionVectors' grid (source_motion_vector_element._positions).
+    from prediction_illustration import _motion_vector_marks
+    facts = {'/analysis/visual_description/static_behaviour/motion_vectors': {'status': 'partial', 'activation': 'possible',
+             'control_ranges': {'mv_a': [.5, .5], 'mv_x': None, 'mv_y': [48., 48.], 'mv_dx': [0., 0.], 'mv_dy': [0., 0.], 'mv_l': [.85, .85]}}}
+    W, H = 64, 48
+    maps = np.meshgrid(np.arange(W, dtype=np.float32), np.arange(H, dtype=np.float32))
+    marks = _motion_vector_marks(facts, lambda t: maps, 1., W, H, maps, controls={'mv_x': 12., 'mv_y': 9., 'mv_a': .5, 'mv_l': .85, 'mv_dx': 0., 'mv_dy': 0.})
+    from source_motion_vector_element import _positions
+    # MotionVectors keeps positions strictly inside (.0001, .9999): an integer count's last position is 1.
+    assert len(marks) == len(_positions(12., 0., 1, 64)) * len(_positions(9., 0., -1, 48)) == 11 * 8
+    assert _motion_vector_marks(facts, lambda t: maps, 1., W, H, maps, controls={'mv_x': 12., 'mv_y': 9., 'mv_a': 0.}) == []

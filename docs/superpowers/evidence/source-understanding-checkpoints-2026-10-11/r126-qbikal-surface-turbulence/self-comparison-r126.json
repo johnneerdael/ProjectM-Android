@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r126-v1",
+ "preset": "Martin - QBikal - Surface Turbulence IIy2 (by hakanh mash-up).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b5abd5cc062e1bc7b0663e6a8a414483a96ff58a39dbd335ea651ed4b84343e2",
+  "prediction.json": "2278f213e92c1be5cab82de717695230f6a958fec882ae9539c7bc942d4c8e0b",
+  "description.json": "41977a8a1f1107adb4ba7c908ded6bcd739339a35851b9b1c289613da3fd1fda",
+  "recipe.json": "15dc8243fd415e91489f9768b62a1aa451ceb522a2d26dd40024700177a53899",
+  "llm-look-description-v1.txt": "3051e1183893741feb4795052dfb72685d4ecec36892d3012000052be2856c10"
+ },
+ "capture_result_sha256": "365e1d21068f88b7fd3ad9002976eac3d7eb2044052dd90ea4918ed8ee8edbbb",
+ "review_measurements_v1": {
+  "prediction_luma": 0.046,
+  "screenshot_luma": 0.052,
+  "mean_rgb_prediction": [
+   0.009,
+   0.055,
+   0.066
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.067,
+   0.057
+  ],
+  "blurred_luma_correlation": 0.209,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.069,
+    0.094
+   ],
+   "saturation": [
+    0.396,
+    0.368
+   ],
+   "blurred_luma_correlation": 0.785
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0252,
+   0.0436
+  ]
+ },
+ "agreements": [
+  "dark cyan field with pentagon shapes in both; time-averaged map correlation 0.785",
+  "the warp shader matches a hand evaluation on the engine's canvas (mean 0.255 vs 0.255)"
+ ],
+ "misses": [
+  "v1: frames 60-149 luma 0.069 vs 0.094 and frame difference 0.025 vs 0.044: the 64x48 motion vectors (alpha 0.5, colours per frame) were not drawn because the per-frame code writes mv_x (54-64 on beats), so the exported grid was only partial",
+  "v2 draws the frame's grid from the stepped mv_x/mv_y with the exporter's MotionVectors rule: luma 0.086 vs 0.094, frame difference 0.038 vs 0.044, series 0.211/0.211, 0.142/0.152, 0.047/0.042"
+ ],
+ "verdict": "v1 too dark with too little motion; v2 (per-frame motion-vector grid) tracks the capture"
+}
