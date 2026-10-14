@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r145-v1",
+ "preset": "TonyMilkdrop - Angels Of Glory [Flexi - safer sex + alien complex] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4178665a12d1400b3faa11e214af7573b2d4cbfa9c79621f8f0273d882d63336",
+  "prediction.json": "565506fd05c03aaf0b584646a177170e0bfd1d9ea2e137bf3203dfcaa13ef0d0",
+  "description.json": "4f73f41fe653ebabd4c49db8a10d75d66c9e949220d9ac262f53bef81d8068bd",
+  "recipe.json": "e8ae4fc16ad050d60b898adb3619155fcdd01567eeee3115266a3cfbc119de07",
+  "llm-look-description-v1.txt": "2046424d88922555e5b856015e5842e01fc575f4f0318890b4d62ecaab792005"
+ },
+ "capture_result_sha256": "b41e71f2c84b602d16589be0675a05a7058a1c26bd48c0f3546aea8cad487351",
+ "review_measurements_v1": {
+  "prediction_luma": 0.251,
+  "screenshot_luma": 0.399,
+  "mean_rgb_prediction": [
+   0.209,
+   0.251,
+   0.37
+  ],
+  "mean_rgb_screenshot": [
+   0.23,
+   0.465,
+   0.24
+  ],
+  "blurred_luma_correlation": 0.341,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.373,
+    0.332
+   ],
+   "saturation": [
+    0.495,
+    0.431
+   ],
+   "blurred_luma_correlation": 0.623
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0404,
+   0.0387
+  ]
+ },
+ "agreements": [
+  "mirrored tiled pattern and slow swirl",
+  "per-load random hue stated",
+  "no strobe"
+ ],
+ "misses": [
+  "brightness ~25% high mid-clip",
+  "hue placement is a per-load draw (prediction blue, capture green)"
+ ],
+ "verdict": "partly understood: frozen prediction layout and motion follow the capture (map corr 0.62, frame difference 0.040 vs 0.039) but brightness runs ~25% high mid-clip (0.40 vs 0.30 at frames 75-90). Hue differs (prediction blue-led, capture green-led) because the composite applies random per-load hue offsets; the SDK correctly reports the hue as random per load, and the mirrored, tiled, slowly swirling pattern without flashing."
+}
