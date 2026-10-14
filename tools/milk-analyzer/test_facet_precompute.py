@@ -68,3 +68,14 @@ def test_warp_and_composite_draw_rand_frame_separately():
 def test_flash_probabilities_of_independent_stage_draws_combine():
     import facet_precompute as F
     assert abs(F._either(.1, .2) - .28) < 1e-12 and F._either(0., 0.) == 0.
+
+
+def test_peak_global_brightness_change_uses_the_ruler_grey_from_frame_60():
+    # No strobe needs headroom below the ruler's 0.08 jump: the largest frame-to-frame change of mean grey
+    # (frames 60+, Rec.601 grey at 320x180 as the ruler measures) is recorded with the statistics.
+    import numpy as np
+    import facet_precompute as F
+    frames = np.zeros((70, 18, 32, 3), np.uint8)
+    frames[30] = 255                      # before frame 60: ignored
+    frames[65:] = 20                      # a step of 20/255 at frame 65
+    assert abs(F.peak_brightness_change(frames) - 20 / 255) < 1e-3

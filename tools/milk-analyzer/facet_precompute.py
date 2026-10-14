@@ -32,6 +32,16 @@ def _frames(summary, audio, seed, width, height, count):
     return np.array(frames, np.uint8), limits
 
 
+def peak_brightness_change(frames, start=60):
+    """Largest frame-to-frame change of mean grey from frame `start` (the ruler's grey: 320x180 INTER_AREA,
+    Rec.601), the quantity whose 0.08 crossings the ruler counts as global brightness jumps."""
+    import cv2
+    import numpy as np
+    grey = np.array([cv2.cvtColor(cv2.resize(f, (320, 180), interpolation=cv2.INTER_AREA), cv2.COLOR_RGB2GRAY).mean() / 255
+                     for f in frames[start:]])
+    return float(np.abs(np.diff(grey)).max()) if len(grey) > 1 else 0.
+
+
 def depends_on_seed(summary, audio):
     """True when two seeds give different frames on a short, small run (per-load randomness reaches the output)."""
     import numpy as np
@@ -49,11 +59,13 @@ def preset_statistics(summary, audio, measure):
         for seed in seeds:
             frames, limits = _frames(summary, audio, seed, WIDTH, HEIGHT, FRAMES)
             path = os.path.join(work, 'f.u8'); frames.tofile(path)
-            runs.append({'seed': seed, **measure(path)})
+            runs.append({'seed': seed, **measure(path), 'peak_brightness_change': peak_brightness_change(frames)})
     mean = {}
     for key in TARGETS:
         values = [r[key] for r in runs if isinstance(r.get(key), (int, float))]
         mean[key] = sum(values) / len(values) if values else None
+    # Safety statistic: the worst seed, not the mean (a flash under any per-load draw counts).
+    mean['peak_brightness_change'] = max((r.get('peak_brightness_change') or 0.) for r in runs) if runs else None
     return {'policy': POLICY, 'status': 'predicted', 'depends_on_seed': stochastic, 'seeds': list(seeds), 'statistics': mean,
             'random_flash': random_flash(summary, audio), 'runs': runs, 'limitations': limits, 'seconds': round(time.perf_counter() - started, 2),
             'uses_rendered_images': False, 'uses_engine_execution': False}
