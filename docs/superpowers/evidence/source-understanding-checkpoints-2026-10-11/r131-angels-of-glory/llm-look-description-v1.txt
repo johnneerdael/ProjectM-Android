@@ -1,0 +1,13 @@
+Approximate look (prediction from source facts only; no rendering).
+
+Overall: a dim-to-medium, fairly saturated, smoothly evolving feedback picture. The simulated display gives mean luminance about 0.19 (calibrated range 0.10-0.52), saturation about 0.70, and about 81% of the screen coloured. It reads as a mid-dark image rather than a bright one. Colour is led by red (about 40%), blue (about 32%) and orange (about 28%), so I expect reds and oranges beside cool blue areas. The flat background settles toward a dim blue (about 0.09, 0.15, 0.21). The source's own colour-cycle estimate leans cool, while the simulation leans warm, so the warm/cool balance is uncertain.
+
+Structures: the only drawn element is a built-in audio waveform made of dots, a rotating stereo polar trace. It is a ring of dots at a radius of about 0.53 model units, centred. Its colour drifts slowly through many hues over roughly 16-18 second cycles, always at full brightness in its strongest channel. Its alpha is tiny (0.001), so its direct contribution is faint. Most of the visible structure should come from feedback: a band-pass "pattern growth" stage turns seeds into blobs, cells and splatter. The composite then mirrors and tiles the image, which should give a kaleidoscopic, symmetric patchwork. Expect organic, fluid-looking, swirling texture spread over the whole screen, not a clean ring.
+
+Motion: a slow turn of at most 0.005 rad per frame, plus an 11-lobed zoom modulation (zoom about 0.935-1.055) that rotates slowly. Image-driven advection in both warp and composite smears and flows the pattern. There is no net drift. Trails are channel-selective: red persists fully, green nearly so, and blue is cleared each frame, so trails should turn red/yellow-green over time. Estimated flow speed is low, about 0.05-0.08 screen widths per second, and the activity estimate puts it in the Chill band, possibly Normal.
+
+Audio: the only audio route is the waveform shape, which follows the sound continuously. No bass, mid or treble route was found, so beat-synchronised pulses are unlikely.
+
+Flashing: no flashing mechanism was found. The simulated peak brightness change is tiny (0.004) and global jumps are 0 per 10 seconds, so a strobe is unlikely, though flash inputs are marked unknown.
+
+Uncertain: exact colour balance, how visible the dots are, and the real density of the tiled pattern.

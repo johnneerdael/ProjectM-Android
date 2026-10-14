@@ -1,0 +1,60 @@
+{
+ "policy": "static-prediction-facet-statistics-v1",
+ "status": "predicted",
+ "depends_on_seed": false,
+ "seeds": [
+  null
+ ],
+ "statistics": {
+  "mean_luminance": 0.18694732150962237,
+  "mean_abs_frame_difference": 0.045484793609447495,
+  "mean_flow_screen_widths_per_s": 0.07506819984409958,
+  "global_brightness_jumps_per_10s": 0.0,
+  "mean_saturation": 0.7036562561988831,
+  "warm_cool": 0.42605915665626526,
+  "peak_brightness_change": 0.0036901552287581796
+ },
+ "random_flash": {
+  "reads_rand_frame": false
+ },
+ "random_texture_dependent": false,
+ "runs": [
+  {
+   "seed": null,
+   "mean_luminance": 0.18694732150962237,
+   "luminance_p10_p90": [
+    0.16052517020697168,
+    0.21312263071895424
+   ],
+   "mean_abs_frame_difference": 0.045484793609447495,
+   "mean_flow_screen_widths_per_s": 0.07506819984409958,
+   "global_brightness_jumps_per_10s": 0,
+   "mean_saturation": 0.7036562561988831,
+   "coloured_share": 0.8147759130658436,
+   "warm_cool": 0.42605915665626526,
+   "hue_shares": {
+    "red": 0.399,
+    "blue": 0.318,
+    "orange": 0.281,
+    "cyan": 0.001,
+    "yellow": 0.001
+   },
+   "black_frame_share": 0.0,
+   "white_frame_share": 0.0,
+   "peak_brightness_change": 0.0036901552287581796
+  }
+ ],
+ "limitations": [
+  "feedback content starts from the cleared (black) canvas, as at preset load",
+  "motion evaluated at the 48x32 mesh vertices and interpolated over its triangles",
+  "warp shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)",
+  "built-in waveforms drawn per frame from the declared reference PCM (projectM modes 0-9; wave alignment omitted)",
+  "borders and darken-centre blended into the feedback canvas every frame (time-varying border colours from the per-frame program)",
+  "/analysis/visual_description/elements/1/waveform_recipe: final alpha below the native draw gate; not drawn",
+  "composite shader evaluated per pixel from its exported program (engine blur bank, noise stand-ins)",
+  "closed-form time colours are evaluated per frame; other colours and audio-driven uniform terms use range midpoints; waveform audio wiggle omitted"
+ ],
+ "seconds": 100.01,
+ "uses_rendered_images": false,
+ "uses_engine_execution": false
+}

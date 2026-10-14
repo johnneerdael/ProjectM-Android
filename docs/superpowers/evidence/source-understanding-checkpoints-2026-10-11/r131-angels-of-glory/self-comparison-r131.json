@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r131-v1",
+ "preset": "TonyMilkdrop - Angels Of Glory [Flexi - making a case for well-being + multiverse] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "95650989de775feefc2c1fd92b6a0ddc2929731d3cfba4d208c6d8f44d40ef9c",
+  "prediction.json": "e132d38ef70ab3ed6880bc4c8691003cd13a7b2a7e0235b5f03e74b6f1c4f347",
+  "description.json": "b29584195de6ba69da2188e4520c3f6d3259f30a94edcb79014a083aef1789d3",
+  "recipe.json": "6c829a68d5b46f3860bad66604d2338b7e598b4cc34e87d5f5f953425445804f",
+  "llm-look-description-v1.txt": "c2e0d8c418987ffeeff401bbe07ae005a190edd5f0dd6d5498728d86b7ed1961"
+ },
+ "capture_result_sha256": "db51bc997f9d928cb5f95cda7f5b002ba0d029852f2d9626d58eb28f90f9046d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.176,
+  "screenshot_luma": 0.16,
+  "mean_rgb_prediction": [
+   0.336,
+   0.14,
+   0.069
+  ],
+  "mean_rgb_screenshot": [
+   0.302,
+   0.126,
+   0.073
+  ],
+  "blurred_luma_correlation": 0.327,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.155,
+    0.15
+   ],
+   "saturation": [
+    0.628,
+    0.583
+   ],
+   "blurred_luma_correlation": 0.293
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0684,
+   0.0685
+  ]
+ },
+ "agreements": [
+  "brightness, saturation and frame difference within 0.05",
+  "mirrored kaleidoscopic layout",
+  "red/orange/blue palette",
+  "slow advected flow",
+  "no strobe (peak change 0.004)"
+ ],
+ "misses": [
+  "SDK does not mention the thin blue electric lines",
+  "average-map correlation 0.29 (detail placement in a chaotic pattern)"
+ ],
+ "verdict": "understood: the frozen prediction shows the same mirrored orange-red lobes, blue electric lines and central cluster as the capture; luma 0.155 vs 0.150, frame difference 0.0684 vs 0.0685, saturation 0.63 vs 0.58. The SDK text (first checkpoint read with display_estimate.simulated) names red/orange/blue, the mirrored tiled patchwork, slow flow and no strobe. Low average-map correlation (0.29) reflects fine-detail placement of a chaotic feedback pattern, not a structural miss."
+}
