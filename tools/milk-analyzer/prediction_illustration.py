@@ -1269,7 +1269,15 @@ def _texture_lookup(source,coordinates,*,wrap,linear):
     th,tw=source.shape[:2]
     u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
     u=np.where(np.isfinite(u),u,0.);v=np.where(np.isfinite(v),v,0.)
-    mode='grid-wrap' if wrap else 'nearest'
+    if wrap:
+        # REPEAT: one gather of the four texels for all channels (scipy's grid-wrap mode is ~20x slower).
+        flat=source.reshape(th*tw,-1)
+        x0=np.floor(u);y0=np.floor(v);fx=(u-x0).astype(np.float32)[:,None];fy=(v-y0).astype(np.float32)[:,None]
+        x0=x0.astype(np.int64)%tw;y0=y0.astype(np.int64)%th;x1=(x0+1)%tw;r0=y0*tw;r1=((y0+1)%th)*tw
+        a,b,c,d=flat[r0+x0],flat[r0+x1],flat[r1+x0],flat[r1+x1]
+        top=a+(b-a)*fx;bottom=c+(d-c)*fx
+        return (top+(bottom-top)*fy).reshape((len(coordinates),)+source.shape[2:]).astype(np.float32)
+    mode='nearest'
     planes=source.reshape(th,tw,-1)
     out=np.stack([ndimage.map_coordinates(planes[...,c].astype(np.float64),[v,u],order=1,mode=mode,prefilter=False)
                   for c in range(planes.shape[2])],axis=-1)
