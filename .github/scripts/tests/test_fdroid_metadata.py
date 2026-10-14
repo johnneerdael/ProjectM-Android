@@ -30,7 +30,7 @@ class MetadataTests(unittest.TestCase):
             build = app.Builds[-1]
             self.assertEqual(build.gradle, [flavor])
             self.assertEqual(build.commit, 'a' * 40)
-            self.assertEqual(build.rm, ['docs/superpowers/evidence'])
+            self.assertIn('docs/superpowers/evidence', build.rm)
             self.assertIn('projectmDistribution=fdroid', build.gradleprops)
             self.assertIn('androidTouchscreen=' + str(target == 'android').lower(), build.gradleprops)
             self.assertTrue(app.Binaries.endswith(f'projectM-{apk}-FDroid-%v.apk'))
@@ -53,6 +53,44 @@ class MetadataTests(unittest.TestCase):
         self.assertEqual(updated['FutureMaintainerField'], app['FutureMaintainerField'])
         with self.assertRaisesRegex(ValueError, 'unsupported'):
             self.module.render(updated)
+
+    def test_source_cleanup_passes_real_scanner_without_removing_build_inputs(self):
+        from fdroidserver import common, scanner
+        repository = SCRIPT.parents[2]
+        golden = Path('tools/milk-analyzer/export-contract/knowledge-pack/golden-v1')
+        retained = ['core/src/main/java/nl/neerdael/projectm/core/PresetKnowledgePack.java',
+                    'tools/preset-distribution/starter-presets.json']
+        for target, (appid, _, _, _) in self.module.TARGETS.items():
+            recipes = {
+                'generated': self.module.generate_metadata(self.release, target),
+                'local': self.module.parse((repository / 'tools/fdroid/metadata' /
+                                           (appid + '.yml')).read_text(), appid),
+            }
+            for kind, app in recipes.items():
+                with self.subTest(target=target, recipe=kind), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    shutil.copytree(repository / golden, root / golden)
+                    (root / 'docs/superpowers/evidence').mkdir(parents=True)
+                    for path in retained:
+                        destination = root / path
+                        destination.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copyfile(repository / path, destination)
+                    archives = list((root / golden).rglob('*.gz'))
+                    self.assertTrue(archives, 'Scanner regression needs the real compressed fixtures')
+                    build = app.Builds[-1]
+                    self.assertFalse(build.scanignore)
+                    self.assertFalse(build.scandelete)
+                    # No Gradle dependencies in this fixture: archive detection needs no network.
+                    self.assertEqual(scanner.scan_source(str(root), build), len(archives))
+                    for path in common.getpaths(str(root), build.rm):
+                        destination = root / path
+                        if destination.is_dir():
+                            shutil.rmtree(destination)
+                        else:
+                            destination.unlink()
+                    self.assertEqual(scanner.scan_source(str(root), build), 0)
+                    for path in retained:
+                        self.assertEqual((root / path).read_bytes(), (repository / path).read_bytes())
 
     def test_tagged_source_declares_update_identity(self):
         app = self.module.generate_metadata(self.release, 'tv')

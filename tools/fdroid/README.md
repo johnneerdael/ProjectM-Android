@@ -22,8 +22,14 @@ Run `../../.venv-fdroid/bin/fdroid lint -f nl.neerdael.projectmtv
 nl.neerdael.projectm` from this directory. `config/categories.yml` is the minimal
 local lint fixture for these two recipes; it does not replace upstream's
 category configuration. Real source builds also run F-Droid's scanner. The
-recipe removes archived research evidence from the build checkout, retaining
-the actual app/engine sources, build tools and license notices.
+recipe removes archived research evidence and the compressed host-test vectors
+under `tools/milk-analyzer/export-contract/knowledge-pack/golden-v1` from the
+build checkout, retaining the app/engine sources, build tools and license
+notices. These vectors are used by host tests, not APK assembly; F-Droid's
+scanner rejects their `.gz` archives before Gradle runs. The tooling regression
+test runs the real scanner on these fixtures before and after recipe cleanup
+for both generated and local recipes. Local validation recipes target v2.3.48,
+whose source includes the fixtures; an `rm` path must exist in its selected source.
 
 Generate recipes without credentials or writes to GitLab:
 
