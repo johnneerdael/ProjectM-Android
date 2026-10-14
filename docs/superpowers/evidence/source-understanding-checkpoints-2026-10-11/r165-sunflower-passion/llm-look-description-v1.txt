@@ -1,0 +1,13 @@
+Approximate look (prediction from the source recipe only, not a render):
+
+This preset is a dense, strongly zooming feedback picture built from a nonlinear (complex quadratic) warp, a few small circular shapes, and a tiled composite. Expect a busy, fractal-like field that continuously streams outward from the screen centre and swirls, rather than a clean set of crisp objects.
+
+Brightness and colour: the recipe cannot say which colours appear. The drawn shapes' colours, the warp palette and the composite palette are all unresolved, and the hue_family from the settled canvas is only "blue", with a very dark canvas level (about 0.003). The calibrated display estimate is moderate: mean luminance about 0.22 (wide range 0.03 to 0.46), saturation about 0.39 (0.11 to 0.66), and warm/cool near neutral (about -0.03). So I would expect a mid-dark, moderately coloured picture, perhaps leaning blue, but this is uncertain. The composite flat-transfer maps even a full-white canvas to only about 0.08, which suggests flat areas are quite dark and brightness comes from fine detail and edges.
+
+Structure and placement: four filled 100-sided polygons (essentially discs) with radii about 0.135, 0.066, 0.036 and 0.012, so a descending set of small dots or rings. Their positions depend on audio, but the exact positions are unknown, so I cannot say where they sit. They have black borders. The composite repeats the image in non-mirrored tiles.
+
+Motion: the warp expands content from the centre by roughly 4 to 25 percent per frame, faster toward the edges, with spatially varying rotation up to about 0.23 rad per frame and a spiral bend. Trails persist for a long time (half-life near 170 frames, about 5.7 s), so drawn content should smear into long outward spiral streaks and nested copies. The calibrated flow estimate is about 0.28 screen widths per second, with a high activity estimate (Intense likely).
+
+Audio: shape positions are driven by bass, mid and treble (gains unknown), and bass also modulates the warp rotation. Reactivity is continuous, not thresholded.
+
+Flashing: no explicit flash mechanism was found, but the estimate allows frequent global brightness changes (about 6 per 10 s, range 1 to 25), so strobing cannot be ruled out.

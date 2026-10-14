@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r165-v1",
+ "preset": "suksma - Rovastar - Sunflower Passion (Enlightment Mix)_Phat_edit - circumflex in character classes in regular expression.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1f3d88bd55abe23c6fc0108e85895452f5231f2c597116ac294bd4410b2a1605",
+  "prediction.json": "664976d1db5577292173104d9aa11cb3240b26207505ea6a25d50aec01fea1f3",
+  "description.json": "c838075f5d2821aa8a747d849bae3b5a47615abd52edd1460ded7e3130048d56",
+  "recipe.json": "31ce06135cc0da29659f39ffe2e206004f254405ec62bdb09c2181bba40beaf2",
+  "llm-look-description-v1.txt": "133164853ff66e5c7f410f0ad262015e39f6e85bd70f4aef08d3f9e423ff89d5"
+ },
+ "capture_result_sha256": "29425ec897bb2437052e687101ec096c42b73f2a454e378311d98f27e017b54e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.204,
+  "screenshot_luma": 0.159,
+  "mean_rgb_prediction": [
+   0.202,
+   0.215,
+   0.107
+  ],
+  "mean_rgb_screenshot": [
+   0.195,
+   0.152,
+   0.125
+  ],
+  "blurred_luma_correlation": 0.162,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.193,
+    0.216
+   ],
+   "saturation": [
+    0.174,
+    0.135
+   ],
+   "blurred_luma_correlation": 0.913
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2086,
+   0.251
+  ]
+ },
+ "agreements": [
+  "brightness: calibrated 0.22 vs real 0.216",
+  "structure: busy fractal field streaming outward, tiled composite",
+  "motion: strong outward zoom with spiral rotation, long trails, Intense"
+ ],
+ "misses": [
+  "colour: recipe palettes unresolved, so the SDK guessed 'perhaps blue' for a green/magenta picture",
+  "blob placement chaotic frame by frame (prediction-screenshot corr 0.16)"
+ ],
+ "verdict": "frozen prediction right (frames 60-149 luma 0.193 vs 0.216, map corr 0.913, frame difference 0.21 vs 0.25, per-frame luma tracks the capture): vivid green and magenta blobs with fractal speckle on black, streaming outward through a complex-quadratic warp with long trails. The prediction was made with the pending line-edge fix in the working tree. The SDK reading got the brightness (calibrated 0.22), busy fractal streaming, long spiral trails and the Intense character, but could not name colours: the recipe leaves the shape and composite palettes unresolved, although the stepped prediction renders the right hues."
+}
