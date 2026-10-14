@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r111-v1",
+ "preset": "suksma - biotoxins on strings - log smell.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "fbb7676a6f5fa8023a81c40349f6ff411838818a997309b1ecc0c2e84cc21b77",
+  "prediction.json": "826f595d45392da3c28f6e1e5c9541dec77a76b995225100640f6577edbad410",
+  "description.json": "773c69f21da3aec35f33bfec01b36f6f001d5613040bc0cffa8013d2794a08b3",
+  "recipe.json": "22d313bce41fe4f71b8b53c5a4ddd8dfa51959c7c1c48e689ff155b0e036d422",
+  "llm-look-description-v1.txt": "911a6a9e3b38d6240d025f59bbb5e4088754b34effcf697acbe315cb736c210d"
+ },
+ "capture_result_sha256": "cbea35a464c4e7b0482481bc5164653d83e4b835af3592e57b91c70b3f9e2185",
+ "review_measurements_v1": {
+  "prediction_luma": 0.071,
+  "screenshot_luma": 0.033,
+  "mean_rgb_prediction": [
+   0.094,
+   0.068,
+   0.027
+  ],
+  "mean_rgb_screenshot": [
+   0.071,
+   0.02,
+   0.053
+  ],
+  "blurred_luma_correlation": 0.902,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.051,
+    0.047
+   ],
+   "saturation": [
+    0.574,
+    0.684
+   ],
+   "blurred_luma_correlation": 0.93
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.008,
+   0.009
+  ]
+ },
+ "agreements": [
+  "dim warm picture with string-like custom waves; per-frame luma within about 0.007 through frame 120",
+  "time-average correlation 0.93; frame difference 0.008 vs 0.009"
+ ],
+ "misses": [
+  "mean blue 0.036 vs 0.058 (frames 60-149)",
+  "the SDK could not read the 8,047-line recipe whole (expression graphs skipped)"
+ ],
+ "verdict": "understood on the first prediction; blue slightly low"
+}
