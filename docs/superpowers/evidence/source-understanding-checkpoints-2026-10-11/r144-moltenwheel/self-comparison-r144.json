@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r144-v1",
+ "preset": "LuxXx - MoltenWheel i --- Isosceles edit3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "16b2a06848ac42bcf670cab0903f7c11df3881f6b8433910dd0c7a4bb3ba6785",
+  "prediction.json": "b320fa1683d5b6f8120d84e23a593fe0b4c8507cc907a58cca39132a88d53f5f",
+  "description.json": "edf438fa05126fd6be7bf18ae2d900ac924adbbc332c8a25bd205ea40593b710",
+  "recipe.json": "562201ae02a9b480b34a67abe0cc88d75c91d9fbd986e5e5a78b05e4e7340872",
+  "llm-look-description-v1.txt": "03a4f71f3ed02166928b2d953bc907373a1f0118478f9b90b70e1fd666547619"
+ },
+ "capture_result_sha256": "4f24beb25085c0e7af33fe7de951c766f34901cb461775ba002a612fca8c01bb",
+ "review_measurements_v1": {
+  "prediction_luma": 0.164,
+  "screenshot_luma": 0.174,
+  "mean_rgb_prediction": [
+   0.432,
+   0.096,
+   0.055
+  ],
+  "mean_rgb_screenshot": [
+   0.449,
+   0.105,
+   0.057
+  ],
+  "blurred_luma_correlation": 0.195,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.166,
+    0.173
+   ],
+   "saturation": [
+    0.891,
+    0.891
+   ],
+   "blurred_luma_correlation": 0.403
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0229,
+   0.0232
+  ]
+ },
+ "agreements": [
+  "statistics and luma arc",
+  "vein network and palette",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK: 'fairly bright' spiral field vs thin glowing veins on dark red",
+  "map correlation 0.40 (vein placement)"
+ ],
+ "verdict": "frozen prediction statistically near-exact (luma 0.166 vs 0.173, mean rgb 0.43/0.10/0.06 vs 0.44/0.10/0.06, saturation 0.891 both, frame difference 0.0229 vs 0.0232, luma arc frame by frame); the same glowing vein network on dark red, placed differently (map corr 0.40). SDK names the warm red/orange palette and no strobe but calls it fairly bright and an expanding spiral field rather than thin glowing veins on a dark red ground."
+}
