@@ -1149,6 +1149,19 @@ class _Analysis:
         inputs.update(resets)
         return inputs
 
+    def main_registers(self):
+        """reg00-reg99 values the main code leaves for other blocks: projectm-eval shares these registers
+        between every code block and they persist across frames. The per-frame value when per-frame code
+        writes the register, else the init value (registers written only by waves or shapes stay unresolved)."""
+        shared=lambda v:v is None or (v.op=='input' and str(v.detail.get('name','')).startswith('shared:'))
+        registers={}
+        for name in set(getattr(self,'frame_init',{}) or {})|set(getattr(self,'main',{}) or {}):
+            if not re.fullmatch(r'reg[0-9]{2}',name):continue
+            value=self.main.get(name)
+            if shared(value):value=self.frame_init.get(name)
+            if not shared(value):registers[name]=value
+        return registers
+
     def main_equations(self):
         environment = {name: _constant(_scalar(self.values, key, default, kind))
                        for name, (key, default, kind) in MAIN.items()}
@@ -1164,6 +1177,10 @@ class _Analysis:
         resets={**environment,**{name:Field('input',detail={'name':name}) for name in
             (*READONLY,'meshx','meshy','pixelsx','pixelsy','aspectx','aspecty')},
             **{f'q{i}':init.environment.get(f'q{i}',_constant(0)) for i in range(1,33)}}
+        # A register written only by per-frame init keeps that value (registers persist; no block resets them).
+        frame_written=_EEL.assignment_targets(select_equation(self.sections.get('per_frame_'),'per_frame_',policy=self.policy).get('tree'))
+        resets.update({name:value for name,value in init.environment.items()
+                       if re.fullmatch(r'reg[0-9]{2}',name) and name not in frame_written})
         frame = self.equation('per_frame_',self.frame_environment('per_frame_',init.environment,resets))
         self.main = frame.environment
         # Kept for the frame-program export (state recurrence over declared inputs).
@@ -1178,6 +1195,8 @@ class _Analysis:
                       **{name:Field('input',detail={'name':name,'native_mesh_reset_input':True}) for name in ('x','y','rad','ang')}}
         pixel_initial={**pixel_resets,**{name:resets[name] for name in readonly},
                        **{f'q{i}':frame.environment.get(f'q{i}',_constant(0)) for i in range(1,33)}}
+        # Shared registers the main code wrote are visible to the per-pixel code (read before it writes them).
+        pixel_resets={**pixel_resets,**self.main_registers()}
         mesh = self.equation('per_pixel_',self.frame_environment('per_pixel_',pixel_initial,pixel_resets))
         self.mesh_controls=mesh.environment
         for name in ('rot', 'zoom', 'zoomexp', 'sx', 'sy', 'dx', 'dy', 'warp'):
@@ -1274,7 +1293,7 @@ class _Analysis:
                                   'thick':_constant(_scalar(self.values,prefix+'thickoutline',0,'bool')),
                                   **{f't{i}':init.environment.get(f't{i}',_constant(0)) for i in range(1,9)},
                                   **{f'q{i}':self.main.get(f'q{i}',Field('unknown'))
-                                  for i in range(1,33)}}
+                                  for i in range(1,33)},**self.main_registers()}
                     frame_prefix=f'shape_{index}_per_frame'
                     frame = self.equation(frame_prefix,self.frame_environment(frame_prefix,init.environment,shape_resets))
                     env = frame.environment

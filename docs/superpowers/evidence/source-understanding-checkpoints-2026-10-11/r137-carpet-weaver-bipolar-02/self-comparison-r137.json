@@ -1,0 +1,29 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r137-v1",
+ "preset": "martin + flexi - carpet weaver bipolar 02.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "b5acab49d85549c40d050c35d07218d3a80abc3d97e395f6d0eb60874085f10a",
+  "description.json": "f73cb112b1238dee9025fadcd66642d09a7d83be93ef5f3c3487c4d03180987c",
+  "recipe.json": "68f4f31cfa9763b4ce9c2d17afdf23324119d2b90a01e775775c3f68ecf0a49d",
+  "llm-look-description-v1.txt": "eb2858ee72bc388c6948c27b0d808c948bee8ebf56748240010981706e318b33"
+ },
+ "capture_result_sha256": "2d5a6ab4952ae2f2c10ad9ad365d7823a64090feafdbaba5141d67a049cbe9f5",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.0881
+  ]
+ },
+ "agreements": [
+  "after fix: green/magenta bipolar log-polar carpet, black start circles, textured disc",
+  "SDK: high-contrast tunnel of hexagons, audio-driven rotation"
+ ],
+ "misses": [
+  "frozen v1: black (registers read as 0)",
+  "SDK: grayscale palette (real green/magenta)"
+ ],
+ "verdict": "frozen v1 prediction was black (luma 0.000 vs 0.446): two general gaps. (1) per-pixel memory reads crashed the predictor (term inputs dropped Memory and filled unwritten memory with 0); fixed before capture. (2) projectm-eval's shared registers reg00-reg99, written by main code (reg10=5000, reg11=40, reg07), read as 0 in per-pixel, shape and wave code. With registers passed like q values, the re-export matches native: luma at frames 15/45/90/145 ours 0.27/0.40/0.50/0.50, native 0.30/0.47/0.41/0.43, same green/magenta bipolar carpet."
+}

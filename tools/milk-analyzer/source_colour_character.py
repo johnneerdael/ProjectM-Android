@@ -182,14 +182,15 @@ def _custom_wave_palette(analysis,identity):
     defaults={name:_constant(_scalar(analysis.values,prefix+name,1,'float')) for name in 'rgba'}
     init_prefix=identity+'_init'
     init=_assemble(analysis,init_prefix,{**defaults,**{name:Field('input',detail={'name':'init:'+init_prefix+':'+name}) for name in READONLY}})
+    registers=analysis.main_registers() if hasattr(analysis,'main_registers') else {}
     reset={**defaults,**{name:Field('input',detail={'name':name}) for name in READONLY},
         **{f'q{i}':analysis.main.get(f'q{i}',Field('unknown')) for i in range(1,33)},
-        **{f't{i}':init.environment.get(f't{i}',_constant(0)) for i in range(1,9)}}
+        **{f't{i}':init.environment.get(f't{i}',_constant(0)) for i in range(1,9)},**registers}
     frame_prefix=identity+'_per_frame'
     frame=_assemble(analysis,frame_prefix,analysis.frame_environment(frame_prefix,init.environment,reset,uninitialized_state=True))
     point_prefix=identity+'_per_point';selected=select_equation(analysis.sections.get(point_prefix),point_prefix,policy=analysis.policy)
     written=_EEL.assignment_targets(selected.get('tree'))
-    point={name:frame.environment.get(name,Field('unknown')) for name in (*'rgba',*READONLY,*(f'q{i}' for i in range(1,33)),*(f't{i}' for i in range(1,9)))}
+    point={name:frame.environment.get(name,Field('unknown')) for name in (*'rgba',*READONLY,*(f'q{i}' for i in range(1,33)),*(f't{i}' for i in range(1,9)),*registers)}
     # Wave contexts see only q/t copies of other blocks: a per-point name no wave block writes reads 0.
     from scene_equations import _variables
     for name in {n.lower() for n in _variables(selected.get('tree') or {})}-written-point.keys()-set('xy')-{'sample','value1','value2'}:

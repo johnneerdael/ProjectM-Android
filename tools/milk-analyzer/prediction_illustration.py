@@ -208,11 +208,14 @@ def _term_inputs(expression,base):
     read before it is written persists across vertices in the engine; here it reads 0 (approximation)."""
     from eel_memory import input_names
     plain={'root':expression['root'],'nodes':[{**n,'op':'abs'} if n['op'] in _STOCHASTIC else n for n in expression['nodes']]}
-    stage={k:v for k,v in (_TERM_CONTEXT.get('stage') or {}).items() if isinstance(v,(int,float))}
+    # The frame's stepped values, including memory the per-frame code wrote (megabuf/gmegabuf).
+    stage={k:v for k,v in (_TERM_CONTEXT.get('stage') or {}).items() if isinstance(v,(int,float,Memory))}
     inputs={**stage,**base}
     for name in input_names(plain) or ():
         if isinstance(name,str) and name not in inputs:
-            inputs[name]=0.;_UNRESOLVED_TERMS.add('mesh input %s read as 0 (never written)'%name)
+            # Unwritten memory reads 0 (an empty buffer); other unsupplied names read 0.
+            inputs[name]=_absent(name)
+            if not name.startswith('memory:'):_UNRESOLVED_TERMS.add('mesh input %s read as 0 (never written)'%name)
     return inputs
 
 

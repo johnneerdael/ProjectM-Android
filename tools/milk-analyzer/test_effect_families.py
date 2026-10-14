@@ -700,3 +700,15 @@ def test_angle_wrap_of_a_kaleidoscope_is_not_image_tiling():
         'float2 p=.5+rad*.4*float2(cos(a),sin(a)); ret=GetPixel(p);}', 'comp'))
     assert 'angular_mirror_fold' in families(record) and 'repeat_tiling' not in families(record)
     assert 'repeat_tiling' in families(analyze(shader('shader_body {ret=GetPixel(frac(uv*3));}', 'comp')))
+
+
+def test_global_registers_written_by_main_code_reach_per_pixel_and_shape_code():
+    # projectm-eval's reg00-reg99 are shared by every code block (martin + flexi - carpet weaver bipolar 02:
+    # per_frame reg10 = 5000; per_pixel reads gmegabuf(reg10 + ...)). They read 0 before.
+    from effect_families import _Analysis, _number
+    analysis = _Analysis(read('per_frame_1=reg10=1.5; reg07=.2;\nper_pixel_1=zoom=reg10;\n'
+                              'shapecode_0_enabled=1\nshapecode_0_a=1\nshape_0_per_frame1=rad=reg07;\n'), 'gles300', None)
+    analysis.main_equations()
+    assert _number(analysis.mesh_controls['zoom']) == 1.5
+    analysis.primitives()
+    assert abs(_number(analysis.component_controls['shape_0']['rad']) - .2) < 1e-6

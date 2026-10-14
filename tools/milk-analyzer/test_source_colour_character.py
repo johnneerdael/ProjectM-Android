@@ -441,3 +441,11 @@ def test_wave_state_fed_by_a_large_main_per_frame_graph_keeps_its_recurrence():
     record = result['by_component']['wave_0']['source_palette']['point_colour_distribution']
     assert record['positions_closed_form'] is True and record.get('frame_recurrence')
     assert 'rot' in record['frame_recurrence']['state']
+
+
+def test_custom_wave_points_read_registers_the_main_code_wrote():
+    # Shared registers (reg00-reg99) written by main per-frame code are visible in wave per-point code.
+    result = source_character('per_frame_1=reg11=.25;\nwavecode_0_enabled=1\nwavecode_0_bUseDots=1\nwavecode_0_samples=8\n'
+        'wave_0_per_point1=x=sample;y=.5;r=reg11;g=0;b=0;a=1;\n')
+    record = result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['status'] == 'closed_form_point_colours' and abs(record['mean_rgb'][0] - .25) < 1e-6

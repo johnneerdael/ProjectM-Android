@@ -1,0 +1,11 @@
+Approximate look (from the recipe only; nothing was rendered).
+
+Overall picture: a geometric, tiled, tunnel-like pattern built from many small six-sided polygons that are repeatedly fed back on themselves. The final composite remaps the canvas with a log-radius polar lookup plus un-mirrored repeat tiling, so the image should read as repeating copies converging toward the centre, a woven or carpet-like tunnel, though the recipe says tunnel appearance is not guaranteed. A thin black border (about 2% of the screen) is stamped every frame.
+
+Brightness and colour: the composite strongly amplifies the canvas. Any stored level of about 0.25 or more displays as pure white, and dim levels are boosted about five times. That makes the picture high contrast, with white or light grey structure against dark gaps. The steady-state colour is grayscale, and the wave and shape colours are mostly black or grey. The display estimate gives mean luminance about 0.35 (interval 0.16 to 0.59), saturation about 0.43 with a wide interval, and warm/cool near neutral. The recipe has no resolved hue, so I expect mostly black, white and grey. Audio-driven colour routes on shape_1 and the composite may add tints, with strength unknown. The prediction is uncertain here, and the saturation estimate may be too high.
+
+Structure: shape_1 draws 128 hexagon instances. Their positions and sizes are not resolved. shape_2 draws two textured black hexagons. The built-in waveform line is nearly invisible (alpha 0.005, black), anchored at the bottom centre.
+
+Motion: feedback decays very slowly (gain 0.9997 per frame), so trails persist for a long time and patterns build up. The warp rotates and zooms spatially, with zoom varying by screen height and almost no net scaling (sx 0.9999). There is no horizontal drift. Shape rotation and position react to bass, mid and treble.
+
+Audio and flashing: bass, mid and treble drive hexagon rotation, opacity and colour, but the gains are unresolved. Random values (q1 to q12) are redrawn, so layouts and colours vary between loads and over time. Flashing is not established. The mood model assumes about 4 Hz transitions and moderate brightness jumps (0.12 to 0.3), but these are assumptions, not measurements. The preset is probably lively and high-contrast, and it may flicker with the beat, but whether it strobes is unknown.

@@ -950,3 +950,17 @@ def test_negative_shape_radius_draws_the_point_mirrored_polygon():
         mirrored, _ = _draw_textured_shape(canvas.copy(), _shape_record(.3, .2 + math.pi, textured), 1., True, canvas)
         assert drawn and not np.array_equal(negative, canvas)
         assert np.allclose(negative, mirrored, atol=1e-5)
+
+
+def test_per_pixel_terms_read_the_frames_memory_and_unwritten_memory_as_zero(monkeypatch):
+    # martin + flexi - carpet weaver bipolar 02: per-pixel code reads megabuf. Per-frame writes must be visible;
+    # memory nobody wrote reads 0 (an empty Memory, not a plain number the reader cannot index).
+    import prediction_illustration as P
+    from eel_memory import Memory, evaluate_np
+    expression = {'root': 0, 'nodes': [{'op': 'array_mem_read', 'args': [1, 2], 'detail': {}},
+                                       {'op': 'input', 'args': [], 'detail': {'name': 'memory:global'}},
+                                       {'op': 'constant', 'args': [], 'detail': {'value': 3.}}]}
+    monkeypatch.setitem(P._TERM_CONTEXT, 'stage', {'memory:global': Memory().write(3, .7), 'q1': 2.})
+    assert float(evaluate_np(expression, P._term_inputs(expression, {}))) == .7
+    monkeypatch.setitem(P._TERM_CONTEXT, 'stage', {})
+    assert float(evaluate_np(expression, P._term_inputs(expression, {}))) == 0.
