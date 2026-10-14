@@ -515,3 +515,20 @@ def test_textured_shape_colour_over_time_is_labelled_as_a_tint():
     assert 'tint' in _layer(textured, 0)['colour_over_time']['role']
     filled = {base + '/id': 'shape_0', base + '/material': {'channel_expressions': channels, 'texture': {'role': 'untextured_vertex_gradient'}}}
     assert 'role' not in _layer(filled, 0)['colour_over_time']
+
+
+def test_display_palette_pools_static_colour_sources():
+    # Colour-through-feedback gap: 24% of coloured presets had no static hue cue although their wave or point
+    # colours were in the recipe. display_palette pools element colours, the steady state and the composite.
+    from preset_recipe import display_palette
+    recipe = {'render': {'layers': [
+        {'id': 'wave_0', 'point_cloud': {'colour_resolved': True, 'hue_family_shares': {'pink': .6, 'green': .3, 'grayscale': .1}, 'mean_alpha': .5}},
+        {'id': 'wave_1', 'colour': {'channels': {'wave_r': {'curve_kind': 'constant', 'constant_value': .1},
+                                                 'wave_g': {'curve_kind': 'constant', 'constant_value': .2},
+                                                 'wave_b': {'curve_kind': 'constant', 'constant_value': .9}}, 'max_normalised': True}}],
+        'feedback': {'steady_state': {'hue_family': 'grayscale'}}, 'composite': {}}}
+    p = display_palette(recipe)
+    assert set(p['hue_shares']) >= {'pink', 'blue'} and abs(sum(p['hue_shares'].values()) - 1) < 1e-6
+    vivid = {'render': {'layers': [], 'feedback': {}, 'composite': {'detail_response': {'coloured_share': .9, 'hue_shares': {'yellow': .9, 'orange': .1}}}}}
+    assert next(iter(display_palette(vivid)['hue_shares'])) == 'yellow'
+    assert display_palette({'render': {'layers': [], 'feedback': {}, 'composite': {}}})['hue_shares'] == {}

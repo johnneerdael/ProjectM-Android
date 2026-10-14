@@ -371,6 +371,72 @@ def shape_colour_over_time(material,times=COLOUR_TIMES):
             'times_s':[times[0],times[-1]],'audio':'bands held at 1'}
 
 
+# Ordered by each source's measured agreement with engine-ruler hues (200-preset set: composite detail and
+# steady state 64%, shape fills 50%, wave colours 37%); drawn colours pass through feedback and the composite
+# before display, so the stages nearest the display weigh most.
+PALETTE_WEIGHTS={'composite_detail':3.,'steady_state':1.5,'shape_fill':1.,'wave':.3,'point_cloud':.3}
+
+
+def _channel_value(channel,time):
+    from time_expression import evaluate
+    if channel.get('time_expression') is not None:
+        try:return float(evaluate(channel['time_expression'],time))
+        except (ValueError,TypeError,KeyError,ZeroDivisionError):return None
+    if channel.get('curve_kind')=='constant' and type(channel.get('constant_value')) in (int,float):return float(channel['constant_value'])
+    span=channel.get('nominal_value_range')
+    return (span[0]+span[1])/2 if isinstance(span,list) and len(span)==2 and None not in span else None
+
+
+def display_palette(recipe,times=COLOUR_TIMES):
+    """Static display palette: hue shares pooled from the recipe's colour sources, no frames stepped.
+
+    Sources and their weights (PALETTE_WEIGHTS): a composite that colours structure (detail_response with a
+    coloured share above 0.5) dominates; shape fills (colour_over_time, tints excluded) by area; the steady
+    feedback colour; built-in wave colours from their closed-form channels (max-normalised as Waveform does
+    above 0.01); custom-wave point colours. Each source's chromatic shares are normalised before weighting.
+    A random per-load tint (hue_shader, load_spread) is flagged, not counted as a fixed colour.
+    """
+    from time_expression import hue_family
+    render=recipe.get('render') or {};sources=[]
+    def add(name,shares,weight):
+        shares={k:v for k,v in (shares or {}).items() if k!='grayscale' and v>0}
+        total=sum(shares.values())
+        if total>0 and weight>0:sources.append((name,{k:v/total for k,v in shares.items()},weight))
+    for layer in render.get('layers') or []:
+        over=layer.get('colour_over_time')
+        if over and 'tint' not in (over.get('role') or ''):
+            radius=((layer.get('geometry') or {}).get('radius_ndc'))
+            area=min(1.,float(radius)**2) if type(radius) in (int,float) else .1
+            add(layer.get('id'),over.get('hue_shares'),PALETTE_WEIGHTS['shape_fill']*max(area,.02))
+        cloud=layer.get('point_cloud')
+        if cloud and cloud.get('colour_resolved') and cloud.get('hue_family_shares'):
+            add(layer.get('id'),cloud['hue_family_shares'],PALETTE_WEIGHTS['point_cloud']*float(cloud.get('mean_alpha') or 1.))
+        channels=((layer.get('colour') or {}).get('channels') or {}) if isinstance(layer.get('colour'),dict) else {}
+        if all(k in channels for k in ('wave_r','wave_g','wave_b')):
+            counts={}
+            for time in times:
+                rgb=[_channel_value(channels[k],time) for k in ('wave_r','wave_g','wave_b')]
+                if None in rgb:counts={};break
+                rgb=[min(1.,max(0.,v)) for v in rgb]
+                if layer['colour'].get('max_normalised') and max(rgb)>.01:rgb=[v/max(rgb) for v in rgb]
+                family=hue_family(rgb);counts[family]=counts.get(family,0)+1
+            add(layer.get('id'),counts,PALETTE_WEIGHTS['wave'])
+    steady=((render.get('feedback') or {}).get('steady_state') or {}).get('hue_family')
+    if steady and steady!='grayscale':add('steady_state',{steady:1.},PALETTE_WEIGHTS['steady_state'])
+    composite=render.get('composite') or {};detail=composite.get('detail_response') or {}
+    if (detail.get('coloured_share') or 0)>.5:add('composite_detail',detail.get('hue_shares'),PALETTE_WEIGHTS['composite_detail'])
+    pooled={}
+    for _,shares,weight in sources:
+        for k,v in shares.items():pooled[k]=pooled.get(k,0)+v*weight
+    total=sum(pooled.values())
+    shares={k:round(v/total,4) for k,v in sorted(pooled.items(),key=lambda kv:-kv[1]) if v/total>=.03} if total else {}
+    norm=sum(shares.values())
+    return {'hue_shares':{k:round(v/norm,4) for k,v in shares.items()} if norm else {},
+            'sources':[{'source':n,'weight':round(w,3),'leading':max(s,key=s.get)} for n,s,w in sources],
+            'random_tint':bool(composite.get('hue_shader') or composite.get('load_spread')),
+            'method':'static pooling of recipe colour sources (no frames stepped); weights '+json.dumps(PALETTE_WEIGHTS)}
+
+
 RAY_MIN_SHARE=.5  # screen share reading one point per ray for the radial_rays effect
 RAY_GAIN=.15  # |d r_source / d r_screen| below this: a pixel's ray reads (nearly) one source point
 
@@ -645,6 +711,7 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
         'limitations':['Engine-neutral approximate recipe; drawn content, audio and native rounding make real frames differ',
                        'Mood values are editable research assumptions, not calibrated preferences']}
     recipe['render']['feedback']['steady_state']=_steady_state(summary,(recipe['render'].get('composite') or {}).get('flat_transfer'))
+    recipe['render']['display_palette']=display_palette(recipe)
     display=_display_estimate(summary)
     if display is not None:recipe['display_estimate']=display
     recipe['facets']=facets_block(summary,display)
