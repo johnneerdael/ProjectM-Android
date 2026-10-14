@@ -158,3 +158,19 @@ Zero jumps, peak < 0.04 and no random-texture dependence therefore give 0
 false negatives on this held-out set, keeping 75 of the 98 calm presets.
 That is a candidate safety rule, to be re-checked on the corpus
 precompute.
+
+Two of the seven zero-jump false negatives are dark, threshold-driven
+presets. They stay dark at the current code:
+
+- *pladman visits the sevendys* (engine 13 jumps, mean grey 0.026; ours
+  0.001). The composite ends with `normalize(ret - 0.1)`, which flips by
+  ±0.58 when a near-black canvas crosses 0.1. The engine's canvas hovers at
+  that threshold; ours stays just below it.
+- *Flexi - color drops* (engine 8 late jumps, mean grey 0.051; ours
+  0.004). The composite takes the square root of an absolute
+  blur-difference, scaled by noise.
+
+Both had a recorded peak change of at least 0.04, so the headroom rule
+excluded them in this run. A near-black prediction is fragile evidence of
+calm, though. Treating predictions darker than 0.005 as unknown keeps 0
+false negatives at the cost of 4 more calm presets (70 of 98 safe).
