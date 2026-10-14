@@ -502,3 +502,16 @@ def test_shape_colour_over_time_samples_closed_form_channels():
     assert c['centre_rgb_range'][0][0] >= 0 and c['centre_rgb_range'][0][1] <= .5 + 1e-6
     assert c['mean_saturation'] > .2 and len(c['hue_shares']) >= 3
     assert shape_colour_over_time({'channel_expressions': {'centre': {'r': None}}}) is None
+
+
+
+def test_textured_shape_colour_over_time_is_labelled_as_a_tint():
+    # r198 Wavering Flower: a textured disc with colour 0.9 copies a dark previous frame; the reader took 0.9 as
+    # a light-grey fill and called the preset bright. Colours of a previous_main shape are a tint.
+    from preset_recipe import _layer
+    base = '/analysis/visual_description/elements/0'
+    channels = {'centre': {c: _sine_channel(0, .9, 0) for c in 'rgb'}, 'perimeter': {c + '2': _sine_channel(0, .9, 0) for c in 'rgb'}}
+    textured = {base + '/id': 'shape_0', base + '/material': {'channel_expressions': channels, 'texture': {'role': 'previous_main'}}}
+    assert 'tint' in _layer(textured, 0)['colour_over_time']['role']
+    filled = {base + '/id': 'shape_0', base + '/material': {'channel_expressions': channels, 'texture': {'role': 'untextured_vertex_gradient'}}}
+    assert 'role' not in _layer(filled, 0)['colour_over_time']

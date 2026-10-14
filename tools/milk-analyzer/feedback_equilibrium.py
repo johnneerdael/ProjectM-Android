@@ -286,7 +286,8 @@ def _shape_terms(facts,notes):
         if not path.endswith('/geometry') or not isinstance(value,dict) or value.get('policy')!='source-custom-shape-footprint-v1':continue
         base=path.rsplit('/',1)[0]
         material=facts.get(base+'/material') or {};parameters=facts.get(base+'/parameters') or {}
-        if parameters.get('textured'):notes.append(base+': textured shape copies the canvas (no new energy)');continue
+        if parameters.get('textured') or (material.get('texture') or {}).get('role')=='previous_main':
+            notes.append(base+': textured shape copies the canvas (no new energy)');continue
         area=value.get('summed_nominal_area_fraction_per_aspect_y')
         if not isinstance(area,(int,float)):
             sides=parameters.get('instances') or 1

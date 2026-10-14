@@ -151,7 +151,12 @@ def _layer(facts,index):
     if isinstance(shape_material,dict) and shape_material.get('channel_expressions'):
         try:over_time=shape_colour_over_time(shape_material)
         except (ValueError,TypeError,KeyError,ArithmeticError):over_time=None
-        if over_time:layer['colour_over_time']=over_time
+        if over_time:
+            if (shape_material.get('texture') or {}).get('role')=='previous_main':
+                # A textured shape draws the previous frame: its colours multiply the copied image (CustomShape
+                # vertex colour times the texture), so they are a tint, never a fill colour.
+                over_time['role']='tint multiplying the copied previous frame (not a fill colour)'
+            layer['colour_over_time']=over_time
     for colour_path,colour_row in facts.items():
         if not colour_path.startswith(STATIC+'/colour/components/') or not isinstance(colour_row,dict):continue
         if colour_row.get('component_id')!=identity:continue

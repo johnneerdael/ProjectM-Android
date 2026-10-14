@@ -206,6 +206,9 @@ full recipe tens of thousands of lines long.
    patterned rather than a dark background with a few drawn elements, and read
    its look through the composite palette. Its flat-content gain is
    `flat_gain_by_lane`; flat-content persistence alone understates coverage.
+   A textured shape's colours (`colour_over_time` with a tint `role`, or its
+   r/g/b constants) multiply the copied image. They are a tint, not a fill:
+   a copy of a dark canvas stays dark, whatever the tint.
    A `frame_copy` effect is a textured shape that draws the previous frame
    into its polygon, zoomed by `tex_zoom` and turned by `tex_angle_rad`.
    Each frame copies the last one, so the copies nest recursively into a

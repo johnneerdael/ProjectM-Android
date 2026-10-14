@@ -234,3 +234,18 @@ def test_composite_load_spread_measures_brightness_that_depends_on_the_random_hu
     monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, *a, **k: image.astype(np.float32))
     flat = E.composite_load_spread(facts)
     assert flat['luma_range'][1] - flat['luma_range'][0] < 1e-6
+
+
+def test_shape_with_a_previous_frame_texture_adds_no_light():
+    # r198 Wavering Flower: the textured disc (texture role previous_main, colour 0.9) copies the canvas. Its
+    # parameters carry no 'textured' flag, so it was counted as a 0.9 fill over a third of the screen and the
+    # steady state read white for a near-black preset.
+    base = '/analysis/visual_description/elements/0'
+    facts = {base + '/geometry': {'policy': 'source-custom-shape-footprint-v1', 'summed_nominal_area_fraction_per_aspect_y': .5},
+             base + '/material': {'centre_vertex_rgba': [.9, .9, .9, 1.], 'perimeter_vertex_rgba': [.9, .9, .9, 1.],
+                                  'texture': {'role': 'previous_main'}},
+             base + '/parameters': {}}
+    notes = []
+    assert E._shape_terms(facts, notes) == [] and any('copies the canvas' in n for n in notes)
+    facts[base + '/material']['texture'] = {'role': 'untextured_vertex_gradient'}
+    assert len(E._shape_terms(facts, [])) == 1
