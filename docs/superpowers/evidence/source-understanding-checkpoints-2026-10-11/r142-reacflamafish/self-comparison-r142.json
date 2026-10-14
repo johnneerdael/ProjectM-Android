@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r142-v1",
+ "preset": "LuxXx - Reacflamafish I.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9822920c05b63bd186e12f3dfcd77ff07d87a95ed3a37d015a7608c8596d1af6",
+  "prediction.json": "6817dcc83c8ec2c8cda3c798e4e957d60ce77027ccd3bfa82c1ad4c464abbe2a",
+  "description.json": "b75f3ad537d60e7ad14eb0bce44ed93db815c9241f16b2becb6444b45dd54945",
+  "recipe.json": "2c5d24314d1d518255f81f2f0050233a566d6be5139fd23d17d64bb290d8e217",
+  "llm-look-description-v1.txt": "f4c5155bcc5e65d4fbda3631c673f1b5dc13defa9b04c9081d057808b5e7ef4f"
+ },
+ "capture_result_sha256": "f2588bbbf2fcfe243aedb8016d16729e8a050b1f2713fd8070f96883664bf64e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.305,
+  "screenshot_luma": 0.373,
+  "mean_rgb_prediction": [
+   0.621,
+   0.213,
+   0.296
+  ],
+  "mean_rgb_screenshot": [
+   0.743,
+   0.255,
+   0.447
+  ],
+  "blurred_luma_correlation": 0.393,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.271,
+    0.302
+   ],
+   "saturation": [
+    0.881,
+    0.834
+   ],
+   "blurred_luma_correlation": 0.456
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1077,
+   0.1214
+  ]
+ },
+ "agreements": [
+  "brightness, saturation and red palette in the frozen prediction",
+  "outward zoom with twist, relief edges"
+ ],
+ "misses": [
+  "SDK v1: dark purple (flat-region steady state of a relief composite)",
+  "map correlation 0.46 (texture placement)"
+ ],
+ "verdict": "frozen prediction statistics close (luma 0.271 vs 0.302, red-dominant, saturation 0.881 vs 0.834, frame difference 0.108 vs 0.121); placement of the textured relief differs (map corr 0.46). SDK v1 led with the relief composite's flat-region steady state (dark purple) although the calibrated estimate and canvas hue said bright saturated red; skill fixed generally (steady_state inherits flat_areas_only), v2 reads saturated red relief texture."
+}

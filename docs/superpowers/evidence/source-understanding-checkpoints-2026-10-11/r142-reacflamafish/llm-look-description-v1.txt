@@ -1,0 +1,11 @@
+Approximate look (source-only, uncertain): a dark, feedback-driven picture that is mostly a dim, slightly purple-tinted field, with a continuously expanding and slowly twisting trail structure and embossed-looking edges.
+
+Brightness and colour: The composite shows flat canvas through a very dark purple-ish tone (about 0.04, 0.03, 0.05 RGB), and the settled steady-state hue is purple (display_local_rgb 0.0446/0.0303/0.0515). The canvas itself holds a red-leaning residue (about 0.31, 0.02, 0.02). Against that, the calibrated display estimate predicts a mean luminance near 0.28 (wide interval 0.10-0.52) and very high saturation (about 0.88, interval 0.60-1.0), warm-leaning (+0.46, uncertain). These disagree with the dark flat-field reading, so overall brightness is unresolved: dark background with brighter, strongly coloured detail is the most likely picture. The composite multiplies by randomly placed cycling corner shades (periods roughly 15, 20 and 16 seconds, range 0.67-1.0), so the tint wanders slowly and differs per load. One small point layer is pink and faint (alpha about 0.1).
+
+Shapes: A two-channel waveform line drawn additively but at almost invisible alpha (0.001), plus four 512-point waveform clouds. Only one has known bounds: a tiny pink cluster close to screen centre (x 0.50-0.55, y 0.46-0.50). The others are unplaced white points. Real content is likely mostly the feedback pattern, not crisp shapes.
+
+Motion: The whole image expands from the centre by 1.3% per frame while rotating up to plus or minus 0.01 rad per frame, so detail streams outward in a swirl. Red is flipped and cleared each frame, green is kept fully, and blue fades over about 34 frames, so colours shift between channels instead of leaving simple trails. The composite shows the image through its local slopes, giving an embossed relief look.
+
+Audio: Smoothed bass moves the waveform position, and bass and treble both modulate the composite colour. The strengths are unknown, so visible reaction is likely modest and smooth.
+
+Flashing: The estimates are weak and assumed, but a few brightness jumps per second are possible. No confirmed strobe. Activity is probably Normal to Intense.

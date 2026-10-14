@@ -132,7 +132,13 @@ full recipe tens of thousands of lines long.
    the canvas (flat transfer rising steeply, e.g. 0.125 shows as 0.62) pushes
    `steady_state` display colours to white channel by channel; then trust the
    canvas hue (`canvas_local_rgb`) and the calibrated saturation over a pale
-   display colour. When `steady_state.exact` is true, nothing feeds the
+   display colour. When the composite's `flat_transfer.flat_areas_only` is
+   true (a relief composite), `steady_state` display colours describe flat
+   regions only. Do not call the picture dark or name its hue from
+   `display_local_rgb` then; take the hue from `canvas_local_rgb` and the
+   brightness and saturation from `display_estimate`. (r142: flat regions
+   showed as dark purple, while the textured screen was bright saturated
+   red, as the canvas hue and calibrated values said.) When `steady_state.exact` is true, nothing feeds the
    canvas and the composite output is constant: the whole screen is
    `display_local_rgb` at every moment (for example plain white). Say so, and
    do not describe texture, motion or `display_estimate` brightness.
