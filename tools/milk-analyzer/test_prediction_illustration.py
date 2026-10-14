@@ -793,3 +793,27 @@ def test_motion_vectors_with_per_frame_grid_counts_use_the_frames_values():
     # MotionVectors keeps positions strictly inside (.0001, .9999): an integer count's last position is 1.
     assert len(marks) == len(_positions(12., 0., 1, 64)) * len(_positions(9., 0., -1, 48)) == 11 * 8
     assert _motion_vector_marks(facts, lambda t: maps, 1., W, H, maps, controls={'mv_x': 12., 'mv_y': 9., 'mv_a': 0.}) == []
+
+
+def test_legacy_filters_follow_the_frames_evaluated_flags():
+    # Patch 0008 on main: brighten/darken/solarize/invert come from each frame's evaluated value; a toggled
+    # invert (range [0, 1]) inverts exactly the frames that set it.
+    from prediction_illustration import _composite
+    facts = {'/x/legacy_response': {'native_control_ranges': {'invert': [0., 1.], 'echo_alpha': [0., 0.]},
+                                    'echo_selection': 'native gamma-only branch', 'gamma_absolute_weight_sum_upper': 1.}}
+    image = np.full((2, 2, 3), .2, np.float32)
+    assert np.allclose(_composite(image, facts, {'invert': 1.})[0], .8)
+    assert np.allclose(_composite(image, facts, {'invert': 0.})[0], .2)
+
+
+def test_builtin_wave_mode_and_flags_follow_the_frame():
+    # Patch 0007 on main: wave_mode (truncated, remainder over 16 modes) and dots/thick/additive come from
+    # the evaluated frame; a static recipe value is used when the frame program does not write them.
+    from prediction_illustration import _frame_wave_mode, _frame_wave_flags
+    outputs = {'wave_mode', 'wave_usedots', 'wave_thick', 'wave_additive'}
+    assert _frame_wave_mode({'effective_mode': None}, {'wave_mode': 22.7}, outputs) == 6
+    assert _frame_wave_mode({'effective_mode': 3}, {'wave_mode': 5.}, set()) == 3
+    assert _frame_wave_mode({'effective_mode': None}, {}, set()) is None
+    held = {'wave_usedots': 1., 'wave_thick': 0., 'wave_additive': .5}
+    assert _frame_wave_flags({'dots': False, 'thick': True}, held, outputs, False) == (True, False, True)
+    assert _frame_wave_flags({'dots': False, 'thick': True}, {}, set(), False) == (False, True, False)

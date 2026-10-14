@@ -96,7 +96,10 @@ def vertices(mode,*,left,right=None,wave_x=.5,wave_y=.5,mystery=0.,scale=1.,smoo
         x0=R[i]*L[i+32]+L[i]*R[i+32];y0=R[i]*R[i]-L[i+32]*L[i+32]
         lines=[np.stack([(x0*c-y0*s)*aspect_y+wx,(x0*s+y0*c)*aspect_x+wy],-1)]
     else:
-        n=min(WAVEFORM_SAMPLES//2,max(2,int(width)//3))
+        n=WAVEFORM_SAMPLES//2
+        # Line/DoubleLine cap at width/3 (MilkDrop 2.25c); Milkdrop2077Wave9 keeps projectM's divide-by-three.
+        if mode in (6,7):n=min(n,max(2,int(width)//3))
+        elif n>width/3:n//=3
         ex,ey,sx,sy,px,py=_clip_edges(1.57*mystery,wx,n)
         off=(WAVEFORM_SAMPLES-n)//2;i=np.arange(n)
         base=np.stack([ex+sx*i,ey+sy*i],-1);perp=np.array([px,py])

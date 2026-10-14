@@ -394,15 +394,38 @@ def _backward_map(mesh,width,height,grid=MESH_GRID,shader_topology=True):
     return sample
 
 
+_UNMODELLED_WAVE_MODES=(8,10,11,12,13,14,15)
+
+
 def _builtin_wave_dynamic(facts):
-    """Built-in waves drawable per frame from declared PCM (modes 0-9 except 8)."""
+    """Built-in waves drawable per frame from declared PCM (modes 0-9 except 8). A mode written per frame
+    (effective_mode None) is resolved each frame from the stepped wave_mode."""
     rows=[]
     for path,value in facts.items():
         if not path.endswith('/waveform_recipe') or not isinstance(value,dict):continue
         mode=value.get('effective_mode')
-        if type(mode) not in (int,float) or int(mode)%16 in (8,10,11,12,13,14,15):continue
+        if mode is not None and (type(mode) not in (int,float) or int(mode)%16 in _UNMODELLED_WAVE_MODES):continue
         rows.append((path,value))
     return rows
+
+
+def _frame_wave_mode(recipe,held,outputs):
+    """The frame's built-in wave mode: the recipe's static mode, else the stepped wave_mode truncated and
+    reduced over the 16 modes as Waveform does (patch 0007); None when unknown or not modelled."""
+    mode=recipe.get('effective_mode')
+    if mode is None and 'wave_mode' in outputs and type(held.get('wave_mode')) in (int,float) and math.isfinite(held['wave_mode']):
+        mode=int(math.fmod(math.trunc(held['wave_mode']),16))
+    if type(mode) not in (int,float) or mode<0 or int(mode) in _UNMODELLED_WAVE_MODES:return None
+    return int(mode)
+
+
+def _frame_wave_flags(recipe,held,outputs,additive):
+    """(dots, thick, additive) for this frame: the evaluated flags when the frame program writes them
+    (non-zero enables, patch 0007), else the static recipe/material values."""
+    def flag(name,default):
+        value=held.get(name)
+        return value!=0 if name in outputs and type(value) in (int,float) else default
+    return flag('wave_usedots',bool(recipe.get('dots'))),flag('wave_thick',bool(recipe.get('thick'))),flag('wave_additive',bool(additive))
 
 
 def _builtin_wave_frame(recipe,frame_time,frame_index,bands,viewport,stepped=None):
@@ -605,7 +628,10 @@ def _composite(image,facts,controls=None):
             except UnresolvedMath:pass
         if type(weight) in (int,float):image=np.clip(image*weight,0,1)
         # Ordered legacy filters after the hue/gamma/echo draws (legacy_composite.apply_filters).
-        on=lambda name:isinstance(ranges.get(name),list) and None not in ranges[name] and min(ranges[name])!=0
+        def on(name):
+            # Patch 0008: each frame's evaluated flag (non-zero enables), else a static range that excludes 0.
+            if type(frame.get(name)) in (int,float):return frame[name]!=0
+            return isinstance(ranges.get(name),list) and None not in ranges[name] and min(ranges[name])!=0
         if on('brighten'):image=1-(1-image)**2
         if on('darken'):image=image*image
         if on('solarize'):image=np.clip(2*image*(1-image),0,1)
@@ -2106,17 +2132,21 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                     ends=tuple(int(round(v)) for v in a),tuple(int(round(v)) for v in b)
                     cv2.line(layer,*ends,tuple(colour),1,cv2.LINE_AA);cv2.line(mask,*ends,1.0,1,cv2.LINE_AA)
                 image,canvas['alpha']=_blend_wave_layer(image,canvas['alpha'],layer,mask,alpha,additive)
+            outputs=set(frame_record.get('outputs') or {}) if stepper is not None else set()
             for path,recipe in dynamic_waves:
                 alpha,additive=wave_alpha[path]
                 if alpha is None:continue
+                frame_mode=_frame_wave_mode(recipe,held,outputs)
+                if frame_mode is None:continue
+                dots,thick,additive=_frame_wave_flags(recipe,held,outputs,additive)
+                recipe={**recipe,'effective_mode':frame_mode,'dots':dots,'thick':thick}
                 material=facts.get(path.rsplit('/',1)[0]+'/wave_material') or {}
                 # MaximizeColorsTextureSize: the viewport's long side unless lines are scaled above the reference.
-                frame_alpha=_frame_wave_alpha(material,held,recipe.get('effective_mode'),max(width,height))
+                frame_alpha=_frame_wave_alpha(material,held,frame_mode,max(width,height))
                 if frame_alpha is not None:
                     gate=(material.get('native_draw_gate') or {}).get('threshold')
                     if type(gate) in (int,float) and frame_alpha<gate:continue
                     alpha=frame_alpha
-                outputs=set(frame_record.get('outputs') or {}) if stepper is not None else set()
                 try:polylines,loop=_builtin_wave_frame(recipe,frame_time,int(round(frame_time*fps))-1,
                                                        {k:held[k] for k in BANDS if k in held},(width,height),
                                                        stepped={k:held[k] for k in ('wave_x','wave_y','wave_mystery') if k in outputs and k in held})

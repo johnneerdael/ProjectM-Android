@@ -81,3 +81,6 @@ def test_line_modes_cap_their_samples_at_a_third_of_the_width():
         assert all(len(line) == 2 * raw - 1 for line in lines), (mode, [len(line) for line in lines])
     lines, _ = vertices(6, left=window, right=window, viewport=(1920, 1080))
     assert len(lines[0]) == 2 * 240 - 1
+    # Milkdrop2077Wave9 keeps the divide-by-three rule (240 > 160 -> 80).
+    lines, _ = vertices(9, left=window, right=window, viewport=(480, 270))
+    assert len(lines[0]) == 2 * 80 - 1
