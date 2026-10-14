@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r139-v1",
+ "preset": "suksma - earth-tone basilisk belly - nectar lounge.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "fbe97f1e35c28a80602d3bc05d72aaaf899b78520fe8e24cfa8f037a9b05e196",
+  "prediction.json": "4f61973a404526ecbcbd5793c0346a0b550266fbf93c410e1f66c3b99a80230c",
+  "description.json": "e2bf2766923788868a66a4a9b5bdf8cf46a79321e66685744a785e2df6f92f07",
+  "recipe.json": "c5bc31e63a8138ff0a773a25f7240a0f7456259c039c327b1c8bca9ed1e28ec3",
+  "llm-look-description-v1.txt": "5a8ee22fbc24eb102b1da449ba7f5eeb03ffcb6ffbb447bd94e1886fde264230"
+ },
+ "capture_result_sha256": "e5399afe4ee4b977f277eb2c06496890654887c96c91f697487d37aa41b4528a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.326,
+  "screenshot_luma": 0.336,
+  "mean_rgb_prediction": [
+   0.536,
+   0.271,
+   0.259
+  ],
+  "mean_rgb_screenshot": [
+   0.527,
+   0.291,
+   0.221
+  ],
+  "blurred_luma_correlation": 0.879,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.52,
+    0.5
+   ],
+   "saturation": [
+    0.397,
+    0.337
+   ],
+   "blurred_luma_correlation": 0.987
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1135,
+   0.1126
+  ]
+ },
+ "agreements": [
+  "map correlation 0.987 and frame-by-frame beat dips",
+  "frame difference",
+  "audio-sized blobs and warping"
+ ],
+ "misses": [
+  "SDK: 'pale near-white' vs warm pink-red earth tones"
+ ],
+ "verdict": "understood: frozen prediction matches the capture (time-average map corr 0.987, luma 0.520 vs 0.500, frame difference 0.1135 vs 0.1126) and follows the beat dips frame by frame (frame 30: 0.267 vs 0.294; frame 105: 0.184 vs 0.208). SDK names a pale, music-pulsing picture with red/yellow/green blobs whose sizes follow bass, treble and mid; the real palette is warmer pink-red than its 'near-white'."
+}
