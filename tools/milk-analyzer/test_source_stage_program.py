@@ -34,3 +34,40 @@ def test_frame_program_steps_persistent_state():
     values = [stepper.step((k + 1) / 30, 30, {'bass': 1., 'mid': 0, 'treb': 0, 'bass_att': 0, 'mid_att': 0, 'treb_att': 0}, k + 1)['q1']
               for k in range(20)]
     assert abs(values[0] - 1.) < 1e-9 and abs(values[1] - 1.5) < 1e-9 and abs(values[-1] - 2.) < 1e-4
+
+
+import pytest
+
+_COMPILED_CASES = [
+    ('warp', 'shader_body{ret=GetPixel(uv)*.5+.1;}'),
+    ('warp', 'shader_body{float2 d=uv-.5; ret=tex2D(sampler_main,uv+d*.03).xyz*.97 - .004;}'),
+    ('composite', 'shader_body{float3 c=tex2D(sampler_main,uv).xyz; ret=lerp(c,1-c,.3)*float3(1.2,.9,.7);}'),
+    ('composite', 'shader_body{float3 c=GetPixel(uv); if(c.x>.5) ret=c.zyx; else ret=pow(c,2.2);}'),
+    ('warp', 'shader_body{float2 p=normalize(uv-.5+.001)*length(uv-.5); ret=GetBlur1(uv+p*.02)*1.1-GetPixel(uv)*.1;}'),
+    ('composite', 'shader_body{float3 n=tex2D(sampler_noise_lq,uv*3).xyz; ret=saturate(GetPixel(uv)+(n-.5)*.2); ret*=step(.2,ret.y);}'),
+    ('warp', 'shader_body{float a=atan2(uv.y-.5,uv.x-.5); float r=frac(a*3/3.14159+time*.1); ret=GetPixel(float2(r,uv.y)).xyz*max(.5,min(.9,r));}'),
+    ('composite', 'shader_body{float3 c=GetPixel(uv); float v=dot(c,float3(.3,.59,.11)); ret=float3(v,v*v,abs(sin(v*6)));}'),
+]
+
+
+@pytest.mark.parametrize('stage,code', _COMPILED_CASES)
+def test_compiled_stage_plan_matches_the_reference_evaluator(stage, code, monkeypatch):
+    import prediction_illustration as P
+    from test_effect_families import shader
+    from test_source_appearance import appearance
+    programs = appearance(shader(code, stage='comp' if stage == 'composite' else stage))['stage_programs']['stages']
+    assert programs[stage]['status'] == 'exported', programs[stage]
+    rng = np.random.default_rng(3)
+    image = rng.random((9, 16, 3)).astype(np.float32)
+    columns, rows = np.meshgrid((np.arange(16) + .5) / 16, (np.arange(9) + .5) / 9)
+    uv = np.stack([columns, rows, columns, rows], -1)
+    used = []
+    import stage_compiled
+    original = stage_compiled.run
+    monkeypatch.setattr(stage_compiled, 'run', lambda *a, **k: (used.append(1), original(*a, **k))[1])
+    monkeypatch.setattr(P, '_COMPILED_STAGES', [False])
+    reference = P._evaluate_stage(programs[stage]['program'], image, uv, 1.5, 30., {'bass': 1.2, 'treb': .8})
+    monkeypatch.setattr(P, '_COMPILED_STAGES', [True])
+    compiled = P._evaluate_stage(programs[stage]['program'], image, uv, 1.5, 30., {'bass': 1.2, 'treb': .8})
+    assert used, 'compiled plan was not used'
+    assert np.array_equal(reference, compiled)

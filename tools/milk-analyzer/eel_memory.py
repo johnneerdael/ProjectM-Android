@@ -173,10 +173,20 @@ def evaluate_np(expression, inputs, rng=None, batch_shape=None, deadline=None):
     return _evaluator(expression['nodes'], expression.get('plans') or [], inputs, rng, batch_shape, deadline)(expression['root'])
 
 
+_MERGED = {}
+
+
 def evaluate_many_np(expressions, inputs, rng=None, batch_shape=None, deadline=None):
     """Values of several serialised graphs evaluated together: structurally identical subgraphs (a loop
     serialised into every program that reads its results) are merged and computed once."""
-    merged, roots = merge_graphs(expressions)
+    # The same programs are evaluated every frame: merge them once (the cache holds the programs, so ids stay valid).
+    key = tuple(id(e) for e in expressions)
+    cached = _MERGED.get(key)
+    if cached is not None and all(a is b for a, b in zip(cached[0], expressions)):merged, roots = cached[1]
+    else:
+        merged, roots = merge_graphs(expressions)
+        if len(_MERGED) > 4096:_MERGED.clear()
+        _MERGED[key] = (tuple(expressions), (merged, roots))
     names = input_names(merged, stochastic=rng is not None)
     if names is None or names - set(inputs):raise ValueError('point program not evaluable')
     value = _evaluator(merged['nodes'], merged['plans'], inputs, rng, batch_shape, deadline)

@@ -1707,6 +1707,14 @@ def _hue_shader(width,height,time,offsets=(0.,0.,0.,0.),cell_centres=True):
     return np.concatenate([rgb,np.ones(rgb.shape[:2]+(1,),np.float32)],axis=-1).astype(np.float32)
 
 
+_COMPILED_STAGES=[True]
+
+
+def _grid_rand():
+    from grid_math import _GRID_RAND
+    return _GRID_RAND
+
+
 def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,controls=None,blur_image=None,stage='warp'):
     """Evaluate an exported stage program per pixel with the shared grid evaluator (source_stage_program).
 
@@ -1740,7 +1748,18 @@ def _evaluate_stage(program,image,uv,time,fps,bands,diffuse=None,rand=None,contr
     program=_fold_eel_loops(program,{**{k:v for k,v in (controls or {}).items()},'time':float(time),'fps':float(fps),
                                      'frame':float(max(0,int(round(time*fps))-1))},_TERM_CONTEXT.get('rng'))
     fitted=_fit_inputs(program,inputs,controls)
-    value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32)
+    value=None
+    if _COMPILED_STAGES[0]:
+        # The same arithmetic as one ordered numpy plan per program (stage_compiled); the strict
+        # interpreter remains the reference and the fallback for anything the plan does not cover.
+        from stage_compiled import compile_program,run
+        from field_math import UnresolvedMath
+        plan=compile_program(program)
+        if plan is not None:
+            try:value=np.asarray(run(plan,batch_shape=(height,width),inputs=fitted,sample=sample,rng=_grid_rand()),np.float32)
+            except UnresolvedMath:value=None
+    if value is None:
+        value=np.asarray(evaluate_grid(_field_from_expression(program),batch_shape=(height,width),inputs=fitted,sample=sample,numeric_policy=GLES_IEEE_ILLUSTRATION,work_policy='uniform-proof-v1'),np.float32)
     value=value.reshape(height,width,-1)
     return value[...,:3]
 
