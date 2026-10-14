@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r157-v1",
+ "preset": "suksma - sun pod gambit couch nz+2 then i said you have no freedom if you can't explore your own consciousness.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "5dbcb62baa8d6ab9104666bb7342a42366c67760d8c52eee1772f14e69701bbd",
+  "prediction.json": "267191eb80ca9afdff4819bea200e497527a16f64e19adcac01c3fd8e6302ac9",
+  "description.json": "5380cd9eea3f756e68f4a7ea3815783e3d1100eb4480ca3119d470b6fff9edae",
+  "recipe.json": "9474a0def5b71a266cb179f4c094d8563a3105aeb1fa137d8714d3fbc7f83309",
+  "llm-look-description-v1.txt": "afe357b98073bfd269f84002efcae6c445cd7b6dd9eb551e44616b8f177daadd"
+ },
+ "capture_result_sha256": "4ea39e60c71c572ec7bf62992be71ae5e68894e8794ad4b9d39efc782bc1031a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.001,
+  "screenshot_luma": 0.002,
+  "mean_rgb_prediction": [
+   0.002,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.005,
+   0.001,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.989,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.001,
+    0.001
+   ],
+   "saturation": [
+    0.953,
+    0.873
+   ],
+   "blurred_luma_correlation": 0.949
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0008,
+   0.0008
+  ]
+ },
+ "agreements": [
+  "frozen prediction near-black and faint glow"
+ ],
+ "misses": [
+  "SDK: mid-bright warm (closed-form offset from clamped zero-mean noise; calibrated luma 0.33 vs 0.001)"
+ ],
+ "verdict": "frozen prediction right: almost black with a faint warm glow (luma 0.001 vs 0.001, map corr 0.95). SDK called it a mid-bright warm image: the closed-form estimates are wrong (calibrated luma 0.326; steady-state canvas ~0.55). Cause: the warp adds zero-mean noise (noise*2-1)*0.01 then -0.00014; the closed-form flat transfer evaluated at a black canvas clamps the negative half, giving a spurious +0.0023/frame offset that the steady state amplifies through gain 0.996. Engine and frame-stepped prediction stay black."
+}

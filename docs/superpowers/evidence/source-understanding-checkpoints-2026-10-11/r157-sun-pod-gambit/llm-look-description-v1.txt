@@ -1,0 +1,15 @@
+Approximate look (source-only, no frames seen).
+
+Overall: a mid-bright, warm, fairly saturated picture. The calibrated display estimate gives mean luminance about 0.33 (interval 0.14-0.56), saturation about 0.69 and a warm lean (0.61). The settled colour is orange (steady-state hue family orange, display roughly 0.93/0.60/0.0). The composite maps dark canvas to black, mid canvas to orange, and bright canvas to yellow-white, so expect a black-to-orange-to-pale-yellow range, not a rainbow. Reds and oranges dominate the dark-to-mid tones; whites appear only where the canvas is bright.
+
+Structure: this is a feedback picture, not a few crisp objects. A ten-sided polygon sits fixed at screen centre (radius about 0.42, very faint at alpha 0.2). It is textured with the previous frame at zoom about 1.26, so it copies the image into itself and nests recursively, giving a tunnel- or droste-like repeat around the centre. A custom wave of 512 points, authored light blue, spreads over most of the screen (x 0.16-0.83, y 0.06-0.94). A dotted stereo trace wave at centre is almost invisible (alpha 0.001). The colours of the wave points may be heavily recoloured by the orange composite.
+
+Motion: a warp shader makes the image steer its own sampling (self-advection), so the picture smears and flows like fluid, and the composite adds a periodic wobble. The mesh zoom varies across the screen. Trails are long: per-frame gain is about 0.995, so detail lingers for seconds. Estimated frame change is low (about 0.026) and flow is slow (about 0.09 screen widths per second). The polygon itself does not move.
+
+Randomness: ten random values are redrawn at about 3 s and then every 12.6 s. Colours or shapes that depend on them will shift at those moments, so expect slow reshuffles every ~12 seconds.
+
+Audio: mid and treble drive zoom, rotation and translation, so the flow should speed up or twist with those bands. Bass, mid and treble all change the colour in the warp and composite shaders. The size of the response is unknown.
+
+Flashing: uncertain. The calibrated estimate gives under one global brightness jump per 10 s (interval 0 to about 5). The mood layer, using assumed values, suggests about 4 Hz transitions with a peak change near 0.26. I do not trust that figure. I would not call it a strobe, but I cannot rule out brightness pulses.
+
+Disagreements: the calibrated activity says Chill (0.17, interval wide), while the assumed-rate mood layer says Intense. I weight the calibrated estimate, so I expect a moderate, flowing look. Fine detail, exact colours and wave placement are unknown.
