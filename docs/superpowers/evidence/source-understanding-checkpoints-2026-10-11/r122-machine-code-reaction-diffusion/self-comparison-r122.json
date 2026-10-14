@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r122-v1",
+ "preset": "Stahlregen & Boz - Machine Code (Reaction Diffusion)_1 - Isosceles Tweak 04.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "739d9abf5049463903c89a903a691cb7511c33bf117ea1e8a3e8ce473c175b2d",
+  "prediction.json": "06588001b8960045ff075ea723cf1bbba527cfed67e9c5b23ee9584f2b05db72",
+  "description.json": "1b99d2a778bf0fd452185935e87ce8b14f5afe8b7fbc6ad7a5c206b5f1826282",
+  "recipe.json": "a2dfcfa76849403c473fea30608f52228f95014ee06ba8ec8abece0ee04cae00",
+  "llm-look-description-v1.txt": "d8ad834b7867bbd2dc6b128690d184b20132debaa513881d6fce6243f3bafc31"
+ },
+ "capture_result_sha256": "06e3d08b03e3b58ab0f0085fea0d914c3502fcaa621c51a9f19884f4947e33db",
+ "review_measurements_v1": {
+  "prediction_luma": 0.461,
+  "screenshot_luma": 0.44,
+  "mean_rgb_prediction": [
+   0.461,
+   0.461,
+   0.461
+  ],
+  "mean_rgb_screenshot": [
+   0.44,
+   0.44,
+   0.44
+  ],
+  "blurred_luma_correlation": 0.097,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.506,
+    0.464
+   ],
+   "saturation": [
+    0.0,
+    0.0
+   ],
+   "blurred_luma_correlation": 0.84
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1353,
+   0.1415
+  ]
+ },
+ "agreements": [
+  "grey horizontal reaction-diffusion stripes growing upward from the bottom, front near the top by frame 75 in both",
+  "frame difference 0.135 vs 0.142; time-averaged map correlation 0.84; grey in both (saturation 0)"
+ ],
+ "misses": [
+  "our front lags a little (frames 15-45), leaving more white: frames 60-149 luma 0.506 vs 0.464",
+  "single-frame detail is chaotic (screenshot correlation 0.10), as expected for reaction diffusion"
+ ],
+ "verdict": "understood: the stripe front grows on the same schedule; about 9% bright"
+}
