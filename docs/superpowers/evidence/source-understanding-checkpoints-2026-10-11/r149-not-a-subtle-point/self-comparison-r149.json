@@ -48,5 +48,6 @@
  "misses": [
   "frozen prediction clipped to white (texture and motion lost; frame difference 0.0015 vs 0.071)"
  ],
- "verdict": "brightness class right but the frozen prediction clips to pure white (luma 0.999, frame difference 0.0015) while the capture is near-white with faint cyan texture and real motion (luma 0.92, frame difference 0.071, saturation 0.11). A slightly over-bright canvas through a high-gain composite clips everything; open. SDK: bright, relief-shaded, liquid texture with a swirling zoom and bass pulses; flashing possible."
+ "verdict": "brightness class right but the frozen prediction clips to pure white (luma 0.999, frame difference 0.0015) while the capture is near-white with faint cyan texture and real motion (luma 0.92, frame difference 0.071, saturation 0.11). A slightly over-bright canvas through a high-gain composite clips everything; open. SDK: bright, relief-shaded, liquid texture with a swirling zoom and bass pulses; flashing possible.",
+ "diagnosis": "identity-composite canvas: native 0.70-0.79, ours ~0.90 (darken-centre off changes neither). The warp settles at v = (0.1485*m - 0.02)/0.0397 for mean injection m = mean(.15*.051/|.4*sin(uv*18*rand_frame)|*band*.5): a ~12% change in m moves the canvas 0.75 -> 0.90 (about 25x amplification), and the high-gain emboss composite then clips to white. The injection is heavy-tailed (1/|sin|) and driven by bands and rand_frame, so this is a knife-edge steady state, not a wrong rule."
 }
