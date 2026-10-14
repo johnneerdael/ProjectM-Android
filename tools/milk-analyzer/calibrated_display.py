@@ -23,7 +23,8 @@ DEFAULT_MODEL=Path(__file__).with_name('fixtures')/'calibrated-display-model.jso
 MISSING=-1e9
 # Physical range of each statistic: estimates and residual intervals are clamped into it.
 DOMAINS={'mean_luminance':(0.,1.),'mean_abs_frame_difference':(0.,1.),'mean_saturation':(0.,1.),'warm_cool':(-1.,1.),
-         'mean_flow_screen_widths_per_s':(0.,None),'global_brightness_jumps_per_10s':(0.,None)}
+         'mean_flow_screen_widths_per_s':(0.,None),'global_brightness_jumps_per_10s':(0.,None),
+         'coloured_share':(0.,1.),**{'hue_share_'+h:(0.,1.) for h in ('red','orange','yellow','green','cyan','blue','purple','pink')}}
 _CACHE={}
 
 
@@ -68,6 +69,7 @@ def predict(summary,model=None):
 
 
 def _inverse(raw,transform):
+    if transform=='logistic':return 1/(1+math.exp(-raw)) if raw>=0 else math.exp(raw)/(1+math.exp(raw))
     if transform=='log1p10':return max(0.,math.expm1(raw)/10)
     if transform=='log1p':return max(0.,math.expm1(raw))
     return raw

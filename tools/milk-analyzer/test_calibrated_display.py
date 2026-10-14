@@ -30,3 +30,13 @@ def test_values_and_intervals_stay_inside_each_statistics_physical_range():
     assert out['mean_luminance']['interval'] == [0., .25] and out['mean_luminance']['value'] == .05
     assert out['mean_saturation']['interval'][1] == 1. and abs(out['mean_saturation']['interval'][0] - .85) < 1e-12
     assert out['warm_cool']['interval'][0] == -1.
+
+
+def test_logistic_targets_return_a_probability():
+    # No strobe is a yes/no question: a calm-vs-flicker classifier stored as trees with a logistic link beats the
+    # jumps regression at matched admissions (836 admitted: 8 vs 20 flickering presets).
+    import math
+    from calibrated_display import _inverse
+    assert abs(_inverse(0., 'logistic') - .5) < 1e-12
+    assert _inverse(4., 'logistic') > .98 and _inverse(-4., 'logistic') < .02
+    assert 0. <= _inverse(1e9, 'logistic') <= 1. and 0. <= _inverse(-1e9, 'logistic') <= 1.

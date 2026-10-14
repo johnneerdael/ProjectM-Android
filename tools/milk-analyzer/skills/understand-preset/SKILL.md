@@ -194,12 +194,14 @@ full recipe tens of thousands of lines long.
    the range ("dim green on one load, brighter pink on another"), not one
    colour. Rows that grow much faster than the level (0.05 to 0.2 in, 0.02 to
    0.35 out) mark a steep composite: small canvas changes swing brightness hard.
-   `render.display_palette` pools the static colour sources (composite detail
-   colour, steady feedback colour, shape fills, wave and point colours) into
-   one set of hue shares, plus a `random_tint` flag. Use its leading hues as
-   the likely displayed colours when nothing more specific is resolved. Its
-   leading hue matches the engine's top two hues about half the time, so
-   present it as likely, not certain.
+   `render.display_palette` pools the static colour sources into one set of
+   hue shares, plus a `random_tint` flag. The sources are calibrated hue
+   shares (`display_estimate` `hue_share_*`, fitted from static descriptors),
+   composite detail colour, steady feedback colour, shape fills, and wave and
+   point colours. Name colours from its leading hues. With calibrated hue
+   shares present, the leading hue matches the engine's top two hues about 70%
+   of the time; without them, about half the time. Say "likely", and with
+   `random_tint` say the hue placement changes per load.
    Read shader `scalar_palette` records as the colour ramp content is shown
    through (black- and white-content colours are exact), and `flat_field` for
    the steady colour of flat regions (background) under a custom warp. Read

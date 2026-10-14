@@ -17,8 +17,10 @@ import os
 from pathlib import Path
 
 POLICY='source-display-calibration-fit-v1'
+HUE_FAMILIES=('red','orange','yellow','green','cyan','blue','purple','pink')
 TARGETS={'mean_luminance':None,'mean_abs_frame_difference':'log1p10','mean_flow_screen_widths_per_s':'log1p10',
-         'global_brightness_jumps_per_10s':'log1p','mean_saturation':None,'warm_cool':None}
+         'global_brightness_jumps_per_10s':'log1p','mean_saturation':None,'warm_cool':None,'coloured_share':None,
+         **{'hue_share_'+h:None for h in HUE_FAMILIES}}
 MISSING=-1e9
 
 
@@ -52,19 +54,29 @@ def main(argv=None):
     parser.add_argument('--oof',type=Path,required=True)
     parser.add_argument('--min-share',type=float,default=.01)
     parser.add_argument('--workers',type=int,default=4,help='processes computing descriptors')
+    parser.add_argument('--descriptor-cache',type=Path,help='pickle of descriptor rows: reused when present, written otherwise')
     args=parser.parse_args(argv)
     labels={}
     for directory in args.ruler:
         for name in os.listdir(directory):
             row=json.loads((directory/name).read_text())
-            if row.get('status')=='measured':labels[row['preset']]=row
+            if row.get('status')=='measured':
+                # Hue shares become one target per family (share of coloured pixels; 0 when absent).
+                shares=row.get('hue_shares') if isinstance(row.get('hue_shares'),dict) else {}
+                row.update({'hue_share_'+h:float(shares.get(h,0.)) for h in HUE_FAMILIES} if shares or row.get('coloured_share') is not None else {})
+                labels[row['preset']]=row
     excluded=set()
     for path in args.exclude:
         data=json.loads(path.read_text());excluded|=set(data if isinstance(data,list) else data)
     from concurrent.futures import ProcessPoolExecutor
     paths=sorted(args.corpus/'results'/name for name in os.listdir(args.corpus/'results'))
-    with ProcessPoolExecutor(args.workers) as pool:
-        loaded=[row for row in pool.map(_descriptor_row,paths,chunksize=32) if row is not None]
+    import pickle
+    if args.descriptor_cache and args.descriptor_cache.exists():
+        loaded=pickle.load(open(args.descriptor_cache,'rb'))
+    else:
+        with ProcessPoolExecutor(args.workers) as pool:
+            loaded=[row for row in pool.map(_descriptor_row,paths,chunksize=32) if row is not None]
+        if args.descriptor_cache:pickle.dump(loaded,open(args.descriptor_cache,'wb'))
     names=[name for name,_ in loaded];rows=[row for _,row in loaded]
     counts={}
     for row in rows:
@@ -111,6 +123,34 @@ def main(argv=None):
         if unlabelled:
             for k,value in zip(unlabelled,final.predict(X[[position[k] for k in unlabelled]])):oof_all.setdefault(k,{})[target]=float(value)
         print(target,report['targets'][target],flush=True)
+    # No strobe classifier: calm (< 1 brightness jump per 10 s) vs flicker. Admitting a flickering preset is the
+    # costly error, so flickering (>= 1) and strobing (>= 10) presets weigh 2x and 4x. Stored as trees with a
+    # logistic link; the prediction is the probability of calm.
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.model_selection import StratifiedKFold
+    from sklearn.metrics import roc_auc_score
+    target='no_strobe_probability';source='global_brightness_jumps_per_10s'
+    keys=[n for n in names if n in labels and labels[n].get(source) is not None]
+    fit=[k for k in keys if k not in excluded];held=[k for k in keys if k in excluded]
+    jumps=np.array([labels[k][source] for k in fit]);y=(jumps<1).astype(int);Xf=X[[position[k] for k in fit]]
+    weight=np.where(jumps>=10,4.,np.where(jumps>=1,2.,1.))
+    def classifier():
+        return HistGradientBoostingClassifier(max_iter=300,learning_rate=.06,max_leaf_nodes=15,min_samples_leaf=20,l2_regularization=1.,random_state=7)
+    oof=np.zeros(len(fit))
+    for train,test in StratifiedKFold(5,shuffle=True,random_state=11).split(Xf,y):
+        oof[test]=classifier().fit(Xf[train],y[train],sample_weight=weight[train]).predict_proba(Xf[test])[:,1]
+    final=classifier().fit(Xf,y,sample_weight=weight)
+    trees=[[[float(n['value']),int(n['feature_idx']),float(n['num_threshold']),int(n['left']),int(n['right']),int(n['is_leaf'])] for n in predictors[0].nodes]
+           for predictors in final._predictors]
+    auc=round(float(roc_auc_score(y,oof)),3)
+    order=np.argsort(-oof)
+    admission={str(k):{'flicker_admitted':int((jumps[order[:k]]>=1).sum()),'strobing_admitted':int((jumps[order[:k]]>=10).sum()),
+                       'probability_threshold':float(oof[order[k-1]])} for k in (500,836,1500,1848,3000) if k<=len(order)}
+    model['targets'][target]={'transform':'logistic','baseline':float(np.ravel(final._baseline_prediction)[0]),'trees':trees,
+                              'oof_spearman':auc,'metric':'roc_auc','residual_p10':0.,'residual_p90':0.,'n':len(fit),'admission_table':admission}
+    report['targets'][target]={'n':len(fit),'oof_roc_auc':auc,'admission_table':admission}
+    for k,value in zip(fit,oof):oof_all.setdefault(k,{})[target]=float(value)
+    print(target,report['targets'][target],flush=True)
     report['labelled']=len([n for n in names if n in labels])
     args.model.parent.mkdir(parents=True,exist_ok=True)
     with gzip.open(args.model,'wt') as handle:json.dump(model,handle,separators=(',',':'))

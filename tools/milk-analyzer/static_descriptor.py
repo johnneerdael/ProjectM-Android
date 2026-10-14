@@ -48,6 +48,54 @@ def _walk(value,path,depth,out):
             _walk(child,path+'/*',depth+1,out)
 
 
+BRIGHTNESS_OUTPUTS={'decay','gamma','echo_alpha','echo_zoom','invert','solarize','brighten','darken','wave_brighten','mv_a',
+                    *('%s_%s'%(p,c) for p in ('wave','ob','ib') for c in 'rgba')}
+BANDS={'bass','mid','treb','bass_att','mid_att','treb_att','vol','vol_att'}
+COMPARISONS={'greater','less','greater_equal','less_equal','eel_equal','equal','not_equal','above','below'}
+
+
+def _frame_program_columns(summary,steps=128):
+    """Static columns from the exported per-frame program graphs (no frames stepped, no audio).
+
+    periodic_state: state variables whose update reads only themselves and constants (an autonomous recurrence,
+    e.g. a counter wrapping every N frames); the orbit from the initial value is a property of the formula,
+    and its period is reported. Brightness-related outputs (decay, wave/border colour and alpha, gamma, echo,
+    invert, ...) that read such a state, or that compare an audio band with a threshold, are counted, as is
+    any frame-counter modulo.
+    """
+    from time_expression import evaluate_inputs,input_names
+    frame={}
+    for rows in (summary.get('facts') or {}).values():
+        for row in rows:
+            if row.get('path')=='/analysis/visual_description/stage_programs':frame=(row.get('value') or {}).get('frame') or {}
+    if frame.get('status')!='exported':return {}
+    names=lambda g:{n for n in (input_names(g) or ()) if isinstance(n,str)} if isinstance(g,dict) else set()
+    ops=lambda g:{node.get('op') for node in (g.get('nodes') or [])} if isinstance(g,dict) else set()
+    periodic={};periods=[]
+    for name,record in (frame.get('state') or {}).items():
+        update,initial=(record or {}).get('update'),(record or {}).get('initial')
+        if not isinstance(update,dict) or names(update)-{name} or names(initial):continue
+        try:
+            value=float(evaluate_inputs(initial,{}));seen={value:0}
+            for k in range(1,steps+1):
+                value=float(evaluate_inputs(update,{name:value}))
+                if value in seen:
+                    period=k-seen[value]
+                    if period>=2:periodic[name]=period;periods.append(period)
+                    break
+                seen[value]=k
+        except (ValueError,TypeError,KeyError,ZeroDivisionError,OverflowError):continue
+    outputs=frame.get('outputs') or {}
+    bright=[g for out,g in outputs.items() if out in BRIGHTNESS_OUTPUTS]
+    graphs=list(outputs.values())+[r.get('update') for r in (frame.get('state') or {}).values() if isinstance(r,dict)]
+    columns={'frameprog:periodic_state#count':float(len(periodic)),
+             'frameprog:brightness_outputs_from_periodic_state#count':float(sum(1 for g in bright if names(g)&set(periodic))),
+             'frameprog:brightness_outputs_band_threshold#count':float(sum(1 for g in bright if ops(g)&COMPARISONS and names(g)&BANDS)),
+             'frameprog:frame_modulo#count':float(sum(1 for g in graphs if isinstance(g,dict) and ops(g)&{'mod','eel_mod','fmod','modulo','remainder'} and 'frame' in names(g)))}
+    if periods:columns['frameprog:periodic_state_period#min']=float(min(periods))
+    return columns
+
+
 def descriptor(summary):
     """Return {column: value} for one preset-understanding summary."""
     leaves={}
@@ -57,6 +105,7 @@ def descriptor(summary):
             path=INDEX.sub('/*',str(row.get('path','')))
             _walk(row.get('value'),group+':'+path,0,leaves)
     columns=_equilibrium_columns(summary)
+    columns.update(_frame_program_columns(summary))
     for key,values in leaves.items():
         if key.endswith('=') or not values:continue
         if '=' in key.rsplit('/',1)[-1]:

@@ -371,10 +371,10 @@ def shape_colour_over_time(material,times=COLOUR_TIMES):
             'times_s':[times[0],times[-1]],'audio':'bands held at 1'}
 
 
-# Ordered by each source's measured agreement with engine-ruler hues (200-preset set: composite detail and
+# Ordered by each source's measured agreement with engine-ruler hues (calibrated hue shares 70%; composite detail and
 # steady state 64%, shape fills 50%, wave colours 37%); drawn colours pass through feedback and the composite
 # before display, so the stages nearest the display weigh most.
-PALETTE_WEIGHTS={'composite_detail':3.,'steady_state':1.5,'warp_detail':1.,'shape_fill':1.,'wave':.3,'point_cloud':.3}
+PALETTE_WEIGHTS={'calibrated_hue':6.,'composite_detail':3.,'steady_state':1.5,'warp_detail':1.,'shape_fill':1.,'wave':.3,'point_cloud':.3}
 
 
 def _channel_value(channel,time):
@@ -443,6 +443,10 @@ def display_palette(recipe,times=COLOUR_TIMES):
             add(layer.get('id'),counts,PALETTE_WEIGHTS['wave'])
     warp_detail=(render.get('feedback') or {}).get('warp_detail_response') or {}
     if (warp_detail.get('coloured_share') or 0)>.3:add('warp_detail',warp_detail.get('hue_shares'),PALETTE_WEIGHTS['warp_detail'])
+    stats=((recipe.get('display_estimate') or {}).get('statistics') or {})
+    calibrated={k[len('hue_share_'):]:float(v['value']) for k,v in stats.items()
+                if k.startswith('hue_share_') and isinstance(v,dict) and isinstance(v.get('value'),(int,float))}
+    if calibrated:add('calibrated_hue',calibrated,PALETTE_WEIGHTS['calibrated_hue'],element=False)
     steady=((render.get('feedback') or {}).get('steady_state') or {}).get('hue_family')
     if steady and steady!='grayscale':add('steady_state',{steady:1.},PALETTE_WEIGHTS['steady_state'],element=False)
     composite=render.get('composite') or {};detail=composite.get('detail_response') or {}
@@ -745,9 +749,9 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
         'limitations':['Engine-neutral approximate recipe; drawn content, audio and native rounding make real frames differ',
                        'Mood values are editable research assumptions, not calibrated preferences']}
     recipe['render']['feedback']['steady_state']=_steady_state(summary,(recipe['render'].get('composite') or {}).get('flat_transfer'))
-    recipe['render']['display_palette']=display_palette(recipe)
     display=_display_estimate(summary)
     if display is not None:recipe['display_estimate']=display
+    recipe['render']['display_palette']=display_palette(recipe)
     recipe['facets']=facets_block(summary,display)
     simulated=_simulated_display(display_statistics)
     if simulated is not None:recipe.setdefault('display_estimate',{})['simulated']=simulated

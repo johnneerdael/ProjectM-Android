@@ -532,3 +532,15 @@ def test_display_palette_pools_static_colour_sources():
     vivid = {'render': {'layers': [], 'feedback': {}, 'composite': {'detail_response': {'coloured_share': .9, 'hue_shares': {'yellow': .9, 'orange': .1}}}}}
     assert next(iter(display_palette(vivid)['hue_shares'])) == 'yellow'
     assert display_palette({'render': {'layers': [], 'feedback': {}, 'composite': {}}})['hue_shares'] == {}
+
+
+def test_display_palette_leads_with_calibrated_hue_shares():
+    # Calibrated hue shares (static descriptors -> ruler hue shares, out of fold) get the leading hue right ~70%
+    # of the time against ~51% for pooled cues, so they dominate the palette when present.
+    from preset_recipe import display_palette
+    stats = {'hue_share_green': {'value': .6}, 'hue_share_blue': {'value': .3}, 'hue_share_red': {'value': .02}}
+    recipe = {'display_estimate': {'statistics': stats},
+              'render': {'layers': [], 'feedback': {'steady_state': {'hue_family': 'red'}}, 'composite': {}}}
+    p = display_palette(recipe)
+    assert list(p['hue_shares'])[:2] == ['green', 'blue']
+    assert any(s['source'] == 'calibrated_hue' for s in p['sources'])
