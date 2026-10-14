@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r182-v1",
+ "preset": "Redi Jedi - this is my brain on milk(drop the habbit) - wisconsin cheesehead (the limit of your inquiry).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "3a76dc708732e381bc0bb957edf53511a3d97048d79dc4974ab7d0682e908ef0",
+  "prediction.json": "daa918aeffb37f67c17a48bb1fe93f0f9102b651d3eb48a2824f28d96c39469e",
+  "description.json": "8c6d628287e00c2ddd083ddbd730680148c2ab637aad3e24d7ea038cbf9ed29d",
+  "recipe.json": "3e385044fda60fd691be220d60956866451b8721cb9365ca4a0d89042e373e64",
+  "llm-look-description-v1.txt": "a02cb818c39cbf45979f6a38986ae1f39477a668e71d73e82b990075a7e98e80"
+ },
+ "capture_result_sha256": "03dc2254d799f47c51ccc5d5c832c967260418b949a57821f10fa12ed282c2f1",
+ "review_measurements_v1": {
+  "prediction_luma": 0.02,
+  "screenshot_luma": 0.035,
+  "mean_rgb_prediction": [
+   0.06,
+   0.01,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.106,
+   0.017,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.133,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.04,
+    0.044
+   ],
+   "saturation": [
+    0.997,
+    0.995
+   ],
+   "blurred_luma_correlation": 0.492
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0314,
+   0.015
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round 2: see rounds-2026-10-14.md for the triage table and verdict"
+}

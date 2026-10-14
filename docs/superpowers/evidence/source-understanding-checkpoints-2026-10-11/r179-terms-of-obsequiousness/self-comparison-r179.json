@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r179-v1",
+ "preset": "EoS - Phat - randombox - mantra 5 response lullquestent vlasphume cheapened to the point of pricelessness in terms of obsequiousness nz+.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "bf9de0b36b35297920ed632aead1605c11d6e4f8ed4af9575ea87795f6d70ae4",
+  "prediction.json": "5bcb2ea40a02c3c775663bc09583da8a172e7fbdd7bb79494b5d68f52e602fe9",
+  "description.json": "eb01d57362903c83b34158fba61ca85e13f1d05023f2607900887e568bdc6506",
+  "recipe.json": "22ff6e848a3dae05ef04691fde0734cba5ffbdf15e2a2bc3c5f151748a7f0df3",
+  "llm-look-description-v1.txt": "69e000b4bd38fd3e2d3e31b8dc10da66f0d04273c524349ea351c28b1d15f1b3"
+ },
+ "capture_result_sha256": "c57ba9d4fd525ebbe077c984ea7c951e0d2944927c4e14f3f80afdbe2adc4107",
+ "review_measurements_v1": {
+  "prediction_luma": 0.187,
+  "screenshot_luma": 0.242,
+  "mean_rgb_prediction": [
+   0.05,
+   0.224,
+   0.211
+  ],
+  "mean_rgb_screenshot": [
+   0.116,
+   0.282,
+   0.215
+  ],
+  "blurred_luma_correlation": 0.94,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.126,
+    0.138
+   ],
+   "saturation": [
+    0.633,
+    0.515
+   ],
+   "blurred_luma_correlation": 0.924
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0351,
+   0.0187
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round 2: see rounds-2026-10-14.md for the triage table and verdict"
+}

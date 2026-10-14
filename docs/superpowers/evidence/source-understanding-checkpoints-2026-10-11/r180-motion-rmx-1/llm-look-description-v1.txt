@@ -1,0 +1,9 @@
+A dark, calm, low-key picture, with a thin blue frame and a fine grid of motion-vector streaks. The calibrated estimate puts mean luminance low (about 0.24, interval 0.05 to 0.48), and mood scores rate it Chill, smooth and dark (intensity about 10 out of 100). The settled canvas is a very dark blue-grey, nearly black. The composite is a dim neutral ramp, so greys dominate: the detail response is pure grey with no colour. Saturation is uncertain (the estimate says about 0.57 but with a wide range), and the warm/cool tilt is weakly warm (+0.25, range -0.09 to 0.60). Colour mostly comes from the blue border and whatever the motion vectors and warp produce, so expect dim greys and blues with perhaps faint warm tones.
+
+Drawn content is minimal. There is no shape or wave. The one visible drawn element is a dense 63 by 47 grid (2,961) of motion vectors. Each is a short line pointing to where the warp sampled content from, drawn back into the feedback, so the lines smear into soft streaks or textures that follow the warp field. A 1%-wide pure blue border is drawn every frame.
+
+Motion: the warp has a mild nonuniform deformation (warp 0.11) but no zoom, rotation or translation. Any flow therefore comes from the warp's spatial pattern and the shader stages, not a global spin. Trails are moderate: about 97% kept per frame, half-life around 0.76 s. The estimated flow is gentle (about 0.08 screen widths per second).
+
+Audio: no audio routes were found in the recipe, so any reaction is probably slight and indirect, if present. The estimated brightness jumps are low (about 2 per 10 s), so strobing is unlikely.
+
+Uncertain: how bright the vectors appear and whether the shader stages add structure the recipe could not resolve.

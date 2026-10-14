@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r176-v1",
+ "preset": "suksma - standing above the crowd, he had a voice that was strong and loud.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b5e2690a1f2d171513a7724ab8f6b1da52b5c1499ca28051b07d90e955f21579",
+  "prediction.json": "70c5e3d084599aaa605371200cb84d9422fe76b0b016b321af7a5f43c09eeb12",
+  "description.json": "497af6ea5e058a8babcba7b3e8cf5e83445d1cb242ad0315ae55a504262ea913",
+  "recipe.json": "7672656cc87c283d92ce779153a258d5e5bb25e1bc56a766a3b993e9a4e7ead6",
+  "llm-look-description-v1.txt": "c4ace5547626ce974046459f597d2ef0757e81e816b42cbd52020b323b55b937"
+ },
+ "capture_result_sha256": "848093e63747766e526f769d8ec7766e52690640f0c9b7da44daac4f7fe86175",
+ "review_measurements_v1": {
+  "prediction_luma": 0.799,
+  "screenshot_luma": 0.645,
+  "mean_rgb_prediction": [
+   0.744,
+   0.809,
+   0.862
+  ],
+  "mean_rgb_screenshot": [
+   0.562,
+   0.644,
+   0.901
+  ],
+  "blurred_luma_correlation": 0.725,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.557,
+    0.514
+   ],
+   "saturation": [
+    0.257,
+    0.421
+   ],
+   "blurred_luma_correlation": 0.944
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1018,
+   0.1493
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round 2: see rounds-2026-10-14.md for the triage table and verdict"
+}

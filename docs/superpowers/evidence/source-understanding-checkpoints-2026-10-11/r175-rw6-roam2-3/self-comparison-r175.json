@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r175-v1",
+ "preset": "shifter + Flexi - liquid circuitry from the oblivion hive rw6 roam2,3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "97d8fa09a23645a3c50a44ec1803859a345a8c8241d75c6b11f09f4681c76490",
+  "prediction.json": "b2c4652a5f63235e679ff5758b8c4c2de35a34880f51e312b4c5f3710fd1fdfc",
+  "description.json": "a52115bdd64a0f6a0f029a3839bed49e47643b7dbf25c6376afdf556da465bab",
+  "recipe.json": "170fcdf3125a428c4e1496ffd05720af8cca8a6fb15854cf8a72d8562b45a6ac",
+  "llm-look-description-v1.txt": "01557c4866289eef4eb51c756f9451e392c5261d402f6ba35d9b69fa6bf7308d"
+ },
+ "capture_result_sha256": "d79b20bb9f75dc7f1fe60beeedc9f6a3da972ada8cb9ac57f76beaab9d0b3221",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.0,
+  "mean_rgb_prediction": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.973,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.065,
+    0.064
+   ],
+   "saturation": [
+    0.565,
+    0.568
+   ],
+   "blurred_luma_correlation": 1.0
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0546,
+   0.0541
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round 1: see rounds-2026-10-14.md for the triage table and verdict"
+}

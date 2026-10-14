@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r178-v1",
+ "preset": "suksma - barium titanate --- Isosceles edit11.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4d62a8e468fad06de41047c0bce1f00814d81877a841b6a2a22ac0d222898fc5",
+  "prediction.json": "efc26d55e24d9147d0a1dd311d18c0aa6b9977b2036ea2757f1b442fafc04435",
+  "description.json": "b18944a0c8a1a2cbb63855b8ab3e08e11b65fe68e831a5cdd5a9970615f4b10a",
+  "recipe.json": "10bd3d92c98e8a99a8f31a8fe857f02cb45c4559e52f808914d0e0c6eaf19ce3",
+  "llm-look-description-v1.txt": "5105757c35f8b6cd838143ee06c1cc38f0321ef1153e024bb257d724d0b608c0"
+ },
+ "capture_result_sha256": "9c5e8a38583f629b4e827caf5ca4ca98150b841eea63abe48ba69b54f967c15f",
+ "review_measurements_v1": {
+  "prediction_luma": 0.001,
+  "screenshot_luma": 0.002,
+  "mean_rgb_prediction": [
+   0.001,
+   0.001,
+   0.001
+  ],
+  "mean_rgb_screenshot": [
+   0.001,
+   0.002,
+   0.001
+  ],
+  "blurred_luma_correlation": 0.069,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.0,
+    0.0
+   ],
+   "saturation": [
+    0.006,
+    0.034
+   ],
+   "blurred_luma_correlation": 0.07
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0001,
+   0.0001
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round 2: see rounds-2026-10-14.md for the triage table and verdict"
+}

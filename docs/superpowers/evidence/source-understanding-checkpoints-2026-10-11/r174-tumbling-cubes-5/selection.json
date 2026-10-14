@@ -1,0 +1,8 @@
+{
+ "seed": 20261011174,
+ "pool_count": 9606,
+ "index": 829,
+ "preset": "BDRV et AL shifter - tumbling cubes 5.milk",
+ "preset_sha256": "3822dd59141b88cc39ef23db8d300dcaa1ff7971aef99633ad753823ecda07c7",
+ "policy": "frozen before any description; no rerolling"
+}

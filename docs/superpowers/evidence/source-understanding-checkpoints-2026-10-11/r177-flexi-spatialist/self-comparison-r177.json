@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r177-v1",
+ "preset": "Flexi - spatialist.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "85cbafd785ba5274c3fd84d21ba088120fc0b3d618fc708f22013641d09c984b",
+  "prediction.json": "e8257f37c5a639639f8113d08de736fd64fa92d3508f9f4d948702fd20e224d7",
+  "description.json": "ae60f2994c43cbc29bb2880c7bd2f62df8fb8e77a058f1560b080696e7841273",
+  "recipe.json": "47acbe634b23872c100df79323e85d6bb696f6ed9ab8108bace10fc91b3e1308",
+  "llm-look-description-v1.txt": "1b7c59c82bd6d875170019954cf6670948aa3a94f4b91b2911c2d24dfbc73f97"
+ },
+ "capture_result_sha256": "0bc9baff0f5ca428cb60e354f90e5afc6153c8fd12084b03474a0887c54615fa",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.0,
+  "mean_rgb_prediction": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.927,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.0,
+    0.0
+   ],
+   "saturation": [
+    0.001,
+    0.002
+   ],
+   "blurred_luma_correlation": 0.866
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.0
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round 2: see rounds-2026-10-14.md for the triage table and verdict"
+}
