@@ -532,6 +532,15 @@ def _frame_wave_alpha(material,values,mode=None,texsize=None):
         row=next((r for r in table if r.get('maximum_size') is None or texsize<=r['maximum_size']),None)
         if row is None or type(row.get('mode3_base_alpha')) not in (int,float):return None
         alpha=float(np.float32(row['mode3_base_alpha'])*np.float32(1.3)*np.float32(values['treb'])**2)
+    elif (mode is not None and int(mode)%16 in (2,5) and recipe.get('mode_gain') is None and isinstance(table,list) and texsize
+          and (type(values.get('wave_a')) in (int,float) or isinstance(base,list) and len(base)==2 and None not in base)):
+        # Waveform::Draw scales modes 2 and 5 by the gain of the texture-size bucket
+        # (MaximizeColorsTextureSize: the viewport's longer side below the line reference).
+        row=next((r for r in table if r.get('maximum_size') is None or texsize<=r['maximum_size']),None)
+        if row is None or type(row.get('mode2_or5_gain')) not in (int,float):return None
+        smallest=min((r['mode2_or5_gain'] for r in table if type(r.get('mode2_or5_gain')) in (int,float)),default=None)
+        authored=float(values['wave_a']) if type(values.get('wave_a')) in (int,float) else float(base[0])/smallest
+        alpha=float(np.float32(authored)*np.float32(row['mode2_or5_gain']))
     elif not isinstance(base,list) or len(base)!=2 or None in base or base[0]!=base[1] and type(values.get('wave_a')) not in (int,float):
         return None
     else:

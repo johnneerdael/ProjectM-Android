@@ -964,3 +964,17 @@ def test_per_pixel_terms_read_the_frames_memory_and_unwritten_memory_as_zero(mon
     assert float(evaluate_np(expression, P._term_inputs(expression, {}))) == .7
     monkeypatch.setitem(P._TERM_CONTEXT, 'stage', {})
     assert float(evaluate_np(expression, P._term_inputs(expression, {}))) == 0.
+
+
+def test_mode2_wave_alpha_takes_the_texture_size_bucket_gain():
+    # Waveform::Draw scales mode 2/5 alpha by a texture-size bucket (MaximizeColorsTextureSize: the viewport's
+    # longer side below the line reference). Mig_Oscilloscope005 at 480x270 uses the <=512 gain .09, not the
+    # smallest bucket .07 (the envelope minimum the illustrator fell back to).
+    from prediction_illustration import _frame_wave_alpha
+    table = [{'maximum_size': 256, 'mode2_or5_gain': .07}, {'maximum_size': 512, 'mode2_or5_gain': .09},
+             {'maximum_size': 1024, 'mode2_or5_gain': .11}, {'maximum_size': None, 'mode2_or5_gain': .15}]
+    material = {'alpha_recipe': {'mode_gain': None, 'reference_table': table,
+                                 'alpha_envelope_without_volume_modulation': [.3029 * .07, .3029 * .15],
+                                 'volume_ramp': {'enabled': False}}}
+    assert abs(_frame_wave_alpha(material, {'wave_a': .3029}, 2, 480) - .3029 * .09) < 1e-6
+    assert abs(_frame_wave_alpha(material, {'wave_a': .3029}, 5, 1920) - .3029 * .15) < 1e-6
