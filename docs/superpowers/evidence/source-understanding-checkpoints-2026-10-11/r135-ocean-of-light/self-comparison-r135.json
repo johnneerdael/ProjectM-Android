@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r135-v1",
+ "preset": "Bdrv yin - 315 - Ocean of Light (yo im peakin yo EoS-Phat) BDRV et  AL  rmxmix3 - 1k pt lighter.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "5598edb84e434c5e171b6b23ca9befb4f53009c27d6d23a64e7524eebb4061c9",
+  "prediction.json": "ce82892f45919242051ed303bcaa35f8ddfca338f1ceba83fee615911b74d7fa",
+  "description.json": "bf19ae473c89ed4657074b60c8a94fa90f81e5d398893aeb636715f1567052c8",
+  "recipe.json": "db060850ebf568f977446b39c423abe244605e2c22a20f16046602ab20f29cdc",
+  "llm-look-description-v1.txt": "f0f8cd4168036f82eff6f7693334206f10a722a0e8cfc19d0d2118a7a28b7437"
+ },
+ "capture_result_sha256": "b59738356cceabfca2387b43c8043bd6bad51dbbfd56f3a6a2838ce64f1a2f62",
+ "review_measurements_v1": {
+  "prediction_luma": 0.769,
+  "screenshot_luma": 0.749,
+  "mean_rgb_prediction": [
+   0.557,
+   0.824,
+   0.85
+  ],
+  "mean_rgb_screenshot": [
+   0.507,
+   0.81,
+   0.849
+  ],
+  "blurred_luma_correlation": 0.997,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.86,
+    0.85
+   ],
+   "saturation": [
+    0.135,
+    0.172
+   ],
+   "blurred_luma_correlation": 1.0
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0199,
+   0.0251
+  ]
+ },
+ "agreements": [
+  "near frame-exact frozen prediction",
+  "cyan palette and full-screen texture",
+  "swirling outward flow",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK: mid-bright vs very bright near-white cyan (closed-form brightness undercounted frame-state custom waves)"
+ ],
+ "verdict": "frozen prediction near frame-exact (time-average map corr 1.0, luma 0.860 vs 0.850, luma arc frame by frame). SDK said mid-bright: the closed-form estimates (calibrated 0.54, steady state ~0.50) undercount four additive 512-point waves whose colours read main per-frame state. Tried generally and reverted: evaluating those waves at stepped frame states (with polyline or bounds coverage) in the feedback equilibrium moved 10-11 of 200 presets against the native ruler, 4-6 better and 5-6 worse (spread-luma Spearman 0.300 -> 0.280/0.287); the scalar steady state energy/(1-gain) saturates once light is added at gain ~1. The closed-form equilibrium descriptor stays weak (Spearman ~0.3 vs 0.92 for the stepped prediction)."
+}
