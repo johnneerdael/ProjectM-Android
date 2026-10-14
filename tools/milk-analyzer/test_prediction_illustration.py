@@ -737,3 +737,16 @@ def test_constant_inner_border_follows_a_per_frame_outer_size():
                                                      'ib_r': 0., 'ib_g': 0., 'ib_b': 0.})
     inner = ops[-1]
     assert np.allclose(inner[1], 0.) and inner[0][10, 0] == 1. and inner[0][10, 10] == 0.
+
+
+def test_legacy_display_uses_the_frames_stepped_gamma():
+    # Patch 0049: the engine redraws with this frame's evaluated gamma; a loose static range [0, 8]
+    # (gamma = 1 + beatdrop*.28) must not brighten every frame by its midpoint.
+    from prediction_illustration import _composite
+    facts = {'/x/legacy_response': {'native_control_ranges': {'gamma': [0., 8.], 'echo_alpha': [0., 0.]},
+                                    'echo_selection': 'native gamma-only branch', 'gamma_absolute_weight_sum_upper': 8.}}
+    image = np.full((4, 4, 3), .1, np.float32)
+    shown, _ = _composite(image, facts, {'gamma': 1.})
+    assert np.allclose(shown, .1)
+    shown, _ = _composite(image, facts, {'gamma': 1.28})
+    assert np.allclose(shown, .128, atol=1e-6)

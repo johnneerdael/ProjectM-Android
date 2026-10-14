@@ -593,6 +593,12 @@ def _composite(image,facts,controls=None):
         if isinstance(gamma,list) and len(gamma)==2 and None not in gamma and gamma[0]!=gamma[1]:
             # Variable gamma: use the midpoint redraw weight rather than the upper bound.
             weight=max(1.,(gamma[0]+gamma[1])/2)
+        if type(frame.get('gamma')) in (int,float):
+            # Patch 0049: the engine redraws with this frame's evaluated gamma (its redraw weights sum).
+            from legacy_composite import gamma_weights
+            from field_math import UnresolvedMath
+            try:weight=float(sum(gamma_weights(frame['gamma'],echo=bool(alpha and alpha>.001))))
+            except UnresolvedMath:pass
         if type(weight) in (int,float):image=np.clip(image*weight,0,1)
         # Ordered legacy filters after the hue/gamma/echo draws (legacy_composite.apply_filters).
         on=lambda name:isinstance(ranges.get(name),list) and None not in ranges[name] and min(ranges[name])!=0
