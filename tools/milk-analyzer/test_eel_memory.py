@@ -220,3 +220,22 @@ def test_rand_inside_a_loop_body_draws_every_iteration_but_a_value_drawn_before_
                          call('loop', num(3), call('exec2', assign(gmem(var('i')), var('x')), assign(var('i'), call('_add', var('i'), num(1)))))))
     memory = M.evaluate_np(serialise(before.memory['global']), {'memory:global': M.Memory()}, np.random.default_rng(5))
     assert len({memory.read(float(k)) for k in range(3)}) == 1
+
+
+def test_scalar_if_evaluates_only_the_taken_branch():
+    # projectm-eval's if() runs only the chosen branch: a rand in the untaken branch draws nothing, so the
+    # random stream advances as in the engine (x = if(beat, rand(60), x) draws only on beats).
+    import numpy as np
+    class Counting:
+        def __init__(self):self.calls = 0
+        def random(self, shape=None):
+            self.calls += 1
+            return .5 if shape in (None, ()) else np.full(shape, .5)
+    graph = {'root': 0, 'nodes': [{'op': 'select', 'args': [1, 2, 4], 'detail': {}},
+                                  {'op': 'input', 'args': [], 'detail': {'name': 'beat'}},
+                                  {'op': 'rand', 'args': [3], 'detail': {}},
+                                  {'op': 'constant', 'args': [], 'detail': {'value': 60.}},
+                                  {'op': 'input', 'args': [], 'detail': {'name': 'x'}}]}
+    rng = Counting()
+    assert float(M.evaluate_np(graph, {'beat': 0., 'x': 7.}, rng)) == 7. and rng.calls == 0
+    assert float(M.evaluate_np(graph, {'beat': 1., 'x': 7.}, rng)) == 30. and rng.calls == 1

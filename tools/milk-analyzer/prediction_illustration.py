@@ -405,8 +405,11 @@ def _builtin_wave_dynamic(facts):
     return rows
 
 
-def _builtin_wave_frame(recipe,frame_time,frame_index,bands,viewport):
-    """Per-frame built-in wave polylines (NDC) from the declared reference PCM window."""
+def _builtin_wave_frame(recipe,frame_time,frame_index,bands,viewport,stepped=None):
+    """Per-frame built-in wave polylines (NDC) from the declared reference PCM window.
+
+    stepped: this frame's wave_x/wave_y/wave_mystery from the stepped main per-frame program, which
+    Waveform::Draw reads after the per-frame code ran; they win over the exported control expressions."""
     from builtin_wave_geometry import vertices,reference_windows
     from time_expression import evaluate_inputs
     windows=_REFERENCE_WINDOWS.get('data')
@@ -414,6 +417,7 @@ def _builtin_wave_frame(recipe,frame_time,frame_index,bands,viewport):
     window=windows[min(len(windows)-1,max(0,frame_index))]
     controls=recipe.get('control_expressions') or {}
     def control(name,default):
+        if type((stepped or {}).get(name)) in (int,float):return float(stepped[name])
         expression=controls.get(name)
         if expression:
             try:return evaluate_inputs(expression,{'time':frame_time,**bands})
@@ -1455,6 +1459,20 @@ def _absent(name):
     return Memory() if isinstance(name,str) and name.startswith('memory:') else 0.
 
 
+class _EvalStream:
+    """projectm-eval's rand() source: MilkDrop's Mersenne Twister (seed 0x4141f00d; kept per thread by patch 0004),
+    genrand_int32() / 0xFFFFFFFF. A cold engine load starts at its beginning."""
+    def __init__(self):self._state=np.random.RandomState(0x4141f00d)
+    def random(self,shape=None):
+        count=1 if shape in (None,()) else int(np.prod(shape))
+        values=self._state._bit_generator.random_raw(count).astype(np.float64)/4294967295.
+        return float(values[0]) if shape in (None,()) else values.reshape(shape)
+
+
+def _cold_eval_stream():
+    return _EvalStream()
+
+
 class _FrameStepper:
     """Steps the exported per-frame recurrence (stage_programs.frame) under declared bands."""
     def __init__(self,frame,rng_seed=8191,constants=None,deadline=None):
@@ -1462,7 +1480,10 @@ class _FrameStepper:
         self.constants=dict(constants or {});self.deadline=deadline
         self.state_programs=(frame or {}).get('state') or {}
         self.output_programs=(frame or {}).get('outputs') or {}
-        self.values=None;self.start={};self.failed=set();self.zero_inputs=set();self.rng=np.random.default_rng(rng_seed)
+        # Unseeded: the cold-load stream of projectm-eval's rand (the first draws after preset load in a fresh
+        # engine). Seeded runs stand for other stream positions (the app's stream continues across presets).
+        self.values=None;self.start={};self.failed=set();self.zero_inputs=set()
+        self.rng=_cold_eval_stream() if rng_seed is None else np.random.default_rng(rng_seed)
     def _eval(self,program,inputs):
         # projectm-eval reads a variable that is never written as 0 (for example 'cyyspeed' produced by
         # MilkDrop's joining of a line split across numbered records).
@@ -1912,7 +1933,7 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
     persistence=facts.get('/analysis/visual_description/static_behaviour/feedback_persistence') or {}
     decay=persistence.get('decay_gain');offset=0.;injection=None;main_coordinates=None;transfer_gain=False
     frame_record=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
-    stepper=_FrameStepper(frame_record,rng_seed=8191+_seed_shift(),constants=_render_constants(context)) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
+    stepper=_FrameStepper(frame_record,rng_seed=None if _SEED[0] is None else 8191+_seed_shift(),constants=_render_constants(context)) if frame_record.get('status')=='exported' and (frame_record.get('state') or frame_record.get('outputs')) else None
     programs=(facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}
     warp_program=(programs.get('warp') or {}).get('program') if (programs.get('warp') or {}).get('status')=='exported' else None
     composite_program=(programs.get('composite') or {}).get('program') if (programs.get('composite') or {}).get('status')=='exported' else None
@@ -2071,8 +2092,10 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                     gate=(material.get('native_draw_gate') or {}).get('threshold')
                     if type(gate) in (int,float) and frame_alpha<gate:continue
                     alpha=frame_alpha
+                outputs=set(frame_record.get('outputs') or {}) if stepper is not None else set()
                 try:polylines,loop=_builtin_wave_frame(recipe,frame_time,int(round(frame_time*fps))-1,
-                                                       {k:held[k] for k in BANDS if k in held},(width,height))
+                                                       {k:held[k] for k in BANDS if k in held},(width,height),
+                                                       stepped={k:held[k] for k in ('wave_x','wave_y','wave_mystery') if k in outputs and k in held})
                 except ValueError:continue
                 colour=_frame_wave_colour(material,held) or _wave_colour_at(facts,path,frame_time) or _wave_colour(facts,path)[0]
                 # Thick: LineRenderer draws four 1 px passes offset by one pixel (as is, +x, +x+y, +y in NDC,

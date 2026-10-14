@@ -750,3 +750,24 @@ def test_legacy_display_uses_the_frames_stepped_gamma():
     assert np.allclose(shown, .1)
     shown, _ = _composite(image, facts, {'gamma': 1.28})
     assert np.allclose(shown, .128, atol=1e-6)
+
+
+def test_builtin_wave_controls_prefer_the_frames_stepped_values():
+    # Waveform::Draw reads wave_mystery/x/y from the main per-frame context after its code ran: a stepped
+    # value (here -1: a vertical mode-6 line) wins over an expression the time/band evaluator cannot run.
+    from prediction_illustration import _builtin_wave_frame
+    unevaluable = {'root': 0, 'nodes': [{'op': 'rand', 'dtype': 'float', 'args': [1], 'detail': {}},
+                                        {'op': 'constant', 'dtype': 'float', 'args': [], 'detail': {'value': 60.}}]}
+    recipe = {'effective_mode': 6, 'control_expressions': {'wave_mystery': unevaluable}, 'wave_x': .5, 'wave_y': .5}
+    bands = {'bass': 1., 'mid': 1., 'treb': 1.}
+    lines, _ = _builtin_wave_frame(recipe, 1., 30, bands, (480, 270), stepped={'wave_mystery': -1.})
+    xs = lines[0][:, 0]
+    assert np.ptp(xs) < .3 * np.ptp(lines[0][:, 1])
+
+
+def test_cold_stream_follows_projectm_eval_rand():
+    # projectm-eval rand(n): MilkDrop's Mersenne Twister (seed 0x4141f00d), genrand_int32 / 0xFFFFFFFF * n.
+    from prediction_illustration import _cold_eval_stream
+    stream = _cold_eval_stream()
+    assert int(stream.random() * 60) == 13 and int(stream.random() * 60) == 20
+    assert abs(float(_cold_eval_stream().random()) - 978073627 / 4294967295) < 1e-12

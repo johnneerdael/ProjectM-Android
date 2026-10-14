@@ -267,6 +267,10 @@ def merge_graphs(expressions):
     return {'root': roots[0] if roots else None, 'nodes': nodes, 'plans': plans}, roots
 
 
+def _scalar_condition(value):
+    return not isinstance(value, Memory) and np.ndim(value) == 0
+
+
 def _evaluator(nodes, plans, inputs, rng, batch_shape, deadline):
     """value(index) over one graph's nodes with a memo shared by every root asked for."""
     stochastic = rng is not None
@@ -308,6 +312,14 @@ def _evaluator(nodes, plans, inputs, rng, batch_shape, deadline):
         elif op == 'array_mem_read':result = _read(value(node['args'][0]), value(node['args'][1]))
         elif op == 'array_mem_write':result = _write(value(node['args'][0]), value(node['args'][1]), value(node['args'][2]))
         elif op == 'rand' and not stochastic:result = np.abs(value(node['args'][0]))
+        elif op in ('select', '_and', '_or') and _scalar_condition(condition := value(node['args'][0])):
+            # projectm-eval's if(), && and || run only the branch they need (a rand or memory write in the
+            # other branch has no effect); vector conditions keep the elementwise eager form.
+            if op == 'select':result = value(node['args'][1] if float(condition) != 0 else node['args'][2])
+            else:
+                truth = abs(float(condition)) > 1e-5
+                if truth == (op == '_or'):result = np.float64(truth)
+                else:result = np.float64(abs(float(value(node['args'][1]))) > 1e-5)
         else:result = _apply(op, node, [value(arg) for arg in node['args']], rng, batch_shape)
         table[index] = result
         return result
