@@ -715,3 +715,10 @@ def test_inlined_eel_loops_fold_to_their_frame_value_before_grid_evaluation():
     assert constant['op'] == 'constant' and constant['detail']['value'] == 6.
     assert folded['nodes'][root['args'][1]]['detail']['name'] == '_uv'
     assert program['nodes'][loop['root']]['op'] != 'constant'  # the exported program is not edited
+
+
+def test_point_state_restarts_t_and_q_from_their_frame_start_values():
+    from prediction_illustration import _restart_point_state
+    constant=lambda v:{'root':0,'nodes':[{'op':'constant','dtype':'float','args':[],'detail':{'value':v}}]}
+    points={'state':{'t3':{'frame_start':constant(0.)},'mx':{}}}
+    assert _restart_point_state(points,{'t3':111.,'mx':7.},{}) == {'t3':0.,'mx':7.}

@@ -326,6 +326,19 @@ def test_random_walk_wave_positions_are_a_stochastic_point_recurrence():
     assert .5-1.<low<.5<high<.5+1. and high-low>.02
 
 
+def test_per_point_t_variables_restart_each_frame_from_the_wave_frame_values():
+    # CustomWaveform::InitPerPointEvaluationVariables copies q and t from the wave's per-frame context at
+    # every frame: a per-point counter in t3 restarts from the per-frame t3; the wave's own variables carry.
+    from eel_memory import evaluate_np
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_bUseDots=1\nwave_0_init1=t4=5;\n'
+        'wave_0_per_frame1=t3=2;\nwave_0_per_point1=t3=t3+1;t4=t4+1;mx=mx+1;x=t3/1000+t4/1000+mx/1000;y=.5;r=1;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    state=record['point_recurrence']['state']
+    assert float(evaluate_np(state['t3']['frame_start'],{}))==2.
+    assert float(evaluate_np(state['t4']['frame_start'],{}))==5.
+    assert 'frame_start' not in state['mx']
+
+
 def test_uninitialized_wave_frame_variables_persist_as_wave_state():
     # old is written but never initialised: it persists across frames from 0 (t1 = .01, .02, ...).
     result=source_character('wavecode_0_enabled=1\nwavecode_0_bUseDots=1\n'

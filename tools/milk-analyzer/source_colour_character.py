@@ -9,7 +9,7 @@ from functools import lru_cache
 import hashlib
 import itertools
 import json
-import math
+import math, re
 from pathlib import Path
 
 import numpy as np
@@ -262,12 +262,18 @@ def _wave_recurrence(frame_prefix,init,frame,programs):
                           'initial graphs read init-time inputs; stepping evaluates authored equations over declared inputs']}
 
 
-def _point_recurrence(point_prefix,init,controls,programs):
+_FRAME_COPIED=re.compile(r'^(t[1-8]|q([1-9]|[12][0-9]|3[0-2]))$')
+
+
+def _point_recurrence(point_prefix,init,controls,programs,frame=None):
     """Per-point persistent variables read by the point graphs ('state:<wave>_per_point:<name>').
 
     MilkDrop keeps per-point variables from point to point (and frame to frame): a point graph
     reads the previous point's end value. Each variable gets its end-of-point update graph (in
     terms of its start value and the point inputs) and its initial value (wave init code, else 0).
+    q1-q32 and t1-t8 are copied from the wave's per-frame context before the first point of every
+    frame (CustomWaveform::InitPerPointEvaluationVariables): their frame_start graph gives that value
+    (the per-frame code's, else the main frame's q or the init code's t).
     """
     from effect_families import Field
     from source_appearance import _expression
@@ -289,10 +295,18 @@ def _point_recurrence(point_prefix,init,controls,programs):
         initial=_expression(init.environment.get(name,Field('constant',detail={'value':0.})))
         if update is None or initial is None:return None
         state[name]={'initial':initial,'update':update}
+        if _FRAME_COPIED.match(name):
+            source=(frame.environment.get(name) if frame is not None else None) or (
+                Field('input',detail={'name':name}) if name.startswith('q') else init.environment.get(name,Field('constant',detail={'value':0.})))
+            start=_expression(source,POINT_PROGRAM_NODES)
+            if start is None:return None
+            state[name]['frame_start']=start
+            pending|=states_of(start)-done
         pending|=states_of(update)-done
     return {'policy':'source-custom-wave-point-recurrence-v1','state_input_prefix':marker,'state':dict(sorted(state.items())),
             'conditions':['points are evaluated in order; point j reads the end value of point j-1',
-                          'the value carries from the last point of one frame to the first point of the next']}
+                          'the value carries from the last point of one frame to the first point of the next',
+                          'q and t variables restart every frame from their frame_start value']}
 
 
 
@@ -315,7 +329,7 @@ def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     if init is not None:
         identity='wave_'+prefix.removeprefix('wavecode_').rstrip('_')
         recurrence=_wave_recurrence(identity+'_per_frame',init,frame,{**programs,**positions})
-        point_recurrence=_point_recurrence(identity+'_per_point',init,controls,{**programs,**positions})
+        point_recurrence=_point_recurrence(identity+'_per_point',init,controls,{**programs,**positions},frame)
     waveform=None
     spectrum_mode=_scalar(analysis.values,prefix+'bSpectrum',0,'float')
     params={'scaling':_scalar(analysis.values,prefix+'scaling',1,'float'),'smoothing':_scalar(analysis.values,prefix+'smoothing',.5,'float'),

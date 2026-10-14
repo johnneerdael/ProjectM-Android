@@ -762,6 +762,15 @@ def _point_pixels(px,py,size,height):
     return columns,rows
 
 
+def _restart_point_state(points,carry,inputs):
+    """Per-point state at a frame's first point: q and t restart from their frame_start values (copied from
+    the wave's per-frame context); the wave's own variables keep the last point's value."""
+    state=dict(carry)
+    for name,entry in (points.get('state') or {}).items():
+        if entry.get('frame_start') is not None:state[name]=_eval_filled(entry['frame_start'],inputs)
+    return state
+
+
 def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,ends=None):
     count=int(record['sample_count']);programs=record['programs']
     inputs={**record.get('held_inputs',{}),**(audio or {}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
@@ -2129,6 +2138,7 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                     count=int(record['sample_count']);entry=wave_states.setdefault(index,{})
                     if 'point' not in entry:entry['point']=initial_state({'state':points['state']},{**record.get('held_inputs',{}),**inputs},rng)
                     base={**record.get('held_inputs',{}),**{k:v for k,v in inputs.items() if np.ndim(v)==0},'time':frame_time}
+                    entry['point']=_restart_point_state(points,entry['point'],base)
                     def point_inputs(j):
                         if j>=count:return None
                         values={**base,'sample':j/(count-1) if count>1 else 0.}
