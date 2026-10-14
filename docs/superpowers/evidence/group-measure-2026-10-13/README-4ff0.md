@@ -112,3 +112,7 @@ Largest gains:
 - anglican't americouldn't - zhuGan: 0.196 → 0.006.
 
 The largest loss is 0.014 (shifter + Flexi liquid circuitry, 0.048 → 0.062). Failures fell from 2 to 1: Acid Mandala, whose unresolved loop plans used to crash the run, now predicts.
+
+## 90b63b14 → 054df663 (shared reg00–reg99 registers, per-pixel memory reads)
+
+No preset in the 200-preset selection changed: every metric is identical, with 0 better and 0 worse. 186 of the 9606 presets use the registers, and none in the selection depended on them. The fix is neutral here. It repairs r137 (martin + flexi - carpet weaver bipolar 02), which was black and now matches the engine's green/magenta carpet.
