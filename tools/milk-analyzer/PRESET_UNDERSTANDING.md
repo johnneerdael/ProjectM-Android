@@ -1948,3 +1948,43 @@ clamp, truncation) on the lattice lines. `generate3D` addresses texels as
 `z*size + y*size + x`, so its smoothing touches only the first two slices'
 memory. Slices 2–31 of `noisevol_hq` keep raw bytes, 0–67 and 108–255.
 2,167 presets sample `noisevol_hq`.
+
+### No strobe false negatives on the held-out set (2026-10-14)
+
+The held-out facet validation (194 presets, snapshot 7501b10b) predicted 99
+presets as No strobe. 8 of them flash in the engine. Each one exposed a
+general defect:
+
+- **Beat-switched shapes** (Rovastar - Tripmaker). `CustomShape::Draw` reads
+  `additive` after each instance's per-frame code, and `LoadStateVariables`
+  resets every shape variable from the header first. Shape materials now
+  export flag expressions, and the blend is resolved per frame. Shape
+  controls inline main per-frame graphs, so they read start-of-frame state,
+  as shaders and clouds already did. An inlined beat test otherwise sees
+  `lastbeat = time` and never fires.
+- **Borders**. A border with constant colour and alpha but a band that
+  moves with a per-frame `ob_size` fell between the static and per-frame
+  paths and was never drawn.
+- **projectm-eval `&&` / `||`** (`_and`/`_or`). These use the `|x| > 1e-5`
+  truth test with a 1/0 result; no evaluator had them. Inlined per-frame
+  `loop()` code in shader programs is now folded to its frame value before
+  grid evaluation (martin - city lights v2: the composite failed and the
+  prediction was near black).
+- **Per-point q/t variables** (EoS - matrix cube F).
+  `InitPerPointEvaluationVariables` copies q and t from the wave's
+  per-frame context before every frame's first point. The point recurrence
+  carried them across frames, and the 3D lattice collapsed. With the fix
+  all 512 points match a hand evaluation.
+- **Per-frame gamma**. Patch 0049 redraws with each frame's evaluated
+  gamma. The illustration used the midpoint of the static gamma range,
+  [0, 8] for `gamma = 1 + beatdrop*.28`, which is 4× too bright. An
+  isolated wave matched the engine hit for hit, (14, 22, 4), before the
+  display step.
+
+EoS - matrix cube F now flashes on 4 of the engine's 5 beat frames (147,
+212, 245, 278; mean grey 0.913 vs 0.917). Tripmaker and martin now predict
+flashes (4 and 6 jumps). The other three peak just over the ruler's 0.08
+jump in the engine (0.085–0.111), while the static prediction peaks below
+it. The precompute now records the peak change, so the No strobe facet can
+require headroom below 0.08. A re-run of the held-out validation at the
+current code is in progress.
