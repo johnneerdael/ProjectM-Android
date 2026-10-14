@@ -860,8 +860,19 @@ def _restart_point_state(points,carry,inputs):
     return state
 
 
+def _frame_sample_count(record,inputs,time):
+    """This frame's custom-wave sample count: the per-frame samples program when the wave sets it
+    (CustomWaveform clamps to 0..512 and truncates), else the exported count."""
+    program=record.get('sample_count_program')
+    if not program:return int(record['sample_count'])
+    try:value=_eval_filled(program,{**record.get('held_inputs',{}),**{k:v for k,v in inputs.items() if np.ndim(v)==0},'time':time})
+    except ValueError:return int(record['sample_count'])
+    return max(0,min(512,math.trunc(value)))
+
+
 def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,ends=None):
     count=int(record['sample_count']);programs=record['programs']
+    if count<1:return image  # a per-frame samples value of 0 draws nothing this frame
     inputs={**record.get('held_inputs',{}),**(audio or {}),'time':time,'sample':np.linspace(0.,1.,count) if count>1 else np.zeros(1)}
     stochastic=bool(record.get('stochastic')) and rng is not None
     # Unresolved colour channels (positions-only records) take the wave's authored colour before its code.
@@ -2251,11 +2262,6 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                     # written names read 0 (projectm-eval).
                     inputs={**{name:0. for name in record['frame_inputs']},
                             **{k:v for k,v in stage_controls.items() if isinstance(v,(int,float))},**inputs}
-                if record.get('waveform_inputs'):
-                    # value1/value2: this frame's declared reference PCM window, prepared as CustomWaveform does.
-                    from source_point_colour import waveform_point_values
-                    value1,value2=waveform_point_values(record['waveform_inputs'],int(record['sample_count']),max(0,int(round(frame_time*fps))-1))
-                    inputs.update(value1=value1,value2=value2)
                 recurrence=record.get('frame_recurrence')
                 if recurrence:
                     from source_point_colour import initial_state,step_state,state_inputs
@@ -2267,6 +2273,14 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                         entry['state']=step_state(recurrence,entry['state'],{**record.get('held_inputs',{}),**inputs},float(np.float32((entry['frame']+1)/fps)),entry['frame'],rng)
                         entry['frame']+=1
                     inputs.update(state_inputs(recurrence,entry['state']))
+                if record.get('sample_count_program'):
+                    # The wave sets samples in its per-frame code: this frame's count (after its frame state).
+                    record={**record,'sample_count':_frame_sample_count(record,inputs,frame_time)}
+                if record.get('waveform_inputs') and int(record['sample_count'])>0:
+                    # value1/value2: this frame's declared reference PCM window, prepared as CustomWaveform does.
+                    from source_point_colour import waveform_point_values
+                    value1,value2=waveform_point_values(record['waveform_inputs'],int(record['sample_count']),max(0,int(round(frame_time*fps))-1))
+                    inputs.update(value1=value1,value2=value2)
                 points=record.get('point_recurrence')
                 if points:
                     # Per-point state: evaluated point by point; the last point's value carries into the next frame.

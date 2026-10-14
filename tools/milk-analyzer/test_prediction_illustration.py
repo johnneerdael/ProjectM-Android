@@ -864,3 +864,17 @@ def test_stepper_guarded_rand_site_draws_only_when_its_branch_runs():
     raw = np.random.RandomState(0x4141f00d)._bit_generator.random_raw(4).astype(np.float64) / 4294967295.
     values = _FrameStepper({'state': {}, 'outputs': {'q1': guarded, 'q2': plain}}, rng_seed=None).step(1 / 30, 30, {}, 0)
     assert values['q1'] == 5. and abs(values['q2'] - raw[0]) < 1e-12
+
+
+def test_custom_wave_sample_count_follows_its_per_frame_program():
+    # samples = 256 + 50*sin(time) each frame, clamped to 0..512 and truncated as CustomWaveform does.
+    import math
+    from prediction_illustration import _frame_sample_count
+    program = {'root': 0, 'nodes': [{'op': 'add', 'args': [1, 2], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': 256.}},
+                                    {'op': 'multiply', 'args': [3, 4], 'detail': {}}, {'op': 'constant', 'args': [], 'detail': {'value': 50.}},
+                                    {'op': 'sin', 'args': [5], 'detail': {}}, {'op': 'input', 'args': [], 'detail': {'name': 'time'}}]}
+    record = {'sample_count': 256, 'sample_count_program': program}
+    assert _frame_sample_count(record, {}, 1.) == math.trunc(256 + 50 * math.sin(1.))
+    assert _frame_sample_count({'sample_count': 102}, {}, 1.) == 102
+    big = {'sample_count': 256, 'sample_count_program': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': 900.}}]}}
+    assert _frame_sample_count(big, {}, 1.) == 512

@@ -1,4 +1,5 @@
 """General source colour controls; no image palette or sampled time fitting."""
+import math
 from types import SimpleNamespace
 import json
 import hashlib
@@ -415,3 +416,16 @@ def test_recurrence_state_order_is_independent_of_string_hashing():
     outputs = {subprocess.run([sys.executable, '-c', code], cwd=os.path.dirname(os.path.abspath(__file__)), capture_output=True, text=True,
                               env={**os.environ, 'PYTHONHASHSEED': seed}).stdout for seed in ('1', '2', '3')}
     assert len(outputs) == 1 and json.loads(outputs.pop())[0] == ['mc', 'ya', 'zb']
+
+
+def test_per_frame_sample_count_keeps_the_wave_with_its_count_program():
+    # samples = 256 + 50*sin(time*.94) (demonlord's opaque black wave_0, which wipes the canvas each frame):
+    # the wave must not be dropped; its count at load and the count program for frame stepping are kept.
+    from eel_memory import evaluate_np
+    result=source_character('wavecode_0_enabled=1\nwavecode_0_samples=102\n'
+        'wave_0_per_frame1=samples = 256 + 50*sin(time*.939493949);\n'
+        'wave_0_per_point1=x=sample;y=.5;r=0;g=0;b=0;a=1;\n')
+    record=result['by_component']['wave_0']['source_palette']['point_colour_distribution']
+    assert record['status']=='closed_form_point_colours' and record['sample_count']==256
+    program=record['sample_count_program']
+    assert abs(float(evaluate_np(program,{'time':1.}))-(256+50*math.sin(.939493949)))<1e-6

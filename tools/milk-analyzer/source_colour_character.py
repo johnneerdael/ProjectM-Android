@@ -320,7 +320,18 @@ def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
     from source_point_colour import point_colour_distribution
     samples=frame.environment.get('samples')
     count=_phase_literal(samples) if samples is not None else _scalar(analysis.values,prefix+'samples',512,'float')
-    if count is not None:count=min(512,math.trunc(count))
+    count_program=None
+    if samples is not None and count is None:
+        # A per-frame sample count (samples = 256 + 50*sin(time)): keep its program so consumers set N every
+        # frame; the statistics use its value at load (time 0, declared inputs at their midpoints, others 0).
+        count_program=_expression(samples)
+        if count_program is not None:
+            from eel_memory import evaluate_np,input_names
+            names=input_names(count_program) or set()
+            try:count=float(evaluate_np(count_program,{n:((float(domains[n][0])+float(domains[n][1]))/2 if isinstance(domains.get(n),(list,tuple)) and len(domains[n])==2 else 0.) for n in names}|{'time':0.}))
+            except (ValueError,TypeError):count=None
+            if count is not None and not math.isfinite(count):count=None
+    if count is not None:count=max(0,min(512,math.trunc(count)))
     # Per-point programs (3D projections, rotations) exceed the default 256-node control export.
     programs={name:_expression(controls.get(name,Field('unknown')),POINT_PROGRAM_NODES) for name in 'rgba'}
     held={name:span for name,span in domains.items() if name!='sample'}
@@ -338,6 +349,9 @@ def _point_distribution(analysis,prefix,frame,controls,domains,init=None):
         waveform={'params':{**{k:float(v) for k,v in params.items()},'sep':int(params['sep']),'spectrum':bool(spectrum_mode)}}
     record=point_colour_distribution(programs,count,held,positions=positions,recurrence=recurrence,waveform=waveform,
                                      point_recurrence=point_recurrence)
+    if count_program is not None and count is not None:
+        record['sample_count_program']=count_program
+        record['conditions']=record.get('conditions',[])+['sample_count is the per-frame count at load; sample_count_program gives N each frame (clamped to 0-512)']
     flags={}
     for name,key in (('dots','bUseDots'),('thick','bDrawThick'),('additive','bAdditive'),('spectrum','bSpectrum')):
         value=_scalar(analysis.values,prefix+key,0,'float')
