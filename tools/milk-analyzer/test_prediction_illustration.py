@@ -268,8 +268,8 @@ def test_frame_stepper_sees_float32_engine_time():
 
 def test_thick_custom_wave_flat_line_lights_one_row():
     from prediction_illustration import _draw_points
-    # x = sample, y = .5, thick: native ruler lights a single row (passes offset right and up by
-    # 1/viewportX in NDC: half a pixel horizontally, H/(2W) pixels vertically).
+    # x = sample, y = .5, thick: one row (passes offset right and down by 1/viewportX in NDC: half a pixel
+    # horizontally, H/(2W) pixels vertically; native ruler and emulator probes).
     record = {'sample_count': 32, 'draw_flags': {'thick': True, 'additive': True},
               'programs': {'x': {'root': 0, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'sample'}}]},
                            'y': {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': .5}}]},
@@ -894,7 +894,8 @@ def _reference_gl_line_pixels(x0, y0, x1, y1, width, height):
         keep = (offset > 0) & (offset <= span)
         centre = exit_ - .5 * step
         t = np.clip(np.where(span > 0, (centre - a0) * step / np.where(span > 0, span, 1.), 0.), 0, 1)
-        minor = np.floor(b0 + (b1 - b0) * t); major = np.floor(centre)
+        crossing = b0 + (b1 - b0) * t  # boundary lines take the lower GL window index (top-down rows: floor)
+        minor = np.where(xmajor, np.floor(crossing), np.ceil(crossing) - 1); major = np.floor(centre)
         col = np.where(xmajor, major, minor); row = np.where(xmajor, minor, major)
         for s in np.nonzero(keep)[0]:
             if 0 <= col[s] < width and 0 <= row[s] < height:out.add((int(row[s]), int(col[s]), int(s)))
@@ -978,3 +979,63 @@ def test_mode2_wave_alpha_takes_the_texture_size_bucket_gain():
                                  'volume_ramp': {'enabled': False}}}
     assert abs(_frame_wave_alpha(material, {'wave_a': .3029}, 2, 480) - .3029 * .09) < 1e-6
     assert abs(_frame_wave_alpha(material, {'wave_a': .3029}, 5, 1920) - .3029 * .15) < 1e-6
+
+
+def test_line_on_a_pixel_boundary_takes_the_lower_gl_window_index():
+    # Emulator probes (custom wave, decay 0, 480x270): a vertical line at window x 240.0 lights column 239,
+    # x 240.48 column 240, x 480.0 column 479 and x 0.0 nothing (column -1); a horizontal line at GL window
+    # y 135.0 (top-down 135.0) lights top-down row 135. GL's open pixel diamond plus its endpoint perturbation
+    # puts an exact-boundary line on the lower window index: ceil(x)-1 for columns, floor(top-down y) for rows.
+    # r164 (stripes-hippiestyle) draws its only content at x=0 and stays black in the engine.
+    from prediction_illustration import _gl_line_pixels
+    def columns(x):
+        return sorted(set(_gl_line_pixels([x], [0.], [x], [270.], 480, 270)[1].tolist()))
+    assert columns(240.) == [239] and columns(240.48) == [240] and columns(480.) == [479] and columns(0.) == []
+    rows, _ = _gl_line_pixels([0.], [135.], [480.], [135.], 480, 270)
+    assert sorted(set(rows.tolist())) == [135]
+
+
+def test_custom_wave_lines_match_emulator_boundary_probes():
+    # Emulator probes (480x270, decay 0, one white custom wave): to_pixels already gives window coordinates,
+    # so no half-pixel shift; boundaries go to column ceil(x)-1 and top-down row floor(y); thick passes move
+    # +1/viewportX in NDC x and y, i.e. half a pixel right and 270/960 px DOWN in the captured image.
+    from prediction_illustration import _draw_points
+    width, height = 480, 270
+    def to_pixels(point):
+        return ((point[0] - .5) * width + width / 2, height / 2 - (point[1] - .5) * width)
+    const = lambda v: {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': v}}]}
+    sample = {'root': 0, 'nodes': [{'op': 'input', 'args': [], 'detail': {'name': 'sample'}}]}
+    def lit(x=None, y=None, thick=False):
+        record = {'sample_count': 64, 'draw_flags': {'thick': thick, 'additive': True, 'dots': False},
+                  'programs': {'x': sample if x is None else const(x), 'y': sample if y is None else const(y), **{c: const(1.) for c in 'rgba'}}}
+        image = _draw_points(np.zeros((height, width, 3), np.float32), record, 1., to_pixels)[..., 0]
+        if x is not None:return sorted(set(np.nonzero(image[100:170].max(axis=0) > .5)[0].tolist()))
+        return sorted(set(np.nonzero(image[:, 100:380].max(axis=1) > .5)[0].tolist()))
+    assert lit(x=0.) == [] and lit(x=.5) == [239] and lit(x=.501) == [240] and lit(x=1.) == [479]
+    assert lit(x=.5, thick=True) == [239, 240] and lit(x=0., thick=True) == [0]
+    assert lit(y=.5) == [135] and lit(y=.501) == [134] and lit(y=.998) == []
+    assert lit(y=.5 - .1 / 480, thick=True) == [135] and lit(y=.5 + .1 / 480, thick=True) == [134, 135]
+
+
+
+def test_frame_stats_summarise_the_window_with_ruler_measures():
+    from prediction_illustration import FrameStats
+    stats = FrameStats(start=2)
+    for k in range(6):
+        stats(k / 30, np.full((27, 48, 3), .1 if k % 2 else .5, np.float32))
+    s = stats.summary()
+    assert s['frames'] == 6 and abs(s['mean_luminance'] - .3) < .01 and s['global_brightness_jumps'] == 3
+    assert s['mean_saturation'] == 0. and abs(s['mean_abs_frame_difference'] - .4) < .01
+
+
+def test_wave_layers_are_contiguous_for_opencv_even_when_the_canvas_is_a_view():
+    # r191 (martin - beat test pendel): the canvas reached the built-in wave pass as a non-contiguous view, so
+    # np.zeros_like kept that layout and cv2.polylines rejected the layer, crashing the whole prediction.
+    import cv2
+    from prediction_illustration import _blank_layer
+    canvas = np.zeros((27, 48, 4), np.float32)[..., :3]
+    assert not canvas.flags['C_CONTIGUOUS']
+    layer = _blank_layer(canvas)
+    assert layer.flags['C_CONTIGUOUS'] and layer.shape == canvas.shape and layer.dtype == canvas.dtype
+    cv2.polylines(layer, [np.array([[1, 1], [40, 20]], np.int32)], False, (1., 1., 1.), 1)
+    assert layer.max() == 1.

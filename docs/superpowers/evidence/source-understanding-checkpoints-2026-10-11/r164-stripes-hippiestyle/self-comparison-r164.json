@@ -1,0 +1,27 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r164-v1",
+ "preset": "PieturP - stripes-hippiestyle.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a0ba6ec6e4778809bdcbeeb9681609bd1450744c3e0673f1d48b33ec9a1be599",
+  "prediction.json": "66a75ff52ec7f905881345f6d9bd2c211e37d5617187b15c599e197c9ce4948e",
+  "description.json": "687b189003263bcb9b73e26fef9c2aa14ffd1ec0781bc8034fd5b4498759757c",
+  "recipe.json": "8a06cfbd7e27feffae4be47365ac10beef2ce019bfbbd44e4255e358fc8cff87",
+  "llm-look-description-v1.txt": "a8e678265e5e688327666c933e43f4c22fc26b66dccc34b303fc6deef21a6f06"
+ },
+ "capture_result_sha256": "3edc9a52cea1ba1cc2a9536b2c64bbf17171b3946615e26b47ae158b1c510922",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.0591,
+   0.0
+  ]
+ },
+ "agreements": [
+  "SDK: dark, calm, no strobe"
+ ],
+ "misses": [
+  "frozen prediction: bright stripes from a line the engine never rasterizes (half-pixel convention; thick passes up instead of down)"
+ ],
+ "verdict": "large miss in the frozen prediction: the engine stays black for all 300 frames, the prediction climbs to luma 0.48. The only visible content is a custom wave at x=0 (y=sample), i.e. on the left viewport edge, which the stretch about cx=0 would smear into stripes. Emulator line probes show such a line produces no fragments (column -1), while the illustrator drew it in column 0: its custom-wave line path added a half-pixel shift to window coordinates (the old ruler check, a flat line at y=.5, could not see it) and pushed thick passes up instead of down. Fixed from the probe table (v3 prediction is black). The SDK reading said dark and calm, which is right."
+}

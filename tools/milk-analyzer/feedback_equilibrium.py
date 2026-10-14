@@ -139,6 +139,37 @@ def stage_detail_response(facts,stage='composite',level=.5,amplitude=.2,time=5.,
             'coloured_rule':'saturation >= %.2f and max channel >= %.2f'%(DETAIL_SATURATION,DETAIL_VALUE)}
 
 
+def composite_load_spread(facts,level=.5,draws=8,time=5.,size=(48,27)):
+    """How much the displayed colour of a flat canvas depends on the random per-load hue tint.
+
+    projectM draws hueRandomOffsets at every preset load; the corner tint (hue_shader / _vDiffuse) follows
+    them. The exported composite is evaluated on a flat canvas at `level` under `draws` tint draws; a
+    composite that raises or multiplies by the tint (pow(hue_shader, 4), dot(ret, hue_shader)) shows a
+    wide brightness and hue spread, one that ignores it shows none. No frames are stepped.
+    """
+    import numpy as np
+    import prediction_illustration as P
+    from time_expression import hue_family
+    program=(((facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}).get('composite') or {})
+    if program.get('status')!='exported':return None
+    width,height=size
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+    uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
+    bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
+    controls=_stage_controls(facts,bands,(time,))
+    image=np.full((height,width,3),level,np.float32)
+    lumas,families=[],[]
+    for seed in range(draws):
+        diffuse=P._hue_shader(width,height,float(time),offsets=P._hue_offsets(seed))
+        try:out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,diffuse=diffuse,controls=dict(controls[time]),stage='composite')
+        except Exception:return None  # noqa: BLE001 - an unevaluable program leaves the spread unknown
+        out=np.clip(np.where(np.isfinite(out),out,0.),0,1).reshape(-1,3).mean(0)
+        lumas.append(float(_luma(out)));families.append(hue_family(out))
+    return {'level':level,'draws':draws,'luma_range':[round(min(lumas),4),round(max(lumas),4)],
+            'hue_families':sorted(set(families)),'per_draw_luma':[round(v,4) for v in lumas],
+            'meaning':'displayed colour of a flat canvas under different random per-load hue tints'}
+
+
 STAGE_CONTROL_BUDGET_SECONDS=3.
 
 

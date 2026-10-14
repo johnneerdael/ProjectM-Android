@@ -501,6 +501,12 @@ def _render(facts):
         from feedback_equilibrium import stage_detail_response
         detail=stage_detail_response(facts,'composite')
         if detail is not None:composite['detail_response']={**detail,'source':'exported composite shader evaluated on a grey multi-scale texture'}
+        from feedback_equilibrium import composite_load_spread
+        rows=[composite_load_spread(facts,level=level) for level in (.05,.1,.2)]
+        rows=[r for r in rows if r]
+        # Only material dependence is reported: brightness varying by >15% or more than one hue family across loads.
+        if any(r['luma_range'][1]>1.15*max(r['luma_range'][0],1e-4) or len(r['hue_families'])>1 for r in rows):
+            composite['load_spread']=[{k:r[k] for k in ('level','luma_range','hue_families')} for r in rows]
     palette=facts.get(BASE+'/nonlinear_texture_colour_bounds/stages/composite/scalar_palette')
     if isinstance(palette,dict):
         composite['scalar_palette']={'ramp':[{'scalar':row['scalar'],'rgb':row['clamped_rgb']} for row in palette.get('samples') or []],

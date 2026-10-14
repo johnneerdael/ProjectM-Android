@@ -188,6 +188,12 @@ full recipe tens of thousands of lines long.
    closed-form channels: ranges, `mean_saturation` and time-weighted
    `hue_shares`. A composite that amplifies edges (gain well above 1 in its
    detail response) makes even dim, low-range shape colours read as vivid.
+   A `composite.load_spread` list means displayed brightness and hue depend
+   on the random tint drawn at each preset load. Each row gives, for a flat
+   canvas level, the brightness range and hue families across draws. Report
+   the range ("dim green on one load, brighter pink on another"), not one
+   colour. Rows that grow much faster than the level (0.05 to 0.2 in, 0.02 to
+   0.35 out) mark a steep composite: small canvas changes swing brightness hard.
    Read shader `scalar_palette` records as the colour ramp content is shown
    through (black- and white-content colours are exact), and `flat_field` for
    the steady colour of flat regions (background) under a custom warp. Read

@@ -218,3 +218,19 @@ def test_detail_response_reports_colour_a_composite_creates_from_structure(monke
     monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, *a, **k: image.astype(np.float32))
     grey = E.stage_detail_response(facts())
     assert grey['coloured_share'] == 0. and grey['hue_shares'] == {} and abs(grey['mean_luma'] - .5) < .05
+
+
+def test_composite_load_spread_measures_brightness_that_depends_on_the_random_hue_tint(monkeypatch):
+    # r181 Atomic Pulsagons: the composite multiplies by pow(hue_shader, 4) and dot(ret, hue_shader): the random
+    # per-load corner tint changes displayed brightness several-fold. A composite that ignores it has no spread.
+    import numpy as np
+    import prediction_illustration as P
+    facts = {'/analysis/visual_description/stage_programs': {'stages': {'composite': {'status': 'exported',
+                 'program': {'root': 0, 'nodes': []}}}},
+             '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
+    monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, uv, time, fps, bands, diffuse=None, **k: (image * diffuse[..., :3] ** 4).astype(np.float32))
+    spread = E.composite_load_spread(facts)
+    assert spread['luma_range'][1] > 1.5 * spread['luma_range'][0] and spread['draws'] >= 6
+    monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, *a, **k: image.astype(np.float32))
+    flat = E.composite_load_spread(facts)
+    assert flat['luma_range'][1] - flat['luma_range'][0] < 1e-6

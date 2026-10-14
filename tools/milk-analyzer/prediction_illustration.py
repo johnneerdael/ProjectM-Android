@@ -508,6 +508,12 @@ def _wave_alpha(facts,path,limitations):
     return min(1.,max(0.,(envelope[0]+envelope[1])/2)),additive
 
 
+def _blank_layer(image):
+    """A zeroed, C-contiguous drawing layer like image: cv2 drawing calls reject non-contiguous views,
+    which np.zeros_like would reproduce when the canvas is a channel slice."""
+    return np.zeros(image.shape,image.dtype)
+
+
 def _blend_wave_layer(image,canvas_alpha,layer,mask,alpha,additive):
     """Blend one built-in wave raster into the canvas. Coverage comes from the raster mask, never from
     the colour: a near-black wave (not maximised when its largest channel is <= 0.01) still replaces
@@ -737,8 +743,11 @@ def _gl_line_pixels(x0,y0,x1,y1,width,height,return_index=False):
     sa0,sb0,sb1,sstep,sspan=a0[segment],b0[segment],b1[segment],step[segment],span[segment]
     centre=first[segment]+sstep*k-.5*sstep
     t=np.clip(np.where(sspan>0,(centre-sa0)*sstep/np.where(sspan>0,sspan,1.),0.),0,1)
-    minor=np.floor(sb0+(sb1-sb0)*t);major=np.floor(centre)
     major_x=xmajor[segment]
+    # Minor index: a line exactly on a pixel boundary goes to the lower GL window index (emulator probes),
+    # i.e. ceil(x)-1 for a column; rows here run top-down, where GL's lower row is floor(y).
+    crossing=sb0+(sb1-sb0)*t
+    minor=np.where(major_x,np.floor(crossing),np.ceil(crossing)-1);major=np.floor(centre)
     col=np.where(major_x,major,minor).astype(int);row=np.where(major_x,minor,major).astype(int)
     inside=(col>=0)&(col<width)&(row>=0)&(row<height)
     if return_index:return row[inside],col[inside],segment[inside]
@@ -934,18 +943,19 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,end
         valid=[i for i in range(len(px)-1) if np.isfinite(px[i:i+2]).all() and np.isfinite(py[i:i+2]).all()
                and max(abs(px[i]),abs(py[i]),abs(px[i+1]),abs(py[i+1]))<=limit]
         # projectM 4.1.7 thick lines: four passes offset by +x, +y, -x of 1/viewportX in NDC (CustomWaveform
-        # uses the width for both): half a pixel right and H/(2W) pixels up (NDC y grows upward), so the
-        # same 1 px strip is mostly lit four times (native ruler: a flat line at y=.5 lights one row).
-        up=.5*height/width
-        for ox,oy in ([(0,0),(.5,0),(.5,-up),(0,-up)] if flags.get('thick') else [(0,0)]):
+        # uses the width for both). The vertex is y_ndc = (1-2y)*invAspectY, so +y NDC moves DOWN in the
+        # captured image: half a pixel right and H/(2W) pixels down (emulator probes: a thick line at
+        # top-down 134.9 lights rows 134 and 135, at 135.1 only row 135).
+        down=.5*height/width
+        for ox,oy in ([(0,0),(.5,0),(.5,down),(0,down)] if flags.get('thick') else [(0,0)]):
             pass_layer=np.zeros_like(image)
             colour=colour*min(1.,_DRAW_SCALE[0]) if ox==0 and oy==0 else colour
             if flags.get('additive',True) and valid:
                 # Additive blending adds every segment, so self-crossing and retraced strokes accumulate
                 # (GL leaves each segment's end pixel to the next one: joints are not counted twice).
-                # px/py use pixel centres at integers (the native-ruler-checked cv2 raster); shift by half a
-                # pixel into _gl_line_pixels' centres-at-i+.5 window convention.
-                v=np.array(valid);h=.5
+                # px/py are window coordinates (pixel edges on integers, as _point_pixels reads them), the
+                # convention _gl_line_pixels takes: no half-pixel shift (emulator boundary probes).
+                v=np.array(valid);h=0.
                 rows,cols,seg=_gl_line_pixels(px[v]+ox+h,py[v]+oy+h,px[v+1]+ox+h,py[v+1]+oy+h,width,height,return_index=True)
                 np.add.at(pass_layer,(rows,cols),colour[v][seg]);np.add.at(cover,(rows,cols),alpha[v][seg])
             if not flags.get('additive',True):
@@ -953,7 +963,7 @@ def _draw_points(image,record,time,to_pixels,canvas=None,audio=None,rng=None,end
                 # covered by several segments of the strip (retraced or zigzag strokes) and by repeated thick
                 # passes compound towards the line colour instead of keeping one layer.
                 if valid:
-                    v=np.array(valid);h=.5
+                    v=np.array(valid);h=0.
                     rows,cols,seg=_gl_line_pixels(px[v]+ox+h,py[v]+oy+h,px[v+1]+ox+h,py[v+1]+oy+h,width,height,return_index=True)
                     image=_blend_over_in_order(image,rows,cols,seg,colour[v],alpha[v])
                     if canvas is not None:
@@ -2040,6 +2050,38 @@ def _display(image,facts,time,fps,limitations,blur_image=None):
     return shown
 
 
+class FrameStats:
+    """Frame callback keeping the engine ruler's statistics for frames the illustration already computes.
+
+    The same measures as the native ruler (320x180 grey luma and frame difference, OpenCV HSV saturation and
+    coloured share on every 10th frame), summarised over the window from frame 60 to the end, so a prediction
+    can be checked against the stored ruler row without rendering anything else.
+    """
+    def __init__(self,start=60):
+        self.start=start;self.luma=[];self.grey=None;self.diffs=[];self.saturation=[];self.coloured=[];self.index=0
+    def __call__(self,frame_time,shown):
+        rgb=(np.clip(np.asarray(shown),0,1)*255+.5).astype(np.uint8)
+        grey=cv2.cvtColor(cv2.resize(rgb,(320,180),interpolation=cv2.INTER_AREA),cv2.COLOR_RGB2GRAY)
+        self.luma.append(float(grey.mean())/255)
+        if self.grey is not None:self.diffs.append(float(np.abs(grey.astype(np.int16)-self.grey).mean())/255)
+        self.grey=grey.astype(np.int16)
+        if self.index>=self.start and (self.index-self.start)%10==0:
+            hsv=cv2.cvtColor(rgb.astype(np.float32)/255,cv2.COLOR_RGB2HSV).reshape(-1,3)
+            self.saturation.append(float(hsv[:,1].mean()));self.coloured.append(float(np.mean((hsv[:,1]>=.15)&(hsv[:,2]>=.05))))
+        self.index+=1
+    def summary(self):
+        window=self.luma[self.start:];diffs=self.diffs[self.start:]
+        return {'policy':'prediction-frame-stats-v1','frames':len(self.luma),'window_start':self.start,
+                'mean_luminance':float(np.mean(window)) if window else None,
+                'luminance_p10_p90':[float(np.percentile(window,10)),float(np.percentile(window,90))] if window else None,
+                'mean_abs_frame_difference':float(np.mean(diffs)) if diffs else None,
+                'global_brightness_jumps':int(np.sum(np.abs(np.diff(window))>.08)) if len(window)>1 else None,
+                'mean_saturation':float(np.mean(self.saturation)) if self.saturation else None,
+                'coloured_share':float(np.mean(self.coloured)) if self.coloured else None,
+                'luma_series':[round(v,4) for v in self.luma],
+                'note':'computed from the frames this prediction run already produced; ruler measures, no extra rendering'}
+
+
 def simulated_display_series(summary,*,seconds=4.,fps=30.,viewport=(160,90),audio=None):
     """Source-only simulated display statistics: per-frame luma, saturation and change (no rendered frames)."""
     rows=[];previous=[None]
@@ -2293,7 +2335,7 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
                 # y up on screen), each blended on its own, so pixels two passes cover receive the blend twice.
                 # Scaled dots are drawn once as 2x2 blocks (Waveform.cpp: one iteration when lineScale > 0).
                 for ox,oy in ([(0,0),(16,0),(16,-16),(0,-16)] if recipe.get('thick') and not recipe.get('dots') else [(0,0)]):
-                    layer=np.zeros_like(image);mask=np.zeros(image.shape[:2],np.float32)
+                    layer=_blank_layer(image);mask=np.zeros(image.shape[:2],np.float32)
                     for points in polylines:
                         # Built-in wave NDC: column=(1+x)/2*W, row=(1-y)/2*H (y up on screen; native-ruler
                         # probe at wave_y .8 matches to the pixel).
@@ -2420,6 +2462,7 @@ def main(argv=None):
     parser.add_argument('--time',type=float,default=5.0,help='declared source time in seconds')
     parser.add_argument('--history-steps',type=int,default=150)
     parser.add_argument('--audio',type=Path,help='declared per-frame bands (milk-audio-inputs report) instead of band midpoints')
+    parser.add_argument('--frame-stats',type=Path,help='also write window statistics of the frames this run already computes (no extra frames)')
     args=parser.parse_args(argv)
     if args.output.exists():parser.error('output exists; frozen predictions are never overwritten')
     data=args.summary.read_bytes();summary=json.loads(data)
@@ -2428,7 +2471,10 @@ def main(argv=None):
     # The per-pixel field simulation covers feedback, shaders, shapes and waves; the closed-form orbit
     # illustrator is the fallback when the field or decay is not described.
     audio=declared_audio(args.audio) if args.audio else None
-    image,used,limitations=illustrate_field(summary,time=args.time,fps=fps,history_steps=args.history_steps,audio=audio)
+    recorder=FrameStats() if args.frame_stats else None
+    image,used,limitations=illustrate_field(summary,time=args.time,fps=fps,history_steps=args.history_steps,audio=audio,
+                                            frame_callback=recorder)
+    if recorder is not None:args.frame_stats.write_text(json.dumps(recorder.summary(),indent=1)+'\n')
     if audio:limitations.append('audio-driven controls use the declared per-frame bands (audio report sha256 %s)'%audio['sha256'][:16])
     if any(l.startswith('per-pixel field or decay not fully described') for l in limitations):
         fallback=illustrate(summary,time=args.time,fps=fps,history_steps=args.history_steps)
