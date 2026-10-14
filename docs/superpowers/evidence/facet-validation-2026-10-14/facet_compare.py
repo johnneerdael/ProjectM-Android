@@ -2,7 +2,7 @@
 import json, math, os, subprocess, sys
 from pathlib import Path
 from scipy.stats import spearmanr
-G = Path(__file__).parent; ROOT = G.parents[1]; tag = sys.argv[1]
+G = Path(__file__).parent; ROOT = G.parents[1]; tag = sys.argv[1]; selection = sys.argv[2] if len(sys.argv) > 2 else 'selection.json'
 TF = {'mean_luminance': None, 'mean_abs_frame_difference': 'log1p10', 'mean_flow_screen_widths_per_s': 'log1p10',
       'global_brightness_jumps_per_10s': 'log1p', 'mean_saturation': None, 'warm_cool': None}
 tf = lambda v, k: math.log1p(10 * v) if k == 'log1p10' else math.log1p(v) if k == 'log1p' else v
@@ -11,7 +11,7 @@ ruler = {}
 for n in os.listdir(R):
     row = json.load(open(R / n)); ruler[row['preset']] = row
 ours = {}
-for p in json.load(open(G / 'selection.json'))['presets']:
+for p in json.load(open(G / selection))['presets']:
     f = G / f'facet-{tag}' / (Path(p['name']).stem + '.json')
     if f.exists():
         row = json.load(open(f))
