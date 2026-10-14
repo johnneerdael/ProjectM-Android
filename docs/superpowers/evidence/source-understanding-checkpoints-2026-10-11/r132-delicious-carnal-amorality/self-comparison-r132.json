@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r132-v1",
+ "preset": "suksma - delicious carnal amorality.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "520b3917e87da7f178405d56a09d93c81c29912fa35d0fde9dd7adf0d5501b99",
+  "prediction.json": "5fa174e63b158e79a4e0dc28fcaa2765a59b43393ae946bc02b1c91fee060fc1",
+  "description.json": "4f70b4eb256de358a05871ff0c2a2bba3cdcb7ceb5dff0c3ed8c1e612c7a2e73",
+  "recipe.json": "e49b413a7cc7b857b209542d19bafae87e37024c29c77c39bb520e456d582ce1",
+  "llm-look-description-v1.txt": "53863d7ad58f65f0ec2167b623e35c490513d3e4a8dbc418c2de711174fcd640"
+ },
+ "capture_result_sha256": "ebf0f3bd772323c0b453bb38de2924975723e417b1a94aec01390cfd8c2fef03",
+ "review_measurements_v1": {
+  "prediction_luma": 0.424,
+  "screenshot_luma": 0.424,
+  "mean_rgb_prediction": [
+   0.356,
+   0.433,
+   0.53
+  ],
+  "mean_rgb_screenshot": [
+   0.352,
+   0.434,
+   0.538
+  ],
+  "blurred_luma_correlation": 0.91,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.385,
+    0.392
+   ],
+   "saturation": [
+    0.348,
+    0.362
+   ],
+   "blurred_luma_correlation": 0.991
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.173,
+   0.1729
+  ]
+ },
+ "agreements": [
+  "map correlation 0.991",
+  "luma and frame difference within 0.01",
+  "blue palette and cool tint",
+  "contraction with smearing trails",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK: radial-streak starburst texture not named",
+  "SDK: pentagons described as distinct shapes; on screen they dissolve into streaks"
+ ],
+ "verdict": "understood: frozen prediction matches the capture (time-average map corr 0.991, luma 0.385 vs 0.392, frame difference 0.1730 vs 0.1729, saturation 0.35 vs 0.36). SDK names the blue palette (hue share 0.993), mid brightness, inward contraction with rotation and smearing trails, no strobe. It does not name the radial streak starburst and overstates distinct polygons that dissolve into the streaks."
+}
