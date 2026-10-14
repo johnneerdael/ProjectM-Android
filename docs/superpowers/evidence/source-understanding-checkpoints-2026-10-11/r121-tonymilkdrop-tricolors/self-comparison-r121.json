@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r121-v1",
+ "preset": "TonyMilkdrop - Tricolors [Flexi - pump up the jam + techstyle] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "94e958c739429ae6bf90f62abd4fd1945c2842d8dfea8a558e4b3be6cf1e2e8b",
+  "prediction.json": "b4539b0f26ba3280ae550f63a83a31be9a652ebdf6b3664eb77a19def9c5f7b4",
+  "description.json": "2b618a727999a39ca4562ea6f01fd01cdaad392f731008813bdbc02c46f12be0",
+  "recipe.json": "ba376bc02ed302cae4a3b4c0c074559b8101b1e53eab2e4e5fb83c4338a3a04d",
+  "llm-look-description-v1.txt": "13e8a90907fd8ab081d00a2e33774971d3134ef7753d06683ffb61821489168e"
+ },
+ "capture_result_sha256": "6fb128c3a53034f18754dbdc980011d44b7bb7f481b43808c310717dfa697330",
+ "review_measurements_v1": {
+  "prediction_luma": 0.386,
+  "screenshot_luma": 0.34,
+  "mean_rgb_prediction": [
+   0.386,
+   0.383,
+   0.416
+  ],
+  "mean_rgb_screenshot": [
+   0.433,
+   0.31,
+   0.358
+  ],
+  "blurred_luma_correlation": 0.525,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.485,
+    0.459
+   ],
+   "saturation": [
+    0.05,
+    0.105
+   ],
+   "blurred_luma_correlation": 0.426
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1049,
+   0.1005
+  ]
+ },
+ "agreements": [
+  "reaction-diffusion texture, central blob and swirl match frame by frame",
+  "luma series 0.507/0.489, 0.601/0.615, 0.538/0.534, 0.505/0.502; frame difference 0.105 vs 0.100; frames 60-149 luma 0.485 vs 0.459"
+ ],
+ "misses": [
+  "the central region is purple/magenta in the capture and green/teal in the prediction: the composite colour is pow(hue_shader, 6), so the per-load random hue offsets (PresetState::hueRandomOffsets) decide the palette and the sixth power amplifies them; the unseeded prediction uses zero offsets",
+  "time-averaged saturation 0.05 vs 0.105"
+ ],
+ "verdict": "understood in structure, motion and brightness; the palette is the per-load hue draw"
+}
