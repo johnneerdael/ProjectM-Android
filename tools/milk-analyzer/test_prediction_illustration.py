@@ -626,3 +626,17 @@ def test_motion_vector_colour_follows_the_per_frame_program():
     assert P._mv_rgba(facts, {}, set()) == [1., 1., 1., .4]  # unresolved colour stays white; alpha range midpoint
     static = {'/analysis/visual_description/static_behaviour/motion_vectors': {'colour_rgba': [.38, .38, .27, .03]}}
     assert P._mv_rgba(static, held, set()) == [.38, .38, .27, .03]
+
+
+def test_texture_lookup_fast_path_matches_the_reference_bilinear_and_nearest_rules():
+    # Speed (offline facet precompute): the C-level lookup must give the same GL bilinear/nearest values
+    # as the reference formula for wrapped and clamped coordinates, including out-of-range ones.
+    import prediction_illustration as P
+    rng = np.random.default_rng(5)
+    source = rng.random((17, 23, 4)).astype(np.float32)
+    coords = rng.uniform(-1.3, 2.4, (500, 2))
+    for wrap in (True, False):
+        for linear in (True, False):
+            fast = P._texture_lookup(source, coords, wrap=wrap, linear=linear)
+            ref = P._texture_lookup_reference(source, coords, wrap=wrap, linear=linear)
+            assert np.allclose(fast, ref, atol=2e-6), (wrap, linear)

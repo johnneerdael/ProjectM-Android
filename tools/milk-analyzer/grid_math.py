@@ -22,21 +22,26 @@ def _layout(dtype):
 def _convert(value,dtype,count,*,zero_extend=False,allow_nan=False,allow_infinity=False):
     base,shape=_layout(dtype);array=np.asarray(value)
     if array.shape[:1]!=(count,):raise UnresolvedMath('grid operation lost its lane axis')
-    if (np.any(np.isinf(array)) and not (allow_infinity and base in {'float','bool'})) or (np.any(np.isnan(array)) and not (allow_nan and base=='float')):
-        raise UnresolvedMath('nonfinite grid value for '+dtype)
+    # One finiteness pass; only when something is nonfinite are the two kinds told apart.
+    floating=array.dtype.kind in 'fc'
+    if floating and not np.isfinite(array).all():
+        if (np.any(np.isinf(array)) and not (allow_infinity and base in {'float','bool'})) or (np.any(np.isnan(array)) and not (allow_nan and base=='float')):
+            raise UnresolvedMath('nonfinite grid value for '+dtype)
     size=int(np.prod(shape)) if shape else 1
     flat=array.reshape(count,-1)
     if ('[' in dtype or len(shape)==2) and flat.shape[1]!=size:
         raise UnresolvedMath('matrix/array constructor size mismatch: '+dtype)
-    if flat.shape[1]==1:flat=np.repeat(flat,size,axis=1)
+    if flat.shape[1]==1:flat=np.broadcast_to(flat,(count,size))
     elif flat.shape[1]>=size:flat=flat[:,:size]
     elif zero_extend:flat=np.pad(flat,((0,0),(0,size-flat.shape[1])))
     else:raise UnresolvedMath('insufficient grid components for '+dtype)
     if base=='int' and np.any((flat<np.iinfo(np.int32).min)|(flat>np.iinfo(np.int32).max)):
         raise UnresolvedMath('integer grid conversion outside signed32-bit range')
     result=flat.astype({'float':np.float32,'int':np.int32,'bool':np.bool_}[base]).reshape((count,)+shape)
-    if (np.any(np.isinf(result)) and not (allow_infinity and base=='float')) or (np.any(np.isnan(result)) and not (allow_nan and base=='float')):
-        raise UnresolvedMath('nonfinite grid narrowing to '+dtype)
+    # Narrowing to float32 can overflow to infinity; NaN cannot appear from a finite source.
+    if base=='float' and floating and flat.dtype!=np.float32 and not np.isfinite(result).all():
+        if (np.any(np.isinf(result)) and not allow_infinity) or (np.any(np.isnan(result)) and not allow_nan):
+            raise UnresolvedMath('nonfinite grid narrowing to '+dtype)
     return result
 
 

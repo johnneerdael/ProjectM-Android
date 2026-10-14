@@ -1221,6 +1221,21 @@ def _blur_bank(image,controls=None):
 
 
 def _texture_lookup(source,coordinates,*,wrap,linear):
+    """GL texture lookup (see _texture_lookup_reference for the rule); bilinear runs in scipy's C
+    map_coordinates (order 1 at texel centres, grid-wrap for REPEAT, nearest-edge for CLAMP_TO_EDGE)."""
+    if not linear:return _texture_lookup_reference(source,coordinates,wrap=wrap,linear=False)
+    from scipy import ndimage
+    th,tw=source.shape[:2]
+    u=coordinates[:,0]*tw-.5;v=coordinates[:,1]*th-.5
+    u=np.where(np.isfinite(u),u,0.);v=np.where(np.isfinite(v),v,0.)
+    mode='grid-wrap' if wrap else 'nearest'
+    planes=source.reshape(th,tw,-1)
+    out=np.stack([ndimage.map_coordinates(planes[...,c].astype(np.float64),[v,u],order=1,mode=mode,prefilter=False)
+                  for c in range(planes.shape[2])],axis=-1)
+    return out.reshape((len(coordinates),)+source.shape[2:]).astype(np.float32)
+
+
+def _texture_lookup_reference(source,coordinates,*,wrap,linear):
     """GL texture lookup of (N, 2) normalised coordinates (row 0 at v=0).
 
     linear: bilinear between the four nearest texel centres. Otherwise GL_NEAREST: the texel

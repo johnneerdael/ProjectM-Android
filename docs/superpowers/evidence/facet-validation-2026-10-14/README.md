@@ -47,3 +47,21 @@ Caveats:
   budget for the facet-producing analysis is 1 s per preset (validation may
   take longer), so a cheaper facet path (fewer frames, lower resolution) has
   to be measured against this accuracy before the facets can switch.
+
+## Cheaper settings lose the accuracy
+
+Same presets, snapshot `7d1c84e3`, frames upscaled to 480×270 before the
+ruler `measure()` (`facet_cheap.py`; n ≈ 45, timings under heavy machine load):
+
+| Setting | Median seconds | Spearman range (6 statistics) | Full 480×270, 300 frames |
+|---|---|---|---|
+| 96×54, 300 frames | 19.4 | 0.69–0.86 | 0.86–0.98 |
+| 96×54, 120 frames | 8.4 | 0.66–0.79 | |
+| 64×36, 90 frames | 3.9 | 0.57–0.67 | |
+
+Lines, dots and borders are drawn in pixels, so their screen share changes
+with resolution; low-resolution statistics are not the full-resolution ones.
+
+Decision (owner, 2026-10-14): facets are precomputed offline, once per
+bundled preset, from full-resolution static predictions; nothing runs on the
+device, and speed work continues in parallel.
