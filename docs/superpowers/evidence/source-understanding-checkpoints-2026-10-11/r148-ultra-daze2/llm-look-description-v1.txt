@@ -1,0 +1,15 @@
+Approximate look (source-only, no rendering; this is a prediction):
+
+Overall this reads as a mostly dark to moderately dim, four-way mirrored kaleidoscopic feedback picture rather than a scene of crisp drawn objects. The recipe lists no drawn waves, shapes or textures, only a per-pixel warp field and composite settings. The settled source canvas is black (steady_state all zeros), so what appears depends on seed content I cannot see (possibly a shader or wave not recognised by the export). Calibrated display estimates say mean luminance about 0.15 (interval 0 to 0.39), so expect dim to medium, with real chance of a very dark or near-empty screen.
+
+Colour: no palette was resolved. The calibrated estimate gives moderate saturation (about 0.49, wide range 0.21 to 0.76) and no warm or cool lean (0.03). I cannot name hues. Several q values and motion-vector values are redrawn at random, so any colours depending on them change at those moments and differ between loads.
+
+Structure: everything is mirrored. The feedback step flips left-right every frame and the composite adds half-opacity left-right and top-bottom mirrored copies slightly magnified (1.007x), giving up to four-fold kaleidoscope-like symmetry, inexact because of zoom and rotation. The centre is darkened a little each frame by a diamond border, and gamma redraws can brighten up to 2x.
+
+Motion: content is pulled inward toward the centre every step, a slow breathing zoom (1.6 to 23.5 percent contraction per step, cycling over about 21 s) combined with a swaying rotation (plus or minus 0.09 rad per step, about 15.7 s period), plus a faint standing ripple of tiny amplitude (under 0.3 px). Decay is 1.0, so nothing fades by itself; trails persist and keep folding inward. Overall flow is slow to moderate (about 0.06 screen widths per second, interval up to 0.18).
+
+Audio: no audio bindings were found, so I expect little or no beat response. The motion is clock-driven.
+
+Flashing: no flashing mechanism found; coherent transitions 0 Hz. The estimated brightness jumps are about 0.5 per 10 s but range 0 to 4, which is unresolved. Probably calm, not strobing.
+
+Mood guess: chill to normal, smooth, hypnotic if seeded with content; high uncertainty.

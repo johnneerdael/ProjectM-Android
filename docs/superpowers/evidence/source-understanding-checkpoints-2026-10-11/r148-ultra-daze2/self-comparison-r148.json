@@ -1,0 +1,51 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r148-v1",
+ "preset": "Hexcollie - Ultra daze2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "6969d508e100cc0c0196374517d613a17fca3e7dfc00a9ccefbdb745911fafac",
+  "prediction.json": "6892846c6e71434fafdb4c34bf181f5a728cb60e500aa1f4441fb801c5919bd0",
+  "description.json": "ff12f9bf6caa0a52cf76c1039a34d97654eb293b58a08cf21f3c50e9ba658a25",
+  "recipe.json": "7ad52d403b29af0aed035eb96922a5704f26de0216291c0e6ddb857af7939d53",
+  "llm-look-description-v1.txt": "ac88f9718924383fdf2420c2ab04823f0b5f9d9c1b7e786f84fc9bf9bbec6be6"
+ },
+ "capture_result_sha256": "83716d610a7ceb2c68475f508d98ca272e21b285950b906430c62f806a7c0c27",
+ "review_measurements_v1": {
+  "prediction_luma": 0.008,
+  "screenshot_luma": 0.007,
+  "mean_rgb_prediction": [
+   0.0,
+   0.008,
+   0.024
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.007,
+   0.023
+  ],
+  "blurred_luma_correlation": 0.998,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.009,
+    0.008
+   ],
+   "saturation": [
+    0.469,
+    0.482
+   ],
+   "blurred_luma_correlation": 1.0
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0015,
+   0.0015
+  ]
+ },
+ "agreements": [
+  "frame-exact luma arc",
+  "near-black dim picture",
+  "no strobe"
+ ],
+ "misses": [],
+ "verdict": "understood: frozen prediction frame-exact (time-average map corr 1.0, luma series identical frame by frame: rises to 0.062 near frame 45 and fades to 0.001); SDK: dim, slowly breathing four-way mirrored picture, no audio response, no strobe."
+}
