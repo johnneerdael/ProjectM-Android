@@ -1133,7 +1133,12 @@ def _draw_textured_shape(image,shape,time,wrap,source=None,canvas=None,rng=None)
     centre_rgb=[channel('centre',c) for c in 'rgb'];edge_rgb=[channel('perimeter',c+'2') for c in 'rgb']
     border=[channel('border','border_'+c) for c in 'rgba']
     blend=_shape_blend(shape,held,time,rng)
-    if None in (x,y,radius,angle,zoom,tex_angle,blend) or None in alphas or zoom==0 or radius<=0:return image,False
+    if None in (x,y,radius,angle,zoom,tex_angle,blend) or None in alphas or zoom==0:return image,False
+    if radius==0:return image,True  # a zero-size polygon covers no pixels
+    if radius<0:
+        # Vertices sit at centre + rad*(cos t, sin t): a negative radius mirrors the polygon through its centre,
+        # i.e. |rad| with the shape angle turned by pi; texture coordinates keep their angles.
+        radius=-radius;angle=angle+math.pi
     # Only the polygon's bounding box can be covered: |dx| <= radius*aspect/2, |dy| <= radius/2 (screen fractions).
     full_image=image;orig_canvas=canvas;full_alpha=canvas['alpha'] if canvas is not None else None
     x0=max(0,int(math.floor((x-radius*aspect*.5)*width))-1);x1=min(width,int(math.ceil((x+radius*aspect*.5)*width))+2)

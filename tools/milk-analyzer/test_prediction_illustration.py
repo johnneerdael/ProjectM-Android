@@ -923,3 +923,30 @@ def test_line_segments_with_non_finite_endpoints_draw_nothing():
     nan, inf = float('nan'), float('inf')
     rows, cols, seg = _gl_line_pixels([nan, 5., 2., 1.], [3., nan, 2., 1.], [10., 20., inf, 30.], [3., 3., 2., 1.], 64, 36, return_index=True)
     assert set(seg.tolist()) == {3} and len(rows) == 29
+
+
+def _shape_record(radius, angle, textured=False):
+    const = lambda name, value: {'control': name, 'constant_value': value}
+    channel = lambda v: {'op_dummy': None} if False else {'root': 0, 'nodes': [{'op': 'constant', 'args': [], 'detail': {'value': v}}]}
+    return {'controls': {'position_x': const('position_x', .45), 'position_y': const('position_y', .55),
+                         'radius': const('radius', radius), 'rotation': const('rotation', angle)},
+            'texture': {'tex_zoom_source': .7, 'tex_angle_source_rad': .4}, 'sides': 5, 'textured': textured,
+            'channels': {'centre': {'r': channel(1.), 'g': channel(.2), 'b': channel(.1), 'a': channel(1.)},
+                         'perimeter': {'r2': channel(.1), 'g2': channel(.3), 'b2': channel(1.), 'a2': channel(.6)},
+                         'border': {}},
+            'blend': 'source_alpha_over', 'flags': {}, 'held': {}, 'thick_outline': False}
+
+
+def test_negative_shape_radius_draws_the_point_mirrored_polygon():
+    # CustomShape places vertices at centre + rad*(cos t, sin t): a negative rad mirrors the polygon through its
+    # centre (same as |rad| with ang + pi) while texture coordinates keep their angles. It is drawn, not skipped.
+    import math
+    import numpy as np
+    from prediction_illustration import _draw_textured_shape
+    rng = np.random.default_rng(1)
+    canvas = rng.random((36, 64, 3)).astype(np.float32)
+    for textured in (False, True):
+        negative, drawn = _draw_textured_shape(canvas.copy(), _shape_record(-.3, .2, textured), 1., True, canvas)
+        mirrored, _ = _draw_textured_shape(canvas.copy(), _shape_record(.3, .2 + math.pi, textured), 1., True, canvas)
+        assert drawn and not np.array_equal(negative, canvas)
+        assert np.allclose(negative, mirrored, atol=1e-5)
