@@ -236,6 +236,15 @@ full recipe tens of thousands of lines long.
    `band_source: source-calibrated-display` uses it, with confidence from the
    interval width (out-of-fold primary-band accuracy 0.85 high, 0.64 overall).
    Report it as a calibrated estimate, not a rendered measurement of the preset.
+   When `display_estimate.simulated` is present, it holds the same statistics
+   measured on this preset's own static prediction (the source programs
+   stepped for 300 frames under the declared reference audio; no engine and
+   no rendered frames). Prefer it to the calibrated values and to hand-built
+   palette or hue-family estimates for brightness, saturation, warm/cool and
+   frame change. Use the calibrated intervals only as the uncertainty around
+   it, and say when the two disagree. `peak_brightness_change` is the largest
+   frame-to-frame change in mean grey over any per-load seed; values of 0.08
+   or more are global brightness jumps.
 
 ## Select by facets
 

@@ -462,7 +462,31 @@ def _steady_state(summary,flat=None):
                 'and display_estimate does not apply'} if _display_is_exact(e,flat) else {})}
 
 
-def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=False):
+SIMULATED_KEYS=('mean_luminance','mean_abs_frame_difference','mean_flow_screen_widths_per_s',
+                'global_brightness_jumps_per_10s','mean_saturation','warm_cool')
+
+
+def _simulated_display(record):
+    """Offline display statistics of the static prediction (facet_precompute record), or None.
+
+    The prediction steps the exported source programs (no engine, no rendered frames) for 300 frames at
+    480x270 under the declared reference audio; the engine ruler's statistics measure frames 60-299.
+    """
+    if not isinstance(record,dict) or record.get('status')!='predicted':return None
+    values=record.get('statistics') or {}
+    number=lambda v:round(float(v),4) if type(v) in (int,float) and math.isfinite(v) else None
+    return {'policy':'static-prediction-display-statistics-v1','source_policy':record.get('policy'),
+            'statistics':{k:number(values.get(k)) for k in SIMULATED_KEYS},
+            'peak_brightness_change':number(values.get('peak_brightness_change')),
+            'depends_on_seed':bool(record.get('depends_on_seed')),'seeds':record.get('seeds'),
+            'random_flash':record.get('random_flash'),'random_texture_dependent':record.get('random_texture_dependent'),
+            'reference':'static prediction (source programs stepped, 300 frames at 480x270, declared reference audio), '
+                        'measured with the engine ruler statistics over frames 60-299; per-load random presets average their seeds, '
+                        'peak_brightness_change is the worst seed',
+            'uses_rendered_images':False,'uses_engine_execution':False}
+
+
+def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=False,display_statistics=None):
     from approximate_features import describe
     facts=_facts(summary)
     recipe={'policy':POLICY,'preset':copy.deepcopy(summary.get('preset')),'conventions':CONVENTIONS,
@@ -474,6 +498,8 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
     display=_display_estimate(summary)
     if display is not None:recipe['display_estimate']=display
     recipe['facets']=facets_block(summary,display)
+    simulated=_simulated_display(display_statistics)
+    if simulated is not None:recipe.setdefault('display_estimate',{})['simulated']=simulated
     recipe['intent']=intent(recipe)
     redraw=recipe['render'].get('random_redraws')
     if redraw and redraw.get('feeds') and isinstance(recipe['description'],str):
@@ -679,9 +705,11 @@ def main(argv=None):
     parser.add_argument('--source',type=Path,help='native reader source JSON for the program section')
     parser.add_argument('--output',type=Path)
     parser.add_argument('--include-program',action='store_true',help='also embed parsed equations/shaders (exact port; optional)')
+    parser.add_argument('--display-statistics',type=Path,help='facet_precompute record for this preset (offline simulated display statistics)')
     args=parser.parse_args(argv)
     recipe=build_recipe(json.loads(args.summary.read_text()),json.loads(args.source.read_text()) if args.source else None,
-                        include_program=args.include_program)
+                        include_program=args.include_program,
+                        display_statistics=json.loads(args.display_statistics.read_text()) if args.display_statistics else None)
     text=json.dumps(recipe,indent=1,allow_nan=False)
     if args.output:args.output.write_text(text+'\n')
     else:print(text)

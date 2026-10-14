@@ -239,3 +239,15 @@ def test_scalar_if_evaluates_only_the_taken_branch():
     rng = Counting()
     assert float(M.evaluate_np(graph, {'beat': 0., 'x': 7.}, rng)) == 7. and rng.calls == 0
     assert float(M.evaluate_np(graph, {'beat': 1., 'x': 7.}, rng)) == 30. and rng.calls == 1
+
+
+def test_unresolved_loop_plan_makes_the_graph_unevaluable():
+    # The exporter marks a loop it could not resolve (no plan_ref); evaluating it must report the graph as
+    # unsupported (callers fall back) instead of failing with KeyError (Acid Mandala v3 zoom terms).
+    import pytest
+    from eel_memory import evaluate_np, input_names
+    graph = {'root': 0, 'plans': [], 'nodes': [
+        {'op': 'loop_eel_result', 'dtype': 'float', 'args': [1], 'detail': {'name': 'bpm'}, 'unresolved_loop_plan': True},
+        {'op': 'constant', 'dtype': 'float', 'args': [], 'detail': {'value': 3.}}]}
+    assert input_names(graph) is None
+    with pytest.raises(ValueError):evaluate_np(graph, {})

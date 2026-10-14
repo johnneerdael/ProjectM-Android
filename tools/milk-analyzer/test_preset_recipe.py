@@ -399,3 +399,20 @@ def test_display_is_exact_when_nothing_feeds_the_canvas_and_the_composite_is_con
     assert not _display_is_exact(empty, {**flat, 'time_varying': True})
     assert not _display_is_exact(empty, {**flat, 'rgb_spread': [[.2, 0., 0.]] + [[0., 0., 0.]] * 2})
     assert not _display_is_exact(empty, None)
+
+
+def test_offline_display_statistics_join_the_display_estimate_as_simulated():
+    # facet_precompute's record (static prediction stepped and measured with the ruler's statistics) reaches
+    # readers next to the calibrated estimate; r130 squeakers: calibrated saturation 0.33, simulated 0.68, real 0.65.
+    from contract_schema import recipe_errors
+    stats = {'mean_luminance': .126, 'mean_abs_frame_difference': .041, 'mean_flow_screen_widths_per_s': .2,
+             'global_brightness_jumps_per_10s': 0., 'mean_saturation': .676, 'warm_cool': .41, 'peak_brightness_change': .02}
+    record_ = {'policy': 'static-prediction-facet-statistics-v1', 'status': 'predicted', 'depends_on_seed': False, 'seeds': [None],
+               'statistics': stats, 'random_flash': {'probability_per_frame': 0.}, 'random_texture_dependent': False}
+    recipe = build_recipe(record(), display_statistics=record_)
+    simulated = recipe['display_estimate']['simulated']
+    assert simulated['statistics']['mean_saturation'] == .676 and simulated['peak_brightness_change'] == .02
+    assert simulated['uses_rendered_images'] is False and 'frames 60-299' in simulated['reference']
+    assert not recipe_errors(recipe)
+    assert 'simulated' not in (build_recipe(record()).get('display_estimate') or {})
+    assert 'simulated' not in (build_recipe(record(), display_statistics={'status': 'error'}).get('display_estimate') or {})

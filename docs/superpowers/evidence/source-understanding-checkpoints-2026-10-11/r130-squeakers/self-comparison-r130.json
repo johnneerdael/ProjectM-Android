@@ -1,0 +1,56 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r130-v1",
+ "preset": "suksma - ed geining hateops - squeakers.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a9f1ecff1b4950e4de194f0691559014af0062689814e3a83bae12fdc1dc2247",
+  "prediction.json": "0bb3ffa945ded1b4acaa91b861db5bf33a269117cd41f5706324e50b8c81e7bb",
+  "description.json": "2b745a31a0a250a81d6d818b12763b86de7e89b5636543452ce73c9d1a2cdf8f",
+  "recipe.json": "6af9e826494d9f53e7bf7dd7a49067cd594325d40b7b1ea4298838e3b4296322",
+  "llm-look-description-v1.txt": "680ae3bcfdd00bf066d0c14b6140504d3ae8098a71b4183c9fe34c174b510cba"
+ },
+ "capture_result_sha256": "ce9d9d0b7a681c4ecead934f7335bd6d178b44a8ccf61b65e6cbb3569579b716",
+ "review_measurements_v1": {
+  "prediction_luma": 0.186,
+  "screenshot_luma": 0.214,
+  "mean_rgb_prediction": [
+   0.343,
+   0.149,
+   0.079
+  ],
+  "mean_rgb_screenshot": [
+   0.363,
+   0.185,
+   0.066
+  ],
+  "blurred_luma_correlation": 0.628,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.126,
+    0.104
+   ],
+   "saturation": [
+    0.676,
+    0.645
+   ],
+   "blurred_luma_correlation": 0.924
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0411,
+   0.0402
+  ]
+ },
+ "agreements": [
+  "frozen image layout, hues and vignette",
+  "mean luma, saturation and frame difference within 0.03",
+  "outward zoom and swirl",
+  "channel-selective trails drifting to red/yellow",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK v1: 'muted, faintly cool' vs vivid warm gold/maroon (recipe lacked the simulated statistics)",
+  "SDK v1: saturation 0.33 vs real 0.65 (calibrated estimate)"
+ ],
+ "verdict": "frozen prediction image understood: gold-orange relief body, maroon vignette, bright swirl near the centre; luma 0.126 vs 0.104, map corr 0.924, frame difference 0.041 vs 0.040, saturation 0.676 vs 0.645. SDK v1 text called it muted and faintly cool: the recipe offered only calibrated (saturation 0.33, warm_cool +0.2) and hand-built palette (warm_cool -0.87) estimates, not the prediction's own statistics. Fixed generally: the recipe now carries display_estimate.simulated (offline static-prediction statistics) and the skill prefers it."
+}

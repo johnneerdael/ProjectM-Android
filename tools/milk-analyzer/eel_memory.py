@@ -149,7 +149,8 @@ def input_names(expression, *, stochastic=False):
     allowed = SUPPORTED | MEMORY_OPS | LOOP_OPS | BITWISE_OPS | (STOCHASTIC if stochastic else set())
     names = set()
     for node in expression['nodes']:
-        if node.get('op') not in allowed:
+        # A loop the exporter could not resolve carries no plan: the graph cannot be evaluated.
+        if node.get('op') not in allowed or (node.get('op') in ('loop_eel_result', 'loop_eel_slot') and 'plan_ref' not in (node.get('detail') or {})):
             names = None;break
         if node.get('op') == 'input':names.add(node.get('detail', {}).get('name'))
     if len(_NAMES_CACHE) > 200000:_NAMES_CACHE.clear()
