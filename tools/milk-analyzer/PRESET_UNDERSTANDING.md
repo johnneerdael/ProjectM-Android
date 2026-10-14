@@ -2001,3 +2001,40 @@ jump in the engine (0.085–0.111), while the static prediction peaks below
 it. The precompute now records the peak change, so the No strobe facet can
 require headroom below 0.08. A re-run of the held-out validation at the
 current code is in progress.
+
+### r129–r131 and the group losers (2026-10-14)
+
+- **One rand stream, in statement order.** projectm-eval feeds every block
+  from one Mersenne Twister. At load: main init, then all wave inits, then
+  all shape inits (enabled or not). Each frame: main per-frame code, then
+  per-pixel code at every mesh vertex, then the enabled shapes per
+  instance, then the waves (per-frame, then per-point for each sample).
+  `source_rand_stream` counts the draws of each block. The cold-stream
+  stepper skips the draws the other blocks take. Within a main block, each
+  always-running rand call site draws once, in site order, and every
+  inlined copy shares that draw. Guarded sites draw only when they run.
+  Before this fix, init draws followed alphabetical variable order:
+  suksma byT's `index4 = int(rand(2)); index3 = int(rand(4))` took swapped
+  values, and its late fade to black never appeared.
+- **Composite-shader mirrors are measured, not pattern-matched.**
+  `mirror_symmetry` evaluates the exported composite on two noise canvases.
+  It correlates the canvas-driven display difference with its own flips,
+  above a shifted-copy null; blurred noise correlates by chance. This
+  catches uv_echo flips, `1-uv` samples and `abs(frac())` kaleidoscopes,
+  including ones followed by nonlinear transfers (r129: ×50, then
+  solarize).
+- **Flat transfers need faint levels.** A composite can do all its work
+  below 2% of full (r129 shows 1–4/255 white and 8/255 or more black).
+  `stage_transfer` now samples 1, 2, 4, 8, 16 and 32/255 as well as the
+  quarters.
+- **Readers need the prediction's own statistics.** The recipe carries
+  `display_estimate.simulated`: this preset's static prediction measured
+  with the ruler statistics. It includes hue shares and, for seed-dependent
+  presets, each load's outcome; the cold load is one of them. r130: the
+  cold-load prediction matched the emulator capture (orange 0.727/0.708,
+  saturation 0.586/0.585). The calibrated estimate had said muted and
+  cool.
+- **Per-frame sample counts.** A wave that sets `samples` in its per-frame
+  code was dropped. Demonlord's opaque black thick wave scribbles over the
+  whole canvas every frame; without it the prediction was 0.5 too bright.
+  It is now near frame-exact. 196 presets enable such a wave.
