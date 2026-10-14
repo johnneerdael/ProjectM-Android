@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r147-v1",
+ "preset": "EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "7287d40ac795841c851cc631b4d42735c6868ea2f3b13410b6dadf4cb67701da",
+  "prediction.json": "056c663621001aa2d843d01b809b83958cd8ed99a4385ea5c992d79842d2f206",
+  "description.json": "031e079c2f271f21d745cefa6e21c1d1b26aea90dabc3b7367eb950971e38d8f",
+  "recipe.json": "68eb02571b5f6861d5973580082fc54b9707cb3f377ff53c9ab3967bf70433f1",
+  "llm-look-description-v1.txt": "1554581236d143cb2edf65a727f0fbc5f747f2045dd6b15cdfcd35a3b9f8e949"
+ },
+ "capture_result_sha256": "661331987d5a637df06f713a5b1114a5e74d43449a76297932b32437fe45efc1",
+ "review_measurements_v1": {
+  "prediction_luma": 0.267,
+  "screenshot_luma": 0.275,
+  "mean_rgb_prediction": [
+   0.541,
+   0.211,
+   0.009
+  ],
+  "mean_rgb_screenshot": [
+   0.553,
+   0.219,
+   0.008
+  ],
+  "blurred_luma_correlation": 0.978,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.313,
+    0.32
+   ],
+   "saturation": [
+    0.875,
+    0.873
+   ],
+   "blurred_luma_correlation": 0.988
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0311,
+   0.0296
+  ]
+ },
+ "agreements": [
+  "map correlation 0.988 and frame-by-frame luma",
+  "four-fold mirror",
+  "warm palette",
+  "no strobe"
+ ],
+ "misses": [
+  "SDK: 'mostly dark' slightly under (luma 0.32)"
+ ],
+ "verdict": "understood: frozen prediction near frame-exact (time-average map corr 0.988, luma 0.313 vs 0.320, frame difference 0.031 vs 0.030, luma arc frame by frame); SDK names the warm orange/red/yellow palette, four-fold mirror symmetry, bass-driven zoom and no flashing, though it calls the picture mostly dark (luma 0.32)."
+}
