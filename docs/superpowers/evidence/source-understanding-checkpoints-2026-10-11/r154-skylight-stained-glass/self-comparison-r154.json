@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r154-v1",
+ "preset": "EoS and Zylot - skylight (Stained Glass Majesty mix).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9aef50a56d2347fe95df9d3ea746ebea74c97bf171bb2985d772eb8e99842b07",
+  "prediction.json": "09d04c33a5e2129975051804970b97bf695cca8969b9d218999cc2e3b562332c",
+  "description.json": "3ef045457c5679406ee2bee2d62fc894a2115ad6b87fa1fd0a6af75afe3b0d92",
+  "recipe.json": "b9a8dba7005030f9caa278ba685308bedb648ddf939cf9703685f02082a81270",
+  "llm-look-description-v1.txt": "b5cd928920f28c80a46031f780179d3e1f85e5acf761fea63b192ed481e017c7"
+ },
+ "capture_result_sha256": "45687f4b41227cbc98fec1c020baa54e30787ebb34433114b3a372cadfe02e1c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.566,
+  "screenshot_luma": 0.582,
+  "mean_rgb_prediction": [
+   0.569,
+   0.563,
+   0.585
+  ],
+  "mean_rgb_screenshot": [
+   0.625,
+   0.564,
+   0.63
+  ],
+  "blurred_luma_correlation": 0.974,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.428,
+    0.406
+   ],
+   "saturation": [
+    0.265,
+    0.376
+   ],
+   "blurred_luma_correlation": 0.986
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0249,
+   0.024
+  ]
+ },
+ "agreements": [
+  "frozen prediction layout, palette and arc",
+  "v2: nested tilted squares (recursive copy)"
+ ],
+ "misses": [
+  "SDK v1: static (frame-copy recursion not in the recipe)",
+  "SDK v2: recursion named, rotation/zoom motion still understated"
+ ],
+ "verdict": "frozen prediction matches the capture (time-average map corr 0.986, luma 0.428 vs 0.406, frame difference 0.025 vs 0.024, luma arc frame by frame): a rotating, zooming stained-glass spiral. SDK v1 called it mostly static because the mesh has no zoom/rotation; the spiral comes from a textured shape that copies the previous frame (tex_zoom .534, tex_ang .94). The recipe now carries the shape texture and a frame_copy effect; v2 reads nested, tilted squares (recursion) but still no whole-image motion."
+}

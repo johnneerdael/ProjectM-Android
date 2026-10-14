@@ -184,6 +184,12 @@ full recipe tens of thousands of lines long.
    patterned rather than a dark background with a few drawn elements, and read
    its look through the composite palette. Its flat-content gain is
    `flat_gain_by_lane`; flat-content persistence alone understates coverage.
+   A `frame_copy` effect is a textured shape that draws the previous frame
+   into its polygon, zoomed by `tex_zoom` and turned by `tex_angle_rad`.
+   Each frame copies the last one, so the copies nest recursively into a
+   spiral tunnel or droste picture that rotates and zooms on screen, even
+   when the mesh has no zoom or rotation. Describe that motion; do not call
+   the picture static because the warp is still.
    A `radial_streaks` effect means a strong one-way zoom combined with slow
    trails. Every retained copy is scaled again, so drawn or textured detail
    becomes streaks along rays through the zoom centre: a starburst or

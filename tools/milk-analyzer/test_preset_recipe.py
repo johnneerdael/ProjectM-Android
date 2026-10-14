@@ -444,3 +444,17 @@ def test_strong_zoom_with_slow_trails_reads_as_radial_streaks():
     (streaks,)=[e for e in intent(recipe)['effects'] if e['effect']=='radial_streaks']
     assert streaks['direction']=='inward' and streaks['half_life_frames']==54
     assert math.isclose(streaks['radial_scale_over_half_life'],(1-.045)**54,rel_tol=1e-9)
+
+
+def test_textured_shape_copying_the_previous_frame_reads_as_a_recursive_frame_copy():
+    # EoS and Zylot - skylight: shape_0 is textured with the previous frame, tex_zoom .534 and tex_ang .94. Each
+    # frame redraws a scaled, rotated copy inside the polygon, building a spiral tunnel with no mesh zoom or rotation.
+    rec=record()
+    groups=rec['facts']
+    groups['construction'].append({'path':BASE+'/elements/1/material','value':{'texture':{'role':'previous_main','tex_zoom_source':.534,
+                                                                                        'tex_angle_source_rad':.94}}})
+    recipe=build_recipe(rec)
+    layer=[l for l in recipe['render']['layers'] if l['id']=='shape_0'][0]
+    assert layer['texture']=={'role':'previous_main','tex_zoom':.534,'tex_angle_rad':.94}
+    (copy,)=[e for e in recipe['intent']['effects'] if e['effect']=='frame_copy']
+    assert copy['layer']=='shape_0' and copy['tex_zoom']==.534 and copy['tex_angle_rad']==.94

@@ -101,6 +101,11 @@ def _layer(facts,index):
     if curve is not None:layer['analytic_curve']=_curve(curve)
     controls=[_control(v) for p,v in sorted(facts.items()) if p.startswith(path+'/motion_controls/') and isinstance(v,dict)]
     if controls:layer['controls']=controls
+    texture=((facts.get(path+'/material') or {}).get('texture') or {}) if isinstance(facts.get(path+'/material'),dict) else {}
+    if texture.get('role') and texture['role']!='untextured_vertex_gradient':
+        # Textured shapes draw an image into the polygon: previous_main is the last frame (a feedback copy).
+        layer['texture']={'role':texture['role'],**{out:texture[key] for key,out in (('tex_zoom_source','tex_zoom'),('tex_angle_source_rad','tex_angle_rad'))
+                                                     if type(texture.get(key)) in (int,float)}}
     geometry=facts.get(path+'/geometry')
     if isinstance(geometry,dict):
         layer['geometry']={k:geometry.get(k) for k in ('radius_ndc','effective_sides','configured_instances','center_source_xy') if geometry.get(k) is not None}
@@ -875,6 +880,12 @@ def intent(recipe):
             effects.append({'effect':'shapes','sides':geometry.get('effective_sides') or layer['constants'].get('sides'),
                             'instances':geometry.get('configured_instances') or layer['constants'].get('instances'),
                             'radius':geometry.get('radius_ndc'),'moving':bool(layer.get('controls') or layer.get('centre_axes'))})
+            texture=layer.get('texture') or {}
+            if texture.get('role')=='previous_main' and (texture.get('tex_zoom',1)!=1 or texture.get('tex_angle_rad',0)!=0):
+                # Every frame the polygon shows the previous frame zoomed by tex_zoom and turned by tex_angle: the copies
+                # nest recursively (spiral tunnels, droste effects) with no mesh zoom or rotation.
+                effects.append({'effect':'frame_copy','layer':layer['id'],'tex_zoom':texture.get('tex_zoom'),'tex_angle_rad':texture.get('tex_angle_rad'),
+                                'condition':'recursive while the copy is drawn with enough alpha; static values (per-frame expressions may change them)'})
         elif str(layer['id']).startswith('wave_'):
             cloud=layer.get('point_cloud') or {}
             effects.append({'effect':'custom_waveform','layer':layer['id'],
