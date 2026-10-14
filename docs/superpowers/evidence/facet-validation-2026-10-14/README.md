@@ -118,3 +118,43 @@ they exposed:
 a positive flash probability already flash at the probed frame, and their
 static jump counts agree with the engine. No calm preset carried a hidden
 random-draw flash in this sample.
+
+## Held-out set at the current code (snapshot 09863b63, n=196)
+
+The run uses the same selection after the No strobe fixes, the exact
+noise generator, the cold-start `rand` stream and lazy `if()`. Each preset
+is re-exported. The run predates the per-frame motion-vector grid,
+line-wave sample cap, per-frame legacy filters and shape flag recurrence
+(later commits).
+
+| Spearman vs engine ruler (n=196) | Static prediction | Calibrated model |
+|---|---|---|
+| mean_luminance | 0.866 | 0.685 |
+| mean_abs_frame_difference | 0.902 | 0.755 |
+| mean_flow_screen_widths_per_s | 0.908 | 0.718 |
+| global_brightness_jumps_per_10s | 0.915 | 0.801 |
+| mean_saturation | 0.915 | 0.719 |
+| warm_cool | 0.841 (n=188) | 0.647 |
+
+Facet agreement, direct: energy 0.831, brightness 0.852, colour 0.815,
+movement 0.857, comfort 0.926, mean 0.856. Before these fixes the mean was
+0.823; the calibrated model reaches 0.611. Energy, brightness and movement
+meet their targets.
+
+**No strobe.** With zero predicted jumps as the only rule, 98 presets are
+predicted safe and 7 are false negatives. Adding headroom on the
+recorded peak frame-to-frame change gives:
+
+| Rule | Predicted safe (of 98 engine-calm) | False negatives |
+|---|---|---|
+| zero jumps | 98 | 7 |
+| + peak < 0.06 | 90 | 4 |
+| + peak < 0.05 | 84 | 3 |
+| + peak < 0.04 | 75 | 1 |
+
+The remaining false negative is "only glimpses of the reality…", which
+samples a random library texture. `random_texture_dependent` flags it.
+Zero jumps, peak < 0.04 and no random-texture dependence therefore give 0
+false negatives on this held-out set, keeping 75 of the 98 calm presets.
+That is a candidate safety rule, to be re-checked on the corpus
+precompute.
