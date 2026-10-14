@@ -1,0 +1,78 @@
+{
+ "checkpoint": "r119-v2",
+ "analyzer_commit": "61a868d6",
+ "prediction": "unseeded illustration with the cold-start projectm-eval rand stream and lazy if()",
+ "luma_every_12_frames_prediction_capture": [
+  [
+   0,
+   0.892,
+   0.988
+  ],
+  [
+   12,
+   0.264,
+   0.238
+  ],
+  [
+   24,
+   0.261,
+   0.216
+  ],
+  [
+   36,
+   0.654,
+   0.611
+  ],
+  [
+   48,
+   0.14,
+   0.234
+  ],
+  [
+   60,
+   0.323,
+   0.18
+  ],
+  [
+   72,
+   0.46,
+   0.373
+  ],
+  [
+   84,
+   0.727,
+   0.655
+  ],
+  [
+   96,
+   0.097,
+   0.229
+  ],
+  [
+   108,
+   0.36,
+   0.401
+  ],
+  [
+   120,
+   0.72,
+   0.621
+  ],
+  [
+   132,
+   0.761,
+   0.904
+  ],
+  [
+   144,
+   0.781,
+   0.767
+  ]
+ ],
+ "time_average_frames_60_149_luma": [
+  0.568,
+  0.579
+ ],
+ "verdict": "per-load state reproduced: frames 60-149 luma 0.568 vs 0.579 (v1 0.787); a few frames still differ (48, 60, 96)",
+ "note": "fresh v2 prediction after the capture, validating the corrected math; v1 stays frozen"
+}
