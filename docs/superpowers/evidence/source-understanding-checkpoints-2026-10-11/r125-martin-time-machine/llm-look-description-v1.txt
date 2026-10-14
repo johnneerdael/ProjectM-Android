@@ -1,0 +1,41 @@
+LLM look description from the SDK recipe, source parts only (before capture, r125 v1, core recipe view; the recipe's engine-measured facets block was deliberately not used):
+
+Approximate look after about 5 seconds: a mid-to-dark, green-tinted screen seen through an embossed (relief) composite, with a central ring-like disc, a horizontal line of coloured points across the middle, and a few small orange squares near the centre band. I expect it to be busy and possibly flickery rather than calm. Confidence is low to moderate; several decisive parts are unresolved.
+
+Core picture
+- Shape 0 is a 64-sided polygon, so effectively a circle, centred at (0.5, 0.5) and stationary. Its radius is 0.3595 in normalized units, which is roughly a third of the screen height. Its centre colour is cyan (r0, g1, b1) and its perimeter colour is white. It has a yellow border (1, 1, 0). How much of this survives on screen is not known, because its opacity is driven by audio through thresholds and clamps, and its blend and texture are not resolved.
+- Shape 1 is 12 instances of a small 4-sided shape (a diamond or square). The radius is 0.0222, so each is tiny, about 2% of the screen. The colour is orange (1, 0.6, 0) with an orange-yellow border. The y position of the instances stays within 0.34 to 0.66, which is a band around the middle of the screen. The x position is unknown. The recipe flags the group as moving, but no speed is given. I picture a dozen small orange markers spread across the middle band.
+- Custom wave 0 draws 128 points per frame along a horizontal line at y = 0.5, with x running from 0 to 1. The points are coloured about 29% pink, 29% green, 14% grayscale, 14% blue and 14% red. Mean saturation is 0.65 and alpha is 1. So there is a horizontal beaded or dotted line of mixed colours straight across the screen centre. It is the most colourful element. Whether it is drawn as a continuous line or only points is not resolved.
+- The built-in wave is an angled waveform trace (mode 6, thick, additive) at the centre, tilted about 0.60 rad (about 34 degrees). Its colour is black (0, 0, 0) and its alpha is 0.001, so it should be essentially invisible.
+- The composite stage is a gradient-relief (emboss) shader with 2 directions. Flat regions all read as a single level, while edges and texture stand out like lit relief. Edges of the circle, the points and the squares should therefore look like raised or etched outlines.
+
+Colour
+- Overall hue is green. The steady-state display colour is about (0.22, 0.48, 0.26), with a spread of about (0.23, 0.50, 0.28). This is a lower bound on level and a hue cue.
+- The composite's flat-canvas palette, averaged over t = 2, 5 and 8 s, runs from nearly black (0.03, 0.05, 0.02) at canvas level 0, through (0.13, 0.27, 0.13) at level 0.5, to (0.23, 0.50, 0.28) at level 1. It is a dark-to-mid green ramp, with green clearly dominant (G is about twice R and B).
+- The ramp's channel spread is large (up to about 0.53 in R and 0.45 in B at the top level). This means the tint shifts over time, so the green may drift toward other tints rather than staying one fixed shade.
+- The disc's cyan and white and the yellow border, the orange squares and the multicolour wave points are drawn colours. Those feed the canvas and are then shown through this green-leaning transfer, so their saturation may be muted or recoloured.
+- A faint outer border is white at alpha 0.05 and covers about 0% of the screen.
+
+Brightness and contrast
+- Flat areas are mid-dark green. Brightness is concentrated in the embossed edges and the coloured points. I expect moderate-to-low overall brightness (flat areas about 0.03 to 0.5 per channel, mostly green) with local bright detail, so contrast is moderate to high at edges and low in flat fields.
+- The warp's flat-colour transfer is gain -1 with offset +1 for all three channels, linear, with a halving of 1 frame. That means flat content is inverted every frame (x becomes 1 - x). The canvas steady state is therefore near 0.95, which is nearly white before the composite. Persistence in the usual sense is absent: content does not leave a fading trail, it flips polarity each frame.
+- Because the composite maps canvas level to colour, a per-frame inversion could make flat regions alternate between a darker and a lighter green on successive frames. Level 0.25 maps to about (0.08, 0.15, 0.07) and level 0.75 to about (0.18, 0.39, 0.20). The relief shader may hide some of this, but this is the main flicker risk (see Motion and Audio response).
+
+Motion
+- Global warp motion is tiny. Zoom is 0.9999 per step, so the image contracts toward the centre by about 0.01% per step. Rotation is 0 and dx and dy are 0. Shape 0 and its position are stationary (speed 0).
+- A periodic spatial wobble (ripple) displacement is present in the warp stage, with warp amount 0.01. Magnitudes and speed are not given, so expect a slight shimmer or rippling rather than large movement. The mesh sampling diagnostic ceiling is only about 0.0034 viewport units per second.
+- The wave points follow the audio waveform vertically in the usual way for such waves, and the small orange squares are moving (the recipe flags them as moving), so most visible motion comes from these drawn elements, not from the camera or feedback. Speeds for these are unknown.
+- Overall I expect: a mostly static composition (central disc, middle line, scattered squares) with slight ripple shimmer and gentle inward creep, plus audio-driven wiggle of the line.
+
+Audio response
+- Bass, mid and treble all route into the opacity, perimeter opacity and outline opacity of both shapes. They also route into the R, G and B colour of the warp shader and the composite shader.
+- Every route is marked as threshold or clamped, and none has a known linear gain. I therefore cannot say how strong the reaction is. Qualitatively, the circle and squares should fade in and out, or flash their fill and border, with the music. The overall green tint and brightness may also shift with it.
+- The built-in wave and wave 0 listen to the waveform (the left channel), so the line shape follows the sound.
+- Flashing and strobing: not established, but a real risk. Two separate mechanisms exist. First, audio-driven opacity and colour on large elements (the 0.36-radius disc and the composite colour) with thresholds can produce on/off pulses. Second, the per-frame polarity inversion in the warp could produce a frame-to-frame alternation of flat areas. I would not call this safe for a no-strobe setting, and I expect possible visible brightness jumps with the music. Their size and rate are unresolved. The recipe's approximate mood layer assumes about 4 coherent transitions per second at a peak delta of 0.3, but that figure is an assumption and not a measurement.
+
+Mood and intensity (approximate, editable)
+- The approximate mood layer says Intense with high confidence, but it rests on assumed motion and flash features. The strict source model records no eligible mood group, so I treat this lightly. I would describe it as moderate-to-lively in activity, geometric in style (concentric disc, line, small squares), warm-leaning by the mood scores (about 82 warm) even though the dominant flat colour is green, and not fractal or symmetric.
+
+Uncertainty
+- Biggest unknowns: audio gains and thresholds for every route, how the per-frame inversion actually looks after the composite, the blend and texture of the shapes, the x positions and speeds of the small squares, whether wave 0 appears as a line or as dots, and the actual feedback persistence (the recipe gives no decay value).
+- Whether the picture reads as mostly dark green with bright accents, or as a stronger flickering light-green field, depends on those unresolved items. Colours of the drawn elements may be recoloured by the green transfer. Everything above is a source-based expectation, not an observation.

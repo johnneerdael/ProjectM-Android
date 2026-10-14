@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r125-v1",
+ "preset": "martin - time machine roam3 hosbital bilsce.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "db01b49d1eb248b600e49107188c717a12f57a24f8edbf1701669e731b94f7c0",
+  "prediction.json": "ca6a23a28bfc95027841a2782d75ea981d3bc97d78fa912e3a044a7dccca56d5",
+  "description.json": "e2c10fa39036454f59a41bf298b88ab2249092df3cb8d74e2612b8ae6ad897e8",
+  "recipe.json": "4ed62b1f2525fa38797b41f5c9024894dabb295493016b92c07ce06351bed94a",
+  "llm-look-description-v1.txt": "7c55865cba388427d4bd75149c887dc029eb146c281b57ec72b179a5c404785b"
+ },
+ "capture_result_sha256": "268bffa27e23d95f85468724c831f8bbd73fd57167dca68224d93a091bf1948f",
+ "review_measurements_v1": {
+  "prediction_luma": 0.433,
+  "screenshot_luma": 0.423,
+  "mean_rgb_prediction": [
+   0.441,
+   0.435,
+   0.386
+  ],
+  "mean_rgb_screenshot": [
+   0.427,
+   0.426,
+   0.377
+  ],
+  "blurred_luma_correlation": 1.0,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.342,
+    0.34
+   ],
+   "saturation": [
+    0.316,
+    0.314
+   ],
+   "blurred_luma_correlation": 1.0
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2965,
+   0.3176
+  ]
+ },
+ "agreements": [
+  "frames 60-149 mean colour 0.284/0.367/0.259 vs 0.283/0.366/0.259; map correlation 1.0; screenshot luma 0.433 vs 0.423",
+  "luma series 0.090/0.060, 0.147/0.154, 0.388/0.399, 0.275/0.266, 0.690/0.699, 0.220/0.211; frame difference 0.297 vs 0.318 (a strobing preset)",
+  "SDK description: not safe for a no-strobe setting, visible brightness jumps with the music"
+ ],
+ "misses": [
+  "frame 15 differs (0.052 vs 0.260)"
+ ],
+ "verdict": "understood frame by frame (a hard strobe)"
+}
