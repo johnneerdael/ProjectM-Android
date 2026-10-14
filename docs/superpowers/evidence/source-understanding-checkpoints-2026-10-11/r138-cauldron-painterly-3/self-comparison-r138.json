@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r138-v1",
+ "preset": "Geiss - Cauldron - painterly 3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "750f1c67da41bfec56475b1d7e03b36f449f81794e5ce1b3a08bd2b31b4f88c2",
+  "prediction.json": "5228872040e422f60d6763eabd225c6668c343bf122140d981a61da02d0dc21c",
+  "description.json": "702825b97c35394c19a69bc5fdf3a1ea2cc2a7934c348c76f1ef4d7b2243c1f3",
+  "recipe.json": "2d77b2ad85b858a1067839cb5d205dc6daa39bb06f70cf0dac5b1e3254252bc5",
+  "llm-look-description-v1.txt": "a825038f7386f8ccd53bac696626bcd04699e4d881367100b5913b7eb9978fe9"
+ },
+ "capture_result_sha256": "a385d936031fbd8a320da8f6435981462aa06985bbacaeb665217ea6d7263de2",
+ "review_measurements_v1": {
+  "prediction_luma": 0.306,
+  "screenshot_luma": 0.227,
+  "mean_rgb_prediction": [
+   0.193,
+   0.335,
+   0.354
+  ],
+  "mean_rgb_screenshot": [
+   0.15,
+   0.246,
+   0.262
+  ],
+  "blurred_luma_correlation": 0.815,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.216,
+    0.166
+   ],
+   "saturation": [
+    0.425,
+    0.423
+   ],
+   "blurred_luma_correlation": 0.961
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.023,
+   0.0214
+  ]
+ },
+ "agreements": [
+  "map correlation 0.961",
+  "layout, hues and painterly trails",
+  "brightness arc",
+  "no strobe"
+ ],
+ "misses": [
+  "brightness 30% high late (accumulation slightly too strong)"
+ ],
+ "verdict": "understood: frozen prediction is the same picture as the capture (teal painterly swirl, salmon wave trail, dark pocket; time-average map corr 0.961, frame difference 0.023 vs 0.021); brightness grows on the same arc but about 30% high by frame 135 (0.295 vs 0.217). SDK names the dark base, colour-cycling wave smeared into spiralling painterly trails, no strobe."
+}
