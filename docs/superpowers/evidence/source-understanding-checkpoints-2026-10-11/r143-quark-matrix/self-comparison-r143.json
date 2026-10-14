@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r143-v1",
+ "preset": "fiShbRaiN - quark matrix.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "3ed34cbc7a72b8c51ba114a0a4a7f60e5cecdf7b6f1f038513f759c4cde64f4a",
+  "prediction.json": "2be796d4bf46bb38dac9acb176a780cf888bc992b9075d7bf978057adf370ba5",
+  "description.json": "88ee8b7861a923831ec3352918675b143ee8119444f0c3fac2f9c8de0a510eec",
+  "recipe.json": "f50dd9e9177a08e7127717a7cc1833f05639d3bfbb6ce5b32f61a5a5fce34d73",
+  "llm-look-description-v1.txt": "b23604731c2be74f8fda704165ff0a3b3a42d34d3ad839a1adfad01c6976c94b"
+ },
+ "capture_result_sha256": "d5835a0c1627aabb2649fb4bad176538de62f5794aa2aceb9d1c13d1551a05bf",
+ "review_measurements_v1": {
+  "prediction_luma": 0.063,
+  "screenshot_luma": 0.079,
+  "mean_rgb_prediction": [
+   0.029,
+   0.033,
+   0.461
+  ],
+  "mean_rgb_screenshot": [
+   0.045,
+   0.054,
+   0.424
+  ],
+  "blurred_luma_correlation": 0.824,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.026,
+    0.03
+   ],
+   "saturation": [
+    0.886,
+    0.858
+   ],
+   "blurred_luma_correlation": 0.996
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.032,
+   0.0332
+  ]
+ },
+ "agreements": [
+  "map correlation 0.996 and frame-by-frame luma",
+  "deep blue glow with white traces",
+  "dim, no strobe"
+ ],
+ "misses": [
+  "SDK: 'near-monochrome' vs saturated deep blue"
+ ],
+ "verdict": "understood: frozen prediction near frame-exact (time-average map corr 0.996, luma 0.026 vs 0.030, frame difference 0.032 vs 0.033, luma arc frame by frame; deep blue glow, white wave traces). SDK: dim, blue-ish disc, thick wave trace, bass zoom pulses, no strobe; it calls the picture near-monochrome although it is a deeply saturated blue (0.86)."
+}
