@@ -1907,3 +1907,44 @@ illustration numeric policy now uses that rule; strict policies still refuse
 these domains. GLSL leaves them undefined, so TV GPUs may differ. r104:
 frames 60–149 luma 0.158 → 0.249 (engine 0.243). 3,921 presets use `pow` in
 their shaders.
+
+### r118–r119: per-frame and per-load random draws
+
+r118 (suksma - satisfy gradientured servants) matched the capture over frames
+60–149 (correlation 0.974), but the capture flashed once at frame 115 (luma
+0.27 → 0.75). The native engine with the same audio did not flash under four
+random seeds, and neither did the prediction. The warp adds
+`.051/length(.4*sin(uv1*18*rand_frame.xy))`, which is singular in the draw.
+When both `rand_frame.x` and `.y` are small at the frame-114 treble hit, it
+floods the centre. Forcing such a draw in the illustration reproduces the
+white blob. `rand_frame` is a fresh uniform draw for each shader on every
+frame (`MilkdropShader::LoadVariables`), so the illustration now gives the
+warp and composite separate streams. A few seeded runs cannot show such a
+tail event. `facet_precompute.random_flash` re-evaluates the loudest frame
+(60–149) under extreme draws of the active components (log grid near 0 and
+1) and integrates the uniform distribution. For r118 the flash probability
+at frame 114 is 0.009, with a worst jump of 0.69. On the held-out sample,
+17 of 100 presets read `rand_frame` in an exported program. Only presets
+that already flash at the probed frame had a positive probability.
+
+r119 (xtramartin (301)) flashed white on the same beat frames as the capture.
+The identity-composite canvas matched the native engine frame by frame. The
+remaining gap, a brighter picture between flashes, comes from per-load state:
+`int(rand(8))` symmetry indices, a random dynamic-zoom phase and random
+switches. projectm-eval's `rand` is MilkDrop's Mersenne Twister with the
+fixed seed 0x4141f00d, kept per thread by patch 0004. A cold load (native
+ruler, emulator capture) therefore always gets the same draws, and four
+`srand` seeds gave identical engine output. In the app the GL thread's
+stream continues from earlier presets, so users see a different draw at
+each load. Averaging seeds, as the facet precompute does, models that. Six
+illustration seeds give frames 60–149 luma 0.49–0.69 around the engine's
+0.57. Reproducing the cold stream exactly would need statement-order
+execution of the equations, which this predictor does not do.
+
+While checking the composite, `MilkdropNoise` was ported exactly. Texel
+bytes are `(rand % RANGE) + RANGE/2`, packed with a top-byte wrap and a
+ninth-bit carry. Smoothing uses `dwCubicInterpolate` per byte (float cubic,
+clamp, truncation) on the lattice lines. `generate3D` addresses texels as
+`z*size + y*size + x`, so its smoothing touches only the first two slices'
+memory. Slices 2–31 of `noisevol_hq` keep raw bytes, 0–67 and 108–255.
+2,167 presets sample `noisevol_hq`.
