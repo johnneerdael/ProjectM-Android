@@ -43,7 +43,9 @@ def _saturation(rgb):
     return 0. if high<=1e-9 else (high-min(rgb))/high
 
 
-LEVELS=(0.,.25,.5,.75,1.)
+# Flat canvas levels: 8-bit steps 1..32/255 (faint trails and decaying feedback, where high-gain composites
+# such as x50 then solarize do all their work) plus quarters up to full.
+LEVELS=(0.,1/255,2/255,4/255,8/255,16/255,32/255,.25,.5,.75,1.)
 TIMES=(2.,5.,8.)
 
 

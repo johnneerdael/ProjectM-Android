@@ -176,3 +176,23 @@ def test_channel_mixing_composite_is_evaluated_at_the_canvas_colour(monkeypatch)
     transfer = E.stage_transfer(facts, 'composite')
     shown, model = E._composite([0., 1., 0.], facts, [], transfer)
     assert model == 'composite_transfer' and max(shown) < 1e-6
+
+
+def test_flat_transfer_resolves_faint_canvas_levels():
+    # suksma kcigam spoo: ret = tex2D(main, uv)*50; ret = ret*(1-ret)*12. Only levels below 2% of full show:
+    # 1/255 .. 4/255 display bright, 0.25 .. 1 display black. A grid of quarters alone reports all black.
+    from feedback_equilibrium import stage_transfer
+    nodes = [{'op': 'multiply', 'dtype': 'float3', 'args': [1, 7], 'detail': {}},
+             {'op': 'multiply', 'dtype': 'float3', 'args': [2, 5], 'detail': {}},
+             {'op': 'multiply', 'dtype': 'float3', 'args': [3, 8], 'detail': {}},
+             {'op': 'member', 'dtype': 'float3', 'args': [4], 'detail': {'field': 'xyz', 'swizzle': True}},
+             {'op': 'sample', 'dtype': 'float4', 'args': [9], 'detail': {'sampler': 'sampler_main', 'canonical_texture': 'main', 'site_index': 0, 'intrinsic': 'tex2D'}},
+             {'op': 'subtract', 'dtype': 'float3', 'args': [6, 2], 'detail': {}},
+             {'op': 'constant', 'dtype': 'float', 'args': [], 'detail': {'value': 1.}},
+             {'op': 'constant', 'dtype': 'float', 'args': [], 'detail': {'value': 12.}},
+             {'op': 'constant', 'dtype': 'float', 'args': [], 'detail': {'value': 50.}},
+             {'op': 'input', 'dtype': 'float2', 'args': [], 'detail': {'name': '_uv'}}]
+    facts = {'/analysis/visual_description/stage_programs': {'stages': {'composite': {'status': 'exported', 'program': {'root': 0, 'nodes': nodes, 'plans': []}}}}}
+    table = stage_transfer(facts, 'composite')
+    bright = [level for level, rgb in zip(table['levels'], table['rgb']) if rgb[0] > .9]
+    assert bright and max(bright) < .02 and table['rgb'][-1][0] == 0.
