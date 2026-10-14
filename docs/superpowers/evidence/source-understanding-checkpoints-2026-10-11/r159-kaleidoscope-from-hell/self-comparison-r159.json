@@ -1,0 +1,57 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r159-v1",
+ "preset": "Stuttler - Kaleidoscope From Hell.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "96b0271c42cd5a997ec0960bcfb94f3b4fb5960b54d268eff1b05161982d1fac",
+  "prediction.json": "fac4f0aa4c7368d4bd0f526e18a8105bcd0624b469e4a11705a55adcb7a13526",
+  "description.json": "ba97756a43613d1d32b1de790a1f67b09f69f7d33cd39fc73fef5080ee3c4930",
+  "recipe.json": "e7a0ad740b4b27d0610c84af92cb97a614a3137ccb5f716613d1ff24d39c22ce",
+  "llm-look-description-v1.txt": "2a8d1a53b0355bea46fa9d739472832c1baea3ff4b6c47146d51a26d79236535"
+ },
+ "capture_result_sha256": "3f5b927af1bd5073f48ac74fc211d316c05cd38f1d5c39296c8751425e724b2d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.864,
+  "screenshot_luma": 0.894,
+  "mean_rgb_prediction": [
+   0.855,
+   0.865,
+   0.881
+  ],
+  "mean_rgb_screenshot": [
+   0.935,
+   0.878,
+   0.939
+  ],
+  "blurred_luma_correlation": 0.53,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.791,
+    0.778
+   ],
+   "saturation": [
+    0.075,
+    0.137
+   ],
+   "blurred_luma_correlation": 0.667
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0759,
+   0.0739
+  ]
+ },
+ "agreements": [
+  "brightness: SDK calibrated luma 0.63 (0.45-0.87) contains real 0.78",
+  "saturation: SDK 0.16 vs real mean 0.137",
+  "structure: central dotted scope smeared into a rotating radial mandala with a dark centre",
+  "motion: strong rotation, radius-dependent zoom ripples, short trails (decay 0.98), no drift",
+  "no strobe: none found, none seen",
+  "per-load random hue placement correctly flagged"
+ ],
+ "misses": [
+  "tint is per-load random (fShader hue shader): a single seed cannot match the capture's pink; only the low-saturation magnitude is predictable",
+  "map corr 0.67: fine streak placement is chaotic"
+ ],
+ "verdict": "frozen prediction right on structure, brightness and motion (frames 60-149 luma 0.791 vs 0.778, frame difference 0.076 vs 0.074, map corr 0.67): pale rotating feedback fan around a dark central disc. Tint differs (prediction neutral, capture pink-magenta): the legacy fShader=1 hue shader tints the four corners with per-load random phases (m_fRandStart), which the recipe and the SDK text both report as random per load. bRedBlueStereo=1 is parsed but unused by projectM 4.1.7, so it cannot explain the tint."
+}
