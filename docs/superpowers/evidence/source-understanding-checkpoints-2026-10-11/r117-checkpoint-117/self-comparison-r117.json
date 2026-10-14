@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r117-v1",
+ "preset": "A Remixed Digital Echasketch  Again 2 martin - no religion  + disco Fruits Machine + Raron + mstress + 8.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1c27a08c9e70d0e1687dfba5f9e235da8e18e189d2aaad157f8ebd72e3062339",
+  "prediction.json": "87411eaaf0a8c30f38e79e73e764acaf38c6ae79c3c93fc96011e6b631acccd7",
+  "description.json": "eeca15bba48e4e8f44532ae5d02434bdd8c8394c1adffa94c9c831dc488cd006",
+  "recipe.json": "06e459c7a93666b4e9d194e8c095950f72bfc8625d3f5cd20b151df8bd85a6d9",
+  "llm-look-description-v1.txt": "8ecd37aa5153fb2eea868d2803d88f8f8bbf2af71848a1824d0666bdf7a597e1"
+ },
+ "capture_result_sha256": "4ed96d7b900ed1a86961564cd88e940bbf0002c0ffd63181ad7fc10520aa9540",
+ "review_measurements_v1": {
+  "prediction_luma": 0.205,
+  "screenshot_luma": 0.25,
+  "mean_rgb_prediction": [
+   0.245,
+   0.2,
+   0.134
+  ],
+  "mean_rgb_screenshot": [
+   0.144,
+   0.298,
+   0.083
+  ],
+  "blurred_luma_correlation": 0.246,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.141,
+    0.174
+   ],
+   "saturation": [
+    0.56,
+    0.54
+   ],
+   "blurred_luma_correlation": 0.718
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0724,
+   0.0449
+  ]
+ },
+ "agreements": [
+  "magenta drape with nested frame lines at frame 20 almost identical",
+  "the same sphere-and-frames structure later"
+ ],
+ "misses": [
+  "sphere position and palette differ later (ours red/magenta, capture green); luma 0.141 vs 0.174, frame difference 0.072 vs 0.045 for this draw"
+ ],
+ "verdict": "understood in structure: frame 20 is nearly the same picture; later position and colour differ because the warp offsets samples by rand_frame and the composite multiplies by hue_shader (random per frame and per load)"
+}
