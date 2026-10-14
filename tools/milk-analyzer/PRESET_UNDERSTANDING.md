@@ -2038,3 +2038,26 @@ current code is in progress.
   code was dropped. Demonlord's opaque black thick wave scribbles over the
   whole canvas every frame; without it the prediction was 0.5 too bright.
   It is now near frame-exact. 196 presets enable such a wave.
+
+### Checkpoint scorecard (2026-10-14)
+
+Each row compares the frozen prediction with the emulator capture: the time-averaged luma over frames 60–149, and the correlation of the blurred time-average maps. Each prediction was made with the analyzer as it stood when that checkpoint ran.
+
+| Checkpoints | n | luma error median / mean | within 0.05 | map corr median | map corr > 0.9 |
+|---|---|---|---|---|---|
+| r1–r59 | 32 | 0.016 / 0.080 | 66% | 0.789 | 29% |
+| r60–r99 | 38 | 0.026 / 0.056 | 66% | 0.794 | 32% |
+| r100–r128 | 28 | 0.016 / 0.042 | 79% | 0.834 | 43% |
+| r129–r156 | 27 | 0.007 / 0.017 | 93% | 0.924 | 52% |
+
+Low map correlations in the latest era come from chaotic placement in fluid and reaction-diffusion presets; their statistics still match. The SDK descriptions lag the predictions on colour, because the closed-form colour facts remain weak.
+
+Fixes from r136 to r156:
+
+- Shared reg00–reg99 registers.
+- The node budget for wave and point recurrences.
+- Kaleidoscope folds in scaled form.
+- The mode 2/5 wave bucket gain.
+- Band-pass detection through lerp and lum.
+- The `frame_copy` and `radial_streaks` intent effects.
+- Reader guidance on calibrated colour and relief steady states.
