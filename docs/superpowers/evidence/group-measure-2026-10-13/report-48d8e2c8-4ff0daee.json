@@ -1,0 +1,3721 @@
+{
+ "report": {
+  "presets_selected": 200,
+  "ruler_measured": 200,
+  "compared": 196,
+  "failed": {
+   "48d8e2c8": 4,
+   "4ff0daee": 2
+  },
+  "versions": {
+   "48d8e2c8": {
+    "luma_err": {
+     "mean": 0.0527,
+     "median": 0.0151
+    },
+    "rgb_err": {
+     "mean": 0.0585,
+     "median": 0.0191
+    },
+    "sat_err": {
+     "mean": 0.062,
+     "median": 0.0233
+    },
+    "fd_err": {
+     "mean": 0.013,
+     "median": 0.0038
+    },
+    "colour_map_err": {
+     "mean": 0.0735,
+     "median": 0.0416
+    },
+    "map_corr": {
+     "mean": 0.6897,
+     "median": 0.8291,
+     "n": 191
+    },
+    "series_corr": {
+     "mean": 0.7668,
+     "median": 0.9185,
+     "n": 193
+    },
+    "luma_within_0.05": 0.724,
+    "map_corr_above_0.8": 0.526
+   },
+   "4ff0daee": {
+    "luma_err": {
+     "mean": 0.0501,
+     "median": 0.0141
+    },
+    "rgb_err": {
+     "mean": 0.056,
+     "median": 0.0187
+    },
+    "sat_err": {
+     "mean": 0.0594,
+     "median": 0.0204
+    },
+    "fd_err": {
+     "mean": 0.0128,
+     "median": 0.0035
+    },
+    "colour_map_err": {
+     "mean": 0.0712,
+     "median": 0.0407
+    },
+    "map_corr": {
+     "mean": 0.6966,
+     "median": 0.8363,
+     "n": 191
+    },
+    "series_corr": {
+     "mean": 0.7735,
+     "median": 0.9276,
+     "n": 193
+    },
+    "luma_within_0.05": 0.74,
+    "map_corr_above_0.8": 0.536
+   }
+  },
+  "paired": {
+   "luma_err": {
+    "improved": 15,
+    "worse": 11
+   },
+   "rgb_err": {
+    "improved": 18,
+    "worse": 9
+   },
+   "fd_err": {
+    "improved": 17,
+    "worse": 9
+   },
+   "colour_map_err": {
+    "improved": 16,
+    "worse": 11
+   },
+   "map_corr": {
+    "improved": 15,
+    "worse": 8
+   }
+  },
+  "largest_gains": [
+   [
+    "Hexcollie - electronegativity",
+    0.216,
+    0.022
+   ],
+   [
+    "stupid mash5 - men in black 3 'i like hogs' nz+",
+    0.195,
+    0.044
+   ],
+   [
+    "EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix_v2",
+    0.103,
+    0.01
+   ],
+   [
+    "AdamFX Enterz Tha Mash With Martin + stahlregen - AdamFX - In Tha Mash Effectz nz splatter",
+    0.107,
+    0.06
+   ],
+   [
+    "133",
+    0.024,
+    0.007
+   ],
+   [
+    "Rovastar & Loadus + Zylot - FractalDrop (Spark Machine)",
+    0.013,
+    0.002
+   ],
+   [
+    "Eos-skylighta2(tripcolors)",
+    0.027,
+    0.015
+   ],
+   [
+    "shifter + Flexi - liquid circuitry from the waxen hive nothing",
+    0.079,
+    0.074
+   ]
+  ],
+  "largest_losses": [
+   [
+    "EoS - dark side of the moon",
+    0.025,
+    0.079
+   ],
+   [
+    "martin - elusive impressions mix1",
+    0.16,
+    0.177
+   ],
+   [
+    "suksma - distort crops of horror torture - gdy neck problem solution (tense for hours) we never will cr3",
+    0.005,
+    0.008
+   ],
+   [
+    "EoS - 7th galaxy e quantereum",
+    0.018,
+    0.021
+   ],
+   [
+    "suksma - daryl feels my hellish lonliness - placing you under citizen's",
+    0.089,
+    0.091
+   ],
+   [
+    "suksma - dotes hostile undertake - finished breathing sir flacc roam",
+    0.024,
+    0.026
+   ],
+   [
+    "suksma - n19 3 layer overlap opt 3 flx nz+ loqo dystropy",
+    0.058,
+    0.059
+   ],
+   [
+    "suksma - yin - 395 - Artificial Inspiration (brainstorming - outward) + martin + flexi + stahlregen - el",
+    0.149,
+    0.15
+   ]
+  ]
+ },
+ "per_preset": {
+  "48d8e2c8": {
+   "$$$ Royal - Mashup (325)": {
+    "luma_err": 0.10375043749809265,
+    "rgb_err": 0.11516202489535014,
+    "sat_err": 0.05232149735093117,
+    "fd_err": 0.0021878276020288467,
+    "map_corr": 0.9732968298074107,
+    "colour_map_err": 0.10347152501344681,
+    "series_corr": 0.9024936321394877
+   },
+   "$$$ Royal - Mashup (373)": {
+    "luma_err": 0.014811262488365173,
+    "rgb_err": 0.016698981324831646,
+    "sat_err": 0.028667151927947998,
+    "fd_err": 0.001836918294429779,
+    "map_corr": 0.9922043767298344,
+    "colour_map_err": 0.02882549725472927,
+    "series_corr": 0.9957094737737436
+   },
+   "$$$ Royal - Mashup (477)": {
+    "luma_err": 0.12941962480545044,
+    "rgb_err": 0.10753112037976582,
+    "sat_err": 0.08502966165542603,
+    "fd_err": 0.00611056387424469,
+    "map_corr": 0.9183731804053455,
+    "colour_map_err": 0.11577735096216202,
+    "series_corr": 0.1747774207757167
+   },
+   "$$$ Royal - Mashup (485)": {
+    "luma_err": 0.007633626461029053,
+    "rgb_err": 0.007842381795247396,
+    "sat_err": 0.009904444217681885,
+    "fd_err": 0.0005978196859359741,
+    "map_corr": 0.9996415752208807,
+    "colour_map_err": 0.008852681145071983,
+    "series_corr": 0.9996559320882055
+   },
+   "133": {
+    "luma_err": 0.04556542634963989,
+    "rgb_err": 0.02137124538421631,
+    "sat_err": 0.06022367998957634,
+    "fd_err": 0.003253568895161152,
+    "map_corr": 0.8936196200564784,
+    "colour_map_err": 0.024203114211559296,
+    "series_corr": 0.996895223620505
+   },
+   "141 nz": {
+    "luma_err": 8.086557500064373e-06,
+    "rgb_err": 2.6731714266740408e-05,
+    "sat_err": 0.00010922679211944342,
+    "fd_err": 4.766814527101815e-05,
+    "map_corr": 0.8026504340907181,
+    "colour_map_err": 0.00018360531248617917,
+    "series_corr": 0.9893956162311774
+   },
+   "165": {
+    "luma_err": 3.4689903259277344e-05,
+    "rgb_err": 0.0017111698786417644,
+    "sat_err": 0.0022596120834350586,
+    "fd_err": 0.00028918683528900146,
+    "map_corr": 0.9973595182835481,
+    "colour_map_err": 0.00513565493747592,
+    "series_corr": 0.9932627706477912
+   },
+   "24": {
+    "luma_err": 0.000951424241065979,
+    "rgb_err": 0.0004421534637610118,
+    "sat_err": 0.011604785919189453,
+    "fd_err": 6.049498915672302e-05,
+    "map_corr": 0.9992433287826266,
+    "colour_map_err": 0.0032801104243844748,
+    "series_corr": 0.9997632277937799
+   },
+   "259": {
+    "luma_err": 0.001671813428401947,
+    "rgb_err": 0.0019140318036079407,
+    "sat_err": 0.1377115547657013,
+    "fd_err": 0.00028897635638713837,
+    "map_corr": 0.9956308438876228,
+    "colour_map_err": 0.0036981517914682627,
+    "series_corr": 0.99974351991786
+   },
+   "262": {
+    "luma_err": 0.00198952853679657,
+    "rgb_err": 0.0016113817691802979,
+    "sat_err": 0.007971346378326416,
+    "fd_err": 0.00044493749737739563,
+    "map_corr": 0.9996451425765012,
+    "colour_map_err": 0.0029701488092541695,
+    "series_corr": 0.9996332367664905
+   },
+   "312": {
+    "luma_err": 0.6294922679662704,
+    "rgb_err": 0.5947803755601248,
+    "sat_err": 0.0293271541595459,
+    "fd_err": 0.031452396884560585,
+    "map_corr": 0.38654155966167375,
+    "colour_map_err": 0.5804893970489502,
+    "series_corr": 0.6878661693440224
+   },
+   "376": {
+    "luma_err": 7.876753807067871e-05,
+    "rgb_err": 0.010490295787652334,
+    "sat_err": 0.053875088691711426,
+    "fd_err": 0.004969730973243713,
+    "map_corr": 0.6512000913903723,
+    "colour_map_err": 0.01797708310186863,
+    "series_corr": -0.06415412108724967
+   },
+   "390 threx no more warningsce Rumbo Pal Recodo calmer less agile better sorcery": {
+    "luma_err": 0.039249300956726074,
+    "rgb_err": 0.032248874505360924,
+    "sat_err": 0.009586721658706665,
+    "fd_err": 0.005027145147323608,
+    "map_corr": -0.13443105831009136,
+    "colour_map_err": 0.06265805661678314,
+    "series_corr": 0.8113651141865725
+   },
+   "417": {
+    "luma_err": 0.003112778067588806,
+    "rgb_err": 0.002987577269474665,
+    "sat_err": 0.02762824296951294,
+    "fd_err": 0.0003510601818561554,
+    "map_corr": 0.9219229765305096,
+    "colour_map_err": 0.038522280752658844,
+    "series_corr": 0.9966541990213972
+   },
+   "A HD ADAMFX Creation !!FT  Martin + flexi +  Rovastar MDropFX Collaboration E Adam HD INFECTIONFX ": {
+    "luma_err": 1.0618939995765686e-05,
+    "rgb_err": 0.0004394625624020894,
+    "sat_err": 0.0026527217123657465,
+    "fd_err": 0.0006865821778774261,
+    "map_corr": 0.6376513101635132,
+    "colour_map_err": 0.004217642825096846,
+    "series_corr": 0.9854676800315105
+   },
+   "A MilkKing Recreation FT Martin  - Violet Flash ft AdamFX n Geiss - Spiral Tunnels in CosmicFX Dust ": {
+    "luma_err": 0.05248398333787918,
+    "rgb_err": 0.05919161687294642,
+    "sat_err": 0.13609325885772705,
+    "fd_err": 0.003317885100841522,
+    "map_corr": 0.46314553699255573,
+    "colour_map_err": 0.07072030752897263,
+    "series_corr": 0.9159173835141692
+   },
+   "AAdamFX Infection 2 martin - disco mix (FireOptics)Ft Che Escape(IntoTheDisco)by AdamFX and Ft Milk C8": {
+    "luma_err": 0.02031731605529785,
+    "rgb_err": 0.01815843830506007,
+    "sat_err": 0.006902873516082764,
+    "fd_err": 0.008702319115400314,
+    "map_corr": 0.28994637718559774,
+    "colour_map_err": 0.03334251791238785,
+    "series_corr": 0.8593602706561592
+   },
+   "Adam Eatit Mashup FX 2 martin - disco mix + Lodus + Geiss + Ludicrous speed + Baked Ft another AdamFX 15": {
+    "luma_err": 0.003979533910751343,
+    "rgb_err": 0.01019842674334844,
+    "sat_err": 0.008660078048706055,
+    "fd_err": 0.0011728107929229736,
+    "map_corr": 0.9543709578646522,
+    "colour_map_err": 0.013435727916657925,
+    "series_corr": 0.9499788329357284
+   },
+   "AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Tydye7": {
+    "luma_err": 0.005187511444091797,
+    "rgb_err": 0.00421402882784605,
+    "sat_err": 0.001396477222442627,
+    "fd_err": 0.0034642592072486877,
+    "map_corr": 0.714303977682595,
+    "colour_map_err": 0.04290638491511345,
+    "series_corr": 0.9930986135930044
+   },
+   "AdamFX CollaborationFX of the best Remake  - Ft Martin - Orb - Flexi - WitchCraft Infection ": {
+    "luma_err": 0.02596569061279297,
+    "rgb_err": 0.022709389527638752,
+    "sat_err": 0.024304687976837158,
+    "fd_err": 0.0019433647394180298,
+    "map_corr": 0.8881486250173263,
+    "colour_map_err": 0.061359211802482605,
+    "series_corr": 0.5284939882405045
+   },
+   "AdamFX Enterz Tha Mash With Martin + stahlregen - AdamFX - In Tha Mash Effectz nz splatter": {
+    "luma_err": 0.09716206789016724,
+    "rgb_err": 0.08920462429523468,
+    "sat_err": 0.0944562554359436,
+    "fd_err": 0.005590192973613739,
+    "map_corr": 0.12431912760851195,
+    "colour_map_err": 0.10663200914859772,
+    "series_corr": 0.49114720339747747
+   },
+   "Benjam - Fractal Timepiece": {
+    "luma_err": 0.0,
+    "rgb_err": 0.0,
+    "sat_err": 0.0,
+    "fd_err": 0.0,
+    "map_corr": null,
+    "colour_map_err": 0.0,
+    "series_corr": null
+   },
+   "Bmelgren - Getter Sun 1": {
+    "luma_err": 0.050367966294288635,
+    "rgb_err": 0.053833525627851486,
+    "sat_err": 0.015771955251693726,
+    "fd_err": 0.003163505345582962,
+    "map_corr": 0.7532497558352006,
+    "colour_map_err": 0.05584825575351715,
+    "series_corr": 0.9327030166587723
+   },
+   "EVET + Flexi -Hue Burster": {
+    "luma_err": 0.11140912771224976,
+    "rgb_err": 0.12724241614341736,
+    "sat_err": 0.10013750195503235,
+    "fd_err": 0.014568895101547241,
+    "map_corr": 0.31161429443605176,
+    "colour_map_err": 0.17021220922470093,
+    "series_corr": 0.9269306509991246
+   },
+   "EVET + martin- Zy-grams": {
+    "luma_err": 0.0009287595748901367,
+    "rgb_err": 0.005344708760579427,
+    "sat_err": 0.008012652397155762,
+    "fd_err": 0.0008435621857643127,
+    "map_corr": 0.9775230810882901,
+    "colour_map_err": 0.02025311253964901,
+    "series_corr": 0.9969364950149803
+   },
+   "EVET - Fractopia Kaleidoscope rot2": {
+    "luma_err": 0.002977430820465088,
+    "rgb_err": 0.0045821766058603925,
+    "sat_err": 0.05212670564651489,
+    "fd_err": 0.0023876475170254707,
+    "map_corr": 0.9685804709186543,
+    "colour_map_err": 0.014091389253735542,
+    "series_corr": 0.9951363113601717
+   },
+   "EVET - Targus": {
+    "luma_err": 0.0023306328803300858,
+    "rgb_err": 0.0025997112970799208,
+    "sat_err": 0.027918577194213867,
+    "fd_err": 0.0018260776996612549,
+    "map_corr": 0.8482586836754052,
+    "colour_map_err": 0.008675401099026203,
+    "series_corr": 0.1712573936373454
+   },
+   "EVET - The Beast of Eden": {
+    "luma_err": 0.003568679094314575,
+    "rgb_err": 0.003621463974316915,
+    "sat_err": 0.004264235496520996,
+    "fd_err": 0.0005071437917649746,
+    "map_corr": 0.38737537249905546,
+    "colour_map_err": 0.0736575499176979,
+    "series_corr": 0.9988440078380981
+   },
+   "EoS + Phat - CAT Scan": {
+    "luma_err": 0.6644798517227173,
+    "rgb_err": 0.6441671550273895,
+    "sat_err": 0.07526238868013024,
+    "fd_err": 0.006947497837245464,
+    "map_corr": 0.27512615265801044,
+    "colour_map_err": 0.6429493427276611,
+    "series_corr": 0.17117472315671067
+   },
+   "EoS + Phat - chasers 09 sentinel nz+ cesspratice": {
+    "luma_err": 0.023482996970415115,
+    "rgb_err": 0.03375833729902903,
+    "sat_err": 0.16673967242240906,
+    "fd_err": 0.012389067560434341,
+    "map_corr": 0.7837942046592222,
+    "colour_map_err": 0.04140135273337364,
+    "series_corr": 0.6896476672810765
+   },
+   "EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix_v2": {
+    "luma_err": 0.12289509177207947,
+    "rgb_err": 0.10412721894681454,
+    "sat_err": 0.06448894739151001,
+    "fd_err": 0.013362042605876923,
+    "map_corr": 0.8832565332243306,
+    "colour_map_err": 0.10255982726812363,
+    "series_corr": 0.6177727170174483
+   },
+   "EoS + Redi Jedi - frequency analysis + glowsticks -  glow - o - scope male (Milkdrop beta ver)": {
+    "luma_err": 0.047709137201309204,
+    "rgb_err": 0.06329251329104106,
+    "sat_err": 0.021154284477233887,
+    "fd_err": 0.004798386245965958,
+    "map_corr": 0.8797704234587083,
+    "colour_map_err": 0.08723197132349014,
+    "series_corr": 0.6136356046047727
+   },
+   "EoS - 7th galaxy e quantereum": {
+    "luma_err": 0.007064163684844971,
+    "rgb_err": 0.014155904452006022,
+    "sat_err": 0.01634421944618225,
+    "fd_err": 0.0030361786484718323,
+    "map_corr": 0.9792307684178979,
+    "colour_map_err": 0.018478145822882652,
+    "series_corr": 0.9979297172851791
+   },
+   "EoS - dark side of the moon": {
+    "luma_err": 0.0196353942155838,
+    "rgb_err": 0.015467395385106405,
+    "sat_err": 0.00036747753620147705,
+    "fd_err": 4.6681612730026245e-05,
+    "map_corr": 0.9917032362077491,
+    "colour_map_err": 0.02513526938855648,
+    "series_corr": 0.9023347085170829
+   },
+   "EoS - glowsticks v2 03 music shifter edit b (Stahl's Reactive RMX V2) (border mix)": {
+    "luma_err": 0.0015179067850112915,
+    "rgb_err": 0.0010909525056680043,
+    "sat_err": 0.0669635534286499,
+    "fd_err": 0.0003168974071741104,
+    "map_corr": 0.998590653161394,
+    "colour_map_err": 0.0023003362584859133,
+    "series_corr": 0.9994513158300349
+   },
+   "EoS - glowsticks v2 08 trigger arrow crosses (+Krash's beat code) ": {
+    "luma_err": 0.003724418580532074,
+    "rgb_err": 0.0042658572395642596,
+    "sat_err": 0.0726853609085083,
+    "fd_err": 0.00048760324716567993,
+    "map_corr": 0.9955164706165401,
+    "colour_map_err": 0.006407312583178282,
+    "series_corr": 0.9984632077855904
+   },
+   "EoS - spark B - couldn't not": {
+    "luma_err": 0.006309330463409424,
+    "rgb_err": 0.0075376033782958984,
+    "sat_err": 0.018567651510238647,
+    "fd_err": 6.053224205970764e-05,
+    "map_corr": 0.8060805976346636,
+    "colour_map_err": 0.03265390172600746,
+    "series_corr": 0.9889786584562124
+   },
+   "EoS+Phat - I_v2_Shape_v3": {
+    "luma_err": 0.21580162644386292,
+    "rgb_err": 0.22377430150906244,
+    "sat_err": 0.050780653953552246,
+    "fd_err": 0.0348844900727272,
+    "map_corr": 0.5006136155792434,
+    "colour_map_err": 0.22334450483322144,
+    "series_corr": 0.8741243639224763
+   },
+   "EoS_Phat technicolor F breather E god gaia": {
+    "luma_err": 0.06415697932243347,
+    "rgb_err": 0.07652331391970317,
+    "sat_err": 0.01915949583053589,
+    "fd_err": 0.002177707850933075,
+    "map_corr": 0.942703495031001,
+    "colour_map_err": 0.08358834683895111,
+    "series_corr": 0.9278708047936439
+   },
+   "Eos-skylighta2(tripcolors)": {
+    "luma_err": 0.008768230676651001,
+    "rgb_err": 0.011021311084429422,
+    "sat_err": 0.04395344853401184,
+    "fd_err": 0.0011363653466105461,
+    "map_corr": 0.9689774059577443,
+    "colour_map_err": 0.026784611865878105,
+    "series_corr": 0.9309708364722689
+   },
+   "Eosphat-chasers23feedmebrainsv2": {
+    "luma_err": 0.007471110671758652,
+    "rgb_err": 0.00778353897233804,
+    "sat_err": 0.07874822616577148,
+    "fd_err": 0.003951685037463903,
+    "map_corr": 0.9926897586684288,
+    "colour_map_err": 0.009409033693373203,
+    "series_corr": 0.6083903047227992
+   },
+   "EvilJim - #26 I see Light!": {
+    "luma_err": 0.0023550447076559067,
+    "rgb_err": 0.002378381478289763,
+    "sat_err": 0.013599026948213577,
+    "fd_err": 0.00026477209758013487,
+    "map_corr": 0.933935091873008,
+    "colour_map_err": 0.004660177510231733,
+    "series_corr": 0.9665945340991571
+   },
+   "Fishbrain-witchcraft [shifter's esc shader]": {
+    "luma_err": 0.05418321490287781,
+    "rgb_err": 0.03857836623986562,
+    "sat_err": 0.03051474690437317,
+    "fd_err": 0.0008891625329852104,
+    "map_corr": 0.9888723252910505,
+    "colour_map_err": 0.043199874460697174,
+    "series_corr": 0.9980284065699848
+   },
+   "Flexi - shadow dynamics 03": {
+    "luma_err": 0.0009777247905731201,
+    "rgb_err": 0.000986373672882716,
+    "sat_err": 0.00600886344909668,
+    "fd_err": 1.3602431863546371e-05,
+    "map_corr": 0.9997704381653607,
+    "colour_map_err": 0.0022611450403928757,
+    "series_corr": 0.9999362019050452
+   },
+   "Geiss - Calligraphy (Jelly)": {
+    "luma_err": 0.07594403252005577,
+    "rgb_err": 0.058289473255475364,
+    "sat_err": 0.026357054710388184,
+    "fd_err": 0.0005136504769325256,
+    "map_corr": 0.9446489170274021,
+    "colour_map_err": 0.06521537899971008,
+    "series_corr": 0.27019472885045553
+   },
+   "Geiss - Two-Pointed Pulsagon - mash0000 - bubonic super-fluid centrifuge": {
+    "luma_err": 0.04714500904083252,
+    "rgb_err": 0.024761520326137543,
+    "sat_err": 0.0491291880607605,
+    "fd_err": 0.008509650826454163,
+    "map_corr": -0.022526942143399065,
+    "colour_map_err": 0.05243027210235596,
+    "series_corr": 0.728100808754122
+   },
+   "Goody + martin - crystal palace - Ocular Anima": {
+    "luma_err": 0.0003945156931877136,
+    "rgb_err": 0.0006939551482597986,
+    "sat_err": 0.01114695519208908,
+    "fd_err": 1.9848113879561424e-05,
+    "map_corr": 0.9998683177455745,
+    "colour_map_err": 0.00041567670996300876,
+    "series_corr": 0.9970835849213909
+   },
+   "Goody + martin - crystal palace - Taken5": {
+    "luma_err": 0.00029486091807484627,
+    "rgb_err": 0.00020532247920831045,
+    "sat_err": 0.148907870054245,
+    "fd_err": 1.9208237063139677e-06,
+    "map_corr": 0.9994069823769117,
+    "colour_map_err": 0.00045080052223056555,
+    "series_corr": 0.9996408555238507
+   },
+   "GreatWho + Flexi - Lasershow [bipolar gapminder party]": {
+    "luma_err": 0.06978780031204224,
+    "rgb_err": 0.1512523740530014,
+    "sat_err": 0.13722312450408936,
+    "fd_err": 0.0064046382904052734,
+    "map_corr": 0.4740252723779574,
+    "colour_map_err": 0.19272804260253906,
+    "series_corr": 0.9550686165111177
+   },
+   "GreatWho + Flexi - Lasershow [bipolar showoff party]": {
+    "luma_err": 0.004569262266159058,
+    "rgb_err": 0.07449028889338176,
+    "sat_err": 0.13505786657333374,
+    "fd_err": 0.023837067186832428,
+    "map_corr": 0.8700973898689622,
+    "colour_map_err": 0.11580237001180649,
+    "series_corr": 0.928841803052955
+   },
+   "Halfbreak - 2D Purple Fires": {
+    "luma_err": 0.057091012597084045,
+    "rgb_err": 0.06752293805281322,
+    "sat_err": 0.037377625703811646,
+    "fd_err": 0.009604223072528839,
+    "map_corr": 0.5784100847526389,
+    "colour_map_err": 0.07054047286510468,
+    "series_corr": 0.8129986633600831
+   },
+   "Hexcollie - Surge": {
+    "luma_err": 0.0013306140899658203,
+    "rgb_err": 0.003827641407648722,
+    "sat_err": 0.006990551948547363,
+    "fd_err": 0.0013248622417449951,
+    "map_corr": 0.9965212869482819,
+    "colour_map_err": 0.008992276154458523,
+    "series_corr": 0.9976779907153315
+   },
+   "Hexcollie - electronegativity": {
+    "luma_err": 0.20371277630329132,
+    "rgb_err": 0.21629022931059202,
+    "sat_err": 0.12732309103012085,
+    "fd_err": 0.029178384691476822,
+    "map_corr": 0.3248416810528164,
+    "colour_map_err": 0.21641486883163452,
+    "series_corr": 0.6414597343912749
+   },
+   "Hexcollie, Flexi n Aderrasi - Black out, I mean time travel": {
+    "luma_err": 0.04589569568634033,
+    "rgb_err": 0.09369043509165446,
+    "sat_err": 0.186578631401062,
+    "fd_err": 0.015120178461074829,
+    "map_corr": 0.7927591881012286,
+    "colour_map_err": 0.11683360487222672,
+    "series_corr": 0.8555031235539072
+   },
+   "Krash - Snowflake Halo": {
+    "luma_err": 0.08194923400878906,
+    "rgb_err": 0.08315236121416092,
+    "sat_err": 0.07483355607837439,
+    "fd_err": 0.01700981822796166,
+    "map_corr": 0.9441419230662849,
+    "colour_map_err": 0.08319681882858276,
+    "series_corr": 0.6894974015909339
+   },
+   "LuxXx - Dain Bammerge v1 (balls)": {
+    "luma_err": 8.392333984375e-05,
+    "rgb_err": 0.00034482280413309735,
+    "sat_err": 0.004174143075942993,
+    "fd_err": 4.654005169868469e-05,
+    "map_corr": 0.9999302728935893,
+    "colour_map_err": 0.002078908495604992,
+    "series_corr": 0.9999852077785442
+   },
+   "LuxXx - Energy Aura": {
+    "luma_err": 0.01647239923477173,
+    "rgb_err": 0.039952615896860756,
+    "sat_err": 0.019992291927337646,
+    "fd_err": 0.016766257584095,
+    "map_corr": 0.820433371577669,
+    "colour_map_err": 0.07055850327014923,
+    "series_corr": 0.9509814537539049
+   },
+   "LuxXx - HipHop UrethraFish I": {
+    "luma_err": 0.033829763531684875,
+    "rgb_err": 0.07777328540881474,
+    "sat_err": 0.1447378396987915,
+    "fd_err": 0.02081814408302307,
+    "map_corr": 0.6027315818643907,
+    "colour_map_err": 0.09396006166934967,
+    "series_corr": 0.9308686419932564
+   },
+   "Martin - Diabolo --- Isosceles edit": {
+    "luma_err": 0.01564677804708481,
+    "rgb_err": 0.013851015518109003,
+    "sat_err": 0.08174154907464981,
+    "fd_err": 0.008786410093307495,
+    "map_corr": 0.7779562274141983,
+    "colour_map_err": 0.040070805698633194,
+    "series_corr": 0.5067538238023157
+   },
+   "Martin - QBikal - Surface Turbulence IIe6 (by hakanh mash-up)": {
+    "luma_err": 0.037935107946395874,
+    "rgb_err": 0.044197251399358116,
+    "sat_err": 0.07021674513816833,
+    "fd_err": 0.0016305670142173767,
+    "map_corr": 0.9965372080153635,
+    "colour_map_err": 0.04174994304776192,
+    "series_corr": 0.9948661001617353
+   },
+   "Martin N AdamFX Infusion = Phat+Yin+EoS_Mandala Chaser Ft AdamFX n Martin - The Beast Mandala Chaser FX H": {
+    "luma_err": 0.002917468547821045,
+    "rgb_err": 0.0029570659001668296,
+    "sat_err": 0.006792545318603516,
+    "fd_err": 2.4586915969848633e-05,
+    "map_corr": 0.9993394403576498,
+    "colour_map_err": 0.006272454746067524,
+    "series_corr": 0.9993987583512001
+   },
+   "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Geiss and Zylot + Aurora Industrialis + ORb acid cycle  + triptrap": {
+    "luma_err": 0.05391308665275574,
+    "rgb_err": 0.054979165395100914,
+    "sat_err": 0.02225799858570099,
+    "fd_err": 0.006473422050476074,
+    "map_corr": 0.670840973028965,
+    "colour_map_err": 0.10200950503349304,
+    "series_corr": 0.9922938569959229
+   },
+   "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss an65": {
+    "luma_err": 0.012324273586273193,
+    "rgb_err": 0.012999455134073893,
+    "sat_err": 0.01032150536775589,
+    "fd_err": 0.0023307129740715027,
+    "map_corr": -0.15703415426380224,
+    "colour_map_err": 0.16232286393642426,
+    "series_corr": 0.9938863075533535
+   },
+   "New Creation Sensation -  AdamFx,Flexi,Amandio c n Martin - Star to Another World ft Hexocollie  n Shad6": {
+    "luma_err": 0.005948007106781006,
+    "rgb_err": 0.003965920768678188,
+    "sat_err": 4.786252975463867e-05,
+    "fd_err": 0.0004401523619890213,
+    "map_corr": 0.998324248520188,
+    "colour_map_err": 0.005147899035364389,
+    "series_corr": 0.9999064421952798
+   },
+   "New Creations From Favorite - Milk F - X  Artist  - Martin n Flexi's Run in with AdamFX n Geiss - Willie Wonka n The Milk Factory ": {
+    "luma_err": 0.013712584972381592,
+    "rgb_err": 0.011358867088953653,
+    "sat_err": 0.03400927782058716,
+    "fd_err": 0.012493431568145752,
+    "map_corr": 0.9827972063104666,
+    "colour_map_err": 0.03492804244160652,
+    "series_corr": 0.9210534325034799
+   },
+   "Northern Lights Throbbing Bud": {
+    "luma_err": 0.004663847386837006,
+    "rgb_err": 0.009272468586762747,
+    "sat_err": 0.007347822189331055,
+    "fd_err": 0.005925044417381287,
+    "map_corr": 0.9947052816140156,
+    "colour_map_err": 0.006073898170143366,
+    "series_corr": 0.5414251824096944
+   },
+   "ORB - Comic Book Curves 2 thine pain chasm yehog rot": {
+    "luma_err": 0.00010344386100769043,
+    "rgb_err": 0.001468062400817871,
+    "sat_err": 0.005160868167877197,
+    "fd_err": 0.0004243776202201843,
+    "map_corr": 0.5201451384784176,
+    "colour_map_err": 0.01081931684166193,
+    "series_corr": 0.9988829185899136
+   },
+   "ORB - Gramaton": {
+    "luma_err": 0.0015486329793930054,
+    "rgb_err": 0.003189728750536839,
+    "sat_err": 0.020618319511413574,
+    "fd_err": 0.0002244710922241211,
+    "map_corr": 0.9886789453805269,
+    "colour_map_err": 0.005651190876960754,
+    "series_corr": 0.9713578582091541
+   },
+   "ORB - Space Time": {
+    "luma_err": 0.0051993876695632935,
+    "rgb_err": 0.004762671887874603,
+    "sat_err": 0.028358399868011475,
+    "fd_err": 0.00617237389087677,
+    "map_corr": 0.9993865781872598,
+    "colour_map_err": 0.004552765749394894,
+    "series_corr": 0.9968103148234922
+   },
+   "ORB - Toffie Grider": {
+    "luma_err": 0.001327507197856903,
+    "rgb_err": 0.0017309561371803284,
+    "sat_err": 0.00789731740951538,
+    "fd_err": 0.00013991957530379295,
+    "map_corr": 0.9970349227930666,
+    "colour_map_err": 0.004595089238137007,
+    "series_corr": 0.9968332349444651
+   },
+   "Phat + EoS - destroy me c - spher": {
+    "luma_err": 0.008340641856193542,
+    "rgb_err": 0.01256211350361506,
+    "sat_err": 0.005218923091888428,
+    "fd_err": 0.014589078724384308,
+    "map_corr": 0.9890191184395989,
+    "colour_map_err": 0.024368081241846085,
+    "series_corr": 0.9708293988662898
+   },
+   "Redi Jedi - Shaking your reality": {
+    "luma_err": 0.01612771302461624,
+    "rgb_err": 0.019016710420449574,
+    "sat_err": 0.003818616271018982,
+    "fd_err": 0.002197542227804661,
+    "map_corr": 0.25896860998678223,
+    "colour_map_err": 0.02225375734269619,
+    "series_corr": 0.9789734024305023
+   },
+   "Redi Jedi - pladman coaches womans vollyball": {
+    "luma_err": 0.1466113030910492,
+    "rgb_err": 0.26481380467885174,
+    "sat_err": 0.0036675333976745605,
+    "fd_err": 0.030433901585638523,
+    "map_corr": 0.4296104606976754,
+    "colour_map_err": 0.27189475297927856,
+    "series_corr": 0.3387554575204594
+   },
+   "Rovastar & Illusion - Further Basic Electronica 2 + cope": {
+    "luma_err": 0.3223226070404053,
+    "rgb_err": 0.3379227916399638,
+    "sat_err": 0.2771572172641754,
+    "fd_err": 0.14692600071430206,
+    "map_corr": 0.05940011716950995,
+    "colour_map_err": 0.3361104428768158,
+    "series_corr": 0.4057740276879306
+   },
+   "Rovastar & Loadus + Zylot - FractalDrop (Spark Machine)": {
+    "luma_err": 0.011091010645031929,
+    "rgb_err": 0.015165810318042835,
+    "sat_err": 0.033819615840911865,
+    "fd_err": 0.005943940719589591,
+    "map_corr": 0.9953850221841193,
+    "colour_map_err": 0.013227242045104504,
+    "series_corr": 0.7310968277941721
+   },
+   "Rovastar - Explosive Minds [can't sex this]": {
+    "luma_err": 5.8323144912719727e-05,
+    "rgb_err": 0.0004407366116841634,
+    "sat_err": 0.041246116161346436,
+    "fd_err": 3.217160701751709e-05,
+    "map_corr": 0.998273971288483,
+    "colour_map_err": 0.000339309946866706,
+    "series_corr": 0.999765528971808
+   },
+   "Rovastar - Fractopia (Galaxy Swirl Mix 2)": {
+    "luma_err": 0.08136093616485596,
+    "rgb_err": 0.07301233212153117,
+    "sat_err": 0.13931861519813538,
+    "fd_err": 0.06169387698173523,
+    "map_corr": 0.9133066702481053,
+    "colour_map_err": 0.08018489927053452,
+    "series_corr": 0.44949797639551153
+   },
+   "Rovastar-voovsnakedmov(pincushionmix)": {
+    "luma_err": 0.008216433227062225,
+    "rgb_err": 0.010159850120544434,
+    "sat_err": 0.005446285009384155,
+    "fd_err": 0.004648290574550629,
+    "map_corr": 0.4436160614175842,
+    "colour_map_err": 0.0249997116625309,
+    "series_corr": 0.4157829696850117
+   },
+   "Serge + Jc - Neon Star Formation001": {
+    "luma_err": 0.03832292556762695,
+    "rgb_err": 0.04755400617917379,
+    "sat_err": 0.07199040055274963,
+    "fd_err": 0.019611215218901634,
+    "map_corr": 0.43667467667792076,
+    "colour_map_err": 0.06410366296768188,
+    "series_corr": 0.4272535702551726
+   },
+   "Serge + martin - crystal palace kad002": {
+    "luma_err": 0.044905200600624084,
+    "rgb_err": 0.07067450881004333,
+    "sat_err": 0.011408865451812744,
+    "fd_err": 0.018379531800746918,
+    "map_corr": 0.21856325280595562,
+    "colour_map_err": 0.15658724308013916,
+    "series_corr": 0.8799127603664253
+   },
+   "ShadowHarlequin - Fitting Butterfly - v4 - [Loadus & Geiss - FractalDrop 22] v2v2v2v2newcolorsv2": {
+    "luma_err": 6.562471389770508e-05,
+    "rgb_err": 2.3444493611653647e-06,
+    "sat_err": 4.293780875741504e-06,
+    "fd_err": 5.610632797470316e-05,
+    "map_corr": 0.8290666576347075,
+    "colour_map_err": 0.00011344899394316599,
+    "series_corr": 0.9670761744737232
+   },
+   "Shiroijin - Unicorn Hell, Warp 6 Mr Crusher!!!": {
+    "luma_err": 0.06061774492263794,
+    "rgb_err": 0.04675374428431193,
+    "sat_err": 0.10063670575618744,
+    "fd_err": 0.002222388982772827,
+    "map_corr": 0.9983915957191906,
+    "colour_map_err": 0.04534348100423813,
+    "series_corr": 0.996233348864984
+   },
+   "Stahlregen & Boz - Machine Code (Reaction Diffusion) qrimbinael squatriarcheth": {
+    "luma_err": 0.009906679391860962,
+    "rgb_err": 0.010475367307662964,
+    "sat_err": 0.010281860828399658,
+    "fd_err": 0.01277497410774231,
+    "map_corr": 0.8678320718760832,
+    "colour_map_err": 0.013184289447963238,
+    "series_corr": 0.9304460632935798
+   },
+   "Stahlregen & Flexi + Geiss + ORB - Spotted Blob_2 - usheriah colobot roam3": {
+    "luma_err": 0.0012943893671035767,
+    "rgb_err": 0.007870368659496307,
+    "sat_err": 0.0055359601974487305,
+    "fd_err": 0.0044208914041519165,
+    "map_corr": 0.689634382168203,
+    "colour_map_err": 0.03878915309906006,
+    "series_corr": 0.8528244691966563
+   },
+   "Stahlregen & Geiss + Flexi + Fishbrain - Kinda Cool": {
+    "luma_err": 0.0034189820289611816,
+    "rgb_err": 0.004104052980740865,
+    "sat_err": 0.004855692386627197,
+    "fd_err": 0.005354415625333786,
+    "map_corr": 0.505369184287669,
+    "colour_map_err": 0.061784565448760986,
+    "series_corr": 0.8262196930999095
+   },
+   "Stahlregen & fishbrain + Geiss - Witchcraft (Dense) - painterly oil reflections - forcing the stars right": {
+    "luma_err": 0.0017417967319488525,
+    "rgb_err": 0.002820301800966263,
+    "sat_err": 0.14371725916862488,
+    "fd_err": 0.0015811249613761902,
+    "map_corr": 0.9405202522962061,
+    "colour_map_err": 0.012394407764077187,
+    "series_corr": 0.9355942444707347
+   },
+   "Stahlregen & fishbrain + geiss + martin  - Flowercraft (reflecto upfcku)": {
+    "luma_err": 0.026117980480194092,
+    "rgb_err": 0.027844409147898357,
+    "sat_err": 0.0316241979598999,
+    "fd_err": 0.0023932158946990967,
+    "map_corr": 0.9782491210318744,
+    "colour_map_err": 0.03834894299507141,
+    "series_corr": 0.9915470410193927
+   },
+   "Stahlregen - splash! (Tricolor Spiral)": {
+    "luma_err": 0.003866046667098999,
+    "rgb_err": 0.04360421498616537,
+    "sat_err": 0.09059503674507141,
+    "fd_err": 0.06884828954935074,
+    "map_corr": -0.2999796315892905,
+    "colour_map_err": 0.09921823441982269,
+    "series_corr": 0.927598267166961
+   },
+   "The NG + MindJourney - Unconstructed DreamSpace is Constructed": {
+    "luma_err": 0.0026864856481552124,
+    "rgb_err": 0.0022426992654800415,
+    "sat_err": 0.003278493881225586,
+    "fd_err": 0.0017837397754192352,
+    "map_corr": 0.9947881291920695,
+    "colour_map_err": 0.008097734302282333,
+    "series_corr": 0.9864256667820128
+   },
+   "TonyMilkdrop - Nuclear [Flexi - why even bother + alien complex] --- Isosceles edit1": {
+    "luma_err": 0.07390570640563965,
+    "rgb_err": 0.08954305946826935,
+    "sat_err": 0.1266968846321106,
+    "fd_err": 0.003014400601387024,
+    "map_corr": 0.09649578639144889,
+    "colour_map_err": 0.16585856676101685,
+    "series_corr": 0.6434361849937308
+   },
+   "TonyMilkdrop - Tricolors [Flexi - the psyched out about loop] --- Isosceles edit": {
+    "luma_err": 7.815659046173096e-05,
+    "rgb_err": 0.002592429518699646,
+    "sat_err": 0.005714535713195801,
+    "fd_err": 0.0002465052530169487,
+    "map_corr": 0.9754859879645604,
+    "colour_map_err": 0.009208088740706444,
+    "series_corr": 0.9961063722757393
+   },
+   "Tripgnosis - Digital Glowstix": {
+    "luma_err": 0.0017402470111846924,
+    "rgb_err": 0.0009920963396628697,
+    "sat_err": 0.0021613240242004395,
+    "fd_err": 0.0017991717904806137,
+    "map_corr": 0.9983550739375168,
+    "colour_map_err": 0.00464258249849081,
+    "series_corr": 0.9994599301812024
+   },
+   "Tripgnosis - Negative Photon Burn": {
+    "luma_err": 0.0004535145126283169,
+    "rgb_err": 0.0004419373666072109,
+    "sat_err": 0.004550553858280182,
+    "fd_err": 0.00021226389799267054,
+    "map_corr": 0.7074461959403338,
+    "colour_map_err": 0.00044285948388278484,
+    "series_corr": 0.7159747857324765
+   },
+   "Waltra - Blurry Balls": {
+    "luma_err": 0.30637383460998535,
+    "rgb_err": 0.3101837436358134,
+    "sat_err": 0.28125739097595215,
+    "fd_err": 0.04791803099215031,
+    "map_corr": 0.8431634651043702,
+    "colour_map_err": 0.2995891571044922,
+    "series_corr": 0.32167802187936195
+   },
+   "Waltra - Iris": {
+    "luma_err": 0.1191447377204895,
+    "rgb_err": 0.17910453553001085,
+    "sat_err": 0.39311134815216064,
+    "fd_err": 0.0067053548991680145,
+    "map_corr": 0.8962044591627396,
+    "colour_map_err": 0.18669742345809937,
+    "series_corr": 0.90652090029011
+   },
+   "Zylot - Paint Spill (Music Reactive Paint Mix) nz+ baths are butthole and balls tea": {
+    "luma_err": 0.0038392841815948486,
+    "rgb_err": 0.02600330611069997,
+    "sat_err": 0.11798509955406189,
+    "fd_err": 0.09504137188196182,
+    "map_corr": 0.20789986599728474,
+    "colour_map_err": 0.06265749782323837,
+    "series_corr": 0.4417668269771967
+   },
+   "Zylot - Paint Spill (Music Reactive Paint Mix) nz+ cheese steak": {
+    "luma_err": 0.02983933687210083,
+    "rgb_err": 0.03367574016253153,
+    "sat_err": 0.09236004948616028,
+    "fd_err": 0.05208100378513336,
+    "map_corr": 0.06168008510048634,
+    "colour_map_err": 0.07806083559989929,
+    "series_corr": 0.5326726936956068
+   },
+   "amandio c - living boxes 2": {
+    "luma_err": 0.002828940749168396,
+    "rgb_err": 0.0028534928957621255,
+    "sat_err": 0.0024984925985336304,
+    "fd_err": 0.0005821529775857925,
+    "map_corr": 0.999790636821908,
+    "colour_map_err": 0.003201761981472373,
+    "series_corr": 0.9999669444114028
+   },
+   "anglican't americouldn't - zhuGan roam3": {
+    "luma_err": 0.20630136132240295,
+    "rgb_err": 0.17901869614919028,
+    "sat_err": 0.08867037296295166,
+    "fd_err": 0.06771811097860336,
+    "map_corr": -0.22343689096342145,
+    "colour_map_err": 0.195598304271698,
+    "series_corr": 0.8162031737753297
+   },
+   "bdrv + al Rovastar - Fractopia bdrv132456 mix bleuarg - soft death roam3": {
+    "luma_err": 0.006862197071313858,
+    "rgb_err": 0.004481598113973935,
+    "sat_err": 0.05319100618362427,
+    "fd_err": 0.004140524193644524,
+    "map_corr": 0.9816690559667882,
+    "colour_map_err": 0.005819985643029213,
+    "series_corr": 0.9942792650115514
+   },
+   "bdrv + al shifter - phasm mx": {
+    "luma_err": 0.08599406480789185,
+    "rgb_err": 0.0849146842956543,
+    "sat_err": 0.051969848573207855,
+    "fd_err": 0.002224057912826538,
+    "map_corr": 0.9852801779143553,
+    "colour_map_err": 0.068853959441185,
+    "series_corr": 0.9967703421895594
+   },
+   "beta106i - Ashes of Clouds (Gas Giant) - mash0000 - temp --- Isosceles edit": {
+    "luma_err": 0.024231314659118652,
+    "rgb_err": 0.019207110007603962,
+    "sat_err": 0.013939619064331055,
+    "fd_err": 0.0069814324378967285,
+    "map_corr": 0.9951553404961525,
+    "colour_map_err": 0.023158082738518715,
+    "series_corr": 0.9962258716256118
+   },
+   "cope - strange attractor [flexis let it grow mix] (Jelly 5-56 [volume noise zoom-in])": {
+    "luma_err": 0.06598596274852753,
+    "rgb_err": 0.05607797702153524,
+    "sat_err": 0.009222984313964844,
+    "fd_err": 0.0011383723467588425,
+    "map_corr": 0.6656343479979069,
+    "colour_map_err": 0.11493478715419769,
+    "series_corr": 0.8401567128791952
+   },
+   "drugsincombat - whirlfire b": {
+    "luma_err": 0.11522531509399414,
+    "rgb_err": 0.10573630531628926,
+    "sat_err": 0.11865037679672241,
+    "fd_err": 0.017932027578353882,
+    "map_corr": 0.7117857058800345,
+    "colour_map_err": 0.15049700438976288,
+    "series_corr": 0.42617337953256834
+   },
+   "evolve the insect into lard nz": {
+    "luma_err": 1.0403102224637121e-27,
+    "rgb_err": 1.2106623853116574e-27,
+    "sat_err": 1.385233388193757e-21,
+    "fd_err": 0.0,
+    "map_corr": null,
+    "colour_map_err": 1.269796042027626e-27,
+    "series_corr": null
+   },
+   "fed - glowing 5 - fingers rmx nz+ ends badly fieldlessness not angel day": {
+    "luma_err": 0.006197333335876465,
+    "rgb_err": 0.08777193228403728,
+    "sat_err": 0.04519873857498169,
+    "fd_err": 0.0017660856246948242,
+    "map_corr": 0.9890226502828406,
+    "colour_map_err": 0.09017690271139145,
+    "series_corr": 0.27093879915134667
+   },
+   "fed - glowing 5 - fingers rmx nz+ half the stuff wanted jess alterna2": {
+    "luma_err": 0.14968878030776978,
+    "rgb_err": 0.2547835906346639,
+    "sat_err": 0.3578590303659439,
+    "fd_err": 0.0660129077732563,
+    "map_corr": 0.3399309937159389,
+    "colour_map_err": 0.21133415400981903,
+    "series_corr": 0.6801296569077442
+   },
+   "fed - slowfast 2-11 [Killa]": {
+    "luma_err": 0.01894441246986389,
+    "rgb_err": 0.06690068046251933,
+    "sat_err": 0.6263040602207184,
+    "fd_err": 0.07312124967575073,
+    "map_corr": -0.33902421352571854,
+    "colour_map_err": 0.11841851472854614,
+    "series_corr": 0.5635067350269323
+   },
+   "fiShbRaiN - toffee cream and icing sugar": {
+    "luma_err": 0.05876094102859497,
+    "rgb_err": 0.06359945237636566,
+    "sat_err": 0.15858100354671478,
+    "fd_err": 0.001380831003189087,
+    "map_corr": 0.5075079555671291,
+    "colour_map_err": 0.0919666662812233,
+    "series_corr": 0.9185298911852823
+   },
+   "fiShbRaiN - witchcraft (metropolish remix) - test - tillex  - shot ladd ap3+ roam2 nz+": {
+    "luma_err": 0.054360225796699524,
+    "rgb_err": 0.09536240994930267,
+    "sat_err": 0.19659680128097534,
+    "fd_err": 0.008224964141845703,
+    "map_corr": 0.6484050505801725,
+    "colour_map_err": 0.12403640151023865,
+    "series_corr": 0.8801157533037359
+   },
+   "finchman nz": {
+    "luma_err": 0.02078491449356079,
+    "rgb_err": 0.020920963337024052,
+    "sat_err": 0.04309864342212677,
+    "fd_err": 0.02273760735988617,
+    "map_corr": 0.6204016411453853,
+    "colour_map_err": 0.02283421903848648,
+    "series_corr": 0.7849805445988468
+   },
+   "fleekus flokus - violent and insane homicidal air molecules - n777": {
+    "luma_err": 0.007340267300605774,
+    "rgb_err": 0.005591581265131633,
+    "sat_err": 0.009903758764266968,
+    "fd_err": 0.005006507039070129,
+    "map_corr": 0.7749656763942913,
+    "colour_map_err": 0.014690520241856575,
+    "series_corr": 0.9439719084440092
+   },
+   "flexi - grind my glitch up [248]": {
+    "luma_err": 0.06807681918144226,
+    "rgb_err": 0.0630711962779363,
+    "sat_err": 0.6235595345497131,
+    "fd_err": 0.02691928669810295,
+    "map_corr": -0.3093289345905044,
+    "colour_map_err": 0.08409757167100906,
+    "series_corr": 0.03329701083989207
+   },
+   "flexi - target practice-5-liquid-2-twitch-2": {
+    "luma_err": 0.41753247827409723,
+    "rgb_err": 0.43550817651536516,
+    "sat_err": 0.4783442139159888,
+    "fd_err": 0.06559836532193941,
+    "map_corr": -0.3351306623441532,
+    "colour_map_err": 0.4363017976284027,
+    "series_corr": -0.46946909366339684
+   },
+   "geiss - brain zoom 3 (random texture mix) [rotating palette mix]": {
+    "luma_err": 0.5259650349617004,
+    "rgb_err": 0.5877871513366699,
+    "sat_err": 0.17355148494243622,
+    "fd_err": 0.01945917308330536,
+    "map_corr": null,
+    "colour_map_err": 0.5398186445236206,
+    "series_corr": 0.44167116534020445
+   },
+   "goody + martin - crystal palace - devotee5": {
+    "luma_err": 0.004426941275596619,
+    "rgb_err": 0.005366429686546326,
+    "sat_err": 0.004258543252944946,
+    "fd_err": 8.261017501354218e-05,
+    "map_corr": 0.9677763717563148,
+    "colour_map_err": 0.03407488018274307,
+    "series_corr": 0.9784688160421365
+   },
+   "goody(2), stahlregen (3), fed (1) - 2nd collaboration(ps2-0) - #6": {
+    "luma_err": 0.03721058741211891,
+    "rgb_err": 0.03166558841864268,
+    "sat_err": 0.2674154043197632,
+    "fd_err": 0.011617721058428288,
+    "map_corr": 0.14644857167002673,
+    "colour_map_err": 0.04185738041996956,
+    "series_corr": 0.5634249909786871
+   },
+   "hexcollie - Starburst Hurricane": {
+    "luma_err": 0.0021456480026245117,
+    "rgb_err": 0.025769084692001343,
+    "sat_err": 0.03914827108383179,
+    "fd_err": 0.009771794080734253,
+    "map_corr": 0.9922145926874414,
+    "colour_map_err": 0.033564493060112,
+    "series_corr": 0.9982660271129544
+   },
+   "i will not be your japanese mistress slash kitchen appliance, i like your sweater nz+": {
+    "luma_err": 0.021740829572081566,
+    "rgb_err": 0.02094019530341029,
+    "sat_err": 0.011539192870259285,
+    "fd_err": 0.018545939587056637,
+    "map_corr": 0.15731766309398926,
+    "colour_map_err": 0.02446979656815529,
+    "series_corr": -0.24204057263377446
+   },
+   "i will not be your japanese mistress slash kitchen appliance, i like your sweater": {
+    "luma_err": 0.0011263154447078705,
+    "rgb_err": 0.0012666975768903892,
+    "sat_err": 0.005461588501930237,
+    "fd_err": 0.0011279024183750153,
+    "map_corr": 0.22081094737738005,
+    "colour_map_err": 0.008792173117399216,
+    "series_corr": -0.2599490256215133
+   },
+   "martin + stahlregen - martin in da mash 12b": {
+    "luma_err": 0.0003775954246520996,
+    "rgb_err": 0.00048578282197316486,
+    "sat_err": 0.004818961024284363,
+    "fd_err": 3.4593045711517334e-05,
+    "map_corr": 0.9999972139509337,
+    "colour_map_err": 0.0005557370604947209,
+    "series_corr": 0.9999993089829992
+   },
+   "martin - elusive impressions mix1": {
+    "luma_err": 0.17865845561027527,
+    "rgb_err": 0.15940632671117783,
+    "sat_err": 0.014460742473602295,
+    "fd_err": 0.026992730796337128,
+    "map_corr": 0.46982602423059977,
+    "colour_map_err": 0.15987788140773773,
+    "series_corr": 0.807702453163792
+   },
+   "martin - neon space ps3 [fmtvlsm] - SoOfCourseWhatIWantIsAPwMoebiusForEachLayer": {
+    "luma_err": 0.08616136014461517,
+    "rgb_err": 0.07559734831253688,
+    "sat_err": 0.01643902063369751,
+    "fd_err": 0.003986001014709473,
+    "map_corr": 0.7332307116531237,
+    "colour_map_err": 0.08109614253044128,
+    "series_corr": 0.7185719537887596
+   },
+   "martin - sphery tales slow version": {
+    "luma_err": 0.015405941754579544,
+    "rgb_err": 0.015547677564124266,
+    "sat_err": 0.28996342420578003,
+    "fd_err": 0.004456980153918266,
+    "map_corr": null,
+    "colour_map_err": 0.015241691842675209,
+    "series_corr": 0.30350220384818305
+   },
+   "martin - tunnel race [meta mash] - disciple'": {
+    "luma_err": 5.911290645599365e-05,
+    "rgb_err": 0.0011976708968480427,
+    "sat_err": 0.008800595998764038,
+    "fd_err": 0.003591671586036682,
+    "map_corr": 0.91585267676858,
+    "colour_map_err": 0.011801904998719692,
+    "series_corr": 0.9511670790126188
+   },
+   "nontuplet corpse sterility": {
+    "luma_err": 0.0059114135801792145,
+    "rgb_err": 0.004262236548925102,
+    "sat_err": 0.02736949920654297,
+    "fd_err": 0.0011265319772064686,
+    "map_corr": 0.2836316620474792,
+    "colour_map_err": 0.005247190129011869,
+    "series_corr": 0.9768249166815378
+   },
+   "orb - inferno - burnt to a crisp - ngdbthzs avoid homozoidne": {
+    "luma_err": 0.08349569141864777,
+    "rgb_err": 0.07833612710237503,
+    "sat_err": 0.09333646297454834,
+    "fd_err": 0.006456635892391205,
+    "map_corr": 0.6773351343105106,
+    "colour_map_err": 0.09261935204267502,
+    "series_corr": 0.42599831176883857
+   },
+   "phat + EoS - Bass_responce_Red_Movements_Disorienting nebula3_fire_works_uninverted seizure": {
+    "luma_err": 0.2447356879711151,
+    "rgb_err": 0.22228013972441354,
+    "sat_err": 0.04576590657234192,
+    "fd_err": 0.09137891046702862,
+    "map_corr": -0.058062531705461946,
+    "colour_map_err": 0.23140107095241547,
+    "series_corr": -0.054774376691307566
+   },
+   "phinjamain": {
+    "luma_err": 0.040917009115219116,
+    "rgb_err": 0.03007462869087855,
+    "sat_err": 0.015590786933898926,
+    "fd_err": 9.924173355102539e-06,
+    "map_corr": 0.798293067330694,
+    "colour_map_err": 0.04508333280682564,
+    "series_corr": 0.9122455061651507
+   },
+   "random mash-up round 18": {
+    "luma_err": 0.004270583391189575,
+    "rgb_err": 0.004115119576454163,
+    "sat_err": 0.13743191957473755,
+    "fd_err": 0.0011014267802238464,
+    "map_corr": 0.9825163546581008,
+    "colour_map_err": 0.023467760533094406,
+    "series_corr": 0.9941667075081224
+   },
+   "rce-ordinary - want (nevermore mix) nz+ tucks medicated pads": {
+    "luma_err": 0.15472537279129028,
+    "rgb_err": 0.17667619387308756,
+    "sat_err": 0.006051301956176758,
+    "fd_err": 0.0068376511335372925,
+    "map_corr": 0.45424687696497273,
+    "colour_map_err": 0.17258566617965698,
+    "series_corr": 0.7570758901273913
+   },
+   "shifter + EoS + phat - static creep": {
+    "luma_err": 0.003000810742378235,
+    "rgb_err": 0.0014391827086607616,
+    "sat_err": 0.010012149810791016,
+    "fd_err": 0.0020760148763656616,
+    "map_corr": 0.9826551951526257,
+    "colour_map_err": 0.015441871248185635,
+    "series_corr": 0.9599186719003241
+   },
+   "shifter + Flexi - liquid circuitry from the hive qongugaething the pisspondenseath ferocious butt hounds": {
+    "luma_err": 0.005135595798492432,
+    "rgb_err": 0.004582042495409648,
+    "sat_err": 0.0027538537979125977,
+    "fd_err": 0.0001046210527420044,
+    "map_corr": 0.3065822677840356,
+    "colour_map_err": 0.008955582976341248,
+    "series_corr": -0.19366277962477563
+   },
+   "shifter + Flexi - liquid circuitry from the oblivion hive nz+ the only art in the omniverse is can't even get toys right": {
+    "luma_err": 0.012136995792388916,
+    "rgb_err": 0.01183303197224935,
+    "sat_err": 0.016079843044281006,
+    "fd_err": 0.01317652314901352,
+    "map_corr": 0.028242032650498176,
+    "colour_map_err": 0.048438817262649536,
+    "series_corr": 0.30579101672831455
+   },
+   "shifter + Flexi - liquid circuitry from the oblivion hive rw4 nz+ mbor qoinmbonstre": {
+    "luma_err": 0.000491756945848465,
+    "rgb_err": 0.006919360409180324,
+    "sat_err": 0.01686747372150421,
+    "fd_err": 0.0024717748165130615,
+    "map_corr": 0.390636351537161,
+    "colour_map_err": 0.012415500357747078,
+    "series_corr": 0.5075550093130397
+   },
+   "shifter + Flexi - liquid circuitry from the pataoblivion everything for eternity, god damn it, i did it again": {
+    "luma_err": 0.008216321468353271,
+    "rgb_err": 0.020446767409642536,
+    "sat_err": 0.011598527431488037,
+    "fd_err": 0.0026120170950889587,
+    "map_corr": 0.5187183756771803,
+    "colour_map_err": 0.027215810492634773,
+    "series_corr": 0.5857366496857402
+   },
+   "shifter + Flexi - liquid circuitry from the waxen hive nothing": {
+    "luma_err": 0.007809370756149292,
+    "rgb_err": 0.007493555545806885,
+    "sat_err": 0.0019564926624298096,
+    "fd_err": 0.0024742186069488525,
+    "map_corr": 0.26462955719577036,
+    "colour_map_err": 0.07933078706264496,
+    "series_corr": 0.9905444332901433
+   },
+   "shifter + flexi - american pie 3 nz wear like chane": {
+    "luma_err": 0.013415582478046417,
+    "rgb_err": 0.022876861194769543,
+    "sat_err": 0.015416145324707031,
+    "fd_err": 0.00319884717464447,
+    "map_corr": 0.19139889352372993,
+    "colour_map_err": 0.08356990665197372,
+    "series_corr": 0.9829861607582129
+   },
+   "shifter - bronchiole (EoS+Phat edit) tethered web nz+ shale pignth": {
+    "luma_err": 0.011152923107147217,
+    "rgb_err": 0.04503514369328817,
+    "sat_err": 0.052042752504348755,
+    "fd_err": 0.016563743352890015,
+    "map_corr": 0.8661194763461096,
+    "colour_map_err": 0.0602828748524189,
+    "series_corr": 0.6462778455184243
+   },
+   "shifter - interference field lens (beta 4b) - mash0000 - lovecraftian drama horror made sick flesh --- Isosceles edit1": {
+    "luma_err": 0.01225137710571289,
+    "rgb_err": 0.011318395535151163,
+    "sat_err": 0.006352335214614868,
+    "fd_err": 0.007619768381118774,
+    "map_corr": 0.9420963985369503,
+    "colour_map_err": 0.018598252907395363,
+    "series_corr": 0.9988685020358647
+   },
+   "shifter - mosaic mitosis - will they find me roam2 nz+ souprae more kootra minecraft": {
+    "luma_err": 0.024283409118652344,
+    "rgb_err": 0.020306686560312908,
+    "sat_err": 0.002028942108154297,
+    "fd_err": 0.0017987191677093506,
+    "map_corr": 0.39065734187826817,
+    "colour_map_err": 0.04245443269610405,
+    "series_corr": 0.19105117114753417
+   },
+   "shifter - plasmic fact - witholding, with-a holding, widdaholting - hollandinate": {
+    "luma_err": 0.045057594776153564,
+    "rgb_err": 0.057861655950546265,
+    "sat_err": 0.06127309799194336,
+    "fd_err": 0.014826076105237007,
+    "map_corr": 0.9004283573300254,
+    "colour_map_err": 0.11043888330459595,
+    "series_corr": 0.730586388240057
+   },
+   "stahlregen + shifter - hypnotron v 0-75": {
+    "luma_err": 0.00039818882942199707,
+    "rgb_err": 0.0002695024013519287,
+    "sat_err": 0.0,
+    "fd_err": 2.1442770957946777e-05,
+    "map_corr": 0.9998758731341253,
+    "colour_map_err": 0.0007806034409441054,
+    "series_corr": 0.9727812014506496
+   },
+   "stbenge - dripping_piles_B nz+": {
+    "luma_err": 0.00800594873726368,
+    "rgb_err": 0.00795116958518823,
+    "sat_err": 0.010277954861521721,
+    "fd_err": 0.01592353917658329,
+    "map_corr": null,
+    "colour_map_err": 0.007950292900204659,
+    "series_corr": null
+   },
+   "stupid mash5 - men in black 3 'i like hogs' nz+": {
+    "luma_err": 0.1901160553097725,
+    "rgb_err": 0.1904396116733551,
+    "sat_err": 0.24499905109405518,
+    "fd_err": 0.02175224758684635,
+    "map_corr": 0.6184546748463383,
+    "colour_map_err": 0.1950216442346573,
+    "series_corr": 0.436484991134693
+   },
+   "suksma + aderassi geiss - the sick assumptions you make about my car [shifter's esc shader] nz+": {
+    "luma_err": 0.009053990244865417,
+    "rgb_err": 0.00852623333533605,
+    "sat_err": 0.03115817904472351,
+    "fd_err": 0.0050200968980789185,
+    "map_corr": 0.9779448971097114,
+    "colour_map_err": 0.03241589292883873,
+    "series_corr": 0.9929599588138336
+   },
+   "suksma + rovastar zylot eos phat gastly geiss - my iron chest is a bullet hurricane, the wounds are oxidizing": {
+    "luma_err": 0.015680640935897827,
+    "rgb_err": 0.018419834474722546,
+    "sat_err": 0.006175220012664795,
+    "fd_err": 0.009588567540049553,
+    "map_corr": 0.7108730701130959,
+    "colour_map_err": 0.017987364903092384,
+    "series_corr": 0.9378500633372798
+   },
+   "suksma - Dbleja - Escape (Blue Mix) - k me as an xmas grift": {
+    "luma_err": 0.026330500841140747,
+    "rgb_err": 0.05236997207005819,
+    "sat_err": 0.002755284309387207,
+    "fd_err": 0.003873765468597412,
+    "map_corr": 0.8382340774276207,
+    "colour_map_err": 0.050161849707365036,
+    "series_corr": 0.46950325374596785
+   },
+   "suksma - Fvese - MV Fun 3 - completely juiced by presses - creating cancer with mac widgets": {
+    "luma_err": 0.06407934427261353,
+    "rgb_err": 0.142005721728007,
+    "sat_err": 0.06357705593109131,
+    "fd_err": 0.004552870988845825,
+    "map_corr": 0.6479090077021851,
+    "colour_map_err": 0.16244199872016907,
+    "series_corr": 0.7337234225830457
+   },
+   "suksma - Fvese - MV Fun 3 - completely juiced by presses - lattice crowded by infinite space": {
+    "luma_err": 0.003679037094116211,
+    "rgb_err": 0.0028948038816452026,
+    "sat_err": 0.004637241363525391,
+    "fd_err": 0.002462632954120636,
+    "map_corr": 0.8606506576584079,
+    "colour_map_err": 0.031915705651044846,
+    "series_corr": 0.967973034854109
+   },
+   "suksma - assheadish lice": {
+    "luma_err": 0.01808503270149231,
+    "rgb_err": 0.017918626467386883,
+    "sat_err": 0.010959923267364502,
+    "fd_err": 0.0002497062087059021,
+    "map_corr": 0.95017122486896,
+    "colour_map_err": 0.05098438262939453,
+    "series_corr": 0.669955493540274
+   },
+   "suksma - barium titanate --- Isosceles edit04": {
+    "luma_err": 0.01534956693649292,
+    "rgb_err": 0.06613421440124512,
+    "sat_err": 0.025728225708007812,
+    "fd_err": 0.007058020681142807,
+    "map_corr": -0.03279016881874572,
+    "colour_map_err": 0.1542205661535263,
+    "series_corr": 0.16457853841217382
+   },
+   "suksma - biotoxins on strings - quantizied bacteria line alien bioluminescent intestine xfr": {
+    "luma_err": 0.0015621483325958252,
+    "rgb_err": 0.0022634093960126242,
+    "sat_err": 0.014718958642333746,
+    "fd_err": 0.000348581001162529,
+    "map_corr": 0.9976458500248357,
+    "colour_map_err": 0.00338264973834157,
+    "series_corr": 0.9999303232755911
+   },
+   "suksma - biotoxins on strings - thyghmaster oilstrip lifedecay + flx per vtx equ(1)": {
+    "luma_err": 0.003276422619819641,
+    "rgb_err": 0.0036179721355438232,
+    "sat_err": 0.0,
+    "fd_err": 0.00029781274497509,
+    "map_corr": 0.9448464953979975,
+    "colour_map_err": 0.02072788029909134,
+    "series_corr": 0.9835089472303593
+   },
+   "suksma - byT o' the bublee you roams not knowing is the best": {
+    "luma_err": 0.04244723916053772,
+    "rgb_err": 0.03720139960447947,
+    "sat_err": 0.08633053302764893,
+    "fd_err": 0.006420683115720749,
+    "map_corr": 0.552025676389644,
+    "colour_map_err": 0.0564265176653862,
+    "series_corr": 0.8404748722148885
+   },
+   "suksma - chemosynthetic nosferatu - automating transformation with b n s3 - claim form fsh shf flx obl nz+": {
+    "luma_err": 0.038309454917907715,
+    "rgb_err": 0.04013680418332418,
+    "sat_err": 0.020159542560577393,
+    "fd_err": 0.026945069432258606,
+    "map_corr": 0.8908472580329102,
+    "colour_map_err": 0.08579093217849731,
+    "series_corr": 0.9655470068352356
+   },
+   "suksma - coal drapes - mrt fsh behooval roam3- nz+ gene phreqshough slambspamb": {
+    "luma_err": 0.07326319813728333,
+    "rgb_err": 0.063535471757253,
+    "sat_err": 0.09210489690303802,
+    "fd_err": 0.12737685441970825,
+    "map_corr": 0.1774784438249365,
+    "colour_map_err": 0.08475736528635025,
+    "series_corr": 0.7676808957470013
+   },
+   "suksma - coal drapes - mrt fsh smelter nz+": {
+    "luma_err": 0.044777244329452515,
+    "rgb_err": 0.029657830794652302,
+    "sat_err": 0.05142247676849365,
+    "fd_err": 0.0011700689792633057,
+    "map_corr": 0.6256890322686451,
+    "colour_map_err": 0.0593612864613533,
+    "series_corr": 0.9731272855005761
+   },
+   "suksma - cultivating quorum sensing magick bacteria + flexi - communication link established": {
+    "luma_err": 0.0031794309616088867,
+    "rgb_err": 0.0027953883012135825,
+    "sat_err": 0.011867433786392212,
+    "fd_err": 0.002521023154258728,
+    "map_corr": 0.9974752723222924,
+    "colour_map_err": 0.012908140197396278,
+    "series_corr": 0.9861829770104976
+   },
+   "suksma - daryl feels my hellish lonliness - placing you under citizen's": {
+    "luma_err": 0.059125274419784546,
+    "rgb_err": 0.07200752695401509,
+    "sat_err": 0.05064588785171509,
+    "fd_err": 0.017146147787570953,
+    "map_corr": 0.7350991215294257,
+    "colour_map_err": 0.08891749382019043,
+    "series_corr": 0.6664164072375502
+   },
+   "suksma - daryl feels my hellish lonliness - unfounding non-prophet organellecisions": {
+    "luma_err": 0.10605558753013611,
+    "rgb_err": 0.10565515855948131,
+    "sat_err": 0.1034896969795227,
+    "fd_err": 0.028155922889709473,
+    "map_corr": 0.7319495131114838,
+    "colour_map_err": 0.1291237771511078,
+    "series_corr": 0.8452951362588689
+   },
+   "suksma - distort crops of horror torture - gdy neck problem solution (tense for hours) we never will cr3": {
+    "luma_err": 0.0004928428679704666,
+    "rgb_err": 0.005527219424645106,
+    "sat_err": 0.12403887510299683,
+    "fd_err": 0.0037854062393307686,
+    "map_corr": 0.8099406122387156,
+    "colour_map_err": 0.005087423603981733,
+    "series_corr": 0.373801448541718
+   },
+   "suksma - dotes hostile undertake + demonlord - blood in your eyes again - flacc nz+ sky vomit": {
+    "luma_err": 0.4642597883939743,
+    "rgb_err": 0.46582937488953274,
+    "sat_err": 0.18996447324752808,
+    "fd_err": 0.06407719105482101,
+    "map_corr": 0.31794686747404827,
+    "colour_map_err": 0.4614645838737488,
+    "series_corr": 0.4974821014914459
+   },
+   "suksma - dotes hostile undertake - finished breathing sir flacc roam": {
+    "luma_err": 0.014545992016792297,
+    "rgb_err": 0.014954293767611185,
+    "sat_err": 0.029930055141448975,
+    "fd_err": 0.01570824533700943,
+    "map_corr": 0.2519736919370931,
+    "colour_map_err": 0.02376471646130085,
+    "series_corr": 0.4808029055451445
+   },
+   "suksma - drop ballast, acquire teeth - hate shade --- Isosceles edit": {
+    "luma_err": 0.020828545093536377,
+    "rgb_err": 0.03841125965118408,
+    "sat_err": 0.006998507305979729,
+    "fd_err": 0.0008263187482953072,
+    "map_corr": -0.11380022720457661,
+    "colour_map_err": 0.021577628329396248,
+    "series_corr": 0.9997418035449438
+   },
+   "suksma - ed geining hateops - flx i cover myself with gears ape3 roam2 i bug me, go away": {
+    "luma_err": 0.00013001891784369946,
+    "rgb_err": 0.00010924931848421693,
+    "sat_err": 0.0019887201488018036,
+    "fd_err": 0.00013239250984042883,
+    "map_corr": 0.9921473018648853,
+    "colour_map_err": 0.0002360850339755416,
+    "series_corr": 0.874903713000955
+   },
+   "suksma - feign shoulder concern when i should be executed - solipsatanasm": {
+    "luma_err": 0.01807112991809845,
+    "rgb_err": 0.012882478069514036,
+    "sat_err": 0.016861021518707275,
+    "fd_err": 0.003097590059041977,
+    "map_corr": 0.8512723179732784,
+    "colour_map_err": 0.01913333497941494,
+    "series_corr": 0.9914433439007296
+   },
+   "suksma - flexi - fractrip - lofted guts - flacc - pisce nz+ awrqvhord": {
+    "luma_err": 0.008848309516906738,
+    "rgb_err": 0.005329757928848267,
+    "sat_err": 0.009404301643371582,
+    "fd_err": 0.00029704347252845764,
+    "map_corr": 0.828902700847854,
+    "colour_map_err": 0.05277342349290848,
+    "series_corr": 0.7743279709707287
+   },
+   "suksma - from the evil that brought you existence comes this new feature-length beheading": {
+    "luma_err": 0.005893707275390625,
+    "rgb_err": 0.00662343700726827,
+    "sat_err": 0.0066182613372802734,
+    "fd_err": 0.002156101167201996,
+    "map_corr": 0.8975962064595775,
+    "colour_map_err": 0.02856588363647461,
+    "series_corr": 0.9842180437225196
+   },
+   "suksma - geiss + dotes": {
+    "luma_err": 0.02548280358314514,
+    "rgb_err": 0.017042746146519978,
+    "sat_err": 0.006674036383628845,
+    "fd_err": 0.002020023763179779,
+    "map_corr": 0.8412962421956224,
+    "colour_map_err": 0.07860247790813446,
+    "series_corr": 0.6712792869257291
+   },
+   "suksma - i'm alive (omniversal disappointment)": {
+    "luma_err": 0.026058197021484375,
+    "rgb_err": 0.07395097613334656,
+    "sat_err": 0.08920323848724365,
+    "fd_err": 0.030287861824035645,
+    "map_corr": 0.8362920481061807,
+    "colour_map_err": 0.10983911901712418,
+    "series_corr": 0.7185299616237227
+   },
+   "suksma - martin - tunnel race - mrt,flx - we are in no position to exist flacc": {
+    "luma_err": 8.511543273925781e-05,
+    "rgb_err": 0.020592028896013897,
+    "sat_err": 0.02663746476173401,
+    "fd_err": 0.0017842575907707214,
+    "map_corr": 0.8123833213499322,
+    "colour_map_err": 0.026851050555706024,
+    "series_corr": 0.9199940999919519
+   },
+   "suksma - moistened gills in latent galaxy raggy": {
+    "luma_err": 0.0009371479973196983,
+    "rgb_err": 0.0005714017897844315,
+    "sat_err": 0.0016347132623195648,
+    "fd_err": 4.830211400985718e-05,
+    "map_corr": 0.835757621730319,
+    "colour_map_err": 0.00496985949575901,
+    "series_corr": 0.9889902220076274
+   },
+   "suksma - mtn,flx - flacc - choilan roam": {
+    "luma_err": 0.008602619171142578,
+    "rgb_err": 0.010260522365570068,
+    "sat_err": 0.006942868232727051,
+    "fd_err": 0.0031985342502593994,
+    "map_corr": 0.9699603857034531,
+    "colour_map_err": 0.028465740382671356,
+    "series_corr": 0.9731342301120635
+   },
+   "suksma - n19 3 layer overlap opt 3 flx nz+ loqo dystropy": {
+    "luma_err": 0.04344296455383301,
+    "rgb_err": 0.029239972432454426,
+    "sat_err": 0.05540397763252258,
+    "fd_err": 0.019061163067817688,
+    "map_corr": 0.9078303905099643,
+    "colour_map_err": 0.05774929001927376,
+    "series_corr": 0.89044206818705
+   },
+   "suksma - n6 - n777 - sth 1-ret": {
+    "luma_err": 0.28329551219940186,
+    "rgb_err": 0.3067326446374257,
+    "sat_err": 0.14971424639225006,
+    "fd_err": 0.0263548344373703,
+    "map_corr": 0.6243155596218194,
+    "colour_map_err": 0.2576582431793213,
+    "series_corr": 0.9333169007081324
+   },
+   "suksma - negative infinity for not flinching - link": {
+    "luma_err": 0.0025700032711029053,
+    "rgb_err": 0.03786561886469523,
+    "sat_err": 0.03701674938201904,
+    "fd_err": 0.0071043819189071655,
+    "map_corr": 0.9744252707436161,
+    "colour_map_err": 0.047061920166015625,
+    "series_corr": 0.965798434354092
+   },
+   "suksma - no one is innocent,  i am not innocent, you are not innocent": {
+    "luma_err": 0.0009824633598327637,
+    "rgb_err": 0.0008907119433085123,
+    "sat_err": 0.0015166997909545898,
+    "fd_err": 0.0002134367823600769,
+    "map_corr": 0.99776657604015,
+    "colour_map_err": 0.0024041507858783007,
+    "series_corr": 0.9998108003712993
+   },
+   "suksma - penattrition - geiss crossfire shaders nz+ gssm2": {
+    "luma_err": 0.05097562074661255,
+    "rgb_err": 0.08084930727879207,
+    "sat_err": 0.0557246208190918,
+    "fd_err": 0.03159338980913162,
+    "map_corr": 0.37856813356460345,
+    "colour_map_err": 0.08384209871292114,
+    "series_corr": 0.9064765443878509
+   },
+   "suksma - platinum sulfur dope nz+ qabel mboqtsch par 4 haq qoursch": {
+    "luma_err": 0.05557319521903992,
+    "rgb_err": 0.06461891035238902,
+    "sat_err": 0.010466992855072021,
+    "fd_err": 0.014317519962787628,
+    "map_corr": 0.8362826169335609,
+    "colour_map_err": 0.07172706723213196,
+    "series_corr": 0.6126718231927331
+   },
+   "suksma - pudge": {
+    "luma_err": 0.0010965988039970398,
+    "rgb_err": 0.0008463412523269653,
+    "sat_err": 0.007371723651885986,
+    "fd_err": 0.00011469051241874695,
+    "map_corr": 0.9986586060290029,
+    "colour_map_err": 0.003429302480071783,
+    "series_corr": 0.9997566936701057
+   },
+   "suksma - purple 9-d rubber coins embossed with cataverses": {
+    "luma_err": 0.0010100603103637695,
+    "rgb_err": 0.0008187492688496908,
+    "sat_err": 0.0011346414685249329,
+    "fd_err": 0.003311850130558014,
+    "map_corr": 0.3608559859610878,
+    "colour_map_err": 0.025057444348931313,
+    "series_corr": 0.9539634788181189
+   },
+   "suksma - pus on my cat - hate shade": {
+    "luma_err": 0.044652312994003296,
+    "rgb_err": 0.04353513320287069,
+    "sat_err": 0.04777085781097412,
+    "fd_err": 0.02638944983482361,
+    "map_corr": 0.2848392182735338,
+    "colour_map_err": 0.13321800529956818,
+    "series_corr": 0.21448787925209487
+   },
+   "suksma - pus on my cat - subdomain largo goat pear": {
+    "luma_err": 0.010178983211517334,
+    "rgb_err": 0.009746372699737549,
+    "sat_err": 0.005031093955039978,
+    "fd_err": 0.013889476656913757,
+    "map_corr": 0.8592655731731063,
+    "colour_map_err": 0.02487616240978241,
+    "series_corr": 0.9178694720056586
+   },
+   "suksma - shape instance exp 3 - bulloxain": {
+    "luma_err": 0.01713573932647705,
+    "rgb_err": 0.019287367661794026,
+    "sat_err": 0.006610363721847534,
+    "fd_err": 0.028667211532592773,
+    "map_corr": 0.5811046476616817,
+    "colour_map_err": 0.05006420984864235,
+    "series_corr": 0.9890070722431231
+   },
+   "suksma - shifter - urchin kali echos - bowel roams nz+": {
+    "luma_err": 0.07405580580234528,
+    "rgb_err": 0.056725467244784035,
+    "sat_err": 0.08885732293128967,
+    "fd_err": 0.00955246388912201,
+    "map_corr": 0.7218874598200689,
+    "colour_map_err": 0.06778161227703094,
+    "series_corr": 0.818357058784648
+   },
+   "suksma - stone - rt mess": {
+    "luma_err": 0.39545100927352905,
+    "rgb_err": 0.42508278290430707,
+    "sat_err": 0.15321286767721176,
+    "fd_err": 0.0247018625959754,
+    "map_corr": 0.08995124229591615,
+    "colour_map_err": 0.37643152475357056,
+    "series_corr": -0.138137903168073
+   },
+   "suksma - superprison - occulted by massive orbiting conglomerations of tomatoes": {
+    "luma_err": 0.01439899206161499,
+    "rgb_err": 0.016953806082407635,
+    "sat_err": 0.005460202693939209,
+    "fd_err": 0.02343638241291046,
+    "map_corr": 0.5483362238770403,
+    "colour_map_err": 0.0987105742096901,
+    "series_corr": 0.4790399546602071
+   },
+   "suksma - to finally feel like a cyborg": {
+    "luma_err": 0.12340682744979858,
+    "rgb_err": 0.08712595701217651,
+    "sat_err": 0.4637172818183899,
+    "fd_err": 0.10820065066218376,
+    "map_corr": 0.75045418643081,
+    "colour_map_err": 0.2021922767162323,
+    "series_corr": 0.7734311594351639
+   },
+   "suksma - truth, rarity --- Isosceles edit04": {
+    "luma_err": 0.015884697437286377,
+    "rgb_err": 0.016346454620361328,
+    "sat_err": 0.0012778411619365215,
+    "fd_err": 0.0019791647791862488,
+    "map_corr": 0.7261738664785279,
+    "colour_map_err": 0.02765498496592045,
+    "series_corr": 0.9803655324368058
+   },
+   "suksma - yin - 395 - Artificial Inspiration (brainstorming - outward) + martin + flexi + stahlregen - el": {
+    "luma_err": 0.13610729575157166,
+    "rgb_err": 0.13808218638102213,
+    "sat_err": 0.19794011116027832,
+    "fd_err": 0.11611227691173553,
+    "map_corr": 0.8220145362832287,
+    "colour_map_err": 0.14931738376617432,
+    "series_corr": 0.7812360070650115
+   },
+   "uncompromising hate firehose digest pine needles nz+": {
+    "luma_err": 0.06717833876609802,
+    "rgb_err": 0.054723914402226605,
+    "sat_err": 0.0009785294532775879,
+    "fd_err": 0.012014418840408325,
+    "map_corr": 0.9351918388600999,
+    "colour_map_err": 0.060029640793800354,
+    "series_corr": 0.8215253854294899
+   },
+   "va ultramix - 293 heat cannon oqult i'm stevo-o and i make people happy for a living": {
+    "luma_err": 0.04819091409444809,
+    "rgb_err": 0.038059900204340615,
+    "sat_err": 0.049029767513275146,
+    "fd_err": 0.03877954185009003,
+    "map_corr": 0.696535137919236,
+    "colour_map_err": 0.05098129063844681,
+    "series_corr": 0.05923263646705875
+   },
+   "va ultramix2 - 30": {
+    "luma_err": 9.760912507772446e-05,
+    "rgb_err": 2.3830992480119068e-05,
+    "sat_err": 0.0037503987550735474,
+    "fd_err": 1.2694044926320203e-06,
+    "map_corr": 0.9996551368551143,
+    "colour_map_err": 0.0004737110575661063,
+    "series_corr": 0.9999818853465192
+   },
+   "va ultramix2 - 364_1": {
+    "luma_err": 0.0008044764399528503,
+    "rgb_err": 0.0006603399912516276,
+    "sat_err": 0.009454041719436646,
+    "fd_err": 1.2242788216099143e-05,
+    "map_corr": 0.9996928407959909,
+    "colour_map_err": 0.0015366865554824471,
+    "series_corr": 0.9999977161077592
+   },
+   "you are now leaving the materialistic sector - chloral reef, er": {
+    "luma_err": 0.04148280620574951,
+    "rgb_err": 0.04861075679461161,
+    "sat_err": 0.05530691146850586,
+    "fd_err": 1.5912577509880066e-05,
+    "map_corr": 0.9848297084656074,
+    "colour_map_err": 0.0712117925286293,
+    "series_corr": 0.9972288298634135
+   }
+  },
+  "4ff0daee": {
+   "$$$ Royal - Mashup (325)": {
+    "luma_err": 0.10375043749809265,
+    "rgb_err": 0.11516202489535014,
+    "sat_err": 0.05232149735093117,
+    "fd_err": 0.0021878276020288467,
+    "map_corr": 0.9732968298074107,
+    "colour_map_err": 0.10347152501344681,
+    "series_corr": 0.9024936321394877
+   },
+   "$$$ Royal - Mashup (373)": {
+    "luma_err": 0.014791056513786316,
+    "rgb_err": 0.016847347219785053,
+    "sat_err": 0.028691411018371582,
+    "fd_err": 0.0019045434892177582,
+    "map_corr": 0.9919102450959498,
+    "colour_map_err": 0.02923428826034069,
+    "series_corr": 0.9958880525171336
+   },
+   "$$$ Royal - Mashup (477)": {
+    "luma_err": 0.12941962480545044,
+    "rgb_err": 0.10753112037976582,
+    "sat_err": 0.08502966165542603,
+    "fd_err": 0.00611056387424469,
+    "map_corr": 0.9183731804053455,
+    "colour_map_err": 0.11577735096216202,
+    "series_corr": 0.1747774207757167
+   },
+   "$$$ Royal - Mashup (485)": {
+    "luma_err": 0.007633626461029053,
+    "rgb_err": 0.007842381795247396,
+    "sat_err": 0.009904444217681885,
+    "fd_err": 0.0005978196859359741,
+    "map_corr": 0.9996415752208807,
+    "colour_map_err": 0.008852681145071983,
+    "series_corr": 0.9996559320882055
+   },
+   "133": {
+    "luma_err": 0.001847982406616211,
+    "rgb_err": 0.0004269878069559733,
+    "sat_err": 0.002674836665391922,
+    "fd_err": 0.000364106148481369,
+    "map_corr": 0.9308778570335474,
+    "colour_map_err": 0.006689524743705988,
+    "series_corr": 0.9984401243114954
+   },
+   "141 nz": {
+    "luma_err": 8.086557500064373e-06,
+    "rgb_err": 2.6731714266740408e-05,
+    "sat_err": 0.00010922679211944342,
+    "fd_err": 4.766814527101815e-05,
+    "map_corr": 0.8026504340907181,
+    "colour_map_err": 0.00018360531248617917,
+    "series_corr": 0.9893956162311774
+   },
+   "165": {
+    "luma_err": 3.4689903259277344e-05,
+    "rgb_err": 0.0017111698786417644,
+    "sat_err": 0.0022596120834350586,
+    "fd_err": 0.00028918683528900146,
+    "map_corr": 0.9973595182835481,
+    "colour_map_err": 0.00513565493747592,
+    "series_corr": 0.9932627706477912
+   },
+   "24": {
+    "luma_err": 0.0009441375732421875,
+    "rgb_err": 0.0005140465994675955,
+    "sat_err": 0.01269596815109253,
+    "fd_err": 8.700042963027954e-05,
+    "map_corr": 0.9994359012109629,
+    "colour_map_err": 0.0029344495851546526,
+    "series_corr": 0.999830558461721
+   },
+   "259": {
+    "luma_err": 0.001671813428401947,
+    "rgb_err": 0.0019140318036079407,
+    "sat_err": 0.1377115547657013,
+    "fd_err": 0.00028897635638713837,
+    "map_corr": 0.9956308438876228,
+    "colour_map_err": 0.0036981517914682627,
+    "series_corr": 0.99974351991786
+   },
+   "262": {
+    "luma_err": 0.0018052011728286743,
+    "rgb_err": 0.0014839296539624531,
+    "sat_err": 0.007861286401748657,
+    "fd_err": 0.00015078485012054443,
+    "map_corr": 0.9996304773784471,
+    "colour_map_err": 0.0028910422697663307,
+    "series_corr": 0.9997353010221587
+   },
+   "312": {
+    "luma_err": 0.6294922679662704,
+    "rgb_err": 0.5947803755601248,
+    "sat_err": 0.0293271541595459,
+    "fd_err": 0.031452396884560585,
+    "map_corr": 0.38654155966167375,
+    "colour_map_err": 0.5804893970489502,
+    "series_corr": 0.6878661693440224
+   },
+   "376": {
+    "luma_err": 0.00012090802192687988,
+    "rgb_err": 0.010443684955437979,
+    "sat_err": 0.05404826998710632,
+    "fd_err": 0.005057953298091888,
+    "map_corr": 0.6531712501749695,
+    "colour_map_err": 0.017946260049939156,
+    "series_corr": -0.06412182739424657
+   },
+   "390 threx no more warningsce Rumbo Pal Recodo calmer less agile better sorcery": {
+    "luma_err": 0.039249300956726074,
+    "rgb_err": 0.032248874505360924,
+    "sat_err": 0.009586721658706665,
+    "fd_err": 0.005027145147323608,
+    "map_corr": -0.13443105831009136,
+    "colour_map_err": 0.06265805661678314,
+    "series_corr": 0.8113651141865725
+   },
+   "417": {
+    "luma_err": 0.003112778067588806,
+    "rgb_err": 0.002987577269474665,
+    "sat_err": 0.02762824296951294,
+    "fd_err": 0.0003510601818561554,
+    "map_corr": 0.9219229765305096,
+    "colour_map_err": 0.038522280752658844,
+    "series_corr": 0.9966541990213972
+   },
+   "A HD ADAMFX Creation !!FT  Martin + flexi +  Rovastar MDropFX Collaboration E Adam HD INFECTIONFX ": {
+    "luma_err": 1.0618939995765686e-05,
+    "rgb_err": 0.0004394625624020894,
+    "sat_err": 0.0026527217123657465,
+    "fd_err": 0.0006865821778774261,
+    "map_corr": 0.6376513101635132,
+    "colour_map_err": 0.004217642825096846,
+    "series_corr": 0.9854676800315105
+   },
+   "A MilkKing Recreation FT Martin  - Violet Flash ft AdamFX n Geiss - Spiral Tunnels in CosmicFX Dust ": {
+    "luma_err": 0.05248398333787918,
+    "rgb_err": 0.05919161687294642,
+    "sat_err": 0.13609325885772705,
+    "fd_err": 0.003317885100841522,
+    "map_corr": 0.46314553699255573,
+    "colour_map_err": 0.07072030752897263,
+    "series_corr": 0.9159173835141692
+   },
+   "AAdamFX Infection 2 martin - disco mix (FireOptics)Ft Che Escape(IntoTheDisco)by AdamFX and Ft Milk C8": {
+    "luma_err": 0.02031731605529785,
+    "rgb_err": 0.01815843830506007,
+    "sat_err": 0.006902873516082764,
+    "fd_err": 0.008702319115400314,
+    "map_corr": 0.28994637718559774,
+    "colour_map_err": 0.03334251791238785,
+    "series_corr": 0.8593602706561592
+   },
+   "Adam Eatit Mashup FX 2 martin - disco mix + Lodus + Geiss + Ludicrous speed + Baked Ft another AdamFX 15": {
+    "luma_err": 0.003979533910751343,
+    "rgb_err": 0.01019842674334844,
+    "sat_err": 0.008660078048706055,
+    "fd_err": 0.0011728107929229736,
+    "map_corr": 0.9543709578646522,
+    "colour_map_err": 0.013435727916657925,
+    "series_corr": 0.9499788329357284
+   },
+   "AdamFX 2 Geiss - Mash-Up Sphere Xibit Graffiti Warp me Tydye7": {
+    "luma_err": 0.005187511444091797,
+    "rgb_err": 0.00421402882784605,
+    "sat_err": 0.001396477222442627,
+    "fd_err": 0.0034642592072486877,
+    "map_corr": 0.714303977682595,
+    "colour_map_err": 0.04290638491511345,
+    "series_corr": 0.9930986135930044
+   },
+   "AdamFX CollaborationFX of the best Remake  - Ft Martin - Orb - Flexi - WitchCraft Infection ": {
+    "luma_err": 0.02596569061279297,
+    "rgb_err": 0.022709389527638752,
+    "sat_err": 0.024304687976837158,
+    "fd_err": 0.0019433647394180298,
+    "map_corr": 0.8881486250173263,
+    "colour_map_err": 0.061359211802482605,
+    "series_corr": 0.5284939882405045
+   },
+   "AdamFX Enterz Tha Mash With Martin + stahlregen - AdamFX - In Tha Mash Effectz nz splatter": {
+    "luma_err": 0.021286875009536743,
+    "rgb_err": 0.019062529007593792,
+    "sat_err": 0.007070362567901611,
+    "fd_err": 0.01210252195596695,
+    "map_corr": 0.45140790753768556,
+    "colour_map_err": 0.06014904007315636,
+    "series_corr": 0.6395107943336361
+   },
+   "Benjam - Fractal Timepiece": {
+    "luma_err": 0.0,
+    "rgb_err": 0.0,
+    "sat_err": 0.0,
+    "fd_err": 0.0,
+    "map_corr": null,
+    "colour_map_err": 0.0,
+    "series_corr": null
+   },
+   "Bmelgren - Getter Sun 1": {
+    "luma_err": 0.050367966294288635,
+    "rgb_err": 0.053833525627851486,
+    "sat_err": 0.015771955251693726,
+    "fd_err": 0.003163505345582962,
+    "map_corr": 0.7532497558352006,
+    "colour_map_err": 0.05584825575351715,
+    "series_corr": 0.9327030166587723
+   },
+   "EVET + Flexi -Hue Burster": {
+    "luma_err": 0.11140912771224976,
+    "rgb_err": 0.12724241614341736,
+    "sat_err": 0.10013750195503235,
+    "fd_err": 0.014568895101547241,
+    "map_corr": 0.31161429443605176,
+    "colour_map_err": 0.17021220922470093,
+    "series_corr": 0.9269306509991246
+   },
+   "EVET + martin- Zy-grams": {
+    "luma_err": 0.0009287595748901367,
+    "rgb_err": 0.005344708760579427,
+    "sat_err": 0.008012652397155762,
+    "fd_err": 0.0008435621857643127,
+    "map_corr": 0.9775230810882901,
+    "colour_map_err": 0.02025311253964901,
+    "series_corr": 0.9969364950149803
+   },
+   "EVET - Fractopia Kaleidoscope rot2": {
+    "luma_err": 0.002977430820465088,
+    "rgb_err": 0.0045821766058603925,
+    "sat_err": 0.05212670564651489,
+    "fd_err": 0.0023876475170254707,
+    "map_corr": 0.9685804709186543,
+    "colour_map_err": 0.014091389253735542,
+    "series_corr": 0.9951363113601717
+   },
+   "EVET - Targus": {
+    "luma_err": 0.0023306328803300858,
+    "rgb_err": 0.0025997112970799208,
+    "sat_err": 0.027918577194213867,
+    "fd_err": 0.0018260776996612549,
+    "map_corr": 0.8482586836754052,
+    "colour_map_err": 0.008675401099026203,
+    "series_corr": 0.1712573936373454
+   },
+   "EVET - The Beast of Eden": {
+    "luma_err": 0.003568679094314575,
+    "rgb_err": 0.003621463974316915,
+    "sat_err": 0.004264235496520996,
+    "fd_err": 0.0005071437917649746,
+    "map_corr": 0.38737537249905546,
+    "colour_map_err": 0.0736575499176979,
+    "series_corr": 0.9988440078380981
+   },
+   "EoS + Phat - CAT Scan": {
+    "luma_err": 0.6644797921180725,
+    "rgb_err": 0.6441672146320343,
+    "sat_err": 0.0752612017095089,
+    "fd_err": 0.006947430782020092,
+    "map_corr": 0.27512963723372874,
+    "colour_map_err": 0.6429493427276611,
+    "series_corr": 0.17117464551044692
+   },
+   "EoS + Phat - chasers 09 sentinel nz+ cesspratice": {
+    "luma_err": 0.023482996970415115,
+    "rgb_err": 0.03375833729902903,
+    "sat_err": 0.16673967242240906,
+    "fd_err": 0.012389067560434341,
+    "map_corr": 0.7837942046592222,
+    "colour_map_err": 0.04140135273337364,
+    "series_corr": 0.6896476672810765
+   },
+   "EoS + Phat - chasers 14 sentinel 617_beta5_v2_Flowering_Phenoix_Mix_v2": {
+    "luma_err": 0.008092612028121948,
+    "rgb_err": 0.007512049128611882,
+    "sat_err": 0.04378032684326172,
+    "fd_err": 0.0014306120574474335,
+    "map_corr": 0.9824371528635849,
+    "colour_map_err": 0.00989886187016964,
+    "series_corr": 0.9997509813851584
+   },
+   "EoS + Redi Jedi - frequency analysis + glowsticks -  glow - o - scope male (Milkdrop beta ver)": {
+    "luma_err": 0.047709137201309204,
+    "rgb_err": 0.06329251329104106,
+    "sat_err": 0.021154284477233887,
+    "fd_err": 0.004798386245965958,
+    "map_corr": 0.8797704234587083,
+    "colour_map_err": 0.08723197132349014,
+    "series_corr": 0.6136356046047727
+   },
+   "EoS - 7th galaxy e quantereum": {
+    "luma_err": 0.009226441383361816,
+    "rgb_err": 0.017843107382456463,
+    "sat_err": 0.014754563570022583,
+    "fd_err": 0.004324279725551605,
+    "map_corr": 0.9802749390234776,
+    "colour_map_err": 0.020982785150408745,
+    "series_corr": 0.9977933923005936
+   },
+   "EoS - dark side of the moon": {
+    "luma_err": 0.08435527980327606,
+    "rgb_err": 0.07798034697771072,
+    "sat_err": 0.035674087703228,
+    "fd_err": 0.008685336448252201,
+    "map_corr": 0.8600290027495328,
+    "colour_map_err": 0.07928067445755005,
+    "series_corr": 0.26769133346463275
+   },
+   "EoS - glowsticks v2 03 music shifter edit b (Stahl's Reactive RMX V2) (border mix)": {
+    "luma_err": 0.0016686096787452698,
+    "rgb_err": 0.0012383212645848591,
+    "sat_err": 0.06690579652786255,
+    "fd_err": 0.00031515955924987793,
+    "map_corr": 0.9993903021939236,
+    "colour_map_err": 0.0019513770239427686,
+    "series_corr": 0.9993399612895147
+   },
+   "EoS - glowsticks v2 08 trigger arrow crosses (+Krash's beat code) ": {
+    "luma_err": 0.003724418580532074,
+    "rgb_err": 0.0042658572395642596,
+    "sat_err": 0.0726853609085083,
+    "fd_err": 0.00048760324716567993,
+    "map_corr": 0.9955164706165401,
+    "colour_map_err": 0.006407312583178282,
+    "series_corr": 0.9984632077855904
+   },
+   "EoS - spark B - couldn't not": {
+    "luma_err": 0.006232351064682007,
+    "rgb_err": 0.007506807645161946,
+    "sat_err": 0.01874464750289917,
+    "fd_err": 7.05234706401825e-05,
+    "map_corr": 0.8065158904560994,
+    "colour_map_err": 0.0326477587223053,
+    "series_corr": 0.9890219760358658
+   },
+   "EoS+Phat - I_v2_Shape_v3": {
+    "luma_err": 0.2158023715019226,
+    "rgb_err": 0.22377487272024155,
+    "sat_err": 0.05077177286148071,
+    "fd_err": 0.0348844975233078,
+    "map_corr": 0.5006166297653253,
+    "colour_map_err": 0.22334595024585724,
+    "series_corr": 0.8741220332132486
+   },
+   "EoS_Phat technicolor F breather E god gaia": {
+    "luma_err": 0.06415697932243347,
+    "rgb_err": 0.07652331391970317,
+    "sat_err": 0.01915949583053589,
+    "fd_err": 0.002177707850933075,
+    "map_corr": 0.942703495031001,
+    "colour_map_err": 0.08358834683895111,
+    "series_corr": 0.9278708047936439
+   },
+   "Eos-skylighta2(tripcolors)": {
+    "luma_err": 0.009703531861305237,
+    "rgb_err": 0.008193522691726685,
+    "sat_err": 0.01938575506210327,
+    "fd_err": 0.0005081212148070335,
+    "map_corr": 0.9934901714474603,
+    "colour_map_err": 0.015389814972877502,
+    "series_corr": 0.9838776410755782
+   },
+   "Eosphat-chasers23feedmebrainsv2": {
+    "luma_err": 0.00040057674050331116,
+    "rgb_err": 0.0009866226464509964,
+    "sat_err": 0.08148229122161865,
+    "fd_err": 0.0004970459267497063,
+    "map_corr": 0.992457263576783,
+    "colour_map_err": 0.0045283203944563866,
+    "series_corr": 0.9993758687501662
+   },
+   "EvilJim - #26 I see Light!": {
+    "luma_err": 0.0023550447076559067,
+    "rgb_err": 0.002378381478289763,
+    "sat_err": 0.013599026948213577,
+    "fd_err": 0.00026477209758013487,
+    "map_corr": 0.933935091873008,
+    "colour_map_err": 0.004660177510231733,
+    "series_corr": 0.9665945340991571
+   },
+   "Fishbrain-witchcraft [shifter's esc shader]": {
+    "luma_err": 0.05418321490287781,
+    "rgb_err": 0.03857836623986562,
+    "sat_err": 0.03051474690437317,
+    "fd_err": 0.0008891625329852104,
+    "map_corr": 0.9888723252910505,
+    "colour_map_err": 0.043199874460697174,
+    "series_corr": 0.9980284065699848
+   },
+   "Flexi - shadow dynamics 03": {
+    "luma_err": 0.0009777247905731201,
+    "rgb_err": 0.000986373672882716,
+    "sat_err": 0.00600886344909668,
+    "fd_err": 1.3602431863546371e-05,
+    "map_corr": 0.9997704381653607,
+    "colour_map_err": 0.0022611450403928757,
+    "series_corr": 0.9999362019050452
+   },
+   "Geiss - Calligraphy (Jelly)": {
+    "luma_err": 0.07594403252005577,
+    "rgb_err": 0.058289473255475364,
+    "sat_err": 0.026357054710388184,
+    "fd_err": 0.0005136504769325256,
+    "map_corr": 0.9446489170274021,
+    "colour_map_err": 0.06521537899971008,
+    "series_corr": 0.27019472885045553
+   },
+   "Geiss - Two-Pointed Pulsagon - mash0000 - bubonic super-fluid centrifuge": {
+    "luma_err": 0.04714500904083252,
+    "rgb_err": 0.024761520326137543,
+    "sat_err": 0.0491291880607605,
+    "fd_err": 0.008509650826454163,
+    "map_corr": -0.022526942143399065,
+    "colour_map_err": 0.05243027210235596,
+    "series_corr": 0.728100808754122
+   },
+   "Goody + martin - crystal palace - Ocular Anima": {
+    "luma_err": 0.0003945156931877136,
+    "rgb_err": 0.0006939551482597986,
+    "sat_err": 0.01114695519208908,
+    "fd_err": 1.9848113879561424e-05,
+    "map_corr": 0.9998683177455745,
+    "colour_map_err": 0.00041567670996300876,
+    "series_corr": 0.9970835849213909
+   },
+   "Goody + martin - crystal palace - Taken5": {
+    "luma_err": 0.00029486091807484627,
+    "rgb_err": 0.00020532247920831045,
+    "sat_err": 0.148907870054245,
+    "fd_err": 1.9208237063139677e-06,
+    "map_corr": 0.9994069823769117,
+    "colour_map_err": 0.00045080052223056555,
+    "series_corr": 0.9996408555238507
+   },
+   "GreatWho + Flexi - Lasershow [bipolar gapminder party]": {
+    "luma_err": 0.06978780031204224,
+    "rgb_err": 0.1512523740530014,
+    "sat_err": 0.13722312450408936,
+    "fd_err": 0.0064046382904052734,
+    "map_corr": 0.4740252723779574,
+    "colour_map_err": 0.19272804260253906,
+    "series_corr": 0.9550686165111177
+   },
+   "GreatWho + Flexi - Lasershow [bipolar showoff party]": {
+    "luma_err": 0.004569262266159058,
+    "rgb_err": 0.07449028889338176,
+    "sat_err": 0.13505786657333374,
+    "fd_err": 0.023837067186832428,
+    "map_corr": 0.8700973898689622,
+    "colour_map_err": 0.11580237001180649,
+    "series_corr": 0.928841803052955
+   },
+   "Halfbreak - 2D Purple Fires": {
+    "luma_err": 0.057091012597084045,
+    "rgb_err": 0.06752293805281322,
+    "sat_err": 0.037377625703811646,
+    "fd_err": 0.009604223072528839,
+    "map_corr": 0.5784100847526389,
+    "colour_map_err": 0.07054047286510468,
+    "series_corr": 0.8129986633600831
+   },
+   "Hexcollie - Surge": {
+    "luma_err": 0.0013306140899658203,
+    "rgb_err": 0.003827641407648722,
+    "sat_err": 0.006990551948547363,
+    "fd_err": 0.0013248622417449951,
+    "map_corr": 0.9965212869482819,
+    "colour_map_err": 0.008992276154458523,
+    "series_corr": 0.9976779907153315
+   },
+   "Hexcollie - electronegativity": {
+    "luma_err": 0.01950111985206604,
+    "rgb_err": 0.02039751907189687,
+    "sat_err": 0.016409099102020264,
+    "fd_err": 0.0013815537095069885,
+    "map_corr": 0.9924925416728787,
+    "colour_map_err": 0.021596848964691162,
+    "series_corr": 0.9914669749853188
+   },
+   "Hexcollie, Flexi n Aderrasi - Black out, I mean time travel": {
+    "luma_err": 0.04589569568634033,
+    "rgb_err": 0.09369043509165446,
+    "sat_err": 0.186578631401062,
+    "fd_err": 0.015120178461074829,
+    "map_corr": 0.7927591881012286,
+    "colour_map_err": 0.11683360487222672,
+    "series_corr": 0.8555031235539072
+   },
+   "Krash - Snowflake Halo": {
+    "luma_err": 0.08194923400878906,
+    "rgb_err": 0.08315236121416092,
+    "sat_err": 0.07483355607837439,
+    "fd_err": 0.01700981822796166,
+    "map_corr": 0.9441419230662849,
+    "colour_map_err": 0.08319681882858276,
+    "series_corr": 0.6894974015909339
+   },
+   "LuxXx - Dain Bammerge v1 (balls)": {
+    "luma_err": 8.392333984375e-05,
+    "rgb_err": 0.00034482280413309735,
+    "sat_err": 0.004174143075942993,
+    "fd_err": 4.654005169868469e-05,
+    "map_corr": 0.9999302728935893,
+    "colour_map_err": 0.002078908495604992,
+    "series_corr": 0.9999852077785442
+   },
+   "LuxXx - Energy Aura": {
+    "luma_err": 0.01647239923477173,
+    "rgb_err": 0.039952615896860756,
+    "sat_err": 0.019992291927337646,
+    "fd_err": 0.016766257584095,
+    "map_corr": 0.820433371577669,
+    "colour_map_err": 0.07055850327014923,
+    "series_corr": 0.9509814537539049
+   },
+   "LuxXx - HipHop UrethraFish I": {
+    "luma_err": 0.033829763531684875,
+    "rgb_err": 0.07777328540881474,
+    "sat_err": 0.1447378396987915,
+    "fd_err": 0.02081814408302307,
+    "map_corr": 0.6027315818643907,
+    "colour_map_err": 0.09396006166934967,
+    "series_corr": 0.9308686419932564
+   },
+   "Martin - Diabolo --- Isosceles edit": {
+    "luma_err": 0.01564677804708481,
+    "rgb_err": 0.013851015518109003,
+    "sat_err": 0.08174154907464981,
+    "fd_err": 0.008786410093307495,
+    "map_corr": 0.7779562274141983,
+    "colour_map_err": 0.040070805698633194,
+    "series_corr": 0.5067538238023157
+   },
+   "Martin - QBikal - Surface Turbulence IIe6 (by hakanh mash-up)": {
+    "luma_err": 0.037935107946395874,
+    "rgb_err": 0.044197251399358116,
+    "sat_err": 0.07021674513816833,
+    "fd_err": 0.0016305670142173767,
+    "map_corr": 0.9965372080153635,
+    "colour_map_err": 0.04174994304776192,
+    "series_corr": 0.9948661001617353
+   },
+   "Martin N AdamFX Infusion = Phat+Yin+EoS_Mandala Chaser Ft AdamFX n Martin - The Beast Mandala Chaser FX H": {
+    "luma_err": 0.002917468547821045,
+    "rgb_err": 0.0029570659001668296,
+    "sat_err": 0.006792545318603516,
+    "fd_err": 2.4586915969848633e-05,
+    "map_corr": 0.9993394403576498,
+    "colour_map_err": 0.006272454746067524,
+    "series_corr": 0.9993987583512001
+   },
+   "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Geiss and Zylot + Aurora Industrialis + ORb acid cycle  + triptrap": {
+    "luma_err": 0.05391308665275574,
+    "rgb_err": 0.054979165395100914,
+    "sat_err": 0.02225799858570099,
+    "fd_err": 0.006473422050476074,
+    "map_corr": 0.670840973028965,
+    "colour_map_err": 0.10200950503349304,
+    "series_corr": 0.9922938569959229
+   },
+   "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss an65": {
+    "luma_err": 0.012324273586273193,
+    "rgb_err": 0.012999455134073893,
+    "sat_err": 0.01032150536775589,
+    "fd_err": 0.0023307129740715027,
+    "map_corr": -0.15703415426380224,
+    "colour_map_err": 0.16232286393642426,
+    "series_corr": 0.9938863075533535
+   },
+   "New Creation Sensation -  AdamFx,Flexi,Amandio c n Martin - Star to Another World ft Hexocollie  n Shad6": {
+    "luma_err": 0.005948007106781006,
+    "rgb_err": 0.003965920768678188,
+    "sat_err": 4.786252975463867e-05,
+    "fd_err": 0.0004401523619890213,
+    "map_corr": 0.998324248520188,
+    "colour_map_err": 0.005147899035364389,
+    "series_corr": 0.9999064421952798
+   },
+   "New Creations From Favorite - Milk F - X  Artist  - Martin n Flexi's Run in with AdamFX n Geiss - Willie Wonka n The Milk Factory ": {
+    "luma_err": 0.013712584972381592,
+    "rgb_err": 0.011358867088953653,
+    "sat_err": 0.03400927782058716,
+    "fd_err": 0.012493431568145752,
+    "map_corr": 0.9827972063104666,
+    "colour_map_err": 0.03492804244160652,
+    "series_corr": 0.9210534325034799
+   },
+   "Northern Lights Throbbing Bud": {
+    "luma_err": 0.004663847386837006,
+    "rgb_err": 0.009272468586762747,
+    "sat_err": 0.007347822189331055,
+    "fd_err": 0.005925044417381287,
+    "map_corr": 0.9947052816140156,
+    "colour_map_err": 0.006073898170143366,
+    "series_corr": 0.5414251824096944
+   },
+   "ORB - Comic Book Curves 2 thine pain chasm yehog rot": {
+    "luma_err": 0.00010344386100769043,
+    "rgb_err": 0.001468062400817871,
+    "sat_err": 0.005160868167877197,
+    "fd_err": 0.0004243776202201843,
+    "map_corr": 0.5201451384784176,
+    "colour_map_err": 0.01081931684166193,
+    "series_corr": 0.9988829185899136
+   },
+   "ORB - Gramaton": {
+    "luma_err": 0.0015486329793930054,
+    "rgb_err": 0.003189728750536839,
+    "sat_err": 0.020618319511413574,
+    "fd_err": 0.0002244710922241211,
+    "map_corr": 0.9886789453805269,
+    "colour_map_err": 0.005651190876960754,
+    "series_corr": 0.9713578582091541
+   },
+   "ORB - Space Time": {
+    "luma_err": 0.0051993876695632935,
+    "rgb_err": 0.004762671887874603,
+    "sat_err": 0.028358399868011475,
+    "fd_err": 0.00617237389087677,
+    "map_corr": 0.9993865781872598,
+    "colour_map_err": 0.004552765749394894,
+    "series_corr": 0.9968103148234922
+   },
+   "ORB - Toffie Grider": {
+    "luma_err": 0.001327507197856903,
+    "rgb_err": 0.0017309561371803284,
+    "sat_err": 0.00789731740951538,
+    "fd_err": 0.00013991957530379295,
+    "map_corr": 0.9970349227930666,
+    "colour_map_err": 0.004595089238137007,
+    "series_corr": 0.9968332349444651
+   },
+   "Phat + EoS - destroy me c - spher": {
+    "luma_err": 0.008024126291275024,
+    "rgb_err": 0.012325326601664225,
+    "sat_err": 0.004095911979675293,
+    "fd_err": 0.014082379639148712,
+    "map_corr": 0.9886782068813245,
+    "colour_map_err": 0.02451949194073677,
+    "series_corr": 0.9759885240767486
+   },
+   "Redi Jedi - Shaking your reality": {
+    "luma_err": 0.01612771302461624,
+    "rgb_err": 0.019016710420449574,
+    "sat_err": 0.003818616271018982,
+    "fd_err": 0.002197542227804661,
+    "map_corr": 0.25896860998678223,
+    "colour_map_err": 0.02225375734269619,
+    "series_corr": 0.9789734024305023
+   },
+   "Redi Jedi - pladman coaches womans vollyball": {
+    "luma_err": 0.14661802351474762,
+    "rgb_err": 0.2648130696034059,
+    "sat_err": 0.003595590591430664,
+    "fd_err": 0.030452659353613853,
+    "map_corr": 0.429466712142206,
+    "colour_map_err": 0.2718857228755951,
+    "series_corr": 0.3392823801184778
+   },
+   "Rovastar & Illusion - Further Basic Electronica 2 + cope": {
+    "luma_err": 0.3223226070404053,
+    "rgb_err": 0.3379227916399638,
+    "sat_err": 0.2771572172641754,
+    "fd_err": 0.14692600071430206,
+    "map_corr": 0.05940011716950995,
+    "colour_map_err": 0.3361104428768158,
+    "series_corr": 0.4057740276879306
+   },
+   "Rovastar & Loadus + Zylot - FractalDrop (Spark Machine)": {
+    "luma_err": 0.000280577689409256,
+    "rgb_err": 0.0013910111350317795,
+    "sat_err": 0.026774048805236816,
+    "fd_err": 0.0003016875125467777,
+    "map_corr": 0.9989558909059827,
+    "colour_map_err": 0.0015439571579918265,
+    "series_corr": 0.9999339837768852
+   },
+   "Rovastar - Explosive Minds [can't sex this]": {
+    "luma_err": 5.8323144912719727e-05,
+    "rgb_err": 0.0004407366116841634,
+    "sat_err": 0.041246116161346436,
+    "fd_err": 3.217160701751709e-05,
+    "map_corr": 0.998273971288483,
+    "colour_map_err": 0.000339309946866706,
+    "series_corr": 0.999765528971808
+   },
+   "Rovastar - Fractopia (Galaxy Swirl Mix 2)": {
+    "luma_err": 0.08136093616485596,
+    "rgb_err": 0.07301233212153117,
+    "sat_err": 0.13931861519813538,
+    "fd_err": 0.06169387698173523,
+    "map_corr": 0.9133066702481053,
+    "colour_map_err": 0.08018489927053452,
+    "series_corr": 0.44949797639551153
+   },
+   "Rovastar-voovsnakedmov(pincushionmix)": {
+    "luma_err": 0.008216433227062225,
+    "rgb_err": 0.010159850120544434,
+    "sat_err": 0.005446285009384155,
+    "fd_err": 0.004648290574550629,
+    "map_corr": 0.4436160614175842,
+    "colour_map_err": 0.0249997116625309,
+    "series_corr": 0.4157829696850117
+   },
+   "Serge + Jc - Neon Star Formation001": {
+    "luma_err": 0.03832292556762695,
+    "rgb_err": 0.04755400617917379,
+    "sat_err": 0.07199040055274963,
+    "fd_err": 0.019611215218901634,
+    "map_corr": 0.43667467667792076,
+    "colour_map_err": 0.06410366296768188,
+    "series_corr": 0.4272535702551726
+   },
+   "Serge + martin - crystal palace kad002": {
+    "luma_err": 0.044905200600624084,
+    "rgb_err": 0.07067450881004333,
+    "sat_err": 0.011408865451812744,
+    "fd_err": 0.018379531800746918,
+    "map_corr": 0.21856325280595562,
+    "colour_map_err": 0.15658724308013916,
+    "series_corr": 0.8799127603664253
+   },
+   "ShadowHarlequin - Fitting Butterfly - v4 - [Loadus & Geiss - FractalDrop 22] v2v2v2v2newcolorsv2": {
+    "luma_err": 6.562471389770508e-05,
+    "rgb_err": 2.3444493611653647e-06,
+    "sat_err": 4.293780875741504e-06,
+    "fd_err": 5.610632797470316e-05,
+    "map_corr": 0.8290666576347075,
+    "colour_map_err": 0.00011344899394316599,
+    "series_corr": 0.9670761744737232
+   },
+   "Shiroijin - Unicorn Hell, Warp 6 Mr Crusher!!!": {
+    "luma_err": 0.06061774492263794,
+    "rgb_err": 0.04675374428431193,
+    "sat_err": 0.10063670575618744,
+    "fd_err": 0.002222388982772827,
+    "map_corr": 0.9983915957191906,
+    "colour_map_err": 0.04534348100423813,
+    "series_corr": 0.996233348864984
+   },
+   "Stahlregen & Boz - Machine Code (Reaction Diffusion) qrimbinael squatriarcheth": {
+    "luma_err": 0.008926212787628174,
+    "rgb_err": 0.009521434704462687,
+    "sat_err": 0.00918889045715332,
+    "fd_err": 0.011299490928649902,
+    "map_corr": 0.8605492447423417,
+    "colour_map_err": 0.012688667513430119,
+    "series_corr": 0.9282358170610441
+   },
+   "Stahlregen & Flexi + Geiss + ORB - Spotted Blob_2 - usheriah colobot roam3": {
+    "luma_err": 0.0012943893671035767,
+    "rgb_err": 0.007870368659496307,
+    "sat_err": 0.0055359601974487305,
+    "fd_err": 0.0044208914041519165,
+    "map_corr": 0.689634382168203,
+    "colour_map_err": 0.03878915309906006,
+    "series_corr": 0.8528244691966563
+   },
+   "Stahlregen & Geiss + Flexi + Fishbrain - Kinda Cool": {
+    "luma_err": 0.0034189820289611816,
+    "rgb_err": 0.004104052980740865,
+    "sat_err": 0.004855692386627197,
+    "fd_err": 0.005354415625333786,
+    "map_corr": 0.505369184287669,
+    "colour_map_err": 0.061784565448760986,
+    "series_corr": 0.8262196930999095
+   },
+   "Stahlregen & fishbrain + Geiss - Witchcraft (Dense) - painterly oil reflections - forcing the stars right": {
+    "luma_err": 0.0017417967319488525,
+    "rgb_err": 0.002820301800966263,
+    "sat_err": 0.14371725916862488,
+    "fd_err": 0.0015811249613761902,
+    "map_corr": 0.9405202522962061,
+    "colour_map_err": 0.012394407764077187,
+    "series_corr": 0.9355942444707347
+   },
+   "Stahlregen & fishbrain + geiss + martin  - Flowercraft (reflecto upfcku)": {
+    "luma_err": 0.026117980480194092,
+    "rgb_err": 0.027844409147898357,
+    "sat_err": 0.0316241979598999,
+    "fd_err": 0.0023932158946990967,
+    "map_corr": 0.9782491210318744,
+    "colour_map_err": 0.03834894299507141,
+    "series_corr": 0.9915470410193927
+   },
+   "Stahlregen - splash! (Tricolor Spiral)": {
+    "luma_err": 0.003866046667098999,
+    "rgb_err": 0.04360421498616537,
+    "sat_err": 0.09059503674507141,
+    "fd_err": 0.06884828954935074,
+    "map_corr": -0.2999796315892905,
+    "colour_map_err": 0.09921823441982269,
+    "series_corr": 0.927598267166961
+   },
+   "The NG + MindJourney - Unconstructed DreamSpace is Constructed": {
+    "luma_err": 0.0007137060165405273,
+    "rgb_err": 0.0014616201321283977,
+    "sat_err": 0.001042783260345459,
+    "fd_err": 0.0009238161146640778,
+    "map_corr": 0.9950771905457599,
+    "colour_map_err": 0.007398167625069618,
+    "series_corr": 0.9976228941272818
+   },
+   "TonyMilkdrop - Nuclear [Flexi - why even bother + alien complex] --- Isosceles edit1": {
+    "luma_err": 0.07390570640563965,
+    "rgb_err": 0.08954305946826935,
+    "sat_err": 0.1266968846321106,
+    "fd_err": 0.003014400601387024,
+    "map_corr": 0.09649578639144889,
+    "colour_map_err": 0.16585856676101685,
+    "series_corr": 0.6434361849937308
+   },
+   "TonyMilkdrop - Tricolors [Flexi - the psyched out about loop] --- Isosceles edit": {
+    "luma_err": 7.815659046173096e-05,
+    "rgb_err": 0.002592429518699646,
+    "sat_err": 0.005714535713195801,
+    "fd_err": 0.0002465052530169487,
+    "map_corr": 0.9754859879645604,
+    "colour_map_err": 0.009208088740706444,
+    "series_corr": 0.9961063722757393
+   },
+   "Tripgnosis - Digital Glowstix": {
+    "luma_err": 0.0017402470111846924,
+    "rgb_err": 0.0009920963396628697,
+    "sat_err": 0.0021613240242004395,
+    "fd_err": 0.0017991717904806137,
+    "map_corr": 0.9983550739375168,
+    "colour_map_err": 0.00464258249849081,
+    "series_corr": 0.9994599301812024
+   },
+   "Tripgnosis - Negative Photon Burn": {
+    "luma_err": 0.0004535145126283169,
+    "rgb_err": 0.0004419373666072109,
+    "sat_err": 0.004550553858280182,
+    "fd_err": 0.00021226389799267054,
+    "map_corr": 0.7074461959403338,
+    "colour_map_err": 0.00044285948388278484,
+    "series_corr": 0.7159747857324765
+   },
+   "Waltra - Blurry Balls": {
+    "luma_err": 0.30637383460998535,
+    "rgb_err": 0.3101837436358134,
+    "sat_err": 0.28125739097595215,
+    "fd_err": 0.04791803099215031,
+    "map_corr": 0.8431634651043702,
+    "colour_map_err": 0.2995891571044922,
+    "series_corr": 0.32167802187936195
+   },
+   "Waltra - Iris": {
+    "luma_err": 0.1191447377204895,
+    "rgb_err": 0.17910453553001085,
+    "sat_err": 0.39311134815216064,
+    "fd_err": 0.0067053548991680145,
+    "map_corr": 0.8962044591627396,
+    "colour_map_err": 0.18669742345809937,
+    "series_corr": 0.90652090029011
+   },
+   "Zylot - Paint Spill (Music Reactive Paint Mix) nz+ baths are butthole and balls tea": {
+    "luma_err": 0.0038392841815948486,
+    "rgb_err": 0.02600330611069997,
+    "sat_err": 0.11798509955406189,
+    "fd_err": 0.09504137188196182,
+    "map_corr": 0.20789986599728474,
+    "colour_map_err": 0.06265749782323837,
+    "series_corr": 0.4417668269771967
+   },
+   "Zylot - Paint Spill (Music Reactive Paint Mix) nz+ cheese steak": {
+    "luma_err": 0.02983933687210083,
+    "rgb_err": 0.03367574016253153,
+    "sat_err": 0.09236004948616028,
+    "fd_err": 0.05208100378513336,
+    "map_corr": 0.06168008510048634,
+    "colour_map_err": 0.07806083559989929,
+    "series_corr": 0.5326726936956068
+   },
+   "amandio c - living boxes 2": {
+    "luma_err": 0.002828940749168396,
+    "rgb_err": 0.0028534928957621255,
+    "sat_err": 0.0024984925985336304,
+    "fd_err": 0.0005821529775857925,
+    "map_corr": 0.999790636821908,
+    "colour_map_err": 0.003201761981472373,
+    "series_corr": 0.9999669444114028
+   },
+   "anglican't americouldn't - zhuGan roam3": {
+    "luma_err": 0.20630136132240295,
+    "rgb_err": 0.17901869614919028,
+    "sat_err": 0.08867037296295166,
+    "fd_err": 0.06771811097860336,
+    "map_corr": -0.22343689096342145,
+    "colour_map_err": 0.195598304271698,
+    "series_corr": 0.8162031737753297
+   },
+   "bdrv + al Rovastar - Fractopia bdrv132456 mix bleuarg - soft death roam3": {
+    "luma_err": 0.006842073053121567,
+    "rgb_err": 0.0044671281551321345,
+    "sat_err": 0.05304935574531555,
+    "fd_err": 0.004137959331274033,
+    "map_corr": 0.9817391440784428,
+    "colour_map_err": 0.005805403459817171,
+    "series_corr": 0.9942483108338381
+   },
+   "bdrv + al shifter - phasm mx": {
+    "luma_err": 0.08599406480789185,
+    "rgb_err": 0.0849146842956543,
+    "sat_err": 0.051969848573207855,
+    "fd_err": 0.002224057912826538,
+    "map_corr": 0.9852801779143553,
+    "colour_map_err": 0.068853959441185,
+    "series_corr": 0.9967703421895594
+   },
+   "beta106i - Ashes of Clouds (Gas Giant) - mash0000 - temp --- Isosceles edit": {
+    "luma_err": 0.024231314659118652,
+    "rgb_err": 0.019207110007603962,
+    "sat_err": 0.013939619064331055,
+    "fd_err": 0.0069814324378967285,
+    "map_corr": 0.9951553404961525,
+    "colour_map_err": 0.023158082738518715,
+    "series_corr": 0.9962258716256118
+   },
+   "cope - strange attractor [flexis let it grow mix] (Jelly 5-56 [volume noise zoom-in])": {
+    "luma_err": 0.06657661497592926,
+    "rgb_err": 0.05664922297000885,
+    "sat_err": 0.01594364643096924,
+    "fd_err": 0.0006602965295314789,
+    "map_corr": 0.6479214422474959,
+    "colour_map_err": 0.11351146548986435,
+    "series_corr": 0.806660168243242
+   },
+   "drugsincombat - whirlfire b": {
+    "luma_err": 0.11522531509399414,
+    "rgb_err": 0.10573630531628926,
+    "sat_err": 0.11865037679672241,
+    "fd_err": 0.017932027578353882,
+    "map_corr": 0.7117857058800345,
+    "colour_map_err": 0.15049700438976288,
+    "series_corr": 0.42617337953256834
+   },
+   "evolve the insect into lard nz": {
+    "luma_err": 1.0403102224637121e-27,
+    "rgb_err": 1.2106623853116574e-27,
+    "sat_err": 1.385233388193757e-21,
+    "fd_err": 0.0,
+    "map_corr": null,
+    "colour_map_err": 1.269796042027626e-27,
+    "series_corr": null
+   },
+   "fed - glowing 5 - fingers rmx nz+ ends badly fieldlessness not angel day": {
+    "luma_err": 0.006197333335876465,
+    "rgb_err": 0.08777193228403728,
+    "sat_err": 0.04519873857498169,
+    "fd_err": 0.0017660856246948242,
+    "map_corr": 0.9890226502828406,
+    "colour_map_err": 0.09017690271139145,
+    "series_corr": 0.27093879915134667
+   },
+   "fed - glowing 5 - fingers rmx nz+ half the stuff wanted jess alterna2": {
+    "luma_err": 0.14968878030776978,
+    "rgb_err": 0.2547835906346639,
+    "sat_err": 0.3578590303659439,
+    "fd_err": 0.0660129077732563,
+    "map_corr": 0.3399309937159389,
+    "colour_map_err": 0.21133415400981903,
+    "series_corr": 0.6801296569077442
+   },
+   "fed - slowfast 2-11 [Killa]": {
+    "luma_err": 0.01894441246986389,
+    "rgb_err": 0.06690068046251933,
+    "sat_err": 0.6263040602207184,
+    "fd_err": 0.07312124967575073,
+    "map_corr": -0.33902421352571854,
+    "colour_map_err": 0.11841851472854614,
+    "series_corr": 0.5635067350269323
+   },
+   "fiShbRaiN - toffee cream and icing sugar": {
+    "luma_err": 0.05876094102859497,
+    "rgb_err": 0.06359945237636566,
+    "sat_err": 0.15858100354671478,
+    "fd_err": 0.001380831003189087,
+    "map_corr": 0.5075079555671291,
+    "colour_map_err": 0.0919666662812233,
+    "series_corr": 0.9185298911852823
+   },
+   "fiShbRaiN - witchcraft (metropolish remix) - test - tillex  - shot ladd ap3+ roam2 nz+": {
+    "luma_err": 0.05438332259654999,
+    "rgb_err": 0.09538273016611735,
+    "sat_err": 0.1966291069984436,
+    "fd_err": 0.00823291391134262,
+    "map_corr": 0.6486470513346897,
+    "colour_map_err": 0.1240350678563118,
+    "series_corr": 0.8801546078159783
+   },
+   "finchman nz": {
+    "luma_err": 0.02078491449356079,
+    "rgb_err": 0.020920963337024052,
+    "sat_err": 0.04309864342212677,
+    "fd_err": 0.02273760735988617,
+    "map_corr": 0.6204016411453853,
+    "colour_map_err": 0.02283421903848648,
+    "series_corr": 0.7849805445988468
+   },
+   "fleekus flokus - violent and insane homicidal air molecules - n777": {
+    "luma_err": 0.007340267300605774,
+    "rgb_err": 0.005591581265131633,
+    "sat_err": 0.009903758764266968,
+    "fd_err": 0.005006507039070129,
+    "map_corr": 0.7749656763942913,
+    "colour_map_err": 0.014690520241856575,
+    "series_corr": 0.9439719084440092
+   },
+   "flexi - grind my glitch up [248]": {
+    "luma_err": 0.06807681918144226,
+    "rgb_err": 0.0630711962779363,
+    "sat_err": 0.6235595345497131,
+    "fd_err": 0.02691928669810295,
+    "map_corr": -0.3093289345905044,
+    "colour_map_err": 0.08409757167100906,
+    "series_corr": 0.03329701083989207
+   },
+   "flexi - target practice-5-liquid-2-twitch-2": {
+    "luma_err": 0.41753247827409723,
+    "rgb_err": 0.43550817651536516,
+    "sat_err": 0.4783442139159888,
+    "fd_err": 0.06559836532193941,
+    "map_corr": -0.3351306623441532,
+    "colour_map_err": 0.4363017976284027,
+    "series_corr": -0.46946909366339684
+   },
+   "geiss - brain zoom 3 (random texture mix) [rotating palette mix]": {
+    "luma_err": 0.5259650349617004,
+    "rgb_err": 0.5877871513366699,
+    "sat_err": 0.17355148494243622,
+    "fd_err": 0.01945917308330536,
+    "map_corr": null,
+    "colour_map_err": 0.5398186445236206,
+    "series_corr": 0.44167116534020445
+   },
+   "goody + martin - crystal palace - devotee5": {
+    "luma_err": 0.004426941275596619,
+    "rgb_err": 0.005366429686546326,
+    "sat_err": 0.004258543252944946,
+    "fd_err": 8.261017501354218e-05,
+    "map_corr": 0.9677763717563148,
+    "colour_map_err": 0.03407488018274307,
+    "series_corr": 0.9784688160421365
+   },
+   "goody(2), stahlregen (3), fed (1) - 2nd collaboration(ps2-0) - #6": {
+    "luma_err": 0.03721058741211891,
+    "rgb_err": 0.03166558841864268,
+    "sat_err": 0.2674154043197632,
+    "fd_err": 0.011617721058428288,
+    "map_corr": 0.14644857167002673,
+    "colour_map_err": 0.04185738041996956,
+    "series_corr": 0.5634249909786871
+   },
+   "hexcollie - Starburst Hurricane": {
+    "luma_err": 0.0021456480026245117,
+    "rgb_err": 0.025769084692001343,
+    "sat_err": 0.03914827108383179,
+    "fd_err": 0.009771794080734253,
+    "map_corr": 0.9922145926874414,
+    "colour_map_err": 0.033564493060112,
+    "series_corr": 0.9982660271129544
+   },
+   "i will not be your japanese mistress slash kitchen appliance, i like your sweater nz+": {
+    "luma_err": 0.021740829572081566,
+    "rgb_err": 0.02094019530341029,
+    "sat_err": 0.011539192870259285,
+    "fd_err": 0.018545939587056637,
+    "map_corr": 0.15731766309398926,
+    "colour_map_err": 0.02446979656815529,
+    "series_corr": -0.24204057263377446
+   },
+   "i will not be your japanese mistress slash kitchen appliance, i like your sweater": {
+    "luma_err": 0.0011263154447078705,
+    "rgb_err": 0.0012666975768903892,
+    "sat_err": 0.005461588501930237,
+    "fd_err": 0.0011279024183750153,
+    "map_corr": 0.22081094737738005,
+    "colour_map_err": 0.008792173117399216,
+    "series_corr": -0.2599490256215133
+   },
+   "martin + stahlregen - martin in da mash 12b": {
+    "luma_err": 0.0003775954246520996,
+    "rgb_err": 0.00048578282197316486,
+    "sat_err": 0.004818961024284363,
+    "fd_err": 3.4593045711517334e-05,
+    "map_corr": 0.9999972139509337,
+    "colour_map_err": 0.0005557370604947209,
+    "series_corr": 0.9999993089829992
+   },
+   "martin - elusive impressions mix1": {
+    "luma_err": 0.19869983196258545,
+    "rgb_err": 0.1756159489353498,
+    "sat_err": 0.006489455699920654,
+    "fd_err": 0.029062069952487946,
+    "map_corr": 0.4547496453969852,
+    "colour_map_err": 0.17727579176425934,
+    "series_corr": 0.7464766556467791
+   },
+   "martin - neon space ps3 [fmtvlsm] - SoOfCourseWhatIWantIsAPwMoebiusForEachLayer": {
+    "luma_err": 0.08616136014461517,
+    "rgb_err": 0.07559734831253688,
+    "sat_err": 0.01643902063369751,
+    "fd_err": 0.003986001014709473,
+    "map_corr": 0.7332307116531237,
+    "colour_map_err": 0.08109614253044128,
+    "series_corr": 0.7185719537887596
+   },
+   "martin - sphery tales slow version": {
+    "luma_err": 0.015405941754579544,
+    "rgb_err": 0.015547677564124266,
+    "sat_err": 0.28996342420578003,
+    "fd_err": 0.004456980153918266,
+    "map_corr": null,
+    "colour_map_err": 0.015241691842675209,
+    "series_corr": 0.30350220384818305
+   },
+   "martin - tunnel race [meta mash] - disciple'": {
+    "luma_err": 5.911290645599365e-05,
+    "rgb_err": 0.0011976708968480427,
+    "sat_err": 0.008800595998764038,
+    "fd_err": 0.003591671586036682,
+    "map_corr": 0.91585267676858,
+    "colour_map_err": 0.011801904998719692,
+    "series_corr": 0.9511670790126188
+   },
+   "nontuplet corpse sterility": {
+    "luma_err": 0.0059114135801792145,
+    "rgb_err": 0.004262236548925102,
+    "sat_err": 0.02736949920654297,
+    "fd_err": 0.0011265319772064686,
+    "map_corr": 0.2836316620474792,
+    "colour_map_err": 0.005247190129011869,
+    "series_corr": 0.9768249166815378
+   },
+   "orb - inferno - burnt to a crisp - ngdbthzs avoid homozoidne": {
+    "luma_err": 0.08349569141864777,
+    "rgb_err": 0.07833612710237503,
+    "sat_err": 0.09333646297454834,
+    "fd_err": 0.006456635892391205,
+    "map_corr": 0.6773351343105106,
+    "colour_map_err": 0.09261935204267502,
+    "series_corr": 0.42599831176883857
+   },
+   "phat + EoS - Bass_responce_Red_Movements_Disorienting nebula3_fire_works_uninverted seizure": {
+    "luma_err": 0.2447356879711151,
+    "rgb_err": 0.22228013972441354,
+    "sat_err": 0.04576590657234192,
+    "fd_err": 0.09137891046702862,
+    "map_corr": -0.058062531705461946,
+    "colour_map_err": 0.23140107095241547,
+    "series_corr": -0.054774376691307566
+   },
+   "phinjamain": {
+    "luma_err": 0.040917009115219116,
+    "rgb_err": 0.03007462869087855,
+    "sat_err": 0.015590786933898926,
+    "fd_err": 9.924173355102539e-06,
+    "map_corr": 0.798293067330694,
+    "colour_map_err": 0.04508333280682564,
+    "series_corr": 0.9122455061651507
+   },
+   "random mash-up round 18": {
+    "luma_err": 0.004270583391189575,
+    "rgb_err": 0.004115119576454163,
+    "sat_err": 0.13743191957473755,
+    "fd_err": 0.0011014267802238464,
+    "map_corr": 0.9825163546581008,
+    "colour_map_err": 0.023467760533094406,
+    "series_corr": 0.9941667075081224
+   },
+   "rce-ordinary - want (nevermore mix) nz+ tucks medicated pads": {
+    "luma_err": 0.15472537279129028,
+    "rgb_err": 0.17667619387308756,
+    "sat_err": 0.006051301956176758,
+    "fd_err": 0.0068376511335372925,
+    "map_corr": 0.45424687696497273,
+    "colour_map_err": 0.17258566617965698,
+    "series_corr": 0.7570758901273913
+   },
+   "shifter + EoS + phat - static creep": {
+    "luma_err": 0.003000810742378235,
+    "rgb_err": 0.0014391827086607616,
+    "sat_err": 0.010012149810791016,
+    "fd_err": 0.0020760148763656616,
+    "map_corr": 0.9826551951526257,
+    "colour_map_err": 0.015441871248185635,
+    "series_corr": 0.9599186719003241
+   },
+   "shifter + Flexi - liquid circuitry from the hive qongugaething the pisspondenseath ferocious butt hounds": {
+    "luma_err": 0.005135595798492432,
+    "rgb_err": 0.004582042495409648,
+    "sat_err": 0.0027538537979125977,
+    "fd_err": 0.0001046210527420044,
+    "map_corr": 0.3065822677840356,
+    "colour_map_err": 0.008955582976341248,
+    "series_corr": -0.19366277962477563
+   },
+   "shifter + Flexi - liquid circuitry from the oblivion hive nz+ the only art in the omniverse is can't even get toys right": {
+    "luma_err": 0.012136995792388916,
+    "rgb_err": 0.01183303197224935,
+    "sat_err": 0.016079843044281006,
+    "fd_err": 0.01317652314901352,
+    "map_corr": 0.028242032650498176,
+    "colour_map_err": 0.048438817262649536,
+    "series_corr": 0.30579101672831455
+   },
+   "shifter + Flexi - liquid circuitry from the oblivion hive rw4 nz+ mbor qoinmbonstre": {
+    "luma_err": 0.000491756945848465,
+    "rgb_err": 0.006919360409180324,
+    "sat_err": 0.01686747372150421,
+    "fd_err": 0.0024717748165130615,
+    "map_corr": 0.390636351537161,
+    "colour_map_err": 0.012415500357747078,
+    "series_corr": 0.5075550093130397
+   },
+   "shifter + Flexi - liquid circuitry from the pataoblivion everything for eternity, god damn it, i did it again": {
+    "luma_err": 0.008216321468353271,
+    "rgb_err": 0.020446767409642536,
+    "sat_err": 0.011598527431488037,
+    "fd_err": 0.0026120170950889587,
+    "map_corr": 0.5187183756771803,
+    "colour_map_err": 0.027215810492634773,
+    "series_corr": 0.5857366496857402
+   },
+   "shifter + Flexi - liquid circuitry from the waxen hive nothing": {
+    "luma_err": 0.004384815692901611,
+    "rgb_err": 0.0040696362654368086,
+    "sat_err": 0.000840604305267334,
+    "fd_err": 0.0012319087982177734,
+    "map_corr": 0.2955985455827146,
+    "colour_map_err": 0.07352013885974884,
+    "series_corr": 0.9917519774673064
+   },
+   "shifter + flexi - american pie 3 nz wear like chane": {
+    "luma_err": 0.013415582478046417,
+    "rgb_err": 0.022876861194769543,
+    "sat_err": 0.015416145324707031,
+    "fd_err": 0.00319884717464447,
+    "map_corr": 0.19139889352372993,
+    "colour_map_err": 0.08356990665197372,
+    "series_corr": 0.9829861607582129
+   },
+   "shifter - bronchiole (EoS+Phat edit) tethered web nz+ shale pignth": {
+    "luma_err": 0.011152923107147217,
+    "rgb_err": 0.04503514369328817,
+    "sat_err": 0.052042752504348755,
+    "fd_err": 0.016563743352890015,
+    "map_corr": 0.8661194763461096,
+    "colour_map_err": 0.0602828748524189,
+    "series_corr": 0.6462778455184243
+   },
+   "shifter - interference field lens (beta 4b) - mash0000 - lovecraftian drama horror made sick flesh --- Isosceles edit1": {
+    "luma_err": 0.01225137710571289,
+    "rgb_err": 0.011318395535151163,
+    "sat_err": 0.006352335214614868,
+    "fd_err": 0.007619768381118774,
+    "map_corr": 0.9420963985369503,
+    "colour_map_err": 0.018598252907395363,
+    "series_corr": 0.9988685020358647
+   },
+   "shifter - mosaic mitosis - will they find me roam2 nz+ souprae more kootra minecraft": {
+    "luma_err": 0.024283409118652344,
+    "rgb_err": 0.020306686560312908,
+    "sat_err": 0.002028942108154297,
+    "fd_err": 0.0017987191677093506,
+    "map_corr": 0.39065734187826817,
+    "colour_map_err": 0.04245443269610405,
+    "series_corr": 0.19105117114753417
+   },
+   "shifter - plasmic fact - witholding, with-a holding, widdaholting - hollandinate": {
+    "luma_err": 0.045057594776153564,
+    "rgb_err": 0.057861655950546265,
+    "sat_err": 0.06127309799194336,
+    "fd_err": 0.014826076105237007,
+    "map_corr": 0.9004283573300254,
+    "colour_map_err": 0.11043888330459595,
+    "series_corr": 0.730586388240057
+   },
+   "stahlregen + shifter - hypnotron v 0-75": {
+    "luma_err": 0.00039818882942199707,
+    "rgb_err": 0.0002695024013519287,
+    "sat_err": 0.0,
+    "fd_err": 2.1442770957946777e-05,
+    "map_corr": 0.9998758731341253,
+    "colour_map_err": 0.0007806034409441054,
+    "series_corr": 0.9727812014506496
+   },
+   "stbenge - dripping_piles_B nz+": {
+    "luma_err": 0.00800594873726368,
+    "rgb_err": 0.00795116958518823,
+    "sat_err": 0.010277954861521721,
+    "fd_err": 0.01592353917658329,
+    "map_corr": null,
+    "colour_map_err": 0.007950292900204659,
+    "series_corr": null
+   },
+   "stupid mash5 - men in black 3 'i like hogs' nz+": {
+    "luma_err": 0.027891576290130615,
+    "rgb_err": 0.03256854911645254,
+    "sat_err": 0.03000950813293457,
+    "fd_err": 0.010904394090175629,
+    "map_corr": 0.9774435563802738,
+    "colour_map_err": 0.043969906866550446,
+    "series_corr": 0.5637490963223385
+   },
+   "suksma + aderassi geiss - the sick assumptions you make about my car [shifter's esc shader] nz+": {
+    "luma_err": 0.009053990244865417,
+    "rgb_err": 0.00852623333533605,
+    "sat_err": 0.03115817904472351,
+    "fd_err": 0.0050200968980789185,
+    "map_corr": 0.9779448971097114,
+    "colour_map_err": 0.03241589292883873,
+    "series_corr": 0.9929599588138336
+   },
+   "suksma + rovastar zylot eos phat gastly geiss - my iron chest is a bullet hurricane, the wounds are oxidizing": {
+    "luma_err": 0.015680640935897827,
+    "rgb_err": 0.018419834474722546,
+    "sat_err": 0.006175220012664795,
+    "fd_err": 0.009588567540049553,
+    "map_corr": 0.7108730701130959,
+    "colour_map_err": 0.017987364903092384,
+    "series_corr": 0.9378500633372798
+   },
+   "suksma - Dbleja - Escape (Blue Mix) - k me as an xmas grift": {
+    "luma_err": 0.026330500841140747,
+    "rgb_err": 0.05236997207005819,
+    "sat_err": 0.002755284309387207,
+    "fd_err": 0.003873765468597412,
+    "map_corr": 0.8382340774276207,
+    "colour_map_err": 0.050161849707365036,
+    "series_corr": 0.46950325374596785
+   },
+   "suksma - Fvese - MV Fun 3 - completely juiced by presses - creating cancer with mac widgets": {
+    "luma_err": 0.06407934427261353,
+    "rgb_err": 0.142005721728007,
+    "sat_err": 0.06357705593109131,
+    "fd_err": 0.004552870988845825,
+    "map_corr": 0.6479090077021851,
+    "colour_map_err": 0.16244199872016907,
+    "series_corr": 0.7337234225830457
+   },
+   "suksma - Fvese - MV Fun 3 - completely juiced by presses - lattice crowded by infinite space": {
+    "luma_err": 0.003679037094116211,
+    "rgb_err": 0.0028948038816452026,
+    "sat_err": 0.004637241363525391,
+    "fd_err": 0.002462632954120636,
+    "map_corr": 0.8606506576584079,
+    "colour_map_err": 0.031915705651044846,
+    "series_corr": 0.967973034854109
+   },
+   "suksma - assheadish lice": {
+    "luma_err": 0.01808503270149231,
+    "rgb_err": 0.017918626467386883,
+    "sat_err": 0.010959923267364502,
+    "fd_err": 0.0002497062087059021,
+    "map_corr": 0.95017122486896,
+    "colour_map_err": 0.05098438262939453,
+    "series_corr": 0.669955493540274
+   },
+   "suksma - barium titanate --- Isosceles edit04": {
+    "luma_err": 0.01534956693649292,
+    "rgb_err": 0.06613421440124512,
+    "sat_err": 0.025728225708007812,
+    "fd_err": 0.007058020681142807,
+    "map_corr": -0.03279016881874572,
+    "colour_map_err": 0.1542205661535263,
+    "series_corr": 0.16457853841217382
+   },
+   "suksma - biotoxins on strings - quantizied bacteria line alien bioluminescent intestine xfr": {
+    "luma_err": 0.0015621483325958252,
+    "rgb_err": 0.0022634093960126242,
+    "sat_err": 0.014718958642333746,
+    "fd_err": 0.000348581001162529,
+    "map_corr": 0.9976458500248357,
+    "colour_map_err": 0.00338264973834157,
+    "series_corr": 0.9999306362429151
+   },
+   "suksma - biotoxins on strings - thyghmaster oilstrip lifedecay + flx per vtx equ(1)": {
+    "luma_err": 0.003277495503425598,
+    "rgb_err": 0.003619164228439331,
+    "sat_err": 0.0,
+    "fd_err": 0.0002974811941385269,
+    "map_corr": 0.9448448101700201,
+    "colour_map_err": 0.020729169249534607,
+    "series_corr": 0.983501691038291
+   },
+   "suksma - byT o' the bublee you roams not knowing is the best": {
+    "luma_err": 0.04244723916053772,
+    "rgb_err": 0.03720139960447947,
+    "sat_err": 0.08633053302764893,
+    "fd_err": 0.006420683115720749,
+    "map_corr": 0.552025676389644,
+    "colour_map_err": 0.0564265176653862,
+    "series_corr": 0.8404748722148885
+   },
+   "suksma - chemosynthetic nosferatu - automating transformation with b n s3 - claim form fsh shf flx obl nz+": {
+    "luma_err": 0.038309454917907715,
+    "rgb_err": 0.04013680418332418,
+    "sat_err": 0.020159542560577393,
+    "fd_err": 0.026945069432258606,
+    "map_corr": 0.8908472580329102,
+    "colour_map_err": 0.08579093217849731,
+    "series_corr": 0.9655470068352356
+   },
+   "suksma - coal drapes - mrt fsh behooval roam3- nz+ gene phreqshough slambspamb": {
+    "luma_err": 0.07326319813728333,
+    "rgb_err": 0.063535471757253,
+    "sat_err": 0.09210489690303802,
+    "fd_err": 0.12737685441970825,
+    "map_corr": 0.1774784438249365,
+    "colour_map_err": 0.08475736528635025,
+    "series_corr": 0.7676808957470013
+   },
+   "suksma - coal drapes - mrt fsh smelter nz+": {
+    "luma_err": 0.044777244329452515,
+    "rgb_err": 0.029657830794652302,
+    "sat_err": 0.05142247676849365,
+    "fd_err": 0.0011700689792633057,
+    "map_corr": 0.6256890322686451,
+    "colour_map_err": 0.0593612864613533,
+    "series_corr": 0.9731272855005761
+   },
+   "suksma - cultivating quorum sensing magick bacteria + flexi - communication link established": {
+    "luma_err": 0.0031794309616088867,
+    "rgb_err": 0.0027953883012135825,
+    "sat_err": 0.011867433786392212,
+    "fd_err": 0.002521023154258728,
+    "map_corr": 0.9974752723222924,
+    "colour_map_err": 0.012908140197396278,
+    "series_corr": 0.9861829770104976
+   },
+   "suksma - daryl feels my hellish lonliness - placing you under citizen's": {
+    "luma_err": 0.062318265438079834,
+    "rgb_err": 0.07481419046719869,
+    "sat_err": 0.05413740873336792,
+    "fd_err": 0.017611049115657806,
+    "map_corr": 0.7377545334699734,
+    "colour_map_err": 0.09127215296030045,
+    "series_corr": 0.674784525119986
+   },
+   "suksma - daryl feels my hellish lonliness - unfounding non-prophet organellecisions": {
+    "luma_err": 0.10751323401927948,
+    "rgb_err": 0.10572547217210133,
+    "sat_err": 0.1025497317314148,
+    "fd_err": 0.028817102313041687,
+    "map_corr": 0.765075820373166,
+    "colour_map_err": 0.12619954347610474,
+    "series_corr": 0.8490499303512987
+   },
+   "suksma - distort crops of horror torture - gdy neck problem solution (tense for hours) we never will cr3": {
+    "luma_err": 0.005776004865765572,
+    "rgb_err": 0.007237330079078674,
+    "sat_err": 0.12486392259597778,
+    "fd_err": 0.008387493900954723,
+    "map_corr": 0.832340139588909,
+    "colour_map_err": 0.008258630521595478,
+    "series_corr": 0.6913656601010467
+   },
+   "suksma - dotes hostile undertake + demonlord - blood in your eyes again - flacc nz+ sky vomit": {
+    "luma_err": 0.46142618358135223,
+    "rgb_err": 0.4643707300225894,
+    "sat_err": 0.18657264113426208,
+    "fd_err": 0.06763383001089096,
+    "map_corr": 0.14683242261689222,
+    "colour_map_err": 0.4598754048347473,
+    "series_corr": 0.4763738551288343
+   },
+   "suksma - dotes hostile undertake - finished breathing sir flacc roam": {
+    "luma_err": 0.012388847768306732,
+    "rgb_err": 0.013167782997091612,
+    "sat_err": 0.028309166431427002,
+    "fd_err": 0.01272759959101677,
+    "map_corr": 0.2973276130161792,
+    "colour_map_err": 0.025802157819271088,
+    "series_corr": 0.44810554963415056
+   },
+   "suksma - drop ballast, acquire teeth - hate shade --- Isosceles edit": {
+    "luma_err": 0.020828545093536377,
+    "rgb_err": 0.03841125965118408,
+    "sat_err": 0.006998507305979729,
+    "fd_err": 0.0008263187482953072,
+    "map_corr": -0.11380022720457661,
+    "colour_map_err": 0.021577628329396248,
+    "series_corr": 0.9997418035449438
+   },
+   "suksma - ed geining hateops - flx i cover myself with gears ape3 roam2 i bug me, go away": {
+    "luma_err": 0.00013001891784369946,
+    "rgb_err": 0.00010924931848421693,
+    "sat_err": 0.0019887201488018036,
+    "fd_err": 0.00013239250984042883,
+    "map_corr": 0.9921473018648853,
+    "colour_map_err": 0.0002360850339755416,
+    "series_corr": 0.874903713000955
+   },
+   "suksma - feign shoulder concern when i should be executed - solipsatanasm": {
+    "luma_err": 0.01807112991809845,
+    "rgb_err": 0.012882478069514036,
+    "sat_err": 0.016861021518707275,
+    "fd_err": 0.003097590059041977,
+    "map_corr": 0.8512723179732784,
+    "colour_map_err": 0.01913333497941494,
+    "series_corr": 0.9914433439007296
+   },
+   "suksma - flexi - fractrip - lofted guts - flacc - pisce nz+ awrqvhord": {
+    "luma_err": 0.008848309516906738,
+    "rgb_err": 0.005329757928848267,
+    "sat_err": 0.009404301643371582,
+    "fd_err": 0.00029704347252845764,
+    "map_corr": 0.828902700847854,
+    "colour_map_err": 0.05277342349290848,
+    "series_corr": 0.7743279709707287
+   },
+   "suksma - from the evil that brought you existence comes this new feature-length beheading": {
+    "luma_err": 0.005893707275390625,
+    "rgb_err": 0.00662343700726827,
+    "sat_err": 0.0066182613372802734,
+    "fd_err": 0.002156101167201996,
+    "map_corr": 0.8975962064595775,
+    "colour_map_err": 0.02856588363647461,
+    "series_corr": 0.9842180437225196
+   },
+   "suksma - geiss + dotes": {
+    "luma_err": 0.02548280358314514,
+    "rgb_err": 0.017042746146519978,
+    "sat_err": 0.006674036383628845,
+    "fd_err": 0.002020023763179779,
+    "map_corr": 0.8412962421956224,
+    "colour_map_err": 0.07860247790813446,
+    "series_corr": 0.6712792869257291
+   },
+   "suksma - i'm alive (omniversal disappointment)": {
+    "luma_err": 0.026058197021484375,
+    "rgb_err": 0.07395097613334656,
+    "sat_err": 0.08920323848724365,
+    "fd_err": 0.030287861824035645,
+    "map_corr": 0.8362920481061807,
+    "colour_map_err": 0.10983911901712418,
+    "series_corr": 0.7185299616237227
+   },
+   "suksma - martin - tunnel race - mrt,flx - we are in no position to exist flacc": {
+    "luma_err": 8.511543273925781e-05,
+    "rgb_err": 0.020592028896013897,
+    "sat_err": 0.02663746476173401,
+    "fd_err": 0.0017842575907707214,
+    "map_corr": 0.8123833213499322,
+    "colour_map_err": 0.026851050555706024,
+    "series_corr": 0.9199940999919519
+   },
+   "suksma - moistened gills in latent galaxy raggy": {
+    "luma_err": 0.0009371479973196983,
+    "rgb_err": 0.0005714017897844315,
+    "sat_err": 0.0016347132623195648,
+    "fd_err": 4.830211400985718e-05,
+    "map_corr": 0.835757621730319,
+    "colour_map_err": 0.00496985949575901,
+    "series_corr": 0.9889902220076274
+   },
+   "suksma - mtn,flx - flacc - choilan roam": {
+    "luma_err": 0.007790744304656982,
+    "rgb_err": 0.009178092082341513,
+    "sat_err": 0.005816102027893066,
+    "fd_err": 0.0022792071104049683,
+    "map_corr": 0.9686791156808103,
+    "colour_map_err": 0.028460683301091194,
+    "series_corr": 0.9782944693884837
+   },
+   "suksma - n19 3 layer overlap opt 3 flx nz+ loqo dystropy": {
+    "luma_err": 0.046271324157714844,
+    "rgb_err": 0.026939094066619873,
+    "sat_err": 0.052836596965789795,
+    "fd_err": 0.020769789814949036,
+    "map_corr": 0.8932821101390405,
+    "colour_map_err": 0.05858185142278671,
+    "series_corr": 0.8623607708786238
+   },
+   "suksma - n6 - n777 - sth 1-ret": {
+    "luma_err": 0.28329551219940186,
+    "rgb_err": 0.3067326446374257,
+    "sat_err": 0.14971424639225006,
+    "fd_err": 0.0263548344373703,
+    "map_corr": 0.6243155596218194,
+    "colour_map_err": 0.2576582431793213,
+    "series_corr": 0.9333169007081324
+   },
+   "suksma - negative infinity for not flinching - link": {
+    "luma_err": 0.0025700032711029053,
+    "rgb_err": 0.03786561886469523,
+    "sat_err": 0.03701674938201904,
+    "fd_err": 0.0071043819189071655,
+    "map_corr": 0.9744252707436161,
+    "colour_map_err": 0.047061920166015625,
+    "series_corr": 0.965798434354092
+   },
+   "suksma - no one is innocent,  i am not innocent, you are not innocent": {
+    "luma_err": 0.0009824633598327637,
+    "rgb_err": 0.0008907119433085123,
+    "sat_err": 0.0015166997909545898,
+    "fd_err": 0.0002134367823600769,
+    "map_corr": 0.99776657604015,
+    "colour_map_err": 0.0024041507858783007,
+    "series_corr": 0.9998108003712993
+   },
+   "suksma - penattrition - geiss crossfire shaders nz+ gssm2": {
+    "luma_err": 0.05097562074661255,
+    "rgb_err": 0.08084930727879207,
+    "sat_err": 0.0557246208190918,
+    "fd_err": 0.03159338980913162,
+    "map_corr": 0.37856813356460345,
+    "colour_map_err": 0.08384209871292114,
+    "series_corr": 0.9064765443878509
+   },
+   "suksma - platinum sulfur dope nz+ qabel mboqtsch par 4 haq qoursch": {
+    "luma_err": 0.05557319521903992,
+    "rgb_err": 0.06461891035238902,
+    "sat_err": 0.010466992855072021,
+    "fd_err": 0.014317519962787628,
+    "map_corr": 0.8362826169335609,
+    "colour_map_err": 0.07172706723213196,
+    "series_corr": 0.6126718231927331
+   },
+   "suksma - pudge": {
+    "luma_err": 0.0010965988039970398,
+    "rgb_err": 0.0008463412523269653,
+    "sat_err": 0.007371723651885986,
+    "fd_err": 0.00011469051241874695,
+    "map_corr": 0.9986586060290029,
+    "colour_map_err": 0.003429302480071783,
+    "series_corr": 0.9997566936701057
+   },
+   "suksma - purple 9-d rubber coins embossed with cataverses": {
+    "luma_err": 0.0010100603103637695,
+    "rgb_err": 0.0008187492688496908,
+    "sat_err": 0.0011346414685249329,
+    "fd_err": 0.003311850130558014,
+    "map_corr": 0.3608559859610878,
+    "colour_map_err": 0.025057444348931313,
+    "series_corr": 0.9539634788181189
+   },
+   "suksma - pus on my cat - hate shade": {
+    "luma_err": 0.044652312994003296,
+    "rgb_err": 0.04353513320287069,
+    "sat_err": 0.04777085781097412,
+    "fd_err": 0.02638944983482361,
+    "map_corr": 0.2848392182735338,
+    "colour_map_err": 0.13321800529956818,
+    "series_corr": 0.21448787925209487
+   },
+   "suksma - pus on my cat - subdomain largo goat pear": {
+    "luma_err": 0.010178983211517334,
+    "rgb_err": 0.009746372699737549,
+    "sat_err": 0.005031093955039978,
+    "fd_err": 0.013889476656913757,
+    "map_corr": 0.8592655731731063,
+    "colour_map_err": 0.02487616240978241,
+    "series_corr": 0.9178694720056586
+   },
+   "suksma - shape instance exp 3 - bulloxain": {
+    "luma_err": 0.01713573932647705,
+    "rgb_err": 0.019287367661794026,
+    "sat_err": 0.006610363721847534,
+    "fd_err": 0.028667211532592773,
+    "map_corr": 0.5811046476616817,
+    "colour_map_err": 0.05006420984864235,
+    "series_corr": 0.9890070722431231
+   },
+   "suksma - shifter - urchin kali echos - bowel roams nz+": {
+    "luma_err": 0.07405580580234528,
+    "rgb_err": 0.056725467244784035,
+    "sat_err": 0.08885732293128967,
+    "fd_err": 0.00955246388912201,
+    "map_corr": 0.7218874598200689,
+    "colour_map_err": 0.06778161227703094,
+    "series_corr": 0.818357058784648
+   },
+   "suksma - stone - rt mess": {
+    "luma_err": 0.3954784870147705,
+    "rgb_err": 0.42387763659159344,
+    "sat_err": 0.15351349860429764,
+    "fd_err": 0.02425608690828085,
+    "map_corr": 0.11849759684010018,
+    "colour_map_err": 0.3767909109592438,
+    "series_corr": -0.14727801927956827
+   },
+   "suksma - superprison - occulted by massive orbiting conglomerations of tomatoes": {
+    "luma_err": 0.01439899206161499,
+    "rgb_err": 0.016953806082407635,
+    "sat_err": 0.005460202693939209,
+    "fd_err": 0.02343638241291046,
+    "map_corr": 0.5483362238770403,
+    "colour_map_err": 0.0987105742096901,
+    "series_corr": 0.4790399546602071
+   },
+   "suksma - to finally feel like a cyborg": {
+    "luma_err": 0.12340682744979858,
+    "rgb_err": 0.08712595701217651,
+    "sat_err": 0.4637172818183899,
+    "fd_err": 0.10820065066218376,
+    "map_corr": 0.75045418643081,
+    "colour_map_err": 0.2021922767162323,
+    "series_corr": 0.7734311594351639
+   },
+   "suksma - truth, rarity --- Isosceles edit04": {
+    "luma_err": 0.015884697437286377,
+    "rgb_err": 0.016346454620361328,
+    "sat_err": 0.0012778411619365215,
+    "fd_err": 0.0019791647791862488,
+    "map_corr": 0.7261738664785279,
+    "colour_map_err": 0.02765498496592045,
+    "series_corr": 0.9803655324368058
+   },
+   "suksma - yin - 395 - Artificial Inspiration (brainstorming - outward) + martin + flexi + stahlregen - el": {
+    "luma_err": 0.1362423300743103,
+    "rgb_err": 0.1387884517510732,
+    "sat_err": 0.2001030445098877,
+    "fd_err": 0.11593551933765411,
+    "map_corr": 0.8153782916782223,
+    "colour_map_err": 0.14995793998241425,
+    "series_corr": 0.8330497969574725
+   },
+   "uncompromising hate firehose digest pine needles nz+": {
+    "luma_err": 0.06717833876609802,
+    "rgb_err": 0.054723914402226605,
+    "sat_err": 0.0009785294532775879,
+    "fd_err": 0.012014418840408325,
+    "map_corr": 0.9351918388600999,
+    "colour_map_err": 0.060029640793800354,
+    "series_corr": 0.8215253854294899
+   },
+   "va ultramix - 293 heat cannon oqult i'm stevo-o and i make people happy for a living": {
+    "luma_err": 0.04819091409444809,
+    "rgb_err": 0.038059900204340615,
+    "sat_err": 0.049029767513275146,
+    "fd_err": 0.03877954185009003,
+    "map_corr": 0.696535137919236,
+    "colour_map_err": 0.05098129063844681,
+    "series_corr": 0.05923263646705875
+   },
+   "va ultramix2 - 30": {
+    "luma_err": 9.760912507772446e-05,
+    "rgb_err": 2.3830992480119068e-05,
+    "sat_err": 0.0037503987550735474,
+    "fd_err": 1.2694044926320203e-06,
+    "map_corr": 0.9996551368551143,
+    "colour_map_err": 0.0004737110575661063,
+    "series_corr": 0.9999818853465192
+   },
+   "va ultramix2 - 364_1": {
+    "luma_err": 0.0008044764399528503,
+    "rgb_err": 0.0006603399912516276,
+    "sat_err": 0.009454041719436646,
+    "fd_err": 1.2242788216099143e-05,
+    "map_corr": 0.9996928407959909,
+    "colour_map_err": 0.0015366865554824471,
+    "series_corr": 0.9999977161077592
+   },
+   "you are now leaving the materialistic sector - chloral reef, er": {
+    "luma_err": 0.04148280620574951,
+    "rgb_err": 0.04861075679461161,
+    "sat_err": 0.05530691146850586,
+    "fd_err": 1.5912577509880066e-05,
+    "map_corr": 0.9848297084656074,
+    "colour_map_err": 0.0712117925286293,
+    "series_corr": 0.9972288298634135
+   }
+  }
+ }
+}
