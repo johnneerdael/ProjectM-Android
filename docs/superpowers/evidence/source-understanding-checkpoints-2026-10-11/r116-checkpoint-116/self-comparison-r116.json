@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r116-v1",
+ "preset": "$$$ Royal - Mashup (387).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "979ae56b9ac0874d1e92a107be437de5bb10801162a07608e46a7936ba317e1b",
+  "prediction.json": "cb6f61c9c67ae45796c6d6a5d13228163b6483f14d2960f8df494582f7f218ee",
+  "description.json": "89ab444104306466597222f2e0a2a6e67bf962eb052517d43d97f78fb11efccb",
+  "recipe.json": "1e4d263f884d9175376db6ab64c68922816fd3b3d487eeff9463eec8a7d8404d",
+  "llm-look-description-v1.txt": "aa5d0570923c8e094ca8b1c2f5af2c51131d5b8a9e125c48181ea9a2c5100a14"
+ },
+ "capture_result_sha256": "642b18f36d6ac491535e03c8c5d96ca29ea77485d7ad8fbb4ebfc139ebf02a0a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.455,
+  "screenshot_luma": 0.502,
+  "mean_rgb_prediction": [
+   0.495,
+   0.43,
+   0.584
+  ],
+  "mean_rgb_screenshot": [
+   0.46,
+   0.514,
+   0.498
+  ],
+  "blurred_luma_correlation": 0.931,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.246,
+    0.252
+   ],
+   "saturation": [
+    0.156,
+    0.067
+   ],
+   "blurred_luma_correlation": 0.995
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0613,
+   0.0553
+  ]
+ },
+ "agreements": [
+  "radial starburst with a bright white centre and dotted radial traces",
+  "frames 60-149 luma 0.246 vs 0.252, time-average correlation 0.995; frame difference 0.061 vs 0.055"
+ ],
+ "misses": [
+  "ours tinted purple/pink, capture greenish white (saturation 0.156 vs 0.067)"
+ ],
+ "verdict": "understood in structure and brightness; tint differs. First checkpoint described from the graph-free core recipe: the SDK read the whole recipe (2,357 lines) and described the centred hazy starburst"
+}
