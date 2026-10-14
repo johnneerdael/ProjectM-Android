@@ -16,13 +16,14 @@ def test_statistics_average_the_seeds_and_skip_missing_values(monkeypatch):
     monkeypatch.setattr(F, 'depends_on_seed', lambda summary, audio: True)
     monkeypatch.setattr(F, 'random_flash', lambda summary, audio: {'reads_rand_frame': False})
     monkeypatch.setattr(F, '_frames', lambda summary, audio, seed, w, h, n: (np.zeros((2, 2, 2, 3), np.uint8), []))
-    values = iter([.2, .4, .6])
+    # The cold load (seed None: a fresh engine's first draws, what a capture after app start shows) joins the seeds.
+    values = iter([.2, .4, .6, .8])
     def measure(path):
         v = next(values)
         return {'mean_luminance': v, 'warm_cool': None if v == .4 else v}
     record = F.preset_statistics({}, {}, measure)
-    assert record['seeds'] == [1, 2, 3] and abs(record['statistics']['mean_luminance'] - .4) < 1e-9
-    assert abs(record['statistics']['warm_cool'] - .4) < 1e-9 and record['uses_engine_execution'] is False
+    assert record['seeds'] == [None, 1, 2, 3] and abs(record['statistics']['mean_luminance'] - .5) < 1e-9
+    assert abs(record['statistics']['warm_cool'] - .5333333333) < 1e-9 and record['uses_engine_execution'] is False
 
 
 def test_random_flash_finds_the_joint_tail_of_the_draw_that_floods_the_screen():

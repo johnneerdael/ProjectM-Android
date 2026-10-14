@@ -416,3 +416,19 @@ def test_offline_display_statistics_join_the_display_estimate_as_simulated():
     assert not recipe_errors(recipe)
     assert 'simulated' not in (build_recipe(record()).get('display_estimate') or {})
     assert 'simulated' not in (build_recipe(record(), display_statistics={'status': 'error'}).get('display_estimate') or {})
+
+
+def test_simulated_display_reports_hues_and_per_load_variety():
+    # r130 squeakers redraws random values at every load: seeds give green-, blue- and pink-led palettes, all with
+    # orange. The reader needs the hue shares and each load's outcome, not only a seed-averaged warm/cool.
+    runs = [{'seed': 1, 'mean_luminance': .24, 'mean_saturation': .52, 'warm_cool': .14, 'coloured_share': .6,
+             'hue_shares': {'green': .28, 'orange': .25, 'blue': .14}},
+            {'seed': 2, 'mean_luminance': .33, 'mean_saturation': .45, 'warm_cool': -.12, 'coloured_share': .62,
+             'hue_shares': {'blue': .36, 'green': .29, 'orange': .24}}]
+    record_ = {'policy': 'static-prediction-facet-statistics-v1', 'status': 'predicted', 'depends_on_seed': True, 'seeds': [1, 2],
+               'statistics': {'mean_luminance': .285}, 'runs': runs}
+    simulated = build_recipe(record(), display_statistics=record_)['display_estimate']['simulated']
+    assert simulated['hue_shares'] == {'green': .285, 'orange': .245, 'blue': .25}
+    assert list(simulated['hue_shares'])[0] == 'green' and math.isclose(simulated['coloured_share'], .61)
+    assert [row['top_hues'] for row in simulated['per_load']] == [['green', 'orange', 'blue'], ['blue', 'green', 'orange']]
+    assert simulated['per_load'][1]['warm_cool'] == -.12

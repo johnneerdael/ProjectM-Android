@@ -3,7 +3,7 @@
 Reads preset summaries from a corpus_understanding results folder, predicts 300 frames at 480x270 with the
 declared reference audio (prediction_illustration, source facts only) and measures them with the engine
 ruler's statistics (frames 60-299). Presets whose prediction depends on per-load randomness (detected by
-comparing two seeds on a short low-resolution run) are averaged over several seeds, as the engine draws
+comparing two seeds on a short low-resolution run) are averaged over the cold load and several seeds, as the engine draws
 anew at every load. Output: one JSON per preset plus the measured statistics; nothing runs on a device.
 """
 import argparse, base64, gzip, importlib.util, json, os, re, sys, tempfile, time
@@ -53,7 +53,9 @@ def depends_on_seed(summary, audio):
 def preset_statistics(summary, audio, measure):
     started = time.perf_counter()
     stochastic = depends_on_seed(summary, audio)
-    seeds = SEEDS if stochastic else (None,)
+    # Seed None is the cold load (projectm-eval's stream from a fresh engine, what a capture right after app
+    # start shows); the numbered seeds stand for other stream positions (the app's stream runs on across presets).
+    seeds = (None,) + SEEDS if stochastic else (None,)
     runs = []
     with tempfile.TemporaryDirectory() as work:
         for seed in seeds:

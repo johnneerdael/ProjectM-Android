@@ -475,7 +475,20 @@ def _simulated_display(record):
     if not isinstance(record,dict) or record.get('status')!='predicted':return None
     values=record.get('statistics') or {}
     number=lambda v:round(float(v),4) if type(v) in (int,float) and math.isfinite(v) else None
+    runs=[r for r in record.get('runs') or [] if isinstance(r,dict)]
+    # Hue families over coloured pixels (the ruler's hue names), averaged over the per-load seeds.
+    totals={}
+    for run in runs:
+        for name,share in (run.get('hue_shares') or {}).items():
+            if type(share) in (int,float):totals[name]=totals.get(name,0.)+share/len(runs)
+    shares={k:round(v,3) for k,v in sorted(totals.items(),key=lambda kv:-kv[1])}
+    coloured=[r['coloured_share'] for r in runs if type(r.get('coloured_share')) in (int,float)]
+    # Each load draws its own random values: list each seed's outcome so a reader can describe the variety.
+    per_load=[{'seed':r.get('seed'),**{k:number(r.get(k)) for k in ('mean_luminance','mean_saturation','warm_cool')},
+               'top_hues':[k for k,_ in sorted((r.get('hue_shares') or {}).items(),key=lambda kv:-kv[1])][:3]}
+              for r in runs] if record.get('depends_on_seed') else None
     return {'policy':'static-prediction-display-statistics-v1','source_policy':record.get('policy'),
+            'hue_shares':shares or None,'coloured_share':number(sum(coloured)/len(coloured)) if coloured else None,'per_load':per_load,
             'statistics':{k:number(values.get(k)) for k in SIMULATED_KEYS},
             'peak_brightness_change':number(values.get('peak_brightness_change')),
             'depends_on_seed':bool(record.get('depends_on_seed')),'seeds':record.get('seeds'),

@@ -242,7 +242,14 @@ full recipe tens of thousands of lines long.
    no rendered frames). Prefer it to the calibrated values and to hand-built
    palette or hue-family estimates for brightness, saturation, warm/cool and
    frame change. Use the calibrated intervals only as the uncertainty around
-   it, and say when the two disagree. `peak_brightness_change` is the largest
+   it, and say when the two disagree. Name the colours from its `hue_shares`
+   (share of coloured pixels per hue family; `coloured_share` is the coloured
+   fraction of the screen), not from palette hints or flat-transfer ramps.
+   When `depends_on_seed` is true, each preset load draws new random values:
+   `per_load` lists each sampled load's brightness, saturation and leading
+   hues. Describe that variety ("blue- or green-led depending on the load,
+   orange in every load") rather than an average colour that no single load
+   shows. `peak_brightness_change` is the largest
    frame-to-frame change in mean grey over any per-load seed; values of 0.08
    or more are global brightness jumps.
 
