@@ -1,0 +1,54 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r156-v1",
+ "preset": "suksma - uncount afathoms --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "72ba6023fa2c14ef5000273759b445b44ce2a75c5a0057de3b7a933633f65725",
+  "prediction.json": "f1379e8514137a8c4de71d492ee365d2fba1a7d68aa4d5086bb8cde3c6785f39",
+  "description.json": "9573627a1fdec0d5716ef993f62ca0d0c02a8d59703d14670df6cf6e7e16c8eb",
+  "recipe.json": "76ee2601c95e824ceea1ec5e32093bc32099bcb5780d8a4fce1dbaaa7a65a90c",
+  "llm-look-description-v1.txt": "c9d9c7c1ac3b83430e3a2c68c05bf7482147c97468d6026dbff6d4a648289d70"
+ },
+ "capture_result_sha256": "3d4655a6c0ea26075157c52a0846e5dd55b4bffd8cd0ef3d2e7de60884b4b6a2",
+ "review_measurements_v1": {
+  "prediction_luma": 0.695,
+  "screenshot_luma": 0.659,
+  "mean_rgb_prediction": [
+   0.854,
+   0.671,
+   0.467
+  ],
+  "mean_rgb_screenshot": [
+   0.834,
+   0.633,
+   0.402
+  ],
+  "blurred_luma_correlation": 0.248,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.696,
+    0.697
+   ],
+   "saturation": [
+    0.461,
+    0.48
+   ],
+   "blurred_luma_correlation": 0.379
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1627,
+   0.163
+  ]
+ },
+ "agreements": [
+  "statistics exact",
+  "warm turbulent fluid",
+  "bass pulses"
+ ],
+ "misses": [
+  "SDK: undersells brightness (yellow-white areas)",
+  "map correlation 0.38 (chaotic placement)"
+ ],
+ "verdict": "frozen prediction statistically exact (luma 0.696 vs 0.697, mean rgb 0.85/0.67/0.46 vs 0.86/0.68/0.45, frame difference 0.1627 vs 0.1630); chaotic fluid placement (map corr 0.38). SDK names a red-to-orange turbulent feedback field expanding from the centre with bass colour pulses; the real field is bright orange to yellow-white."
+}

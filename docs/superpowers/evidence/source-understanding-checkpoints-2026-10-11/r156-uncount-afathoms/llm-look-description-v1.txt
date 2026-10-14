@@ -1,0 +1,11 @@
+Prediction from the source-only recipe (no frames seen). The picture is a warm, red-led feedback field: a turbulent, hazy flow rather than crisp shapes.
+
+Colour and brightness: the composite runs the canvas through a ramp that goes black, then deep red, orange, yellow and finally white as the canvas level rises. Low and mid levels are therefore red to orange, and only the brightest content turns yellow-white. The settled hue family is red (steady-state display about 0.11, 0, 0, a lower bound only). The calibrated display estimate gives mean luminance about 0.45 (interval 0.26 to 0.68), moderate saturation about 0.56, and warm over cool (0.68). I expect a mid-bright, reddish-orange picture, probably with darker regions. Blue should be rare. In the warp the red channel is kept at full strength, green is cleared every frame, and blue is inverted and offset, so red can build up and persist while green and blue do not. The canvas-level blue (about 0.32) is not shown through the composite as blue, which makes the final blue content uncertain.
+
+Shapes: the only drawn element is a built-in circular waveform line. It is centred, radius about 0.5, wobbling with the right-channel audio and rotating at about 0.2 rad/s. It is white but has alpha 0.001, so it is almost invisible. Most structure comes from feedback. There are no mirrors, tiles or kaleidoscope. A thin black border is cut at the screen edge each frame.
+
+Motion: everything expands slowly from the screen centre, about 0.05% per frame, with no rotation. A noise texture displaces the sampling by small amounts (up to about 0.003 of the screen), giving a shimmering, organic, liquid drift. The estimated flow is about 0.26 screen widths per second, and frame-to-frame change is moderate.
+
+Audio: bass, mid and treble shift the image translation by amounts the recipe does not resolve. Bass also modulates the red and blue levels in the warp shader. The waveform line follows the sound.
+
+Flashing: the estimate is about 7 brightness jumps per 10 s (range 2 to 29), with bass-driven colour pulses probable. Strobing is possible but not established. The estimated activity is Intense, with high uncertainty. Mood is likely smooth and hypnotic, organic and liquid.
