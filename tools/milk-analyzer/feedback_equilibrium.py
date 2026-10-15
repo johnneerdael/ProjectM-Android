@@ -89,6 +89,42 @@ DETAIL_SATURATION=.25  # a pixel counts as coloured at this saturation and DETAI
 DETAIL_VALUE=.1
 
 
+def stage_detail_gain(facts,stage='warp',level=.1,amplitude=.02,time=5.,size=(96,54),seed=0):
+    """How much one pass of an exported stage amplifies fine structure (the spatial perturbation loop gain).
+
+    The input is a dim grey canvas (level) carrying small zero-mean grey noise (amplitude, smoothed at 1 and 2 px,
+    wrapped) in every channel; one evaluation at a declared time with neutral audio. Detail is luma minus its 9x9
+    local mean; gain = std(output detail) / std(input detail). A copy gives 1 and a scale its factor. Above 1, fine
+    structure grows each frame until it clips (pattern-forming feedback such as ret += (ret - blur)*k), whatever the
+    flat-field gain, so a canvas the equilibrium calls black can fill with bright spots. No frames are stepped.
+    """
+    import numpy as np
+    from scipy.ndimage import gaussian_filter,uniform_filter
+    import prediction_illustration as P
+    program=(((facts.get('/analysis/visual_description/stage_programs') or {}).get('stages') or {}).get(stage) or {})
+    if program.get('status')!='exported':return None
+    width,height=size
+    rng=np.random.default_rng(seed)
+    noise=gaussian_filter(rng.standard_normal((height,width)),1,mode='wrap')+.5*gaussian_filter(rng.standard_normal((height,width)),2,mode='wrap')
+    noise=noise/noise.std()*amplitude
+    image=np.repeat((level+noise)[...,None],3,axis=2).astype(np.float32)
+    columns,rows=np.meshgrid((np.arange(width)+.5)/width,(np.arange(height)+.5)/height)
+    uv=np.stack([columns,rows,columns,rows],axis=-1).astype(np.float32)
+    bands={name:1. for name in ('bass','mid','treb','bass_att','mid_att','treb_att')}
+    controls=_stage_controls(facts,bands,(time,))
+    try:
+        out=P._evaluate_stage(program['program'],image,uv,time,30.,bands,controls=dict(controls[time]),stage=stage)
+    except Exception:  # noqa: BLE001 - an unevaluable program leaves the gain unknown
+        return None
+    out=np.clip(np.where(np.isfinite(out),out,0.),0,1)
+    luma=lambda a:.2126*a[...,0]+.7152*a[...,1]+.0722*a[...,2]
+    detail=lambda l:l-uniform_filter(l,9,mode='wrap')
+    gin=float(detail(luma(image)).std());gout=float(detail(luma(out)).std())
+    if gin<=0:return None
+    return {'gain':gout/gin,'flat_out':float(luma(out).mean()),
+            'input':{'kind':'dim grey noise','level':level,'amplitude':amplitude,'smoothing_px':[1,2],'size':list(size),'time':time}}
+
+
 def stage_detail_response(facts,stage='composite',level=.5,amplitude=.2,time=5.,size=REFERENCE,seed=0):
     """Colour an exported stage creates from structure: a grey multi-scale texture through the program.
 

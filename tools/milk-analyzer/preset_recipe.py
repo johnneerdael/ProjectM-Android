@@ -495,6 +495,7 @@ def probe_columns(render):
         for key in ('mean_luma','mean_saturation','coloured_share','nonfinite_share'):put(name+'/'+key,block.get(key))
         for i,channel in enumerate('rgb'):put(name+'/mean_'+channel,(block.get('mean_rgb') or [None]*3)[i])
         for hue in PROBE_HUES:put(name+'/hue_'+hue,(block.get('hue_shares') or {}).get(hue,0.))
+    put('warp_detail/gain',(feedback.get('warp_detail_gain') or {}).get('gain'))
     matrix=composite.get('colour_matrix') or {}
     if matrix.get('columns_rgb') and matrix.get('black_rgb'):
         columns=matrix['columns_rgb'];black=matrix['black_rgb']
@@ -584,6 +585,13 @@ def _warp_detail(facts):
     return {k:detail[k] for k in ('mean_luma','mean_saturation','coloured_share','hue_shares','input')} if detail else None
 
 
+def _warp_detail_gain(facts):
+    # Fine-structure gain of one warp pass (> 1: detail grows until it clips, whatever the flat-field gain).
+    from feedback_equilibrium import stage_detail_gain
+    detail=stage_detail_gain(facts,'warp')
+    return {k:detail[k] for k in ('gain','flat_out','input')} if detail else None
+
+
 def _ray_sampling_if_spatial(mesh):
     # A uniform scale has d r_src/d r_dst = 1/s everywhere: only a scale that varies over the screen can be ray-constant.
     controls=(mesh or {}).get('controls') or {}
@@ -609,6 +617,7 @@ def _render(facts):
         'shader_advection':advection,
         'ray_sampling':_ray_sampling_if_spatial(mesh),
         'warp_detail_response':_warp_detail(facts),
+        'warp_detail_gain':_warp_detail_gain(facts),
         'flat_field':{k:flat.get(k) for k in ('state_rgb','flat_region_behaviour','settle_seconds','composite_rgb_at_state') if flat.get(k) is not None} or None,
         'warp_transfer':_warp_transfer(facts) if persistence.get('decay_gain') is None else None,
         'evidence':[p for p in (STATIC+'/feedback_persistence',STATIC+'/mesh_field',BASE+'/nonlinear_texture_colour_bounds/flat_field') if p in facts]}

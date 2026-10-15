@@ -50,3 +50,11 @@ def test_descriptor_carries_recipe_colour_probe_columns():
     assert abs(sum(v for k, v in columns.items() if k.startswith('recipe:static_palette/')) - 1.) < 1e-3
     assert columns['recipe:matrix/r_to_g'] == .1 and abs(columns['recipe:matrix/s2_over_s1']) < 1e-9
     assert not any(k.startswith('recipe:steady/') for k in columns)
+
+
+def test_descriptor_carries_the_warp_detail_gain():
+    # Detail gain above 1 is pattern-forming feedback (fine structure grows until it clips) whatever the flat-field
+    # gain. Out of fold it lifts frame difference 0.7286 -> 0.7343 together with the outline equilibrium.
+    render = {'layers': [], 'feedback': {'warp_detail_gain': {'gain': 1.45, 'flat_out': .09}}, 'composite': {}}
+    columns = descriptor({'facts': {}}, render=render)
+    assert columns['recipe:warp_detail/gain'] == 1.45

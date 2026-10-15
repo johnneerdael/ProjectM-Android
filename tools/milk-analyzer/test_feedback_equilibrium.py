@@ -296,6 +296,27 @@ def test_composite_colour_matrix_captures_channel_swaps(monkeypatch):
     assert out[1] > .9 and out[0] < .1 and out[2] < .1
 
 
+def test_warp_detail_gain_measures_how_a_stage_amplifies_fine_structure(monkeypatch):
+    # Sparkly LSB Feedback class: ret += (ret - blur)*0.6; ret *= 0.9 keeps flat-field gain 0.9 (equilibrium black),
+    # but fine structure grows ~1.44x per frame until it clips, so the canvas fills with bright spots. The gain is
+    # std(output detail) / std(input detail) on a dim noise canvas: 1 for a copy, the factor for a scale, > 1 when
+    # the stage sharpens.
+    import numpy as np
+    from scipy.ndimage import uniform_filter
+    import prediction_illustration as P
+    facts = {'/analysis/visual_description/stage_programs': {'stages': {'warp': {'status': 'exported', 'program': {'root': 0, 'nodes': []}}}}}
+    monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, *a, **k: image.astype(np.float32))
+    assert abs(E.stage_detail_gain(facts)['gain'] - 1.) < 1e-6
+    monkeypatch.setattr(P, '_evaluate_stage', lambda program, image, *a, **k: (image * .5).astype(np.float32))
+    assert abs(E.stage_detail_gain(facts)['gain'] - .5) < 1e-3
+    def sharpen(program, image, *a, **k):
+        blur = uniform_filter(image, (5, 5, 1), mode='wrap')
+        return ((image + .6 * (image - blur)) * .9).astype(np.float32)
+    monkeypatch.setattr(P, '_evaluate_stage', sharpen)
+    assert E.stage_detail_gain(facts)['gain'] > 1.2
+    assert E.stage_detail_gain({}) is None
+
+
 def test_partial_motion_vector_grid_contributes_from_its_control_ranges():
     # A grid whose size is set per frame (mv_x, mv_y ranges) was status 'partial' and dropped from the closed form;
     # presets with active motion vectors were over-represented among the worst brightness errors.
