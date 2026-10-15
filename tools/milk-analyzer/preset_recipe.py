@@ -889,6 +889,22 @@ def _conflicts(a,b):
     return any(max(ra[m][0],rb[m][0])>=min(ra[m][1],rb[m][1]) for m in set(ra)&set(rb))
 
 
+# No strobe needs both static signals (out of fold, 9,516 presets): the calm classifier at >= 0.9 and the jumps estimate
+# below 0.1 admit 852 presets with no strobing preset (>= 10 jumps / 10 s) and 6 with occasional pulses; either alone
+# admits strobing presets at a similar pool size.
+NO_STROBE_PROBABILITY=.9
+NO_STROBE_JUMPS=.1
+
+
+def _no_strobe_gate(statistics,options,possible,unresolved):
+    probability=(statistics.get('no_strobe_probability') or {}).get('value')
+    jumps=(statistics.get('global_brightness_jumps_per_10s') or {}).get('value')
+    if type(probability) not in (int,float) or type(jumps) not in (int,float):return options,possible,unresolved
+    options=[o for o in options if o!='no_strobe'];possible=[o for o in possible if o!='no_strobe'];unresolved=[o for o in unresolved if o!='no_strobe']
+    if probability>=NO_STROBE_PROBABILITY and jumps<NO_STROBE_JUMPS:options.append('no_strobe')
+    return options,possible,unresolved
+
+
 def _apply_option_probabilities(statistics,definition,options,possible,unresolved):
     """A calibrated facet_<option>_probability with its stored threshold decides that option. Per-option
     classifiers admit more true members at the precision the value rule reaches (thresholds are set there at fit
@@ -983,6 +999,7 @@ def facets_block(summary,display=None,*,attributes_path=None,definition_path=Non
     values.setdefault('coloured_share',{'value':None,'evidence':'not-estimated'})
     options,possible,unresolved=facet_options(values,style,definition)
     options,possible,unresolved=_apply_option_probabilities(statistics or {},definition,options,possible,unresolved)
+    options,possible,unresolved=_no_strobe_gate(statistics or {},options,possible,unresolved)
     block.update(evidence='source-calibrated' if statistics else 'unavailable',style_evidence='source-structure-facts',
         options=options,possible_options=possible,unresolved_options=unresolved,style=style,values=values,
         activity_source='frozen-facet-reference-from-calibrated-statistics' if 'activity' in values else None)

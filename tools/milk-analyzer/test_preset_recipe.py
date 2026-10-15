@@ -561,3 +561,18 @@ def test_calibrated_option_probabilities_decide_membership_and_coloured_share_is
     block = facets_block({'facts': {}}, {'statistics': stats})
     assert 'dark' in block['options'] and 'balanced' not in block['options']
     assert 'monochrome' in block['options'] and 'monochrome' not in block['unresolved_options']
+
+
+def test_no_strobe_needs_both_the_classifier_and_the_jumps_estimate():
+    # Out of fold (9,516 presets) the combined gate p >= 0.9 and jumps < 0.1 admits 852 presets with no strobing preset
+    # (6 with occasional pulses); either signal alone admits strobing presets at a similar pool size.
+    from preset_recipe import facets_block
+    def stats(p, jumps):
+        return {'mean_luminance': {'value': .3, 'interval': [.2, .4]}, 'mean_saturation': {'value': .4, 'interval': [.3, .5]},
+                'warm_cool': {'value': 0., 'interval': [-.1, .1]}, 'mean_flow_screen_widths_per_s': {'value': .1, 'interval': [.05, .2]},
+                'mean_abs_frame_difference': {'value': .02, 'interval': [.01, .03]}, 'coloured_share': {'value': .5, 'interval': [.4, .6]},
+                'global_brightness_jumps_per_10s': {'value': jumps, 'interval': [0., jumps + .5]},
+                'no_strobe_probability': {'value': p, 'interval': [p, p]}}
+    assert 'no_strobe' in facets_block({'facts': {}}, {'statistics': stats(.95, .05)})['options']
+    assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.95, .5)})['options']
+    assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.6, .0)})['options']
