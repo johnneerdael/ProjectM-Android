@@ -21,7 +21,7 @@ grouping, extra buffer or repeated equation evaluation.
 +        int borderIterations{0}; //!< 0 without outline; GL lines: 4 for a thick outline, else 1; quad lines: 1 (passes derived from thick).
          LineBatch::Strip borderStrip; //!< The outline in m_lineBatch (quad lines).
      };
-
+ 
 @@ -133,7 +134,6 @@
      LineBatch m_lineBatch;                                     //!< Outlines of the current batch (quad lines).
      std::vector<ColoredPoint> m_borderPoints; //!< One outline, for the line batch.
@@ -33,7 +33,7 @@ grouping, extra buffer or repeated equation evaluation.
 --- a/src/libprojectM/MilkdropPreset/CustomShape.cpp
 +++ b/src/libprojectM/MilkdropPreset/CustomShape.cpp
 @@ -10,10 +10,44 @@
-
+ 
  #include <cassert>
  #include <cmath>
 +#include <cstdint>
@@ -41,7 +41,7 @@ grouping, extra buffer or repeated equation evaluation.
 +#include <limits>
 +#include <type_traits>
  #include <vector>
-
+ 
  namespace libprojectM {
  namespace MilkdropPreset {
 +namespace {
@@ -74,7 +74,7 @@ grouping, extra buffer or repeated equation evaluation.
 +    return magnitude >= UINT64_C(0x3ff0000000000000); // abs(value) >= 1
 +}
 +} // namespace
-
+ 
  CustomShape::CustomShape(PresetState& presetState)
      : m_presetState(presetState)
 @@ -152,8 +186,6 @@
@@ -84,7 +84,7 @@ grouping, extra buffer or repeated equation evaluation.
 -    m_borderStyle = LineStyleFor(LineKind::ShapeBorder, m_thickOutline, lineScale,
 -                                 m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY);
      m_lineBatch.Clear();
-
+ 
      // Need to use +/- 1.0 here instead of 2.0 used in Milkdrop to achieve the same rendering result.
 @@ -179,9 +211,10 @@
          draw.additive = static_cast<int>(*m_perFrameContext.additive) != 0;
@@ -96,7 +96,7 @@ grouping, extra buffer or repeated equation evaluation.
 -        draw.borderIterations = *m_perFrameContext.border_a > 0.0001f ? (m_quadBorders ? 1 : (m_thickOutline ? 4 : 1)) : 0;
 +        // outline; LineRenderer draws the captured instance style's passes (four offset passes when thick).
 +        draw.borderIterations = *m_perFrameContext.border_a > 0.0001f ? (m_quadBorders ? 1 : (draw.thick ? 4 : 1)) : 0;
-
+ 
          const size_t neededVertices = static_cast<size_t>(sides + 2 + (m_quadBorders ? 0 : draw.borderIterations * sides));
          const size_t neededLinePoints = (m_quadBorders || m_geometryTargets) && draw.borderIterations > 0 ? static_cast<size_t>(sides + 3) : 0;
 @@ -357,8 +390,6 @@
@@ -117,3 +117,4 @@ grouping, extra buffer or repeated equation evaluation.
              lines.Draw(draw.borderStrip, style);
          }
          else if (draw.borderIterations > 0)
+

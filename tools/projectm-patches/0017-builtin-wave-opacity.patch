@@ -17,18 +17,18 @@ index f0c6c4be1..deafb7e00 100644
 --- a/src/libprojectM/MilkdropPreset/Waveform.cpp
 +++ b/src/libprojectM/MilkdropPreset/Waveform.cpp
 @@ -37,6 +37,10 @@ void Waveform::DrawQuadLines(const Waves& waves, const PerFrameContext& presetPe
-
+ 
          m_tempAlpha = static_cast<float>(*presetPerFrameContext.wave_a);
          const auto color = MaximizeColors(presetPerFrameContext);
 +        if (color.a < 0.004f)
 +        {
 +            continue;
 +        }
-
+ 
          m_coloredWave.resize(wave.size());
          for (size_t point = 0; point < wave.size(); point++)
 @@ -156,6 +160,10 @@ void Waveform::DrawPrepared(Waves waves,const PerFrameContext& presetPerFrameCon
-
+ 
          m_tempAlpha = static_cast<float>(*presetPerFrameContext.wave_a);
          const auto color = MaximizeColors(presetPerFrameContext);
 +        if (color.a < 0.004f)
@@ -36,12 +36,12 @@ index f0c6c4be1..deafb7e00 100644
 +            continue;
 +        }
          glVertexAttrib4f(1, color.r, color.g, color.b, scaledDots ? color.a * dot.alphaScale : color.a);
-
+ 
          // Always draw "thick" dots.
 @@ -214,25 +222,13 @@ void Waveform::DrawPrepared(Waves waves,const PerFrameContext& presetPerFrameCon
      Renderer::Shader::Unbind();
  }
-
+ 
 -void Waveform::ModulateOpacityByVolume(const PerFrameContext& presetPerFrameContext)
 +void Waveform::ModulateOpacityByVolume()
  {
@@ -68,7 +68,7 @@ index f0c6c4be1..deafb7e00 100644
 +    m_tempAlpha *= (m_presetState.audioData.vol - m_presetState.modWaveAlphaStart) /
 +                   (m_presetState.modWaveAlphaEnd - m_presetState.modWaveAlphaStart);
  }
-
+ 
  auto Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext) -> glm::vec4
 @@ -275,40 +271,40 @@ auto Waveform::MaximizeColors(const PerFrameContext& presetPerFrameContext) -> g
      {
@@ -101,7 +101,7 @@ index f0c6c4be1..deafb7e00 100644
          m_tempAlpha *= 1.3f;
          m_tempAlpha *= std::pow(m_presetState.audioData.treb, 2.0f);
      }
-
+ 
 -    if (m_presetState.modWaveAlphaByvolume)
 -    {
 -        ModulateOpacityByVolume(presetPerFrameContext);
@@ -112,7 +112,7 @@ index f0c6c4be1..deafb7e00 100644
      {
          m_tempAlpha *= 1.25f;
      }
-
+ 
 +    if (m_presetState.modWaveAlphaByvolume)
 +    {
 +        ModulateOpacityByVolume();
@@ -126,11 +126,12 @@ index 081f45844..70280d252 100644
 --- a/src/libprojectM/MilkdropPreset/Waveform.hpp
 +++ b/src/libprojectM/MilkdropPreset/Waveform.hpp
 @@ -28,7 +28,7 @@ public:
-
+ 
  private:
      auto MaximizeColors(const PerFrameContext& presetPerFrameContext) -> glm::vec4;
 -    void ModulateOpacityByVolume(const PerFrameContext& presetPerFrameContext);
 +    void ModulateOpacityByVolume();
-
+ 
      /**
       * @brief Draws the waveform lines as quads (line reference size set, not dots).
+

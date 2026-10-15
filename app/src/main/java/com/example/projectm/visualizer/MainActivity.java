@@ -126,6 +126,7 @@ public class MainActivity extends Activity {
     // The session of the music player we found (see PlayerSessionFinder), 0 while none is known.
     // Only touched on audioThread.
     private PhoneAudioInput phoneAudio;
+    private TvAudioInput tvAudio;
     private OptionRow audioInputRow;
     private volatile int audioSession;
     private int lastPlayerSession;
@@ -226,6 +227,10 @@ public class MainActivity extends Activity {
 
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         if (BuildConfig.TOUCHSCREEN) phoneAudio = new PhoneAudioInput(this, prefs);
+        else tvAudio = new TvAudioInput(this, prefs, () -> audioHandler.post(() -> {
+            stopAudio();
+            if (!tvAudio.microphoneSelected() && resumed) startAudio();
+        }));
         lastPlayerSession = prefs.getInt(PREF_LAST_PLAYER_SESSION, 0);
         profile = DeviceProfile.detect(this);
         display = DisplayInfo.detect(this);
@@ -477,6 +482,9 @@ public class MainActivity extends Activity {
         if (BuildConfig.TOUCHSCREEN) {
             audioInputRow.setVisibility(View.VISIBLE);
             audioInputRow.setupAction("Audio input", phoneAudio.label(), phoneAudio::choose);
+        } else {
+            audioInputRow.setVisibility(View.VISIBLE);
+            audioInputRow.setupAction("Audio input", tvAudio.label(), tvAudio::choose);
         }
 
         OptionRow autoChange = findViewById(R.id.row_auto_change);
@@ -1157,7 +1165,7 @@ public class MainActivity extends Activity {
                 presetName.setSelected(true);  // start marquee for long names
             }
         }
-        if (BuildConfig.TOUCHSCREEN) audioInputRow.setActionValue(phoneAudio.label());
+        audioInputRow.setActionValue(BuildConfig.TOUCHSCREEN ? phoneAudio.label() : tvAudio.label());
         if (menu == Menu.NONE) return;
 
         int skipped = ProjectMJNI.getSkippedCount();
@@ -1200,7 +1208,7 @@ public class MainActivity extends Activity {
     /** Short status next to the level bar in the main panel. */
     private String audioStatus(float level) {
         if (!hasAudioPermission()) return "No access";
-        if ((!BuildConfig.TOUCHSCREEN && audioVisualizer == null) || level <= 0f) return "No sound";
+        if ((!BuildConfig.TOUCHSCREEN && !tvAudio.usingMicrophone() && audioVisualizer == null) || level <= 0f) return "No sound";
         return level < 0.02f ? "Very quiet" : "Listening";
     }
 
@@ -1440,7 +1448,10 @@ public class MainActivity extends Activity {
 
     private void onAudioPermissionGranted() {
         if (BuildConfig.TOUCHSCREEN) phoneAudio.permissionGranted();
-        else audioHandler.post(this::startAudio);
+        else {
+            tvAudio.permissionGranted();
+            audioHandler.post(this::startAudio);
+        }
     }
 
     @Override
@@ -1453,6 +1464,7 @@ public class MainActivity extends Activity {
 
     private String sourceName() {
         if (BuildConfig.TOUCHSCREEN) return phoneAudio.label();
+        if (tvAudio.usingMicrophone()) return tvAudio.label();
         int session = audioSession;
         return session != 0 ? "player session " + session : "none";
     }
@@ -1474,7 +1486,7 @@ public class MainActivity extends Activity {
     }
 
     private void startAudio() {
-        if (BuildConfig.TOUCHSCREEN || audioVisualizer != null || audioSession == 0) return;
+        if (BuildConfig.TOUCHSCREEN || tvAudio.usingMicrophone() || audioVisualizer != null || audioSession == 0) return;
         Visualizer visualizer = null;
         try {
             // The player's session found by PlayerSessionFinder. The waveform is 8-bit unsigned mono PCM, passed to projectM
@@ -1549,21 +1561,40 @@ public class MainActivity extends Activity {
         public void run() {
             audioHandler.postDelayed(this, AUDIO_WATCH_MS);
             if (!resumed || !hasAudioPermission()) return;
+            if (!BuildConfig.TOUCHSCREEN && tvAudio.microphoneSelected()) return;
             long now = SystemClock.elapsedRealtime();
-            if (ProjectMJNI.getAudioLevel() > 0f) {
+            if (ProjectMJNI.getAudioLevel() > 0f && (BuildConfig.TOUCHSCREEN
+                    || !tvAudio.automatic() || !tvAudio.usingMicrophone())) {
                 lastSignalAt = now;
                 noAudioNoticeDue = false;  // audio was heard after the (re)start
             }
             if (!audioManager.isMusicActive()) {
+                if (!BuildConfig.TOUCHSCREEN && tvAudio.automatic()) {
+                    boolean changedSource = musicActive || !tvAudio.usingMicrophone();
+                    musicActive = false;
+                    if (changedSource) {
+                        stopAudio();
+                        tvAudio.useMicrophone();
+                        lastSignalAt = now;
+                        noAudioNoticeDue = false;
+                    }
+                    return;
+                }
                 musicActive = false;
                 return;
             }
             if (!musicActive) {  // music (re)started
                 musicActive = true;
                 lastSignalAt = now;
+                if (!BuildConfig.TOUCHSCREEN && tvAudio.automatic()) {
+                    tvAudio.usePlayback();
+                    stopAudio();
+                    lastSignalAt = now - SILENCE_BEFORE_SEARCH_MS;
+                }
                 // If we hear nothing, look for the player's session right away (the last one
                 // first): waiting for 4 s of silence first only delayed the visuals after a launch.
-                if (ProjectMJNI.getAudioLevel() > 0f) return;
+                if (ProjectMJNI.getAudioLevel() > 0f
+                        && (BuildConfig.TOUCHSCREEN || !tvAudio.automatic())) return;
                 lastSignalAt = now - SILENCE_BEFORE_SEARCH_MS;
             }
             if (now - lastSignalAt < SILENCE_BEFORE_SEARCH_MS) return;
@@ -1619,7 +1650,10 @@ public class MainActivity extends Activity {
         });
         audioHandler.removeCallbacks(audioWatch);
         if (BuildConfig.TOUCHSCREEN) phoneAudio.resume();
-        else audioHandler.postDelayed(audioWatch, FIRST_WATCH_MS);
+        else {
+            tvAudio.resume();
+            audioHandler.postDelayed(audioWatch, FIRST_WATCH_MS);
+        }
         handler.post(uiRefresh);
         if (menu == Menu.MAIN) handler.post(audioMeterRefresh);
         updater.onResume();
@@ -1687,7 +1721,7 @@ public class MainActivity extends Activity {
         handler.removeCallbacks(uiRefresh);
         handler.removeCallbacks(audioMeterRefresh);
         resumed = false;
-        if (BuildConfig.TOUCHSCREEN) phoneAudio.pause();
+        if (BuildConfig.TOUCHSCREEN) phoneAudio.pause(); else tvAudio.pause();
         updater.onPause();
         officialCollection.onPause();
         audioHandler.removeCallbacks(audioWatch);
@@ -1713,7 +1747,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         handler.removeCallbacksAndMessages(null);
-        if (BuildConfig.TOUCHSCREEN) phoneAudio.pause();
+        if (BuildConfig.TOUCHSCREEN) phoneAudio.pause(); else tvAudio.pause();
         audioHandler.removeCallbacks(audioWatch);
         audioHandler.post(this::stopAudio);
         audioThread.quitSafely();
