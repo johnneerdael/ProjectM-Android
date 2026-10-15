@@ -20,7 +20,7 @@ POLICY='source-display-calibration-fit-v1'
 HUE_FAMILIES=('red','orange','yellow','green','cyan','blue','purple','pink')
 # Options where a direct classifier beats the value rule at equal precision (Vivid and Fast do not; the middle
 # buckets and Energy, which needs the activity score, keep the rule).
-FACET_CLASSIFIER_OPTIONS=('dark','bright','monochrome','pastel','warm','cool','still')
+FACET_CLASSIFIER_OPTIONS=('dark','bright','monochrome','pastel','warm','cool','still','chill','intense')
 TARGETS={'mean_luminance':None,'mean_abs_frame_difference':'log1p10','mean_flow_screen_widths_per_s':'log1p10',
          'global_brightness_jumps_per_10s':'log1p','mean_saturation':None,'warm_cool':None,'coloured_share':None,
          **{'hue_share_'+h:None for h in HUE_FAMILIES}}
@@ -58,6 +58,8 @@ def main(argv=None):
     parser.add_argument('--min-share',type=float,default=.01)
     parser.add_argument('--workers',type=int,default=4,help='processes computing descriptors')
     parser.add_argument('--descriptor-cache',type=Path,help='pickle of descriptor rows: reused when present, written otherwise')
+    parser.add_argument('--only',help='comma-separated targets/options to fit (regression targets, no_strobe, facet options)')
+    parser.add_argument('--merge-into',type=Path,help='existing model whose other targets are kept (descriptor columns must match)')
     args=parser.parse_args(argv)
     labels={}
     for directory in args.ruler:
@@ -96,7 +98,14 @@ def main(argv=None):
            'engine ruler: pinned patched projectM-TV source34 rendered offline (macOS GLES, SwiftShader), checkpoint audio','fit_policy':POLICY}
     report={'policy':POLICY,'presets_with_summaries':len(names),'labelled':0,'excluded':len(excluded),'targets':{}}
     oof_all={}
+    only=set(args.only.split(',')) if args.only else None
+    if args.merge_into:
+        with gzip.open(args.merge_into,'rt') as handle:base_model=json.load(handle)
+        if base_model['columns']!=columns:raise SystemExit('merge-into model has different descriptor columns')
+        model['targets'].update(base_model['targets'])
+        oof_all.update({k:dict(v) for k,v in (json.load(open(args.oof)).get('predictions') or {}).items()} if args.oof.exists() else {})
     for target,transform in TARGETS.items():
+        if only is not None and target not in only:continue
         keys=[n for n in names if n in labels and labels[n].get(target) is not None]
         fit=[k for k in keys if k not in excluded];held=[k for k in keys if k in excluded]
         y=np.array([_transform(labels[k][target],transform) for k in fit]);Xf=X[[position[k] for k in fit]]
@@ -133,27 +142,29 @@ def main(argv=None):
     from sklearn.model_selection import StratifiedKFold
     from sklearn.metrics import roc_auc_score
     target='no_strobe_probability';source='global_brightness_jumps_per_10s'
-    keys=[n for n in names if n in labels and labels[n].get(source) is not None]
-    fit=[k for k in keys if k not in excluded];held=[k for k in keys if k in excluded]
-    jumps=np.array([labels[k][source] for k in fit]);y=(jumps<1).astype(int);Xf=X[[position[k] for k in fit]]
-    weight=np.where(jumps>=10,4.,np.where(jumps>=1,2.,1.))
+    fit_no_strobe=only is None or 'no_strobe' in only
     def classifier():
         return HistGradientBoostingClassifier(max_iter=300,learning_rate=.06,max_leaf_nodes=15,min_samples_leaf=20,l2_regularization=1.,random_state=7)
-    oof=np.zeros(len(fit))
-    for train,test in StratifiedKFold(5,shuffle=True,random_state=11).split(Xf,y):
-        oof[test]=classifier().fit(Xf[train],y[train],sample_weight=weight[train]).predict_proba(Xf[test])[:,1]
-    final=classifier().fit(Xf,y,sample_weight=weight)
-    trees=[[[float(n['value']),int(n['feature_idx']),float(n['num_threshold']),int(n['left']),int(n['right']),int(n['is_leaf'])] for n in predictors[0].nodes]
-           for predictors in final._predictors]
-    auc=round(float(roc_auc_score(y,oof)),3)
-    order=np.argsort(-oof)
-    admission={str(k):{'flicker_admitted':int((jumps[order[:k]]>=1).sum()),'strobing_admitted':int((jumps[order[:k]]>=10).sum()),
-                       'probability_threshold':float(oof[order[k-1]])} for k in (500,836,1500,1848,3000) if k<=len(order)}
-    model['targets'][target]={'transform':'logistic','baseline':float(np.ravel(final._baseline_prediction)[0]),'trees':trees,
-                              'oof_spearman':auc,'metric':'roc_auc','residual_p10':0.,'residual_p90':0.,'n':len(fit),'admission_table':admission}
-    report['targets'][target]={'n':len(fit),'oof_roc_auc':auc,'admission_table':admission}
-    for k,value in zip(fit,oof):oof_all.setdefault(k,{})[target]=float(value)
-    print(target,report['targets'][target],flush=True)
+    if fit_no_strobe:
+        keys=[n for n in names if n in labels and labels[n].get(source) is not None]
+        fit=[k for k in keys if k not in excluded];held=[k for k in keys if k in excluded]
+        jumps=np.array([labels[k][source] for k in fit]);y=(jumps<1).astype(int);Xf=X[[position[k] for k in fit]]
+        weight=np.where(jumps>=10,4.,np.where(jumps>=1,2.,1.))
+        oof=np.zeros(len(fit))
+        for train,test in StratifiedKFold(5,shuffle=True,random_state=11).split(Xf,y):
+            oof[test]=classifier().fit(Xf[train],y[train],sample_weight=weight[train]).predict_proba(Xf[test])[:,1]
+        final=classifier().fit(Xf,y,sample_weight=weight)
+        trees=[[[float(n['value']),int(n['feature_idx']),float(n['num_threshold']),int(n['left']),int(n['right']),int(n['is_leaf'])] for n in predictors[0].nodes]
+               for predictors in final._predictors]
+        auc=round(float(roc_auc_score(y,oof)),3)
+        order=np.argsort(-oof)
+        admission={str(k):{'flicker_admitted':int((jumps[order[:k]]>=1).sum()),'strobing_admitted':int((jumps[order[:k]]>=10).sum()),
+                           'probability_threshold':float(oof[order[k-1]])} for k in (500,836,1500,1848,3000) if k<=len(order)}
+        model['targets'][target]={'transform':'logistic','baseline':float(np.ravel(final._baseline_prediction)[0]),'trees':trees,
+                                  'oof_spearman':auc,'metric':'roc_auc','residual_p10':0.,'residual_p90':0.,'n':len(fit),'admission_table':admission}
+        report['targets'][target]={'n':len(fit),'oof_roc_auc':auc,'admission_table':admission}
+        for k,value in zip(fit,oof):oof_all.setdefault(k,{})[target]=float(value)
+        print(target,report['targets'][target],flush=True)
     # Per-option facet classifiers: membership learnt directly admits more true members than the value rule at the
     # same precision (out of fold: dark recall 19% -> 33%, monochrome 9% -> 24%). Each threshold is set where the
     # classifier's OOF precision first reaches the value rule's OOF precision (highest recall at that precision).
@@ -162,9 +173,13 @@ def main(argv=None):
     definition=preset_facets.load_definition()
     metric_fields={'luminance':'mean_luminance','saturation':'mean_saturation','warm_cool':'warm_cool','coloured_share':'coloured_share',
                    'flow':'mean_flow_screen_widths_per_s','frame_difference':'mean_abs_frame_difference','jumps':'global_brightness_jumps_per_10s'}
+    from preset_recipe import facet_activity
     def members(values):
-        return set(preset_facets.memberships({m:values.get(f) for m,f in metric_fields.items()},[],definition))
+        metrics={m:values.get(f) for m,f in metric_fields.items()}
+        metrics['activity']=facet_activity({m:metrics.get(m) for m in ('frame_difference','flow','jumps')})
+        return set(preset_facets.memberships(metrics,[],definition))
     for option in FACET_CLASSIFIER_OPTIONS:
+        if only is not None and option not in only:continue
         keys=[n for n in names if n in labels and n in oof_all and all(labels[n].get(f) is not None for f in metric_fields.values() if f!='warm_cool')]
         fit=[k for k in keys if k not in excluded]
         y=np.array([option in members(labels[k]) for k in fit]).astype(int)

@@ -59,3 +59,29 @@ among them (lift).
   58), so this is not a No strobe safety issue.
 - **Flow:** bass-driven zoom patterns (lift 1.8–1.9) and zoom ranges. Derived span columns (max − min) gave a
   flow Spearman of 0.6949 → 0.6957. Not shipped.
+
+## After shipping per-option classifiers and the combined No strobe gate (r14 model, `8401582f`)
+
+Options are evaluated independently here. In the real facet output an admitted option also drops conflicting siblings.
+
+| facet | option | agreement | precision | recall | admitted |
+|---|---|---|---|---|---|
+| brightness | dark | 81% | 83% | 38% | 1189 |
+| brightness | balanced | 59% | 53% | 85% | 6910 |
+| brightness | bright | 81% | 70% | 60% | 2313 |
+| colour | monochrome | 92% | 90% | 27% | 296 |
+| colour | pastel | 90% | 34% | 41% | 825 |
+| colour | vivid | 75% | 77% | 72% | 4602 |
+| colour | warm | 84% | 78% | 54% | 1660 |
+| colour | cool | 87% | 74% | 45% | 1024 |
+| movement | still | 85% | 83% | 37% | 898 |
+| movement | drifting | 64% | 59% | 90% | 7208 |
+| movement | fast | 80% | 76% | 49% | 1803 |
+| comfort | no_strobe | 56% | 98% | 15% | 769 |
+| energy | chill | 76% | 84% | 38% | 1508 |
+| energy | normal | 65% | 60% | 87% | 6948 |
+| energy | intense | 83% | 74% | 69% | 2679 |
+
+The Energy rows use the facet activity score from the calibrated flow, frame difference and jumps, before any
+Energy classifiers; Chill and Intense classifiers are being fitted next. No strobe is now 98% precise, with zero
+strobing presets admitted out of fold.

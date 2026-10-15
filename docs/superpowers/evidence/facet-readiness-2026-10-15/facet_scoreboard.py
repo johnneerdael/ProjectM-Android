@@ -10,25 +10,39 @@ W = Path(__file__).resolve().parents[2]
 RULER = W / 'build/preset-corpus/native-ruler-2026-10-12/corpus/results'
 oof = json.load(open(sys.argv[1])); pred = oof['predictions']; tf = oof['transforms']
 facets = json.load(open(W / 'core/src/main/assets/preset-attributes/facets.json'))
-MAP = {'luminance': 'mean_luminance', 'saturation': 'mean_saturation', 'warm_cool': 'warm_cool', 'flow': 'mean_flow_screen_widths_per_s',
+MAP = {'coloured_share': 'coloured_share', 'luminance': 'mean_luminance', 'saturation': 'mean_saturation', 'warm_cool': 'warm_cool', 'flow': 'mean_flow_screen_widths_per_s',
        'frame_difference': 'mean_abs_frame_difference', 'jumps': 'global_brightness_jumps_per_10s'}
 def inv(v, t): return math.expm1(v) if t == 'log1p' else (math.expm1(v) / 10 if t == 'log1p10' else v)
 ops = {'<': lambda a, b: a < b, '<=': lambda a, b: a <= b, '>': lambda a, b: a > b, '>=': lambda a, b: a >= b}
-def member(values, option):
+def member(values, option, options=None):
     for rule in option['all']:
+        if 'not_option' in rule:
+            other = (options or {}).get(rule['not_option'])
+            if other is None: return None
+            m = member(values, other, options)
+            if m is None: return None
+            if m: return False
+            continue
         if 'metric' not in rule: return None
         k = MAP.get(rule['metric'])
         if k is None or values.get(k) is None: return None
         if not ops[rule['op']](values[k], rule['value']): return False
     return True
+import gzip
+THRESH = {k[len('facet_'):-len('_probability')]: v['threshold'] for k, v in json.load(gzip.open(W / 'tools/milk-analyzer/fixtures/calibrated-display-model.json.gz', 'rt'))['targets'].items() if k.startswith('facet_')}
 stats = {}
 for f in os.listdir(RULER):
     r = json.loads((RULER / f).read_text())
     if r.get('status') != 'measured' or r['preset'] not in pred: continue
     est = {k: inv(v, tf.get(k)) for k, v in pred[r['preset']].items() if k in tf}
+    prob = pred[r['preset']].get('no_strobe_probability')
     for g in facets['groups']:
+        opts = {o['id']: o for o in g['options']}
         for o in g['options']:
-            a, b = member(est, o), member(r, o)
+            a, b = member(est, o, opts), member(r, o, opts)
+            if o['id'] == 'no_strobe' and prob is not None: a = prob >= .9 and est.get('global_brightness_jumps_per_10s', 9) < .05
+            fp = pred[r['preset']].get('facet_%s_probability' % o['id']); th = THRESH.get(o['id'])
+            if fp is not None and th is not None: a = fp >= th
             if a is None or b is None: continue
             s = stats.setdefault((g['id'], o['id']), [0, 0, 0, 0])  # tp, fp, fn, tn
             s[0 if a and b else 1 if a else 2 if b else 3] += 1
