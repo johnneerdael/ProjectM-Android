@@ -201,7 +201,8 @@ full recipe tens of thousands of lines long.
    point colours. Describe the colours from `palette` (every family at 10% or
    more; out of fold it finds 76% of the engine's colours and 71% of named
    colours are present). Name one dominant colour only when `dominant_hue` is
-   set (predicted top-colour share 0.65 or more); otherwise say there is no
+   set (predicted top-colour share 0.65 or more and the palette's top colour at
+   55% or more); otherwise say there is no
    dominant colour and describe the palette as a set. When `monochrome` is true the
    palette is empty: describe the picture as grey, without hue names. Name colours from its leading hues. With calibrated hue
    shares present, the leading hue matches the engine's top two hues about 70%

@@ -287,3 +287,17 @@ Two motion probes are not adopted (noise level), both out of fold on r16 descrip
   scalar equations only). It gives per-control spread, step size, jump share, flag flips and displacement series.
   Flow 0.6961 → 0.6998, jumps 0.7743 → 0.7755, No strobe AUC 0.9215 → 0.9219; admissions before strobing presets
   #1 / #2 / #3 go 763 / 806 / 887 → 809 / 827 / 887.
+
+Dominant colour, second condition (2026-10-16). Three of four dominant claims in checkpoint rounds 15–21 were wrong
+(r342, r357, r369). All sat at predicted top share 0.65–0.66, and two had palettes that were not dominated (orange
+0.51 / red 0.44; blue 0.37). The right claim (r312) was at 0.98. Out of fold:
+
+| rule | claims (share of coloured presets) | correct |
+|---|---|---|
+| concentration ≥ 0.65 (previous) | 12.2% | 77% |
+| concentration ≥ 0.70 | 8.1% | 84% |
+| concentration ≥ 0.65 and palette top ≥ 0.55 (adopted) | 10.3% | 84% |
+| concentration ≥ 0.65 and top-two gap ≥ 0.3 | 10.0% | 85% |
+
+`display_palette` now also requires the palette's top share to be at least 0.55 (`DOMINANT_PALETTE_SHARE`). The r342 and
+r369 claims disappear and r312's stays.

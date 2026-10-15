@@ -649,7 +649,8 @@ def test_display_palette_names_a_dominant_colour_only_when_one_dominates():
         return {'display_estimate': {'statistics': stats}, 'render': {'layers': [], 'feedback': {}, 'composite': {}}}
     mixed = display_palette(recipe(.5))
     assert mixed['dominant_hue'] is None and mixed['palette'] == ['green', 'blue', 'pink']
-    assert display_palette(recipe(.7))['dominant_hue'] == 'green'
+    # Also needs the palette itself dominated (top share >= 0.55; green here holds 0.45).
+    assert display_palette(recipe(.7))['dominant_hue'] is None
     assert display_palette({'render': {'layers': [], 'feedback': {}, 'composite': {}}})['dominant_hue'] is None
 
 
@@ -686,3 +687,18 @@ def test_display_palette_is_grey_when_monochrome_is_admitted():
     stats['facet_monochrome_probability'] = {'value': .5, 'threshold': .72}
     coloured = display_palette({'display_estimate': {'statistics': stats}, 'render': render})
     assert coloured['palette'] == ['green', 'blue'] and coloured['dominant_hue'] == 'green' and coloured['monochrome'] is False
+
+
+def test_dominant_colour_also_needs_the_palette_itself_to_be_dominated():
+    # Three of four dominant claims in checkpoint rounds 15-21 were wrong, all at predicted top share 0.65-0.66 with
+    # palettes that were not dominated (r342 orange 0.51 / red 0.44; r369 blue 0.37). Out of fold, also requiring the
+    # palette's top share >= 0.55 lifts claim accuracy 77% -> 84% while keeping 10.3% of coloured presets (12.2%
+    # before); a stricter concentration alone (0.70) reaches 84% for only 8.1%.
+    from preset_recipe import display_palette
+    def recipe(shares):
+        stats = {f'hue_share_{k}': {'value': v} for k, v in shares.items()}
+        stats['hue_top_share'] = {'value': .66}
+        return {'display_estimate': {'statistics': stats}, 'render': {'layers': [], 'feedback': {}, 'composite': {}}}
+    assert display_palette(recipe({'blue': .37, 'green': .29, 'yellow': .24, 'red': .10}))['dominant_hue'] is None
+    assert display_palette(recipe({'orange': .51, 'red': .44, 'yellow': .05}))['dominant_hue'] is None
+    assert display_palette(recipe({'red': .8, 'orange': .2}))['dominant_hue'] == 'red'

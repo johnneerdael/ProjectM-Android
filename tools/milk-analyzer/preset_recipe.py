@@ -399,6 +399,9 @@ HUE_CENTRE_RGB={'red':(1.,.15,.15),'orange':(1.,.55,.1),'yellow':(1.,.95,.15),'g
 # half in 88%. Palette sets at 10%: 76% of true colours found, 71% of named colours true.
 PALETTE_NAME_SHARE=.10
 DOMINANT_TOP_SHARE=.65
+# ... and only when the palette itself is dominated (its top share >= 0.55): out of fold claim accuracy 77% -> 84%,
+# claims on 10.3% of coloured presets instead of 12.2% (checkpoints r342 and r369 claimed colours at 0.51 and 0.37).
+DOMINANT_PALETTE_SHARE=.55
 
 
 def display_palette(recipe,times=COLOUR_TIMES):
@@ -470,7 +473,7 @@ def display_palette(recipe,times=COLOUR_TIMES):
     final={k:round(v/norm,4) for k,v in shares.items()} if norm else {}
     dominance=(stats.get('hue_top_share') or {}).get('value') if isinstance(stats.get('hue_top_share'),dict) else None
     palette=[k for k,v in final.items() if v>=PALETTE_NAME_SHARE]
-    dominant=palette[0] if palette and type(dominance) in (int,float) and dominance>=DOMINANT_TOP_SHARE else None
+    dominant=palette[0] if palette and type(dominance) in (int,float) and dominance>=DOMINANT_TOP_SHARE and final[palette[0]]>=DOMINANT_PALETTE_SHARE else None
     # An admitted monochrome classifier (93% precision out of fold) makes the palette grey: no hue names.
     mono=stats.get('facet_monochrome_probability') if isinstance(stats.get('facet_monochrome_probability'),dict) else {}
     monochrome=type(mono.get('value')) in (int,float) and type(mono.get('threshold')) in (int,float) and mono['value']>=mono['threshold']
