@@ -1,0 +1,22 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r245-v1",
+ "preset": "martin - autumn leaves.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "5eb89d05b9af6c0551203bdfaaf5eece660c215a8a5e4f028e32c49cdbd8a69d",
+  "prediction.json": "5e6e37f8395eef72567976bfdc15902f373cfd744e0d5303f0aeea087f7eb2c6",
+  "description.json": "7e5dca5a85dabf89623d9406d3cf23c60d0acdefa2ade1335671a0c0e58d6b62",
+  "recipe.json": "faff111f3a2325eafc61ce7a7549a77142e109c1b521eead75c3d0b3c0184cc7",
+  "llm-look-description-v1.txt": "ee1e89b6ac2561d4b95b788921eaf83d4be8469f8a70ba31084e41bb4a5765be"
+ },
+ "capture_result_sha256": "8ba14e6e3939b1bf77a45aa1a264e2d36557c3d1f301c87e599ad6b07d1a78ea",
+ "review_measurements_v1": {},
+ "agreements": [
+  "static triage: balanced brightness facet right"
+ ],
+ "misses": [
+  "vivid admitted but ruler has no colour option; capture failed 3x: the SwiftShader emulator stalls on this preset (kernel all-CPU backtrace, system_server killed after 2 frames), so no screenshot/clip"
+ ],
+ "verdict": "capture-failed"
+}
