@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r236-v1",
+ "preset": "ORB - Smoke and Fire (Jelly).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4b1b9ffc031bb512f49aa8899c8943772f741301d2294e1ec09e1bb1fe7bbe28",
+  "prediction.json": "eae14fad62f6dee78b021b34b1f0adbe29a87bfdb45f92f1448dd533484b4867",
+  "description.json": "fdd6a5b05cadc214846407cf1bcea45dca6ee846bd50bea6cc84fdbb8787b41f",
+  "recipe.json": "2004e827f8d15eb30483f5b9fb218ed056b85fc480933f1b83a6520aa0b23b1e",
+  "llm-look-description-v1.txt": "dcc9fdf6af204af871a1d6d112f58ffa3ea8d459c3fc373e7512c4818bbe82a9"
+ },
+ "capture_result_sha256": "1e5814fbb54e995d2476fca47f7d6cf1606517fd244913fed722cd3578d6bf2a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.24,
+  "screenshot_luma": 0.22,
+  "mean_rgb_prediction": [
+   0.199,
+   0.25,
+   0.256
+  ],
+  "mean_rgb_screenshot": [
+   0.266,
+   0.211,
+   0.17
+  ],
+  "blurred_luma_correlation": 0.409,
+  "mean_abs_frame_difference_60_149": [
+   0.05,
+   0.0256
+  ]
+ },
+ "agreements": [
+  "hue blue lead in ruler top-2",
+  "balanced brightness facet",
+  "flicker correct (p 0.80, ruler 0 jumps, not admitted)"
+ ],
+ "misses": [
+  "energy normal admitted, ruler chill"
+ ],
+ "verdict": "partial"
+}

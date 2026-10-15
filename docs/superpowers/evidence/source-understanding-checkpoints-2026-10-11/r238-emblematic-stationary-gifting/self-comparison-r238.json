@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r238-v1",
+ "preset": "suksma - emblematic stationary gifting.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "88392edbeff07e12aac6e1322cc7ed35fb1d948e57434568bc7773602f204acf",
+  "prediction.json": "96106d1b081c01936d502b87f84f16de290398b8dc74734851e98df5275f75fe",
+  "description.json": "337563e6f16b559a4cc49db04d50b9c5c4ecf3bfbfb50491f6283f605ce39136",
+  "recipe.json": "8803f71f99a990ed0f227060e75e3161115a6bc3d3b3861346a8f2473fdb5752",
+  "llm-look-description-v1.txt": "fd2fb86a9e6919a450ed3e33780ce3a61e9d01e61d32d7b500474155cf04e829"
+ },
+ "capture_result_sha256": "b291166668032af864057f3810d9118ba9ed5f67ab2d5612c655e504df101bd5",
+ "review_measurements_v1": {
+  "prediction_luma": 0.587,
+  "screenshot_luma": 0.295,
+  "mean_rgb_prediction": [
+   0.637,
+   0.574,
+   0.571
+  ],
+  "mean_rgb_screenshot": [
+   0.288,
+   0.297,
+   0.294
+  ],
+  "blurred_luma_correlation": -0.027,
+  "mean_abs_frame_difference_60_149": [
+   0.0949,
+   0.0848
+  ]
+ },
+ "agreements": [
+  "fast/intense facets right",
+  "flicker correct (p 0.39, 7 jumps)"
+ ],
+ "misses": [
+  "hue: diffuse low-saturation palette, calibrated green vs ruler red/cyan (all shares 0.08-0.26)"
+ ],
+ "verdict": "partial"
+}

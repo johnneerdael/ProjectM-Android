@@ -141,3 +141,19 @@ strobing preset scores 0.886. r14 had a 0.039 margin (0.9 over 0.861), so the th
 0 strobing, 4 pulses out of fold. That preset's flicker comes from a fully opaque additive wave re-placed by `rand()`
 every frame. Corpus-wide, an unconditional per-frame `rand()` on wave geometry shows no strobe lift (visible waves:
 17.5% strobing vs 25% without), so it is logged as a one-off rather than turned into a rule.
+
+Palette weight re-check with r15 OOF (`OOF=oof-r15.json palette_weight_ab.py [checkpoints]`), leading hue in ruler
+top-2:
+
+| calibrated weight | 200 group (162 coloured) | held-out checkpoints (178) |
+|---|---|---|
+| 6 | 72.2% | 61.2% |
+| 24 (shipped) | 77.8% | 67.4% |
+| calibrated only | 80.2% | 66.3% |
+
+Pooled, 24 and calibrated-only are within noise (72.4% vs 72.9%), so the shipped weight stays at 24.
+
+A dedicated strobing classifier (≥ 10 jumps, same trees and folds; `nostrobe_veto_ab.py`) as a second veto does not
+raise No strobe recall. Its strobing AUC is 0.930 vs 0.913 for the calm classifier. The largest zero-strobing
+admissions out of fold: calm + jumps 758 (0.92 / 0.1, at a grid edge with no margin), calm + veto 688, all three
+754. The shipped gate (0.93 / 0.05, 599) keeps its margin; recall is limited by the descriptors, not the rule.

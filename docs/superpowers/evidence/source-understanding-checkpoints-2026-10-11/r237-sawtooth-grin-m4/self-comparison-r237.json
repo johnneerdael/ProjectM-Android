@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r237-v1",
+ "preset": "sawtooth grin nz+ m4.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "47b46197eff7300dc5dbbf54291b61ae1d39b7237b5b54c65f3e64f223a639a4",
+  "prediction.json": "679181387fc9e1878127efb2bd2a368968a87eaa8346398286d6b1a7000454e0",
+  "description.json": "d145900b01157ed8b05d881cea9a3e745a05140ed29109c31e438a58beddc76a",
+  "recipe.json": "e88eaff7af87ea7c8a415f74e3b080eb8bce4c140cd03170480d7826d617562a",
+  "llm-look-description-v1.txt": "2dda15dd9fb41d1bc42501b5ef1af180665b7ba2085e7461de5bb880ce946dd0"
+ },
+ "capture_result_sha256": "56785f7413a25e71ec2f24bb8954775583c3ac8cbb73358e14590368ebbdb6b2",
+ "review_measurements_v1": {
+  "prediction_luma": 0.994,
+  "screenshot_luma": 0.989,
+  "mean_rgb_prediction": [
+   0.994,
+   0.994,
+   0.994
+  ],
+  "mean_rgb_screenshot": [
+   0.988,
+   0.989,
+   0.989
+  ],
+  "blurred_luma_correlation": 0.487,
+  "mean_abs_frame_difference_60_149": [
+   0.0691,
+   0.0188
+  ]
+ },
+ "agreements": [
+  "bright facet admitted (p_bright 0.82) and real clip is near-white 0.985",
+  "frame prediction image 0.994"
+ ],
+ "misses": [
+  "calibrated luminance 0.52 vs 0.985: time-ramp border colour (ob_r=2*time*.7 clamps to 1) is unresolved and a uniform canvas maps to white through the composite; no corpus-wide lift for border+contraction"
+ ],
+ "verdict": "partial"
+}

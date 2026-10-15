@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r243-v1",
+ "preset": "Infused by Flexi with AdamFX 2 Stahlregen & Aderrasi - Slowflowers Ft Martin (AdamFXRemix)7.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1cd24c63d16f8ab945b94391f67eced64c71362b5b88061ad17c5b331b371b0b",
+  "prediction.json": "18e5114fbdb8030f1fd6c09dde6a3a25cafb9d6de0043d6470f32876d2014f40",
+  "description.json": "21ef3764ee5f0b86d398266fa5ba24daf7fd926ddb9cf65387379782f407d548",
+  "recipe.json": "81fede3eb594039e52cd10084b89c8b65581e3da2ab7e77ede07cb48a354af04",
+  "llm-look-description-v1.txt": "cbf1a6e03d8fad8c19c118f0e84335f3c655a43286e07ea58c4782c69a54a833"
+ },
+ "capture_result_sha256": "5dd2a0cf6e359bb0e393613c843da9ca17f6bbde23c32f40b41949fd097733da",
+ "review_measurements_v1": {
+  "prediction_luma": 0.547,
+  "screenshot_luma": 0.541,
+  "mean_rgb_prediction": [
+   0.487,
+   0.608,
+   0.125
+  ],
+  "mean_rgb_screenshot": [
+   0.508,
+   0.594,
+   0.11
+  ],
+  "blurred_luma_correlation": 0.453,
+  "mean_abs_frame_difference_60_149": [
+   0.0897,
+   0.1903
+  ]
+ },
+ "agreements": [
+  "bright, fast, intense, vivid facets right"
+ ],
+ "misses": [
+  "hue: calibrated green/blue near-tie (gap 0.018) broken toward blue by the steady-state source; ruler green/yellow"
+ ],
+ "verdict": "partial"
+}

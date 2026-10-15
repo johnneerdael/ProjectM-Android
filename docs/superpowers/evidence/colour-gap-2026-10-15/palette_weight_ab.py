@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 warnings.filterwarnings('ignore')
 W = Path(__file__).resolve().parents[2]; sys.path.insert(0, str(W / 'tools/milk-analyzer'))
 R = W / 'build/preset-corpus/native-ruler-2026-10-12/corpus/results'
-OOF = json.load(open(W / 'build/calibration-2026-10-14/oof-r14g.json'))['predictions']
+import os; OOF = json.load(open(W / 'build/calibration-2026-10-14' / os.environ.get('OOF', 'oof-r14g.json')))['predictions']
 def one(path):
     import warnings; warnings.filterwarnings('ignore')
     from preset_recipe import build_recipe

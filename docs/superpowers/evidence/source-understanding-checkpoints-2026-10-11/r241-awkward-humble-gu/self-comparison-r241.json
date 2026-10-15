@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r241-v1",
+ "preset": "shifter - spincycle c - mash0000 - condescending arrogant pretentious elitist socially awkward humble gu.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d24237a1be6be44df1e91d5d4737c99d4ce7c1e5945b625042e61042dac1d432",
+  "prediction.json": "52357beaf2b7d53141e4418652909a4fa9586ebb0b6909ca72824bf8a08a5ec8",
+  "description.json": "e48e6a1de8b61efd941235a137b4c2e2cdeb52afd21f9ce39d5016c4c0649d98",
+  "recipe.json": "06f40d30893b33846b85cede388b05fe4538cc422c667773ff7fc88437b51206",
+  "llm-look-description-v1.txt": "1b84a8b7b15b02686c3a5354d83f686285dbae1c1d9095dda1aff6b42c7c8bae"
+ },
+ "capture_result_sha256": "a909a21c35f3caf300bc278953b179453271b52dd071cfd4d2bed07036055d34",
+ "review_measurements_v1": {
+  "prediction_luma": 0.004,
+  "screenshot_luma": 0.004,
+  "mean_rgb_prediction": [
+   0.005,
+   0.004,
+   0.009
+  ],
+  "mean_rgb_screenshot": [
+   0.004,
+   0.004,
+   0.008
+  ],
+  "blurred_luma_correlation": 0.999,
+  "mean_abs_frame_difference_60_149": [
+   0.039,
+   0.0122
+  ]
+ },
+ "agreements": [
+  "dark facet admitted (p_dark 0.72), real clip near-black 0.007",
+  "frame prediction corr 0.999"
+ ],
+ "misses": [
+  "calibrated luminance 0.11 vs 0.01"
+ ],
+ "verdict": "partial"
+}

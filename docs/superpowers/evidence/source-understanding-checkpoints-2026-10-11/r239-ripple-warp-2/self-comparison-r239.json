@@ -1,0 +1,43 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r239-v1",
+ "preset": "Geiss - Liquid Beats (janky ripple warp 2).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ce6dd7f0292a4cbaad973296f141530ac879dea9b99e64ba2632ef07ad7e18c9",
+  "prediction.json": "6ac0c4f6d75ad82165a67ea463047f60f57201810beff4ea2a957713aa154295",
+  "description.json": "4a18bd04bd38d305a5e4d0102ad0b3a0b4cc22d0eb8e17f3122c06e52d32b7d6",
+  "recipe.json": "2e00a055bedcd07e7433a29d3188a52fde042733ba74ce59d8b059b7b3392206",
+  "llm-look-description-v1.txt": "efd2996be1baa71178d0f506ef7abfd9337feda4f40a35e384381b11ce8328c7"
+ },
+ "capture_result_sha256": "f6d5d4d2f37eed19b614836d1ff9e8e4e228441266c291592b5161042d6ecd0e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.228,
+  "screenshot_luma": 0.189,
+  "mean_rgb_prediction": [
+   0.189,
+   0.218,
+   0.445
+  ],
+  "mean_rgb_screenshot": [
+   0.145,
+   0.179,
+   0.427
+  ],
+  "blurred_luma_correlation": 0.828,
+  "mean_abs_frame_difference_60_149": [
+   0.0483,
+   0.0538
+  ]
+ },
+ "agreements": [
+  "hue blue in top-2",
+  "luminance 0.275 in ruler range",
+  "No strobe admitted correctly (p 0.94, 0 jumps)",
+  "frame prediction corr 0.83"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

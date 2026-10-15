@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r240-v1",
+ "preset": "suksma - pus on my cat - wa, who did this twist shiz.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "00bb4e8384402752bb1606e5a88172d0335a1894cd6a7eb5d57c472811c083fe",
+  "prediction.json": "717c482e4095e4947694be5db816e650515b6d59550b4390693ea22eae7e238d",
+  "description.json": "246a0ca18165b53052accd1f69cd97a000255b3a23ccb5f343af78be0d95caf2",
+  "recipe.json": "eb7b3811c462464464734e0384fd3a4be81044dd81933f9d8709816da706cd06",
+  "llm-look-description-v1.txt": "57b08467c7f82ad9dec46be85f7f4b9712d559b13de215e82c0052e9251abff9"
+ },
+ "capture_result_sha256": "348a09fb43ed8d1f310ef0c01dc7abb809ca89982fa56e2aaf2c7832bf7ede01",
+ "review_measurements_v1": {
+  "prediction_luma": 0.321,
+  "screenshot_luma": 0.399,
+  "mean_rgb_prediction": [
+   0.47,
+   0.282,
+   0.27
+  ],
+  "mean_rgb_screenshot": [
+   0.268,
+   0.456,
+   0.215
+  ],
+  "blurred_luma_correlation": 0.467,
+  "mean_abs_frame_difference_60_149": [
+   0.148,
+   0.2351
+  ]
+ },
+ "agreements": [
+  "hue green lead right",
+  "flicker correct (p 0.05, 35 jumps)",
+  "fast/intense right"
+ ],
+ "misses": [
+  "frame difference underestimated (0.15 vs 0.24)"
+ ],
+ "verdict": "agree"
+}

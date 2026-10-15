@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r244-v1",
+ "preset": "EoS_Phat Dark_heart_nobal_cause.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a471ca741023c9d737083154ada096d5a0eb157c0ebdc6781307698ff224b563",
+  "prediction.json": "92a3afd86076c455f483f2983fabe19b3b9d0e172002821f26c6d1d41b9bc417",
+  "description.json": "4346041caed8bdd9ae2e95f228e967e26acac903c737f44c30f233d7083585e9",
+  "recipe.json": "af981a9637242cb455021b2a1c39ca0b8eee6ae24b141e3b36b9ba605072a207",
+  "llm-look-description-v1.txt": "1bf920c57016a9deeb96d6f687f1835f846d279f82e249fff1974baf02531bf8"
+ },
+ "capture_result_sha256": "492c70a4384d919112d0d65d1ff8c339b3ac582349e4b38384950fdc434565f2",
+ "review_measurements_v1": {
+  "prediction_luma": 0.263,
+  "screenshot_luma": 0.264,
+  "mean_rgb_prediction": [
+   0.509,
+   0.187,
+   0.298
+  ],
+  "mean_rgb_screenshot": [
+   0.511,
+   0.187,
+   0.297
+  ],
+  "blurred_luma_correlation": 1.0,
+  "mean_abs_frame_difference_60_149": [
+   0.0343,
+   0.0302
+  ]
+ },
+ "agreements": [
+  "red lead in ruler top-2",
+  "chill/warm/vivid right",
+  "frame prediction corr 1.0"
+ ],
+ "misses": [
+  "No strobe not admitted at p 0.93 (just under the gate)"
+ ],
+ "verdict": "agree"
+}
