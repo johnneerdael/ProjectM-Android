@@ -53,8 +53,9 @@ index 10dcad8..209d108 100644
 +"$"(?i:pi)          { yylval->NUM = 3.141592653589793; return NUM; }
 +"$"[eE]             { yylval->NUM = 2.71828183; return NUM; }
 +"$"(?i:phi)         { yylval->NUM = 1.61803399; return NUM; }
-
+ 
  (?i:gmem)           { return GMEM; }
 -
 +
  {FLOAT}             {
+

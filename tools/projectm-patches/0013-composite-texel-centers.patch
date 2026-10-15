@@ -19,13 +19,13 @@ Reference: https://learn.microsoft.com/en-us/windows/win32/direct3d9/directly-ma
 @@ -139,9 +139,6 @@
          return;
      }
-
+ 
 -    float const halfTexelWidth = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeX);
 -    float const halfTexelHeight = 0.5f / static_cast<float>(presetState.renderContext.viewportSizeY);
 -
      float const dividedByX = 1.0f / static_cast<float>(compositeGridWidth - 2);
      float const dividedByY = 1.0f / static_cast<float>(compositeGridHeight - 2);
-
+ 
 @@ -233,8 +230,10 @@
                      ang = PI * 0.0f;
                  }
@@ -36,7 +36,7 @@ Reference: https://learn.microsoft.com/en-us/windows/win32/direct3d9/directly-ma
 +            // MilkDrop's D3D9 grid biases positions by -half a pixel instead;
 +            // adding another UV bias here samples between feedback texels.
 +            uvs[vertexIndex] = {u, v};
-
+ 
              m_radiusAngle[vertexIndex] = {rad, ang};
          }
 --- a/tests/libprojectM/FeedbackDiffusionRenderTest.cpp
@@ -56,3 +56,4 @@ Reference: https://learn.microsoft.com/en-us/windows/win32/direct3d9/directly-ma
          EXPECT_TRUE(engine.failure.empty())<<engine.failure;
          std::vector<Image> frames;
          for(int frame=0;frame<20;++frame) {
+

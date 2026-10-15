@@ -44,7 +44,7 @@ textured/untextured geometry, two viewport sizes and repeated draws.
 +                texturedShader->SetUniformMat4x4("vertex_transformation", shapeProjection);
                  texturedShader->SetUniformInt("texture_sampler", 0);
              }
-
+ 
 @@ -408,7 +419,7 @@
              auto& lines = m_presetState.lineRenderer;
              if (!m_linesBegun)
@@ -67,7 +67,7 @@ textured/untextured geometry, two viewport sizes and repeated draws.
 +            if (nativePass) untexturedShader->SetUniformMat4x4("vertex_transformation",shapeProjection);
          }
      }
-
+ 
 @@ -444,6 +455,11 @@
          m_presetState.lineRenderer.End();
          m_linesBegun = false;
@@ -78,5 +78,6 @@ textured/untextured geometry, two viewport sizes and repeated draws.
 +    texturedShader->Bind();
 +    texturedShader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
  }
-
+ 
  } // namespace MilkdropPreset
+

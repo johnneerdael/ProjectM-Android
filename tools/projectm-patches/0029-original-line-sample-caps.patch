@@ -20,16 +20,16 @@ Original source: milkdrop2 f05b0d8, milkdropfs.cpp SHA256
 +++ b/src/libprojectM/MilkdropPreset/Waveforms/DerivativeLine.cpp
 @@ -3,6 +3,7 @@
  #include "PresetState.hpp"
-
+ 
  #include <cassert>
 +#include <algorithm>
-
+ 
  namespace libprojectM {
  namespace MilkdropPreset {
 @@ -17,10 +18,9 @@
  {
      m_samples = Audio::WaveformSamples;
-
+ 
 -    if (m_samples > SampleDecisionWidth(presetState) / 3)
 -    {
 -        m_samples /= 3;
@@ -37,50 +37,51 @@ Original source: milkdrop2 f05b0d8, milkdropfs.cpp SHA256
 +    // Cap by the TV reference-equivalent width, as MilkDrop caps by its
 +    // canvas width. Keep at least two points for safe line smoothing.
 +    m_samples = std::min(m_samples, std::max(2, SampleDecisionWidth(presetState) / 3));
-
+ 
      m_wave1Vertices.resize(m_samples);
-
+ 
 --- a/src/libprojectM/MilkdropPreset/Waveforms/Line.cpp
 +++ b/src/libprojectM/MilkdropPreset/Waveforms/Line.cpp
 @@ -1,6 +1,7 @@
  #include "Waveforms/Line.hpp"
-
+ 
  #include "PresetState.hpp"
 +#include <algorithm>
-
+ 
  namespace libprojectM {
  namespace MilkdropPreset {
 @@ -10,10 +11,7 @@
  {
      m_samples = Audio::WaveformSamples / 2;
-
+ 
 -    if (m_samples > SampleDecisionWidth(presetState) / 3)
 -    {
 -        m_samples /= 3;
 -    }
 +    m_samples = std::min(m_samples, std::max(2, SampleDecisionWidth(presetState) / 3));
-
+ 
      m_wave1Vertices.resize(m_samples);
-
+ 
 --- a/src/libprojectM/MilkdropPreset/Waveforms/DoubleLine.cpp
 +++ b/src/libprojectM/MilkdropPreset/Waveforms/DoubleLine.cpp
 @@ -3,6 +3,7 @@
  #include "PresetState.hpp"
-
+ 
  #include <cmath>
 +#include <algorithm>
-
+ 
  namespace libprojectM {
  namespace MilkdropPreset {
 @@ -12,10 +13,7 @@
  {
      m_samples = Audio::WaveformSamples / 2;
-
+ 
 -    if (m_samples > SampleDecisionWidth(presetState) / 3)
 -    {
 -        m_samples /= 3;
 -    }
 +    m_samples = std::min(m_samples, std::max(2, SampleDecisionWidth(presetState) / 3));
-
+ 
      m_wave1Vertices.resize(m_samples);
      m_wave2Vertices.resize(m_samples);
+
