@@ -23,7 +23,7 @@ FACET_CLASSIFIER_OPTIONS=('dark','bright','monochrome','pastel','warm','cool','s
 # The middle buckets are what the regression rule leaves over (regression towards the mean): balanced 53% precision
 # at 85% recall, drifting 59% at 90% (out of fold, base rates 45% and 49%). Their classifiers are thresholded at a
 # precision floor instead (balanced 37% and drifting 56% recall at 70%), level with the weakest extreme options.
-FACET_PRECISION_FLOOR={'balanced':.7,'drifting':.7,'normal':.7,'pastel':.7}
+FACET_PRECISION_FLOOR={'balanced':.8,'drifting':.8,'normal':.8,'pastel':.7}
 TARGETS={'mean_luminance':None,'mean_abs_frame_difference':'log1p10','mean_flow_screen_widths_per_s':'log1p10',
          'global_brightness_jumps_per_10s':'log1p','mean_saturation':None,'warm_cool':None,'coloured_share':None,
          **{'hue_share_'+h:None for h in HUE_FAMILIES},'hue_top_share':None}

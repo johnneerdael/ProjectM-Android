@@ -393,6 +393,14 @@ HUE_CENTRE_RGB={'red':(1.,.15,.15),'orange':(1.,.55,.1),'yellow':(1.,.95,.15),'g
                 'blue':(.2,.35,1.),'purple':(.6,.2,1.),'pink':(1.,.25,.75)}
 
 
+# Engine palettes are often mixed (47% of coloured presets have no family above 40%), so the palette lists every family
+# at 10% or more, and a dominant colour is named only when the predicted top-colour share reaches 0.65. Out of fold:
+# 12% of coloured presets qualify; their lead is the true top colour 77% of the time and one colour covers more than
+# half in 88%. Palette sets at 10%: 76% of true colours found, 71% of named colours true.
+PALETTE_NAME_SHARE=.10
+DOMINANT_TOP_SHARE=.65
+
+
 def display_palette(recipe,times=COLOUR_TIMES):
     """Static display palette: hue shares pooled from the recipe's colour sources, no frames stepped.
 
@@ -459,7 +467,12 @@ def display_palette(recipe,times=COLOUR_TIMES):
     total=sum(pooled.values())
     shares={k:round(v/total,4) for k,v in sorted(pooled.items(),key=lambda kv:-kv[1]) if v/total>=.03} if total else {}
     norm=sum(shares.values())
-    return {'hue_shares':{k:round(v/norm,4) for k,v in shares.items()} if norm else {},
+    final={k:round(v/norm,4) for k,v in shares.items()} if norm else {}
+    dominance=(stats.get('hue_top_share') or {}).get('value') if isinstance(stats.get('hue_top_share'),dict) else None
+    palette=[k for k,v in final.items() if v>=PALETTE_NAME_SHARE]
+    dominant=palette[0] if palette and type(dominance) in (int,float) and dominance>=DOMINANT_TOP_SHARE else None
+    return {'hue_shares':final,'palette':palette,'dominant_hue':dominant,
+            'dominance':round(float(dominance),4) if type(dominance) in (int,float) else None,
             'sources':[{'source':n,'weight':round(w,3),'leading':max(s,key=s.get)} for n,s,w in sources],
             'random_tint':bool(composite.get('hue_shader') or composite.get('load_spread')),
             'method':'static pooling of recipe colour sources (no frames stepped); weights '+json.dumps(PALETTE_WEIGHTS)}

@@ -635,3 +635,26 @@ def test_palette_sharpening_powers_are_chosen_per_concentration_bin():
     spec = choose_palette_sharpening(concentration, flat, truth)
     assert len(spec['edges']) == 3 and len(spec['powers']) == 4
     assert spec['powers'][0] == 1. and spec['powers'][-1] > 1.
+
+
+def test_display_palette_names_a_dominant_colour_only_when_one_dominates():
+    # Engine palettes are often mixed: 47% of coloured presets have no family above 40%. The palette lists every
+    # family at 10% or more; a dominant colour is named only when the predicted top-colour share is at least 0.65
+    # (out of fold: 12% of coloured presets; our lead is the true top colour 77% of the time and one colour covers
+    # more than half in 88%). Otherwise the dominant colour is None (n/a) and the palette carries the description.
+    from preset_recipe import display_palette
+    def recipe(top):
+        stats = {f'hue_share_{k}': {'value': v} for k, v in {'green': .45, 'blue': .3, 'pink': .2, 'red': .05}.items()}
+        stats['hue_top_share'] = {'value': top}
+        return {'display_estimate': {'statistics': stats}, 'render': {'layers': [], 'feedback': {}, 'composite': {}}}
+    mixed = display_palette(recipe(.5))
+    assert mixed['dominant_hue'] is None and mixed['palette'] == ['green', 'blue', 'pink']
+    assert display_palette(recipe(.7))['dominant_hue'] == 'green'
+    assert display_palette({'render': {'layers': [], 'feedback': {}, 'composite': {}}})['dominant_hue'] is None
+
+
+def test_middle_buckets_are_held_to_an_eighty_percent_precision_floor():
+    # Owner decision (2026-10-15): fewer wrong neighbour labels over more labels. Out of fold the pooled facet
+    # precision rises 76% -> 79% and recall falls 50% -> 41% (normal 80%/30%, balanced 78%/18%, drifting 79%/23%).
+    import fit_display_calibration
+    assert all(fit_display_calibration.FACET_PRECISION_FLOOR[k] >= .8 for k in ('balanced', 'drifting', 'normal'))

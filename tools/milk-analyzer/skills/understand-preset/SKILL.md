@@ -198,7 +198,11 @@ full recipe tens of thousands of lines long.
    hue shares, plus a `random_tint` flag. The sources are calibrated hue
    shares (`display_estimate` `hue_share_*`, fitted from static descriptors),
    composite detail colour, steady feedback colour, shape fills, and wave and
-   point colours. Name colours from its leading hues. With calibrated hue
+   point colours. Describe the colours from `palette` (every family at 10% or
+   more; out of fold it finds 76% of the engine's colours and 71% of named
+   colours are present). Name one dominant colour only when `dominant_hue` is
+   set (predicted top-colour share 0.65 or more); otherwise say there is no
+   dominant colour and describe the palette as a set. Name colours from its leading hues. With calibrated hue
    shares present, the leading hue matches the engine's top two hues about 70%
    of the time; without them, about half the time. Say "likely", and with
    `random_tint` say the hue placement changes per load. The gap between the
@@ -290,9 +294,9 @@ full recipe tens of thousands of lines long.
    and is not strobe-free. `facet_<option>_probability` with a `threshold`
    decides that Mood option (dark, balanced, bright, monochrome, pastel, warm,
    cool, still, drifting, chill, normal, intense): at or above the threshold the
-   preset belongs. The middle options (balanced, drifting, normal) and pastel are
-   thresholded at 70% precision, so a preset may sit in no bucket of a group; say
-   that the group is uncertain rather than assuming the middle. Pastel (bright but
+   preset belongs. The middle options (balanced, drifting, normal) are thresholded
+   at 80% precision and pastel at 70%, so a preset often sits in no bucket of a
+   group; say that the group is uncertain rather than assuming the middle. Pastel (bright but
    weakly coloured) is admitted rarely; a preset without it may still look pastel.
    Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
