@@ -88,7 +88,12 @@ def test_recipe_facets_block_uses_calibrated_values_and_marks_unresolved():
     assert 0<=facets['values']['coloured_share']['value']<=1
     point={k:v['value'] for k,v in facets['values'].items() if v['value'] is not None}
     expected=[o for o in preset_facets.memberships(point,facets['style'],definition) if o not in facets['unresolved_options']]
-    assert facets['options']==expected
+    # Calibrated option classifiers and the No strobe gate then decide their options (and drop conflicting siblings).
+    from preset_recipe import _apply_option_probabilities,_no_strobe_gate
+    stats=recipe['display_estimate']['statistics']
+    expected,_,_=_apply_option_probabilities(stats,definition,expected,[],[])
+    expected,_,_=_no_strobe_gate(stats,expected,[],[])
+    assert sorted(facets['options'])==sorted(expected)
     assert recipe['display_estimate']['statistics']['mean_luminance']['value']==facets['values']['luminance']['value']
     json.dumps(facets,allow_nan=False)
 
@@ -564,7 +569,7 @@ def test_calibrated_option_probabilities_decide_membership_and_coloured_share_is
 
 
 def test_no_strobe_needs_both_the_classifier_and_the_jumps_estimate():
-    # Out of fold (9,516 presets) the combined gate p >= 0.9 and jumps < 0.1 admits 852 presets with no strobing preset
+    # Out of fold (9,516 presets) the combined gate p >= 0.9 and jumps < 0.05 admits 726 presets with no strobing preset
     # (6 with occasional pulses); either signal alone admits strobing presets at a similar pool size.
     from preset_recipe import facets_block
     def stats(p, jumps):
@@ -573,6 +578,6 @@ def test_no_strobe_needs_both_the_classifier_and_the_jumps_estimate():
                 'mean_abs_frame_difference': {'value': .02, 'interval': [.01, .03]}, 'coloured_share': {'value': .5, 'interval': [.4, .6]},
                 'global_brightness_jumps_per_10s': {'value': jumps, 'interval': [0., jumps + .5]},
                 'no_strobe_probability': {'value': p, 'interval': [p, p]}}
-    assert 'no_strobe' in facets_block({'facts': {}}, {'statistics': stats(.95, .05)})['options']
+    assert 'no_strobe' in facets_block({'facts': {}}, {'statistics': stats(.95, .02)})['options']
     assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.95, .5)})['options']
     assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.6, .0)})['options']

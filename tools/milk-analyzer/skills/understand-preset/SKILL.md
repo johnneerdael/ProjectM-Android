@@ -275,7 +275,7 @@ full recipe tens of thousands of lines long.
    flicker without one.
    When `display_estimate` has `no_strobe_probability` (a calm-vs-flicker
    classifier over static descriptors), use it for flashing. The facets admit
-   No strobe only when it is 0.9 or above and the jumps estimate is below 0.1.
+   No strobe only when it is 0.9 or above and the jumps estimate is below 0.05.
    Out of fold, that combination admitted no strobing preset. Call those
    presets steady. Between
    0.7 and 0.95, say occasional pulses are likely. Below 0.7, say it flickers

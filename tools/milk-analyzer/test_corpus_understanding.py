@@ -66,7 +66,7 @@ def test_rescore_writes_source_calibrated_facets_into_the_index(tmp_path):
     rescore(tmp_path)
     facets=json.loads((tmp_path/'preference-index.json').read_text())['presets'][0]['facets']
     assert facets['policy']=='preset-facets-v1' and facets['evidence']=='source-calibrated'
-    assert {'monochrome','pastel'}<=set(facets['unresolved_options'])
+    assert not {'monochrome','pastel'}&set(facets['unresolved_options'])  # coloured_share is now calibrated
 
 
 def test_worker_passes_the_presets_offline_compile_manifest(tmp_path, monkeypatch):
