@@ -66,3 +66,37 @@ r215 stays wrong.
 
 Checkpoint descriptions come from mixed analyzer versions. Some held-out static sources are therefore older
 than the current code, which may understate pooling on that set.
+
+## Step 4: recipe colour probes as calibration columns (2026-10-15)
+
+Rounds 6 and 7 kept showing calibrated brightness misses on presets whose recipe already holds the answer. Checkpoints
+r235 and r228 share a composite (detail luma 0.66), but r235's warp darkens detail (warp detail luma 0.016 vs 0.46).
+The ruler agrees (0.23 vs 0.62); the calibration ranked them backwards (0.57 vs 0.49). The summary flattening
+that feeds the calibration never contained the recipe-level probes.
+
+`recipe_columns_ab.py` (static, same 5-fold CV) adds the warp and composite detail responses, the composite colour
+matrix, and the palette pooled from static sources only, to the cached r14 descriptors. The matrix also gives
+derived columns: singular-value ratios (rank-1 means every input becomes one chroma) and the saturation reachable
+from black plus each unit input column.
+
+| OOF | base | + recipe probes |
+|---|---|---|
+| mean_saturation Spearman | 0.668 | 0.702 |
+| coloured_share | 0.655 | 0.681 |
+| mean_luminance | 0.670 | 0.692 |
+| leading hue in ruler top-2 | 69.3% | 72.3% |
+| monochrome AUC | 0.887 | 0.895 |
+| pastel AUC / recall at 70% precision | 0.825 / 2.5% | 0.835 / 9.5% |
+
+These are now `recipe:*` columns of `static_descriptor` v4 (`preset_recipe.probe_columns`). `build_recipe` passes
+its render, so the probes are not recomputed.
+
+### Determinism fix found on the way
+
+Regenerating the columns with production code changed values for about 1% of presets (for example a matrix entry
+of 0.22 vs −0.02). The stage-control stepper ran the per-frame program until a 3 s wall-clock deadline, so under
+machine load it reached fewer frames, and later probe times read stale state. `eel_memory.WorkBudget` replaces the
+clock. Each step charges the frame-program node count, and each EEL loop iteration charges its body size. On a
+300-preset sample, stepping costs about 0.5M units/s (Spearman 0.88 with seconds). At 2M units, 97% of presets
+step to t = 5 s fully; the rest stop at the same point on every machine (`stepping_units.py`). The descriptor
+cache is regenerated with the deterministic code for the r15 refit.
