@@ -261,3 +261,29 @@ changes. Palette overlap out of fold:
 The powers are chosen on the same out-of-fold rows they are scored on (4 parameters). The prototype with nested
 folds (`palette_concentration_ab.py`) gives the same numbers (66.0 / 64.9 / 74.5 / 69.7%). SKILL tells readers to
 describe palettes with `hue_top_share` below about 0.4 by two or three hues.
+
+## Step 9: palette instead of a single leading colour; dominant colour only when one dominates (2026-10-15)
+
+Owner decision: describe palettes; give a dominant colour only when there is one. `display_palette` now returns
+`palette` (every family at 10% or more of the pooled shares) and `dominant_hue`. The dominant hue is set only when
+the predicted top-colour share (`hue_top_share`) is 0.65 or more; otherwise it is None (n/a). Thresholds come from
+r15q out of fold over 8,048 coloured presets:
+
+| claim dominant at predicted top share ≥ | presets | lead = engine top colour | engine top colour > 50% |
+|---|---|---|---|
+| 0.55 | 27% | 68% | 75% |
+| 0.60 | 19% | 72% | 82% |
+| 0.65 (chosen) | 12% | 77% | 88% |
+| 0.70 | 8% | 84% | 93% |
+
+Palette sets at 10%: 76% of the engine's colours are named, and 71% of named colours are present (8%: 79 / 72%; 15%:
+69 / 69%). The triage now scores palette sets and wrong dominant claims.
+
+Two motion probes are not adopted (noise level), both out of fold on r16 descriptors:
+
+- `control_flow_corpus.py`: closed-form mesh displacement from controls evaluated under neutral and transient audio.
+  Flow 0.6961 → 0.6987, frame difference 0.7329 → 0.7324.
+- `control_series_corpus.py`: the frame program stepped through the declared checkpoint band sequence (300 frames,
+  scalar equations only). It gives per-control spread, step size, jump share, flag flips and displacement series.
+  Flow 0.6961 → 0.6998, jumps 0.7743 → 0.7755, No strobe AUC 0.9215 → 0.9219; admissions before strobing presets
+  #1 / #2 / #3 go 763 / 806 / 887 → 809 / 827 / 887.
