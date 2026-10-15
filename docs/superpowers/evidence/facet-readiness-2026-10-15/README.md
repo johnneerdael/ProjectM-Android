@@ -126,3 +126,9 @@ scored with `facet_scoreboard2.py` (out of fold):
 
 80% removes about 2,330 wrong middle labels (3,197 → 870) and drops about 4,230 correct ones (7,542 → 3,312). Which
 trade-off suits grouping is the owner's decision; the shipped model stays at 70% until then.
+
+Candidate "80% for every classifier option" (`fit_floor_all.py .8`, merged into the shipped 80%-middle model). Only
+the options thresholded below 80% move: intense 75% / 72% → 80% / 63%, bright 73% / 62% → 80% / 46%, cool 76% / 47%
+→ 80% / 43%. Pooled 79% / 41% → 81% / 39%. Vivid (79%) and fast (77%) are decided by the value rule, with no
+classifier, so a floor does not reach them. Not shipped: a small precision gain for a recall loss, and outside the
+owner's middle-bucket decision.
