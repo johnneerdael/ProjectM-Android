@@ -1,0 +1,11 @@
+Likely a busy, fast, flickering and strongly coloured picture, the opposite of calm. The calibrated facets say Intense (0.97, activity percentile about 0.99), Balanced brightness (0.76), and very high frame change. Estimated mean luminance is about 0.26, saturation about 0.75 (0.48-1.0), and about 86% of the screen coloured. It is not Chill, Still or Dark.
+
+Structure: the warp erases most of the previous frame every frame (feedback gain about 0.006 plus a grey offset near 0.25), so there are no long trails; the picture is rebuilt each frame from what is drawn and from a band-pass (blur-difference) sharpening that creates cell or splatter-like texture. The composite then shows the canvas through a two-direction relief stage, so edges look embossed and lit. A large square (radius about 0.44, centred) spins at about 2 rad/s and copies the previous frame at twice the zoom, so nested, recursive copies should form a rotating tunnel or droste pattern. Two six-sided shapes wander around the middle (x about 0.35-0.65, y 0.31-0.69), copying the previous frame as tints. Their rims run through cyan, green and pink, and their radius swells with smoothed bass. A built-in audio-deformed circle follows the right channel, but its effective base radius is 0, so it is likely tiny or degenerate; its additive grey line is a minor element.
+
+Motion: the mesh zoom varies with angle and radius over a very wide range (about -4.1 to 0.2; negative values are an unresolved case in the recipe), plus rotation that sways between -0.01 and +0.01 rad per frame over a roughly 6 s period. Smoothed bass pushes zoom with gain -2, so the swirl visibly breathes with the bass. Calibrated flow is about 0.53 screen widths per second, which is fast.
+
+Colour: a composite hue shader multiplies the picture by corner shades that cycle with periods near 14.6, 19.6 and 16.2 s, and the hue placement is random each time the preset loads. Calibrated hue shares are blue 22%, green 21%, with pink, red, yellow, orange, purple and cyan each under 10%. Bass and treble feed the composite colour channels.
+
+Flashing: the no-strobe probability is only 0.01, and estimated global brightness jumps are about 45 per 10 s (15-166), a strobe-like range. Expect rapid flicker, not strobe-free.
+
+Uncertain: the exact hue, the negative-zoom regions, and how the circle looks.

@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r229-v1",
+ "preset": "martin - time machine(1).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e8f22c45291abbf73e0eebb94c9860d15b4801fc88a62517188bfff635b3842d",
+  "prediction.json": "e2ed7f0a725e603887fa7f75af012265182d8d76c65f0123ebdf984027bbd837",
+  "description.json": "a6c0f31c3b712df35b9bc23b7410035f5f68d3a41c3749f7193f5fb43ac866da",
+  "recipe.json": "56da38135d303ec5cadf06758bf3bab115f0f85cc20a2a5ae83239d0f3a07fbe",
+  "llm-look-description-v1.txt": "03323108177259d9a069fbc0e39989d97bed25c6e4f8a7428fcb3ab12230c5fe"
+ },
+ "capture_result_sha256": "81b840be59f8524e82064fe8edd51d85a34b7a38579b1abc6fcbea1096f71b1d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.616,
+  "screenshot_luma": 0.616,
+  "mean_rgb_prediction": [
+   0.609,
+   0.611,
+   0.685
+  ],
+  "mean_rgb_screenshot": [
+   0.609,
+   0.61,
+   0.684
+  ],
+  "blurred_luma_correlation": 1.0,
+  "mean_abs_frame_difference_60_149": [
+   0.0632,
+   0.0946
+  ]
+ },
+ "agreements": [
+  "palette green matches ruler green/blue",
+  "luminance 0.24 inside 0.14-0.50 (clip 0.30)",
+  "flicker flagged: no-strobe p 0.05, ruler 75 jumps",
+  "prediction image matches the screenshot (corr 1.0)"
+ ],
+ "misses": [],
+ "verdict": "understood"
+}

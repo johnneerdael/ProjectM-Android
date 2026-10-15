@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r235-v1",
+ "preset": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss an44.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "91ccf562f250f261c93f7a50006bcaa1b9332d671b45cf76940bacf2e2d184ca",
+  "prediction.json": "513ab8d26aefb20cfedb7086c4b226347654a936be4576242214ea8c70167d9d",
+  "description.json": "aea38adce7c92a5715610326e85ad744912e57acff0158804214691c8969f4aa",
+  "recipe.json": "33e68f32838eba0a2804c60d4e01d621e362bf9fdee7eecec0870d3dc29b961c",
+  "llm-look-description-v1.txt": "b6dcf5e90f458a3e9ff1d15784a9d4c009529fad5d8c66f2e517442f2269d11e"
+ },
+ "capture_result_sha256": "8975fb3eb5cbe82ae54d9e4db5f87e5cfd40a11ca31501c2e0cb69d682c97802",
+ "review_measurements_v1": {
+  "prediction_luma": 0.463,
+  "screenshot_luma": 0.24,
+  "mean_rgb_prediction": [
+   0.49,
+   0.49,
+   0.113
+  ],
+  "mean_rgb_screenshot": [
+   0.245,
+   0.245,
+   0.184
+  ],
+  "blurred_luma_correlation": -0.046,
+  "mean_abs_frame_difference_60_149": [
+   0.0436,
+   0.0102
+  ]
+ },
+ "agreements": [
+  "palette yellow matches ruler yellow/blue"
+ ],
+ "misses": [
+  "calibrated luminance 0.57 vs ruler 0.22-0.23 (clip 0.24): same composite as r228 (detail luma 0.66), but this warp darkens detail to 0.016; warp detail luma is now a calibration column (recipe probe columns)"
+ ],
+ "verdict": "miss (calibrated brightness), cause found"
+}

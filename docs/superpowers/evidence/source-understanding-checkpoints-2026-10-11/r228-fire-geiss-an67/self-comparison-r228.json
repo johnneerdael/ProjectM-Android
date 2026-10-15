@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r228-v1",
+ "preset": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss an67.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "07daa0ca3f76d31081d780aa4f4bda90ba3fbd2b6ea393b40e1b402afe5c87e2",
+  "prediction.json": "35ce123a0ba209dec498660b134019d981e25a8b8a3eafa21bbbb9ca42868e0c",
+  "description.json": "9cde4bdbd560dd6540a7c39d8461f18044ac40279059a966cd2390604ad8b63b",
+  "recipe.json": "fdfe447003077d52771c3108051066a8b683a9309399c2a54a650edb16bf65df",
+  "llm-look-description-v1.txt": "c013dbfaa2c957d59e3d091e0a5d00bcda9c2b80c4df273ec64a057f1b34763e"
+ },
+ "capture_result_sha256": "2470d467e96b4a13074f092fa0156991eca495f85f283930b398720bf832016b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.566,
+  "screenshot_luma": 0.585,
+  "mean_rgb_prediction": [
+   0.586,
+   0.559,
+   0.577
+  ],
+  "mean_rgb_screenshot": [
+   0.608,
+   0.577,
+   0.593
+  ],
+  "blurred_luma_correlation": 0.364,
+  "mean_abs_frame_difference_60_149": [
+   0.1022,
+   0.1149
+  ]
+ },
+ "agreements": [
+  "palette green matches ruler green/blue",
+  "frame difference 0.10 vs clip 0.11"
+ ],
+ "misses": [
+  "calibrated luminance 0.49 under ruler 0.59-0.63 (clip 0.63); a sibling of r235 with the same composite: its warp keeps detail (warp detail luma 0.46)"
+ ],
+ "verdict": "understood"
+}

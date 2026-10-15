@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r231-v1",
+ "preset": "rarian rakista - Cheap Angels 23.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "84b700d8e83d082426d029271fea66f81b70b79ff19075dc5b128a85ac8b3513",
+  "prediction.json": "f5fc35f8cb8bab578351a489ed6dac4506d33fe70056f2f048d76e97aca38b4f",
+  "description.json": "be2bf6096a005d2fa53a8ad1e4e93795939a9cfd4de1cbdcf70c4c70583ec885",
+  "recipe.json": "2dbde0b65c11d0401a6b9bb26039be6977dcf659c4908ada9c3f80fd97a739a5",
+  "llm-look-description-v1.txt": "dee718574a40f2e56e75da63c9e565d8e690fe9dade7035eff2160858b838e67"
+ },
+ "capture_result_sha256": "a1fb4920380b1700aeacfc7b4aaba8128b2a5f557ee6c587dd8c4685eb5e00f0",
+ "review_measurements_v1": {
+  "prediction_luma": 0.456,
+  "screenshot_luma": 0.444,
+  "mean_rgb_prediction": [
+   0.442,
+   0.464,
+   0.417
+  ],
+  "mean_rgb_screenshot": [
+   0.427,
+   0.452,
+   0.406
+  ],
+  "blurred_luma_correlation": 0.946,
+  "mean_abs_frame_difference_60_149": [
+   0.0192,
+   0.0318
+  ]
+ },
+ "agreements": [
+  "palette yellow matches ruler yellow/cyan",
+  "prediction image matches the screenshot (corr 0.95)"
+ ],
+ "misses": [
+  "calibrated luminance 0.30 under ruler 0.36-0.52 (clip 0.40)"
+ ],
+ "verdict": "understood"
+}

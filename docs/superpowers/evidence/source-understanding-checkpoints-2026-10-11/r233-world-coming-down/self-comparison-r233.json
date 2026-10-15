@@ -1,0 +1,39 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r233-v1",
+ "preset": "suksma - type o negative - world coming down.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "badca02dc98619400da55dba187bf2574452d429ecdd68071db6685998d1ca59",
+  "prediction.json": "41b57ca1dcd51c40f80e3e5b356837f7c4fa7a287a1c0b87d8b5c8d73ab272ab",
+  "description.json": "306b2203b923b3ffc37849c53cad816b56518697c64f3c88d23cfd6ab4d5e0b7",
+  "recipe.json": "cf984d6381252cdca6d81310205b29abe6e103dbb10baa5fcf028a68c5b963d1",
+  "llm-look-description-v1.txt": "270b2bcc177b387210db3690e94482cf606f376e8668a1eae97db22765d361f4"
+ },
+ "capture_result_sha256": "d198c0aede9d40796113eb59abbd01bd79f86b056e6bc837764872e5a31ad321",
+ "review_measurements_v1": {
+  "prediction_luma": 0.054,
+  "screenshot_luma": 0.049,
+  "mean_rgb_prediction": [
+   0.022,
+   0.068,
+   0.016
+  ],
+  "mean_rgb_screenshot": [
+   0.016,
+   0.063,
+   0.009
+  ],
+  "blurred_luma_correlation": 0.992,
+  "mean_abs_frame_difference_60_149": [
+   0.0211,
+   0.0009
+  ]
+ },
+ "agreements": [
+  "dark green: luminance 0.09 (clip 0.05), palette green matches ruler green/yellow",
+  "prediction image matches the screenshot (corr 0.99)"
+ ],
+ "misses": [],
+ "verdict": "understood"
+}

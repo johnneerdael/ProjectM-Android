@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r227-v1",
+ "preset": "shifter - glassworms original.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a61b5e4c2d7db17b7d7cd2e5ccc3723706653f142faefce02735844c243c8c39",
+  "prediction.json": "19dfd755f018fbbc109ce1194e7793ce076e9fa4cfa4e07604553abec9a78459",
+  "description.json": "2ff07cd91cab204029beb0285a1262374a024658bd598c805d0663b8d03a19c7",
+  "recipe.json": "1e7bbd898d1331ec4fc846a2d6725e827c606021e2704485efb0a1ff6069b64d",
+  "llm-look-description-v1.txt": "e58c0a9374108353600c776aa0783d34a8495058a38c35d44546194cf45797ca"
+ },
+ "capture_result_sha256": "2e691ce756fd37700188df5356823520de18fac3566541d34ba4d4e28adab220",
+ "review_measurements_v1": {
+  "prediction_luma": 0.164,
+  "screenshot_luma": 0.158,
+  "mean_rgb_prediction": [
+   0.164,
+   0.164,
+   0.164
+  ],
+  "mean_rgb_screenshot": [
+   0.158,
+   0.158,
+   0.158
+  ],
+  "blurred_luma_correlation": 0.993,
+  "mean_abs_frame_difference_60_149": [
+   0.0185,
+   0.001
+  ]
+ },
+ "agreements": [
+  "prediction image matches the screenshot (luma 0.164 vs 0.158, corr 0.99)",
+  "grey look: calibrated saturation 0.06, clip saturation 0.005"
+ ],
+ "misses": [
+  "calibrated luminance 0.37 vs ruler 0.11-0.24 (clip 0.13); SDK called it bright; recipe steady state 0.12 was closer"
+ ],
+ "verdict": "partial: calibrated brightness too high"
+}

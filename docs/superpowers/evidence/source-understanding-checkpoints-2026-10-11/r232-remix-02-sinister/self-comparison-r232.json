@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r232-v1",
+ "preset": "MegalomaGreg - Ambitions [Flexi's mix 25 slip antithesis] [remix 02 sinister] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "81a9a9d66408c53460cb57c83096242dbaed5ffd50bd1b35152585abc035305b",
+  "prediction.json": "54f4515ce770ef3d0db1585cf567754358aee78d60ae2c1fb06ea64c74cd1875",
+  "description.json": "bd17234dee7c4a7333c1b3abc77a99e1bd404c9a5b50ce0912e0b08473b5b7f1",
+  "recipe.json": "3bf1e64d48f3a5de68c8020e58062d495524cfe1ecfd8a4895de0af782fb6f8c",
+  "llm-look-description-v1.txt": "03f8cec5ecd00ea041cbd2abc35734024ab2154afeb3021a965d37081b87e967"
+ },
+ "capture_result_sha256": "acc4dd81b09cfc7274653cf3218342c138894b7bc2de20c88a7714ae9b4b4855",
+ "review_measurements_v1": {
+  "prediction_luma": 0.183,
+  "screenshot_luma": 0.133,
+  "mean_rgb_prediction": [
+   0.19,
+   0.179,
+   0.205
+  ],
+  "mean_rgb_screenshot": [
+   0.142,
+   0.127,
+   0.154
+  ],
+  "blurred_luma_correlation": 0.862,
+  "mean_abs_frame_difference_60_149": [
+   0.0295,
+   0.0287
+  ]
+ },
+ "agreements": [
+  "palette purple matches ruler purple/red",
+  "prediction image close to the screenshot (corr 0.86)"
+ ],
+ "misses": [
+  "calibrated luminance 0.29 vs ruler 0.11-0.13 (clip 0.11)"
+ ],
+ "verdict": "partial: calibrated brightness high"
+}

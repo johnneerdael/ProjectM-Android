@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r234-v1",
+ "preset": "suksma - norm abrams hosts this weeks this old shader.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "873a7825735009c7b2f2d2a75d8131df8126d036e886be9ea98b69ca50614081",
+  "prediction.json": "e740f7f9985506d20941487e7e7f2d2bc0f648bde2a32359361c48896521c2e8",
+  "description.json": "db625df706bf5c948fc89ace492a5aec01bc1a78ae217dfb8aff3cd028dc83a2",
+  "recipe.json": "647cd228eaf2f0f8e67b742f62949f3d243e225b1aed7d0f8965bb3dc327953e",
+  "llm-look-description-v1.txt": "9f056875da0e70b2536554d16e69f0d753ebc5d729ca24993dbd59f5a1b2dbb9"
+ },
+ "capture_result_sha256": "4d6fe1fcf8a660a5be829fb3165431eb475999a48b05777d94fe7ab681e03a69",
+ "review_measurements_v1": {
+  "prediction_luma": 0.113,
+  "screenshot_luma": 0.12,
+  "mean_rgb_prediction": [
+   0.032,
+   0.145,
+   0.032
+  ],
+  "mean_rgb_screenshot": [
+   0.1,
+   0.114,
+   0.248
+  ],
+  "blurred_luma_correlation": 0.16,
+  "mean_abs_frame_difference_60_149": [
+   0.198,
+   0.2857
+  ]
+ },
+ "agreements": [
+  "luminance 0.26 inside 0.13-0.43 (clip 0.28)",
+  "flicker flagged: no-strobe p 0.01, ruler 91 jumps"
+ ],
+ "misses": [
+  "palette leads blue; ruler green/yellow"
+ ],
+ "verdict": "partial: flicker right, hue wrong"
+}

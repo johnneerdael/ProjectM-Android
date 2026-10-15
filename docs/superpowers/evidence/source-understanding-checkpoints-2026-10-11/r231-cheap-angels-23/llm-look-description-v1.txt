@@ -1,0 +1,11 @@
+Likely a soft, medium-bright, mostly warm picture: yellow-led (about 37% of coloured pixels), with orange (~21%), some green, red and blue, and a pale, pastel feel rather than vivid saturation (calibrated mean saturation about 0.43, interval 0.17-0.68; about 56% of the screen is coloured). Mean luminance is estimated near 0.30 (0.11-0.52), so neither dark nor glaring. The calibrated facets call it Bright, Pastel and Chill (0.76), with Drifting likely (0.70); it is not Intense or Dark.
+
+Drawn elements: a centred orange-to-yellow triangle (cream-yellow centre fading to deeper gold at the edges) sits in the middle of the screen. Over it a white five-sided shape at the same centre copies the previous frame as a tint, so it behaves like a frame-feedback window and not a solid white pentagon. Both have unknown radius curves, so their size is uncertain. A cloud of 512 faint blue dots (alpha around 0.28) is placed in the lower-right two thirds of the screen (x 0.36-0.85, y 0.33-0.98). The built-in stereo waveform is drawn as dots but at alpha 0.001, so it is almost invisible even though its colour could take any hue.
+
+Motion: the feedback warp is nearly static (zoom 1, no rotation, tiny warp 0.001), so there is no tunnel or spin. Drift comes from bass-driven translation, whose size is unknown, hence slow wandering or small bass nudges of the trails. Trails persist: decay 0.995, half-life roughly 4 seconds, with faint residue that never fully clears. The composite adds a left-right mirrored copy at 50%, giving a two-fold mirror look, which is inexact.
+
+Audio: bass grows the triangle, raises its opacity and shifts the feedback; mids change the pentagon radius; treble rotates it. Gains are not known, so the strength of these reactions is uncertain.
+
+Flashing: no explicit flash mechanism, but the no-strobe probability is only 0.57 and estimated brightness jumps are about 1 per 10 s (0-6), so expect occasional pulses with bass and do not call it strobe-free.
+
+Uncertain: pentagon and triangle sizes, bass translation amount, actual dot coverage, and the true hue balance, since yellow dominates only via calibrated estimates.
