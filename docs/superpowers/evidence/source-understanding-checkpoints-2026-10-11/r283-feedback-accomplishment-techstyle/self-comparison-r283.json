@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r283-v1",
+ "preset": "TonyMilkdrop - Tricolors [Flexi - feedback accomplishment + techstyle] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "7f2a7900c28d5880fc019e5cbca95d5e72492f77538a127ffc7fdf5b609e89cf",
+  "prediction.json": "e05195d618421f19e76414f0798b3dfeb8ddccf3d3b4cbd4d12761b01335e5ae",
+  "description.json": "746889c7f63cc8d543efe7dc994fcd87b596494d6173573b19c1bdd3296cc808",
+  "recipe.json": "05be94af3c1ad70d63bc3ce180638e6ba5516fef5c67a9a3e8037111bacc88cc",
+  "llm-look-description-v1.txt": "1bcf29f1f8fd6100d272331e957b52b66eaae3138c579d8dae9abd5a95db890e"
+ },
+ "capture_result_sha256": "e3a1c0da3d50c72d3fe5b6307160384698a512ae92d5fed4abc5d702eac5628b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.323,
+  "screenshot_luma": 0.414,
+  "mean_rgb_prediction": [
+   0.284,
+   0.319,
+   0.475
+  ],
+  "mean_rgb_screenshot": [
+   0.561,
+   0.36,
+   0.509
+  ],
+  "blurred_luma_correlation": 0.881,
+  "mean_abs_frame_difference_60_149": [
+   0.0255,
+   0.0304
+  ]
+ },
+ "agreements": [
+  "chill right"
+ ],
+ "misses": [
+  "hue: green vs ruler pink/purple"
+ ],
+ "verdict": "partial"
+}

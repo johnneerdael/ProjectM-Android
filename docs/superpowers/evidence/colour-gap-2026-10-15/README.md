@@ -224,3 +224,9 @@ underestimated by 0.055. A/B out of fold (`detail_gain_ab.py`, same regressor an
 It is now the recipe column `recipe:warp_detail/gain` and matches the prototype exactly (1.4513 and 0.4617 on the
 two reference presets). The next refit (r16, regenerated descriptors) carries the outline equilibrium, the detail
 gain and the Pastel floor.
+
+Negative result, edge inflow (`edge_inflow_corpus.py`). Checkpoint r278 (Epileptic Spiral Beats) is black: its warp
+is a Julia iteration (u → u² + c, c = 0.448 + 0.701i) with clamped reads, so samples leave the frame and read the
+opaque black inner border. The prototype evaluates the warp once on a canvas that is 1 in the outer band and 0 inside.
+Corpus-wide, high inflow with an opaque black border is not darker (ruler 0.319 at inflow ≥ 0.5 vs 0.285 below 0.05),
+and the r15 model is unbiased in every inflow bin. Not adopted; r278 is logged as an individual case.

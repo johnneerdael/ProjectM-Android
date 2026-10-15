@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r281-v1",
+ "preset": "suksma - daryl feels my hellish lonliness - emboldening the harmless.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c6a112a7779e311071cd58a57373bcd3f3d08d87a73dca59ffb548ec19d28fe1",
+  "prediction.json": "3d18cc97604cfeaddd9c399119205b4427b726429095d4a6598315e928fdc734",
+  "description.json": "57767872806cf2e1c60bad8d5e21f9214bdb2b2fe1eb9365fbe7e65e3ec61492",
+  "recipe.json": "d14a20032e16f74dcf4d707d970bb4c02f4abec01aedb9472a3e07982a340732",
+  "llm-look-description-v1.txt": "6b3312c73b307dd036efeb5fdd9aa17eb6b04ae828d8fa5dc552c1d022522e94"
+ },
+ "capture_result_sha256": "8ea9ef893ca1a6224ec7dc198843ebaf497bf180e94e2bdddd959e980e4a46ae",
+ "review_measurements_v1": {
+  "prediction_luma": 0.106,
+  "screenshot_luma": 0.119,
+  "mean_rgb_prediction": [
+   0.214,
+   0.082,
+   0.032
+  ],
+  "mean_rgb_screenshot": [
+   0.225,
+   0.096,
+   0.036
+  ],
+  "blurred_luma_correlation": 0.126,
+  "mean_abs_frame_difference_60_149": [
+   0.0648,
+   0.0528
+  ]
+ },
+ "agreements": [
+  "red lead right",
+  "drifting/normal/vivid/warm right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

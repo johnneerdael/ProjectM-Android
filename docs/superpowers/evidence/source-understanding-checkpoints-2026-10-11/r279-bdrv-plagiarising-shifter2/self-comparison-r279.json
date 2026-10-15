@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r279-v1",
+ "preset": "bdrv etAL Krash & Yin + Phat - Electric Universe (uncertainty Principle)_remix_v2 bdrv plagiarising SHIFTER2 nz+.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "74a9ede35616d4b7184970f7c6389fac795ea75df1c7e3a6177cec3c18fffc05",
+  "prediction.json": "c0f07c9a580cd6eea8a91ed3c13658eaf8606dc8fc824a03a9ecc079c258bc4c",
+  "description.json": "6693bde76e7a2d45b9c0d04d36c048cfa17c8ea116e2ca3949a61de2a8dd04ed",
+  "recipe.json": "28b0066e6c3274885a8a6a751b601af91c82e025c70639d93cf8e991218d2ae7",
+  "llm-look-description-v1.txt": "1892132f4e414134c37d261a3133005647c4dbae911278c7c893f4114643bec6"
+ },
+ "capture_result_sha256": "0966ed9969e5c5fc331123013196156425db73008cba3480396ea1595952f3b4",
+ "review_measurements_v1": {
+  "prediction_luma": 0.11,
+  "screenshot_luma": 0.115,
+  "mean_rgb_prediction": [
+   0.281,
+   0.042,
+   0.277
+  ],
+  "mean_rgb_screenshot": [
+   0.288,
+   0.047,
+   0.281
+  ],
+  "blurred_luma_correlation": 0.709,
+  "mean_abs_frame_difference_60_149": [
+   0.0485,
+   0.0679
+  ]
+ },
+ "agreements": [
+  "pink in ruler top-2",
+  "balanced/cool/drifting/normal/vivid right"
+ ],
+ "misses": [
+  "first capture attempt truncated near the end; the retry succeeded"
+ ],
+ "verdict": "agree"
+}

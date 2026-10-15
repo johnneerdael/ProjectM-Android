@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r278-v1",
+ "preset": "Stahlregen + flexi + Phat - Epileptic Spiral Beats.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f231e7f778b4c52eaf6f00dc674e39aac3cb6ef34f296f578ed58a7d9015d509",
+  "prediction.json": "b104baed350e2810479b94e948ce6dca868839609be3e63fe8852e3e0c13ffa2",
+  "description.json": "5f3c8d2fb14880c6f90e7f1baaa6470c83495274f62a5fd7246d366a53f2f26c",
+  "recipe.json": "cda4c99c7cb83606dba33043be6c29a767d0e5a840288503ed3d5837a5163082",
+  "llm-look-description-v1.txt": "ccff67c158731ffad359b2657c585c90215a72d16b193071b20348482676dc1b"
+ },
+ "capture_result_sha256": "825ae385a2a8dd73c824dbdbc2da7d736b2bbba262f94ccf24d16508bb5ea4b7",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.0,
+  "mean_rgb_prediction": [
+   0.001,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.001,
+   0.0,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.681,
+  "mean_abs_frame_difference_60_149": [
+   0.0267,
+   0.0038
+  ]
+ },
+ "agreements": [
+  "frame prediction image black, matching the clip"
+ ],
+ "misses": [
+  "calibrated luminance 0.26 vs real 0.002; drifting/normal admitted, ruler still/dark/monochrome: Julia-iteration warp with clamped reads pulls the opaque black inner border over the screen (edge-inflow probe: no corpus-wide signal)"
+ ],
+ "verdict": "miss"
+}

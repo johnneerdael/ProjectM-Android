@@ -1,0 +1,11 @@
+Expected look: a dark, soft and slow picture. A single circular audio waveform ring sits in the middle and streams outward through short, smeared feedback trails. The scene is mostly near-black, with a modest area of colour around the ring and its outflow.
+
+Structure. The only drawn element is a built-in circular wave, "audio_deformed_circle", centred at (0.5, 0.5). Its effective base radius is about 0.22 model units, and the right-channel waveform pushes it in and out (radial gain 0.4). It draws as a thin line, alpha-over, not additive. It rotates at a nominal 0.2 rad/s. The line colour drifts over time (r, g and b each between 0.65 and 1.35, then normalised so the brightest channel is full). It passes through grayscale (30%), cyan, pink, yellow, green and some orange and blue, so the ring is bright and changes hue slowly, around 0.23 colour cycles per second at most. Nothing else is drawn, so the picture is the ring plus its feedback.
+
+Motion. The whole image expands from the centre by about 1.2% to 8% per step. The rate depends on radius (zoomexp about 1.69), so it is a strong outward tunnel flow. There is a slight swirl (rotation within plus or minus 0.01 rad per step), and the zoom centre wanders a little (0.39 to 0.61). Trails are short. Decay is about 0.90 per frame (half-life about 0.23 s), so the ring leaves a brief radiating smear rather than long streaks. A blur-difference stage sharpens the fed-back detail, and gradient and self-advection in the composite add a fluid, smeared look. I expect it to read as smooth and hypnotic, not jerky.
+
+Colour and brightness. Mean luminance is low, about 0.06, and the Dark facet is admitted (0.85). The composite maps flat canvas to nearly black. Only drawn and fed-back content shows colour. The coloured share is estimated at about 18%, with a wide interval. Monochrome is narrowly admitted (0.739 against a 0.723 threshold), which conflicts with the wave's varied hues, so I am unsure how colourful it looks. A random tint is chosen at each load, so hue placement varies. Green leads the estimates, then red and blue, but the lead is weak.
+
+Audio. The ring's shape follows the waveform continuously. There is no band-driven brightness or flash route.
+
+Flashing. no_strobe_probability is 0.93 and the jump estimate is about 0, so I expect steady brightness without strobing.
