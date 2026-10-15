@@ -12,12 +12,12 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
 --- a/src/libprojectM/MilkdropPreset/MilkdropPreset.cpp
 +++ b/src/libprojectM/MilkdropPreset/MilkdropPreset.cpp
 @@ -21,6 +21,7 @@
-
+ 
  #include "MilkdropPreset.hpp"
  #include "GeometryTargets.hpp"
 +#include "MotionUV.hpp"
  #include <optional>
-
+ 
  #include "Factory.hpp"
 @@ -472,7 +473,10 @@
  void MilkdropPreset::InitializePreset(PresetFileParser& parsedFile)
@@ -30,19 +30,19 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
 +        : std::make_shared<Renderer::TextureAttachment>(GL_RG16F, GL_RG, GL_FLOAT, 0, 0);
      m_framebuffer.CreateColorAttachment(0, 0); // Main image 1
      m_framebuffer.CreateColorAttachment(1, 0); // Main image 2
-
+ 
 --- a/src/libprojectM/MilkdropPreset/MilkdropShader.cpp
 +++ b/src/libprojectM/MilkdropPreset/MilkdropShader.cpp
 @@ -1,4 +1,5 @@
  #include "MilkdropShader.hpp"
 +#include "MotionUV.hpp"
-
+ 
  #include "LineGeometry.hpp"
  #include "PerFrameContext.hpp"
 @@ -778,7 +779,9 @@
                                            ? MilkdropStaticShaders::Get()->GetPresetWarpVertexShader()
                                            : MilkdropStaticShaders::Get()->GetPresetCompVertexShader();
-
+ 
 +    const bool packedMotion = m_type == ShaderType::WarpShader && presetState.motionUVPacked;
      std::string cacheKey = shaderTypeString + '\0' + program;
 +    if (packedMotion) cacheKey += "packed-motion-half-v1";
@@ -60,7 +60,7 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
 +    m_shader.CompileProgram(vertexShader, translated);
 +    TranslationCache::Instance().Store(cacheKey, translated);
  }
-
+ 
  void MilkdropShader::UpdateMaxBlurLevel(BlurTexture::BlurLevel requestedLevel)
 --- /dev/null
 +++ b/src/libprojectM/MilkdropPreset/MotionUV.hpp
@@ -208,19 +208,19 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
 @@ -1,4 +1,5 @@
  #include "MotionVectors.hpp"
 +#include "MotionUV.hpp"
-
+ 
  #include "LineRenderer.hpp"
  #include "FeedbackDiffusion.hpp"
 @@ -85,6 +86,7 @@
-
+ 
      shader->SetUniformInt("warp_coordinates", 0);
-
+ 
 +    if (m_presetState.motionUVPacked) m_sampler->FilterMode(GL_NEAREST);
      motionTexture->Bind(0, m_sampler);
-
+ 
      glVertexAttrib4f(1,
 @@ -159,10 +161,12 @@
-
+ 
  std::shared_ptr<Renderer::Shader> MotionVectors::GetShader()
  {
 +    const std::string key = m_presetState.motionUVPacked ? "milkdrop_motion_vectors_packed_half"
@@ -235,18 +235,18 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
      {
 @@ -170,10 +174,12 @@
          auto staticShaders = libprojectM::MilkdropPreset::MilkdropStaticShaders::Get();
-
+ 
          shader = std::make_shared<Renderer::Shader>();
 -        shader->CompileProgram(staticShaders->GetPresetMotionVectorsVertexShader(),
 +        shader->CompileProgram(m_presetState.motionUVPacked
 +                                   ? PackedMotionUVConsumer(staticShaders->GetPresetMotionVectorsVertexShader())
 +                                   : staticShaders->GetPresetMotionVectorsVertexShader(),
                                 staticShaders->GetUntexturedDrawFragmentShader());
-
+ 
 -        m_presetState.renderContext.shaderCache->Insert("milkdrop_motion_vectors", shader);
 +        m_presetState.renderContext.shaderCache->Insert(key, shader);
      }
-
+ 
      m_motionVectorShader = shader;
 @@ -187,10 +193,12 @@
      {
@@ -287,13 +287,13 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
 @@ -1,4 +1,5 @@
  #include "PerPixelMesh.hpp"
 +#include "MotionUV.hpp"
-
+ 
  #include <array>
-
+ 
 @@ -444,7 +445,9 @@
          return perPixelMeshShader;
      }
-
+ 
 -    perPixelMeshShader = presetState.renderContext.shaderCache->Get("milkdrop_default_warp_shader");
 +    const std::string key = presetState.motionUVPacked ? "milkdrop_default_warp_shader_packed_half"
 +                                                      : "milkdrop_default_warp_shader";
@@ -302,7 +302,7 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
      {
          return perPixelMeshShader;
 @@ -454,9 +457,11 @@
-
+ 
      perPixelMeshShader = std::make_shared<Renderer::Shader>();
      perPixelMeshShader->CompileProgram(staticShaders->GetLegacyPresetWarpVertexShader(),
 -                                       staticShaders->GetPresetWarpFragmentShader());
@@ -314,17 +314,17 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
 +
 +    presetState.renderContext.shaderCache->Insert(key, perPixelMeshShader);
      m_perPixelMeshShader = perPixelMeshShader;
-
+ 
      return perPixelMeshShader;
 --- a/src/libprojectM/MilkdropPreset/PresetState.hpp
 +++ b/src/libprojectM/MilkdropPreset/PresetState.hpp
 @@ -139,6 +139,7 @@
-
+ 
      libprojectM::Audio::FrameAudioData audioData; //!< Holds audio/spectrum data and values for beat detection.
      Renderer::RenderContext renderContext;        //!< Current renderer state data like viewport size and generic shaders.
 +    bool motionUVPacked{false}; //!< Context-selected RG16UI half-bit storage for GLES float-FBO rejection.
      bool compositeToDefaultFramebuffer{false};     //!< The final composite is drawn into the default framebuffer.
-
+ 
      std::string perFrameInitCode; //!< Preset init code, run once on load.
 --- a/src/libprojectM/Renderer/TextureAttachment.cpp
 +++ b/src/libprojectM/Renderer/TextureAttachment.cpp
@@ -345,11 +345,11 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
 +            ClearPooledTexture(textureId, m_internalFormat == GL_RG16UI);
          }
      }
-
+ 
 @@ -143,7 +143,7 @@
      }
  }
-
+ 
 -void TextureAttachment::ClearPooledTexture(GLuint textureId)
 +void TextureAttachment::ClearPooledTexture(GLuint textureId, bool integerColor)
  {
@@ -375,6 +375,7 @@ provide the compatibility path; GLES 3.2 core float support remains eligible.
       */
 -    static void ClearPooledTexture(GLuint textureId);
 +    static void ClearPooledTexture(GLuint textureId, bool integerColor);
-
+ 
      /**
       * @brief Replaces the current texture with a new one, e.g. if the framebuffer was resized.
+

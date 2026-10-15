@@ -21,12 +21,12 @@ Original source: milkdrop2 f05b0d8, milkdropfs.cpp SHA256
  #include <cassert>
  #include <cmath>
 +#include <limits>
-
+ 
  namespace libprojectM {
  namespace MilkdropPreset {
 @@ -116,7 +117,7 @@
      const int separation = std::min(sampleCount - 1, std::max(0, m_sep));
-
+ 
      // If there aren't enough samples to draw a single line or dot, skip drawing the waveform.
 -    if ((m_useDots && sampleCount < 1) || sampleCount < 2)
 +    if (sampleCount < (m_useDots ? 1 : 2))
@@ -44,12 +44,12 @@ Original source: milkdrop2 f05b0d8, milkdropfs.cpp SHA256
 +        float const sampleIndex = sampleCount == 1 ? std::numeric_limits<float>::quiet_NaN()
 +                                                  : static_cast<float>(sample) * sampleMultiplicator;
          LoadPerPointEvaluationVariables(sampleIndex, sampleDataL[sample], sampleDataR[sample]);
-
+ 
          m_perPointContext.ExecutePerPointCode();
 @@ -215,7 +220,19 @@
                                                                   static_cast<float>(*m_perPointContext.a)));
      }
-
+ 
 -    SmoothWave(points, colors);
 +    if (m_useDots)
 +    {
@@ -64,6 +64,7 @@ Original source: milkdrop2 f05b0d8, milkdropfs.cpp SHA256
 +    {
 +        SmoothWave(points, colors);
 +    }
-
+ 
      const auto count = m_mesh.Indices().Size();
      const auto& smoothedPoints = m_mesh.Vertices().Get();
+

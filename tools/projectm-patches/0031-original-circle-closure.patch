@@ -17,27 +17,27 @@ Original: vis_milk2/milkdropfs.cpp:2899-2923,3319-3334,3359-3365.
 --- a/src/libprojectM/MilkdropPreset/Waveforms/Circle.cpp
 +++ b/src/libprojectM/MilkdropPreset/Waveforms/Circle.cpp
 @@ -10,7 +10,8 @@
-
+ 
  auto Circle::IsLoop() -> bool
  {
 -    return true;
 +    // Closure is an explicit endpoint before smoothing, drawn as a strip.
 +    return false;
  }
-
+ 
  auto Circle::UsesNormalizedMysteryParam() -> bool
 @@ -23,11 +24,11 @@
  {
      m_samples = Audio::WaveformSamples / 2;
-
+ 
 -    m_wave1Vertices.resize(m_samples);
 +    m_wave1Vertices.resize(m_samples + 1);
-
+ 
      const int sampleOffset{(Audio::WaveformSamples - m_samples) / 2};
-
+ 
 -    const float inverseSamplesMinusOne{1.0f / static_cast<float>(m_samples)};
 +    const float inverseSamplesMinusOne{1.0f / static_cast<float>(m_samples - 1)};
-
+ 
      for (int i = 0; i < m_samples; i++)
      {
 @@ -45,6 +46,10 @@
@@ -49,5 +49,6 @@ Original: vis_milk2/milkdropfs.cpp:2899-2923,3319-3334,3359-3365.
 +    m_wave1Vertices[m_samples] = m_wave1Vertices.front();
 +    ++m_samples;
  }
-
+ 
  } // namespace Waveforms
+

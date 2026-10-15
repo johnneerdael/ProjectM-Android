@@ -22,17 +22,17 @@ diff --git a/src/libprojectM/ProjectM.hpp b/src/libprojectM/ProjectM.hpp
       * @param texturePaths A list of paths projectM will look for texture images, in order.
 @@ -122,6 +123,9 @@
      void SetTexturePaths(std::vector<std::string> texturePaths);
-
+ 
      void ResetTextures();
 +
 +    // True while an outgoing and incoming preset are both retained.
 +    auto IsTransitioning() const -> bool;
-
+ 
      /**
       * @brief Sets a callback function for loading textures from non-filesystem sources.
 @@ -384,10 +388,13 @@
      std::unique_ptr<PresetFactoryManager> m_presetFactoryManager; //!< Provides access to all available preset factories.
-
+ 
      Audio::PCM m_audioStorage;                                                    //!< Audio data buffer and analyzer instance.
 -    std::unique_ptr<Renderer::TextureManager> m_textureManager;                   //!< The texture manager.
 +    std::shared_ptr<Renderer::TextureManager> m_textureManager;                   //!< The texture manager.
@@ -58,7 +58,7 @@ diff --git a/src/libprojectM/ProjectM.cpp b/src/libprojectM/ProjectM.cpp
      {
          m_textureManager->SetTextureLoadCallback(m_textureLoadCallback);
 @@ -102,11 +102,22 @@
-
+ 
  void ProjectM::ResetTextures()
  {
 -    m_textureManager = std::make_unique<Renderer::TextureManager>(m_textureSearchPaths);
@@ -83,7 +83,7 @@ diff --git a/src/libprojectM/ProjectM.cpp b/src/libprojectM/ProjectM.cpp
 +{
 +    return m_transitioningPreset != nullptr;
  }
-
+ 
  void ProjectM::SetTextureLoadCallback(Renderer::TextureLoadCallback callback)
 @@ -189,12 +200,15 @@
          if (m_transition->IsDone(m_timeKeeper->GetFrameTime()))
@@ -101,7 +101,7 @@ diff --git a/src/libprojectM/ProjectM.cpp b/src/libprojectM/ProjectM.cpp
 +            m_transitioningPreset->RenderFrame(audioData, incomingContext);
          }
      }
-
+ 
 @@ -209,7 +223,9 @@
      if (!inTransition || m_outgoingPresetFrameDivisor <= 1 || m_frameCount % m_outgoingPresetFrameDivisor == 0)
      {
@@ -111,16 +111,16 @@ diff --git a/src/libprojectM/ProjectM.cpp b/src/libprojectM/ProjectM.cpp
 +        activeContext.textureManager = m_activeTextureManager.get();
 +        m_activePreset->RenderFrame(audioData, activeContext);
      }
-
+ 
      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(targetFramebufferObject));
 @@ -252,7 +268,7 @@
                                                  m_hardCutDuration,
                                                  m_easterEgg);
-
+ 
 -    m_textureManager = std::make_unique<Renderer::TextureManager>(m_textureSearchPaths);
 +    m_textureManager = std::make_shared<Renderer::TextureManager>(m_textureSearchPaths);
      m_shaderCache = std::make_unique<Renderer::ShaderCache>();
-
+ 
      m_transitionShaderManager = std::make_unique<Renderer::TransitionShaderManager>();
 @@ -329,6 +345,7 @@
      if (m_transitioningPreset != nullptr)
@@ -129,7 +129,7 @@ diff --git a/src/libprojectM/ProjectM.cpp b/src/libprojectM/ProjectM.cpp
 +        m_activeTextureManager = std::move(m_transitioningTextureManager);
          m_transition.reset();
      }
-
+ 
 @@ -340,11 +357,13 @@
      if (hardCut)
      {
@@ -149,12 +149,12 @@ diff --git a/src/libprojectM/Renderer/TextureManager.hpp b/src/libprojectM/Rende
 +++ b/src/libprojectM/Renderer/TextureManager.hpp
 @@ -22,6 +22,9 @@
      TextureManager(const std::vector<std::string>& textureSearchPaths);
-
+ 
      ~TextureManager() = default;
 +
 +    // Drop user images and rescan on demand, preserving this lookup and built-in resources.
 +    void ResetUserTextures();
-
+ 
      /**
       * @brief Sets the current preset path to search for textures in addition to the configured paths.
 diff --git a/src/libprojectM/Renderer/TextureManager.cpp b/src/libprojectM/Renderer/TextureManager.cpp
@@ -178,7 +178,7 @@ diff --git a/src/libprojectM/Renderer/TextureManager.cpp b/src/libprojectM/Rende
 +    m_scannedTextureFiles.clear();
 +    m_filesScanned = false;
  }
-
+ 
  void TextureManager::SetCurrentPresetPath(const std::string&)
 diff --git a/src/api/include/projectM-4/parameters.h b/src/api/include/projectM-4/parameters.h
 --- a/src/api/include/projectM-4/parameters.h
@@ -200,7 +200,7 @@ diff --git a/src/api/include/projectM-4/core.h b/src/api/include/projectM-4/core
 +++ b/src/api/include/projectM-4/core.h
 @@ -126,15 +126,22 @@
                                                 bool smooth_transition);
-
+ 
  /**
 - * @brief Reloads all textures.
 + * @brief Clears the user-image cache in each live texture lookup.
@@ -221,7 +221,7 @@ diff --git a/src/api/include/projectM-4/core.h b/src/api/include/projectM-4/core
 + * Query after rendering on the owning GL thread to observe completed soft cuts.
 + */
 +PROJECTM_EXPORT bool projectm_is_transitioning(projectm_handle instance);
-
+ 
  /**
   * @brief Returns the runtime library version components as individual integers.
 diff --git a/src/libprojectM/ProjectMCWrapper.cpp b/src/libprojectM/ProjectMCWrapper.cpp
@@ -230,7 +230,7 @@ diff --git a/src/libprojectM/ProjectMCWrapper.cpp b/src/libprojectM/ProjectMCWra
 @@ -219,6 +219,11 @@
      projectMInstance->SetTexturePaths(texturePaths);
  }
-
+ 
 +bool projectm_is_transitioning(projectm_handle instance)
 +{
 +    return handle_to_instance(instance)->IsTransitioning();
@@ -239,3 +239,4 @@ diff --git a/src/libprojectM/ProjectMCWrapper.cpp b/src/libprojectM/ProjectMCWra
  void projectm_reset_textures(projectm_handle instance)
  {
      auto projectMInstance = handle_to_instance(instance);
+

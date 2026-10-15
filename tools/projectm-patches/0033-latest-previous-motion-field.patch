@@ -14,7 +14,7 @@ Disabled frames regain UV output bandwidth; user accepts authored cost.
 @@ -225,14 +225,12 @@
      // We now draw to the current framebuffer.
      m_framebuffer.Bind(m_currentFrameBuffer);
-
+ 
 -    // The u/v map is only read by the next frame's motion vectors, so it is written only while the
 -    // preset shows them (the same test as in MotionVectors::Draw()). A full-size write is saved
 -    // for most presets; a preset turning them on uses a stale map for that one frame.
@@ -35,7 +35,7 @@ Disabled frames regain UV output bandwidth; user accepts authored cost.
 @@ -243,7 +241,7 @@
          m_perPixelMesh.Prepare(m_state, m_perFrameContext, m_perPixelContext);
      else m_perPixelMesh.Draw(m_state, m_perFrameContext, m_perPixelContext);
-
+ 
 -    if (writeMotionUV && !detail)
 +    if (!detail)
      {
@@ -58,9 +58,10 @@ Disabled frames regain UV output bandwidth; user accepts authored cost.
 @@ -316,7 +314,7 @@
      }
      m_border.Draw(m_perFrameContext);
-
+ 
 -    if (writeMotionUV && !detail)
 +    if (!detail)
      {
          // Remove the u/v texture from the framebuffer.
          m_framebuffer.RemoveColorAttachment(m_currentFrameBuffer, 1);
+

@@ -26,7 +26,7 @@ index 7e4508ffa..1076f346e 100644
 -    m_perPointContext.LoadReadOnlyStateVariables(presetPerFrameContext);
 +    m_perPointContext.LoadReadOnlyStateVariables(m_perFrameContext);
  }
-
+ 
  void CustomWaveform::InitPerPointEvaluationVariables()
 diff --git a/src/libprojectM/MilkdropPreset/PerPixelContext.cpp b/src/libprojectM/MilkdropPreset/PerPixelContext.cpp
 index 6946be93f..7522dbcd8 100644
@@ -41,7 +41,7 @@ index 6946be93f..7522dbcd8 100644
 +    *aspectx = static_cast<PRJM_EVAL_F>(state.renderContext.invAspectX);
 +    *aspecty = static_cast<PRJM_EVAL_F>(state.renderContext.invAspectY);
  }
-
+ 
  void PerPixelContext::LoadPerFrameQVariables(PresetState& state, PerFrameContext& perFrameState)
 diff --git a/src/libprojectM/MilkdropPreset/WaveformPerPointContext.cpp b/src/libprojectM/MilkdropPreset/WaveformPerPointContext.cpp
 index dbcc65eee..38d752ca2 100644
@@ -53,13 +53,13 @@ index dbcc65eee..38d752ca2 100644
  #include "MilkdropPresetExceptions.hpp"
 -#include "PerFrameContext.hpp"
 +#include "WaveformPerFrameContext.hpp"
-
+ 
  #include <Logging.hpp>
-
+ 
 @@ -69,18 +69,18 @@ void WaveformPerPointContext::RegisterBuiltinVariables()
      REG_VAR(a);
  }
-
+ 
 -void WaveformPerPointContext::LoadReadOnlyStateVariables(const PerFrameContext& presetPerFrameContext)
 +void WaveformPerPointContext::LoadReadOnlyStateVariables(const WaveformPerFrameContext& wavePerFrameContext)
  {
@@ -84,7 +84,7 @@ index dbcc65eee..38d752ca2 100644
 +    *mid_att = *wavePerFrameContext.mid_att;
 +    *treb_att = *wavePerFrameContext.treb_att;
  }
-
+ 
  void WaveformPerPointContext::CompilePerPointCode(const std::string& perPointCode,
 diff --git a/src/libprojectM/MilkdropPreset/WaveformPerPointContext.hpp b/src/libprojectM/MilkdropPreset/WaveformPerPointContext.hpp
 index 7f28ef88b..fb9a8a48b 100644
@@ -92,11 +92,11 @@ index 7f28ef88b..fb9a8a48b 100644
 +++ b/src/libprojectM/MilkdropPreset/WaveformPerPointContext.hpp
 @@ -6,7 +6,7 @@ namespace libprojectM {
  namespace MilkdropPreset {
-
+ 
  class CustomWaveform;
 -class PerFrameContext;
 +class WaveformPerFrameContext;
-
+ 
  class WaveformPerPointContext
  {
 @@ -29,9 +29,9 @@ public:
@@ -108,6 +108,7 @@ index 7f28ef88b..fb9a8a48b 100644
       */
 -    void LoadReadOnlyStateVariables(const PerFrameContext& presetPerFrameContext);
 +    void LoadReadOnlyStateVariables(const WaveformPerFrameContext& wavePerFrameContext);
-
+ 
      /**
       * @brief Compiles the per-point code and stores the code handle in the class.
+

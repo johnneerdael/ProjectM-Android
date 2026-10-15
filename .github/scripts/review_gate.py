@@ -219,8 +219,13 @@ class GitHub:
             command += ["--method", "POST", "--input", "-"]
         if paginate:
             command += ["--paginate", "--slurp"]
-        result = subprocess.run(command, input=json.dumps(data) if data is not None else None,
-                                text=True, capture_output=True, check=True)
+        try:
+            result = subprocess.run(command, input=json.dumps(data) if data is not None else None,
+                                    text=True, capture_output=True, check=True)
+        except subprocess.CalledProcessError as err:
+            stderr = (err.stderr or "").strip()
+            stdout = (err.stdout or "").strip()
+            raise RuntimeError(f"gh api failed with exit {err.returncode}: {stderr or stdout}") from err
         return json.loads(result.stdout) if result.stdout.strip() else None
 
     def get(self, path):
@@ -357,8 +362,12 @@ def title(pr):
 
 def reconcile(api, number, retry=False):
     pr, (ready, reason) = api.snapshot(number)
-    all_runs = [run for run in api.pages(f"actions/workflows/{WORKFLOW}/runs?event=workflow_dispatch&per_page=100", "workflow_runs")
-                if run["head_branch"] == "main" and run["display_title"].startswith(f"Reviewed PR #{number} @ ")]
+    try:
+        all_runs = [run for run in api.pages(f"actions/workflows/{WORKFLOW}/runs?event=workflow_dispatch&per_page=100", "workflow_runs")
+                    if run["head_branch"] == "main" and run["display_title"].startswith(f"Reviewed PR #{number} @ ")]
+    except (RuntimeError, subprocess.CalledProcessError, KeyError, ValueError, TypeError) as error:
+        print(f"Unable to list workflow runs for {WORKFLOW}; continuing without run history: {error}", file=sys.stderr)
+        all_runs = []
     for run in all_runs:
         if run["status"] != "completed" and (run["display_title"] != title(pr) or pr["state"] != "open"):
             api.post(f"actions/runs/{run['id']}/cancel", {})

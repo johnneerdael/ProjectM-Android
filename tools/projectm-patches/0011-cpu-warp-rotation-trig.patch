@@ -22,31 +22,31 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
      m_distanceBuffer.Bind();
      m_stretchBuffer.Bind();
 +    m_rotationCosBuffer.Bind();
-
+ 
      m_radiusAngleBuffer.InitializeAttributePointer(3);
      m_zoomRotWarpBuffer.InitializeAttributePointer(4);
      m_centerBuffer.InitializeAttributePointer(5);
      m_distanceBuffer.InitializeAttributePointer(6);
      m_stretchBuffer.InitializeAttributePointer(7);
 +    m_rotationCosBuffer.InitializeAttributePointer(8);
-
+ 
      Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(3, true);
      Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(4, true);
      Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(5, true);
      Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(6, true);
      Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(7, true);
 +    Renderer::VertexBuffer<RotationCos>::SetEnableAttributeArray(8, true);
-
+ 
      Renderer::Mesh::Unbind();
  }
-
+ 
 @@ -136,8 +139,9 @@
          m_zoomRotWarpBuffer.Resize(vertexCount);
          m_centerBuffer.Resize(vertexCount);
          m_distanceBuffer.Resize(vertexCount);
          m_stretchBuffer.Resize(vertexCount);
 +        m_rotationCosBuffer.Resize(vertexCount);
-
+ 
          m_warpMesh.Indices().Resize(m_gridSizeX * m_gridSizeY * 6);
      }
      else if (m_viewportWidth == presetState.renderContext.viewportSizeX &&
@@ -70,13 +70,13 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
              auto& curDistance = m_distanceBuffer[vertex];
              auto& curStretch = m_stretchBuffer[vertex];
 +            auto& curRotationCos = m_rotationCosBuffer[vertex];
-
+ 
              // Execute per-vertex/per-pixel code if the preset uses it.
              if (perPixelContext.perPixelCodeHandle)
              {
 @@ -262,9 +271,11 @@
                  perPixelContext.ExecutePerPixelCode();
-
+ 
                  curZoomRotWarp.zoom = static_cast<float>(*perPixelContext.zoom);
                  curZoomRotWarp.zoomExp = static_cast<float>(*perPixelContext.zoomexp);
 -                curZoomRotWarp.rot = static_cast<float>(*perPixelContext.rot);
@@ -106,7 +106,7 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
      m_stretchBuffer.Update();
 +    m_rotationCosBuffer.Update();
  }
-
+ 
  void PerPixelMesh::WarpedBlit(const PresetState& presetState,
                                const PerFrameContext& perFrameContext)
 --- a/src/libprojectM/MilkdropPreset/PerPixelMesh.hpp
@@ -114,7 +114,7 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
 @@ -74,19 +74,28 @@
          }
      };
-
+ 
      /**
 -     * Vertex attributes for zoom, zoom exponent, rotation and warp strength.
 +     * Vertex attributes for zoom, zoom exponent, rotation sine and warp strength.
@@ -125,7 +125,7 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
 -        float rot{};
 +        float sinRot{};
          float warp{};
-
+ 
          static void InitializeAttributePointer(uint32_t attributeIndex)
          {
              glVertexAttribPointer(attributeIndex, sizeof(ZoomRotWarp) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(ZoomRotWarp), nullptr);
@@ -140,13 +140,13 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
 +            glVertexAttribPointer(attributeIndex, 1, GL_FLOAT, GL_FALSE, sizeof(RotationCos), nullptr);
          }
      };
-
+ 
      /**
 @@ -135,8 +144,10 @@
      Renderer::VertexBuffer<Renderer::Point> m_centerBuffer{Renderer::VertexBufferUsage::StreamDraw};   //!< Vertex attribute buffer for center coordinate values.
      Renderer::VertexBuffer<Renderer::Point> m_distanceBuffer{Renderer::VertexBufferUsage::StreamDraw}; //!< Vertex attribute buffer for distance values.
      Renderer::VertexBuffer<Renderer::Point> m_stretchBuffer{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for stretch values.
-
+ 
 +    Renderer::VertexBuffer<RotationCos> m_rotationCosBuffer{Renderer::VertexBufferUsage::StreamDraw}; //!< CPU rotation cosine.
 +
      std::weak_ptr<Renderer::Shader> m_perPixelMeshShader;             //!< Special shader which calculates the per-pixel UV coordinates.
@@ -163,7 +163,7 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
 -#define rot transforms.z
 +#define sinRotation transforms.z
  #define warp transforms.w
-
+ 
  #define aspectX aspect.x
  #define aspectY aspect.y
 @@ -18,8 +18,9 @@
@@ -172,7 +172,7 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
  layout(location = 6) in vec2 warp_distance;
  layout(location = 7) in vec2 stretch;
 +layout(location = 8) in float cosRotation;
-
+ 
  uniform mat4 vertex_transformation;
  uniform vec4 aspect;
  uniform float warpTime;
@@ -180,11 +180,12 @@ No public C/Java/JNI API or preset changes. Other shader trig is unchanged.
      // Rotation
      float u2 = u - warp_center.x;
      float v2 = v - warp_center.y;
-
+ 
 -    float cosRotation = cos(rot);
 -    float sinRotation = sin(rot);
 +    // CPU-computed from the emitted float angle, including large finite values.
      u = u2 * cosRotation - v2 * sinRotation + warp_center.x;
      v = u2 * sinRotation + v2 * cosRotation + warp_center.y;
-
+ 
      // Translation
+

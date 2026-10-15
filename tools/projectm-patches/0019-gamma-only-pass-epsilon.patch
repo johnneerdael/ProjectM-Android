@@ -18,11 +18,12 @@ index 139af7b7a..99d5f00a1 100644
 +++ b/src/libprojectM/MilkdropPreset/VideoEcho.cpp
 @@ -210,7 +210,8 @@ void VideoEcho::DrawGammaAdjustment(const PerFrameContext& perFrameContext)
      Renderer::BlendMode::Set(true, Renderer::BlendMode::Function::One, Renderer::BlendMode::Function::Zero);
-
+ 
      auto const gammaAdj = static_cast<float>(*perFrameContext.gamma);
 -    int const redrawCount = static_cast<int>(gammaAdj - 0.0001f) + 1;
 +    // MilkDrop's gamma-only path has a distinct epsilon from echo redraws.
 +    int const redrawCount = static_cast<int>(gammaAdj - 0.001f) + 1;
-
+ 
      for (int redraw = 0; redraw < redrawCount; redraw++)
      {
+

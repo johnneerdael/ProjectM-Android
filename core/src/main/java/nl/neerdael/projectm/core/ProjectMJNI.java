@@ -77,6 +77,8 @@ public final class ProjectMJNI {
      * setMusicCategory("facets"); names absent from the bundled library are ignored.
      */
     public static native void setPresetPool(String[] names);
+    /** Favorites collection: the requested preset names across the installed bundled and custom catalogs. */
+    public static native void setFavorites(String[] names);
     /**
      * Index an immutable host-owned preset directory on the native worker. An empty path removes
      * the pack. presets.idx contains generated relative storage paths, a tab, and display paths.
