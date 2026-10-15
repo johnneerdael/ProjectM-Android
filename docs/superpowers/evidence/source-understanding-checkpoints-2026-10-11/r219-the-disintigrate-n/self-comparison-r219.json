@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r219-v1",
+ "preset": "gunthry is out back bloodying up the pine trees - adm atomising (v) the disintigrate (n).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a13e167df1e89a0400699a1d68725a1ebd0ac7636a64cdbf99fe9c4dfacaf1bd",
+  "prediction.json": "9148e3b34b82a465196809738c065672b693b30e63892d066c0e8557e611b2ba",
+  "description.json": "4bc3b4fdbeb32b0f3d854697a877ff9a4acbc68fb0ea9f474d0887e95d51641b",
+  "recipe.json": "ff0343a9aeec3c9f502a4f5c1a6cb505f9eaf8ec94e0de9e1e62f92e783177c6",
+  "llm-look-description-v1.txt": "6f3117944a20b45288c9831d911f3a33304f0dae036bf6fc3ba4ccf5a48732e6"
+ },
+ "capture_result_sha256": "e73aa536cf459d702d262ef3b1a639ac915ad7aab98fc90e69fe5607d7e317c5",
+ "review_measurements_v1": {
+  "prediction_luma": 0.389,
+  "screenshot_luma": 0.427,
+  "mean_rgb_prediction": [
+   0.343,
+   0.402,
+   0.387
+  ],
+  "mean_rgb_screenshot": [
+   0.373,
+   0.442,
+   0.44
+  ],
+  "blurred_luma_correlation": 0.002,
+  "mean_abs_frame_difference_60_149": [
+   0.0664,
+   0.1295
+  ]
+ },
+ "agreements": [
+  "luminance 0.28 inside 0.21-0.45 (clip 0.33)",
+  "palette green in ruler top-2 blue/green",
+  "no-strobe not admitted (p 0.74), ruler 0 jumps"
+ ],
+ "misses": [
+  "frame difference estimate 0.066 vs clip 0.13 (underestimate)"
+ ],
+ "verdict": "understood"
+}

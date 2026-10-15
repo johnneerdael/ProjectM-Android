@@ -1,0 +1,43 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r218-v1",
+ "preset": "TonyMilkdrop - Magellan's Nebula [Flexi - you enter first + techstyle] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b50511947620cc5ac5a9ccf11d441024ff7545c685de5bbd33775de5b3fe32aa",
+  "prediction.json": "f5be8151301ec53dedd7bd164ed3a7b5602cb23c9b7726955f3ed409a5b6db9e",
+  "description.json": "dd6401c7060a50ca58540737dc2bc416cc8fb26e2512b4b98df28dd27635eac3",
+  "recipe.json": "b46c38c81eff9281792e4086499eece90cf362b6594cd08efe713c2f7ff40818",
+  "llm-look-description-v1.txt": "a9219c5cb2b79bddfc29fa0f679307ece30d1da6b29815af934b77440078756b"
+ },
+ "capture_result_sha256": "e9eab7fa4dfbe7cf42bc7bd3d6fdb8bf7d8e5fbc7f8f520939cdbb3b3669b5c6",
+ "review_measurements_v1": {
+  "prediction_luma": 0.593,
+  "screenshot_luma": 0.832,
+  "mean_rgb_prediction": [
+   0.53,
+   0.593,
+   0.785
+  ],
+  "mean_rgb_screenshot": [
+   0.689,
+   0.901,
+   0.557
+  ],
+  "blurred_luma_correlation": 0.866,
+  "mean_abs_frame_difference_60_149": [
+   0.0214,
+   0.0292
+  ]
+ },
+ "agreements": [
+  "luminance 0.39 inside 0.30-0.66",
+  "flicker flagged: no-strobe p 0.03, ruler 8 jumps",
+  "after the calibrated hue weight change (6 -> 24) the palette leads green, in the ruler top-2 pink/green"
+ ],
+ "misses": [
+  "pooled palette led blue because one-hue static sources outvoted calibrated green/pink; fixed generically (OOF top-2 64% -> 70%)",
+  "clip luminance 0.63 above the 0.39 estimate"
+ ],
+ "verdict": "understood after palette fix"
+}

@@ -1,0 +1,52 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r216-v1",
+ "preset": "Geiss - Planar Travel (Jelly).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ce500a1e36485e5becfd3ba300c8726b7c1c5b244440be2e3d79900f53d81c07",
+  "prediction.json": "f87d947d5a1dae685b1b5da73ee493b571a315d14edfe80f695077c6d970c279",
+  "description.json": "1e3c59e332f69a2e2e34da381599dcaf04c795ead86c078010b7b5eb49ed7464",
+  "recipe.json": "5cd7986632df5fed3a5cee927038ff67ec52639268162ea7cf25ae8c2f3695bf",
+  "llm-look-description-v1.txt": "c6a4eba4d14fc4f5a8f74ee2d57ee202e7f01f4f4cb0d699f292ae2ec45890a4"
+ },
+ "capture_result_sha256": "1a19f504a220f333178c9fa2892317a354e5601e111f7a61a1375f2cd0490fc1",
+ "review_measurements_v1": {
+  "prediction_luma": 0.095,
+  "screenshot_luma": 0.1,
+  "mean_rgb_prediction": [
+   0.121,
+   0.089,
+   0.073
+  ],
+  "mean_rgb_screenshot": [
+   0.075,
+   0.11,
+   0.077
+  ],
+  "blurred_luma_correlation": 0.161,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.069,
+    0.045
+   ],
+   "saturation": [
+    0.707,
+    0.493
+   ],
+   "blurred_luma_correlation": 0.55
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0365,
+   0.0231
+  ]
+ },
+ "agreements": [
+  "palette green matches ruler green/blue",
+  "no-strobe p 0.89 with 0 ruler jumps"
+ ],
+ "misses": [
+  "static luminance 0.17 at the top edge of the ruler band 0.05-0.17; clip frames 60-149 average 0.045"
+ ],
+ "verdict": "understood: dark green, calm"
+}

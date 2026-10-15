@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r224-v1",
+ "preset": "stbenge - water_C.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "2460afca35011c895317c381076e464593d92f31e07cc8ef9893de36e288c7f9",
+  "prediction.json": "3e42f133960a5daeb0839e8c8b2c022ebaa2bd82d7dd10c0151e61343a77ec2b",
+  "description.json": "2fca11b3a5f5372e978267cf5a234f898c26f6ae5303914e88b7d3b1be463298",
+  "recipe.json": "71b73b98f1691ba2ccc50253d2102e0ff8a4dd7c20102d05e59ad5cefebd8b7c",
+  "llm-look-description-v1.txt": "34341925df623ea7128ebaac701306bb9383301694fb6dee2732e82577312e41"
+ },
+ "capture_result_sha256": "886fa1c55a77ebbb3dc9b7a73c42e95719e48e1cde212cde119b2d2624eec8a8",
+ "review_measurements_v1": {
+  "prediction_luma": 0.506,
+  "screenshot_luma": 0.53,
+  "mean_rgb_prediction": [
+   0.506,
+   0.506,
+   0.506
+  ],
+  "mean_rgb_screenshot": [
+   0.53,
+   0.53,
+   0.53
+  ],
+  "blurred_luma_correlation": 0.095,
+  "mean_abs_frame_difference_60_149": [
+   0.0848,
+   0.0586
+  ]
+ },
+ "agreements": [
+  "SDK: mid-bright, mostly grey, nearly colourless; monochrome probability 0.92; clip pure grey 0.47"
+ ],
+ "misses": [
+  "luminance 0.44 vs ruler 0.51-0.58",
+  "palette still lists faint hues although monochrome is confident"
+ ],
+ "verdict": "understood"
+}

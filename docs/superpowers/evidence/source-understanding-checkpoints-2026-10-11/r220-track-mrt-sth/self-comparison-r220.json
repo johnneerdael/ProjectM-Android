@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r220-v1",
+ "preset": "amandio c - hat track - mrt sth.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ae33260ddc608fa6d0444a5a953d29b1faada20861423ee730b0e4c53afcdaf3",
+  "prediction.json": "9ca5ec4a9507a1357e56758b3da261cbfdb08c3f206ca61240aca39b2ed3d00d",
+  "description.json": "5bfdb973f95b34c4f5def5cce7ab2f0903df3b7367fa93f41d8f375373e7f6af",
+  "recipe.json": "e5dfe8e0712a1615ba7230285b244b3d4a7fc805bd0144eaf669f23cbdfe4bd4",
+  "llm-look-description-v1.txt": "f0d199c8082506b0048751710655ee85e6d85783bbf140be7f3f3fbb5e2f727f"
+ },
+ "capture_result_sha256": "9e076afc33c5e24b12327a70dfaa69a70c9ce65040a78103a4ac5e01470956d5",
+ "review_measurements_v1": {
+  "prediction_luma": 0.28,
+  "screenshot_luma": 0.221,
+  "mean_rgb_prediction": [
+   0.301,
+   0.275,
+   0.265
+  ],
+  "mean_rgb_screenshot": [
+   0.221,
+   0.221,
+   0.221
+  ],
+  "blurred_luma_correlation": 0.055,
+  "mean_abs_frame_difference_60_149": [
+   0.0576,
+   0.0562
+  ]
+ },
+ "agreements": [
+  "SDK says desaturated greyish picture; monochrome probability 0.65 just under its 0.69 threshold",
+  "luminance 0.28 vs clip 0.37"
+ ],
+ "misses": [
+  "ruler and clip are pure grey (saturation 0) while calibrated saturation is 0.37 and the palette leads red",
+  "static clue not yet used: the composite colour matrix has a zero blue column and near-parallel red/green columns (rank-1 colour collapse); added to the recipe-columns A/B"
+ ],
+ "verdict": "partial: grey look described, colour leans overstated"
+}

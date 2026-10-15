@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r223-v1",
+ "preset": "Fumbling_Foo - Star Forge v7 (HAKAN mash-up) [[pixel theme]] 0-5.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "20071a0fc451bcfc4143799b2f60a1969622c40292aa6f66a64da6dee6abbbad",
+  "prediction.json": "570761dbf4860abafca651c56eac134e1371e184dd9717821a536474c9fa918f",
+  "description.json": "7403778ae21df2c99c27e36c4a768b968fbb53888f165fbde36e5d0882397c3c",
+  "recipe.json": "6bed5790b24793e11134fe71c8fdfe416314dfe0f996dcad5d80ea444c541a01",
+  "llm-look-description-v1.txt": "44437f5ec0b547ea77afa93a52b33248519f17e6309bc39f1a6f1355aa92c2e6"
+ },
+ "capture_result_sha256": "e5f28ea26350aac5ad98a09f01fd5c9036370c89a7863d65ff0e32cc2b414e0e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.055,
+  "screenshot_luma": 0.248,
+  "mean_rgb_prediction": [
+   0.047,
+   0.056,
+   0.06
+  ],
+  "mean_rgb_screenshot": [
+   0.177,
+   0.259,
+   0.351
+  ],
+  "blurred_luma_correlation": 0.014,
+  "mean_abs_frame_difference_60_149": [
+   0.0804,
+   0.071
+  ]
+ },
+ "agreements": [
+  "palette blue matches ruler blue/cyan",
+  "flicker flagged: no-strobe p 0.0, ruler 10 jumps"
+ ],
+ "misses": [
+  "luminance 0.21 just under the ruler band 0.24-0.39 (clip 0.29)"
+ ],
+ "verdict": "understood"
+}

@@ -1,0 +1,53 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r215-v1",
+ "preset": "TonyMilkdrop - Nuclear [Flexi - this sorcery + techstyle] --- Isosceles edit2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0cc3073bb0145cd6bf71a881188bac968cd81a34e7832b3375230b511d8cafda",
+  "prediction.json": "a0698b6e7b0d64d24046cf0ccc9d3968fa2b03ac837a020ec717a9c71658cc2a",
+  "description.json": "c3c5aeb0260166dfb399e45ce2f6ed1b6e12030fd94a0089a3f302d9d28dc8e3",
+  "recipe.json": "5b7251e286675f0ac56b77098a7ff139e4740ec09e34a8c5212eac018ae92551",
+  "llm-look-description-v1.txt": "c391bcce3494ae22e371f1bec014099204f107d81928374efdde0afb9420dc65"
+ },
+ "capture_result_sha256": "f75d1eb2a20717018bedb6b614eb51fd4ae3ed5ac5d286830192c544ec10b8c3",
+ "review_measurements_v1": {
+  "prediction_luma": 0.642,
+  "screenshot_luma": 0.406,
+  "mean_rgb_prediction": [
+   0.576,
+   0.643,
+   0.824
+  ],
+  "mean_rgb_screenshot": [
+   0.631,
+   0.288,
+   0.919
+  ],
+  "blurred_luma_correlation": 0.566,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.713,
+    0.337
+   ],
+   "saturation": [
+    0.465,
+    0.715
+   ],
+   "blurred_luma_correlation": 0.591
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0237,
+   0.0177
+  ]
+ },
+ "agreements": [
+  "static mean luminance 0.44 inside the ruler p10-p90 0.42-0.75; real clip frames 60-149 luma 0.34",
+  "no-strobe probability 0.05 (not admitted)"
+ ],
+ "misses": [
+  "display palette led blue and calibrated hue leads green while the ruler shows pink/red (SDK named red, green, blue); a calibration miss, not fixed by the palette weight change",
+  "frame prediction image too bright (0.64 vs screenshot 0.41); frame images are not used for triage"
+ ],
+ "verdict": "partial: static brightness in the ruler band (0.44 vs 0.42-0.75), flicker correctly flagged (no-strobe p 0.05); colour lead wrong"
+}

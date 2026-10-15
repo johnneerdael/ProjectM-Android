@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r225-v1",
+ "preset": "not very good at all, ten thumbs down.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "badcfbd84da9d9204110ff91f30f3a66a0571eaede6e16aff6bbe4ddc1e99ef8",
+  "prediction.json": "50ccf286a673b4dd6de7987fd23cd73af82114bcdaf1207d103fc718eda97317",
+  "description.json": "3ac6693c9869c38265923dfbfdb44f3149c983ce05cdab0d7faf56bb3f8feb46",
+  "recipe.json": "9f8b2540e10f94c53b1aca0f73835664ca3e310c4a31950e18bf7f7b171e0989",
+  "llm-look-description-v1.txt": "62a93025fdfec0acae0fe1fefc844c2cf113551ba3c8ee226a78baf76bec9a13"
+ },
+ "capture_result_sha256": "3bdde9a6fd6c5527fd4c23a0bdb476723affeee3af88a2f0f8bc145dabe55646",
+ "review_measurements_v1": {
+  "prediction_luma": 0.037,
+  "screenshot_luma": 0.037,
+  "mean_rgb_prediction": [
+   0.067,
+   0.022,
+   0.095
+  ],
+  "mean_rgb_screenshot": [
+   0.067,
+   0.022,
+   0.094
+  ],
+  "blurred_luma_correlation": 1.0,
+  "mean_abs_frame_difference_60_149": [
+   0.0507,
+   0.0014
+  ]
+ },
+ "agreements": [
+  "prediction image matches the screenshot (corr 1.0, luma 0.037)",
+  "palette pink/purple family matches ruler purple/pink"
+ ],
+ "misses": [
+  "calibrated luminance 0.34 vs ruler 0.03-0.07: jump-flooding warp stores coordinates in rgb and a threshold (ret.z<.65) zeroes the canvas; testing recipe steady-state/composite probes as calibration columns"
+ ],
+ "verdict": "miss (calibrated brightness), logged"
+}

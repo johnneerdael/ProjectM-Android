@@ -1,0 +1,13 @@
+Approximate look (from static source facts only, nothing rendered): a bright, saturated, mostly pink-and-purple feedback picture that fills most of the screen with organic, smeared, fractal-looking structure that constantly expands outward from the centre.
+
+Colour: the warp keeps red and especially blue almost whole each frame (blue gain 0.996, red 0.975) but wipes green within a frame (gain 0.16). Everything drifts toward magenta, pink and purple. The steady-state display colour is magenta (about 1.0, 0.002, 1.0), and the calibrated hue shares lead with pink (about 0.35), then red, purple and some green (about 0.11 each). The composite brightens strongly (a canvas level of 0.25 shows as about 0.94, and 0.5 and above shows as pure white), so bright areas probably clip to white or pale pink. Two large shapes are tinted green, but they only multiply a copy of the previous frame, so green is likely to appear only as occasional faint accents. Calibrated mean luminance is about 0.48 (interval 0.29 to 0.70) and saturation about 0.66, so mid-bright to bright and fairly vivid.
+
+Structures: a small 24-sided shape (radius about 0.1) fades from red at its centre to yellow at its edge, and its position is unknown. Two huge 100-sided shapes (radii about 0.66 and 1.17) copy the previous frame back into themselves at 0.75x and 0.67x zoom. They should nest recursively into a tunnel or droste effect. A thick additive cyan waveform circle sits at the screen centre with a base radius of 0.5, but its alpha is only 0.004, so it is likely nearly invisible.
+
+Motion: a constant zoom of 1% per step with zoomexp 2.3 makes the whole image expand from the centre by about 0.4% to 3% per step, faster toward the edges. There is no rotation (0), though the wave circle turns at 0.2 rad/s. Image-driven advection and gradient flow in the warp, plus a complex quadratic map, should smear detail into swirling, fluid, fractal-like patterns. Calibrated flow is about 0.14 screen widths per second, with a wide range.
+
+Audio: only the waveform shape of the faint circle responds. No bass, mid or treble routes were found, so the beat reaction is probably weak or indirect (uncertain).
+
+Flashing: the no-strobe probability is only 0.24, and brightness jumps are estimated at about 7 per 10 s (interval 1.7 to 28). I would expect occasional pulses to frequent flicker, so it is not strobe-free. No explicit flash mechanism was found, so this comes from the chaotic, strongly amplifying composite.
+
+Uncertain: the shape positions, the actual amount of white clipping, how much green shows, and how visible the tunnel nesting is.

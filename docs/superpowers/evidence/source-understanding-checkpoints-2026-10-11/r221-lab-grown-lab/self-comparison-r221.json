@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r221-v1",
+ "preset": "suksma - lab-grown lab.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "2aa0ae17f6b9e2f59a774a4ece8127964d7874d0e4fc943d8f6a666e494074bb",
+  "prediction.json": "c19a0505f07ed71e149e2ed363a7e78b788895c6e987c0b4003cf301fddebaf4",
+  "description.json": "a76b468bf3754419d96f93bfa6de8f921529f07b6b45562e64c21d1df10562d8",
+  "recipe.json": "e1e89a8aee39d5b728b8844905191ed7b173d55db2ca41e4d08e3b678410e9f8",
+  "llm-look-description-v1.txt": "f8cbdb80cd6aa4506f67e42bf10138c6fab8f5a100ef5c1081979be1180a7250"
+ },
+ "capture_result_sha256": "9a20c4b2bd3955e6a9b517ce604abd305941bfdbc46fdb36836caf70172a5d0d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.323,
+  "screenshot_luma": 0.453,
+  "mean_rgb_prediction": [
+   0.62,
+   0.204,
+   0.622
+  ],
+  "mean_rgb_screenshot": [
+   0.605,
+   0.392,
+   0.613
+  ],
+  "blurred_luma_correlation": 0.835,
+  "mean_abs_frame_difference_60_149": [
+   0.0426,
+   0.136
+  ]
+ },
+ "agreements": [
+  "palette pink matches ruler pink/purple",
+  "luminance 0.48 inside 0.42-0.81",
+  "flicker flagged: no-strobe p 0.24, ruler 60 jumps"
+ ],
+ "misses": [
+  "frame difference estimate 0.043 vs clip 0.136"
+ ],
+ "verdict": "understood"
+}

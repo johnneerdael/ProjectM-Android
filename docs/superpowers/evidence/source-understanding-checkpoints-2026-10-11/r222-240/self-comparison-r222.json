@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r222-v1",
+ "preset": "240.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e09ac0701a51849d62b12403a820576227853ef49381e9cd39b492d73f0c7202",
+  "prediction.json": "5928f4c02d68ed6d92045e2d53bafc219a06170055953559fb491e618a5e7c70",
+  "description.json": "e21c05e318bcb1962435cb9f8e3a15016f26795fd438c1d78ec47858f9ed943a",
+  "recipe.json": "1697fc99bac069913fa25b3fa1ab07b1bf3a44ec7c507d00e479f707919067ca",
+  "llm-look-description-v1.txt": "ddd2f12be463c17ea9caa2b5c7c83a16e90f8f22c76b586a51ec679e75ee6e0b"
+ },
+ "capture_result_sha256": "338d4e5e7e1f8348d8810ccaaec93e7de975e08a7f80d8d94ecc4ee05920f28d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.331,
+  "screenshot_luma": 0.332,
+  "mean_rgb_prediction": [
+   0.354,
+   0.329,
+   0.286
+  ],
+  "mean_rgb_screenshot": [
+   0.355,
+   0.329,
+   0.287
+  ],
+  "blurred_luma_correlation": 1.0,
+  "mean_abs_frame_difference_60_149": [
+   0.0391,
+   0.0172
+  ]
+ },
+ "agreements": [
+  "palette orange matches ruler orange/yellow",
+  "luminance 0.34 inside 0.17-0.38 (clip 0.36)",
+  "prediction image matches the screenshot (blurred luma corr 1.0)"
+ ],
+ "misses": [],
+ "verdict": "understood"
+}
