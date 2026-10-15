@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r311-v1",
+ "preset": "Stahlregen - Spiral (Hey! Thats not a spiral!).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "11add101b71880fb3e4d47feab03c98b97ba51e1bdf2a8aa883b9d9e267925e9",
+  "prediction.json": "ab1031625fc53bac027e72c6bc20d2f304b0fb063b8cab6da00b4edcece39079",
+  "description.json": "2a5fec6d553b80540b899a73e6890bea76839d5402cbb1d26fcac4a4010b3890",
+  "recipe.json": "31bf845c00681cd21c688113a05a3ed9f5b24dcb0f6449b00ad74a3ea53710ca",
+  "llm-look-description-v1.txt": "069a7c1a46bdee23e41f3d6f7df6d7ea4c7dffda47896269dca07ffe1edd8a71"
+ },
+ "capture_result_sha256": "8ba9dc3f20f5892bb2b89164889522cfcfd4c2484a30e49e2762b8a1141b21b1",
+ "review_measurements_v1": {
+  "prediction_luma": 0.143,
+  "screenshot_luma": 0.189,
+  "mean_rgb_prediction": [
+   0.035,
+   0.182,
+   0.079
+  ],
+  "mean_rgb_screenshot": [
+   0.049,
+   0.239,
+   0.114
+  ],
+  "blurred_luma_correlation": 0.912,
+  "mean_abs_frame_difference_60_149": [
+   0.0179,
+   0.0323
+  ]
+ },
+ "agreements": [
+  "palette 3/3 found",
+  "chill and No strobe right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

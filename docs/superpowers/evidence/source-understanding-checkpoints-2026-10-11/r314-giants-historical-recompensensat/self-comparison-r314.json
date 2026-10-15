@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r314-v1",
+ "preset": "gwadeloag - phusillyty nz+ oops, accidentally shat on shoulders ov giants historical recompensensat.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c86b1265e17a722c76c3b3454810b3cb69b3d24973b45d06ba38aa36603e6f75",
+  "prediction.json": "5b445e90bc1e415a2561795a75d97c2e3cba00c6346bc217818f19d97848293b",
+  "description.json": "90cddce50d6172753df37cfda62c8f19fa952d146eb4ca9c7def4013f6551038",
+  "recipe.json": "4059e75055bf35c089049d26815223aeadc5abc5c87216b7d4cca9c7e4131813",
+  "llm-look-description-v1.txt": "058abb85bc0f25154ae56bc773cc0f8cc4d2fd928baf7b69a148644edd4f07d2"
+ },
+ "capture_result_sha256": "91199872150b6ee971365ccbe7b7c187022c4fe7854e04c65965a4980d067b30",
+ "review_measurements_v1": {
+  "prediction_luma": 0.191,
+  "screenshot_luma": 0.178,
+  "mean_rgb_prediction": [
+   0.133,
+   0.195,
+   0.316
+  ],
+  "mean_rgb_screenshot": [
+   0.131,
+   0.175,
+   0.351
+  ],
+  "blurred_luma_correlation": 0.671,
+  "mean_abs_frame_difference_60_149": [
+   0.1343,
+   0.2273
+  ]
+ },
+ "agreements": [
+  "palette 3/4 found, none extra",
+  "bright/fast/intense/vivid right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

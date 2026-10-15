@@ -1,0 +1,13 @@
+Predicted look: a dark, sparse, quiet picture, mostly black with faint coloured traces, from two nearly transparent point waves and a very faint circle on a gently zooming feedback canvas. Mean brightness is predicted low (about 0.08, range 0 to 0.30), and the dark facet is admitted (0.80). Flat empty areas go to black: the composite maps every flat canvas level to black, and the settled display is black. Whatever colour appears must come from fine detail and edges on the canvas.
+
+Colour: no dominant colour. The pooled palette leads with green, pink and blue (about 20% each), then red, with cyan, yellow, orange and purple behind. The two custom waves draw points in green, blue, orange, cyan and pink at high saturation (about 0.89) but with very low alpha (about 0.025), so they are faint tinted dots or short strokes, not bold lines. The composite colour matrix passes red and blue and drops green, which may tint the visible detail magenta or pink, but I am not sure of this, and the grey-noise test gives a grey output. Calibrated saturation is moderate (about 0.42) over a coloured share of about 0.52.
+
+Structure: the built-in wave is an audio-deformed circle centred on screen. It has a near-zero alpha of 0.001, an additive blend and a grey colour, so it is probably barely visible. The recipe gives a negative effective radius of -0.5, so the ring (if seen) sits about half a unit out, possibly flipped. The two custom waves have 512 points each. Their positions follow a formula using bass, mid, treble and music time. I cannot say where they sit or what shape they trace. Two warp shaders each scale the image slightly (to 0.98 and 0.96), so content is slowly pulled inward and spreads into a soft tunnel or contracting haze. A slight horizontal stretch (1.002) and a tiny wobble (warp 0.01) add some drift, with no rotation or sideways translation. The feedback does not decay the image evenly: dim levels (about 0.5 canvas level) are cut hard while very bright and moderately dim content is kept, so only brighter strokes persist as trails, and the rest fades.
+
+Motion: calm. The estimated flow is about 0.05 screen widths per second and frame-to-frame change is very small (about 0.02). It is probably slowly drifting, but the drifting facet did not pass its threshold.
+
+Audio: only the circle follows the waveform continuously, and the wave positions read bass, mid and treble. No clear beat or brightness route was found, so response may be gentle.
+
+Flashing: steady. The no-strobe probability is about 0.92 and brightness jumps are estimated at under 1 per 10 s. Activity is predicted Chill (about 0.8).
+
+Uncertain: how visible the faint waves are, whether the picture is nearly black or shows soft coloured haze, and the composite colour tint.

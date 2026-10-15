@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r310-v1",
+ "preset": "fiShbRaiN, flexi + martin - grafitti tagging witchcraft must be overrated - demonlord shaders - lampshade hubrys.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "db02a540b7788be36f0c8270e8340255b96bee2d61c638bdc18e160c9f390418",
+  "prediction.json": "256640fbb44a5f2080ebb1d34d29668e90a3fecf8ee22624913f721be30531bd",
+  "description.json": "826ccd75686ca6151bdb297927cb86d707810e4065864f84cd6bc3ff6dbdec07",
+  "recipe.json": "020be9020828e28ad4ff5f702018222861e7e5201b10fd1a15eeb6cb85c4918e",
+  "llm-look-description-v1.txt": "4c57ffb336b30d64b73165e2f997cad1d4df76dc5f845368a3681b72141a55cc"
+ },
+ "capture_result_sha256": "45e2d5b32b598cb19451de98bcfc23bf8caa2ee4352eec4889226873627569dc",
+ "review_measurements_v1": {
+  "prediction_luma": 0.045,
+  "screenshot_luma": 0.045,
+  "mean_rgb_prediction": [
+   0.038,
+   0.048,
+   0.045
+  ],
+  "mean_rgb_screenshot": [
+   0.038,
+   0.047,
+   0.045
+  ],
+  "blurred_luma_correlation": 0.996,
+  "mean_abs_frame_difference_60_149": [
+   0.026,
+   0.0143
+  ]
+ },
+ "agreements": [
+  "chill/dark/vivid right (real 0.04)",
+  "frame prediction corr 0.996"
+ ],
+ "misses": [
+  "calibrated luminance 0.15 vs 0.04"
+ ],
+ "verdict": "agree"
+}

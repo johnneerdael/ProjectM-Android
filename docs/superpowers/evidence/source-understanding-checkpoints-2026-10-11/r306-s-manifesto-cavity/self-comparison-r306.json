@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r306-v1",
+ "preset": "Flexi + geiss - the deep diver's manifesto [cavity].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "81ad7b2e426ed1fce69d7437043dd37f04672824da8b7f62682d1113c8c6a577",
+  "prediction.json": "8aeea2d15373b481beff57b5234f408922facb7c7e6bee36d375bc97929cf4d9",
+  "description.json": "0755ca5fb8df83eb93e79f5b5c24933bd51181fa1bbf2db4d94bef970e0c85af",
+  "recipe.json": "24f9799492a93a6f0358921d7891a8b11555947106f72f29327169ed96d9d545",
+  "llm-look-description-v1.txt": "5a892c440ce7b61e6b2d0a2f6f8105e12d527130a3bb702a824d43545b98466e"
+ },
+ "capture_result_sha256": "3002f88ff6bf2062411785d2fe702f83c02a87c99b922e05cfd36af552560247",
+ "review_measurements_v1": {
+  "prediction_luma": 0.858,
+  "screenshot_luma": 0.298,
+  "mean_rgb_prediction": [
+   0.669,
+   1.0,
+   0.005
+  ],
+  "mean_rgb_screenshot": [
+   0.375,
+   0.305,
+   0.008
+  ],
+  "blurred_luma_correlation": 0.019,
+  "mean_abs_frame_difference_60_149": [
+   0.0332,
+   0.028
+  ]
+ },
+ "agreements": [
+  "palette 3/4 colours found, no dominant (correct: mixed)",
+  "drifting/normal/vivid right"
+ ],
+ "misses": [
+  "warm wrongly admitted; lead pink vs ruler green/red"
+ ],
+ "verdict": "partial"
+}

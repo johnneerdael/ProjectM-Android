@@ -1,0 +1,13 @@
+Predicted look: a busy, fast, high-energy picture that flickers hard, drawn on an inverted-looking, mirrored, self-advecting feedback canvas. This is the most intense of the cases I expect to see.
+
+Brightness and colour: the composite maps a black canvas to white and a white canvas to black (flat transfer 0 to 1.0, 1.0 to 0.0), so empty areas can show as light and drawn content as dark. The settled source estimate for the display is near-white, but the calibrated estimate says mean brightness is about 0.44 (range 0.26 to 0.66) and bright is admitted (0.79). I take it as medium to bright with strong light-dark contrast. The two estimates disagree, so the overall level is uncertain. Colour is a mixed set with no dominant hue: blue and green lead, then pink, purple, yellow and cyan. The wave points use blue, yellow, green and orange. Coloured share is about 0.72 and saturation is moderate (about 0.51), cool slightly ahead of warm. Several colours (wave_r, wave_g, zoom, decay, border colour and size and some shape controls) are redrawn at random during play, so the exact palette and shape changes from moment to moment.
+
+Structure: a left-right mirror in the composite gives a two-fold symmetric picture. Many small shapes make up the detail: 33 circles with 32 sides, 92 twelve-sided shapes, 1,024 twenty-sided shapes at 34% black opacity, and 311 tiny black triangles that copy the previous frame and rotate slowly with a period of about 18 s. Their placement is formula and audio driven, so I cannot say where they sit. Three custom waves are present: two blue-yellow-green-orange point lines (one near the lower left, one near the upper left, both nearly stationary in the recipe) and one black point wave of 256 points driven by audio state. A built-in two-channel trace is nearly transparent. An image-driven warp (self-advection using the picture and noise) should smear the content into flowing, fluid-looking structure.
+
+Motion: fast. The zoom, rotation and sideways shifts all move with bass, mid and treble, and a slow brightness cycle of about 0.08 Hz is present. The estimated flow is about 0.38 screen widths per second, and mean frame-to-frame change is high (about 0.13).
+
+Audio: nearly everything is audio-routed, including zoom, rotation, translation, shape position, radius, opacity, colours, and wave colours. Strengths are unresolved.
+
+Flashing: strobe-like. The estimate is about 54 global brightness jumps per 10 s (18 to 198), and the strobe-free probability is about 0.001. Expect heavy flicker and flashing, not a steady picture. Activity is predicted Intense (about 0.98).
+
+Uncertain: which areas are light or dark, the actual hue balance, and how much of the 1,024-shape layer is visible.

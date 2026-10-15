@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r307-v1",
+ "preset": "EoS - glowsticks v2 04 music minimal - ghosts nz+16.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9006f6728b00e6443f407488633cb95122b77357f5605fd288aacaa9e8cada06",
+  "prediction.json": "964b597e0b661302333b46036ac5b61f19e6961c84cb3eb82507ec137e6a84ee",
+  "description.json": "6d745ea2f5af60f08e8a950ee4fcda2c407e500b93d1f0098806e3baac4b3e6f",
+  "recipe.json": "9835211277ecd59db450ee6f3da2cd662bf377af7eca8b859699981c2f73932e",
+  "llm-look-description-v1.txt": "2b0147b8ed05f364a17956b59fdb3f977c30b753d851423a576f9f6661eabb7c"
+ },
+ "capture_result_sha256": "ca8f86ad22624acacebddbc2b9db21681efdaecd642d979247cd8a41bdc61446",
+ "review_measurements_v1": {
+  "prediction_luma": 0.434,
+  "screenshot_luma": 0.437,
+  "mean_rgb_prediction": [
+   0.353,
+   0.452,
+   0.491
+  ],
+  "mean_rgb_screenshot": [
+   0.349,
+   0.456,
+   0.498
+  ],
+  "blurred_luma_correlation": 0.963,
+  "mean_abs_frame_difference_60_149": [
+   0.0405,
+   0.0194
+  ]
+ },
+ "agreements": [
+  "palette blue,cyan exact",
+  "cool/drifting right",
+  "frame prediction corr 0.96"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

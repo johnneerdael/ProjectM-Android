@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r308-v1",
+ "preset": "Stahlregen & Flexi + Geiss - Liquidity (Dynamic Swirls) - fsh mess - pinkerton.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ee8e5165f01c496aa1a8e3d6e7f070074aa5f4d3c39a04f9d2185509f0a24ad2",
+  "prediction.json": "9564a5c27884198e0b3c638dde95817ccb86952736ec6e34c4d75eec5993abac",
+  "description.json": "efeb46e92068f9040712d10b556a28c97e18b82fb569073282c7bb7fa97c5dbf",
+  "recipe.json": "56cc0f23b81145a9af425c69543f93d077df20054c6122675c5b4b1c4f53f3b3",
+  "llm-look-description-v1.txt": "10069f396482aae55fa902be62b5c1788a3a204b583532019dd807bfeee915e2"
+ },
+ "capture_result_sha256": "89685f9d1e54a2f0c31e7cf61ef00c4d992c074abd47b5cc5afbc1f993964085",
+ "review_measurements_v1": {
+  "prediction_luma": 0.281,
+  "screenshot_luma": 0.325,
+  "mean_rgb_prediction": [
+   0.161,
+   0.311,
+   0.344
+  ],
+  "mean_rgb_screenshot": [
+   0.27,
+   0.333,
+   0.409
+  ],
+  "blurred_luma_correlation": 0.125,
+  "mean_abs_frame_difference_60_149": [
+   0.0452,
+   0.0996
+  ]
+ },
+ "agreements": [
+  "palette 3/6 found, none extra",
+  "intense right"
+ ],
+ "misses": [
+  "calibrated luminance 0.18 vs 0.38"
+ ],
+ "verdict": "agree"
+}

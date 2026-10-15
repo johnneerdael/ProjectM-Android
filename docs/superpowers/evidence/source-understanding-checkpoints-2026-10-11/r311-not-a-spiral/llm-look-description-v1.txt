@@ -1,0 +1,13 @@
+Predicted look: a medium-dim to moderately bright, four-way mirrored, concentric ring or tunnel picture. Expected mean brightness is low to middling (about 0.15 on a 0-1 scale, plausible range 0 to 0.37). Dark background areas are likely, with the drawn rings standing out against them.
+
+Main structure: a built-in line wave bent into a large circle by the right-channel waveform sits at about 0.96 model units radius, so it hugs the outer part of the screen as a thick, wobbling ring. Its colour cycles continuously. The red, green and blue channels each run on a 4.4 to 5.1 second period, and the brightest channel is always scaled to full, so it is a fully saturated line whose hue drifts around the wheel. Over time it passes through green, pink, blue and yellow, with green and pink slightly favoured. No single colour is confirmed dominant, and the palette is a set (green, pink, blue and red are the leading hues), at moderate saturation (about 0.42, range 0.17 to 0.66).
+
+Three 100-sided (circular) shapes sit under it. They are white-tinted copies of the previous frame, not solid fills. One is near full-screen at the centre, one is a mid-size disc (radius about 0.3) at the centre, and one is a pair of small discs (radius about 0.18) whose positions move somewhere within 0.3 to 0.7 of the screen. Because each frame copies the last at a different zoom (about 0.99, 1.09 and 1.49), the picture should nest recursively into rings within rings, a drum or tunnel-like spiral. How visible this is depends on how much the wave draws.
+
+Motion: the whole image contracts toward the centre by about 1% per frame, so everything slowly funnels inward, with no sideways drift. Rotation is negligible (about 0.001 rad/s). Trails fade with a half-life of about 1.2 seconds (decay 0.98). A composite echo adds left-right and top-bottom mirrored copies at 50%, giving four-fold kaleidoscope symmetry, and a gamma boost of up to 1.9x brightens it. A 1% black outer border and a faint dimming of the centre diamond keep the edge and middle slightly darker.
+
+Audio: the only found route is the wave outline following the waveform continuously. There are no beat thresholds, bass-driven zoom or colour changes.
+
+Flashing: the strobe classifier gives about 0.98 no-strobe probability and estimates under 1 brightness jump per 10 s, so it is steady and calm. Activity is predicted Chill (about 0.93 probability). Movement is probably gentle drifting, though this is uncertain because the middle bucket did not pass its threshold.
+
+Uncertain: the exact visibility of the nested copies, the actual hue balance, the screen coverage of the shapes, and how bright the gamma-boosted feedback gets.
