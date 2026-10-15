@@ -46,12 +46,13 @@ def _tree(nodes,x):
         i=left if x[feature]<=threshold else right
 
 
-def predict(summary,model=None):
-    """Return {target: {'value','interval','oof_spearman','evidence'}} or None when no model is available."""
+def predict(summary,model=None,render=None):
+    """Return {target: {'value','interval','oof_spearman','evidence'}} or None when no model is available.
+    render: an already computed recipe render whose colour probes feed the descriptor (else computed here)."""
     from static_descriptor import descriptor
     model=model or load()
     if model is None:return None
-    columns=descriptor(summary)
+    columns=descriptor(summary,render=render)
     x=[]
     for name in model['columns']:
         value=columns.get(name)

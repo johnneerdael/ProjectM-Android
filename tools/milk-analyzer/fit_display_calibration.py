@@ -62,6 +62,8 @@ def main(argv=None):
     parser.add_argument('--workers',type=int,default=4,help='processes computing descriptors')
     parser.add_argument('--descriptor-cache',type=Path,help='pickle of descriptor rows: reused when present, written otherwise')
     parser.add_argument('--only',help='comma-separated targets/options to fit (regression targets, no_strobe, facet options)')
+    parser.add_argument('--extra-columns',type=Path,help='pickle {preset: {column: value}} merged into cached descriptor rows '
+                        '(e.g. recipe probe columns computed separately for a descriptor cache made before they existed)')
     parser.add_argument('--merge-into',type=Path,help='existing model whose other targets are kept (descriptor columns must match)')
     args=parser.parse_args(argv)
     labels={}
@@ -85,6 +87,9 @@ def main(argv=None):
         with ProcessPoolExecutor(args.workers) as pool:
             loaded=[row for row in pool.map(_descriptor_row,paths,chunksize=32) if row is not None]
         if args.descriptor_cache:pickle.dump(loaded,open(args.descriptor_cache,'wb'))
+    if args.extra_columns:
+        extra=pickle.load(open(args.extra_columns,'rb'))
+        loaded=[(name,{**row,**extra.get(name,{})}) for name,row in loaded]
     names=[name for name,_ in loaded];rows=[row for _,row in loaded]
     counts={}
     for row in rows:

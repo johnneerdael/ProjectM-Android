@@ -161,12 +161,26 @@ def input_names(expression, *, stochastic=False):
 _NAMES_CACHE = {}
 
 
+class WorkBudget:
+    """Deterministic evaluation budget in work units (graph nodes per frame step, loop body nodes per iteration).
+
+    Unlike a wall-clock deadline it cuts at the same point on any machine and under any load, so static
+    probes that step programs give reproducible results."""
+    def __init__(self, units):
+        self.left = float(units)
+
+    def spend(self, units):
+        self.left -= units
+        if self.left < 0:raise ValueError('evaluation budget exceeded')
+
+
 def evaluate_np(expression, inputs, rng=None, batch_shape=None, deadline=None):
     """Value of a serialised graph over declared inputs (vectorised; rand needs an rng).
 
     batch_shape: the shape of the evaluated batch, so every point gets its own rand draw (as every
     instance or frame does in the engine) even when the rand argument is a constant.
-    deadline: time.perf_counter() value after which loops stop with ValueError('evaluation budget exceeded').
+    deadline: a WorkBudget charged per loop iteration (deterministic), or a time.perf_counter() value after
+    which loops stop; both raise ValueError('evaluation budget exceeded').
     """
     names = input_names(expression, stochastic=rng is not None)
     if names is None or names - set(inputs):raise ValueError('point program not evaluable')
@@ -285,6 +299,18 @@ def _scalar_condition(value):
 def _evaluator(nodes, plans, inputs, rng, batch_shape, deadline):
     """value(index) over one graph's nodes with a memo shared by every root asked for."""
     stochastic = rng is not None
+    sizes = {}
+
+    def body_size(plan_ref):
+        # Nodes one loop iteration evaluates: everything reachable from the plan's updates (at least 1).
+        if plan_ref not in sizes:
+            seen = set();todo = list(plans[plan_ref]['updates'].values())
+            while todo:
+                index = todo.pop()
+                if index in seen:continue
+                seen.add(index);todo.extend(nodes[index]['args'])
+            sizes[plan_ref] = max(1, len(seen))
+        return sizes[plan_ref]
     # Which loop plans each node's value depends on (through slots, directly or via nested loops).
     depends = {}
 
@@ -347,9 +373,12 @@ def _evaluator(nodes, plans, inputs, rng, batch_shape, deadline):
             start = value(initial)
             current[name] = start.owned_copy() if isinstance(start, Memory) else start
         active.append(plan_ref)
+        budget = deadline if isinstance(deadline, WorkBudget) else None
+        cost = body_size(plan_ref) if budget is not None else 0
         try:
             for iteration in range(count):
-                if deadline is not None and iteration % 256 == 0 and time.perf_counter() > deadline:
+                if budget is not None:budget.spend(cost)
+                elif deadline is not None and iteration % 256 == 0 and time.perf_counter() > deadline:
                     raise ValueError('evaluation budget exceeded')
                 memo[plan_ref] = {};slots[plan_ref] = current
                 updated = {name: value(plan['updates'][name]) for name in plan['names']}

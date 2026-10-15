@@ -166,6 +166,24 @@ def test_evaluation_stops_at_its_deadline():
         M.evaluate_np(graph, {}, deadline=time.perf_counter() - 1)
 
 
+def test_a_work_budget_stops_loops_after_the_same_work_on_any_machine():
+    # A wall-clock deadline made recipe probes depend on machine load; a WorkBudget charges each loop iteration
+    # its body size, so the cut happens at the same iteration however fast the machine is.
+    import pytest
+    tree = seq(assign(var('i'), num(0)), call('loop', num(1000000), assign(var('i'), call('_add', var('i'), num(1)))))
+    graph = serialise(lowered(tree).environment['i'])
+    budget = M.WorkBudget(5000)
+    with pytest.raises(ValueError, match='budget'):
+        M.evaluate_np(graph, {}, deadline=budget)
+    spent = 5000 - budget.left
+    again = M.WorkBudget(5000)
+    with pytest.raises(ValueError, match='budget'):
+        M.evaluate_np(graph, {}, deadline=again)
+    assert 5000 - again.left == spent
+    small = seq(assign(var('i'), num(0)), call('loop', num(10), assign(var('i'), call('_add', var('i'), num(1)))))
+    assert float(M.evaluate_np(serialise(lowered(small).environment['i']), {}, deadline=M.WorkBudget(5000))) == 10.
+
+
 def test_exec2_and_exec3_evaluate_their_arguments_in_order_and_return_the_last():
     # projectm-eval exec2(a, b) runs a then b and yields b (exec3 likewise with three). Particle presets
     # fill gmegabuf with loop(n, exec2(assign(gmegabuf(i*8), v), assign(i, i+1))) (r93).

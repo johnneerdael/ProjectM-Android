@@ -203,50 +203,64 @@ def apply_colour_matrix(matrix,rgb):
     return [min(1.,max(0.,base[i]+sum(rgb[c]/level*columns[c][i] for c in range(3)))) for i in range(3)]
 
 
-STAGE_CONTROL_BUDGET_SECONDS=3.
+# Work units (eel_memory.WorkBudget) for stepping a frame program: frame-program nodes per step plus loop body
+# nodes per iteration. Deterministic, unlike the earlier 3 s wall-clock budget that made ~1% of presets' probes
+# depend on machine load. Typical stepping runs ~0.5M units/s; at 2M, 97% of presets (300-preset sample) step to
+# t=5 s fully, and the rest stop at the same point on every machine (at most ~4 s).
+STAGE_CONTROL_BUDGET_UNITS=2e6
 
 
 _STAGE_CONTROL_CACHE=[]  # [(facts, key, result)]: the few most recent presets
 
 
-def _stage_controls(facts,bands,times,fps=30.,budget_seconds=STAGE_CONTROL_BUDGET_SECONDS):
+def _stage_controls(facts,bands,times,fps=30.,budget_units=None):
     """Cached _stage_controls_uncached: one recipe build probes the same frame program many times (16 calls took 4.8
     of 6.4 s). Entries hold the facts object itself and match it by identity, so another preset never reuses them;
     callers receive copies, so mutating a result cannot leak into the next probe."""
     import copy
-    key=(tuple(sorted(bands.items())),tuple(times),fps,budget_seconds)
+    key=(tuple(sorted(bands.items())),tuple(times),fps,budget_units)
     for cached_facts,cached_key,result in _STAGE_CONTROL_CACHE:
         if cached_facts is facts and cached_key==key:return copy.deepcopy(result)
-    result=_stage_controls_uncached(facts,bands,times,fps=fps,budget_seconds=budget_seconds)
+    result=_stage_controls_uncached(facts,bands,times,fps=fps,budget_units=budget_units)
     _STAGE_CONTROL_CACHE.insert(0,(facts,key,result));del _STAGE_CONTROL_CACHE[8:]
     return copy.deepcopy(result)
 
 
-def _stage_controls_uncached(facts,bands,times,fps=30.,budget_seconds=STAGE_CONTROL_BUDGET_SECONDS):
+def _stage_controls_uncached(facts,bands,times,fps=30.,budget_units=None):
     """Inputs a stage program reads at each declared time: bands, the engine frame clock, readonly
     render values and the per-frame state (exported frame program stepped under the same bands).
 
     Frame k renders at time (k+1)/fps; shader programs inline per-frame graphs over the start-of-frame
-    state, as the illustrator binds them. Stepping stops after budget_seconds; later times then use
+    state, as the illustrator binds them. Stepping stops when the work budget is spent; later times then use
     the last stepped state.
     """
-    import time as clock
     import numpy as np
     import prediction_illustration as P
-    deadline=clock.perf_counter()+budget_seconds
+    from eel_memory import WorkBudget
+    budget=WorkBudget(STAGE_CONTROL_BUDGET_UNITS if budget_units is None else budget_units)
     constants=P._render_constants(facts.get('/analysis/visual_description/static_behaviour/context') or {})
     frame=(facts.get('/analysis/visual_description/stage_programs') or {}).get('frame') or {}
-    stepper=P._FrameStepper(frame,constants=constants,deadline=deadline) if frame.get('status')=='exported' and (frame.get('state') or frame.get('outputs')) else None
+    stepper=P._FrameStepper(frame,constants=constants,deadline=budget) if frame.get('status')=='exported' and (frame.get('state') or frame.get('outputs')) else None
+    step_cost=max(1,_program_nodes(frame.get('state'))+_program_nodes(frame.get('outputs')))
     result={};k=0;out={}
     for time in sorted(times):
         target=max(0,int(round(time*fps))-1)
         base={**bands,**constants,'time':float(np.float32(time)),'fps':float(fps),'frame':float(target),'progress':0.}
         if stepper is not None:
-            while k<=target and clock.perf_counter()<deadline:
+            while k<=target and budget.left>=step_cost:
+                budget.left-=step_cost
                 out=stepper.step(float(np.float32((k+1)/fps)),fps,bands,k);k+=1
             base.update({name:value for name,value in {**out,**(stepper.start or {})}.items() if isinstance(value,(int,float))})
         result[time]=base
     return result
+
+
+def _program_nodes(value):
+    """Serialised graph nodes under a frame-program block (state initial/update programs, outputs)."""
+    if isinstance(value,dict):
+        return (len(value['nodes']) if isinstance(value.get('nodes'),list) else 0)+sum(_program_nodes(v) for k,v in value.items() if k!='nodes')
+    if isinstance(value,list):return sum(_program_nodes(v) for v in value)
+    return 0
 
 
 def _apply_transfer(transfer,rgb):

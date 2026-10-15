@@ -40,3 +40,14 @@ def test_logistic_targets_return_a_probability():
     assert abs(_inverse(0., 'logistic') - .5) < 1e-12
     assert _inverse(4., 'logistic') > .98 and _inverse(-4., 'logistic') < .02
     assert 0. <= _inverse(1e9, 'logistic') <= 1. and 0. <= _inverse(-1e9, 'logistic') <= 1.
+
+
+def test_predict_reads_recipe_probe_columns_from_a_supplied_render():
+    # build_recipe passes its render so the probes are not rendered twice; the darkening warp splits luminance here.
+    column = 'recipe:warp_detail/mean_luma'
+    model = {'columns': [column], 'targets': {'mean_luminance': {'baseline': .4, 'oof_spearman': .7, 'residual_p10': 0., 'residual_p90': 0.,
+             'trees': [[[0., 0, .1, 1, 2, 0], [-.2, 0, 0., 0, 0, 1], [.2, 0, 0., 0, 0, 1]]]}}}
+    def render(luma):
+        return {'layers': [], 'feedback': {'warp_detail_response': {'mean_luma': luma}}, 'composite': {}}
+    assert math.isclose(predict({'facts': {}}, model, render=render(.02))['mean_luminance']['value'], .2)
+    assert math.isclose(predict({'facts': {}}, model, render=render(.46))['mean_luminance']['value'], .6)

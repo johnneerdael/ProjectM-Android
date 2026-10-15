@@ -465,6 +465,58 @@ def display_palette(recipe,times=COLOUR_TIMES):
             'method':'static pooling of recipe colour sources (no frames stepped); weights '+json.dumps(PALETTE_WEIGHTS)}
 
 
+PROBE_HUES=('red','orange','yellow','green','cyan','blue','purple','pink')
+
+
+def probe_render(summary):
+    """The render block with its colour probes and steady state (what build_recipe computes before calibration)."""
+    render=_render(_facts(summary))
+    render['feedback']['steady_state']=_steady_state(summary,(render.get('composite') or {}).get('flat_transfer'))
+    return render
+
+
+def probe_columns(render):
+    """Calibration columns from a render's colour probes (static; no frames stepped).
+
+    The warp-only and composite detail responses (shader code evaluated on a grey texture), the composite colour
+    matrix and the palette pooled from static sources only (no calibrated hue, so no model output feeds back).
+    Derived from the matrix: singular-value ratios (rank-1 = every input becomes one fixed chroma, as in a
+    luma-to-tint composite) and the saturation reachable from black plus each unit input column. Out of fold
+    these lift saturation 0.668 -> 0.702, coloured share 0.655 -> 0.681, luminance 0.670 -> 0.692 and the
+    leading hue in the ruler top-2 69% -> 72%; the warp detail luma separates siblings with one composite whose
+    warps darken (0.02) or keep (0.46) detail."""
+    import numpy as np
+    out={}
+    def put(key,value):
+        if isinstance(value,(int,float)) and not isinstance(value,bool) and math.isfinite(value):out['recipe:'+key]=float(value)
+    feedback=render.get('feedback') or {};composite=render.get('composite') or {}
+    for name,block in (('warp_detail',feedback.get('warp_detail_response')),('composite_detail',composite.get('detail_response'))):
+        if not block:continue
+        for key in ('mean_luma','mean_saturation','coloured_share','nonfinite_share'):put(name+'/'+key,block.get(key))
+        for i,channel in enumerate('rgb'):put(name+'/mean_'+channel,(block.get('mean_rgb') or [None]*3)[i])
+        for hue in PROBE_HUES:put(name+'/hue_'+hue,(block.get('hue_shares') or {}).get(hue,0.))
+    matrix=composite.get('colour_matrix') or {}
+    if matrix.get('columns_rgb') and matrix.get('black_rgb'):
+        columns=matrix['columns_rgb'];black=matrix['black_rgb']
+        for i,channel in enumerate('rgb'):
+            put('matrix/black_'+channel,black[i])
+            for j,target in enumerate('rgb'):put('matrix/%s_to_%s'%(channel,target),columns[i][j])
+        try:
+            M=np.array(columns,float);b=np.array(black,float);s=np.linalg.svd(M,compute_uv=False)
+            put('matrix/s1',s[0]);put('matrix/s2_over_s1',s[1]/s[0] if s[0]>1e-6 else 0.);put('matrix/s3_over_s1',s[2]/s[0] if s[0]>1e-6 else 0.)
+            saturations=[]
+            for i in range(3):
+                v=np.clip(b+M[i]/.3*.5,0,1);top=v.max();saturations.append(float((top-v.min())/top) if top>1e-6 else 0.)
+            put('matrix/max_output_saturation',max(saturations));put('matrix/mean_output_saturation',sum(saturations)/3)
+            top=b.max();put('matrix/black_saturation',float((top-b.min())/top) if top>1e-6 else 0.)
+        except (ValueError,TypeError,np.linalg.LinAlgError):pass
+    put('composite/random_tint',float(bool(composite.get('hue_shader') or composite.get('load_spread'))))
+    palette=display_palette({'render':render})
+    if palette['hue_shares']:
+        for hue in PROBE_HUES:put('static_palette/'+hue,palette['hue_shares'].get(hue,0.))
+    return out
+
+
 RAY_MIN_SHARE=.5  # screen share reading one point per ray for the radial_rays effect
 RAY_GAIN=.15  # |d r_source / d r_screen| below this: a pixel's ray reads (nearly) one source point
 
@@ -751,7 +803,7 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
         'limitations':['Engine-neutral approximate recipe; drawn content, audio and native rounding make real frames differ',
                        'Mood values are editable research assumptions, not calibrated preferences']}
     recipe['render']['feedback']['steady_state']=_steady_state(summary,(recipe['render'].get('composite') or {}).get('flat_transfer'))
-    display=_display_estimate(summary)
+    display=_display_estimate(summary,recipe['render'])
     if display is not None:recipe['display_estimate']=display
     recipe['render']['display_palette']=display_palette(recipe)
     recipe['facets']=facets_block(summary,display)
@@ -773,12 +825,13 @@ def build_recipe(summary,source=None,*,rules=None,profiles=None,include_program=
     return recipe
 
 
-def _display_estimate(summary):
-    """Source-calibrated display statistics and activity bands (additive; None without a model)."""
+def _display_estimate(summary,render=None):
+    """Source-calibrated display statistics and activity bands (additive; None without a model). render: this
+    recipe's render (probes already evaluated), so the descriptor's recipe probe columns are not recomputed."""
     from calibrated_display import load,predict
     model=load()
     if model is None:return None
-    values=predict(summary,model)
+    values=predict(summary,model,render=render)
     from display_activity import classify
     activity=classify({k:{'value':v['value'],'interval':v['interval']} for k,v in values.items()},remap=True)
     return {'policy':'source-calibrated-display-estimate-v1','statistics':values,'activity':activity,

@@ -104,19 +104,25 @@ def test_stage_transfer_supplies_render_inputs_and_stepped_frame_state(monkeypat
     assert abs(controls['q1'] - 2.) < 1e-6 and controls['aspecty'] > 1.
 
 
-def test_stage_controls_stop_stepping_at_their_budget(monkeypatch):
+def test_stage_controls_stop_stepping_at_a_deterministic_work_budget(monkeypatch):
+    # The step count no longer depends on wall-clock time (machine load changed the probes of ~1% of presets):
+    # each frame step charges the frame program's node count against a fixed work budget.
     import time
     import prediction_illustration as P
-    calls = []
-    def slow_step(self, time_s, fps, bands, k):
-        calls.append(k); time.sleep(.02); return {}
-    monkeypatch.setattr(P._FrameStepper, 'step', slow_step)
-    facts = {'/analysis/visual_description/stage_programs': {'frame': {'status': 'exported', 'state': {}, 'outputs': {'q1': {}}, 'unsupported': {}}},
+    node = {'op': 'constant', 'args': [], 'detail': {'value': 0.}}
+    facts = {'/analysis/visual_description/stage_programs': {'frame': {'status': 'exported', 'state': {},
+                                                                       'outputs': {'q1': {'root': 0, 'nodes': [node] * 10}}, 'unsupported': {}}},
              '/analysis/visual_description/static_behaviour/context': {'viewport': [480, 270]}}
-    started = time.perf_counter()
-    controls = E._stage_controls(facts, {'bass': 1.}, (2., 5., 8.), budget_seconds=.1)
-    assert time.perf_counter() - started < 1. and len(calls) < 20
-    assert set(controls) == {2., 5., 8.} and controls[8.]['time'] == 8.
+    counts = []
+    for delay in (0., .01):
+        calls = []
+        def step(self, time_s, fps, bands, k, calls=calls, delay=delay):
+            calls.append(k); time.sleep(delay); return {}
+        monkeypatch.setattr(P._FrameStepper, 'step', step)
+        controls = E._stage_controls_uncached(facts, {'bass': 1.}, (2., 5., 8.), budget_units=70)
+        counts.append(len(calls))
+        assert set(controls) == {2., 5., 8.} and controls[8.]['time'] == 8.
+    assert counts == [7, 7]
 
 
 def test_stage_transfer_reports_how_far_the_colour_moves_between_times(monkeypatch):

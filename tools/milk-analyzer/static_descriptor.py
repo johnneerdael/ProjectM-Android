@@ -11,11 +11,14 @@ caller.
 v2 adds derived ``equilibrium:*`` columns from feedback_equilibrium: the feedback steady-state
 canvas and display colour (local and fully spread bounds), warp gain/offset and per-frame drawn
 energy, computed from the same facts by closed-form transfer evaluation (no frames stepped).
+
+v4 adds ``recipe:*`` columns from the recipe colour probes (warp/composite detail responses, the composite
+colour matrix with its singular-value ratios, and the static-only pooled palette).
 """
 import math
 import re
 
-POLICY='static-summary-descriptor-v3'
+POLICY='static-summary-descriptor-v4'
 SKIP_GROUPS={'identity'}
 SKIP_KEYS={'conditions','unknown_reasons','evidence','limitations','scope','note','policy','source_locations',
            'source_keys','expression','expressions','programs','nodes','representative_points','lane_expressions_rgb',
@@ -96,8 +99,9 @@ def _frame_program_columns(summary,steps=128):
     return columns
 
 
-def descriptor(summary):
-    """Return {column: value} for one preset-understanding summary."""
+def descriptor(summary,render=None):
+    """Return {column: value} for one preset-understanding summary. render: the recipe render whose colour probes
+    become ``recipe:*`` columns (computed from the summary when not given)."""
     leaves={}
     for group,rows in summary.get('facts',{}).items():
         if group in SKIP_GROUPS:continue
@@ -106,6 +110,7 @@ def descriptor(summary):
             _walk(row.get('value'),group+':'+path,0,leaves)
     columns=_equilibrium_columns(summary)
     columns.update(_frame_program_columns(summary))
+    columns.update(_recipe_probe_columns(summary,render))
     for key,values in leaves.items():
         if key.endswith('=') or not values:continue
         if '=' in key.rsplit('/',1)[-1]:
@@ -116,6 +121,15 @@ def descriptor(summary):
             columns[key+'#mean']=sum(values)/len(values)
             columns[key+'#count']=float(len(values))
     return columns
+
+
+def _recipe_probe_columns(summary,render=None):
+    """``recipe:*`` columns from the recipe colour probes (preset_recipe.probe_columns); empty on failure."""
+    try:
+        from preset_recipe import probe_columns,probe_render
+        return probe_columns(render if render is not None else probe_render(summary))
+    except Exception:  # noqa: BLE001 - a descriptor never fails on one derived group
+        return {}
 
 
 EQUILIBRIUM_MODELS=('identity','legacy','composite_transfer','affine_composite')
