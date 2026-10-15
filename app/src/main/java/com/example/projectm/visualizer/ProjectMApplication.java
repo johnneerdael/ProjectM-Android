@@ -47,6 +47,8 @@ public class ProjectMApplication extends Application {
         // Before the engine starts: keeps what the previous process was doing when it ended.
         ExitDiagnostics.start(this);
         ProjectMCore.init(this);
+        java.util.Set<String> favorites = prefs.getStringSet("favorite_presets", java.util.Collections.<String>emptySet());
+        ProjectMJNI.setFavorites(favorites.toArray(new String[0]));
         OfficialCollection.restore(this);
 
         File customRoot = new File(getNoBackupFilesDir(), "custom-presets");

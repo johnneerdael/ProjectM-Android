@@ -51,6 +51,7 @@ On TV, when the panel opens, focus starts on the **Random** button, or on **Inst
 - **Presets in rotation**: how many presets your current mix can play, and how many this TV has skipped.
 - **Audio**: a live meter and status: *Listening*, *Very quiet*, *No sound* or *No access*.
 - **Previous / Random / Next** buttons. *Next* follows the shuffled order; *Random* picks any preset in your mix. All three are instant cuts.
+- **Favorite current visualizer** adds or removes the preset shown above from your saved Favorites collection. **Favorites collection** plays only saved presets, switches to the next favorite automatically, and changes to **Stop** while active. It temporarily enables automatic changes if needed, then restores your previous Auto change setting and preset mood or collection when stopped. Favorites are saved on the device and can include presets from bundled and installed custom packs.
 - On phones, **Audio input** chooses Microphone or Phone playback.
 - **Auto change**, **Preset mood ›** and **Preset duration**, then **Track display ›** and **Advanced ›**.
 - A status line with the current frame rate and render size (for example *30.0 fps · 4K auto*).
