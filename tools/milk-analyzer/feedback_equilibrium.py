@@ -349,6 +349,8 @@ def _shape_terms(facts,notes):
         if not path.endswith('/geometry') or not isinstance(value,dict) or value.get('policy')!='source-custom-shape-footprint-v1':continue
         base=path.rsplit('/',1)[0]
         material=facts.get(base+'/material') or {};parameters=facts.get(base+'/parameters') or {}
+        outline=_outline_term(material,parameters)
+        if outline is not None:terms.append(outline)
         if parameters.get('textured') or (material.get('texture') or {}).get('role')=='previous_main':
             notes.append(base+': textured shape copies the canvas (no new energy)');continue
         area=value.get('summed_nominal_area_fraction_per_aspect_y')
@@ -370,6 +372,44 @@ def _shape_terms(facts,notes):
         alpha=a0/3+2*a1/3
         terms.append((area,premultiplied,alpha,bool(parameters.get('additive') or material.get('additive'))))
     return terms
+
+
+OUTLINE_SAMPLES_PER_EDGE=32
+
+
+def _outline_term(material,parameters):
+    """A custom shape's outline as an element: (area fraction, premultiplied rgb, alpha, additive) or None.
+
+    The engine draws the outline (border_a > 0.0001) as a line strip through the polygon corners in the border
+    colour with the untextured shader, so it adds new light even when the fill samples the canvas. Corners sit at
+    x + rad*cos(t)*aspectY, y + rad*sin(t) in normalized device coordinates, so on screen the polygon has a circumradius
+    of rad*H/2 pixels. A line is 1 px wide; a thick outline is four 1-px passes offset by a pixel (2 px).
+    The covered area is the on-screen part of the perimeter times the width, over the reference frame.
+    """
+    rgba=material.get('border_vertex_rgba')
+    if material.get('border_draw_enabled') is False or not isinstance(rgba,list) or len(rgba)!=4:return None
+    alpha=_mid(rgba[3])
+    threshold=material.get('border_enable_threshold') if isinstance(material.get('border_enable_threshold'),(int,float)) else 1e-4
+    if alpha is None or alpha<=threshold:return None
+    values={k:_mid(parameters.get(k)) if isinstance(parameters.get(k),list) else parameters.get(k) for k in ('sides','rad','x','y','ang')}
+    if any(not isinstance(values[k],(int,float)) for k in ('sides','rad','x','y')):return None
+    sides=int(max(3,min(100,values['sides'])));angle=float(values['ang']) if isinstance(values['ang'],(int,float)) else 0.
+    width,height=REFERENCE;radius=abs(float(values['rad']))*height/2
+    cx=float(values['x'])*width;cy=(1-float(values['y']))*height
+    corners=[(cx+radius*math.cos(angle+2*math.pi*k/sides),cy+radius*math.sin(angle+2*math.pi*k/sides)) for k in range(sides+1)]
+    visible=0.
+    for (x0,y0),(x1,y1) in zip(corners,corners[1:]):
+        length=math.hypot(x1-x0,y1-y0);inside=0
+        for i in range(OUTLINE_SAMPLES_PER_EDGE):
+            t=(i+.5)/OUTLINE_SAMPLES_PER_EDGE;x=x0+(x1-x0)*t;y=y0+(y1-y0)*t
+            inside+=0<=x<=width and 0<=y<=height
+        visible+=length*inside/OUTLINE_SAMPLES_PER_EDGE
+    thickness=2. if material.get('thick_outline') else 1.
+    instances=parameters.get('instances') if isinstance(parameters.get('instances'),(int,float)) and parameters.get('instances')>0 else 1
+    area=min(1.,instances*visible*thickness/(width*height))
+    if area<=0:return None
+    rgb=[_clip(_mid(c)) if _mid(c) is not None else NEUTRAL for c in rgba[:3]];alpha=_clip(alpha)
+    return (area,[c*alpha for c in rgb],alpha,bool(parameters.get('additive') or material.get('additive')))
 
 
 def _border_terms(facts):

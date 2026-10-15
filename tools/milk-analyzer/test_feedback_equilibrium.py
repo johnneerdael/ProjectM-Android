@@ -257,6 +257,31 @@ def test_shape_with_a_previous_frame_texture_adds_no_light():
     assert len(E._shape_terms(facts, [])) == 1
 
 
+def test_shape_outline_adds_light_even_when_the_fill_is_textured():
+    # r257 Cradle of Life class: a textured fill copies the canvas (no new light), but the engine draws the outline
+    # (border_a > 0.0001) untextured in the border colour. Corners sit at rad*aspectY, rad in NDC, so the polygon has a
+    # circumradius of rad*H/2 px; a 1-px line over its on-screen perimeter is the covered area.
+    import math
+    base = '/analysis/visual_description/elements/0'
+    material = {'centre_vertex_rgba': [.9, .9, .9, 1.], 'perimeter_vertex_rgba': [.9, .9, .9, 1.], 'texture': {'role': 'previous_main'},
+                'border_vertex_rgba': [1., .5, 0., 1.], 'border_draw_enabled': True, 'thick_outline': False}
+    facts = {base + '/geometry': {'policy': 'source-custom-shape-footprint-v1', 'summed_nominal_area_fraction_per_aspect_y': .2},
+             base + '/material': material, base + '/parameters': {'sides': 100, 'rad': .5, 'x': .5, 'y': .5, 'instances': 1}}
+    terms = E._shape_terms(facts, [])
+    assert len(terms) == 1
+    area, premultiplied, alpha, additive = terms[0]
+    expected = 2 * 100 * (.5 * 270 / 2) * math.sin(math.pi / 100) / (480 * 270)
+    assert abs(area - expected) < 1e-9 and premultiplied == [1., .5, 0.] and alpha == 1. and not additive
+    material['thick_outline'] = True
+    assert abs(E._shape_terms(facts, [])[0][0] - 2 * expected) < 1e-9
+    # Entirely off screen (circumradius 2.2*H/2 = 297 px > 275 px, half the 480x270 diagonal): no light.
+    facts[base + '/parameters']['rad'] = 2.2
+    assert E._shape_terms(facts, []) == []
+    # Disabled outline: none.
+    facts[base + '/parameters']['rad'] = .5; material['border_draw_enabled'] = False
+    assert E._shape_terms(facts, []) == []
+
+
 def test_composite_colour_matrix_captures_channel_swaps(monkeypatch):
     # Grey flat probes cannot see a composite that swaps channels (ret = tex.zxy): a red canvas shows green.
     # Coloured flat probes give the response matrix that maps element colours to displayed colours.
