@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r358-v1",
+ "preset": "EoS - glowsticks v2 05 and proton lights (+Krash's beat code) _Phat_remix03 madhatter_v2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "15e71b26c05db5e22edb6570ff03e4e5b2e6784243f91ac182faab3dd1068e9f",
+  "prediction.json": "c4fc71d91f35d9eb30946ea6eb3b514609f1a21bde8f67068916d53805ceecf7",
+  "description.json": "ab662c6f636fd53a43a0b60505078a40bea196002527a81c826a752fa659b427",
+  "recipe.json": "0590f5f468d24fe4aaae067a75560febe772f7aba1ecba25157887336a3c8753",
+  "llm-look-description-v1.txt": "23f2d6ead7391e512d451824036bdf487faaf75e8ad40308516c0797e1fd9bb4"
+ },
+ "capture_result_sha256": "be6b2a06d29fc50d732205b4c017660d492b99ce101c2325ca461a025edb903f",
+ "review_measurements_v1": {
+  "prediction_luma": 0.042,
+  "screenshot_luma": 0.038,
+  "mean_rgb_prediction": [
+   0.127,
+   0.006,
+   0.15
+  ],
+  "mean_rgb_screenshot": [
+   0.112,
+   0.004,
+   0.152
+  ],
+  "blurred_luma_correlation": 0.297,
+  "mean_abs_frame_difference_60_149": [
+   0.0205,
+   0.0554
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "drifting/normal/vivid right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

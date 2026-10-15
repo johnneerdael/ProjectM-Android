@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r357-v1",
+ "preset": "TonyMilkdrop - RGB.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "289f8db60c740be27d24793a9ff3b23f5ea5b955693f69d4333ae9b95c6fe376",
+  "prediction.json": "1e5f972d558cabfa43b44cdbaea307ac1e75f141f8cb0ea82bd5dc69b32b51da",
+  "description.json": "c01f95e8bb776291f141e0865c2fe311824195b37b0f84263895c7e40d9ac3a4",
+  "recipe.json": "dd31f1875720c2cd8aafc936a202004e3024b39dc84e45414d5efb3baaffec88",
+  "llm-look-description-v1.txt": "8c25eff8a852951734c8f9fb556fc8e19a235fd3cf1a954b8b5f0f00ae6e31e6"
+ },
+ "capture_result_sha256": "83c5f941a59268692a819542de491ef03611a435bb085e3465c3ba2ac36bb72c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.049,
+  "screenshot_luma": 0.079,
+  "mean_rgb_prediction": [
+   0.045,
+   0.054,
+   0.004
+  ],
+  "mean_rgb_screenshot": [
+   0.076,
+   0.087,
+   0.015
+  ],
+  "blurred_luma_correlation": 0.681,
+  "mean_abs_frame_difference_60_149": [
+   0.0278,
+   0.015
+  ]
+ },
+ "agreements": [
+  "chill/dark right (real 0.08)"
+ ],
+ "misses": [
+  "dominant colour blue claimed; ruler leads green/orange"
+ ],
+ "verdict": "partial"
+}

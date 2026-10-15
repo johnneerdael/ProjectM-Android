@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r361-v1",
+ "preset": "fiShbRaiN - witchcraft (alcoholic remix).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "56765a54a5b4ea33ee2b256e1ad5534a62b774579b1efac9a3ea13aa4931b373",
+  "prediction.json": "8f93059a1d7244aee54d34cf61dae1b7d57eec37dd340885e63fd80aad2e3082",
+  "description.json": "49aa91ff190a24c1dccd2765ff89d411f7ee94a6ff564d2711a97b24c863844f",
+  "recipe.json": "cf9941a03a4d8f6b017e8e49339d404c2e1579ee79d4a21b87885cee86e6a007",
+  "llm-look-description-v1.txt": "83866808830c5f3dacadd2a7111c709f03b42d14db596f9c02c8064aeedd6544"
+ },
+ "capture_result_sha256": "ecc18890ba5d1e02e16c91cc797eae5bf3d83b1262d31c794702b50b3e16d7eb",
+ "review_measurements_v1": {
+  "prediction_luma": 0.008,
+  "screenshot_luma": 0.006,
+  "mean_rgb_prediction": [
+   0.007,
+   0.008,
+   0.007
+  ],
+  "mean_rgb_screenshot": [
+   0.006,
+   0.007,
+   0.006
+  ],
+  "blurred_luma_correlation": -0.025,
+  "mean_abs_frame_difference_60_149": [
+   0.01,
+   0.0011
+  ]
+ },
+ "agreements": [
+  "chill/dark/monochrome/still right (real 0.005, grey)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

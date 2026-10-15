@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r364-v1",
+ "preset": "$$$ Royal - Mashup (147).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "153d130ae794d22e3a70e0b19a7625dc19798837701341b2635e8894cd04866c",
+  "prediction.json": "38271525bd1bf6c38e5108a87b2a5e8533d52777fdcf224c4e0fa01f1e5a8c79",
+  "description.json": "20fdaf069d207444b0dc7fb3521d0ddf7198a09c22da54dd626453d8acd0d83c",
+  "recipe.json": "9e3d275595f8b29f5be80e00b873bb296bf1543afe00baa19b7e3e38b2fc9d9e",
+  "llm-look-description-v1.txt": "9586309184fda3aa9118a825ae934faf22dc7f7c050dcbe3e746af21e75f99a7"
+ },
+ "capture_result_sha256": "abf7a0d2306ebc57916d1234fe32d08e3ec06fd4deb8907b75c29f1ec6318828",
+ "review_measurements_v1": {
+  "prediction_luma": 0.221,
+  "screenshot_luma": 0.318,
+  "mean_rgb_prediction": [
+   0.221,
+   0.232,
+   0.111
+  ],
+  "mean_rgb_screenshot": [
+   0.344,
+   0.33,
+   0.128
+  ],
+  "blurred_luma_correlation": 0.973,
+  "mean_abs_frame_difference_60_149": [
+   0.035,
+   0.0903
+  ]
+ },
+ "agreements": [
+  "blue in ruler top-2",
+  "frame prediction corr 0.97"
+ ],
+ "misses": [
+  "no facet admitted"
+ ],
+ "verdict": "agree"
+}

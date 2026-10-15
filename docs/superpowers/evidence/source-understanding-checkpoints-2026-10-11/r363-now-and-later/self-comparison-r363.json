@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r363-v1",
+ "preset": "Esotic & Rozzer - Now And Later.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ed284dcd2e213c1099e4fd2ba6f3b2f57fb284fa9ed2d8e83a6822844fa74118",
+  "prediction.json": "36164e16bf7d0eb2c04324f86e03630231c5b93b15bba079f4961607e79d02f0",
+  "description.json": "74e0af594323d9be1db5f3564be9c640173209026e85f87974bac54d157172b7",
+  "recipe.json": "cd28b432813bb44046304811f2dc2281d82deef632c9737f3c465d9a500160f4",
+  "llm-look-description-v1.txt": "6bb9d347beb0a79735ba3deb7786dc6e4d89756ae844d2012b56e317343d919a"
+ },
+ "capture_result_sha256": "23434710ab8fd7e33a4532a1905a752d8589ae92528c7fcf08bdfa4467924e1c",
+ "review_measurements_v1": {
+  "prediction_luma": 0.611,
+  "screenshot_luma": 0.58,
+  "mean_rgb_prediction": [
+   0.741,
+   0.555,
+   0.792
+  ],
+  "mean_rgb_screenshot": [
+   0.71,
+   0.524,
+   0.756
+  ],
+  "blurred_luma_correlation": 0.975,
+  "mean_abs_frame_difference_60_149": [
+   0.036,
+   0.0279
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "bright/normal/pastel/still right",
+  "frame prediction corr 0.98"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}
