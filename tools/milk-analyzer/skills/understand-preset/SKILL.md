@@ -202,7 +202,8 @@ full recipe tens of thousands of lines long.
    more; out of fold it finds 76% of the engine's colours and 71% of named
    colours are present). Name one dominant colour only when `dominant_hue` is
    set (predicted top-colour share 0.65 or more); otherwise say there is no
-   dominant colour and describe the palette as a set. Name colours from its leading hues. With calibrated hue
+   dominant colour and describe the palette as a set. When `monochrome` is true the
+   palette is empty: describe the picture as grey, without hue names. Name colours from its leading hues. With calibrated hue
    shares present, the leading hue matches the engine's top two hues about 70%
    of the time; without them, about half the time. Say "likely", and with
    `random_tint` say the hue placement changes per load. The gap between the

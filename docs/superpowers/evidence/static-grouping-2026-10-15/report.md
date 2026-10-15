@@ -17,4 +17,4 @@ presets compared: 9606 (export errors 0); presets with no Mood option: 427
 | movement | fast | 89% | 60% | 1935 | 2837 |
 | comfort | no_strobe | 100% | 14% | 712 | 4969 |
 pooled: precision 93.3%, recall 54.2%
-dominant colour named for 1323 presets; palette for 9606
+dominant colour named for 1236 presets; palette for 9133

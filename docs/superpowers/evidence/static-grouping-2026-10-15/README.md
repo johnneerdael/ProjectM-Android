@@ -19,3 +19,9 @@ honest out-of-fold estimate is the scoreboard: about 79% precision and 41% recal
 behave like the out-of-fold figures.
 
 A dominant colour is named for 1,323 presets; every preset has a palette.
+
+Grey presets: 1,002 presets have an engine coloured share below 0.1. The first export named hues for all of them and
+a dominant colour for 16%. When the monochrome classifier admits a preset (93% precision out of fold, and in the export
+never admitted for a coloured preset), `display_palette` now returns an empty palette, no dominant colour and
+`monochrome: true` (test `test_display_palette_is_grey_when_monochrome_is_admitted`). In the index, 473 presets are
+grey; 9,133 carry a palette and 1,236 a dominant colour.

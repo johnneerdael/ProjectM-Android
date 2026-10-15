@@ -670,3 +670,19 @@ def test_stage_draws_give_memory_inputs_an_empty_buffer():
     draw = _stage_draw({'memory:global', 'q1'}, np.random.default_rng(0))
     assert isinstance(draw['memory:global'], Memory) and draw['memory:global'].read(5) == 0.
     assert isinstance(draw['q1'], float) and -3 <= draw['q1'] <= 3
+
+
+def test_display_palette_is_grey_when_monochrome_is_admitted():
+    # 1,002 presets are grey (coloured share < 0.1); the static palette named hues for all of them and a dominant
+    # colour for 16%. When the monochrome classifier admits the preset (93% precision out of fold, never admitted
+    # for a coloured preset in the corpus export), the palette is grey: no hue names and no dominant colour.
+    from preset_recipe import display_palette
+    stats = {f'hue_share_{k}': {'value': v} for k, v in {'green': .6, 'blue': .4}.items()}
+    stats['hue_top_share'] = {'value': .8}
+    stats['facet_monochrome_probability'] = {'value': .9, 'threshold': .72}
+    render = {'layers': [], 'feedback': {}, 'composite': {}}
+    grey = display_palette({'display_estimate': {'statistics': stats}, 'render': render})
+    assert grey['palette'] == [] and grey['dominant_hue'] is None and grey['monochrome'] is True
+    stats['facet_monochrome_probability'] = {'value': .5, 'threshold': .72}
+    coloured = display_palette({'display_estimate': {'statistics': stats}, 'render': render})
+    assert coloured['palette'] == ['green', 'blue'] and coloured['dominant_hue'] == 'green' and coloured['monochrome'] is False

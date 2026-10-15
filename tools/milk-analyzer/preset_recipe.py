@@ -471,7 +471,11 @@ def display_palette(recipe,times=COLOUR_TIMES):
     dominance=(stats.get('hue_top_share') or {}).get('value') if isinstance(stats.get('hue_top_share'),dict) else None
     palette=[k for k,v in final.items() if v>=PALETTE_NAME_SHARE]
     dominant=palette[0] if palette and type(dominance) in (int,float) and dominance>=DOMINANT_TOP_SHARE else None
-    return {'hue_shares':final,'palette':palette,'dominant_hue':dominant,
+    # An admitted monochrome classifier (93% precision out of fold) makes the palette grey: no hue names.
+    mono=stats.get('facet_monochrome_probability') if isinstance(stats.get('facet_monochrome_probability'),dict) else {}
+    monochrome=type(mono.get('value')) in (int,float) and type(mono.get('threshold')) in (int,float) and mono['value']>=mono['threshold']
+    if monochrome:palette,dominant=[],None
+    return {'hue_shares':final,'palette':palette,'dominant_hue':dominant,'monochrome':monochrome,
             'dominance':round(float(dominance),4) if type(dominance) in (int,float) else None,
             'sources':[{'source':n,'weight':round(w,3),'leading':max(s,key=s.get)} for n,s,w in sources],
             'random_tint':bool(composite.get('hue_shader') or composite.get('load_spread')),
