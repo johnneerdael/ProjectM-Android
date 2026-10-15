@@ -205,7 +205,11 @@ full recipe tens of thousands of lines long.
    two leading shares sets the confidence (out of fold): 0.08 or more, the
    lead is in the engine's top two 80% of the time; under 0.03, only 57%. For
    a gap under 0.03, name both hues as equals ("green and orange, neither
-   dominant") instead of a single lead.
+   dominant") instead of a single lead. `hue_top_share` estimates how much of
+   the colour the top family holds (engine: half of coloured presets have no
+   family above 40%, a third have three or more above 15%). Below about 0.4,
+   describe a mixed palette by its two or three leading hues; above about 0.55,
+   one colour dominates. The calibrated shares are already sharpened from it.
    Read shader `scalar_palette` records as the colour ramp content is shown
    through (black- and white-content colours are exact), and `flat_field` for
    the steady colour of flat regions (background) under a custom warp. Read

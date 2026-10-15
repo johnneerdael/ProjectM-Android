@@ -26,8 +26,29 @@ FACET_CLASSIFIER_OPTIONS=('dark','bright','monochrome','pastel','warm','cool','s
 FACET_PRECISION_FLOOR={'balanced':.7,'drifting':.7,'normal':.7,'pastel':.7}
 TARGETS={'mean_luminance':None,'mean_abs_frame_difference':'log1p10','mean_flow_screen_widths_per_s':'log1p10',
          'global_brightness_jumps_per_10s':'log1p','mean_saturation':None,'warm_cool':None,'coloured_share':None,
-         **{'hue_share_'+h:None for h in HUE_FAMILIES}}
+         **{'hue_share_'+h:None for h in HUE_FAMILIES},'hue_top_share':None}
 MISSING=-1e9
+
+
+PALETTE_MIN_COLOURED=.2
+PALETTE_POWERS=(1.,1.5,2.,2.5,3.,4.)
+
+
+def choose_palette_sharpening(concentration,predicted,truth,powers=PALETTE_POWERS):
+    """Sharpening power per quartile bin of the predicted top-colour share (out-of-fold inputs): the power whose
+    renormalised predicted palette overlaps the ruler palette most (overlap = sum of per-family minima)."""
+    import numpy as np
+    concentration=np.asarray(concentration,float)
+    P=np.clip(np.asarray(predicted,float),1e-4,None);P=P/P.sum(1,keepdims=True)
+    T=np.clip(np.asarray(truth,float),0,None);T=T/np.maximum(T.sum(1,keepdims=True),1e-12)
+    edges=[float(v) for v in np.quantile(concentration,[.25,.5,.75])]
+    bins=np.searchsorted(edges,concentration,side='right');chosen=[]
+    for b in range(len(edges)+1):
+        m=bins==b
+        def overlap(k):
+            Q=P[m]**k;Q=Q/Q.sum(1,keepdims=True);return float(np.minimum(Q,T[m]).sum(1).mean())
+        chosen.append(float(max(powers,key=overlap)) if m.any() else 1.)
+    return {'edges':edges,'powers':chosen,'policy':'quartiles of out-of-fold predicted top-colour share; power maximising palette overlap'}
 
 
 def _transform(value,kind):
@@ -74,6 +95,9 @@ def main(argv=None):
                 # Hue shares become one target per family (share of coloured pixels; 0 when absent).
                 shares=row.get('hue_shares') if isinstance(row.get('hue_shares'),dict) else {}
                 row.update({'hue_share_'+h:float(shares.get(h,0.)) for h in HUE_FAMILIES} if shares or row.get('coloured_share') is not None else {})
+                # Palette concentration: the top family's share of the hue histogram, for coloured presets only.
+                total=sum(float(v) for v in shares.values()) if shares else 0.
+                if total>0 and (row.get('coloured_share') or 0.)>PALETTE_MIN_COLOURED:row['hue_top_share']=max(float(v) for v in shares.values())/total
                 labels[row['preset']]=row
     excluded=set()
     for path in args.exclude:
@@ -138,6 +162,14 @@ def main(argv=None):
             held_rho=round(float(spearmanr(final.predict(X[[position[k] for k in held]]),yh).statistic),3)
         report['targets'][target]={'n':len(fit),'oof_spearman':spec['oof_spearman'],'excluded_n':len(held),'excluded_spearman':held_rho}
         for k,value in zip(fit,oof):oof_all.setdefault(k,{})[target]=float(value)
+        if target=='hue_top_share':
+            rows=[k for k in fit if all('hue_share_'+h in oof_all.get(k,{}) for h in HUE_FAMILIES)]
+            if rows:
+                position_fit={k:i for i,k in enumerate(fit)}
+                P=np.array([[oof_all[k]['hue_share_'+h] for h in HUE_FAMILIES] for k in rows])
+                T=np.array([[labels[k]['hue_share_'+h] for h in HUE_FAMILIES] for k in rows])
+                spec['sharpening']=choose_palette_sharpening(oof[[position_fit[k] for k in rows]],P,T)
+                report['targets'][target]['sharpening']=spec['sharpening']
         for k in held:oof_all.setdefault(k,{})[target]=float(final.predict(X[[position[k]]])[0])
         unlabelled=[n for n in names if n not in labels]
         if unlabelled:

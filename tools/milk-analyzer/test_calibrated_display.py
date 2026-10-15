@@ -51,3 +51,24 @@ def test_predict_reads_recipe_probe_columns_from_a_supplied_render():
         return {'layers': [], 'feedback': {'warp_detail_response': {'mean_luma': luma}}, 'composite': {}}
     assert math.isclose(predict({'facts': {}}, model, render=render(.02))['mean_luminance']['value'], .2)
     assert math.isclose(predict({'facts': {}}, model, render=render(.46))['mean_luminance']['value'], .6)
+
+
+def test_hue_shares_sharpen_by_the_predicted_top_colour_share():
+    # Calibrated hue shares are too flat on single-colour presets (overlap with the ruler palette 57% where its top
+    # colour exceeds 60%). The fit predicts the ruler's top-colour share and stores a sharpening power per bin of
+    # that prediction (out of fold: overlap 57.3% -> 66.0% on dominant palettes, 68.5% -> 69.7% overall). The order
+    # of colours never changes and the shares keep their total.
+    import calibrated_display as C
+    shares = {'red': .4, 'green': .3, 'blue': .3}
+    def model(top):
+        targets = {'hue_share_' + h: {'baseline': v, 'trees': [], 'residual_p10': 0., 'residual_p90': 0., 'oof_spearman': .6}
+                   for h, v in shares.items()}
+        targets['hue_top_share'] = {'baseline': top, 'trees': [], 'residual_p10': 0., 'residual_p90': 0., 'oof_spearman': .6,
+                                    'sharpening': {'edges': [.5], 'powers': [1., 2.]}}
+        return {'columns': [], 'label_source': 'x', 'targets': targets}
+    flat = C.predict({}, model(.3))
+    assert [round(flat['hue_share_' + h]['value'], 6) for h in shares] == [.4, .3, .3]
+    sharp = C.predict({}, model(.7))
+    values = [sharp['hue_share_' + h]['value'] for h in shares]
+    assert abs(sum(values) - 1.) < 1e-9 and values[0] > .4 and abs(values[0] - .16 / .34) < 1e-9
+    assert sharp['hue_top_share']['sharpening_power'] == 2.

@@ -24,7 +24,7 @@ MISSING=-1e9
 # Physical range of each statistic: estimates and residual intervals are clamped into it.
 DOMAINS={'mean_luminance':(0.,1.),'mean_abs_frame_difference':(0.,1.),'mean_saturation':(0.,1.),'warm_cool':(-1.,1.),
          'mean_flow_screen_widths_per_s':(0.,None),'global_brightness_jumps_per_10s':(0.,None),
-         'coloured_share':(0.,1.),**{'hue_share_'+h:(0.,1.) for h in ('red','orange','yellow','green','cyan','blue','purple','pink')}}
+         'coloured_share':(0.,1.),'hue_top_share':(0.,1.),**{'hue_share_'+h:(0.,1.) for h in ('red','orange','yellow','green','cyan','blue','purple','pink')}}
 _CACHE={}
 
 
@@ -67,7 +67,24 @@ def predict(summary,model=None,render=None):
         out[target]={'value':value,'interval':[min(low,high),max(low,high)],'oof_spearman':spec['oof_spearman'],
                      'evidence':'source-calibrated','label_source':model.get('label_source')}
         if type(spec.get('threshold')) in (int,float):out[target]['threshold']=spec['threshold']
+    sharpening=(model['targets'].get('hue_top_share') or {}).get('sharpening')
+    if sharpening and 'hue_top_share' in out:_sharpen_hue_shares(out,sharpening)
     return out
+
+
+def _sharpen_hue_shares(out,spec):
+    """Calibrated hue shares regress toward an even palette: on single-colour presets they overlap the ruler
+    palette only 57%. The predicted top-colour share selects a power per bin (fitted out of fold, maximising overlap
+    with the ruler palette); shares are raised to it and renormalised to their old total, so the colour order and
+    the total never change."""
+    edges,powers=spec.get('edges') or [],spec.get('powers') or [1.]
+    power=float(powers[min(len(powers)-1,sum(out['hue_top_share']['value']>=e for e in edges))])
+    out['hue_top_share']['sharpening_power']=power
+    keys=[k for k in out if k.startswith('hue_share_')]
+    values={k:max(0.,out[k]['value']) for k in keys};total=sum(values.values())
+    if power==1. or total<=0:return
+    powered={k:v**power for k,v in values.items()};scale=sum(powered.values())
+    for k in keys:out[k]['value']=total*powered[k]/scale
 
 
 def _inverse(raw,transform):

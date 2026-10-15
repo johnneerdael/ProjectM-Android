@@ -621,3 +621,17 @@ def test_pastel_classifier_is_held_to_a_seventy_percent_precision_floor():
     # buckets it is now thresholded where the classifier reaches at least 70% precision: fewer admissions, mostly right.
     import fit_display_calibration
     assert fit_display_calibration.FACET_PRECISION_FLOOR.get('pastel', 0.) >= .7
+
+
+def test_palette_sharpening_powers_are_chosen_per_concentration_bin():
+    # The fit chooses, per quartile of the predicted top-colour share, the power that maximises overlap with the
+    # ruler palette: one dominant colour wants sharpening, an even palette wants none.
+    import numpy as np
+    from fit_display_calibration import choose_palette_sharpening
+    rng = np.random.default_rng(0)
+    flat = np.tile([[.3, .25, .25, .2]], (400, 1))
+    truth = np.where(np.arange(400)[:, None] < 200, np.array([[.85, .05, .05, .05]]), np.array([[.26, .25, .25, .24]]))
+    concentration = np.where(np.arange(400) < 200, .8, .3) + rng.normal(0, .01, 400)
+    spec = choose_palette_sharpening(concentration, flat, truth)
+    assert len(spec['edges']) == 3 and len(spec['powers']) == 4
+    assert spec['powers'][0] == 1. and spec['powers'][-1] > 1.
