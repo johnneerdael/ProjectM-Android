@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r371-v1",
+ "preset": "amandio c - log tower 1 pig vomit 2mbuch4 dorqstre.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "21c770e80fb51c210b6dcce9d130e211f2548f37a7af723bb45b4ece31ab02a1",
+  "prediction.json": "2ae7e5845788bb2c191d74e06589ff8c9daf24705affc0814868bc4ba5446d47",
+  "description.json": "63e3f0daac72ff9a3fb63cd948dab2913edd6bd5c61869956066fba96a048beb",
+  "recipe.json": "5db14de1ea58b44c73480a0d36ce2d126307d9601dd203512b0cd65db0a2826a",
+  "llm-look-description-v1.txt": "679ba9d3a28d9521c43568686e07192ac198f216aa1f6989dbe56165c03a426c"
+ },
+ "capture_result_sha256": "0b349fb9e1e17fd34423ac3a9c303454f5640f05e7ad9f01f6b22e15818e9014",
+ "review_measurements_v1": {
+  "prediction_luma": 0.153,
+  "screenshot_luma": 0.089,
+  "mean_rgb_prediction": [
+   0.145,
+   0.156,
+   0.153
+  ],
+  "mean_rgb_screenshot": [
+   0.075,
+   0.094,
+   0.087
+  ],
+  "blurred_luma_correlation": 0.565,
+  "mean_abs_frame_difference_60_149": [
+   0.0847,
+   0.165
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "intense right"
+ ],
+ "misses": [
+  "calibrated luminance 0.27 vs 0.51"
+ ],
+ "verdict": "agree"
+}

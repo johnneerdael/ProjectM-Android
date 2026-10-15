@@ -1,0 +1,28 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r374-v1",
+ "preset": "345.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "74a6ebcb31251853099a966093e5fc89c85c28e98d279b08fa55104fa562ff98",
+  "description.json": "b667b5d445188c514d0986296f1ca715dbd92093a7277e7ffa4f0b8c1aab5c08",
+  "recipe.json": "17ff685e768e8507c78712e8b220f0a1a0bb129612891e12a9543c14c727cf13",
+  "llm-look-description-v1.txt": "0a62e707a044db21e4a2c8e1d477fa7c064e33bace653d50b156c2521dbdbbc0"
+ },
+ "capture_result_sha256": "a1be5949703580ae62ca02a8098e3d396e8dd6fa729f6a7574bf0a6b70a62c55",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.077,
+   0.1156
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "fast/intense right"
+ ],
+ "misses": [
+  "frame prediction image black while clip 0.36"
+ ],
+ "verdict": "agree"
+}

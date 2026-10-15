@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r367-v1",
+ "preset": "Rozzor & Esotic - PPL (NWI) Mandala Chill Color Reactive Texture Tweaked.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "08af0025e2121d2acaf2fd289f42843ec1a7b76fabb3c6c26757f185f0e67383",
+  "prediction.json": "13ca09234e83c1cd5fc771ad30f75408b7fa2ce386342b82bae8a2bb19b1e833",
+  "description.json": "2310c0ab55eb47f433246b4a4b5b69c226fbb07047ccdc66dd31a8df7f9e44c5",
+  "recipe.json": "1248a7b4ba40084f25333fc50de2f1fd34f9e33f03cd4152ad3e113052374310",
+  "llm-look-description-v1.txt": "26d0bf4a4bd21c78bd8bdaff46dbd50a7be863493603f55a4e72a815d5197024"
+ },
+ "capture_result_sha256": "c99f88cfb4f2487a92832a51dacd8690cd385d9c5238c8622d1d3cdf365201da",
+ "review_measurements_v1": {
+  "prediction_luma": 0.416,
+  "screenshot_luma": 0.408,
+  "mean_rgb_prediction": [
+   0.8,
+   0.32,
+   0.231
+  ],
+  "mean_rgb_screenshot": [
+   0.77,
+   0.318,
+   0.233
+  ],
+  "blurred_luma_correlation": 0.868,
+  "mean_abs_frame_difference_60_149": [
+   0.0248,
+   0.0275
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "chill/still/vivid right",
+  "frame prediction corr 0.87"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

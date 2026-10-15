@@ -1,0 +1,13 @@
+Approximate look (static source facts only, nothing rendered): a mostly dark, calm screen on which one colourful triangle sweeps around and leaves a persistent, mirror-symmetric painted trail, with a faint scatter of dots behind it.
+
+Main element: a single three-sided shape. Its centre follows a looping Lissajous-type path across most of the screen (x between 0.1 and 0.9 with a period of about 12.6 s, y between 0.1 and 0.9 with a period of about 6.3 s). Its centre colour changes over time through several hues (samples run from red-pink to violet-blue to green), while its outline is a very dark green (0, 0.09, 0), so it looks like a soft glowing fill with a dark edge. Bass drives its radius (clamped) and adds rotation, so it should pulse in size and twist with kicks. Its size at rest is unresolved.
+
+Trails: the feedback decay is 1, meaning nothing fades by itself, and stored white never decays. Drawn marks should therefore pile up and linger, and the composite brightens the result by up to about 2x. The path should build into overlapping looping streaks rather than a single moving shape. The only erasing source is a thin black border (about 0% of the screen), so very little is cleared. Uncertain: how long the trail really lasts, since the half-life is not resolved.
+
+Symmetry and warp: the composite adds a left-right mirrored copy at 50% opacity with 1.007x zoom, so the picture should be roughly mirror-symmetric about the vertical centre line. The mesh warp is small: a three-lobed angular ripple of about 0.2% that turns slowly (about 0.33 rad/s), plus a small warp value of 0.01. Expect a gentle three-fold wobble, not strong swirling.
+
+Background detail: a stereo X-Y waveform drawn as dots in a muted tan-orange (0.5, 0.4, 0.3) at a very low alpha (about 0.02), so it is a faint haze that follows the audio, easily lost behind the triangle trail.
+
+Overall: estimated luminance is about 0.25 (range 0.07 to 0.47), moderate saturation (about 0.42), with green leading (about 30%), then blue, orange and red, no dominant hue. Estimated activity is Chill, probably (still facet probability 0.62, chill 0.74), with low flow of about 0.08 screen widths per second.
+
+Flashing: the no-strobe probability is about 0.82 and brightness jumps are under about 4 per 10 s, so mostly steady with possible occasional pulses.

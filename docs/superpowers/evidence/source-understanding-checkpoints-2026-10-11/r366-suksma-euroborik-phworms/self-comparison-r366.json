@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r366-v1",
+ "preset": "suksma - euroborik phworms.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "69f92e7f28538e903a30d2edbb913f1056220b8055c0f7c07acab789cf17c9eb",
+  "prediction.json": "a5160bdb74ea4cf29aff363715ae92cfad27ec8c5da1db734bac5ec04080899e",
+  "description.json": "85cd1bd32825a96df9eb924cb25d88b341e5b6dcbe85472c52bb9f527070d394",
+  "recipe.json": "29a249027046e80c8dd80888a314a12e8bebe37598903baf26981284c8ebb224",
+  "llm-look-description-v1.txt": "7ebb9d28d63c06854250f0a5db181756512ae50a24f2ff804361d779e663a8f1"
+ },
+ "capture_result_sha256": "c11bbf32d792cd94abbffa2f81c8ca3210ec5ef51c2d03e7678a31dd38d9069f",
+ "review_measurements_v1": {
+  "prediction_luma": 0.459,
+  "screenshot_luma": 0.341,
+  "mean_rgb_prediction": [
+   0.571,
+   0.44,
+   0.32
+  ],
+  "mean_rgb_screenshot": [
+   0.233,
+   0.36,
+   0.46
+  ],
+  "blurred_luma_correlation": 0.35,
+  "mean_abs_frame_difference_60_149": [
+   0.0699,
+   0.0888
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "cool/drifting/intense right"
+ ],
+ "misses": [
+  "vivid wrongly admitted; calibrated luminance 0.23 vs 0.66"
+ ],
+ "verdict": "partial"
+}

@@ -1,0 +1,27 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r370-v1",
+ "preset": "Slow transition to black - gas effect + zoom out === amandio c - magnetosphere --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "f425eb40f9b9ec25347c54b28360d9bd529d8056ca725944e7a60dc521eb0636",
+  "description.json": "fbe98d551ac3c5c4707e6c59ff6ccf603b26b96dda58cd44379de2afc26939dd",
+  "recipe.json": "ad674c5388116f29bdac04f2503a8e6dff0939adf64fa4d37a8de295d6a26ecc",
+  "llm-look-description-v1.txt": "fcb5566be6382aed6162ad487ac442b20e5203c0cda01f97a081ad04af7096fb"
+ },
+ "capture_result_sha256": "a8937451c84ecfc8dc078db281429e5bb8da69fb2112629ec206fd56627ea202",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.0199,
+   0.0
+  ]
+ },
+ "agreements": [
+  "chill/still right"
+ ],
+ "misses": [
+  "calibrated luminance 0.30 vs real 0.0 (slow transition to black); dark omitted"
+ ],
+ "verdict": "agree"
+}

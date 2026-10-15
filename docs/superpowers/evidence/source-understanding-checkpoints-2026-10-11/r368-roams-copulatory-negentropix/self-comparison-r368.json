@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r368-v1",
+ "preset": "Flexi - ininity tap convolution roams copulatory negentropix nz.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "95b6b2ec144680baef85cb392dcfdacf6c2b6499ef352c1c0724e3fb39072551",
+  "prediction.json": "6b95465d7a92628f46c8e339a635ee19804c9f85a665ad7682028cfbe47c3a33",
+  "description.json": "bc3fc75062ec647a778b8ec6a39c1125748f89b39147cff469ce9db6795a3ce6",
+  "recipe.json": "955def09212a4f9e5a38f08fd4ceda6261ed8f79a6fb047f8f2b5730a986ecef",
+  "llm-look-description-v1.txt": "dcd389337a92704dcc96b8812d5469e70d12e4c84d1ad67dce184696e360e3d9"
+ },
+ "capture_result_sha256": "e73fa36d90ee61bfe57bdc53fa6fa8fe52f050152fa9a5d6fb96cd2a2ba22887",
+ "review_measurements_v1": {
+  "prediction_luma": 0.021,
+  "screenshot_luma": 0.018,
+  "mean_rgb_prediction": [
+   0.025,
+   0.02,
+   0.018
+  ],
+  "mean_rgb_screenshot": [
+   0.023,
+   0.017,
+   0.013
+  ],
+  "blurred_luma_correlation": 0.831,
+  "mean_abs_frame_difference_60_149": [
+   0.0248,
+   0.0157
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "chill/dark right (real 0.014)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

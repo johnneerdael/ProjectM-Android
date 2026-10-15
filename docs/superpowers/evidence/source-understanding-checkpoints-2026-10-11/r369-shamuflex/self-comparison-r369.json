@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r369-v1",
+ "preset": "shamuflex.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0d0c84822d748661c81ec4b5f8f4db9480b2ab49a38b3fdfcf2771b4f04ec2ea",
+  "prediction.json": "ac720267302d7cce4752dfb7b945d3efaf89b59f7f579b88bf955589a39e47fe",
+  "description.json": "83b4f4be241ea67be6f5d722194dafac67eb9b91a22adf1e2707678e80eddf86",
+  "recipe.json": "cc7fce402035298e8494bc2ee4d738cc9ec8b976a59da951ad3ec77630a2549a",
+  "llm-look-description-v1.txt": "8d748edec1facb79589282c10cbeb73dca2ffd171b41b71870b4195477bb5048"
+ },
+ "capture_result_sha256": "68466836fb42402c8c78a61fe0f34e4329d1f85d164d512cdf66c4b63c544b5e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.039,
+  "screenshot_luma": 0.11,
+  "mean_rgb_prediction": [
+   0.038,
+   0.041,
+   0.018
+  ],
+  "mean_rgb_screenshot": [
+   0.11,
+   0.115,
+   0.065
+  ],
+  "blurred_luma_correlation": 0.434,
+  "mean_abs_frame_difference_60_149": [
+   0.046,
+   0.0628
+  ]
+ },
+ "agreements": [
+  "palette blue,green,yellow with no dominant colour (stricter rule)"
+ ],
+ "misses": [
+  "no facet admitted; calibrated luminance 0.42 vs 0.13"
+ ],
+ "verdict": "agree"
+}
