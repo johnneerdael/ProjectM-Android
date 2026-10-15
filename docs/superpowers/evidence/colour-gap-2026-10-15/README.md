@@ -230,3 +230,10 @@ is a Julia iteration (u → u² + c, c = 0.448 + 0.701i) with clamped reads, so 
 opaque black inner border. The prototype evaluates the warp once on a canvas that is 1 in the outer band and 0 inside.
 Corpus-wide, high inflow with an opaque black border is not darker (ruler 0.319 at inflow ≥ 0.5 vs 0.285 below 0.05),
 and the r15 model is unbiased in every inflow bin. Not adopted; r278 is logged as an individual case.
+
+r16 refit (regenerated descriptors with the outline equilibrium and detail gain; Pastel floor). Out of fold it is
+level with r15: frame difference 0.729 → 0.732, flow 0.694 → 0.696, luminance 0.696 → 0.695, hue shares ±0.007.
+Facet precision and recall move a point or two either way: monochrome recall 27% → 30%, cool 47% → 50%, still
+39% → 36%, bright 62% → 61%. The No strobe margin shrinks: a strobing preset now scores 0.923 against the 0.93 gate,
+where r15p had a 0.024 margin. Not shipped: r15p stays. The A/B lifts of Step 7 (+0.002 / +0.006) are within refit
+noise, which confirms that random-round fixes have reached diminishing returns.
