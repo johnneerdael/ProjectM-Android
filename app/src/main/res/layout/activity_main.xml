@@ -167,6 +167,16 @@
                 android:src="@drawable/ic_skip_next" />
         </LinearLayout>
 
+        <com.example.projectm.visualizer.OptionRow
+            android:id="@+id/row_favorite_current"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.example.projectm.visualizer.OptionRow
+            android:id="@+id/row_play_favorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

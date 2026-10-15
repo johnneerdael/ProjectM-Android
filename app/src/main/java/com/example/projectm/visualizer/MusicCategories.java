@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 final class MusicCategories {
     interface Counts { int count(String id); }
-    private static final String[] IDS = {"all", "chill", "normal", "intense", "custom"};
-    private static final String[] LABELS = {"All", "Chill", "Normal", "Intense", "Custom"};
+    private static final String[] IDS = {"all", "chill", "normal", "intense", "custom", "favorites"};
+    private static final String[] LABELS = {"All", "Chill", "Normal", "Intense", "Custom", "Favorites"};
 
     static String normalize(String id) {
-        if ("facets".equals(id)) return id;  // the Mood panel's facet pool
+        if ("facets".equals(id) || "favorites".equals(id)) return id;
         for (String candidate : IDS) if (candidate.equals(id)) return id;
         return "all";
     }

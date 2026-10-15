@@ -70,6 +70,7 @@ public class MainActivity extends Activity {
     private static final String PREFS = "projectm_settings";
     private static final String PREF_AUTO_CHANGE = "auto_change_enabled";
     private static final String PREF_MUSIC_CATEGORY = "music_category";
+    private static final String PREF_FAVORITES = "favorite_presets";
     private static final String PREF_BEAT_CUTS = "beat_cuts";
     private static final String PREF_TRACK_ACCESS_EXPLAINED = "track_access_explained";
     private static final String PREF_TRACK_INFO = "track_info";
@@ -157,6 +158,9 @@ public class MainActivity extends Activity {
     private View diagnosticsPanel;
     private TextView presetName;
     private TextView presetMeta;
+    private OptionRow favoriteCurrentRow;
+    private OptionRow playFavoritesRow;
+    private OptionRow autoChangeRow;
     private TextView statusLine;
     private TextView diagnostics;
     private AudioMeterView audioMeter;
@@ -179,6 +183,9 @@ public class MainActivity extends Activity {
     private Menu menu = Menu.NONE;
     private int lastPresetChange = -1;
     private String currentPreset = "";
+    private String currentPresetPath = "";
+    private boolean favoritesPlaying;
+    private boolean favoritesPreviousAutoChange;
 
     private final Runnable hideMenu = () -> showMenu(Menu.NONE);
     private final Runnable audioMeterRefresh = new Runnable() {
@@ -471,6 +478,12 @@ public class MainActivity extends Activity {
         findViewById(R.id.random_preset_button).setOnClickListener(v -> ProjectMJNI.randomPreset(true));
         findViewById(R.id.next_preset_button).setOnClickListener(v -> ProjectMJNI.nextPreset(true));
 
+        favoriteCurrentRow = findViewById(R.id.row_favorite_current);
+        playFavoritesRow = findViewById(R.id.row_play_favorites);
+        favoriteCurrentRow.setupAction("Favorite current visualizer", "Add", this::toggleCurrentFavorite);
+        playFavoritesRow.setupAction("Favorites collection", "Play", this::toggleFavoritesPlayback);
+        updateFavoriteRows();
+
         installRow = findViewById(R.id.row_install_update);
         installRow.setupAction("Update ready", "", () -> {
             if (!updater.install(this)) {
@@ -487,15 +500,11 @@ public class MainActivity extends Activity {
             audioInputRow.setupAction("Audio input", tvAudio.label(), tvAudio::choose);
         }
 
-        OptionRow autoChange = findViewById(R.id.row_auto_change);
-        autoChange.setup("Auto change", new String[]{"Off", "On"},
-                prefs.getBoolean(PREF_AUTO_CHANGE, true) ? 1 : 0, true, index -> {
-                    ProjectMJNI.setAutoChange(index == 1);
-                    prefs.edit().putBoolean(PREF_AUTO_CHANGE, index == 1).apply();
-                });
+        autoChangeRow = findViewById(R.id.row_auto_change);
+        updateAutoChangeRow();
 
         musicCategoryRow = findViewById(R.id.row_music_category);
-        musicCategoryRow.setupAction("Preset mood", "›", () -> showMenu(Menu.MOOD));
+        musicCategoryRow.setupAction("Preset mood", "›", this::showMoodMenu);
         refreshMusicCategory();
 
         // Mood panel
@@ -893,6 +902,11 @@ public class MainActivity extends Activity {
      */
     private void refreshMusicCategory() {
         if (musicCategoryRow == null || customPackCommitting || mood == null) return;
+        if (favoritesPlaying) {
+            displayedMusicCategory = "favorites|" + ProjectMJNI.getSkippedCount();
+            musicCategoryRow.setActionValue("Favorites playing  ›");
+            return;
+        }
         String applied = MusicCategories.appliedSelection(requestedMusicCategory,
                 ProjectMJNI.getMusicCategory(), ProjectMJNI.isMusicCategoryPending());
         if (!ProjectMJNI.isMusicCategoryPending() && !applied.equals(requestedMusicCategory)) {
@@ -921,6 +935,89 @@ public class MainActivity extends Activity {
             return selection == null ? "All" : numberFormat.format(selection.poolSize()) + " presets";
         }
         return MusicCategories.label(applied);
+    }
+
+    private Set<String> favoritePresets() {
+        return new HashSet<>(prefs.getStringSet(PREF_FAVORITES, Collections.<String>emptySet()));
+    }
+
+    private void saveFavorites(Set<String> favorites) {
+        prefs.edit().putStringSet(PREF_FAVORITES, new HashSet<>(favorites)).apply();
+        ProjectMJNI.setFavorites(favorites.toArray(new String[0]));
+        if (favoritesPlaying && favorites.isEmpty()) stopFavoritesPlayback();
+        updateFavoriteRows();
+    }
+
+    private void toggleCurrentFavorite() {
+        if (currentPresetPath == null || currentPresetPath.isEmpty()) {
+            Toast.makeText(this, "The current visualizer is not ready yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Set<String> favorites = favoritePresets();
+        if (!favorites.remove(currentPresetPath)) favorites.add(currentPresetPath);
+        saveFavorites(favorites);
+    }
+
+    private void showMoodMenu() {
+        if (favoritesPlaying) {
+            Toast.makeText(this, "Stop the Favorites collection before changing the preset mood", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        showMenu(Menu.MOOD);
+    }
+
+    private void toggleFavoritesPlayback() {
+        if (favoritesPlaying) {
+            stopFavoritesPlayback();
+            return;
+        }
+        Set<String> favorites = favoritePresets();
+        if (favorites.isEmpty()) {
+            Toast.makeText(this, "Add a visualizer to Favorites first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ProjectMJNI.setFavorites(favorites.toArray(new String[0]));
+        if (ProjectMJNI.getCategoryPresetCount("favorites") == 0) {
+            Toast.makeText(this, "No saved favorites are available in the installed collection", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        favoritesPreviousAutoChange = prefs.getBoolean(PREF_AUTO_CHANGE, true);
+        ProjectMJNI.setAutoChange(true);  // collection playback advances even if normal auto-change is off
+        favoritesPlaying = true;
+        updateAutoChangeRow();
+        requestedMusicCategory = "favorites";
+        ProjectMJNI.setMusicCategory("favorites");
+        updateFavoriteRows();
+    }
+
+    private void stopFavoritesPlayback() {
+        if (!favoritesPlaying) return;
+        favoritesPlaying = false;
+        ProjectMJNI.setAutoChange(favoritesPreviousAutoChange);
+        updateAutoChangeRow();
+        mood.apply();  // restore the saved All, Custom or mood selection
+        requestedMusicCategory = prefs.getString(PREF_MUSIC_CATEGORY, "all");
+        updateFavoriteRows();
+    }
+
+    private void updateFavoriteRows() {
+        if (favoriteCurrentRow == null || playFavoritesRow == null) return;
+        Set<String> favorites = favoritePresets();
+        boolean currentIsFavorite = currentPresetPath != null && favorites.contains(currentPresetPath);
+        favoriteCurrentRow.setActionValue(currentIsFavorite ? "Remove" : "Add");
+        playFavoritesRow.setActionValue((favoritesPlaying ? "Stop" : "Play") + "  ·  "
+                + numberFormat.format(favorites.size()));
+    }
+
+    private void updateAutoChangeRow() {
+        if (autoChangeRow == null) return;
+        boolean selected = favoritesPlaying || prefs.getBoolean(PREF_AUTO_CHANGE, true);
+        autoChangeRow.setup("Auto change", new String[]{"Off", "On"}, selected ? 1 : 0, true, index -> {
+            boolean enabled = index == 1;
+            ProjectMJNI.setAutoChange(enabled);
+            prefs.edit().putBoolean(PREF_AUTO_CHANGE, enabled).apply();
+            if (favoritesPlaying) favoritesPreviousAutoChange = enabled;
+        });
     }
 
     /** Loads the facet table (official collection first, else the bundled one) when its source changed. */
@@ -1160,6 +1257,7 @@ public class MainActivity extends Activity {
         if (change != lastPresetChange) {
             lastPresetChange = change;
             currentPreset = displayName(ProjectMJNI.getCurrentPresetName());
+            currentPresetPath = ProjectMJNI.getCurrentPresetName();
             if (!currentPreset.isEmpty()) {
                 setText(presetName, currentPreset);
                 presetName.setSelected(true);  // start marquee for long names
@@ -1171,6 +1269,7 @@ public class MainActivity extends Activity {
         int skipped = ProjectMJNI.getSkippedCount();
         String mode = quality.isAuto() ? "auto" : quality.isNative() ? "native" : "fixed";
         if (menu == Menu.MAIN) {
+            updateFavoriteRows();
             setText(presetMeta, numberFormat.format(ProjectMJNI.getPresetCount()) + " presets in rotation"
                     + (skipped > 0 ? "  ·  " + numberFormat.format(skipped) + " skipped" : ""));
             setText(statusLine, String.format(Locale.US, "%5.1f fps  ·  %s %s",
