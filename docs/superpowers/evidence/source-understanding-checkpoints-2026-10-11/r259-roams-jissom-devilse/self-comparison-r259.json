@@ -1,0 +1,27 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r259-v1",
+ "preset": "if it's good enough for me to save, it's dead enough for you to re-m flx roams jissom devilse.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "cb97a99b7022df10adeb1dea630738798b107f2821108ec8583a4d6ccd7f394d",
+  "description.json": "d96ffa6bff2bd2321b91af91d6c64ecd9dbee5ead4424f50f3bd11ece58ed7be",
+  "recipe.json": "b6758796c464d56e581413cc11ce55d13272da8ef37cd0a447c65648efbcd505",
+  "llm-look-description-v1.txt": "232b67e7227b7d33e20f55ceebd39c74f3a011fa317aa5feca308fe0b23eacf1"
+ },
+ "capture_result_sha256": "61578a3971e113982b1238f22cc7b2ba841f661361377d34317db81d8198c110",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.0067,
+   0.0
+  ]
+ },
+ "agreements": [
+  "dark/monochrome/chill/still right (real black 0.0)"
+ ],
+ "misses": [
+  "calibrated luminance 0.06 vs 0.0"
+ ],
+ "verdict": "agree"
+}

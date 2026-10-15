@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r258-v1",
+ "preset": "amandio c - typhoon season - shf fab tetragrammaton structure, prime number resonance coriolis, wolfram fractal info xfer nz.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e5c28e06136a17efaddc3e2de5b5e3cadc245dda8a6d39b0a50e2a0ac9f82443",
+  "prediction.json": "7edd27615ceae2c169e43ef15c57ff81854c28427524848351f88a39b0b8321d",
+  "description.json": "b6b90ad23c6ac6fb6b58356200420a9bf0eb69d3c24762078e49fc0034328866",
+  "recipe.json": "a8534cb0cdbfb632109a17ce0351507a64977baae9b1f76efcca5841348e4d11",
+  "llm-look-description-v1.txt": "1d079996687a5769fb1e94e01780f121767c1469f7ac35f17bad8fde1ba1d04f"
+ },
+ "capture_result_sha256": "346b64f75be2905c6919d1c6c89f1d042712e0cea7016916de135dfe261145cc",
+ "review_measurements_v1": {
+  "prediction_luma": 0.166,
+  "screenshot_luma": 0.174,
+  "mean_rgb_prediction": [
+   0.322,
+   0.133,
+   0.035
+  ],
+  "mean_rgb_screenshot": [
+   0.327,
+   0.142,
+   0.037
+  ],
+  "blurred_luma_correlation": 0.994,
+  "mean_abs_frame_difference_60_149": [
+   0.0194,
+   0.0069
+  ]
+ },
+ "agreements": [
+  "orange/red right",
+  "chill/still/vivid/warm right",
+  "frame prediction corr 0.99"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

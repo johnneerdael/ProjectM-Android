@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r264-v1",
+ "preset": "Stahlregen + Amandio C - Rototranslate difference layers 2 + on dotes - flacc(2).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f02d2abb9f44f1638924f963cdd20524c3dbe732e8f4ce004ac7eef9379bde69",
+  "prediction.json": "67839153b884737a769aa841dc501a92cb9c2f34654cdf331baaff9cda0ce268",
+  "description.json": "baf7cf60d2214251cd1b1e868439fc4d7316857180e536c4dec549eb8f6b0d30",
+  "recipe.json": "4bbbf496ca6f2b5d1df3237f21c828127702d9dd1538de41a7b8a585848f4581",
+  "llm-look-description-v1.txt": "966090c70eba6bef3668564bd9ece47e0714d219c5d18fb2a284719fbff29711"
+ },
+ "capture_result_sha256": "9440d82a4e7bdc386d9cb1b1979984f85871409b23b3a8a9943354c3741db256",
+ "review_measurements_v1": {
+  "prediction_luma": 0.328,
+  "screenshot_luma": 0.562,
+  "mean_rgb_prediction": [
+   0.374,
+   0.309,
+   0.389
+  ],
+  "mean_rgb_screenshot": [
+   0.554,
+   0.565,
+   0.564
+  ],
+  "blurred_luma_correlation": 0.303,
+  "mean_abs_frame_difference_60_149": [
+   0.1005,
+   0.1125
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "balanced/drifting/intense right",
+  "flicker kept out (p 0.01, 90 jumps)"
+ ],
+ "misses": [
+  "pastel wrongly admitted"
+ ],
+ "verdict": "partial"
+}

@@ -1,0 +1,13 @@
+Likely look: a mid-bright, strongly coloured, pink-and-purple picture that is churned constantly by feedback rather than showing any crisp drawn object.
+
+Colour and brightness: the composite pushes the canvas through a steep pink/magenta ramp (dim canvas shows as purple-blue, brighter canvas as pink, near-white at the top). Detail response is about 92% coloured, mostly pink (86%) and purple (14%). The calibrated pooled hue shares put pink first (about 0.45), then purple (0.24), blue and red (about 0.12 each) and a little orange. Pink leads clearly, with purple second. Estimated mean luminance is about 0.18 (wide uncertainty, 0.002 to 0.40), so a moderately dim to middling picture rather than a bright one. Saturation is high, about 0.71. Warm versus cool is balanced (about -0.04). The facets mark it neither dark nor bright, so brightness is uncertain.
+
+Structure: there are no clear discrete figures. Three huge four-sided shapes (radius about 2.67, far larger than the screen, centred at 0.5, 0.5) copy the previous frame back onto itself with a tint, and one of them zooms the copy to about 0.37. Together with three 512-point custom waveforms (white, authored colour) these seed a recursive, droste-like or tunnel-like feedback texture. The waveform shapes themselves are not resolved, so I can't say where the lines sit.
+
+Motion: the warp turns the picture by a large amount each step (between -1.5 and +2.3 rad per feedback step), with a zoom that varies by distance from the centre. Trails are very short, with a half-life of under two frames (gain 0.68). The image should be a fast, swirling, smeared pattern rather than long ghost trails. The estimated flow is about 0.2 screen widths per second, which is fairly active. Activity falls in the Normal to Intense range.
+
+Audio: bass, mid and treble (raw and smoothed) all feed the warp's translation, so the whole picture slides and jitters with the music. Bass also changes the shape texture zoom. How strong these effects are is unknown, and the routes are thresholded or clamped.
+
+Flashing: the no-strobe probability is only about 0.10, with an estimated 2.6 global brightness jumps per 10 s (range 0.2 to 12). Expect occasional to fairly frequent pulses and flicker, so it is not strobe-free.
+
+Uncertain: actual brightness, the waveform layout, and how much of the screen the pink ramp covers.

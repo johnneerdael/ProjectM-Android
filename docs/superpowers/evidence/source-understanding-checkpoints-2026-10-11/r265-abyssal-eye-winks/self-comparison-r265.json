@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r265-v1",
+ "preset": "suksma - cultivating quorum sensing magick bacteria - thorn into mythothrallmaen nz+ abyssal eye winks.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e997c924435a9ecf974f06851c32780fc7ef1909cbfc9ed7226c8c9b75799ba9",
+  "prediction.json": "9d3cbd1ff78325beeac2e937e5adec8616ddb3621596597c7f827a55a02b30f1",
+  "description.json": "51a66bef8649d99bcbdb05bb8b4c4568e6daccc650716b720d77aca7e44dc636",
+  "recipe.json": "894f1afe976abe9a3d4b2bec5b733ecc55e52ad0c508d236d5a3e34f23f947db",
+  "llm-look-description-v1.txt": "225b8372638c5876b9e75e978da1cb4a98dc9f455b3b695efdb8bdb26b604635"
+ },
+ "capture_result_sha256": "2836cdb3e419775221bfd0dc05e0aabf62c2dd422c2f286dbeccbd24d1100692",
+ "review_measurements_v1": {
+  "prediction_luma": 0.517,
+  "screenshot_luma": 0.408,
+  "mean_rgb_prediction": [
+   0.552,
+   0.517,
+   0.42
+  ],
+  "mean_rgb_screenshot": [
+   0.46,
+   0.406,
+   0.262
+  ],
+  "blurred_luma_correlation": 0.704,
+  "mean_abs_frame_difference_60_149": [
+   0.1535,
+   0.1767
+  ]
+ },
+ "agreements": [
+  "balanced/drifting/intense right",
+  "flicker kept out (p 0.00, 137 jumps)"
+ ],
+ "misses": [
+  "hue near-tie (green vs ruler blue/pink)"
+ ],
+ "verdict": "agree"
+}

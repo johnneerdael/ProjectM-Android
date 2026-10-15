@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r260-v1",
+ "preset": "ORB - Neon Nebula.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9df5801178efbcfb1dee77bbbd649423e81f77f32a4c4a79480302fac2c1fc38",
+  "prediction.json": "1a39ab95b12cf978536f45a687abd48bda64333622c4ca374de2d0994bb24c12",
+  "description.json": "4569953e67ddfa7a1bccc01f5bb2676c07a4910b93386e94c3e50674828048f2",
+  "recipe.json": "c763c029dec64373c3bb1d34b4702bc4bb2175759dfae3970c1813e7635a105c",
+  "llm-look-description-v1.txt": "dbc595754138923558868787c6a79dbc9915f1fa6c1b9e8a0a29532f45a70f4d"
+ },
+ "capture_result_sha256": "60700f0178dbf4b2d3ffcfee1e0798114f6bd5a2c622903bbd671587b23f265b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.392,
+  "screenshot_luma": 0.388,
+  "mean_rgb_prediction": [
+   0.378,
+   0.397,
+   0.381
+  ],
+  "mean_rgb_screenshot": [
+   0.389,
+   0.388,
+   0.387
+  ],
+  "blurred_luma_correlation": 0.129,
+  "mean_abs_frame_difference_60_149": [
+   0.0737,
+   0.1995
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "balanced right"
+ ],
+ "misses": [
+  "frame difference underestimated (0.07 vs 0.20); fast/intense omitted"
+ ],
+ "verdict": "agree"
+}

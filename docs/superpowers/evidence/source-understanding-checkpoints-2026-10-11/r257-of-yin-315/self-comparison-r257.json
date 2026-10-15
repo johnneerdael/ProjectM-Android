@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r257-v1",
+ "preset": "Tag - Cradle of Life(remix of yin 315).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9d86e44e2e66990f4445c4daea8e56b754d311fddb0351526c6fc4b08e91c43a",
+  "prediction.json": "a9c0eb9381c5053c77c246604f36e1e61cda7bccce9371b5fe87ea889969e3ee",
+  "description.json": "c62db4a397f847d6df0ad5bd49bc34742029053f6457d2ca2f5535dc5c4d350d",
+  "recipe.json": "270b61ccbca7bbffb86fa84dbf8a46b3e7fe8888c415eaede71592f908fe026d",
+  "llm-look-description-v1.txt": "e544ccb24d923124970aa297aa7e5e74af28e153ce7e6f5e343b83418553444e"
+ },
+ "capture_result_sha256": "6df2b67974273c0c9ec4abc00d5545f86c7b3f96e8ab2891d5a06c6babcb9144",
+ "review_measurements_v1": {
+  "prediction_luma": 0.445,
+  "screenshot_luma": 0.001,
+  "mean_rgb_prediction": [
+   0.001,
+   0.573,
+   0.489
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.001,
+   0.002
+  ],
+  "blurred_luma_correlation": -0.001,
+  "mean_abs_frame_difference_60_149": [
+   0.0607,
+   0.0198
+  ]
+ },
+ "agreements": [
+  "equilibrium correctly ~0 (both shapes are textured canvas copies; wave points alpha 0.07)"
+ ],
+ "misses": [
+  "calibrated luminance 0.43 vs real 0.021: bright, intense and pastel wrongly admitted; equilibrium-zero is only 48% reliable corpus-wide, so the model does not trust it"
+ ],
+ "verdict": "miss"
+}

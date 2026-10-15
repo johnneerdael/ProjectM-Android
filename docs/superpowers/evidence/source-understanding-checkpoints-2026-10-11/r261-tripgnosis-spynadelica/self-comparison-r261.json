@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r261-v1",
+ "preset": "Tripgnosis - Spynadelica.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "207c342ba7c2ccc17b94ed21da245746d47b2403662278d5239ae55a800ad2bc",
+  "prediction.json": "53c45298b5e95626b31c36e864dfa3edf0580560dce564e2ead28a8d87d18d15",
+  "description.json": "30348dd0c617c764e984d20ecc91028eaaa7549ff2a156875821dab624f61f57",
+  "recipe.json": "04aaa5bf2ffb82de6f4d5425562ee2423ce0318b1d269bdfc85159fcb4a4fe3f",
+  "llm-look-description-v1.txt": "f115a35e9f041d458cdbef2cfa9af9c8e87458121e7b1d9e423cfc8b1dc16857"
+ },
+ "capture_result_sha256": "ee35df735725f26ce6511b8ca634cd37e427e2d35be0170a7e028954be3b7965",
+ "review_measurements_v1": {
+  "prediction_luma": 0.191,
+  "screenshot_luma": 0.189,
+  "mean_rgb_prediction": [
+   0.331,
+   0.132,
+   0.359
+  ],
+  "mean_rgb_screenshot": [
+   0.33,
+   0.13,
+   0.364
+  ],
+  "blurred_luma_correlation": 0.82,
+  "mean_abs_frame_difference_60_149": [
+   0.0766,
+   0.0801
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "balanced/vivid right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

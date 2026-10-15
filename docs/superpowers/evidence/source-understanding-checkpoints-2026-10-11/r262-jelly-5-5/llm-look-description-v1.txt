@@ -1,0 +1,13 @@
+Likely look: a smooth, fluid, moderately dim-to-mid-bright picture of green-led colour, flowing and smeared rather than crisp, with a glowing waveform line and a few copied triangles over a liquid haze. It should feel calm.
+
+Colour and brightness: the composite multiplies the canvas by cycling corner tints, and their placement is random on each preset load. Hue therefore changes from load to load. The static draw family spans cyan, green, pink and yellow, with blue, yellow and orange showing in the detail response. The calibrated estimate and pooled shares put green first (about 0.32 to 0.36), then blue (about 0.15 to 0.17) and pink (about 0.14). Say "likely green-led, but it varies per load". Saturation is high (about 0.78) and nearly the whole screen is coloured. Mean luminance is about 0.21 (wide interval 0.03 to 0.43). The facets lean balanced, not dark or bright. Flat dark regions sit at a dim tinted floor (about 0.12 grey-ish with a yellowish cast), not pure black.
+
+Structure: the feedback stage uses a very strong radial zoom exponent (about 75). Content near the centre barely moves while content toward the edges is stretched outward extremely fast, which makes the edges smear. A small four-tap spatial blur softens everything every frame. The composite then steers the image along its own gradients and a blurred copy of itself. This is a self-advecting, fluid or reaction-diffusion look, with organic swirls and smeared streaks. A built-in angled waveform trace (mode 6, thick, additive, near-opaque white) sits at the screen centre and follows the left-channel audio waveform. Four triangles (radius about 0.6, positions wandering between 0.2 and 0.8) copy the previous frame at about 0.6 zoom, so they show as nested, shrinking echoes rather than flat white fills.
+
+Motion: slow-to-moderate drifting flow. No rotation or translation is set, so motion comes from the radial expansion and the advection. Trails are fairly long (decay about 0.975 per frame, half-life near 0.9 s). Estimated flow is about 0.11 screen widths per second.
+
+Audio: only the waveform line reacts directly, continuously and not on beats. No band-driven brightness or beat pulse route was found.
+
+Flashing: the no-strobe probability is high (about 0.97) and the estimated brightness jumps are about 0 to 2 per 10 s. Expect steady output, with at most rare soft pulses.
+
+Uncertain: the exact hue on any load, how bright the haze gets, and how much the triangles and waveform stand out.

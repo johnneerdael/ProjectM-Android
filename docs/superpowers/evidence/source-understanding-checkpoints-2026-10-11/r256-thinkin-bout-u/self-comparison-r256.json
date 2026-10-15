@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r256-v1",
+ "preset": "hexcollie, ti@n, suksma, zylot, orb, martin n flexi - blarffff [thinkin bout u].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "bb1a72c8bc635084195049ab26bd5a915cfd5d2b1e4590ee1652cbd1f717475d",
+  "prediction.json": "2dcf5baf4950bc40d73f29c599c5dd221be4c31c72c2d26cb55b46f70aaa0f61",
+  "description.json": "801b651182f69efe0532d5a6b94f761ac065d8dcda2beb34232d049cd3320748",
+  "recipe.json": "1c32fa62305100ff70b100f61d581ca2a418a45b2174b16f1288d353d7f6ceca",
+  "llm-look-description-v1.txt": "2db315873bffa074adb2cc8b198e7f86111cabb4f16492175ad56dd815cb5163"
+ },
+ "capture_result_sha256": "343d7401809f245abb904ef4e593cb7db959f25408409ed68163bb55a7c0f9e9",
+ "review_measurements_v1": {
+  "prediction_luma": 0.931,
+  "screenshot_luma": 0.937,
+  "mean_rgb_prediction": [
+   0.968,
+   0.924,
+   0.893
+  ],
+  "mean_rgb_screenshot": [
+   0.969,
+   0.931,
+   0.895
+  ],
+  "blurred_luma_correlation": 0.295,
+  "mean_abs_frame_difference_60_149": [
+   0.08,
+   0.1132
+  ]
+ },
+ "agreements": [
+  "bright facet right (real 0.85)",
+  "pink/red hues right",
+  "frame prediction 0.93 vs 0.94"
+ ],
+ "misses": [
+  "calibrated luminance 0.53 vs 0.85"
+ ],
+ "verdict": "agree"
+}

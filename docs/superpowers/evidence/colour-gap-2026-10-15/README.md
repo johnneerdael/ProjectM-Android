@@ -165,3 +165,35 @@ presets (21–30% vs 16–26%), so the doubt is legitimate. The template alone c
 26% calm), almost all with the same redraw timing (`chng = sin(time*.5)`, `cthr = .9999`), so its period cannot
 separate them. Raising recall needs the magnitude of audio → displayed-brightness gain through the composite,
 which the descriptors hold only as route presence.
+
+A prototype audio-response probe (`audio_response_corpus.py`, all 9,606 presets, about 0.6 CPU-s each) evaluates
+warp and composite on a flat mid-grey canvas under neutral, transient (bands 2 over averages 1, which fires
+above(bass, bass_att) beat detectors) and quiet audio. It also records the change in audio-sensitive frame controls.
+Added to the No strobe classifier (`audio_response_ab.py`), AUC stays at 0.922, and admissions before the first /
+second / third strobing preset go 723 / 776 / 887 → 771 / 786 / 888: noise level. It is not adopted. Fixed-band
+probes do not separate calm from strobing better than the existing route facts.
+
+## Step 6: missed light sources in the feedback equilibrium (2026-10-15)
+
+Checkpoint r257 (Tag – Cradle of Life) is black in the ruler (0.00–0.03) and in the real clip (0.021). Its
+equilibrium is correctly 0: both shapes are textured canvas copies, and the custom waves are sparse 3D points at
+alpha 0.07. Yet calibrated luminance is 0.43. The model does not trust an equilibrium of 0, and rightly so: of 1,715
+presets with equilibrium luma < 0.01, only 48% are dark.
+
+`equilibrium_missing_sources.py` compares equilibrium-black presets that are bright in the ruler (> 0.3, 391) with
+dark ones (< 0.05, 495). The facts over-represented in the bright group name the light the equilibrium does not model:
+
+- shape outlines (`border_r/g/b`: 21% vs 7%; border material jump bounds 25% vs 10%). The engine draws the outline
+  (border_a > 0.0001) untextured in the border colour, even when the fill samples the canvas. `_shape_terms` skipped
+  textured shapes entirely, outline included;
+- per-frame shader randomness and noise injection (`_c4`, which is `rand_frame`: 18% vs 3%; `rand_frame` 27% vs 11%;
+  `texsize_noise_lq` 20% vs 8%). This is not modelled yet.
+
+The outline is now an equilibrium element (`feedback_equilibrium._outline_term`). Corners sit at
+`x + rad·cos·aspectY, y + rad·sin` in NDC (projectM `CustomShape`), so the polygon's on-screen circumradius is rad·H/2
+px. The line is 1 px wide, or 2 px for a thick outline (four offset passes), and only the on-screen part of the
+perimeter counts. Test: `test_shape_outline_adds_light_even_when_the_fill_is_textured`.
+
+Corpus gate (`outline_gate.py`, current code vs the r15 cached equilibrium, Spearman with ruler luminance): local
+0.3525 → 0.3607, spread 0.3279 → 0.3349. 28 presets leave the equilibrium-black group; their ruler mean is 0.473, and
+71% are above 0.2. The calibration picks this up at the next refit.
