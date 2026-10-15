@@ -286,9 +286,10 @@ full recipe tens of thousands of lines long.
    and is not strobe-free. `facet_<option>_probability` with a `threshold`
    decides that Mood option (dark, balanced, bright, monochrome, pastel, warm,
    cool, still, drifting, chill, normal, intense): at or above the threshold the
-   preset belongs. The middle options (balanced, drifting, normal) are thresholded
-   at 70% precision, so a preset may sit in no bucket of a group; say that the
-   group is uncertain rather than assuming the middle.
+   preset belongs. The middle options (balanced, drifting, normal) and pastel are
+   thresholded at 70% precision, so a preset may sit in no bucket of a group; say
+   that the group is uncertain rather than assuming the middle. Pastel (bright but
+   weakly coloured) is admitted rarely; a preset without it may still look pastel.
    Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.

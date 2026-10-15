@@ -613,3 +613,11 @@ def test_display_palette_static_sources_only_break_calibrated_near_ties():
                                       'warp_detail_response': {'coloured_share': .8, 'hue_shares': {'blue': 1.}}},
                          'composite': {}}}
     assert next(iter(display_palette(recipe)['hue_shares'])) == 'green'
+
+
+def test_pastel_classifier_is_held_to_a_seventy_percent_precision_floor():
+    # Pastel (luminance > 0.35, saturation < 0.30, not monochrome) is rare (692 of 9,606) and its regression rule
+    # reached only 33% precision out of fold, so its threshold admitted 968 presets for 692 members. Like the middle
+    # buckets it is now thresholded where the classifier reaches at least 70% precision: fewer admissions, mostly right.
+    import fit_display_calibration
+    assert fit_display_calibration.FACET_PRECISION_FLOOR.get('pastel', 0.) >= .7
