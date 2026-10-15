@@ -18,9 +18,12 @@ from pathlib import Path
 
 POLICY='source-display-calibration-fit-v1'
 HUE_FAMILIES=('red','orange','yellow','green','cyan','blue','purple','pink')
-# Options where a direct classifier beats the value rule at equal precision (Vivid and Fast do not; the middle
-# buckets and Energy, which needs the activity score, keep the rule).
-FACET_CLASSIFIER_OPTIONS=('dark','bright','monochrome','pastel','warm','cool','still','chill','intense')
+# Options where a direct classifier beats the value rule at equal precision (Vivid and Fast do not).
+FACET_CLASSIFIER_OPTIONS=('dark','bright','monochrome','pastel','warm','cool','still','chill','intense','balanced','drifting','normal')
+# The middle buckets are what the regression rule leaves over (regression towards the mean): balanced 53% precision
+# at 85% recall, drifting 59% at 90% (out of fold, base rates 45% and 49%). Their classifiers are thresholded at a
+# precision floor instead (balanced 37% and drifting 56% recall at 70%), level with the weakest extreme options.
+FACET_PRECISION_FLOOR={'balanced':.7,'drifting':.7,'normal':.7}
 TARGETS={'mean_luminance':None,'mean_abs_frame_difference':'log1p10','mean_flow_screen_widths_per_s':'log1p10',
          'global_brightness_jumps_per_10s':'log1p','mean_saturation':None,'warm_cool':None,'coloured_share':None,
          **{'hue_share_'+h:None for h in HUE_FAMILIES}}
@@ -186,11 +189,12 @@ def main(argv=None):
         estimated=np.array([option in members({t:_inverse(v,TARGETS.get(t)) for t,v in oof_all[k].items() if t in TARGETS}) for k in fit])
         if y.sum()<50:continue
         rule_precision=float((estimated&(y==1)).sum()/max(estimated.sum(),1))
+        target_precision=max(rule_precision,FACET_PRECISION_FLOOR.get(option,0.))
         Xf=X[[position[k] for k in fit]];oof=np.zeros(len(fit))
         for train,test in StratifiedKFold(5,shuffle=True,random_state=11).split(Xf,y):
             oof[test]=classifier().fit(Xf[train],y[train]).predict_proba(Xf[test])[:,1]
         order=np.argsort(-oof);tp=np.cumsum(y[order]);precision=tp/np.arange(1,len(y)+1)
-        ok=np.where(precision>=rule_precision)[0]
+        ok=np.where(precision>=target_precision)[0]
         threshold=float(oof[order[ok.max()]]) if len(ok) else 1.
         final=classifier().fit(Xf,y)
         trees=[[[float(n['value']),int(n['feature_idx']),float(n['num_threshold']),int(n['left']),int(n['right']),int(n['is_leaf'])] for n in predictors[0].nodes]
@@ -199,8 +203,9 @@ def main(argv=None):
         name='facet_%s_probability'%option
         model['targets'][name]={'transform':'logistic','baseline':float(np.ravel(final._baseline_prediction)[0]),'trees':trees,'threshold':threshold,
                                 'oof_spearman':round(float(roc_auc_score(y,oof)),3),'metric':'roc_auc','residual_p10':0.,'residual_p90':0.,'n':len(fit),
-                                'rule_precision':round(rule_precision,3),'rule_recall':round(float((estimated&(y==1)).sum()/y.sum()),3),'classifier_recall_at_rule_precision':round(recall,3)}
-        report['targets'][name]={k:model['targets'][name][k] for k in ('n','oof_spearman','threshold','rule_precision','rule_recall','classifier_recall_at_rule_precision')}
+                                'rule_precision':round(rule_precision,3),'rule_recall':round(float((estimated&(y==1)).sum()/y.sum()),3),'classifier_recall_at_rule_precision':round(recall,3),
+                                'target_precision':round(target_precision,3)}
+        report['targets'][name]={k:model['targets'][name][k] for k in ('n','oof_spearman','threshold','rule_precision','rule_recall','classifier_recall_at_rule_precision','target_precision')}
         for k,value in zip(fit,oof):oof_all.setdefault(k,{})[name]=float(value)
         print(name,report['targets'][name],flush=True)
     report['labelled']=len([n for n in names if n in labels])

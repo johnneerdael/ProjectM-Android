@@ -568,6 +568,20 @@ def test_calibrated_option_probabilities_decide_membership_and_coloured_share_is
     assert 'monochrome' in block['options'] and 'monochrome' not in block['unresolved_options']
 
 
+def test_conflicting_admitted_options_keep_the_larger_margin_over_threshold():
+    # Middle buckets now have classifiers too, so two siblings with disjoint ranges can both pass their thresholds;
+    # the one further above its own threshold stays, independent of group order.
+    from preset_recipe import _apply_option_probabilities
+    import preset_facets
+    definition = preset_facets.load_definition()
+    def decide(dark, balanced):
+        stats = {'facet_dark_probability': {'value': dark, 'threshold': .7}, 'facet_balanced_probability': {'value': balanced, 'threshold': .6}}
+        return _apply_option_probabilities(stats, definition, [], [], [])[0]
+    assert decide(.9, .65) == ['dark']
+    assert decide(.75, .95) == ['balanced']
+    assert decide(.5, .65) == ['balanced']
+
+
 def test_no_strobe_needs_both_the_classifier_and_the_jumps_estimate():
     # Out of fold (9,516 presets) the combined gate p >= 0.9 and jumps < 0.05 admits 726 presets with no strobing preset
     # (6 with occasional pulses); either signal alone admits strobing presets at a similar pool size.

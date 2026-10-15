@@ -85,3 +85,29 @@ Options are evaluated independently here. In the real facet output an admitted o
 The Energy rows use the facet activity score from the calibrated flow, frame difference and jumps, before any
 Energy classifiers; Chill and Intense classifiers are being fitted next. No strobe is now 98% precise, with zero
 strobing presets admitted out of fold.
+
+## Middle-bucket classifiers (model r14h, 2026-10-15)
+
+The middle options are what the regression rule leaves over: regression toward the mean puts many dark, bright,
+still and fast presets in the middle. Direct classifiers for balanced, drifting and normal are now thresholded at a
+70% precision floor (`FACET_PRECISION_FLOOR` in `fit_display_calibration.py`). This puts them level with the
+weakest extreme options. When two conflicting siblings both pass their thresholds, the one further above its own
+threshold stays (`_apply_option_probabilities`).
+
+`facet_scoreboard2.py` scores the shipped decision path out of fold. It applies value rules on calibrated estimates,
+then option classifiers with thresholds and conflict resolution, then the No strobe gate, and compares the result
+with ruler memberships.
+
+| option | r14g precision / recall / admitted | r14h precision / recall / admitted |
+|---|---|---|
+| balanced | 58% / 77% / 5655 | **70% / 36% / 2204** |
+| drifting | 61% / 88% / 6798 | **70% / 57% / 3856** |
+| normal | 60% / 87% / 6948 | **70% / 65% / 4470** |
+| dark | 83% / 38% / 1187 | 83% / 38% / 1178 |
+| bright | 70% / 60% / 2313 | 70% / 59% / 2270 |
+| still | 83% / 37% / 898 | 83% / 36% / 879 |
+| fast | 76% / 49% / 1803 | 78% / 46% / 1654 |
+
+Classifier AUCs: balanced 0.717, drifting 0.734, normal 0.754. Each middle pool still holds 2,200 to 4,500 presets.
+Presets whose evidence is not strong enough now get no option in that group, instead of a coin-flip middle option.
+Pastel (34% precision) is still the weakest option.

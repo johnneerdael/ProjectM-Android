@@ -911,19 +911,25 @@ def _no_strobe_gate(statistics,options,possible,unresolved):
 def _apply_option_probabilities(statistics,definition,options,possible,unresolved):
     """A calibrated facet_<option>_probability with its stored threshold decides that option. Per-option
     classifiers admit more true members at the precision the value rule reaches (thresholds are set there at fit
-    time). An admitted option removes the options it conflicts with in its group (disjoint ranges)."""
+    time). An admitted option removes the options it conflicts with in its group (disjoint ranges); when two
+    conflicting options are both admitted, the one further above its own threshold stays."""
     options=list(options);possible=list(possible);unresolved=list(unresolved)
     for group in definition['groups']:
+        margins={}
         for option in group['options']:
             row=statistics.get('facet_%s_probability'%option['id'])
             if not isinstance(row,dict) or type(row.get('value')) not in (int,float) or type(row.get('threshold')) not in (int,float):continue
             for bucket in (possible,unresolved):
                 if option['id'] in bucket:bucket.remove(option['id'])
-            if row['value']>=row['threshold']:
-                if option['id'] not in options:options.append(option['id'])
-                for other in group['options']:
-                    if other is not option and other['id'] in options and _conflicts(option,other):options.remove(other['id'])
+            if row['value']>=row['threshold']:margins[option['id']]=row['value']-row['threshold']
             elif option['id'] in options:options.remove(option['id'])
+        by_id={o['id']:o for o in group['options']}
+        for option_id in sorted(margins,key=lambda k:-margins[k]):
+            if any(other in margins and margins[other]>margins[option_id] and _conflicts(by_id[option_id],by_id[other]) and other in options
+                   for other in by_id):continue
+            if option_id not in options:options.append(option_id)
+            for other in group['options']:
+                if other['id']!=option_id and other['id'] in options and _conflicts(by_id[option_id],other):options.remove(other['id'])
     return options,possible,unresolved
 
 
