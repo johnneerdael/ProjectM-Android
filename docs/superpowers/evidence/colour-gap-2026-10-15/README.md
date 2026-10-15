@@ -237,3 +237,27 @@ Facet precision and recall move a point or two either way: monochrome recall 27%
 39% → 36%, bright 62% → 61%. The No strobe margin shrinks: a strobing preset now scores 0.923 against the 0.93 gate,
 where r15p had a 0.024 margin. Not shipped: r15p stays. The A/B lifts of Step 7 (+0.002 / +0.006) are within refit
 noise, which confirms that random-round fixes have reached diminishing returns.
+
+## Step 8: palette concentration (2026-10-15)
+
+Engine palettes are often mixed. Of 8,048 coloured presets, 47% have no hue family above 40% of coloured pixels, and
+34% have three or more families above 15%. Our leading hue is in the ruler top-2 for 85% of single-colour palettes
+(top family > 60%), 73% of mixed ones and 65% of spread ones (top-3: 90 / 84 / 78%). The calibrated shares are too
+flat: overlap with the ruler palette (sum of per-family minima) is 57% on single-colour palettes. One global
+sharpening power cannot fix that without hurting spread palettes (power 2: dominant 68.7%, spread 66.2%, all 66.1%).
+
+Model r15q adds a `hue_top_share` target: the ruler's top-family share, coloured presets only, OOF Spearman 0.638.
+Its out-of-fold predictions choose a sharpening power per quartile (1, 1, 1.5, 2), which
+`calibrated_display.predict` applies to the hue shares, renormalised to their old total, so colour order never
+changes. Palette overlap out of fold:
+
+| ruler palette | flat | sharpened |
+|---|---|---|
+| single colour (> 60%) | 57.4% | 66.9% |
+| mixed (40–60%) | 65.8% | 64.8% |
+| spread (< 40%) | 76.0% | 74.2% |
+| all | 68.5% | 69.8% |
+
+The powers are chosen on the same out-of-fold rows they are scored on (4 parameters). The prototype with nested
+folds (`palette_concentration_ab.py`) gives the same numbers (66.0 / 64.9 / 74.5 / 69.7%). SKILL tells readers to
+describe palettes with `hue_top_share` below about 0.4 by two or three hues.
