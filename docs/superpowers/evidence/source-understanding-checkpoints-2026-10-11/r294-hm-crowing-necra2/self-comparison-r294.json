@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r294-v1",
+ "preset": "cope - the drain to heaven - suksma's hm - crowing necra2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "794d107ae1abc12e69f81d25a87b1234e113760dfd1ebfc765ceaecdd3f31ab0",
+  "prediction.json": "9d01a27d3502824d4316ec3d195eaccaca4ae306645fab47287c8c0dd25890f6",
+  "description.json": "4433f24ba9e902075260e8f7a6f6084e19c5d2c5bff110d47593af9557ea7d4a",
+  "recipe.json": "7742a9b35ec6ea7462ec37d80232f8747098410a58afd242022e2505396cc587",
+  "llm-look-description-v1.txt": "63bc6f9064f668cc8604f77a4be411d8a112918fef3f8c60b034ca1ab946ab6a"
+ },
+ "capture_result_sha256": "23e985467fc7efbe2b50c0bc27437f3bd76de6260cd4e4410e2be3be866e40d2",
+ "review_measurements_v1": {
+  "prediction_luma": 0.298,
+  "screenshot_luma": 0.314,
+  "mean_rgb_prediction": [
+   0.279,
+   0.284,
+   0.502
+  ],
+  "mean_rgb_screenshot": [
+   0.275,
+   0.309,
+   0.483
+  ],
+  "blurred_luma_correlation": 0.677,
+  "mean_abs_frame_difference_60_149": [
+   0.0753,
+   0.1454
+  ]
+ },
+ "agreements": [
+  "blue in ruler top-2",
+  "balanced/fast/normal right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

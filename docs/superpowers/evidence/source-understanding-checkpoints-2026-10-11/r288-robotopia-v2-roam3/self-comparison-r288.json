@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r288-v1",
+ "preset": "shifter - robotopia v2 roam3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9e90a7331adf53fd72407c264cf5c4a3849cbc25bf4d93b9f075c870c91ee638",
+  "prediction.json": "72d07c275bd5fe69c670cbd16a122f4623048aadf36660c5d3af7ce1da23ee6f",
+  "description.json": "b604db0fd75b26f682aa0ec28806c8a4d60e76ea4683aa3edf3fa3508bd42f8e",
+  "recipe.json": "c64c5cdaa1c0e47e8da5ba173f75ef9a444c6084f23fb53a0bca7c8daed519e7",
+  "llm-look-description-v1.txt": "74eedbcb7be3f3028f4282d165ebfbc90278e7e80e2f87f2e1ed439ed7645296"
+ },
+ "capture_result_sha256": "cf5570b9c7a159ba310d966a4e7fca013ae2f57710efbea3cfe94adeb2311979",
+ "review_measurements_v1": {
+  "prediction_luma": 0.998,
+  "screenshot_luma": 0.997,
+  "mean_rgb_prediction": [
+   0.998,
+   0.998,
+   0.998
+  ],
+  "mean_rgb_screenshot": [
+   0.997,
+   0.997,
+   0.996
+  ],
+  "blurred_luma_correlation": 0.34,
+  "mean_abs_frame_difference_60_149": [
+   0.1809,
+   0.2226
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "cool/intense right",
+  "flicker kept out (p 0.04, 91 jumps)"
+ ],
+ "misses": [
+  "bright wrongly admitted (ruler range 0.04-1.00, strobing between black and white)"
+ ],
+ "verdict": "partial"
+}

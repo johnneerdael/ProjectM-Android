@@ -1,0 +1,43 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r293-v1",
+ "preset": "warm sun bleeds in your womb genius vescicle ranger.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9d345bbb393cfc5c6fe52afebabdeaa3b5423cc455ac9ebcf1b13451c98476a0",
+  "prediction.json": "2b69c3a90e680bc6d6ffe8d77a63d76efd1a0b6322c61da415ba51f5972a603b",
+  "description.json": "eea6abde7d4a9b9aaf64475b1d3e666344e9ec62488bb470717ca5044160c99a",
+  "recipe.json": "394807a4bba4241bcd96ab2ac9a0a37a6bed08810a55536919d6bf4677bf24de",
+  "llm-look-description-v1.txt": "be234b354e53e26307805e3cc228cbb0ab99eac36279a562687f4c5d7bd9b9ff"
+ },
+ "capture_result_sha256": "7d756efa09bf95280ccf393f4ea6b3a0dbaf9e128c1705b5c3e618ef76476f3e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.089,
+  "screenshot_luma": 0.091,
+  "mean_rgb_prediction": [
+   0.101,
+   0.075,
+   0.192
+  ],
+  "mean_rgb_screenshot": [
+   0.103,
+   0.077,
+   0.191
+  ],
+  "blurred_luma_correlation": 1.0,
+  "mean_abs_frame_difference_60_149": [
+   0.127,
+   0.1192
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "balanced/intense/vivid right",
+  "flicker kept out (p 0.08, 95 jumps)",
+  "frame prediction corr 1.0"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

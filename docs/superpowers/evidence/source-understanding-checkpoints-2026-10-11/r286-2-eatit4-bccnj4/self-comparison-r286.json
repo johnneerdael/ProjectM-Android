@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r286-v1",
+ "preset": "AdamFx 2 Geiss, Zylot and Flexi - Reaction Diffusion 3 (Overload Mix 2) EATIT4 (BCCNJ4).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f115d2e58593799800695ab209d6c054976a081a7981d33055e9577f491fa400",
+  "prediction.json": "6af290f241b0daa7c3dd1fb49c131402176e5994428cbe28ff902054d00752cc",
+  "description.json": "9d37c01f46f8262904516bd3651bb3e8f47b4658241011eccf2c748b581ec3ae",
+  "recipe.json": "43b2348b3a5ef370256b15c3804e2e0186fbc8da34661de84ca1e39181fedbd7",
+  "llm-look-description-v1.txt": "f738c774ad17d6ffc19b1f09abb611e5a01e53cc51984ae22c4262115b0affa5"
+ },
+ "capture_result_sha256": "36ee675283f871d1bb1b014b36370c946d55b15d380f23277ed7e2b1a38a6701",
+ "review_measurements_v1": {
+  "prediction_luma": 0.027,
+  "screenshot_luma": 0.075,
+  "mean_rgb_prediction": [
+   0.027,
+   0.027,
+   0.023
+  ],
+  "mean_rgb_screenshot": [
+   0.059,
+   0.078,
+   0.082
+  ],
+  "blurred_luma_correlation": -0.084,
+  "mean_abs_frame_difference_60_149": [
+   0.0473,
+   0.0345
+  ]
+ },
+ "agreements": [
+  "green in ruler top-2",
+  "dark/normal/vivid right (real 0.06)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r287-v1",
+ "preset": "amandio c - hairy ballz 2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "513bb6bb861c8bc3d4f612cc5f86ad3bb805d5bb5f425efbb3b507525ba172f6",
+  "prediction.json": "2798c28e2adbb58c380437fede0e164c3010cb82eee998935990a208aa50495f",
+  "description.json": "4e4ab96d5cfeaa59704c75416cd96081a2553ea006e7e5021fca167b715f278c",
+  "recipe.json": "854807b0cf9f217d0fb9662967c945822db30138d42a363de6efd71daef7ddfe",
+  "llm-look-description-v1.txt": "fd4826101b848c8447dc23a18cfff1c47d0b4573551ed30b8022e82e60586cc1"
+ },
+ "capture_result_sha256": "bb9e02098fcd04bcc9c76e9f23393d9b6f523681b274b50298f9d7e8656ed1a7",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.36,
+  "mean_rgb_prediction": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.433,
+   0.348,
+   0.27
+  ],
+  "blurred_luma_correlation": -0.076,
+  "mean_abs_frame_difference_60_149": [
+   0.0343,
+   0.0651
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "normal right"
+ ],
+ "misses": [
+  "frame prediction image black while the clip is 0.35"
+ ],
+ "verdict": "agree"
+}

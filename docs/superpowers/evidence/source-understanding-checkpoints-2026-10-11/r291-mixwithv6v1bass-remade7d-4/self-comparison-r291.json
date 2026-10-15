@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r291-v1",
+ "preset": "Fumbling_Foo, Martin, Orb, Flexi - Star Forge v7 (HAKAN mash-up) 2-55 [mixwithv6v1bass] remade7d 4.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ef5ac106530d15f745c984337c8f8e5aac43f8c696563d2d2e7c6905f130be87",
+  "prediction.json": "58537519d08c787ab3c3c30220fd7735c6b807daba26a94caad46a31fa318f5a",
+  "description.json": "84c441c36b612029b382aba5c726e2810e8fe685e465531c805beef122b9b289",
+  "recipe.json": "56acbbdbc44ccd8fcce656a0a451a20b02de4e773514d1b5ddd8224a507348a3",
+  "llm-look-description-v1.txt": "5b39d7125a9748ed90e87ee93e48ad4d9ca4ed3d156bce7e49a76ebfb7b3bbab"
+ },
+ "capture_result_sha256": "8b1deb4cdefd4c1a9b05a90c2c28d520b7b1b493c1e18399a4bb42d2c6003cce",
+ "review_measurements_v1": {
+  "prediction_luma": 0.114,
+  "screenshot_luma": 0.076,
+  "mean_rgb_prediction": [
+   0.114,
+   0.114,
+   0.114
+  ],
+  "mean_rgb_screenshot": [
+   0.075,
+   0.061,
+   0.232
+  ],
+  "blurred_luma_correlation": -0.02,
+  "mean_abs_frame_difference_60_149": [
+   0.0901,
+   0.2088
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "bright/drifting/intense right",
+  "flicker kept out (p 0.00, 136 jumps)"
+ ],
+ "misses": [
+  "normal wrongly admitted"
+ ],
+ "verdict": "partial"
+}

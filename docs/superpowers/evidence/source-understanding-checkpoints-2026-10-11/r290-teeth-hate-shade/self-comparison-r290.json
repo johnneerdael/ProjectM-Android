@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r290-v1",
+ "preset": "suksma - drop ballast, acquire teeth - hate shade --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d8021337a5a3edcfef5499ea4a60d8beea5a294614a930ec35249c12dd251241",
+  "prediction.json": "259c05fba255544ba78a212965ac9b137bc324b81811a0936c3f04042706ca63",
+  "description.json": "529a031f0b26ddb2b5105fb334f358514c76847d8561402f3524eff03e8b7b65",
+  "recipe.json": "390792751fed50662a066a02f6a51fefbe95ae66ad40458959c956a039ca3757",
+  "llm-look-description-v1.txt": "c3c0bab400eee4b5b9bf649d651012df4cef967b2166b743f20053cbe5cec104"
+ },
+ "capture_result_sha256": "b7ba6c6d2fa1bcd9433045f601f740d52e8891c7e094d375bdcc15c198db5f3d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.202,
+  "screenshot_luma": 0.165,
+  "mean_rgb_prediction": [
+   0.198,
+   0.202,
+   0.207
+  ],
+  "mean_rgb_screenshot": [
+   0.166,
+   0.165,
+   0.167
+  ],
+  "blurred_luma_correlation": -0.238,
+  "mean_abs_frame_difference_60_149": [
+   0.0621,
+   0.0123
+  ]
+ },
+ "agreements": [
+  "bright right (real 0.65)",
+  "flicker kept out (p 0.15, 5 jumps)"
+ ],
+ "misses": [
+  "fast wrongly admitted"
+ ],
+ "verdict": "partial"
+}
