@@ -1,0 +1,13 @@
+Predicted look: a mostly dark, slowly swirling, saturated-colour fluid picture that is pulled inward toward the screen centre. Source-calibrated brightness is low (mean luminance about 0.11, interval 0 to 0.33; the dark facet probability is 0.86), so expect a dark background with soft glowing wisps rather than a bright, filled screen.
+
+Structure and placement: nothing is drawn large. The custom wave is a small cluster of 512 faint points (alpha about 0.1) packed into a box near the exact screen centre (x 0.48-0.52, y 0.48-0.52), coloured green (about 71%) and red (about 29%). The built-in wave is a rotating stereo trace (radius about 0.53 model units) with authored alpha of only 0.001, so it is likely almost invisible, though max-normalisation could make it full colour where it shows. The visible picture should therefore come mostly from feedback: those small central marks get smeared outward and around by the warp and composite.
+
+Motion: this is the strongest feature. Each feedback step pulls content toward the centre (about 2% near the middle up to about 10% at the edges, with the rate varying with radius) while rotating it 0.1 to 0.34 rad per step. Together that should read as a spiral or whirlpool tunnel, with inward streaks and smears that bend into a swirl. The zoom/rotation centre also wanders (cx 0.28-0.72, cy 0.24-0.76), and a small drift of up to about 144 px/s adds slow wobble. The composite adds self-advection and gradient-driven flow, so edges should look liquid, smeared or organic. Trails fade with a half-life of about 27 frames (roughly 0.8 s), so streaks persist briefly and then dissolve.
+
+Colour: saturation is high (calibrated about 0.8). Leading hues are likely blue, with green and yellow next, then pink, red and purple (blue about 0.25-0.28 share). The composite multiplies by cycling corner tints on periods of about 15-20 s, with placement random per preset load, so the hue layout is not fixed and the colour likely drifts slowly. Warm/cool is near neutral, uncertain.
+
+Audio: the only audio route is the waveform shape in the built-in trace. No bass/mid/treble band drives brightness, size or colour, so it probably does not pulse on beats.
+
+Flashing: no strobe is likely (no-strobe probability 0.95, brightness jumps estimated at 0 per 10 s, upper end about 2). I expect steady, calm-to-normal motion; the activity estimate is Chill (0.15) but with a wide range up to Intense, since the rotation and zoom are fast.
+
+Uncertain: how much of the screen the smeared content fills, how bright the swirl actually gets, and whether the built-in trace shows at all.

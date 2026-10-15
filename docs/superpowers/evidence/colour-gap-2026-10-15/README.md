@@ -197,3 +197,30 @@ perimeter counts. Test: `test_shape_outline_adds_light_even_when_the_fill_is_tex
 Corpus gate (`outline_gate.py`, current code vs the r15 cached equilibrium, Spearman with ruler luminance): local
 0.3525 → 0.3607, spread 0.3279 → 0.3349. 28 presets leave the equilibrium-black group; their ruler mean is 0.473, and
 71% are above 0.2. The calibration picks this up at the next refit.
+
+## Step 7: Pastel precision floor and the warp detail gain (2026-10-15)
+
+**Pastel** (luminance > 0.35, saturation < 0.30, not monochrome) covers 692 of 9,606 presets. Its classifier was
+thresholded at the old rule's 33% precision and admitted 968. With the 70% floor the middle buckets use (owner
+approved), the Pastel-only refit merged into r15 (`--only pastel --merge-into model-r15`, model r15p) gives 70% /
+13% (126 admitted) instead of 33% / 47%. Vivid recall rises 73% → 74%, because fewer presets are pulled into
+Pastel.
+
+**Warp detail gain** (`feedback_equilibrium.stage_detail_gain`). The scan that found shape outlines also showed
+equilibrium-black presets that are bright through pattern-forming warps. Sparkly LSB Feedback uses
+`ret += (ret - blur)*0.6; ret *= 0.9`: flat-field gain 0.9 (equilibrium black), but fine structure grows about 1.45×
+per frame until it clips. The probe evaluates the warp once on a dim noise canvas; gain is the std of output detail
+over the std of input detail. Corpus (`detail_gain_corpus.py`, 7,664 presets with an exported warp): ruler luminance
+rises with gain (0.265 below 0.5, 0.364 at 1.3–2). Equilibrium-black presets with gain 1.3–2 average 0.279 and are
+underestimated by 0.055. A/B out of fold (`detail_gain_ab.py`, same regressor and folds):
+
+| columns | luminance Spearman / MAE | frame difference Spearman |
+|---|---|---|
+| r15 descriptors | 0.6946 / 0.1236 | 0.7286 |
+| + outline equilibrium | 0.6966 / 0.1232 | 0.7290 |
+| + detail gain | 0.6952 / 0.1235 | 0.7324 |
+| + both | 0.6966 / 0.1231 | 0.7343 |
+
+It is now the recipe column `recipe:warp_detail/gain` and matches the prototype exactly (1.4513 and 0.4617 on the
+two reference presets). The next refit (r16, regenerated descriptors) carries the outline equilibrium, the detail
+gain and the Pastel floor.

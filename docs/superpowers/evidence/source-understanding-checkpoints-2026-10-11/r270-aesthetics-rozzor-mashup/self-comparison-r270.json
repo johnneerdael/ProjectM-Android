@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r270-v1",
+ "preset": "Shreyas & Unchained - Deeper Aesthetics (Rozzor mashup).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e3e607e67c6553cda4ae6f2a87bfa045d0d7e3192fe6f8cdeb3bd6a578c49171",
+  "prediction.json": "33eca6607965a89c95f6ec50ddb2944e668eff214b8efc40e0b280804763d3ea",
+  "description.json": "16fb061c96fede989b72d06385fb2641681b4b9b1abc1ce3af85339cf74ceb09",
+  "recipe.json": "191c0eae625fee907f7a4ba5f24029a19011266f28d7b70d94a03b80deb13c43",
+  "llm-look-description-v1.txt": "bbc524b018fccb391f103ee963aad6b6be02a9e29cc637b7659b3068d870fd85"
+ },
+ "capture_result_sha256": "8bf6163366edf1c99704636a373b229ae71bb71ea41a85ba006d6e9486e8f8e9",
+ "review_measurements_v1": {
+  "prediction_luma": 0.881,
+  "screenshot_luma": 0.882,
+  "mean_rgb_prediction": [
+   0.75,
+   0.962,
+   0.466
+  ],
+  "mean_rgb_screenshot": [
+   0.759,
+   0.961,
+   0.461
+  ],
+  "blurred_luma_correlation": 0.913,
+  "mean_abs_frame_difference_60_149": [
+   0.0551,
+   0.0935
+  ]
+ },
+ "agreements": [
+  "bright/fast/normal right (real 0.67)"
+ ],
+ "misses": [
+  "hue: red vs ruler green/yellow; vivid wrongly admitted; calibrated luminance 0.45 vs 0.67"
+ ],
+ "verdict": "partial"
+}

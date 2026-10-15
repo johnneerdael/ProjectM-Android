@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r272-v1",
+ "preset": "Rovastar & Krash - Hallucinogenic Pyramids (Extra Beat Time Mix).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c5446878bede009273130837ad27584dbeaf083f982f980a23d3d6f148423fb4",
+  "prediction.json": "52bd8464a426fc0025592ace97680d4be718b74825a89ac6ccf272c12d7b954d",
+  "description.json": "9ba2234f2f3990203c50bcaf9dd331b1c84f589f77257ace2c31ed81a3dcb981",
+  "recipe.json": "d2d60b0f9bc4f0a724332682d38797b3c2dbabf5a70f9302616f07670ad48dde",
+  "llm-look-description-v1.txt": "9a6fe6ebc29c2378a7071d04af5eae27e0741958d6e97bccfbcdbb4057726f29"
+ },
+ "capture_result_sha256": "8cd5d1e4c4afad9d326d377cca21c2b74b03bcaf1e1d794ae9b3ffdfe88cc51a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.533,
+  "screenshot_luma": 0.718,
+  "mean_rgb_prediction": [
+   0.375,
+   0.6,
+   0.336
+  ],
+  "mean_rgb_screenshot": [
+   0.54,
+   0.791,
+   0.51
+  ],
+  "blurred_luma_correlation": 0.191,
+  "mean_abs_frame_difference_60_149": [
+   0.0444,
+   0.0624
+  ]
+ },
+ "agreements": [
+  "blue in top-2",
+  "normal right"
+ ],
+ "misses": [
+  "calibrated luminance 0.28 vs real 0.73 (bright omitted, not wrong)"
+ ],
+ "verdict": "partial"
+}

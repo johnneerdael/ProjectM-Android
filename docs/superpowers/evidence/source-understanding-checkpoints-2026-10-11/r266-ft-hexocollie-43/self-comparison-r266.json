@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r266-v1",
+ "preset": "Liquid Glowsticks - ATwisted Pre Set Mix By AdamFX 2 martin - disco mix Ft Hexocollie 43.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "8bfb739b9899c7a7ca7ab95393d40cd8aacaeb73e8d924b4d94d7b0d524745f3",
+  "prediction.json": "abbada037b45be5627786597a57effc905b5a3a80be99c64e4df1869523c5e58",
+  "description.json": "5f22591eb10ba7cda60d4365869e7207aff3e397472f2eb1ec25af6a2397cd22",
+  "recipe.json": "15fd43c3073b410e2c747de5002a69e06bea7a7ad25d3b005d557cbb58011b18",
+  "llm-look-description-v1.txt": "4136303cefe41fbf4c46c31c74ceffcfd9ddaa97dd9ec933cb8dc4542ea67f10"
+ },
+ "capture_result_sha256": "1fb8cba8f38eceef68dfdb762c0fc0720aeb3192d1a7e85a6775b1614c6d204b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.03,
+  "screenshot_luma": 0.028,
+  "mean_rgb_prediction": [
+   0.031,
+   0.031,
+   0.015
+  ],
+  "mean_rgb_screenshot": [
+   0.035,
+   0.028,
+   0.005
+  ],
+  "blurred_luma_correlation": 0.926,
+  "mean_abs_frame_difference_60_149": [
+   0.0284,
+   0.0145
+  ]
+ },
+ "agreements": [
+  "dark/chill/drifting/vivid right (real 0.02)",
+  "No strobe right (p 0.95)",
+  "frame prediction corr 0.93"
+ ],
+ "misses": [
+  "calibrated luminance 0.11 vs 0.02"
+ ],
+ "verdict": "agree"
+}

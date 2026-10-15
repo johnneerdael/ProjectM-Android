@@ -1,0 +1,13 @@
+Approximate look: a fairly dark to mid-dim, cool blue-led picture dominated by a single colour-cycling waveform line over a feedback background. The recipe has only two constructions: a built-in angled waveform trace (mode 6, thin line, not dotted) and a radial feedback warp. There is no mirroring, tiling, custom shader or particle system, so the picture should be plain and uncluttered.
+
+Colour: the wave colour changes continuously over time. Its closed-form colour spends the most time in pink (about 32 percent), blue (28 percent), purple (14 percent), cyan (11 percent), then some green and orange. The calibrated display estimate leans cooler, with blue about 37 percent, green 18 percent, cyan 9 percent and pink 8 percent, so blue is the likely leading hue but the line itself will drift through pink, purple and cyan. Estimated saturation is moderate (about 0.44), mean luminance low to moderate (about 0.28, interval 0.10 to 0.49). A gamma setting brightens the image up to 2x before clamping, and the outer and inner borders are tinted purple-magenta at alpha 0.7 and 0.3, so a faint coloured frame edge is plausible.
+
+Shape and position: a single line trace anchored at the top of the screen (wave_y 0). Its alpha is authored far above 1, so it is fully opaque. Its position and shape follow the left audio channel, and bass moves its horizontal position and its mystery parameter.
+
+Motion: feedback warp has a spatially varying zoom (varying with x and y) with a radial zoom exponent of 1.001, no rotation and no translation. The picture pulls or pushes slowly toward or away from the centre, so line remnants stream outward or inward as soft trails. The estimated flow is about 0.22 screen widths per second, with frame-to-frame change low (0.044). The decay value is not resolved, so trail length is uncertain. Activity is Normal, with a Chill reading also possible.
+
+Audio: bass drives zoom (clamped, so a bass hit gives a sudden zoom change) and the wave's position. Strength is not resolved.
+
+Flashing: no-strobe probability is 0.73, so occasional pulses are likely rather than steady calm. The brightness-jump estimate is about 0.46 per 10 s (range 0 to 4.2).
+
+Uncertain: trail length, how bright the screen gets, and whether the pink or blue hue is more visible at a given moment.

@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r273-v1",
+ "preset": "your little toe art ov inducing performance.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f260225c55a0c71f9a3ee13cc6e6a4a2114e29303642793f3cf2a9159d4c81cd",
+  "prediction.json": "35ffb356b5beeb4ee2fbffc54be4aca67735e80b46c0488ea2fb3a5757e015a2",
+  "description.json": "9c51f7c6e69d5279b465e840c197923403c7c3900c52716080a85f08b2468300",
+  "recipe.json": "8446f23afc24aab40b3d99a69deae402ee43ab6f78d2c58b86035f034d9070f8",
+  "llm-look-description-v1.txt": "ef6a9408e590f40918aed687eb68d586e602a6559c184ae5f2ee99f4e270fcdd"
+ },
+ "capture_result_sha256": "1d1f106bf67e9aad989574cb6ed32aef17784b9a14d77bcd32f390290a29d82e",
+ "review_measurements_v1": {
+  "prediction_luma": 0.391,
+  "screenshot_luma": 0.36,
+  "mean_rgb_prediction": [
+   0.364,
+   0.393,
+   0.454
+  ],
+  "mean_rgb_screenshot": [
+   0.364,
+   0.35,
+   0.452
+  ],
+  "blurred_luma_correlation": 0.958,
+  "mean_abs_frame_difference_60_149": [
+   0.0697,
+   0.1652
+  ]
+ },
+ "agreements": [
+  "balanced/drifting/normal/vivid right"
+ ],
+ "misses": [
+  "hue: red vs ruler green/yellow; frame difference underestimated (0.07 vs 0.17)"
+ ],
+ "verdict": "partial"
+}

@@ -1,0 +1,13 @@
+Predicted look: a fairly dark screen (calibrated mean luminance about 0.14, interval 0 to 0.36; the dark facet is not reached, balanced is borderline) with a centred, outward-streaming, embossed-looking geometric tunnel in yellow and blue, with some orange dots.
+
+Structure: everything is centred. The built-in wave is an audio-deformed circle around the screen centre (radius about 0.5), but its alpha is 0.001, so it is likely nearly invisible. Three 60-sided circular shapes sit at the exact centre. A small one (radius 0.1) is a pale yellow centre fading to orange-yellow and transparent at the rim, so a soft yellow glow. A mid one (radius about 0.3) copies the previous frame, zoomed 1.5x and turned about 0.69 rad, tinted blue, so it feeds a blue recursive nested ring or tunnel. A very large one (radius 1.54, bigger than the screen) also copies the previous frame, zoomed 1.5x and turned 90 degrees, so it should add a recursive, droste-like swirl that fills the screen. Two orange point-cloud waves (512 points each, alpha about 0.3) wander between roughly x 0.27-0.74 and y 0.26-0.74. A third point cloud has authored positions far off screen, so it is mostly unseen. One more shape has unknown geometry.
+
+Motion: the warp expands the image from the centre by 5% per frame with no rotation or drift, so content streams outward, while the copied-frame shapes add rotating, nested repetition. Trails are very short (half-life about 3.6 frames, about 0.13 s), so the picture is clean rather than smeared, and flat regions fall to black. The composite is a gradient-relief stage: edges and texture show as embossed relief and flat areas stay near black. Expect the look to be mostly dark with bright edges.
+
+Colour: the pooled estimate is yellow and blue about equally (about 0.45 each) with a little orange. I would call yellow and blue equals. Saturation is moderate to low (calibrated about 0.17, interval 0 to 0.4). Hue is not randomised per load.
+
+Audio: bass is routed into the warp shader's red, green and blue values, through a clamp or threshold, so bass hits probably change brightness and colour. The strength is unresolved. The circle wave follows the waveform but is nearly transparent.
+
+Flashing: no-strobe probability is 0.89, between 0.7 and 0.95, so occasional bass-driven brightness pulses are likely; the brightness-jump estimate is about 0.1 per 10 s, upper end about 3. Not strobe-like, but not guaranteed steady.
+
+Uncertain: how bright the relief edges get, the size of the bass response, and whether the blue or yellow dominates.

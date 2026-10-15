@@ -1,0 +1,13 @@
+Approximate look: a mostly dark, cool blue-led picture with turbulent, smeared structure and a large audio-driven round shape that pulses. It is energetic and the estimate says it flickers.
+
+Colour: the calibrated estimate puts blue at about 81 percent of coloured pixels, with small shares of green and pink, and a strongly cool balance. Mean luminance is low (about 0.24), saturation moderate (about 0.45). A flat canvas displays as black through the composite, so empty areas should be dark and colour appears only where detail exists. The composite makes grey detail blue. The warp stage separates channels: red and blue are inverted every frame (gain about minus 0.71, offset 0.71), while green is kept for a long time (gain 0.998, half-life about 10 s). That implies fast red-blue alternation at frame rate and slowly lingering green, so a magenta-blue shimmer plus greenish remnants are plausible. How these combine on screen is uncertain.
+
+Shapes: a 100-sided polygon, effectively a disc, whose position, radius, opacity and colours are driven by bass, mid and treble (mostly clamped, and colours use smoothed bands). The built-in audio-deformed circle is drawn in black at alpha 0.001, so it should be nearly invisible. A custom wave exists, but its details are not resolved.
+
+Motion: the feedback map pulls inward slightly (stretch 0.99), with an extreme radial zoom exponent and an audio-driven zoom and warp amount (0 to 0.4). A warp shader displaces the picture by its own gradients and by noise, and the composite adds a large self-advection. That reads as flowing, smeared, liquid and turbulent motion. Estimated flow is about 0.19 screen widths per second and frame change about 0.10, so it is lively. Activity is Intense.
+
+Audio: bass, mid and treble all shake the disc, change its size and opacity, and modulate zoom and deformation. Strength is unresolved.
+
+Flashing: no-strobe probability is only 0.006. The jump estimate is about 24 per 10 s (range 7 to 88), which is frequent flicker toward strobe-like, and the shape's audio-driven opacity gives 3.6 to 4 transitions per second. Do not call it gentle or strobe-free.
+
+Uncertain: how bright the disc gets, how strong the red-blue alternation looks, and the actual composition of the turbulent texture.

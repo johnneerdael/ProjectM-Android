@@ -1,0 +1,13 @@
+Approximate look: a dim, calm, orange-brown picture with soft, slowly expanding and turning structure, lit by small clusters of points near the centre. The overall impression is a warm amber glow, not a colourful display.
+
+Colour: the composite shader maps a single brightness value onto an orange ramp that runs from black through orange to pale yellow, with a tint of about 1.95, 1.35 and 0.9. An empty canvas shows as brown-orange (about 0.29, 0.20, 0.14), so the background is a muted amber rather than black. The calibrated estimate says orange about 67 percent, green 11 percent, yellow 8 percent, with mean luminance about 0.20 and saturation about 0.54. The two custom point waves are authored cyan-green, but since the composite recolours by one scalar, they most likely appear as lighter orange or yellow points rather than green. That mapping is uncertain.
+
+Shapes: a five-sided shape (radius larger than the screen, rotated about 0.75 rad, fixed at the centre) copies the previous frame at 0.78 scale, giving nested recursive copies. Two 512-point custom waves sit just left of and above the centre: one at x 0.38 to 0.42 and y 0.50 to 0.64, one at x 0.40 to 0.51 and y 0.39 to 0.50, each at alpha about 0.25. The built-in dotted wave is authored at alpha 0.001, so it should be invisible.
+
+Motion: the feedback keeps everything (gain 1, no fade). The whole image expands from the centre by 0.2 percent per step and turns by 0.004 rad per step, with a mild warp of 0.125. That should read as a slow outward-turning swirl in which drawn points leave long, persistent spirals that accumulate. The estimated flow is very low (about 0.04 screen widths per second), and frame-to-frame change is about 0.018.
+
+Audio: no band is wired to any control. Only the waveform data feed the point waves, and their strength is not resolved. The picture should respond weakly to music.
+
+Flashing: no-strobe probability is 0.98 and the jump estimate is about 0, so it is steady with no flashing. The activity is Chill, and the still facet is likely.
+
+Uncertain: how much the endlessly retained points fill the screen over time, and whether the green tint shows at all.

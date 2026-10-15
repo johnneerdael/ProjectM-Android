@@ -1,0 +1,15 @@
+Approximate look: a busy, warm-mixed, mid-dim swirling picture with short trails, built from recursive copies of the previous frame, many scattered points and a turbulent shader flow. It is not a calm scene.
+
+Structure: two large pentagon shapes (radius 1.07, bigger than the screen) are centred near the middle and draw a tinted copy of the previous frame, one scaled to 0.74 and the other to 0.78. Because each frame copies the last one, the copies nest into a recursive tunnel or spiral that turns and zooms on screen. Two custom point waves with 512 points each add a dark violet and a bright green-cyan scatter. A built-in dotted waveform is authored at alpha 0.001, so it is practically invisible.
+
+Motion: the feedback warp is strong. Zoom varies across the screen from about 0.14 to 7.4, centred on the top-right corner, with a constant offset of about minus 0.28 horizontally and minus 0.32 vertically per step. That means the image is dragged hard toward one corner every frame. Rotation depends on position and the bands. A warp shader steers the image by its own gradients and by noise, giving a flowing, fluid or smeared look. A composite shader adds a periodic wobble. Estimated flow is about 0.21 screen widths per second and frame change is about 0.07, so it moves visibly.
+
+Trails are short: the warp keeps about 80 percent per step with a small offset, a half-life of about 3 frames (0.1 s).
+
+Colour: the estimate gives red about 28 percent, orange 21 percent, green 21 percent, yellow 15 percent and blue 11 percent, with mean luminance about 0.29 and saturation about 0.67. A flat canvas shows almost black through the composite, so colour comes from detail. Several q values are redrawn at random at about 3.1 s and then every 12.6 s, so the colours and shapes change abruptly at those times.
+
+Audio: bass, mid and treble all turn the image, move the shapes and change the shader colours (thresholded, so jumps). Strength is not resolved.
+
+Flashing: no-strobe probability is 0.51, below 0.7, so treat it as flickering and not strobe-free. The jump estimate is about 0.6 per 10 s (range 0 to 4.7), and the periodic random redraws may produce visible scene changes. Activity is Normal.
+
+Uncertain: the exact hue balance, how dense the recursive tunnel gets, and how much the dragged corner dominates.

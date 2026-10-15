@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r268-v1",
+ "preset": "flexi - grind my glitch up [250].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b428b80b8b9e49e06c09dc8061a3ab41766d97b96a349cb0f9f1daf73180e3c9",
+  "prediction.json": "aa3c3d3a90724c370339a23e7bbb22dc5e7b8287b4dc1fb7611df09524969992",
+  "description.json": "06b27f2e3333125ec002653b9b134913303fec1c43c6bbd32df8ab64e1fddf0c",
+  "recipe.json": "af6dd5479ce8691fa790787d7cfcddc1b6277769e201a315e072d7c7ca7129c3",
+  "llm-look-description-v1.txt": "4cdaf170464ce0957091064b7d7dbae459cf4994e3ca531652c7f476df729c3f"
+ },
+ "capture_result_sha256": "b7d48db555fc75376040757f28a4f4e879b1d36b9d84b5dba8d909b01e3903d0",
+ "review_measurements_v1": {
+  "prediction_luma": 0.301,
+  "screenshot_luma": 0.29,
+  "mean_rgb_prediction": [
+   0.301,
+   0.301,
+   0.301
+  ],
+  "mean_rgb_screenshot": [
+   0.298,
+   0.285,
+   0.317
+  ],
+  "blurred_luma_correlation": -0.046,
+  "mean_abs_frame_difference_60_149": [
+   0.0436,
+   0.0688
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "balanced/drifting/normal/vivid/warm right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}
