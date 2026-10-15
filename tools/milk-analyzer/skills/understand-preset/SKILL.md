@@ -281,7 +281,7 @@ full recipe tens of thousands of lines long.
    0.7 and 0.95, say occasional pulses are likely. Below 0.7, say it flickers
    and is not strobe-free. `facet_<option>_probability` with a `threshold`
    decides that Mood option (dark, bright, monochrome, pastel, warm, cool,
-   still): at or above the threshold the preset belongs.
+   still, chill, intense): at or above the threshold the preset belongs.
    Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.
