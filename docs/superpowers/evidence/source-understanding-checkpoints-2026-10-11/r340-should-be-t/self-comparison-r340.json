@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r340-v1",
+ "preset": "Stahlregen + Flexi - dots (layered) - don't know why i haven't played with this shader earlier, perhaps i should be t.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "3d1e3a91a683f797b7e16ffa7e12ca58d45147769ccdeb52679b36d567c4815e",
+  "prediction.json": "6e1735774cccef2bd70ce7a0101b5c8901c5e40880ea581bf41f499979753491",
+  "description.json": "a340233a240d926016a8402408c17f4a2b1e43f5aa7800ca2ddec218cfb1777f",
+  "recipe.json": "e9bc5abecf0e0db98bd33c1f0a8c8410ef63bffc74c3e02ae59bc15496ac062b",
+  "llm-look-description-v1.txt": "59039974661450febf6459168cc36569fa60f912cf9679881abf624e8d52c3f4"
+ },
+ "capture_result_sha256": "115e52bde3b773e13638bbc72ff8f66500696a87adb460c2069b8a51564badcb",
+ "review_measurements_v1": {
+  "prediction_luma": 0.164,
+  "screenshot_luma": 0.24,
+  "mean_rgb_prediction": [
+   0.144,
+   0.174,
+   0.121
+  ],
+  "mean_rgb_screenshot": [
+   0.215,
+   0.27,
+   0.021
+  ],
+  "blurred_luma_correlation": 0.653,
+  "mean_abs_frame_difference_60_149": [
+   0.047,
+   0.0089
+  ]
+ },
+ "agreements": [
+  "green lead right"
+ ],
+ "misses": [
+  "no facet admitted"
+ ],
+ "verdict": "agree"
+}

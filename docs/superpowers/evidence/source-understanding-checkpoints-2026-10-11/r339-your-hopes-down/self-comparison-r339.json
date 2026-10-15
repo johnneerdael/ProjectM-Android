@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r339-v1",
+ "preset": "suksma - do get your hopes down.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "8e98ed99dfe6d19afa573298973a83aeb228b0291551a27fe6264bb0ba0ba02a",
+  "prediction.json": "8a0319c701a3f1f90bf396bbc17a62a81158d6368752c820aaa549626da972fb",
+  "description.json": "9cae676e0d4a0c1430b1760488b5c7291262b8e305e2925fc6d8c004ee9ac290",
+  "recipe.json": "e67aeba242f56e20ce58f363deb9b70d2921c531776e4f4cfd211eef64cff3d7",
+  "llm-look-description-v1.txt": "0b085ed2712f0b342543c7ccbe281f6fa108ec782d8b5bf660d1175850c58ed8"
+ },
+ "capture_result_sha256": "402c8e0a69438ab64bdb1b8b6cd476c2abd45c9084b31aa0977d3ed45385e033",
+ "review_measurements_v1": {
+  "prediction_luma": 0.125,
+  "screenshot_luma": 0.007,
+  "mean_rgb_prediction": [
+   0.138,
+   0.119,
+   0.141
+  ],
+  "mean_rgb_screenshot": [
+   0.008,
+   0.007,
+   0.007
+  ],
+  "blurred_luma_correlation": 0.167,
+  "mean_abs_frame_difference_60_149": [
+   0.049,
+   0.0369
+  ]
+ },
+ "agreements": [
+  "dark right (real 0.025)"
+ ],
+ "misses": [
+  "vivid wrongly admitted"
+ ],
+ "verdict": "partial"
+}

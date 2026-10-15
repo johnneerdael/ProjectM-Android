@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r342-v1",
+ "preset": "Redi Jedi - this is my brain on milk(drop the habbit) - wisconsin cheesehead (the limit of your inquiry).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "3a76dc708732e381bc0bb957edf53511a3d97048d79dc4974ab7d0682e908ef0",
+  "prediction.json": "d02fd265290a2b7b56324bfcf5335d17af70fa889f2140fbfc0dbd61061e6960",
+  "description.json": "7dd2bf596f4169643742394dc42b54d68c6b74ce010e39426d94c5a15bcec99a",
+  "recipe.json": "e25a5df91a204f757ba137d48144b7a1d141b3885502e4d11fb9221ec566204c",
+  "llm-look-description-v1.txt": "33a1ac5f18abc266c81c806d30c6ba4a3c3327dd0be29b994a3260b2aef49dac"
+ },
+ "capture_result_sha256": "aa2412c61494a88987f6937909fa3d923cb8ee20ce20475019642ec4d2dfe55d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.02,
+  "screenshot_luma": 0.035,
+  "mean_rgb_prediction": [
+   0.06,
+   0.01,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.106,
+   0.017,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.133,
+  "mean_abs_frame_difference_60_149": [
+   0.0406,
+   0.015
+  ]
+ },
+ "agreements": [
+  "normal/vivid/warm right"
+ ],
+ "misses": [
+  "dominant colour orange claimed, ruler top red (orange second)"
+ ],
+ "verdict": "partial"
+}

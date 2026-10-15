@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r338-v1",
+ "preset": "Infused by Flexi with AdamFX 2 Stahlregen & Aderrasi + EoS + Geiss + Unchained + Zylot - Slowflowers F6.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b382cc8cfbb90c3e49af5c67aaad7ab9a2297c3d9fde881319bc57bd5962dc89",
+  "prediction.json": "6e57320ff1c2bc0f28abd12b10c926a157a8be26c5cc5e6cedc4eb30965e176f",
+  "description.json": "c35a696c02c63d33af61fb02fd23bd3d4c1d92e61f789b2b15369ae5598a0266",
+  "recipe.json": "22527fd370b52855b482d8a34d060d612ae92cdbda771a8ce61c69edb526a7b7",
+  "llm-look-description-v1.txt": "93291b4c1615f3048b1990588e3272863a71b71b5d2fd08daed5504e5168ff91"
+ },
+ "capture_result_sha256": "9208d1027453e5ef8c7849d4d179bec44e652766f80b2b19a8d3b06555cdc03d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.262,
+  "screenshot_luma": 0.262,
+  "mean_rgb_prediction": [
+   0.848,
+   0.022,
+   0.917
+  ],
+  "mean_rgb_screenshot": [
+   0.846,
+   0.022,
+   0.918
+  ],
+  "blurred_luma_correlation": 0.997,
+  "mean_abs_frame_difference_60_149": [
+   0.0591,
+   0.0716
+  ]
+ },
+ "agreements": [
+  "vivid right",
+  "frame prediction corr 0.997"
+ ],
+ "misses": [
+  "fast wrongly admitted; hue blue vs ruler cyan/pink; calibrated luminance 0.24 vs 0.47"
+ ],
+ "verdict": "partial"
+}
