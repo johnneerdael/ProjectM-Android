@@ -100,3 +100,44 @@ clock. Each step charges the frame-program node count, and each EEL loop iterati
 300-preset sample, stepping costs about 0.5M units/s (Spearman 0.88 with seconds). At 2M units, 97% of presets
 step to t = 5 s fully; the rest stop at the same point on every machine (`stepping_units.py`). The descriptor
 cache is regenerated with the deterministic code for the r15 refit.
+
+## Step 5: model r15 shipped (2026-10-15)
+
+The r15 refit regenerated all 9,606 descriptors with the deterministic stepper and the `recipe:*` probe columns, then
+refit every target (`fit-report-r15.json`; same exclusions, 5-fold OOF). Against the latest previous fit for each
+target:
+
+| OOF Spearman | before | r15 |
+|---|---|---|
+| mean_luminance | 0.675 | 0.696 |
+| mean_saturation | 0.670 | 0.703 |
+| coloured_share | 0.654 | 0.682 |
+| warm_cool | 0.627 | 0.657 |
+| mean_abs_frame_difference | 0.719 | 0.729 |
+| hue shares (8) | 0.44–0.61 | 0.51–0.65 (each +0.05 to +0.07) |
+| no_strobe ROC AUC | 0.918 | 0.921 |
+
+Leading calibrated hue over all 8,048 coloured ruler presets (coloured share > 0.2), out of fold: ruler top-2 69.2% →
+72.1%, top-1 50.1% → 53.9%.
+
+Facet decisions (`facet_scoreboard2.py`, the real decision path), r14h → r15 precision / recall:
+
+| option | r14h | r15 |
+|---|---|---|
+| dark | 83% / 38% | 81% / 44% |
+| balanced | 70% / 36% | 71% / 42% |
+| bright | 70% / 59% | 73% / 62% |
+| warm | 78% / 54% | 82% / 59% |
+| cool | 74% / 45% | 76% / 47% |
+| vivid | 78% / 71% | 79% / 73% |
+| pastel | 34% / 41% | 33% / 47% |
+| still | 83% / 36% | 82% / 39% |
+| intense | 74% / 71% | 75% / 72% |
+| no_strobe | 98% / 15% (p ≥ 0.9) | 98% / 13% (p ≥ 0.93) |
+
+No strobe gate (`nostrobe_gate_check.py`): at the old thresholds (p ≥ 0.9, jumps < 0.05) r15 admits 729 presets
+including one strobing preset (loin bowel … how to impress dullard4, 44 jumps / 10 s, p = 0.906). The next
+strobing preset scores 0.886. r14 had a 0.039 margin (0.9 over 0.861), so the threshold moves to 0.93: 599 admitted,
+0 strobing, 4 pulses out of fold. That preset's flicker comes from a fully opaque additive wave re-placed by `rand()`
+every frame. Corpus-wide, an unconditional per-frame `rand()` on wave geometry shows no strobe lift (visible waves:
+17.5% strobing vs 25% without), so it is logged as a one-off rather than turned into a rule.

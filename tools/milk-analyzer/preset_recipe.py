@@ -944,11 +944,12 @@ def _conflicts(a,b):
     return any(max(ra[m][0],rb[m][0])>=min(ra[m][1],rb[m][1]) for m in set(ra)&set(rb))
 
 
-# No strobe needs both static signals. Out of fold (shipped model, 9,516 presets): the calm classifier at >= 0.9 and the
-# jumps estimate below 0.05 admit 726 presets with no strobing preset (>= 10 jumps / 10 s) and 6 with occasional pulses
-# (0.1 let one strobing preset in); either signal alone admits strobing presets at a similar pool size. Re-check these
-# thresholds whenever the calibration is refit.
-NO_STROBE_PROBABILITY=.9
+# No strobe needs both static signals. Out of fold (shipped model r15, 9,516 presets): the calm classifier at >= 0.93 and
+# the jumps estimate below 0.05 admit 599 presets with no strobing preset (>= 10 jumps / 10 s) and 4 with occasional
+# pulses. The highest-scoring strobing preset is at 0.906, so 0.93 keeps a margin like r14's (0.9 over 0.861); 0.9 let it
+# in. Either signal alone admits strobing presets at a similar pool size. Re-check these thresholds whenever the
+# calibration is refit (build/colour-gap-2026-10-15/nostrobe_gate_check.py).
+NO_STROBE_PROBABILITY=.93
 NO_STROBE_JUMPS=.05
 
 

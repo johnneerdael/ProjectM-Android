@@ -583,8 +583,9 @@ def test_conflicting_admitted_options_keep_the_larger_margin_over_threshold():
 
 
 def test_no_strobe_needs_both_the_classifier_and_the_jumps_estimate():
-    # Out of fold (9,516 presets) the combined gate p >= 0.9 and jumps < 0.05 admits 726 presets with no strobing preset
-    # (6 with occasional pulses); either signal alone admits strobing presets at a similar pool size.
+    # Out of fold (9,516 presets, model r15) the combined gate p >= 0.93 and jumps < 0.05 admits 599 presets with no
+    # strobing preset (4 with occasional pulses); the highest strobing preset scores 0.906, so 0.9 let it in. Either signal
+    # alone admits strobing presets at a similar pool size.
     from preset_recipe import facets_block
     def stats(p, jumps):
         return {'mean_luminance': {'value': .3, 'interval': [.2, .4]}, 'mean_saturation': {'value': .4, 'interval': [.3, .5]},
@@ -595,6 +596,7 @@ def test_no_strobe_needs_both_the_classifier_and_the_jumps_estimate():
     assert 'no_strobe' in facets_block({'facts': {}}, {'statistics': stats(.95, .02)})['options']
     assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.95, .5)})['options']
     assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.6, .0)})['options']
+    assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.92, .0)})['options']
 
 
 def test_display_palette_static_sources_only_break_calibrated_near_ties():
