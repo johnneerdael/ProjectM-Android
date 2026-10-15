@@ -1,0 +1,13 @@
+Preset 205: look description (prediction from the static recipe only)
+
+Overall look: a dark, kaleidoscopic picture. A few bright neon elements (cyan, pink, blue and red) appear against mostly black, and the mirrored sector layout makes them symmetric. The calibrated mean luminance is low, about 0.15 (0 to 0.38). Calibrated saturation is also low at about 0.2 (0 to 0.47), even though the individual drawn elements are saturated. That is because the composite cuts dim content to black, so only the brightest accumulated parts show up.
+
+Composite: a 7-sector angular mirror fold (kaleidoscope), plus a left-right mirror measured at about 0.92 similarity. Whatever is drawn is repeated in mirrored wedges around the centre. The flat-level transfer is a hard threshold. Canvas levels up to about 0.125 show as pure black, 0.25 shows as 0.125, 0.5 shows as about 0.55, and 0.75 and above are near white. Faint trails therefore disappear, and bright trails stay vivid.
+
+Drawn elements: a 512-point cyan custom wave is confined to the right and lower part of the source space (x about 0.52 to 0.95, y 0.40 to 0.94). A sparse 42-point pink dot set spreads across nearly the whole screen. There are two small pairs of three-sided red polygons (shape_1 and shape_2, two instances each). Their size, vertical position and rotation are driven by bass, mid and treble through thresholds or clamps, so they should jump or spin on audio hits. Shape_1's horizontal position swings very slowly (a 94 s cycle) over a nominal range that mostly lies outside the usual screen area, so how much of it is seen is uncertain. A built-in blue audio-deformed circle (radius about 0.5, turning about 0.2 rad per second) is drawn additively at alpha 0.001, so it is barely visible.
+
+Motion and trails: the mesh only contracts the image very slowly toward the centre (0.01% per step), with a small wobble and a non-mirrored tiling in the warp. Trails keep about 97.7% per frame, a half-life of about 1 s, but the composite threshold hides the dim tail. Calibrated flow is gentle to moderate, about 0.10 screen widths per second (0.02 to 0.24). I expect pulsing, mirrored sparkle and triangles more than sweeping motion.
+
+Flashing: predicted global brightness jumps are about 0.25 per 10 s (0 to 3.6), so it is steady to occasionally pulsing. Audio-driven jumps of the shapes might look like local flashes, which are not counted as global jumps.
+
+Uncertain: how large and visible the triangles are, where the sectors put the pink dots, and the real colour balance.

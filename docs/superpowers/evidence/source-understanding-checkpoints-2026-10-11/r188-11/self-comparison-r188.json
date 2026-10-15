@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r188-v1",
+ "preset": "11.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "de87feb12ba5250c896f27bf724a0e45d1d6e669237f67eae0448eee8b5c3ccc",
+  "prediction.json": "ea40c0914e5d71175f3a98aebeffcc8efb0207c1fa9276a13267c071158b2357",
+  "description.json": "75f223c1adc70b8fc931544397969dbfb8ba9024170fa2fb7bf55e1a724149ad",
+  "recipe.json": "f1ad1e89e98811a4f0de0635284e26affca6a3de9877d0424095c7eb98659509",
+  "llm-look-description-v1.txt": "7100efd6c2ee4cdff05d58306316b4c9b57451cff98f7af25d9f93e94f8bcba6"
+ },
+ "capture_result_sha256": "6c13a18b889e23a46223b46d49ec0d09e3f88d6a26f12c7cbceecb09e4d0343f",
+ "review_measurements_v1": {
+  "prediction_luma": 0.078,
+  "screenshot_luma": 0.073,
+  "mean_rgb_prediction": [
+   0.152,
+   0.063,
+   0.007
+  ],
+  "mean_rgb_screenshot": [
+   0.139,
+   0.06,
+   0.007
+  ],
+  "blurred_luma_correlation": -0.172,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.176,
+    0.155
+   ],
+   "saturation": [
+    0.977,
+    0.977
+   ],
+   "blurred_luma_correlation": 0.571
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0468,
+   0.0432
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}

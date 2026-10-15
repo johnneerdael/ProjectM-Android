@@ -1,0 +1,13 @@
+Preset 201: look description (prediction from the static recipe only)
+
+Overall look: a grey-to-white, mostly monochrome picture built from a recursive picture-in-picture feedback pattern, with moderate brightness and slow, smooth motion. I expect a geometric, interference-like or moire texture rather than recognisable objects. The picture probably does not fill with saturated colour.
+
+Structure: the main construction is a four-sided, fully white, opaque shape (shape_0). It is centred high and to the left (source x 0.17, y 0.20) and is very large (radius about 2.38 in NDC), so it should cover essentially the whole screen. It is not filled with flat white, though. It is textured with the previous frame, zoomed by about 0.26 and turned by 4.71 rad (270 degrees). Each frame therefore pastes a rotated, shrunken copy of the last frame over itself. That nests copies into a rotating, tunnel-like or droste-style repeat. Because the shape is stationary, the nesting centre stays fixed off-centre rather than moving. A second shape set (30 sides, 1024 instances) has zero fill alpha and unknown positions, so I cannot say whether it shows up as thin outlines or as nothing. A 512-point custom wave is drawn in black at 2% alpha across the whole screen. It adds at most a faint dark speckle or line texture.
+
+Motion and trails: the warp expands the picture from the centre by about 0.1% per step, with no rotation or translation. Decay is 1.0, so nothing fades; content is only replaced by new copies and thin white border blends. The outer border (about 1% of the screen) blends white at alpha 0.04, and the inner border blends white at alpha 0.07. The centre is dimmed slightly each frame. Overall it should look slow and smooth, with the rotating copy pattern as the main visible change. Estimated flow is about 0.05 screen widths per second (interval 0 to 0.16), and the frame difference is low.
+
+Colour: the drawn elements are white, black or grey, and the steady state is grayscale. The calibrated display estimate says mean luminance is about 0.38 (0.20 to 0.62) with saturation about 0.48 and neutral warm/cool. That is uncertain and disagrees with the grayscale source palette, so I would not trust the saturation. Expect mid-grey to light-grey with little hue.
+
+Audio and flashing: no audio bindings were found, so I expect little or no beat reaction. Predicted brightness jumps are about 0 per 10 s (upper end 2.7), so it is steady and does not strobe.
+
+Uncertain: the real contrast of the nested pattern, the unknown role of the 1024-instance shapes, and whether the screen saturates to near white over time.

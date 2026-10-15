@@ -1,0 +1,11 @@
+A warm, orange-leaning picture on a dark background, medium-low brightness overall (calibrated mean luminance about 0.29, interval 0.10-0.52) but with a steep composite that pushes anything drawn toward white. Calibrated saturation is fairly high (about 0.74) and the palette is warm (warm/cool about +0.54).
+
+Drawn content: a single five-sided polygon (pentagon) of radius about 0.23 in screen-height units, filled orange (1.0, 0.6, 0.0) at the centre, fading out to a transparent edge. Its position and rotation are not resolved, so it may drift or turn. Alongside it is a built-in stereo trace made of thick red dots, but its alpha is only 0.001, so it is probably nearly invisible. The fill colour of the pentagon is constant, so the orange is the main stable hue.
+
+The composite is a tunnel-style mapping, sampling the canvas by angle and the reciprocal of radius, so the drawn content is likely stretched into a converging, tunnel-like or radial streaked structure toward the centre. Its gain is very high at low levels: a canvas level of 0.06 already shows near 0.7, and 0.25 and above is almost white. So the orange and its trails probably look bright, washed toward white or yellow-white at their cores, with a dark surround. Detail response is almost entirely white and unsaturated, which means the final colour could be paler than the pure orange suggests.
+
+Motion: feedback is slow-fading (about 0.985 per frame, half-life about 1.2 s), so trails persist for a second or more. The warp adds a gentle sinusoidal wobble (warp 0.01) with a very slight horizontal shrink, plus a small audio-driven sideways shift from bass, mid and treble. A diamond-shaped border darkens the screen centre a little each frame. Calibrated flow is moderate (about 0.16 screen widths per second) and smooth.
+
+Audio: audio shifts the feedback horizontally and recolours the warp shader channels; the displayed strength is unresolved.
+
+Flashing: low estimated brightness jumps (about 0.4 per 10 s), so it should not strobe. Confidence is low.

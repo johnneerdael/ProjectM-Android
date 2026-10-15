@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r189-v1",
+ "preset": "Rovastar & Geiss - Dynamic Swirls 3 (Smoking Delusion Mix) - boy, you've seen this shader once, you've s.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c75b7c1721cb1c92f3847af4571cca59b26066ecb5ad29835d697dde8c5ef492",
+  "prediction.json": "7647e6eb1739bfba516e86058718ba74e1f7b448b55f759ca204d47777f29845",
+  "description.json": "97880635f241d2b9676ee538433334db19c8ebf7b10ecdf23d6dacab4cd4b144",
+  "recipe.json": "b6e8826884ef744bdcd8d893b91ad9467d1407687b87cc29ba2eabc11944ac74",
+  "llm-look-description-v1.txt": "7b6bc2269eb1cdb04672f4468e31562cdf14764916b55ab053961e312dc652ae"
+ },
+ "capture_result_sha256": "07c801209d6cde95810194ba88e8dd6c79d4f06fc233b84b842be6a2e262f737",
+ "review_measurements_v1": {
+  "prediction_luma": 0.303,
+  "screenshot_luma": 0.301,
+  "mean_rgb_prediction": [
+   0.266,
+   0.313,
+   0.314
+  ],
+  "mean_rgb_screenshot": [
+   0.286,
+   0.308,
+   0.279
+  ],
+  "blurred_luma_correlation": 0.736,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.17,
+    0.108
+   ],
+   "saturation": [
+    0.315,
+    0.357
+   ],
+   "blurred_luma_correlation": 0.755
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0735,
+   0.0365
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}

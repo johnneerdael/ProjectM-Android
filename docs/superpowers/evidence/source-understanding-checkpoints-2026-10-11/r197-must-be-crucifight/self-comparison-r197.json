@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r197-v1",
+ "preset": "all death angel watch you must be crucifight.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "14b70ece21b79fc17857d27dd94c7108982ecc08292cddc7264c0e6d5df47bcf",
+  "prediction.json": "7fe5f7b00fc66efb6e669795cbd63b54da8ab2c9631df7651ff534f9c4158496",
+  "description.json": "5f579da02a56d7f95bf189e8592609de0bd78ca2d080d31e12b60b3b303c22e3",
+  "recipe.json": "e9e14367bc7011e4b1ca827e78eb044dedf3244cfa35db2610ee6e9997b935b5",
+  "llm-look-description-v1.txt": "b9a409fd6a54cc01d9c2c262ee75582f311595859a5e74e0d1782d9bb32c4caf"
+ },
+ "capture_result_sha256": "1951f4035cd4be466f3b264f7a06656303b0c5815a6f66465782076643a895cc",
+ "review_measurements_v1": {
+  "prediction_luma": 0.569,
+  "screenshot_luma": 0.56,
+  "mean_rgb_prediction": [
+   0.849,
+   0.498,
+   0.448
+  ],
+  "mean_rgb_screenshot": [
+   0.83,
+   0.495,
+   0.414
+  ],
+  "blurred_luma_correlation": 0.477,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.593,
+    0.594
+   ],
+   "saturation": [
+    0.245,
+    0.241
+   ],
+   "blurred_luma_correlation": 0.713
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.1233,
+   0.1076
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}

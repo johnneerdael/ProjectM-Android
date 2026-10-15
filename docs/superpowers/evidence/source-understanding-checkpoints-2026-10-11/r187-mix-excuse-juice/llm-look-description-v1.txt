@@ -1,0 +1,11 @@
+A soft, mostly grey, smoothly flowing picture of medium-low brightness (calibrated mean luminance about 0.33, wide interval 0.14-0.57) with little colour. The composite detail response is pure grey, and the steady canvas is grey, so any colour comes from a single faint blue curve and from a small audio-driven tint. Calibrated saturation is about 0.38 but with a wide interval (0.10-0.64), so I would expect it to look nearly monochrome with perhaps a cool bluish cast.
+
+The composite is a negative-style transfer: an empty canvas displays as white, while brighter canvas content is displayed darker, going to black near full level. So the image likely reads as dark marks and dark flowing structure over a pale grey background, or a mid-grey field, rather than bright light on black. The settled display level is around 0.27 grey. I am not certain which way round it appears; this is the most uncertain brightness cue.
+
+Drawn content: only one custom waveform, 512 points, light blue (0.38, 0.72, 1.0) at very low alpha (0.1), so a faint blue line or dotted ribbon whose position follows slow averaged audio levels. There are no polygons or other shapes.
+
+Motion: the feedback map is a radial zoom whose value is negative (about -1.10 to -1.16) around a centre located off the left edge of the screen, which is unusual; I cannot say exactly how it looks, but expect a strongly bent, possibly mirrored or sweeping flow rather than a plain tunnel. The warp adds gradient-following self-advection and a blur lookup, giving smeared, liquid, organic currents. Trails are moderate (halving in about 6.5 frames, around 0.22 s). Calibrated flow is slow to moderate (about 0.08 screen widths per second) and frame-to-frame change is small, so it should look smooth.
+
+Audio: smoothed bass and treble nudge the composite colour channels together (a brightness-type change, small, with unknown gain). A random value is redrawn occasionally.
+
+Flashing: the model assumes a possible 4 Hz brightness route, but with small estimated jumps (calibrated about 24 per 10 s, very uncertain). I would call it gentle, not strobing, with uncertainty.

@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r205-v1",
+ "preset": "Starz in MilkHDFX - Stahlregen & Aderrasi + EoS + Geiss + Unchained + Zylot + Flexi + Martin + AdamFX F.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "53b279f6297c6d8baca8155dd134210279c69553cea5734dc6de2aacd3f28f7f",
+  "prediction.json": "ef1f81601a78b3cc7184974a1f2154c3182ced55bb2f08025bf2c20958a035e1",
+  "description.json": "f7fb45fde333e2a246eb9afe668022c901fd554bf6809b93df7e5bded24bacfa",
+  "recipe.json": "3cccfea6268383b41ff4a5ba64fad2034e42451cafc43a0d49639e290315e0e4",
+  "llm-look-description-v1.txt": "22dda54d061a5df5ad51577fd0e3b091d4081f5f577b6d7f7ad0462062bc0837"
+ },
+ "capture_result_sha256": "dfb65869b81efc009ceab481aa563808005975fca2d78f666735a5056181f7af",
+ "review_measurements_v1": {
+  "prediction_luma": 0.004,
+  "screenshot_luma": 0.028,
+  "mean_rgb_prediction": [
+   0.016,
+   0.0,
+   0.013
+  ],
+  "mean_rgb_screenshot": [
+   0.132,
+   0.0,
+   0.001
+  ],
+  "blurred_luma_correlation": -0.095,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.007,
+    0.013
+   ],
+   "saturation": [
+    0.595,
+    0.674
+   ],
+   "blurred_luma_correlation": -0.09
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0051,
+   0.007
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}

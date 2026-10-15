@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r186-v1",
+ "preset": "hyperbottock scream troy knob scan nz+ sectsiscentialist phuqstiq terribly sick individual critisizes terribly healthy society.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c54a78ff183608117d3641439b564dab13fc6df7033821ab5dd5e3fb716ed298",
+  "prediction.json": "b7e23f3b45d6be93a52fcb76e42ef83bbc5f6fada0788fa91da3072ed6ce3fb4",
+  "description.json": "0ae112a579991c646d8df00cdb1759012d0624bb835ee359bc99f784c35b0fa4",
+  "recipe.json": "295bc9450de2f8217de88cd4ebaf47f52e00356904ff3e26f13d890cdab268f4",
+  "llm-look-description-v1.txt": "0a7130c957e10b4e50bd15951b03bdeba1f7ec30cc6429f97036c0810a6617b3"
+ },
+ "capture_result_sha256": "e103efc21d5246b610edf23bc8696b2673cf029a84f81fbd3fa501bd00fdf54d",
+ "review_measurements_v1": {
+  "prediction_luma": 0.303,
+  "screenshot_luma": 0.385,
+  "mean_rgb_prediction": [
+   0.284,
+   0.329,
+   0.104
+  ],
+  "mean_rgb_screenshot": [
+   0.5,
+   0.342,
+   0.466
+  ],
+  "blurred_luma_correlation": -0.492,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.294,
+    0.301
+   ],
+   "saturation": [
+    0.366,
+    0.383
+   ],
+   "blurred_luma_correlation": 0.982
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.2419,
+   0.2338
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}

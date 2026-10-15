@@ -1,0 +1,13 @@
+Preset 204: look description (prediction from the static recipe only)
+
+Overall look: a mostly dark picture with cool cyan-blue line work, rotating and tiled, that is likely to flicker in brightness with the music. The steady state is nearly black (display about 0.004 to 0.007 per channel as a lower bound). The calibrated mean luminance is low, about 0.18 (0 to 0.42). Bright content appears only where the drawn waveform and its feedback accumulate.
+
+Structure: the one clear drawn element is a built-in audio-deformed circle. It is centred, with a base radius of about 0.58 model units, it turns at roughly 0.2 rad per second, and the audio waveform ripples its radius. Its colour is cyan-white (0, 0.99, 1.0, max-normalised). Its authored alpha is only 0.001, so it may be much fainter than the colour suggests. This is a real uncertainty about how visible the ring is on its own. A grid of 19 by 14 motion vectors is declared in grey at alpha 0.1, but the length scale is 0, so it likely adds nothing visible. The warp shader repeats the image in non-mirrored tiles, and the composite also tiles it and rotates it as a whole. I therefore expect repeated copies of the ring across the screen, spinning slowly as a unit, or a lattice of ring fragments. There is a small procedural warp (0.1) that adds an oscillating wobble, with no zoom, rotation or translation in the mesh itself.
+
+Motion and trails: the warp keeps about 99.8% of each frame, a half-life of roughly 320 frames (about 10 s). Rings and tiles therefore leave long, slowly fading trails. Calibrated flow is moderate to fairly high at about 0.27 screen widths per second (0.12 to 0.53), mostly from the composite rotation and tiling.
+
+Colour: the waveform pushes the cool side (cyan and blue). The calibrated warm/cool is neutral, though, with a wide interval, so hue is not firmly known. Detail passed through the composite comes out grey to white, so highlights probably wash toward white over cyan.
+
+Audio and flashing: bass, mid and treble all feed colour-channel routes in both the warp and the composite through thresholds or clamps, which is likely to pulse brightness and tint with the beat. The calibrated estimate is about 8 global brightness jumps per 10 s (2 to 33), and the lower end is above 1. So I expect it to flicker rather than stay calm. It may be frequent at the high end, possibly strobe-like in loud passages. The composite flat transfer also changes with time.
+
+Uncertain: the visibility of the ring given alpha 0.001, the tile count, and the real hues.

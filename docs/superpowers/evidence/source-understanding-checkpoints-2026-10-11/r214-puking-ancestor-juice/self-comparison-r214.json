@@ -1,0 +1,18 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r214-v1",
+ "preset": "skipper skipper kiss me hard - inspired by unmitigated torture roam3 puking ancestor juice.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1a3b5fbb60aaee901030c1ceec378a5887867aab2cfe2c054acc6df772dd6986",
+  "prediction.json": "a77df142aad836018b7760fe1cf412aa38a329dc30b2d18aec213c048b2ce3f1",
+  "description.json": "b1871b18ea6841c814c486bceeca7e7f47ea2080bf7d5d5ce3401b305466ff2a",
+  "recipe.json": "6aa1ce85591f68922782e6abc4ec1e896d04845353aded47ccd1e9fd71d6df2e",
+  "llm-look-description-v1.txt": "79a888492fb260cf8c53251f1979e52859b5404f9529eff44c6a62aa6e9874d7"
+ },
+ "capture_result_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "review_measurements_v1": {},
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}

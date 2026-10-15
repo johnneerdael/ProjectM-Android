@@ -1,0 +1,15 @@
+Preset 202: look description (prediction from the static recipe only)
+
+Overall look: a swirling, mirrored, tunnel-like feedback picture of medium brightness and fairly strong colour, in constant rotation. I expect it to read as a psychedelic vortex more than as discrete objects.
+
+Structure: the central element is a 20-sided polygon (shape_3) fixed at screen centre with radius about 0.97. It is textured with the previous frame, zoomed to about 0.61 and turned by about 0.63 rad, and it is opaque at the centre and transparent at the rim. Each frame therefore pastes a smaller, rotated copy of the last picture into the middle, which nests into a spiral or droste tunnel. Its declared colours run from red at the centre to green at the rim. A second, 16-sided shape (shape_0) is only 20% opaque. It sits near the middle (centre range 0.38 to 0.62) and moves with bass. Its radius swells and shrinks on an 18.8 s cycle, reaching very large sizes. It also spins at up to 6 rad per second and cycles through blue, green, pink, red and cyan. It should read as a large soft tinted wash with pulsing, rotating polygon edges. A built-in two-trace audio waveform (mode 7, additive, thick) is drawn at alpha 0.001, so it is almost invisible.
+
+Motion: the warp map combines a radius-dependent zoom, an angle-dependent rotation (-1.5 to +1.5 rad per step) and a radial twist, with no vertical drift. I expect the whole image to rotate and swirl visibly, with the sign of the twist varying by angle and radius. Trails are long, with decay 0.999 (long-lived), while a 6.9% inner border at alpha 0.1 clears the edges slightly. Calibrated flow is about 0.12 screen widths per second (0.03 to 0.27).
+
+Composite: gamma brightening up to 1.63x, plus an echo copy at 50% opacity mirrored left-right, so the picture is two-fold mirror symmetric (an upper estimate). The hue tint is drawn at random on each preset load, so the dominant colour differs between loads. The source steady state suggests a yellow-leaning cast, but treat that as a weak lower bound.
+
+Audio: bass moves shape_0's position, thresholded or clamped, so the polygon jerks on bass hits. The wave follows the waveform, but it is nearly invisible.
+
+Flashing: the calibrated estimate gives about 1.1 global brightness jumps per 10 s (0 to 6.8), so occasional pulses are possible. It is not strobe-like, but not guaranteed calm.
+
+Uncertain: the final palette, how much the nested copies dominate, and the real contrast of the swirl.

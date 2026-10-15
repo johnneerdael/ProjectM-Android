@@ -1,0 +1,47 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r192-v1",
+ "preset": "AdamFX Enterz Tha Mash With Martin + stahlregen - AdamFX - In Tha Mash Effectz .milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c4e67c0f33b42379ff608216341b1b3f2c684c175833a1a3c57edd8eb6c65a60",
+  "prediction.json": "1dce4d2bd854405620fca391a9d12fb7078b478a6fab7c2bf328c170df7fd749",
+  "description.json": "980b195809353d18b722c830314a15454d3e07ea3243ca0549bbd57d13b9f1d3",
+  "recipe.json": "1bf8d4d216cf11a344372d7cd858b360e6d63f1cb0d191c10520d45daa4eb04a",
+  "llm-look-description-v1.txt": "403c3ae8315aa568734ee16e02741e06409272e6fd45b2f791e2e5def6fbe206"
+ },
+ "capture_result_sha256": "6e0ea1b277300c4866289d99a75991309eee37c86a78ef9e3a4e8da661198448",
+ "review_measurements_v1": {
+  "prediction_luma": 0.796,
+  "screenshot_luma": 0.752,
+  "mean_rgb_prediction": [
+   0.411,
+   0.922,
+   0.686
+  ],
+  "mean_rgb_screenshot": [
+   0.697,
+   0.816,
+   0.28
+  ],
+  "blurred_luma_correlation": 0.931,
+  "time_average_frames_60_149": {
+   "luma": [
+    0.345,
+    0.342
+   ],
+   "saturation": [
+    0.157,
+    0.131
+   ],
+   "blurred_luma_correlation": 0.927
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0872,
+   0.0616
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}

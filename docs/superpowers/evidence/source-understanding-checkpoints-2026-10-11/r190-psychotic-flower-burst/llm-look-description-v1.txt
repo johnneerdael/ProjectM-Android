@@ -1,0 +1,11 @@
+A medium-dark, organic, splattery picture built from many small round shapes, with pale, washed highlights. Calibrated mean luminance is about 0.25 (interval 0.06-0.49), saturation about 0.47, and warm/cool about neutral (0.07), so no strong overall colour bias. The settled canvas is dominated by red, which the display shows as pinkish. Each time the preset loads, a random tint (cycling over roughly 15-20 s) changes which hues appear: blue, cyan, pink, red or yellow, so no single palette is fixed.
+
+Drawn content: a circle built from the audio waveform, radius about half the screen height, drawn additively in bright periwinkle blue (0.44, 0.40, 1.0 after normalisation). Its alpha is only 0.003, so it is faint and probably only a thin glow. Its centre jumps around with bass, mid and treble. Over it sit four groups of 12-20-sided polygons: two bright red twelve-sided shapes, and three sets of sixteen twenty-sided copies in dim red, very dim green and dim red with a blue border. All are small (radius about 0.1), they move with the audio levels and are mostly low alpha, so they add small, glowing, round blobs in red and green with blue-ish rims.
+
+The warp shader subtracts a blurred copy from the sharp feedback each frame, which makes seeds grow into spots, cells and wormy splatter patterns that spread over the canvas. Gradient-driven self-advection, plus a strong composite distortion of up to 0.4 of the screen, smears these into flowing, liquid, flower-like swirls. The picture also contracts very slowly toward the centre (about 0.05 percent per frame) and has trails of about 20 frames halving time. Blue fades faster than red, so older trails shift redder. Calibrated flow is moderate (about 0.28 screen widths per second).
+
+The composite is steep: mid-level canvas goes almost white, so bright patches look pale and washed out.
+
+Audio: nearly all control comes from bass, mid and treble moving positions, so the layout jitters and sprays with the music. Random values redraw the centres.
+
+Flashing: low estimated brightness jumps (about 0.4 per 10 s), so no strobing expected, though uncertain.

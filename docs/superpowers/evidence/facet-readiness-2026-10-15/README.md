@@ -45,3 +45,17 @@ Static calibrated estimates (r13 model, out of fold, 9,516 presets) and engine-r
   `coloured_share`, a measure the calibration does not estimate yet.
 - To improve: better static features, not remapping. Next steps: calibrated `coloured_share`, hue shares
   (refit running), and per-frame state analysis for jumps.
+
+## Residual gap scans (static OOF errors, r13h model)
+
+These scans look at the worst 10% of presets by absolute error and list the static facts over-represented
+among them (lift).
+
+- **Brightness:** active motion-vector grids (lift 1.59), textured-material channel domains, strong warp zoom
+  ranges. Per-frame-sized motion-vector grids were dropped from the closed form; they now count from their
+  control ranges (`7c7f5ea7`). The effect is negligible until vector length comes from the motion field.
+- **Brightness jumps:** a shape-state family (variables `mx`, `my`, `t_abs`, `k2`; 589 presets, median 65 jumps
+  per 10 s) dominates the magnitude errors. The model already ranks them as heavy flickerers (median estimate
+  58), so this is not a No strobe safety issue.
+- **Flow:** bass-driven zoom patterns (lift 1.8–1.9) and zoom ranges. Derived span columns (max − min) gave a
+  flow Spearman of 0.6949 → 0.6957. Not shipped.

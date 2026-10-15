@@ -1,0 +1,13 @@
+Approximate look: a bright, warm, soft and organic picture, mostly pale cream and orange-yellow, with embossed liquid-like texture that slowly grows and flows. A coloured dotted trace circles at the centre.
+
+Brightness and colour: the calibrated estimate puts the picture bright (mean luminance about 0.70, range 0.52 to 0.93) and moderately saturated (about 0.47). Likely hues are orange (about 0.52), yellow (about 0.16), and smaller shares of red, blue and pink. The composite shows flat regions as a pale cream, close to (0.96, 1.0, 0.83). It turns textured detail orange to yellow, and the strongest content tends toward blue-white. Flat areas are only part of the story. The composite is a relief (emboss) stage, so edges and texture stand out like lit relief on that pale ground.
+
+Structures: the warp adds a finer version of the picture and subtracts a coarser blur each frame, so small seeds grow into blobs, cells and splatter that spread over much of the canvas. Tiling (one plain, one mirrored) and image-driven self-advection give flowing, smeared, fluid patterns, possibly with repeated or tiled cells. The only drawn element is a thick, additive dotted trace around the screen centre. It follows the left and right audio waveforms and rotates at about 0.3 rad/s. Its colour cycles through many hues (green, blue, cyan, red, pink, orange and others) at about 0.2 cycles/s. It is scaled so its brightest channel is full, and it seeds the growing texture.
+
+Motion: slow and smooth. Estimated flow is about 0.06 screen widths per second. Trails are long, with a half-life of about 3 s. The mesh controls are neutral (no net zoom, rotation or drift), so movement comes from the advection and pattern growth.
+
+Audio: no band routes (bass, mid, treble) were found. Only the trace shape follows the waveform, so the response is gentle and continuous.
+
+Flashing: the no-strobe probability is 0.92, so occasional pulses are likely and it is mostly steady. The estimate is about 0.2 jumps per 10 s.
+
+Uncertain: how much colour the relief and advection stages add, and whether hue is as orange-led as estimated.

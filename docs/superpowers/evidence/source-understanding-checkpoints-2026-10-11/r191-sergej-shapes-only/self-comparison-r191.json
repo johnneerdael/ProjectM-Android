@@ -1,0 +1,34 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r191-v1",
+ "preset": "martin - beat test pendel sergej shapes only.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "27a2c1ffce72fbb25625377a473daec8093e94ab96ed7ca8bd7ad79b0bda1e8e",
+  "description.json": "d4c88b9e45fa8b84e1bd28faa22d3a3a6bee012c40d7a4f92dcdb069d3cbe075",
+  "recipe.json": "a5e06570063b057f50f3863aaea7c0f22b8a844ad15d8646c8483ce21dc27900",
+  "llm-look-description-v1.txt": "2cf1191a7b20394dd65abbe2ec9f63cfd1c429ad76397be24df257912cb65056"
+ },
+ "capture_result_sha256": "e1ac243ee0ada7134d41bdb55fbe6eb17ce25174a505ffb3606b6b000c348ff6",
+ "review_measurements_v1": {
+  "time_average_frames_60_149": {
+   "luma": [
+    0.0,
+    0.026
+   ],
+   "saturation": [
+    0.0,
+    0.485
+   ],
+   "blurred_luma_correlation": 0.035
+  },
+  "mean_abs_frame_difference_60_149": [
+   0.0,
+   0.0242
+  ]
+ },
+ "agreements": [],
+ "misses": [],
+ "verdict": "batch round: see rounds-2026-10-15.md (static triage table)"
+}
