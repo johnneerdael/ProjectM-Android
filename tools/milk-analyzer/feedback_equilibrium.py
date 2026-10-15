@@ -206,7 +206,23 @@ def apply_colour_matrix(matrix,rgb):
 STAGE_CONTROL_BUDGET_SECONDS=3.
 
 
+_STAGE_CONTROL_CACHE=[]  # [(facts, key, result)]: the few most recent presets
+
+
 def _stage_controls(facts,bands,times,fps=30.,budget_seconds=STAGE_CONTROL_BUDGET_SECONDS):
+    """Cached _stage_controls_uncached: one recipe build probes the same frame program many times (16 calls took 4.8
+    of 6.4 s). Entries hold the facts object itself and match it by identity, so another preset never reuses them;
+    callers receive copies, so mutating a result cannot leak into the next probe."""
+    import copy
+    key=(tuple(sorted(bands.items())),tuple(times),fps,budget_seconds)
+    for cached_facts,cached_key,result in _STAGE_CONTROL_CACHE:
+        if cached_facts is facts and cached_key==key:return copy.deepcopy(result)
+    result=_stage_controls_uncached(facts,bands,times,fps=fps,budget_seconds=budget_seconds)
+    _STAGE_CONTROL_CACHE.insert(0,(facts,key,result));del _STAGE_CONTROL_CACHE[8:]
+    return copy.deepcopy(result)
+
+
+def _stage_controls_uncached(facts,bands,times,fps=30.,budget_seconds=STAGE_CONTROL_BUDGET_SECONDS):
     """Inputs a stage program reads at each declared time: bands, the engine frame clock, readonly
     render values and the per-frame state (exported frame program stepped under the same bands).
 

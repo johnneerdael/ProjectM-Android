@@ -275,3 +275,22 @@ def test_partial_motion_vector_grid_contributes_from_its_control_ranges():
     assert len(terms) == 1
     area, premultiplied, alpha, additive = terms[0]
     assert area > 0 and abs(alpha - .65) < 1e-6 and premultiplied[0] > premultiplied[2]
+
+
+def test_stage_controls_are_computed_once_per_preset_and_times(monkeypatch):
+    # A recipe build probed the same per-frame program 16 times (4.8 of 6.4 s). Results are reused for the same
+    # facts object and times, and recomputed for a different preset.
+    import feedback_equilibrium as Q
+    calls = []
+    real = Q._stage_controls_uncached
+    def counting(facts, bands, times, **k):
+        calls.append(1); return real(facts, bands, times, **k)
+    monkeypatch.setattr(Q, '_stage_controls_uncached', counting)
+    Q._STAGE_CONTROL_CACHE.clear()
+    a = {'/analysis/visual_description/static_behaviour/context': {}}
+    b = {'/analysis/visual_description/static_behaviour/context': {}}
+    bands = {'bass': 1.}
+    first = Q._stage_controls(a, bands, (5.,)); again = Q._stage_controls(a, bands, (5.,))
+    assert len(calls) == 1 and first == again and first is not again
+    Q._stage_controls(b, bands, (5.,))
+    assert len(calls) == 2
