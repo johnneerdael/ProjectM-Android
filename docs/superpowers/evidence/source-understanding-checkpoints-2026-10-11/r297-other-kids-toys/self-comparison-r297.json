@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r297-v1",
+ "preset": "MegalomaGreg - Ambitions [Flexi's mix 23 mindblob] [remix 10 other kids' toys] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c55d4c66e9140f33ab2dd3354316a392882e2bb83b0303ec0ca78181e610202e",
+  "prediction.json": "fafa93ddd3aecdedf55f59edd7014d5ffe63a6c4c1177e6aa65d8d606747bfb0",
+  "description.json": "31a0dd9a39aa36658e6e201a0f63ee56e9dd5397f1455c0831a2ce557b29c0d0",
+  "recipe.json": "80cf34436c4d88d6e2bc3ca895537b2871a87a51de2a123c92b10df9c9175ea5",
+  "llm-look-description-v1.txt": "4842a4edebaae918345f61880cfac61cf377855ad155dc6e8d2a5ef99f3680e4"
+ },
+ "capture_result_sha256": "615e41837e881152f95c5487678e7260f94962dd461ae8a8856b314af0c5b84b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.161,
+  "screenshot_luma": 0.167,
+  "mean_rgb_prediction": [
+   0.261,
+   0.141,
+   0.06
+  ],
+  "mean_rgb_screenshot": [
+   0.303,
+   0.14,
+   0.022
+  ],
+  "blurred_luma_correlation": 0.797,
+  "mean_abs_frame_difference_60_149": [
+   0.0323,
+   0.0135
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "chill/drifting/vivid/warm right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

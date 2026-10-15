@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r304-v1",
+ "preset": "Rovastar & Unchained - Further Tastes Of Ambrosia.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c37e68d48f930193e3031b2f9daa43a8c6047f2471031ed6ff9e0983642f17a3",
+  "prediction.json": "b34466ad25ab0c7b0eb59adbfc2950d8c6b7d32ba7ea155dd87621c479e04b62",
+  "description.json": "119869e37d55637e88ee6a64a1efe868a0a803191e5bd7da0d54ab0b1eede4d2",
+  "recipe.json": "2c682b52a8e7319ef02128a666e67d78f0b8fe52e830d4394481ae56c644ed34",
+  "llm-look-description-v1.txt": "9f5400df473d05deb206946bab985e149c134805146509c49a22677e8296f8e0"
+ },
+ "capture_result_sha256": "1f959856328ffa85973ab9c53bd848ef027616fa596195c81ecb223b39a61a98",
+ "review_measurements_v1": {
+  "prediction_luma": 0.536,
+  "screenshot_luma": 0.416,
+  "mean_rgb_prediction": [
+   0.596,
+   0.501,
+   0.697
+  ],
+  "mean_rgb_screenshot": [
+   0.472,
+   0.382,
+   0.594
+  ],
+  "blurred_luma_correlation": 0.149,
+  "mean_abs_frame_difference_60_149": [
+   0.0446,
+   0.0366
+  ]
+ },
+ "agreements": [
+  "purple lead right",
+  "bright/cool/drifting/normal right"
+ ],
+ "misses": [
+  "vivid wrongly admitted"
+ ],
+ "verdict": "partial"
+}

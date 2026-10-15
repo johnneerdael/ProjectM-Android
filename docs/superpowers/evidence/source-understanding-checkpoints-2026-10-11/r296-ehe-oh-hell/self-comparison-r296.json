@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r296-v1",
+ "preset": "suksma - god might as well2 - more free advertising for ehe oh hell.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "7b9e014f8e7eed6860092f2eabfe596e3af1d9c8c0bf2216749d64f83f2d0923",
+  "prediction.json": "ac8ba9ef4156d8abe82d5a48ec01c83eba3464b04a0508ef8a5ee8b97fe25930",
+  "description.json": "6c41a9ce0850d6ba45735b8d32b396c4f1292b1be4af7b106102c5b96b91adf5",
+  "recipe.json": "8aee6991918fc2c7b59dba26d52b19dcc87f3eb049a3b1ae116d11124a348c34",
+  "llm-look-description-v1.txt": "3f192bbf47ac4d254ef3d0bb0d751bd58c4d39086f19a75e328b56a4a2c6564d"
+ },
+ "capture_result_sha256": "10755a8d3d9866cf8fcd105de7a005eee6b573ced15a03d2eb5c27225886fc9a",
+ "review_measurements_v1": {
+  "prediction_luma": 0.111,
+  "screenshot_luma": 0.119,
+  "mean_rgb_prediction": [
+   0.113,
+   0.11,
+   0.105
+  ],
+  "mean_rgb_screenshot": [
+   0.125,
+   0.119,
+   0.107
+  ],
+  "blurred_luma_correlation": 0.978,
+  "mean_abs_frame_difference_60_149": [
+   0.0563,
+   0.0355
+  ]
+ },
+ "agreements": [
+  "dark/normal/vivid right (real 0.045)",
+  "flicker kept out (p 0.06, 5 jumps)",
+  "frame prediction corr 0.98"
+ ],
+ "misses": [
+  "hue: green vs ruler yellow/orange; drifting wrongly admitted"
+ ],
+ "verdict": "partial"
+}

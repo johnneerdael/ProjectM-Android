@@ -1,0 +1,9 @@
+A busy, muted scatter of many small polygons on a flat greyish-tan ground, redrawn almost from scratch every frame. The warp shader multiplies the previous frame by about zero and adds a constant colour (about 0.35, 0.35, 0.28), so there are essentially no trails and the picture does not accumulate. Each frame shows the current shapes over a dull tan-grey base. Estimated mean brightness is low to moderate (about 0.23, interval 0.05 to 0.45). Saturation is low to moderate (about 0.26); the monochrome facet is not admitted (probability 0.27). The hue estimate is mixed, with orange leading (about 0.25), then green, blue and red, and no firm dominant colour (top share about 0.5). The shapes' own fill colours are unknown.
+
+Elements: two groups of polygons. One group has 512 instances of 14-sided shapes, and the other has 1024 instances of 23-sided shapes, the latter rotated about 0.44 radian and at half opacity. Their positions, sizes and opacity depend on bass, mid and treble, so expect a swarm or cloud of small overlapping blobs that jump around with the music. A two-trace waveform in pale grey through the centre is drawn at almost zero opacity, so it is likely invisible. The warp also magnifies fine texture (gain about 15), which could add colourful speckle. This is uncertain.
+
+Per-load variants: the warp shader branches on a random value drawn at each preset load. In about half of loads it takes one path and in the other half the other path, so the look differs between loads. I cannot say how.
+
+Motion: a faint 0.5% inward zoom exists, but with the previous frame discarded the movement comes from the shapes' audio-driven positions. The calibrated estimate is slow to moderate flow (about 0.12 screen widths per second), classed Chill with some Normal chance.
+
+Flashing: opacity and position respond sharply to the audio. The no-strobe probability is 0.79 and jumps are about 1.6 per 10 s (0 to 8), so occasional pulses are likely.

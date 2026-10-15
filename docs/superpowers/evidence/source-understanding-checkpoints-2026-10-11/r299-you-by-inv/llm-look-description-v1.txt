@@ -1,0 +1,11 @@
+A frantic, inverted-looking tunnel and fractal picture, with circles and dots over a pale ground, in cold cyan and blue. The estimated palette is led by cyan (about 0.43) and blue (about 0.33), with some yellow and green. Mean brightness is low to moderate (about 0.27, interval 0.09 to 0.49). The composite's flat-colour response is inverted: a black canvas maps to near white and bright canvas to dark. The "inv" in the name fits this, so expect dark marks on a pale field. The warm red-yellow shapes would then show as the opposite hues, cool cyan and blue. This inversion is uncertain next to the brightness estimate.
+
+Elements: three 100-sided polygons (effectively circles) that move. One has a red-to-yellow fill with a dark red edge and grows with the audio. One fades from red-yellow to transparent at its edge. One is a white disc of about 0.2 radius with a bluish edge that jitters with bass, mid and treble. A ring of dots (an audio-deformed circle, white) is drawn around the centre. All of this passes through a reciprocal-radius polar mapping, a possible tunnel, so shapes may stretch into radial rays or a funnel. A warp shader iterates a complex quadratic map, a fractal-like nonlinear feedback with shimmering, self-similar detail.
+
+Motion: very energetic. The whole image may contract or expand by up to 20% per step and rotate up to 0.1 radian per step, driven by bass, mid and treble. Trails are long (half-life about 5.7 s). Estimated flow is about 0.22 screen widths per second, and the preset is classed Normal to Intense.
+
+Audio: bass, mid and treble all drive zoom, rotation, shape position, radius and colour. The reactions are continuous, so visuals pulse with the beat.
+
+Flashing: the no-strobe probability is only 0.11 and brightness jumps are estimated at about 2 per 10 s (0.04 to 10). It flickers and is not strobe-free. Pulses from the large zoom changes are likely.
+
+Uncertain: the real tunnel appearance, and whether the ground is pale or dark.

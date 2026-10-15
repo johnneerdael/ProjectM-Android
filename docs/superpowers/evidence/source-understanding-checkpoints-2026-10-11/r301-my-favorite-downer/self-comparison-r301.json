@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r301-v1",
+ "preset": "suksma - ed geining hateops - flx not caring is my favorite downer.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9b8c4806955a8b083bf3e536f83fe55c1e5ea1f10031e3dbb73480935f1f0873",
+  "prediction.json": "472642b87d7a61cd959a53dd1a13df44a8b72cf50264e500078c8b5b0953e185",
+  "description.json": "b52191dcdf057e9985a45de60b27e3c121fec7a0668d212c7ee916a41fc5c8af",
+  "recipe.json": "e5323d6820466584080c849163647cc9ca059f4a9c2bfbc22772758b2a3c9748",
+  "llm-look-description-v1.txt": "bacd536324bc38bb3a42f081038baa185acc44a18698b2bf8be316dcafb59ea5"
+ },
+ "capture_result_sha256": "7d5e1bba8ac27ba76b937bce226553e588f851c18f82fe1b0477e7264aa0d462",
+ "review_measurements_v1": {
+  "prediction_luma": 0.821,
+  "screenshot_luma": 0.857,
+  "mean_rgb_prediction": [
+   0.729,
+   0.837,
+   0.923
+  ],
+  "mean_rgb_screenshot": [
+   0.777,
+   0.874,
+   0.92
+  ],
+  "blurred_luma_correlation": 0.576,
+  "mean_abs_frame_difference_60_149": [
+   0.0431,
+   0.0846
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "bright/drifting/normal/pastel right",
+  "flicker kept out (p 0.06, 12 jumps)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

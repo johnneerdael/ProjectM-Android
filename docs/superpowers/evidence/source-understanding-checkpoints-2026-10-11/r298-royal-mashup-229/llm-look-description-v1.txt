@@ -1,0 +1,13 @@
+A bright, multicolour, mirrored picture built from three overlapping custom waveforms that sit in the middle of the screen. Estimated mean brightness is fairly high (about 0.51, interval 0.33 to 0.73; the bright facet is admitted at 0.71). Saturation is moderate-to-high (about 0.67).
+
+Elements: three 512-point curves, semi-transparent (opacity about 0.57 to 0.59). Wave 0 is mostly green and cyan with pink and blue. Wave 1 is mostly pink and purple with blue and yellow. Wave 2 is orange, green and yellow with some red. They occupy roughly the centre third horizontally and most of the height (x about 0.24 to 0.72, y about 0.13 to 0.87), so they read as a tall mass of layered curves, not as full-screen texture. The pooled palette leads with green and blue, then pink, yellow and purple, with no single dominant hue (top share about 0.3). A legacy hue tint is applied that is chosen at random per preset load, so the exact hue placement changes between loads.
+
+Symmetry: the composite adds a left-right mirrored copy at half opacity, so the picture should look symmetric about the vertical centre. The mirror is exact only for the composite step.
+
+Motion: the feedback keeps 99.99% of the previous frame, so trails are extremely long and drawn content accumulates. The picture may slowly brighten or wash toward white; that is not confirmed. The mesh combines an angle- and radius-dependent zoom with a radial twist and rotation driven by mid and smoothed bass, with its centre wandering between about 0.2 and 0.8. Expect a slow swirling, smeared look. The estimated flow is about 0.18 screen widths per second and the preset is classed Chill to Normal, drifting.
+
+Audio: mid drives rotation and scale, and smoothed bass drives rotation. Colours are not audio-reactive in the strict sense.
+
+Flashing: no-strobe probability is 0.83 and jumps are about 0.3 per 10 s, so it should be steady.
+
+Uncertain: how washed-out the long-persistence picture becomes.

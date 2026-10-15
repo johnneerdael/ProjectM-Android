@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r305-v1",
+ "preset": "Stahlregen + Geiss + Unchained - Jelly Flower Kung Fu.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0ead8acd2ee35a7cf9e68a5a650f707d06826f8024ba5fb2d7e6b5905abfb671",
+  "prediction.json": "ea1ef17e65859fac45857c78f72736d82f8e82e61c007614ddf0eb592ba391c3",
+  "description.json": "df6e9b2ba5591ef95bb7b94d357a3c9c4795dd10cbb7287bdbb218a4fd126375",
+  "recipe.json": "ec6c8865726ec315317e17c2431951b5385bd735a37fae7ee428cbc65a727815",
+  "llm-look-description-v1.txt": "1f1b3c4baec5f74a70cbced85cd736e9724e3b5538bef8aa1dea06cdb9f34eec"
+ },
+ "capture_result_sha256": "5b09dd53e65a7b13a10d3963d8739650ef5690eaab769728b49065de34015055",
+ "review_measurements_v1": {
+  "prediction_luma": 0.116,
+  "screenshot_luma": 0.116,
+  "mean_rgb_prediction": [
+   0.144,
+   0.108,
+   0.104
+  ],
+  "mean_rgb_screenshot": [
+   0.115,
+   0.107,
+   0.206
+  ],
+  "blurred_luma_correlation": 0.614,
+  "mean_abs_frame_difference_60_149": [
+   0.0613,
+   0.0512
+  ]
+ },
+ "agreements": [
+  "balanced/normal/vivid right"
+ ],
+ "misses": [
+  "hue: green vs ruler purple/blue"
+ ],
+ "verdict": "partial"
+}

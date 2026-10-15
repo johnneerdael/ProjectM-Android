@@ -1,0 +1,13 @@
+A dark, mostly black-to-deep-blue screen with a green-led scattering of thin coloured line work, mirrored left to right. The calibrated estimate puts mean brightness low (about 0.16 on a 0-1 scale, interval 0 to 0.37; the dark facet is admitted at 0.66), so most of the picture should read as dim background.
+
+Colour: the pooled palette leans green (about 44%), with yellow and blue next (about 21% each), then a little pink. Mean saturation is moderate-to-high (about 0.58). The custom 512-point wave carries a mix of green, cyan, grey, pink and yellow points, with positions that spill well beyond the screen edges (x from -0.37 to 1.4), so only part of that curve may be visible. The flat canvas the feedback settles to is a very dim blue; the warp shader keeps only about a tenth of the red and green each frame and flips and offsets blue, so old content disappears almost at once and persistent trails are short rather than long smears.
+
+Structure and symmetry: every feedback step flips the image left-right, and the composite blends in a mirrored copy, so the picture should look two-fold symmetric about the vertical centre line, though not exactly. A built-in two-trace audio waveform at screen centre is drawn at almost zero opacity, so it is probably invisible. The main visible elements are the custom wave points, which a noise-driven, self-advecting warp smears and shimmers slightly (small offsets, a few percent of the screen).
+
+Motion: the mirrored stretch is only about 0.5% per step, so the drift is gentle and the shimmer comes mainly from the noise warp. The tool estimates moderate overall flow, about 0.2 screen widths per second.
+
+Audio: bass, mid and treble all feed colour thresholds in the warp, and bass and treble also feed the composite, so colour and brightness should shift with the music. The strength is unknown.
+
+Flashing: the no-strobe probability is only 0.06 and the estimated brightness jumps are about 4 per 10 s (range 0.8 to 18), so it should flicker rather than stay steady. It is not safe to call it strobe-free.
+
+Uncertain: how much of the wave is on screen, the true brightness of the accumulated picture, and the weight of the noise advection.

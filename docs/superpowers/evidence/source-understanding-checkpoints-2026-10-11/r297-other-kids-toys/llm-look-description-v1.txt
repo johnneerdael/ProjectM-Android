@@ -1,0 +1,11 @@
+A warm, orange-toned, organic-looking picture that is mostly dim, with a soft embossed, cell-like texture rather than clear shapes. Estimated mean brightness is low to moderate (about 0.19, interval 0.01 to 0.41). Hue is almost entirely orange: the composite maps grey canvas content through an orange ramp, so a grey texture shows as orange, and the warm facet is admitted at 0.81. Saturation is fairly high (about 0.65 estimated). Low levels map to deep orange-brown, and only the brightest areas wash toward pale grey-white.
+
+Structure: the warp stage adds a finer copy of the image and subtracts a coarse blur every frame. Small seeds therefore grow into blobs, cells and splatter over much of the screen. A relief step and two image-steered flow lookups give it a lit, emboss-like look and fluid flow, so expect swirling, smeared cell patterns more than crisp lines. The mesh also applies an angle-dependent zoom, so the zoom varies in a petal-like or sectored way around the centre, with a mild fixed warp.
+
+Over this, a thick, additive two-trace audio waveform is drawn horizontally through the centre, one trace above and one below. It is bright and strongly coloured, and its red, green and blue follow the bass, mid and treble.
+
+Trails and motion: red persists almost fully, green is slightly reduced and blue fades quickly, so features linger for a long time. No net translation or rotation is set, so movement is internal flow and growth. The calibrated flow is slow to moderate (about 0.1 screen widths per second) and the activity estimate is Chill.
+
+Flashing: the no-strobe probability is 0.90, jumps are estimated at about 0 per 10 s, and the screen should be steady. The waveform colour may pulse with the beat.
+
+Uncertain: whether the picture fills with pattern or stays sparse, the exact orange shade, and how the angle-dependent zoom looks on screen. The tool has low confidence in the strict mood.
