@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r325-v1",
+ "preset": "rationalizing insanity using only mainstream religion - i did it all for the sex, drugs, music, and satan.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "08edeb757ec66d4f1570bf96c7658772a550106748a5042e40616b4a7964d662",
+  "prediction.json": "96b7eb7479df6c3d56bcb62ac1dc60b128ca075e46b74f66845f3308c317dfbf",
+  "description.json": "f9b6a51dbd0b3069858128fb910545479c47818db28f58114f4d85e79ed5bc80",
+  "recipe.json": "22b9d58bb1a252ed162b44f35a479a16bf38b89bf50d76d17ca28712463325af",
+  "llm-look-description-v1.txt": "d594e39bc4f1b01e4d6eb245b4c0a3215e7554db7a414116b5107c3320a7bfce"
+ },
+ "capture_result_sha256": "24fec3d77b3b71d654941a3eae26c93ed20b4d90aca7b9f6581bf4496bc75a64",
+ "review_measurements_v1": {
+  "prediction_luma": 0.052,
+  "screenshot_luma": 0.05,
+  "mean_rgb_prediction": [
+   0.086,
+   0.044,
+   0.029
+  ],
+  "mean_rgb_screenshot": [
+   0.084,
+   0.043,
+   0.028
+  ],
+  "blurred_luma_correlation": 0.741,
+  "mean_abs_frame_difference_60_149": [
+   0.0443,
+   0.0983
+  ]
+ },
+ "agreements": [
+  "dark right (real 0.06)"
+ ],
+ "misses": [
+  "lead blue vs ruler red/orange"
+ ],
+ "verdict": "agree"
+}

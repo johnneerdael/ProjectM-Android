@@ -1,0 +1,11 @@
+A very dark, low-contrast picture: faint, glowing lines and dots on a near-black background, with long soft trails that slide around with the music. The estimated mean brightness is very low (about 0.07, range 0 to 0.29), and the dark facet is admitted (0.82 against a 0.58 threshold). In this recipe the composite maps even a full-white canvas to essentially black, and its response to grey texture is only about 0.017 luma. So what you see is likely dim, even if the drawing layers briefly reach full strength. This is the least certain part of the description, and it could be nearly black on some frames.
+
+Colour is weak and mixed. Estimated saturation is about 0.23 and perhaps a fifth of the screen is coloured. Likely tints are a muted blue, plus orange and red (calibrated shares about 0.34, 0.21 and 0.16). The composite's own detail colour is red and orange. No one colour dominates, so describe it as a mixed, dull blue and orange/red set. The raw wave and dot layers are authored in white or grey, so any colour comes from the composite and warp, not from the drawn elements.
+
+Drawn elements are all waveform-based. There is a built-in wave in mode 7 (two parallel audio traces, additive, grey 0.5), but its alpha is only 0.001, so it is probably almost invisible. Two custom waves add 512 white points and a faint white line (alpha 0.05). Their positions come from audio-history terms (attenuated bass, mid and treble, plus volume terms), but the data gives no bounds on where they sit.
+
+The feedback keeps a lot of the previous image: 98% per frame with no colour bias, a half-life of about 34 frames or roughly 1.2 s. The strokes should therefore leave long, evenly fading trails. The warp has no zoom or rotation. It translates the whole image sideways and vertically by amounts that depend on all of bass, mid and treble (current and smoothed). Trails should therefore slide and shake in time with the music. The routes are thresholded or clamped, so movement may come in nudges, not smooth sway.
+
+Flashing: no-strobe probability about 0.73 and about 0.1 brightness jumps per 10 s (range 0 to 3). Occasional pulses are likely and strobing is not. Overall activity is low to normal (Chill by the simpler mood model, Normal by the calibrated one).
+
+Uncertain: how bright the picture really is, the visible weight of each wave, and the exact colour balance.

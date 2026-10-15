@@ -1,0 +1,11 @@
+A bright, saturated, warm-leaning and very busy picture with a reddish base. The estimated mean brightness is about 0.57 (range 0.39 to 0.78), and about 93% of the screen is likely coloured. The composite shows a flat black canvas as deep red (roughly 0.71, 0, 0), so empty areas read as red, not black. The leading hues are red (about 0.46 of the colour), then pink (0.24), orange (0.16) and some green (0.10). That is a red-led palette with pink and orange support, and it is warm rather than pastel. How strongly red dominates is uncertain; the dominance score is about 0.52 and there is no formal dominant hue.
+
+The picture is built from many small drawn items sitting in a heavy feedback field. These include 92 twelve-sided shapes, 311 tiny triangles (radius 0.01) that copy the previous frame, 512 fourteen-sided shapes, one 100-sided circle whose radius grows with all three audio bands, four 512-point dot clouds, and a dot ring that follows the audio waveform. The dot ring is nearly transparent (alpha 0.001) and probably barely visible. A faint white grid of motion vectors (63 by 47) is drawn at very low opacity. Where these items sit on screen is mostly not stated. The one exception is a small pink dot cluster near the centre (x 0.50 to 0.55, y 0.46 to 0.50).
+
+The warp is self-advecting, meaning the image steers its own sampling, so structure should look smeared and fluid. A spatially varying zoom (about 0.94 to 1.04) and twist (up to 0.06 rad per step) add swirl, and the composite adds a periodic wobble or ripple. The warp treats colour channels very differently: green is kept almost whole, while red and blue are inverted each frame. This probably makes colours flip and shimmer rather than leave simple trails.
+
+Audio reaction is broad. Bass and treble move several shape groups and change their size and opacity. All three bands drive colour terms in the warp and composite. The routes are mostly thresholded, so expect sudden jumps in colour and brightness with the music, not smooth swells.
+
+Flashing is the main caution. The estimate is about 139 global brightness jumps per 10 s (range 46 to 500), and the no-strobe probability is about 0.002. Treat it as strobe-like and unsuitable for flash-sensitive viewers.
+
+Uncertain: exact shape positions, how visible the near-transparent layers are, and the true share of red against pink.

@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r316-v1",
+ "preset": "suksma - sick star bloat --- Isosceles edit01.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "bbb5c5e93e934345fe5d08ad7aa0009a381e8e1994ead2844536998c725634d0",
+  "prediction.json": "ea1dfa365360cfd79ec36e74384ceefb3c4e326f26713db40410272c765b2304",
+  "description.json": "539b13380fd1fbf7a50e536e4ec844be0b744fe9b06ba0ac1d7a86f75268dc90",
+  "recipe.json": "c12332608d6f310208761497f26c5668c1f61d507d6832e670972e4ec349f5af",
+  "llm-look-description-v1.txt": "c89966659a226fdb894bb4bfffa9c9cc4ea71af957b347a9498dcb702a5a0bec"
+ },
+ "capture_result_sha256": "7b13a5b00981012e2b91f6aae9807977f3c3171508dea1f1088e934e313c9431",
+ "review_measurements_v1": {
+  "prediction_luma": 0.486,
+  "screenshot_luma": 0.496,
+  "mean_rgb_prediction": [
+   0.724,
+   0.461,
+   0.032
+  ],
+  "mean_rgb_screenshot": [
+   0.733,
+   0.473,
+   0.03
+  ],
+  "blurred_luma_correlation": 0.925,
+  "mean_abs_frame_difference_60_149": [
+   0.0397,
+   0.0423
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "bright/vivid/warm right (real 0.56)",
+  "frame prediction corr 0.93"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

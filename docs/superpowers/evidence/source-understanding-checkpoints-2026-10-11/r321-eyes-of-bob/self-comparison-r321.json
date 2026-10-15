@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r321-v1",
+ "preset": "suksma - Unchained - The Logic Bomb - mash0001 - we are all naked in the eyes of bob.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "55033ab22f62cf0ea4757f83bcb214dd51d263a5c364513030e2df135b9e8b15",
+  "prediction.json": "caff716d87fb4519093c749ac1b09cc6a72862fe7a0374f56e075b23595981ae",
+  "description.json": "d7afbe74a410e0d66c4f5fe816fa53b8c7172863ef47fc1057f72a5c91e0061a",
+  "recipe.json": "bdfa9ccfe8a536c9e6aaf9a403106f31e6cf75252e4cbe1998b1de75d62c4beb",
+  "llm-look-description-v1.txt": "268cda187fe544439b1de541ec6714e931c3f6d8de6c45ef96b744f09b8f0480"
+ },
+ "capture_result_sha256": "e676ebc92e3e27c705164ab1ee83e5c59640d9be747721ff20dd578f495179d7",
+ "review_measurements_v1": {
+  "prediction_luma": 0.546,
+  "screenshot_luma": 0.359,
+  "mean_rgb_prediction": [
+   0.54,
+   0.545,
+   0.574
+  ],
+  "mean_rgb_screenshot": [
+   0.388,
+   0.347,
+   0.391
+  ],
+  "blurred_luma_correlation": -0.007,
+  "mean_abs_frame_difference_60_149": [
+   0.2993,
+   0.5458
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "bright/fast/intense right (real 0.57)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

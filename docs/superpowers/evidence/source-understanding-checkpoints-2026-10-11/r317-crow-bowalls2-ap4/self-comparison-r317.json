@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r317-v1",
+ "preset": "suksma - crow bowalls2 ap4+.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "1c9979686cc28e57410aec953e229721a1168a5cb3eb0d0b8b49deb61b72462e",
+  "prediction.json": "1780beb98e490963fd63ed62e09f050c7174486bff5869e6a5e5805ff9ad0f4b",
+  "description.json": "54d87a9d98413bbb5ecb9afae74aef20153f73aa35cebe305b6a397e61b50aa1",
+  "recipe.json": "097c962b5bf39f9e1a707b8661cc9dad4f39bca3562393a46a2caed30dde0917",
+  "llm-look-description-v1.txt": "60b9c822db409b6fb18b25dd64cd80c5fd01208d0925311baa9346be3ef1c368"
+ },
+ "capture_result_sha256": "79478bffe0e9cf1c9d40c8a7e55b1fde91600f8999c20f374995a2c8aa165437",
+ "review_measurements_v1": {
+  "prediction_luma": 0.052,
+  "screenshot_luma": 0.049,
+  "mean_rgb_prediction": [
+   0.046,
+   0.044,
+   0.153
+  ],
+  "mean_rgb_screenshot": [
+   0.04,
+   0.041,
+   0.149
+  ],
+  "blurred_luma_correlation": 0.784,
+  "mean_abs_frame_difference_60_149": [
+   0.083,
+   0.119
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "fast/intense/vivid right"
+ ],
+ "misses": [
+  "calibrated luminance 0.22 vs 0.10"
+ ],
+ "verdict": "agree"
+}

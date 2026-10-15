@@ -1,0 +1,11 @@
+A dim, pink-toned picture with a small number of simple ingredients: one audio-driven dot figure at the centre, smeared outward by feedback and viewed through a dark composite. The estimated mean brightness is low (about 0.16, range 0 to 0.37). The dark facet falls just short of its threshold (0.52 against 0.58), so call it dim rather than certainly dark. Saturation is moderate to high (about 0.62). The composite maps even a full-white canvas to only about 0.16 to 0.17, and it maps empty canvas to black. The overall look is therefore a mostly dark background with soft, muted colour on the structure.
+
+Colour is likely pink or magenta. The composite turns grey structure into pink (mean RGB about 0.40, 0.22, 0.43), and the calibrated hue estimate is heavily pink, with smaller blue and purple shares. One colour likely dominates (top share about 0.62), though it falls just under the formal threshold. The built-in wave source cycles through the whole hue wheel (green, blue, pink, orange and others, about 0.5 cycles per second). That cycling probably does not show on screen, because the composite recolours it.
+
+The one drawn element is a built-in wave in mode 3, a stereo X/Y trace of dots (thick dots, not a line) centred at the middle of the screen. Its x and y follow the left and right audio channels, so it should look like a scribbling Lissajous-style cloud. Its opacity is set by treble squared and a volume ramp. It should fade up on bright, treble-heavy passages and nearly vanish in quiet ones.
+
+Motion is a steady outward expansion. Each frame the image is stretched about 5.3% away from a centre that wanders between 0.29 and 0.71 of the screen, with a slight rotation of up to 0.01 rad. This reads as dots streaming outward like flying through a tunnel. Trails are short, with a half-life of about 5 frames (0.16 s). A periodic ripple or wobble in the composite adds a gentle waviness. No bass, mid or treble routes were found beyond the wave's own alpha and shape.
+
+Flashing: the no-strobe probability is about 0.89 and the estimated jumps are 0 to 2.5 per 10 s. Occasional pulses are likely, mostly treble-driven dot brightening, and strobing is unlikely.
+
+Uncertain: the overall energy band (Normal, but compatible with Chill or Intense), the exact pink versus purple balance, and how much of the screen the outward-smeared dots fill.

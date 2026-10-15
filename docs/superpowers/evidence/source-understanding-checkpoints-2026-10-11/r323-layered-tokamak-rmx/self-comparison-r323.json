@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r323-v1",
+ "preset": "Stahlregen & Flexi + Geiss + Rovastar - Tiger No5 (MashUp 16 - Chaos Layered Tokamak RMX).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d25b5381cff529ca97e0f01b0fc3abff05dde9d2793d503cf0a3a6650ac30c6e",
+  "prediction.json": "4964b3460f13bdf5d47f5b1e8057c3fba81fb4bca58ee16f5f81d908433ca34e",
+  "description.json": "f6b48aab2302f753294277d2c1aaafc3b5e2e1edff46abfcb6ebe82d3dc645a8",
+  "recipe.json": "acad67293e0e1d4dbc3f866590c5ce734246df133806d70d392bc03d1dbb6964",
+  "llm-look-description-v1.txt": "8597e6d9899c8ccf3ebed6323caca4923cc31e79444a3d32ea52832013a3dcc3"
+ },
+ "capture_result_sha256": "5306079082145104d4726fa5da5973e4f8e6a427edce68d3dd81ee2440056f74",
+ "review_measurements_v1": {
+  "prediction_luma": 0.116,
+  "screenshot_luma": 0.113,
+  "mean_rgb_prediction": [
+   0.168,
+   0.093,
+   0.186
+  ],
+  "mean_rgb_screenshot": [
+   0.167,
+   0.09,
+   0.18
+  ],
+  "blurred_luma_correlation": 0.588,
+  "mean_abs_frame_difference_60_149": [
+   0.0668,
+   0.0787
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "fast/vivid right"
+ ],
+ "misses": [
+  "palette names under half the ruler colours"
+ ],
+ "verdict": "agree"
+}

@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r324-v1",
+ "preset": "Zylot - In death there is life (Portal mix).milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "028336ffd33c73e6e891b3e18ebcdec84299ed95b5b0d3279806b141fb3cc74e",
+  "prediction.json": "ada4f7346371772742fb81c6c6df10d04475ce3ca9ae0c5ba90124b61a9e56c0",
+  "description.json": "51a5a66ca039400c2be2a10fa50cee600f3bc3ab526d24367431e5c8b6cfe2d5",
+  "recipe.json": "3818e5c598e0334b2df28b17331db859db93407f28012ce60a8b0e42c2257408",
+  "llm-look-description-v1.txt": "ccc524f7a7778182d9a9a13fa10f60263a115761d4263a1df23232974e2aff2a"
+ },
+ "capture_result_sha256": "4db8bbded6b61d1c3c5a748398739ea534ad8ff7e06290f76e6cbcf305b7a365",
+ "review_measurements_v1": {
+  "prediction_luma": 0.21,
+  "screenshot_luma": 0.219,
+  "mean_rgb_prediction": [
+   0.16,
+   0.228,
+   0.177
+  ],
+  "mean_rgb_screenshot": [
+   0.169,
+   0.237,
+   0.187
+  ],
+  "blurred_luma_correlation": 0.086,
+  "mean_abs_frame_difference_60_149": [
+   0.033,
+   0.0509
+  ]
+ },
+ "agreements": [
+  "green lead right"
+ ],
+ "misses": [
+  "no facet admitted (all omitted: middle buckets at 80%)"
+ ],
+ "verdict": "agree"
+}

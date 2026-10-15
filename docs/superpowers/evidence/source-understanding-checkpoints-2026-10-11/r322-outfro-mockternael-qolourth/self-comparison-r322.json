@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r322-v1",
+ "preset": "placebo heal drift backfire depersonified outfro mockternael qolourth.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f7a489588d318eed13faebd73e7c42e38225dc52ab08d3bd8afac50efec18c74",
+  "prediction.json": "e7efc74cd8eeb62a6623ab8aa0bf9ffff366c140238422251509e0af23eaab18",
+  "description.json": "89d0c1e4dcceeed2605deef8b1ab2bbd8423916c21d925180228981202e878d7",
+  "recipe.json": "494a0648e0a5b2d1201c030c84f0d539f24d5ca17ef652ff54a96b807ceab112",
+  "llm-look-description-v1.txt": "7b5d88a1547e74209e4255390433c73661edbd2e83486614b1c48e1f528e7fed"
+ },
+ "capture_result_sha256": "723bb3cb3f8fabbf015a8fe030a10fb60564c1227cd406348a04494c29dc9b39",
+ "review_measurements_v1": {
+  "prediction_luma": 0.43,
+  "screenshot_luma": 0.523,
+  "mean_rgb_prediction": [
+   0.705,
+   0.317,
+   0.73
+  ],
+  "mean_rgb_screenshot": [
+   0.397,
+   0.542,
+   0.711
+  ],
+  "blurred_luma_correlation": -0.085,
+  "mean_abs_frame_difference_60_149": [
+   0.1413,
+   0.1776
+  ]
+ },
+ "agreements": [
+  "red in ruler top-2",
+  "bright/intense/vivid/warm right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

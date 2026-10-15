@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r318-v1",
+ "preset": "EVET - chasers X19 Portal.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "3efa2782035c9372b7dec639466f25353ff52818fcea3b157c5b2df20baf3f17",
+  "prediction.json": "ac3b0abe729747f6838ead31cd47a0c4f46699a84bc9925819eb6c148584f36c",
+  "description.json": "8e10c50849c4fee8d9061fe579519b5f7a1dbf2accfa9743d9393ef5318cbfea",
+  "recipe.json": "bf08a0392eadbec0d5f5c13e40f72ccfdac51c1febe8d7c52c528d2d2483eba8",
+  "llm-look-description-v1.txt": "29bafb8dc44334714cad47017c17aade5e58fefb04c45717571da499c76e00cf"
+ },
+ "capture_result_sha256": "c9c8dd6d58cf8dd0bfcb24734859ccf76d9906faa9a507d5ab7fc4f2f3d282f4",
+ "review_measurements_v1": {
+  "prediction_luma": 0.035,
+  "screenshot_luma": 0.054,
+  "mean_rgb_prediction": [
+   0.031,
+   0.026,
+   0.126
+  ],
+  "mean_rgb_screenshot": [
+   0.066,
+   0.038,
+   0.175
+  ],
+  "blurred_luma_correlation": 0.841,
+  "mean_abs_frame_difference_60_149": [
+   0.0328,
+   0.0387
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "cool/normal/vivid and No strobe right"
+ ],
+ "misses": [
+  "calibrated luminance 0.27 vs 0.10"
+ ],
+ "verdict": "agree"
+}

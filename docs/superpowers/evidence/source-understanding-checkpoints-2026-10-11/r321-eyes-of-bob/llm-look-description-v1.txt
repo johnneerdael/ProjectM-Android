@@ -1,0 +1,13 @@
+A bright, busy, fast-moving picture that is mostly feedback texture rather than a few clean shapes. The estimated mean brightness is mid-to-bright (about 0.53, plausible range 0.36 to 0.75), and the bright facet is admitted. Colour is moderately saturated (about 0.42, wide uncertainty). The palette is a mixed set led by green and pink, with smaller shares of cyan, red, orange, purple and blue. No single colour dominates (top share about 0.40). Green is the likeliest leading hue, but pink is a close second. Because the composite adds a random hue tint (0.19 strength) each time the preset loads, which hue sits where will change per load.
+
+The only drawn element is a built-in audio waveform in mode 7: two parallel traces that follow the left and right audio channels. They are opaque. Their colour is normalised so the brightest channel is always at full strength, and the hue cycles through the whole wheel at up to roughly 0.4 cycles per second. Wave colour is mostly green, then pink, blue and purple. The position of the traces on screen is not stated in the data.
+
+The wave is not left as a clean line. A blur-difference feedback stage sharpens whatever is fed back, so small seeds grow into blobs, cells or splatter that spread across much of the canvas. Expect most of the screen to be patterned. The composite also layers a heavily magnified copy (about 67x, at 50% opacity) over the image and brightens it with a gamma boost of up to 2x. This likely adds a hazy, washed-out glow over the detail.
+
+Motion is strong. The warp contracts the image toward a centre that wanders between about 20% and 80% of the screen width. It pulls in up to about 9% per frame and adds a spatially varying twist of up to about 0.74 radians per step. There is also a large vertical translation term. Trails are short: content halves in about 6.5 frames (roughly 0.2 s), so structure is constantly rebuilt. Overall activity is high (Intense, estimated 96th percentile).
+
+Audio reaction is limited to the waveform shape. No bass, mid or treble routes were found, so there is no clear beat-synchronised pulse.
+
+Flashing is a concern. The estimate is about 5 global brightness jumps per 10 s (range 1 to 20). The no-strobe probability is only 0.23. Treat it as flickering and not strobe-free. Chaotic feedback is the likely cause rather than an explicit flash mechanism.
+
+Uncertain: the wave's on-screen position, the exact hues for a given load, and how much of the screen the splatter fills.

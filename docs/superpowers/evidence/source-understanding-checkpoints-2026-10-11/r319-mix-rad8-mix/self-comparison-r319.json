@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r319-v1",
+ "preset": "Geiss - Spiral Artifact (Filament Mix) - rad8 mix.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "b5b77ed47716134c7696d62e9e3983e43d9fa95cf3e7d57e62025e09638bc6c1",
+  "prediction.json": "89cdcad4c5b11162edd393504f46ff9e796d93e8f792e88b96807bac8d3dcc01",
+  "description.json": "21ccf669401e816984e71348b5bd1349ec947dac6495a7d75eda88fb5f936f4b",
+  "recipe.json": "f5a3b61fa1af542cffc93215089791e82e5209ed7724afca1380fb4d49d3ada3",
+  "llm-look-description-v1.txt": "45219836cc8d9ab1143fd0b9911bd4523cf4ce0b1806179ab5cbeecf28a98281"
+ },
+ "capture_result_sha256": "3900428dc841dca66d694dcef6dcfd508a01a59977d9e46f4f51e536fb4380bc",
+ "review_measurements_v1": {
+  "prediction_luma": 0.731,
+  "screenshot_luma": 0.418,
+  "mean_rgb_prediction": [
+   0.732,
+   0.732,
+   0.72
+  ],
+  "mean_rgb_screenshot": [
+   0.478,
+   0.396,
+   0.447
+  ],
+  "blurred_luma_correlation": 0.153,
+  "mean_abs_frame_difference_60_149": [
+   0.0359,
+   0.0561
+  ]
+ },
+ "agreements": [
+  "blue lead right",
+  "drifting/normal right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}
