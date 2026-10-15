@@ -263,3 +263,15 @@ def test_composite_colour_matrix_captures_channel_swaps(monkeypatch):
     m = E.composite_colour_matrix(facts, level=.5)
     out = E.apply_colour_matrix(m, [1., 0., 0.])
     assert out[1] > .9 and out[0] < .1 and out[2] < .1
+
+
+def test_partial_motion_vector_grid_contributes_from_its_control_ranges():
+    # A grid whose size is set per frame (mv_x, mv_y ranges) was status 'partial' and dropped from the closed form;
+    # presets with active motion vectors were over-represented among the worst brightness errors.
+    facts = {'/analysis/visual_description/static_behaviour/motion_vectors': {
+        'status': 'partial', 'activation': 'possible',
+        'control_ranges': {'mv_x': [3., 15.], 'mv_y': [3., 15.], 'mv_a': [.3, 1.], 'mv_r': [1., 1.], 'mv_g': [.91, .91], 'mv_b': [.71, .71]}}}
+    terms = E._wave_terms(facts, [])
+    assert len(terms) == 1
+    area, premultiplied, alpha, additive = terms[0]
+    assert area > 0 and abs(alpha - .65) < 1e-6 and premultiplied[0] > premultiplied[2]

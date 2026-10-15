@@ -388,6 +388,16 @@ def _wave_terms(facts,notes):
         alpha=_clip(colour[3] if len(colour)>3 and isinstance(colour[3],(int,float)) else 1.)
         rgb=[_clip(c) if isinstance(c,(int,float)) else NEUTRAL for c in colour[:3]]
         terms.append((min(1.,vectors['vector_count']*1.5/(width*height)),[c*alpha for c in rgb],alpha,False))
+    elif vectors.get('status')=='partial' and vectors.get('activation') in ('active','possible'):
+        # A grid sized per frame (mv_x, mv_y written by the frame program) has no constant count; its declared
+        # control ranges still bound it, so the range midpoints stand in rather than dropping the grid.
+        ranges=vectors.get('control_ranges') or {}
+        mid=lambda name,default:_mid(ranges.get(name)) if _mid(ranges.get(name)) is not None else default
+        count=max(0.,mid('mv_x',0.))*max(0.,mid('mv_y',0.));alpha=_clip(mid('mv_a',1.))
+        if count>0 and alpha>0:
+            rgb=[_clip(mid(name,NEUTRAL)) for name in ('mv_r','mv_g','mv_b')]
+            terms.append((min(1.,count*1.5/(width*height)),[c*alpha for c in rgb],alpha,False))
+            notes.append('motion vectors: grid counted at its control-range midpoints (%d vectors)'%round(count))
     return terms
 
 
