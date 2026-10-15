@@ -562,7 +562,7 @@ def ray_sampling(mesh,size=(96,54),draws=3):
         for draw in range(draws):
             rng=np.random.default_rng(draw)
             P._TERM_CONTEXT.clear()
-            P._TERM_CONTEXT.update(stage={n:float(rng.uniform(-3,3)) for n in sorted(names)},rng=np.random.default_rng(draw),
+            P._TERM_CONTEXT.update(stage=_stage_draw(names,rng),rng=np.random.default_rng(draw),
                                    bands={b:1. for b in ('bass','mid','treb','bass_att','mid_att','treb_att')})
             sample=P._backward_map(mesh,width,height,grid=None)
             if sample is None:return None
@@ -588,6 +588,13 @@ def ray_sampling(mesh,size=(96,54),draws=3):
     return {'ray_constant_share':round(min(shares),4),'centre_xy':[round(sum(xs)/len(xs),4),round(sum(ys)/len(ys),4)],
             'centre_range_xy':[[round(min(xs),4),round(max(xs),4)],[round(min(ys),4),round(max(ys),4)]],'state_draws':draws,
             'method':'closed-form backward map, frame-state inputs drawn in [-3, 3]; minimum share over draws'}
+
+
+def _stage_draw(names,rng):
+    """Unknown frame-state inputs for one probe draw: uniform in [-3, 3], except EEL memory buffers ('memory:*'),
+    which start zero-initialised as the illustrator binds them (a number there breaks megabuf reads)."""
+    from eel_memory import Memory
+    return {n:(Memory() if n.startswith('memory:') else float(rng.uniform(-3,3))) for n in sorted(names)}
 
 
 def _warp_detail(facts):

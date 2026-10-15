@@ -658,3 +658,15 @@ def test_middle_buckets_are_held_to_an_eighty_percent_precision_floor():
     # precision rises 76% -> 79% and recall falls 50% -> 41% (normal 80%/30%, balanced 78%/18%, drifting 79%/23%).
     import fit_display_calibration
     assert all(fit_display_calibration.FACET_PRECISION_FLOOR[k] >= .8 for k in ('balanced', 'drifting', 'normal'))
+
+
+def test_stage_draws_give_memory_inputs_an_empty_buffer():
+    # Ten corpus presets ($$$ Royal - Mashup family) read megabuf in a per-pixel zoom term. The ray probe drew every
+    # unknown stage input as a random number, so the memory read got an array and the recipe failed. Memory inputs
+    # ('memory:*') start as a zero-initialised buffer, as the illustrator binds them.
+    import numpy as np
+    from eel_memory import Memory
+    from preset_recipe import _stage_draw
+    draw = _stage_draw({'memory:global', 'q1'}, np.random.default_rng(0))
+    assert isinstance(draw['memory:global'], Memory) and draw['memory:global'].read(5) == 0.
+    assert isinstance(draw['q1'], float) and -3 <= draw['q1'] <= 3
