@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r376-v1",
+ "preset": "ORB - Starflower diff tracking.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "5a3e798e9882fac9ba6a1cc97be9be0cff984c28123371ee293564ef612f98fb",
+  "prediction.json": "f895096f914d115e31bb4156765048802aab84a6c36e8e8e33a0767e43fac056",
+  "description.json": "0c2544f9a4e5a9cf110c3bfa245f79ff33cbe078ed52670e5f4a3d83eeffd9c2",
+  "recipe.json": "1fa5141e04d985316a79fdefb4d356c9416614c4b28f19571e59084adbfa036c",
+  "llm-look-description-v1.txt": "d00cb187ca092ecf90c625da3cc64f878fbc797a5ac8fcb1a2e5412490b732c4"
+ },
+ "capture_result_sha256": "040cec25937106a75d8461de7b5da87d1be5545303abea86600135d5a24e4075",
+ "review_measurements_v1": {
+  "prediction_luma": 0.125,
+  "screenshot_luma": 0.034,
+  "mean_rgb_prediction": [
+   0.046,
+   0.161,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.045,
+   0.035,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.43,
+  "mean_abs_frame_difference_60_149": [
+   0.0461,
+   0.0402
+  ]
+ },
+ "agreements": [
+  "blue lead right"
+ ],
+ "misses": [
+  "bright wrongly admitted (real 0.11); calibrated luminance 0.46"
+ ],
+ "verdict": "partial"
+}

@@ -1,0 +1,11 @@
+Approximate look: a mostly grey, softly lit picture made of round, recursively copied discs, with gentle wobbling and a mild inward drift. Colour should be minimal. Every drawn shape is white, the built-in waveform is authored black and almost fully transparent (alpha 0.001), and the steady-state canvas level is neutral grey (about 0.23). The calibrated estimate says monochrome is likely (probability about 0.87). Mean luminance is about 0.20 (interval 0.02 to 0.42), saturation about 0.17, and only about 19 percent of the screen is estimated to be coloured. Any colour would come from the warp shader, which reads bass, mid and treble through thresholded routes, so faint green, blue or red tints could appear with loud passages. I would not call it vividly coloured.
+
+Structures: all the drawn shapes are 100-sided polygons, which read as circles. One large disc (radius about 0.59) sits fixed at the screen centre and shows a copy of the previous frame zoomed by about 1.27 and rotating slowly (a sinusoid of about 6.3 s period). That should create a nested, tunnel-like or droste picture in the middle. A second shape is drawn in four instances (radius about 0.23), also showing the previous frame. They are placed at positions spread across roughly 0.12 to 0.88 of the screen, but the exact motion is unknown. I would expect four smaller moving discs of picture-in-picture copies around the centre.
+
+Motion: the whole image contracts about 0.5 percent per step toward the centre. The warp shader samples at scale 2 and adds periodic ripples or wobble, so edges shimmer and bend. The preset branches at each load on a random value (50/50), so there are two different looks of the warp. I cannot say how they differ. The estimated flow is slow, about 0.05 screen widths per second, and the speed is mostly from the sinusoidal rotations.
+
+Trails: the warp keeps roughly half of what it had each frame (halving in about 2 frames) with a floor, so dim areas hold a faint grey haze and bright areas fade moderately.
+
+Audio: the colour routes are the only listed responses; their strength is unresolved.
+
+Flashing: the no-strobe probability is about 0.91, with about 0 brightness jumps per 10 seconds (interval 0 to about 2). I would expect it to be steady to occasionally pulsing, and Chill is the likely energy band.

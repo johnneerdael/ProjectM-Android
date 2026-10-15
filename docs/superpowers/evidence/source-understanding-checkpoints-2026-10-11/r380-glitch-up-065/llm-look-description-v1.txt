@@ -1,0 +1,15 @@
+Prediction from the static recipe only (no frames seen).
+
+Overall look: a fairly bright, warm yellow picture (calibrated mean luminance about 0.40, range 0.23 to 0.62; yellow share near 1, a clear dominant colour with the rest negligible). The composite shows the canvas with red and green equal and blue weaker, so grey detail comes out yellow-cream rather than neutral. Saturation is moderate (about 0.45) and most of the screen is coloured. Because red and green are tied together in the display and blue is cut, expect yellow-gold texture, with any blue appearing as a muted, dusty periwinkle at best.
+
+Structures: the only authored drawing is one custom waveform of 512 points in saturated blue (about 0.05/0.15/1.0), fully opaque. Where it sits is computed each frame from bass, mid, treble and several state values (some redrawn at random moments through random q values), so its position and shape are a random draw I cannot resolve. It is the seed for everything else. A border of about 1% of the screen is drawn in a near-black red, so there may be a thin dark frame; the display discards red, so it would look black. The warp does a finer-minus-coarser blur step on the green channel, which grows small seeds into blobs, cells or splatter that spread over much of the canvas, and a self-advection step that smears the picture along its own detail (small offsets, under 1% of the screen per frame). The composite then samples through a log-polar lookup (tunnel candidate), mirror-folds and tiles the image with mirrored repeats, so the final picture is likely a symmetric, kaleidoscopic tiled pattern of yellow cells rather than a single drawing. Tunnel and symmetry are candidates, not guaranteed.
+
+Colour persistence is channel-selective: red is kept forever but is not shown, green fades slowly (halving about 50 frames, roughly 1.7 s), blue disappears within a frame. So the blue line should flash briefly and leave yellow growth behind it.
+
+Motion: no zoom, rotation or fixed drift in the mesh; movement comes from the self-advection, the audio-driven translation and the moving points. Estimated flow about 0.12 screen widths per second, which the classifier calls Drifting and Normal (both above threshold).
+
+Audio: bass, mid and treble all feed the composite colour channels and the mesh translation (thresholded or clamped), so I expect the colour and the sideways shift to respond to the music, strength unresolved.
+
+Flashing: do not call it calm. No-strobe probability is only about 0.32, so it likely flickers; estimated global jumps about 1 per 10 s (range 0 to 6.6), with audio-driven colour steps possibly adding to that.
+
+Uncertain: the pattern shape, the tile count, and how visible the blue is.

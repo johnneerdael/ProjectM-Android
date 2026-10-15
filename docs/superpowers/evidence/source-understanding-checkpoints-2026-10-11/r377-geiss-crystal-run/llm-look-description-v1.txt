@@ -1,0 +1,13 @@
+Prediction from the static recipe only (no frames seen).
+
+Overall look: a busy, mirrored, kaleidoscope-style picture filling most of the screen with patterned texture rather than a dark background with a few lines. Brightness is mid-range (calibrated mean luminance about 0.39, plausible 0.21 to 0.60), with moderate saturation (about 0.46). Colour is a mixed set rather than one hue: green is the likely leader (about 0.32 of coloured pixels), followed by pink, orange, blue and red, with some cyan, yellow and purple. No dominant colour (the top share is only about 0.36), so I would say "green-led but multicoloured". The composite itself turns grey detail into grey (no colour of its own), so the colours come from the coloured audio line and the feedback that smears it. Warm and cool are roughly balanced.
+
+Structures: the main drawn element is a built-in two-channel waveform: two parallel traces following the left and right audio channels, centred horizontally and sitting low on the screen (about 72% of the way down), drawn additively and quite faint (alpha about 0.17). Its colour cycles slowly through the whole hue wheel (roughly 0.2 cycles per second at most), always with the brightest channel at full, so it is vivid rather than pastel. The composite then folds the image into mirrored angular sectors (kaleidoscope), so those traces are repeated as a symmetric pattern around the centre; the sector count is not resolved. A finer-minus-coarser blur step in the warp sharpens small seeds, so the fed-back lines grow into cells, splatter or edge patterns that spread across the canvas.
+
+Motion: fast and swirling. The warp zoom varies around the centre in about 19 non-integer angular lobes (about 2.5% inward to 7.5% outward), with a strong radius-dependent twist (up to about 0.22 radians per step as a ceiling), and the lobe pattern turns slowly. Trails are short: the previous frame is kept at roughly 0.89 per frame, a halving in about 10 frames (a third of a second), so the picture refreshes quickly and streaks are brief. Estimated flow about 0.4 screen widths per second and large frame-to-frame change; the classifier rates it Intense (about 0.86 probability).
+
+Audio: the traces follow the live waveform continuously. No band-driven colour or brightness route was found; beat reaction beyond the waveform shape is not established.
+
+Flashing: no explicit flash mechanism, but the no-strobe probability is only about 0.75, so occasional pulses are likely and it should not be called calm. Estimated global brightness jumps about 0.2 per 10 s (range 0 to 3.3), mostly from chaotic feedback.
+
+Uncertain: sector count, how dense the pattern gets, true colour mix.

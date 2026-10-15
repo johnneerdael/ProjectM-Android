@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r382-v1",
+ "preset": "suksma - doubting the gods but with horrible logic roam3 ODing on morgues.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "487064974434a2dcb966e053a7d1b0b3830f0f3623f34b10111628ee0cb27619",
+  "prediction.json": "35def02cb9137aeee264cdd5765fe670ec6a55bada738d6a1704c77d4cc0ee41",
+  "description.json": "9bb6e56fc79527943966c3c8ffdd1776d15331e186a40528b302bc74d06aa0a0",
+  "recipe.json": "72a14b633dbdf64d60932f3278f94a70a848174bc0248141a9266434d19bddbe",
+  "llm-look-description-v1.txt": "4c4b5b37128e23a3f2d84b7aba3f62eab875afe45b960e7e1dba6e77cd009947"
+ },
+ "capture_result_sha256": "b416e8db41ca09b0a64136c0e3a5b4f62e5f90dac8e141079bc5951a43a10067",
+ "review_measurements_v1": {
+  "prediction_luma": 0.004,
+  "screenshot_luma": 0.034,
+  "mean_rgb_prediction": [
+   0.005,
+   0.004,
+   0.005
+  ],
+  "mean_rgb_screenshot": [
+   0.037,
+   0.033,
+   0.036
+  ],
+  "blurred_luma_correlation": 0.23,
+  "mean_abs_frame_difference_60_149": [
+   0.064,
+   0.0603
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "dark/drifting/intense right (real 0.05)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

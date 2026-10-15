@@ -1,0 +1,13 @@
+Prediction from the static recipe only (no frames seen).
+
+Overall look: a medium-bright, moderately colourful, evenly mixed picture rather than a dark screen with a few lines. The calibrated estimate puts mean brightness around 0.46 (plausible range 0.28 to 0.68) and saturation around 0.37, with roughly 60% of the screen coloured (wide uncertainty, 0.27 to 0.88). Colours are likely a blend led by blue and green, with smaller yellow, orange, red and pink shares. No single hue dominates (top share about 0.47, below the 0.55 bar), so I would describe it as a mixed blue/green-leaning palette, warm versus cool roughly balanced. The hue estimate is the weakest part; the drawn elements themselves are white or near black, so any colour comes from the composite and feedback rather than from authored line colours.
+
+Structures: one custom waveform of 512 points, authored pure white, is the main visible drawing. Its position is computed from per-frame values (bass-related clip and time terms, volume averages), but the bounds of its path are not resolved, so I cannot say where on screen it sits or what shape it traces. A built-in circular waveform sits at the screen centre (radius about 0.5) but is drawn black at almost zero alpha, so it is effectively invisible; it may faintly cut into trails.
+
+Motion: this is the dominant character. The previous frame is resampled every frame with no fade (decay 1.0), so content persists and accumulates rather than trailing off. The warp zoom varies across the screen from about 1.2% inward to 9.8% outward per step, and the rotation varies with angle around the centre over a very wide range (up to plus or minus 15.7 radians per step as a ceiling). I expect a strongly swirling, spoke-like or spiralling, expanding flow around the centre, with the white line smeared into curved streaks. No sideways drift. Estimated flow is about 0.2 screen widths per second, frame-to-frame change moderate. The brightness gamma boost (up to 2x) makes accumulated white content look bright and may push areas towards white.
+
+Audio: only the invisible centre circle follows the waveform directly; the white wave's position reads bass-related values, so some beat-linked movement is plausible but not established. No explicit audio route to colour or brightness was found.
+
+Flashing: no flash mechanism found, but the classifier gives 0.77 no-strobe probability, which means occasional brightness pulses are likely rather than a guaranteed steady picture. Estimated global jumps about 0.25 per 10 s (range 0 to 3.5).
+
+Uncertain: where the white line sits, how much of the screen it fills, whether accumulation saturates towards white, and the true colours.

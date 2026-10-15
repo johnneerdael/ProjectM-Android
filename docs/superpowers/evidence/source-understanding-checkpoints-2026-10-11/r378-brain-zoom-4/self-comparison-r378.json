@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r378-v1",
+ "preset": "Geiss - Brain Zoom 4.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "9a2cc1947d4640192f27fd8a7b52db5c398cf73331eec0c1e181a2a26d4c9a35",
+  "prediction.json": "2ff4f69db6e8736bd441914ac23d2d7e0bb4ca0749fa63b5fca28c44feeffc54",
+  "description.json": "6da5024dc00a4eb7ee2a8241fb914e10c0a823add2ec53bacdda4ea02d7e7660",
+  "recipe.json": "6f7f21cf601297b4e3397a3b0b3e28e59a80d85694b20e524b2bbb131e3bfcf7",
+  "llm-look-description-v1.txt": "1ab41c68e5471ec739e85aad3308acf90edde00271a44e86996b65556ededa44"
+ },
+ "capture_result_sha256": "928340d886c9a1aa8fdba9e9bdc2a011be5c4cf9c63dadcb174f09073d2bf731",
+ "review_measurements_v1": {
+  "prediction_luma": 0.27,
+  "screenshot_luma": 0.368,
+  "mean_rgb_prediction": [
+   0.402,
+   0.248,
+   0.094
+  ],
+  "mean_rgb_screenshot": [
+   0.521,
+   0.342,
+   0.17
+  ],
+  "blurred_luma_correlation": 0.051,
+  "mean_abs_frame_difference_60_149": [
+   0.0815,
+   0.144
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "balanced/fast/intense/vivid/warm right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

@@ -1,0 +1,13 @@
+Prediction from the static recipe only (no frames seen).
+
+Overall look: a warm, strongly orange picture, with yellow as a secondary hue (estimated orange share well above everything else, about 0.78 dominance; this is one of the few cases with a clear dominant colour). Saturation is high (about 0.69) and almost the whole screen is coloured (about 0.89). Brightness is mid-range (mean luminance about 0.38, range 0.21 to 0.60), "balanced" rather than dark or bright. The colour comes from the composite, which maps grey canvas levels through an orange-to-yellow ramp (mid levels read orange, the brightest levels go yellow, near-white with a yellow cast). Because that ramp changes with time (the flat-colour test shows a spread between sample times), the shade of orange/yellow probably drifts.
+
+Structures: no crisp shapes are authored. The only drawing is a built-in stereo X/Y waveform trace (left channel against right) drawn at very low opacity (alpha about 0.03), whose colour cycles slowly. Its on-screen position is nudged by smoothed bass, so a faint, wandering scribble is the seed. The composite lets the image steer its own sampling coordinates (self-advection), so the picture looks smeared, flowing or fluid, with swirling cloud-like texture rather than lines. The warp pulls the canvas towards a bright pale level, so I expect a fairly full, softly patterned orange field rather than a black background with a figure.
+
+Motion: a steady outward zoom of about 3.3% per frame from a centre that wanders (somewhere between 0.29 and 0.71 of the screen), plus a very slight twist (at most about 0.01 radians per frame). Any detail is stretched into radial streaks, a warp-speed or tunnel feel, probably bending into a spiral, with long persistence (a halving time of around 2 seconds by the colour-only estimate). Estimated flow about 0.26 screen widths per second.
+
+Audio: bass (smoothed) moves the waveform's position, with threshold or clamping, and the waveform shape follows both channels continuously. No audio route to colour or brightness was found.
+
+Flashing: this one is not steady. The classifier gives only about 0.11 no-strobe probability, and the estimated brightness jumps are about 7 per 10 s (range roughly 2 to 29). Call it frequently flickering or pulsing, not calm and not strobe-free; no explicit flash mechanism was found, so it probably comes from the unstable feedback and the time-varying colour mapping.
+
+Uncertain: what the visible texture actually looks like, how bright the field is, and the flicker rate.

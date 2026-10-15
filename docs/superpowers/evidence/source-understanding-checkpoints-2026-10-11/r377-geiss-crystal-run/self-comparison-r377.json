@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r377-v1",
+ "preset": "AdamFX 2 Geiss - Crystal Run .milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "c300c82d685cc88df345f00aca6d7275e5279b5d0e44f900ef5ab93b1a539e4c",
+  "prediction.json": "87585a7368cab0ed7fb92e3c900bf47cc02b97397a004fae033fb5c9c5daabeb",
+  "description.json": "a245957c95df0cd6ee1a152730cc76246b2e80831e30cd40f11175c67bd466bb",
+  "recipe.json": "801099c4c68ee2b33d888df3764703b8d42e4389cfc2418df4fc0dbef17ca4f1",
+  "llm-look-description-v1.txt": "61152d87e0138989fbcc264e7b77dda45c7922e3252e424acee6ea96a2d346e1"
+ },
+ "capture_result_sha256": "e2c16d5bb8bbb5d882b37630eb0e0e9dfd8e5049d6a4457833a1b09ddba1ddbe",
+ "review_measurements_v1": {
+  "prediction_luma": 0.366,
+  "screenshot_luma": 0.34,
+  "mean_rgb_prediction": [
+   0.37,
+   0.365,
+   0.363
+  ],
+  "mean_rgb_screenshot": [
+   0.332,
+   0.342,
+   0.334
+  ],
+  "blurred_luma_correlation": 0.058,
+  "mean_abs_frame_difference_60_149": [
+   0.2188,
+   0.4199
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "fast/intense right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

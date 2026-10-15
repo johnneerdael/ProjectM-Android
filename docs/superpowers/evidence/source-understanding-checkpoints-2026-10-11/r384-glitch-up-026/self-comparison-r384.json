@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r384-v1",
+ "preset": "flexi - grind my glitch up [026].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "162c3c490a355eb0e7bcf2e9309136ec686246352675d4768e898c752d44ce50",
+  "prediction.json": "56adbb0e3cfcfce6f502f554e5597e9be9a7e08258d3665d68eca6a6e57eec7c",
+  "description.json": "7747035b9fa45c1c106c93f6d11734b48ce0a7efc3864f5adf5c2f7b5d4562d1",
+  "recipe.json": "17d2db8253a65d1a68aa17dd4ae00e6ae255a29601b6d18159c3590f057f6881",
+  "llm-look-description-v1.txt": "6301ce8ab71adc196a99968f4f8e6ca0f244fea0be794dbf0275cd34e5891eb2"
+ },
+ "capture_result_sha256": "ccb9eac4959d138133960f0b104c98fed286b787f14359705c2b0471577589f5",
+ "review_measurements_v1": {
+  "prediction_luma": 0.525,
+  "screenshot_luma": 0.362,
+  "mean_rgb_prediction": [
+   0.384,
+   0.576,
+   0.444
+  ],
+  "mean_rgb_screenshot": [
+   0.498,
+   0.349,
+   0.092
+  ],
+  "blurred_luma_correlation": 0.231,
+  "mean_abs_frame_difference_60_149": [
+   0.0388,
+   0.0352
+  ]
+ },
+ "agreements": [
+  "green in ruler top-2",
+  "bright/drifting/normal/vivid right"
+ ],
+ "misses": [
+  "palette names under half the ruler colours"
+ ],
+ "verdict": "agree"
+}
