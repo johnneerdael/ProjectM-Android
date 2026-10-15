@@ -373,8 +373,10 @@ def shape_colour_over_time(material,times=COLOUR_TIMES):
 
 # Ordered by each source's measured agreement with engine-ruler hues (calibrated hue shares 70%; composite detail and
 # steady state 64%, shape fills 50%, wave colours 37%); drawn colours pass through feedback and the composite
-# before display, so the stages nearest the display weigh most.
-PALETTE_WEIGHTS={'calibrated_hue':6.,'composite_detail':3.,'steady_state':1.5,'warp_detail':1.,'shape_fill':1.,'wave':.3,'point_cloud':.3}
+# before display, so the stages nearest the display weigh most. Calibrated shares weigh 24: out of fold (200 group +
+# 163 held-out checkpoint presets) the leading hue lands in the ruler top-2 for 70% at 24 vs 64% at 6, where one-hue
+# static sources outvoted the calibrated lead; static sources now mostly break calibrated near-ties.
+PALETTE_WEIGHTS={'calibrated_hue':24.,'composite_detail':3.,'steady_state':1.5,'warp_detail':1.,'shape_fill':1.,'wave':.3,'point_cloud':.3}
 
 
 def _channel_value(channel,time):

@@ -581,3 +581,19 @@ def test_no_strobe_needs_both_the_classifier_and_the_jumps_estimate():
     assert 'no_strobe' in facets_block({'facts': {}}, {'statistics': stats(.95, .02)})['options']
     assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.95, .5)})['options']
     assert 'no_strobe' not in facets_block({'facts': {}}, {'statistics': stats(.6, .0)})['options']
+
+
+def test_display_palette_static_sources_only_break_calibrated_near_ties():
+    # Out of fold (200 group + 163 held-out checkpoint presets), a calibrated weight of 6 let one-hue static sources
+    # (steady state, warp detail, wave, shape) outvote the calibrated lead: leading hue in ruler top-2 64% vs ~70%
+    # for weight 24 or calibrated alone. Magellan's Nebula: calibrated green/pink, static sources all blue, ruler
+    # pink/green.
+    from preset_recipe import display_palette
+    stats = {f'hue_share_{k}': {'value': v} for k, v in
+             {'green': .29, 'pink': .23, 'blue': .13, 'purple': .09, 'orange': .08, 'cyan': .06, 'yellow': .06, 'red': .05}.items()}
+    recipe = {'display_estimate': {'statistics': stats},
+              'render': {'layers': [{'id': 'wave', 'colour_over_time': {'hue_shares': {'blue': 1.}}, 'geometry': {'radius_ndc': .3}}],
+                         'feedback': {'steady_state': {'hue_family': 'blue'},
+                                      'warp_detail_response': {'coloured_share': .8, 'hue_shares': {'blue': 1.}}},
+                         'composite': {}}}
+    assert next(iter(display_palette(recipe)['hue_shares'])) == 'green'

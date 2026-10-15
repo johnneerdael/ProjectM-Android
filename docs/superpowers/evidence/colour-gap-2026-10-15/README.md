@@ -40,3 +40,29 @@ colour row of the gap table.
 Tried and reverted: the hue of a channel-selective warp's gain vector as a source (20% of exported warps keep
 only some channels). 200 set 51% (unchanged), held-out 44% → 42%. More sources no longer help; pooling has hit
 its ceiling.
+
+## Step 3: calibrated hue weight in the pooled palette (2026-10-15)
+
+When the calibrated hue shares shipped (r13h), they joined the pool with weight 6. That value was never tuned out
+of fold. Checkpoint r218 (Magellan's Nebula) shows the failure mode: calibrated green/pink, while steady state,
+warp detail, wave and shape all lead blue. The pooled palette led blue; the ruler shows pink/green.
+
+`palette_weight_ab.py` rebuilds recipes, substitutes the out-of-fold calibrated shares (oof-r14g), and re-pools
+at several weights. Static only; no frames are stepped. Metric: leading hue in the ruler's top two, on presets
+with ruler coloured share above 0.2.
+
+| calibrated weight | 200 group set (162 coloured) | held-out checkpoints (163 coloured) | both (325) |
+|---|---|---|---|
+| 0 (static sources only) | 51.2% | 42.3% | 46.8% |
+| 6 (previous) | 67.9% | 60.1% | 64.0% |
+| 12 | 74.1% | 65.0% | 69.5% |
+| **24 (shipped)** | 72.8% | 66.9% | **69.8%** |
+| calibrated only | 69.8% | 68.7% | 69.2% |
+
+At weight 24 the calibrated lead stands, and static sources mostly break near-ties. The values 12, 24 and
+calibrated-only are within noise of each other; 6 is clearly worse. Re-scoring the 14 recent checkpoints whose
+stored recipes carry calibrated hue gives 11 → 12 top-2 hits: r213 and r218 are fixed, r225 flips wrong, and
+r215 stays wrong.
+
+Checkpoint descriptions come from mixed analyzer versions. Some held-out static sources are therefore older
+than the current code, which may understate pooling on that set.
