@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r329-v1",
+ "preset": "Geiss - Skin Dots Multi-layer 1.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "65c984f206155cc3142916db852a246f90f2418c185bb0c7137a17867ff002dc",
+  "prediction.json": "c0359471f9708133d7135ff93edc743ca2064e996f7ad84e797166f6f8b56e6d",
+  "description.json": "175ff7c0658ed5ee8f0a9e2e590f2a2b927c8e070e0e71c3b0db721e70f8fbf7",
+  "recipe.json": "e71fbdc88411031701fbbbf3eca54fcd01c6450a3deb805dc7f29e933df25685",
+  "llm-look-description-v1.txt": "1df58e3e77eb3939b9d71ce614c62ec7f18aa55b8216634229a8f6d5b3fb359a"
+ },
+ "capture_result_sha256": "ab1d496f8cd82c15acf330f01af2a1271e5b9bc60c673b5153fd5e4e6f8f8092",
+ "review_measurements_v1": {
+  "prediction_luma": 0.559,
+  "screenshot_luma": 0.57,
+  "mean_rgb_prediction": [
+   0.559,
+   0.559,
+   0.559
+  ],
+  "mean_rgb_screenshot": [
+   0.57,
+   0.57,
+   0.57
+  ],
+  "blurred_luma_correlation": 0.068,
+  "mean_abs_frame_difference_60_149": [
+   0.1658,
+   0.2873
+  ]
+ },
+ "agreements": [
+  "bright/fast/intense right (real 0.56)"
+ ],
+ "misses": [
+  "monochrome omitted (ruler grey)"
+ ],
+ "verdict": "agree"
+}

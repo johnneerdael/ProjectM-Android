@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r328-v1",
+ "preset": "suksma - unfound spher source.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a5f3b20e9bc36201acd9cf3dc0a657b1c4db687e22fa413b1c575a3b17743f65",
+  "prediction.json": "d6a709c2d7239099dc0c0c49fb854a76412f4e5da5c57e0a23f62fc21bfae2b5",
+  "description.json": "8ee97d8953047d5ce975289f782ddfb628a587734b9a8e7c2bb45ed12a4a4a7c",
+  "recipe.json": "26e670401a5788387d076ab38d7b182c56dd36bc0fda70ed2fac878b7d00a0df",
+  "llm-look-description-v1.txt": "35a5e7f7158469ea355e8a95ba3317b320584d3fd5c50718efdc03f4e1ac41b4"
+ },
+ "capture_result_sha256": "ae3b5c6682534f79cea0ac7e21250d5fba256764667c3cf75c2c835ac7d1bf04",
+ "review_measurements_v1": {
+  "prediction_luma": 0.196,
+  "screenshot_luma": 0.233,
+  "mean_rgb_prediction": [
+   0.298,
+   0.182,
+   0.037
+  ],
+  "mean_rgb_screenshot": [
+   0.26,
+   0.237,
+   0.112
+  ],
+  "blurred_luma_correlation": 0.423,
+  "mean_abs_frame_difference_60_149": [
+   0.0497,
+   0.0414
+  ]
+ },
+ "agreements": [
+  "pink lead right"
+ ],
+ "misses": [
+  "no facet admitted (all uncertain)"
+ ],
+ "verdict": "agree"
+}

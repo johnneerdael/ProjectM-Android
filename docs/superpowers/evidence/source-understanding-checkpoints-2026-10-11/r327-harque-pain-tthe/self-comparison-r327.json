@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r327-v1",
+ "preset": "undulate harque - pain tthe nz.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "82d806e6e4218f8847c6fb06ce03aa56c40fdf6cf074043b22ded59bd73cea79",
+  "prediction.json": "344c9ad368bc4ce084e5053e69b646f9b61b059b2eb1c626920687fb8dccf056",
+  "description.json": "f2219c4c1155b75fd9892c6acd2a067c80d2ee9e8bad3e5a29d559b0754ef2be",
+  "recipe.json": "eb7cb05b3ba4d503747eeec572b884da9bf5000a4a7a314876a81ecd98d156c3",
+  "llm-look-description-v1.txt": "9b1686982c2bce9ef3b8852cd4d70a25990fc74c74b611cd6fb8266283cacc4f"
+ },
+ "capture_result_sha256": "8991a039021a216519b61b9945c2d997ddd6d7380355ec20ac3570ca74598f40",
+ "review_measurements_v1": {
+  "prediction_luma": 0.236,
+  "screenshot_luma": 0.248,
+  "mean_rgb_prediction": [
+   0.248,
+   0.233,
+   0.229
+  ],
+  "mean_rgb_screenshot": [
+   0.245,
+   0.249,
+   0.242
+  ],
+  "blurred_luma_correlation": 0.807,
+  "mean_abs_frame_difference_60_149": [
+   0.0317,
+   0.038
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "chill/drifting right",
+  "frame prediction corr 0.81"
+ ],
+ "misses": [
+  "vivid wrongly admitted"
+ ],
+ "verdict": "partial"
+}

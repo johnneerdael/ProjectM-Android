@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r335-v1",
+ "preset": "Milk Artist At our Best - FED - SlowFast Ft AdamFX n Martin - HD CosmoFX.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "aeb6f568ed943657d097aff2ea51e20ca3962e78e72ac15cae2d23b937136382",
+  "prediction.json": "23192bff4973332fb388d6957f035cb38b9877f566928a3c8c7652ef4162ffea",
+  "description.json": "7ce067b9f566e8c11540d69b1817fee8e5800095a8b258290685823df8b9b346",
+  "recipe.json": "f5805f5ab2b58fe9df0ea7faddcb2720c19788d1031bfc87c62ae574088d6ee6",
+  "llm-look-description-v1.txt": "59cf38364b2afa34b0892b5b8a55a5d2367ab1645eee32acec2ebb3f65045922"
+ },
+ "capture_result_sha256": "dbc50644254ce85e62b387cc6e7ce14ab4473ad427ef6c667171da763af53780",
+ "review_measurements_v1": {
+  "prediction_luma": 0.424,
+  "screenshot_luma": 0.457,
+  "mean_rgb_prediction": [
+   0.445,
+   0.419,
+   0.41
+  ],
+  "mean_rgb_screenshot": [
+   0.496,
+   0.439,
+   0.519
+  ],
+  "blurred_luma_correlation": 0.634,
+  "mean_abs_frame_difference_60_149": [
+   0.0435,
+   0.0435
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "bright/normal right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

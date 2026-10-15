@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r330-v1",
+ "preset": "suksma - let it all end.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4e42f91436569993b3f2c755866f291c09476d0583cc09585829b7e1433132c1",
+  "prediction.json": "fc1e7decd6112999f415e74217503ab4b597f9aaaef3fca4f5daf99968315e9e",
+  "description.json": "ec918ab32c87cead3fd033e21dba7bd66f3e894353438dd8e12c3c08c44c7177",
+  "recipe.json": "d43f90c126ae83976df2852b28c4301beca02d4e869451b15f53a196b33c9cfa",
+  "llm-look-description-v1.txt": "60f1645088839c27ed7bb5b1dbc697fb7d3362ee6d0dc373fc4132b772c08fdb"
+ },
+ "capture_result_sha256": "dec5f8895e1ec448b1ae9a8c69d56f3274c27eb2e44c6d39bc8fbef186f01a0b",
+ "review_measurements_v1": {
+  "prediction_luma": 0.29,
+  "screenshot_luma": 0.062,
+  "mean_rgb_prediction": [
+   0.365,
+   0.26,
+   0.36
+  ],
+  "mean_rgb_screenshot": [
+   0.061,
+   0.063,
+   0.06
+  ],
+  "blurred_luma_correlation": 0.224,
+  "mean_abs_frame_difference_60_149": [
+   0.065,
+   0.1076
+  ]
+ },
+ "agreements": [
+  "drifting/intense right"
+ ],
+ "misses": [
+  "hue: pink vs ruler blue/red"
+ ],
+ "verdict": "agree"
+}

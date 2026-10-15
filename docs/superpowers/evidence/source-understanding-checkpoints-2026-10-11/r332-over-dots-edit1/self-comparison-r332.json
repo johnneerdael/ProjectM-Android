@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r332-v1",
+ "preset": "Fed + Geiss - Cauldron painterly 5 - over dots --- Isosceles edit1.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "4e6645477c4aaf7239a1b8e986541a4117479be6e1dfd6d35c488218ad6d7ab9",
+  "prediction.json": "58a332f3904e549a4753d619bde8d29eada389d933afa49aecdd3f674dfd88d0",
+  "description.json": "6d1c6fe42de1b35e6de33baf1cbc6a3a15c8ad3dbd961d6498596637adf75f7c",
+  "recipe.json": "cb012ebe7a6a3e98186b22cd7b86a392410c5cf840da9f4a4335d1ec9e2e2562",
+  "llm-look-description-v1.txt": "dc200480087dbb3e8d68cfd3a9914d9704196ff77899ef16e8cbd670844a8289"
+ },
+ "capture_result_sha256": "e0572d2081c4e02dad67f923ab24968208fa559d608268d7790333d8b0c763a0",
+ "review_measurements_v1": {
+  "prediction_luma": 0.075,
+  "screenshot_luma": 0.106,
+  "mean_rgb_prediction": [
+   0.096,
+   0.068,
+   0.082
+  ],
+  "mean_rgb_screenshot": [
+   0.15,
+   0.091,
+   0.121
+  ],
+  "blurred_luma_correlation": 0.494,
+  "mean_abs_frame_difference_60_149": [
+   0.0724,
+   0.1243
+  ]
+ },
+ "agreements": [
+  "cyan in ruler top-2",
+  "cool/fast/intense right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

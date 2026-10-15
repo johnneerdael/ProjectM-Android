@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r331-v1",
+ "preset": "bdrv + al Rovastar - Fractopia bdrv132456 mix bleuarg - soft death roam3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "71fa760a221a646082f2851fa0575b8e2b086db5d708aa4672bc410409106a38",
+  "prediction.json": "426427775ce8695f456d006bf4346b59186cd71d4cdee9c956bdf282b02b0264",
+  "description.json": "3133bcc27f2f9906d428d570242257f584a33b65135cdede8426dcb66547377b",
+  "recipe.json": "8ed13733326d867f3600b93d64f1a519c52698476db602e3154db3d7dd8d69cb",
+  "llm-look-description-v1.txt": "c1745cf4b5aed03f5b6f7cb253224e188d602d2c6a923bc661374980a4fb4156"
+ },
+ "capture_result_sha256": "f7515aee10a2c0e4418fa93f52652ca61ad4c6723238586d5a311e725f30ea11",
+ "review_measurements_v1": {
+  "prediction_luma": 0.15,
+  "screenshot_luma": 0.133,
+  "mean_rgb_prediction": [
+   0.18,
+   0.152,
+   0.047
+  ],
+  "mean_rgb_screenshot": [
+   0.16,
+   0.134,
+   0.046
+  ],
+  "blurred_luma_correlation": 0.859,
+  "mean_abs_frame_difference_60_149": [
+   0.0687,
+   0.0211
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "dark/warm right (real 0.035)"
+ ],
+ "misses": [
+  "calibrated luminance 0.17 vs 0.035"
+ ],
+ "verdict": "agree"
+}

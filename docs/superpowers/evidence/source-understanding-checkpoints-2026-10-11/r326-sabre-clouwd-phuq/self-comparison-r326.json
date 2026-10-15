@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r326-v1",
+ "preset": "phledge lasso blaq wholes aren't natural wr eagreknethamphitheatremedian rexian sabre clouwd phuq.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ef4bf64fea31270521c91537856bd41b0ca2460f94229bae6a54dc18ac9e3a14",
+  "prediction.json": "de81513369f6773af797b05c5cba72af51ec710b6eaa912a02bd5a14c28b6835",
+  "description.json": "8c1f8befd95597941e36b15d58dbfb6fcd18d869cf336022dfe817cfd66f4c68",
+  "recipe.json": "e44e718754610e2497ab9c43b740d40b441a2751a1e3fb02493b50cdffa632e1",
+  "llm-look-description-v1.txt": "e80b72799fed411b372337be0b79af1e30c6a5d050ce596d42d3518d0c20cfe0"
+ },
+ "capture_result_sha256": "0a600381dfbda1423c4d2b709e0122a1dc776ad13fd3491b949b8b46c2ef1a79",
+ "review_measurements_v1": {
+  "prediction_luma": 0.662,
+  "screenshot_luma": 0.68,
+  "mean_rgb_prediction": [
+   0.727,
+   0.639,
+   0.695
+  ],
+  "mean_rgb_screenshot": [
+   0.711,
+   0.668,
+   0.718
+  ],
+  "blurred_luma_correlation": 0.678,
+  "mean_abs_frame_difference_60_149": [
+   0.1449,
+   0.194
+  ]
+ },
+ "agreements": [
+  "green in ruler top-2",
+  "bright/intense/vivid right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}
