@@ -111,3 +111,18 @@ with ruler memberships.
 Classifier AUCs: balanced 0.717, drifting 0.734, normal 0.754. Each middle pool still holds 2,200 to 4,500 presets.
 Presets whose evidence is not strong enough now get no option in that group, instead of a coin-flip middle option.
 Pastel (34% precision) is still the weakest option.
+
+## Middle-bucket floor: 70% (shipped) vs 80% candidate (2026-10-15)
+
+`fit_floor_variant.py .8` refits balanced, drifting and normal at an 80% precision floor, merged into r15q;
+scored with `facet_scoreboard2.py` (out of fold):
+
+| option | 70%: precision / recall / admitted | 80%: precision / recall / admitted |
+|---|---|---|
+| normal | 70% / 65% / 4,479 | 80% / 30% / 1,799 |
+| balanced | 71% / 42% / 2,511 | 78% / 18% / 979 |
+| drifting | 70% / 56% / 3,749 | 79% / 23% / 1,404 |
+| all options pooled | 76% / 50% | 79% / 41% |
+
+80% removes about 2,330 wrong middle labels (3,197 → 870) and drops about 4,230 correct ones (7,542 → 3,312). Which
+trade-off suits grouping is the owner's decision; the shipped model stays at 70% until then.
