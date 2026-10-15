@@ -65,6 +65,7 @@ def predict(summary,model=None):
         low,high=(clamp(_inverse(raw+spec['residual_p10'],spec.get('transform'))),clamp(_inverse(raw+spec['residual_p90'],spec.get('transform'))))
         out[target]={'value':value,'interval':[min(low,high),max(low,high)],'oof_spearman':spec['oof_spearman'],
                      'evidence':'source-calibrated','label_source':model.get('label_source')}
+        if type(spec.get('threshold')) in (int,float):out[target]['threshold']=spec['threshold']
     return out
 
 

@@ -791,7 +791,7 @@ BUNDLED_PRESETS=ROOT/'core/src/main/assets/presets'
 # facet metric -> calibrated display statistic (the same engine-ruler fields the attribute bundle stores)
 FACET_STATISTICS={'luminance':'mean_luminance','saturation':'mean_saturation','warm_cool':'warm_cool',
                   'flow':'mean_flow_screen_widths_per_s','frame_difference':'mean_abs_frame_difference',
-                  'jumps':'global_brightness_jumps_per_10s'}
+                  'jumps':'global_brightness_jumps_per_10s','coloured_share':'coloured_share'}
 ATTRIBUTE_COLUMNS=('luminance','saturation','coloured_share','warm_cool','flow','frame_difference','jumps','activity')
 ACTIVITY_METRICS=(('frame_difference','mean_abs_frame_difference'),('flow','mean_flow_screen_widths_per_s'),
                   ('jumps','global_brightness_jumps_per_10s'))
@@ -871,6 +871,43 @@ def _metric_state(conditions,span):
     return 'always' if inside_low and inside_high else 'maybe'
 
 
+def _metric_ranges(option):
+    """{metric: (low, high)} implied by an option's metric conditions (bounds treated as closed)."""
+    ranges={}
+    for c in option['all']:
+        if 'metric' not in c:continue
+        low,high=ranges.get(c['metric'],(-math.inf,math.inf));v=float(c['value'])
+        if c['op'] in ('<','<='):high=min(high,v)
+        else:low=max(low,v)
+        ranges[c['metric']]=(low,high)
+    return ranges
+
+
+def _conflicts(a,b):
+    """Two options conflict when they constrain a shared metric to non-overlapping ranges."""
+    ra,rb=_metric_ranges(a),_metric_ranges(b)
+    return any(max(ra[m][0],rb[m][0])>=min(ra[m][1],rb[m][1]) for m in set(ra)&set(rb))
+
+
+def _apply_option_probabilities(statistics,definition,options,possible,unresolved):
+    """A calibrated facet_<option>_probability with its stored threshold decides that option. Per-option
+    classifiers admit more true members at the precision the value rule reaches (thresholds are set there at fit
+    time). An admitted option removes the options it conflicts with in its group (disjoint ranges)."""
+    options=list(options);possible=list(possible);unresolved=list(unresolved)
+    for group in definition['groups']:
+        for option in group['options']:
+            row=statistics.get('facet_%s_probability'%option['id'])
+            if not isinstance(row,dict) or type(row.get('value')) not in (int,float) or type(row.get('threshold')) not in (int,float):continue
+            for bucket in (possible,unresolved):
+                if option['id'] in bucket:bucket.remove(option['id'])
+            if row['value']>=row['threshold']:
+                if option['id'] not in options:options.append(option['id'])
+                for other in group['options']:
+                    if other is not option and other['id'] in options and _conflicts(option,other):options.remove(other['id'])
+            elif option['id'] in options:options.remove(option['id'])
+    return options,possible,unresolved
+
+
 def facet_options(values,style,definition):
     """(options, possible_options, unresolved_options) for facet values {metric: {'value','interval'?}}.
 
@@ -943,8 +980,9 @@ def facets_block(summary,display=None,*,attributes_path=None,definition_path=Non
         point=facet_activity({m:values[m]['value'] for m,_ in ACTIVITY_METRICS},definition_path)
         values['activity']={'value':round(point,4),'interval':[round(min(ends+[point]),4),round(max(ends+[point]),4)],
                             'evidence':'source-calibrated'}
-    values['coloured_share']={'value':None,'evidence':'not-estimated'}
+    values.setdefault('coloured_share',{'value':None,'evidence':'not-estimated'})
     options,possible,unresolved=facet_options(values,style,definition)
+    options,possible,unresolved=_apply_option_probabilities(statistics or {},definition,options,possible,unresolved)
     block.update(evidence='source-calibrated' if statistics else 'unavailable',style_evidence='source-structure-facts',
         options=options,possible_options=possible,unresolved_options=unresolved,style=style,values=values,
         activity_source='frozen-facet-reference-from-calibrated-statistics' if 'activity' in values else None)

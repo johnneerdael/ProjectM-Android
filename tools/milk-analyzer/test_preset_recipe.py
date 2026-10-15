@@ -76,14 +76,16 @@ def test_recipe_facets_block_uses_calibrated_values_and_marks_unresolved():
     assert facets['definition_sha256']==hashlib.sha256(preset_facets.DEFINITION.read_bytes()).hexdigest()
     assert facets['evidence']=='source-calibrated' and facets['style_evidence']=='source-structure-facts'
     assert facets['activity_source']=='frozen-facet-reference-from-calibrated-statistics'
-    assert {'monochrome','pastel'}<=set(facets['unresolved_options'])
+    # coloured_share is now a calibrated estimate, so Monochrome and Pastel resolve from it.
+    assert not {'monochrome','pastel'}&set(facets['unresolved_options'])
+    assert facets['values']['coloured_share']['evidence']=='source-calibrated'
     assert set(facets['options'])<=set(preset_facets.option_ids(definition))
     assert not set(facets['options'])&set(facets['unresolved_options'])
     assert 'kaleidoscope' in facets['options']  # angular_mirror_fold mechanism in the fixture
     for name in ('luminance','saturation','warm_cool','flow','frame_difference','jumps','activity'):
         value=facets['values'][name]
         assert value['evidence']=='source-calibrated' and value['interval'][0]<=value['interval'][1]
-    assert facets['values']['coloured_share']=={'value':None,'evidence':'not-estimated'}
+    assert 0<=facets['values']['coloured_share']['value']<=1
     point={k:v['value'] for k,v in facets['values'].items() if v['value'] is not None}
     expected=[o for o in preset_facets.memberships(point,facets['style'],definition) if o not in facets['unresolved_options']]
     assert facets['options']==expected
@@ -544,3 +546,18 @@ def test_display_palette_leads_with_calibrated_hue_shares():
     p = display_palette(recipe)
     assert list(p['hue_shares'])[:2] == ['green', 'blue']
     assert any(s['source'] == 'calibrated_hue' for s in p['sources'])
+
+
+def test_calibrated_option_probabilities_decide_membership_and_coloured_share_is_used():
+    # Per-option classifiers admit more true members at the regression rule's precision (dark recall 19% -> 33%).
+    # A facet_<option>_probability statistic with its stored threshold decides that option; coloured_share is now
+    # estimated, so Monochrome is no longer unresolved.
+    from preset_recipe import facets_block
+    stats = {'mean_luminance': {'value': .2, 'interval': [.1, .3]}, 'mean_saturation': {'value': .6, 'interval': [.4, .8]},
+             'warm_cool': {'value': 0., 'interval': [-.2, .2]}, 'mean_flow_screen_widths_per_s': {'value': .1, 'interval': [.05, .2]},
+             'mean_abs_frame_difference': {'value': .02, 'interval': [.01, .03]}, 'global_brightness_jumps_per_10s': {'value': 0., 'interval': [0., .5]},
+             'coloured_share': {'value': .05, 'interval': [.0, .1]},
+             'facet_dark_probability': {'value': .9, 'interval': [.9, .9], 'threshold': .7}}
+    block = facets_block({'facts': {}}, {'statistics': stats})
+    assert 'dark' in block['options'] and 'balanced' not in block['options']
+    assert 'monochrome' in block['options'] and 'monochrome' not in block['unresolved_options']
