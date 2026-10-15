@@ -273,6 +273,13 @@ full recipe tens of thousands of lines long.
    free of strobing. Say it flickers at that rate, even if no explicit flash
    mechanism was found, because chaotic feedback and thresholded audio routes
    flicker without one.
+   When `display_estimate` has `no_strobe_probability` (a calm-vs-flicker
+   classifier over static descriptors), use it for flashing. At 0.95 or above,
+   about 1 in 80 presets out of fold still flickers: call these steady. Between
+   0.7 and 0.95, say occasional pulses are likely. Below 0.7, say it flickers
+   and is not strobe-free. `facet_<option>_probability` with a `threshold`
+   decides that Mood option (dark, bright, monochrome, pastel, warm, cool,
+   still): at or above the threshold the preset belongs.
    Read `facts.motion` and `facts.flashing`. Report signed nominal control rates,
    periods, derivative ceilings and supported geometric paths with their units.
    A rotation parameter in radians/feedback step differs from radians/second.
