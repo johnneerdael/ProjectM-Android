@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r255-v1",
+ "preset": "suksma - flexi coheres vacuum energy - shf fab in miatas.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "f1badd075811836faf5df3438e2013b75f0e25a5b0e6a77201043552c35ec2bb",
+  "prediction.json": "55bcd53456904c4e14fc236e8f918f0ea61ee3210f7bd8639f96c8bdf0c878c7",
+  "description.json": "5555e382d9a6a455f77ba9cf73c14b8f80b422d4052dca72c68b8e2bce28f3d0",
+  "recipe.json": "069524d16314b031509de083888d1dd3417aa4e16b585c6b254c53f58a1690dc",
+  "llm-look-description-v1.txt": "d4af9188f7f407411cc3d3524b7b430a6e68ea5dcd5e94e969c567c44cd6fdbf"
+ },
+ "capture_result_sha256": "2253ec9100ee1b4c6b540978e16b20c20ebb2d3a146fd9e1c67735c6a4830b07",
+ "review_measurements_v1": {
+  "prediction_luma": 0.306,
+  "screenshot_luma": 0.294,
+  "mean_rgb_prediction": [
+   0.566,
+   0.26,
+   0.002
+  ],
+  "mean_rgb_screenshot": [
+   0.563,
+   0.244,
+   0.001
+  ],
+  "blurred_luma_correlation": 0.909,
+  "mean_abs_frame_difference_60_149": [
+   0.0249,
+   0.0058
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "balanced/still/vivid/warm right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r254-v1",
+ "preset": "Flexi - a script kiddies flash ['the shader geek' mix 5].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "e6f8fafb1a717e40cdebf907ba3cd73c1f09238a95a1112a601e9d2b70228332",
+  "prediction.json": "18bfc14f5684e6fefe5d196fe17cab6e78f930bbaad8f395401b1d03e64f8b29",
+  "description.json": "e623e4532dab7d9ad2561a3ae2ff5face89aeab3f175e34f04310662e9690343",
+  "recipe.json": "083e1254c23755c99289d0dcce2127c3c1cfcbaa0634af7960593a5689771abb",
+  "llm-look-description-v1.txt": "8324320624e4de864bf4edbf9180ddbb226ebd078297ae57087b87c0292c0043"
+ },
+ "capture_result_sha256": "f72344086c030ad153961aba9547ed0e188dfedbded6a6061e584219129a9778",
+ "review_measurements_v1": {
+  "prediction_luma": 0.38,
+  "screenshot_luma": 0.124,
+  "mean_rgb_prediction": [
+   0.512,
+   0.354,
+   0.252
+  ],
+  "mean_rgb_screenshot": [
+   0.221,
+   0.103,
+   0.048
+  ],
+  "blurred_luma_correlation": 0.183,
+  "mean_abs_frame_difference_60_149": [
+   0.0222,
+   0.049
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "warm right",
+  "flicker kept out (p 0.50, 6 jumps)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

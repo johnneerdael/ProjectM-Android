@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r250-v1",
+ "preset": "suksma - chemosynthetic nosferatu - automating transformation with b n s3 - claim form fsh shf flx obl nz.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "eb1af6c0c49e8338e4511942a5785277e9f9427b394cb75888baa2e608d50687",
+  "prediction.json": "5e64cccd4175dee9a633c3119d5e3fe88b27c030e0435e4f092acbc0b609ab62",
+  "description.json": "3f383609a1136f631f676be782fb52e6ac81725176b59770281e7f8388bd9211",
+  "recipe.json": "22afb03871e2e232ee836b1bc3a0099c4cd73bef234904cca2de68afec3c9235",
+  "llm-look-description-v1.txt": "acb81ba3c3767f301ab22fff05e2e957bcbd663fd10ed4d474f006fc58716977"
+ },
+ "capture_result_sha256": "677d3b0186175b30e90c84e456aa5c6e4900f61162fbb913ffbc1a8ea037bdb3",
+ "review_measurements_v1": {
+  "prediction_luma": 0.174,
+  "screenshot_luma": 0.175,
+  "mean_rgb_prediction": [
+   0.259,
+   0.159,
+   0.081
+  ],
+  "mean_rgb_screenshot": [
+   0.235,
+   0.168,
+   0.067
+  ],
+  "blurred_luma_correlation": 0.311,
+  "mean_abs_frame_difference_60_149": [
+   0.042,
+   0.0326
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "balanced/drifting/vivid/warm right"
+ ],
+ "misses": [
+  "calibrated luminance 0.32 vs 0.19"
+ ],
+ "verdict": "agree"
+}

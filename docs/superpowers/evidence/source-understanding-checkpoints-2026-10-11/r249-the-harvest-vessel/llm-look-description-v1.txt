@@ -1,0 +1,13 @@
+Approximate look (from static source only): a busy, fast, mirrored and tiled pattern field in cool green, blue and cyan, pulsing hard with the music. Expect an energetic, intense picture rather than a calm one.
+
+Structure: the warp is a band-pass "pattern growth" effect (a fine level of the fed-back image is added and a coarser blur is subtracted each frame), so small seeds grow into blobs, cells or splatter that spread over most of the canvas, instead of a dark background with a few drawn items. The composite then folds the image across the axes and repeats it in mirrored tiles, so the final picture should look kaleidoscopic or tiled and left-right/up-down symmetric. Seeds come from several drawings: a built-in audio waveform (two parallel traces through the centre, additive, with colours cycling roughly r, g and b between 0.15 and 1.15 and a strong alpha); a red custom point set (512 points all placed at the exact centre of the screen, so a small bright red core rather than a spread); two 100-sided shapes at the left and right (x 0.17 and 0.83, radius about 0.54) that copy the previous frame back in at 1.86x zoom and quarter-turn rotations, adding recursive nested copies; a centred square (4 sides, radius about 0.99) whose colour, opacity and texture rotation follow treble, mid and bass; and a grid of 88 motion vectors (11 columns by 8 rows) drawn into the feedback.
+
+Motion: fast. The whole picture zooms in or out by up to about 10% per step, driven by bass and treble, and shifts sideways by up to about 0.025, so the picture breathes and lurches with the beat. Calibrated flow is about 0.4 screen widths per second (range 0.2 to 0.75).
+
+Colour: leading hues are green (about 0.29) and blue (0.26), with cyan (0.19) close behind; the gap is under 0.03, so I name green and blue as equals, with cyan alongside. Slightly cool overall. Mean luminance about 0.39 (0.21 to 0.60), saturation about 0.37, about 56% of pixels coloured. Colour breathes with bass, mid and treble through the composite.
+
+Audio: strong. Bass and treble drive zoom and shifts, all three bands drive colour, and treble drives the square's opacity.
+
+Flashing: no strobe probability is only 0.05 and brightness jumps are about 14 per 10 s (range 4 to 52), so it flickers frequently and is not strobe-free. It may reach strobe-like rates on strong beats.
+
+Uncertain: exact pattern scale and how much of the screen the central red core covers.

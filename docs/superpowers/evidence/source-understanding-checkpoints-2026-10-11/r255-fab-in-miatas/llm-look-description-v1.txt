@@ -1,0 +1,13 @@
+Predicted look: a fiery, heat-map-coloured field of drifting dots and polygons that smear outward into long spiral streaks, strongly warm and saturated.
+
+Colour: the composite shader works as a heat ramp on the canvas level. Flat canvas levels below about 0.1 show black. A level of 0.25 shows dark red, 0.5 shows orange (0.88, 0.53, 0), 0.75 shows yellow, and 1.0 shows white. Grey detail comes out about 89% orange and 11% yellow. The calibrated estimate says orange about 0.49, red about 0.35 and yellow about 0.17, with almost no cool hue (warm facet 0.98, saturation about 0.75, about 69% of the screen coloured). The orange lead over red is moderate, so I'd call it orange and red, with yellow on the brightest ridges and white where content piles up. Overall brightness is mid (mean luminance about 0.29, dark 0.18, balanced 0.61), on a black base.
+
+Drawn content: two large shape groups, 14-sided polygons (512 instances) and 23-sided polygons (1024 instances, half opacity, tilted by about 0.44 rad), look like a scattered cloud of small sparks or discs. Their positions and radii are driven by bass, mid and treble (some radius gains are small, 0.01 to 0.013), and their opacity is driven by all three bands through thresholded routes. The built-in two-trace waveform is additive at alpha 0.001 and is effectively invisible, so the shape cloud is the visible content.
+
+Motion: the feedback zoom expands the image from the centre by 2.3% to 10.3% per step. That is strong, and the zoom centre itself wanders between about 0.29 and 0.71 on both axes. Rotation swings plus or minus 0.01 rad per step. A noise texture displaces the sampling slightly (about 0.35% of the width), a turbulent shimmer. Red and green are kept at 0.9997 per frame (very long persistence), while blue decays faster (0.969, half-life about 22 frames). Retained content therefore turns reddish-yellow as it ages, and long outward spiral streaks should build, since drawn dots are smeared along rays from a moving centre.
+
+Audio: bass, mid and treble all drive shape position, size or opacity, so the cloud jumps and shifts on beats. The attenuated bass moves the (invisible) waveform. The source model estimates Normal activity (intensity about 52), while the calibrated estimate leans Chill (0.65, just under the 0.69 threshold), so energy is uncertain.
+
+Flashing: the no-strobe probability is 0.89, between 0.7 and 0.95, so occasional brightness pulses are likely. The calibrated global-jump estimate is about 0.03 per 10 s, with an upper bound near 2.7.
+
+Uncertain: cloud density, how far the streaks spread across the screen, and how often highlights saturate to white.

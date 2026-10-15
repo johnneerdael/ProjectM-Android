@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r248-v1",
+ "preset": "shifter - fractal grinder.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "717f06dc20f496bcdb621462add63d259b26fae453c1a695fcf84bcb91b541ba",
+  "prediction.json": "ac3f7ac35d273c4e285f7ac3932421e7a6fc5bc1e91c62099e669cbce0af0ff6",
+  "description.json": "a1722b6f498f4f9a794066862713f3c0859e72d2bbca8939a36d6d7d2ffe196a",
+  "recipe.json": "943d916d91897d0c1ed745684cad65781c8c786bf92ddb0faedb6866023c2a3d",
+  "llm-look-description-v1.txt": "240de4bc5d8d9539516a37b09f2f8df466cfbb2dbb8c0e1995a9d067f648e598"
+ },
+ "capture_result_sha256": "4bed7bb774f23c5b687210467ba77030a6e13954d0f41f589dd0a6eb616dd5d8",
+ "review_measurements_v1": {
+  "prediction_luma": 0.21,
+  "screenshot_luma": 0.199,
+  "mean_rgb_prediction": [
+   0.213,
+   0.21,
+   0.202
+  ],
+  "mean_rgb_screenshot": [
+   0.214,
+   0.193,
+   0.211
+  ],
+  "blurred_luma_correlation": 0.998,
+  "mean_abs_frame_difference_60_149": [
+   0.0152,
+   0.006
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "balanced/chill/still and No strobe right (p 0.97, real 0 jumps)"
+ ],
+ "misses": [
+  "calibrated luminance 0.29 vs 0.19"
+ ],
+ "verdict": "agree"
+}

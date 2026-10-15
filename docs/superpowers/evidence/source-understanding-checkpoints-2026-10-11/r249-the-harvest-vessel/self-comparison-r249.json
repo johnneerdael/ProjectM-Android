@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r249-v1",
+ "preset": "suksma - pus on my cat - agro-christen the harvest vessel.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "75f9ee954f6bce7c1c6d1bb34930127c827373c22a51c93a0c105d2fc6e070aa",
+  "prediction.json": "059ae65fef9db4b067c57c34bf64775e601e279c028176a0259bbf8c58202fac",
+  "description.json": "6113eabb529c0e54c585ef71cc5a67aebbe35ac0565923c43eaa77c6c828e241",
+  "recipe.json": "04ec834000d0cba0c71588dfcfc793415dd3690d1fa2be2c5acb468714a9c372",
+  "llm-look-description-v1.txt": "8cf7cd66503db4226e108f64d314e43733f38b3dd3b122c694a4bb2204968202"
+ },
+ "capture_result_sha256": "2bed9b9821d3c20c001fbd862b7737dc8116cc0e7b7e8f49431ebb1e258ed628",
+ "review_measurements_v1": {
+  "prediction_luma": 0.559,
+  "screenshot_luma": 0.556,
+  "mean_rgb_prediction": [
+   0.495,
+   0.585,
+   0.483
+  ],
+  "mean_rgb_screenshot": [
+   0.494,
+   0.582,
+   0.483
+  ],
+  "blurred_luma_correlation": 0.975,
+  "mean_abs_frame_difference_60_149": [
+   0.1296,
+   0.1047
+  ]
+ },
+ "agreements": [
+  "green lead right",
+  "bright/fast/intense right",
+  "flicker correct (p 0.05, 24 jumps)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

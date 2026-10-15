@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r251-v1",
+ "preset": "Martin - beamer code 03h.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "0d7e395e2c005be3e8fe9cee8ba7d3770043cfacd90bc5f2ae4f8211e093acfa",
+  "prediction.json": "d03c41adfddd3d4fefab041d68177472de4686864c1255144f73545e5c063c38",
+  "description.json": "097aee0213a88337b68db38d626e77f91f1eab907765c14f3d7d4c4650ff8e51",
+  "recipe.json": "eedeb52230868a6ce93378f7a75c187a2056fe1840802a9aae4682604787f259",
+  "llm-look-description-v1.txt": "0cb334c157684d4b23253c5d4f21ecd0205cb28b4a299fd80e45a301b2dbcb33"
+ },
+ "capture_result_sha256": "81a2fcb75786a8cae6f49c2008d5a354344130b7f6ed8b15bc52a531a90a5641",
+ "review_measurements_v1": {
+  "prediction_luma": 0.007,
+  "screenshot_luma": 0.007,
+  "mean_rgb_prediction": [
+   0.004,
+   0.008,
+   0.006
+  ],
+  "mean_rgb_screenshot": [
+   0.004,
+   0.008,
+   0.006
+  ],
+  "blurred_luma_correlation": 0.311,
+  "mean_abs_frame_difference_60_149": [
+   0.0238,
+   0.0086
+  ]
+ },
+ "agreements": [
+  "dark + monochrome + chill right (real 0.005, grey)"
+ ],
+ "misses": [
+  "calibrated luminance 0.09 vs 0.005"
+ ],
+ "verdict": "agree"
+}

@@ -157,3 +157,11 @@ A dedicated strobing classifier (≥ 10 jumps, same trees and folds; `nostrobe_v
 raise No strobe recall. Its strobing AUC is 0.930 vs 0.913 for the calm classifier. The largest zero-strobing
 admissions out of fold: calm + jumps 758 (0.92 / 0.1, at a grid edge with no margin), calm + veto 688, all three
 754. The shipped gate (0.93 / 0.05, 599) keeps its margin; recall is limited by the descriptors, not the rule.
+
+Why calm presets are doubted (`nostrobe_doubt_scan.py`; calm = 0 jumps, doubted p < 0.5 vs trusted p ≥ 0.9). The facts
+over-represented in doubted calm presets are: the composite reading mid/treb, q-bridged audio routes, and the
+random-palette template (`mqNN = if(above(chng,cthr), rand(n), mqNN)`). They occur at similar rates among strobing
+presets (21–30% vs 16–26%), so the doubt is legitimate. The template alone covers 1,478 presets (53% strobing,
+26% calm), almost all with the same redraw timing (`chng = sin(time*.5)`, `cthr = .9999`), so its period cannot
+separate them. Raising recall needs the magnitude of audio → displayed-brightness gain through the composite,
+which the descriptors hold only as route presence.

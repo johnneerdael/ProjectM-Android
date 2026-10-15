@@ -1,0 +1,15 @@
+Approximate look (from static source only): a symmetric, mostly grey-white picture of recursive frame copies pulling toward the centre, with only a little colour, and a calm brightness level overall.
+
+Structures: four identical 74-sided, white-tinted polygon shapes sit near the four corners of the screen (centres at about 0.2/0.2, 0.8/0.2, 0.2/0.8 and 0.8/0.8, radius about 0.61 each, so they are big and overlap in the middle). They are not fills. Each draws a copy of the previous frame, shrunk to about 0.76 and turned half a turn (3.14 rad), so I expect nested, upside-down copies of the picture appearing in each corner and repeating inward, giving a kaleidoscopic, tunnel-like or droste feel. Their rotation is driven by bass, mid and treble through thresholded or clamped routes, so the corner copies should swing or twist when the music changes, though the strength is unresolved. One grey-white custom line (512 points, about half opaque) also follows the audio and adds thin bright strokes whose exact path I cannot resolve.
+
+Feedback: nothing fades (decay 1.0); only a thin outer band (about 10% of the screen) fades slowly, so detail can accumulate and persist. The whole image contracts toward the centre by about 2.4 to 3.5% per frame, stronger at the edges, which gives a steady inward flow or zoom tunnel, with no rotation or sideways drift in the warp itself.
+
+Composite: brightens by up to about 2x (gamma) and adds a left-right mirrored, shrunken copy at 50% opacity, so the final image should be mirror-symmetric. A hue tint is applied whose phase is random per load, so any colour appears in different places on different loads.
+
+Colour and brightness: mostly grey and white. Calibrated mean luminance is about 0.29 (0.11 to 0.51), saturation about 0.22, with only about 28% of pixels coloured. If colour shows, pink is slightly ahead but green, blue and red are within about 0.05, so no hue clearly dominates.
+
+Motion: slow to moderate (calibrated flow about 0.04 screen widths per second) despite the inward contraction.
+
+Flashing: no strobe probability is 0.97, so it should be steady, with essentially no brightness jumps. Chill is likely; still is just above threshold.
+
+Uncertain: how strongly audio rotates the copies, how much white saturates, and the tint.

@@ -1,0 +1,42 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r252-v1",
+ "preset": "TonyMilkdrop - Rhythm Of My Life [Flexi - $this shall not retain] --- Isosceles edit.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "614d2a881947ff940ad579083f79cc24faed2addf10f8628f44fb203d3e82ed5",
+  "prediction.json": "fa90dfabea1f85192252491d755c9679faa0ea61841a0176bfc7652bc113f13b",
+  "description.json": "e7b838db15765ffc166fb33c8c91378fd66bfe54767e28fe1456c78454f16a03",
+  "recipe.json": "6ec5dbf34f530c001894134f4b44df2f674a1919b3d3ec635ee6f5ea323f079b",
+  "llm-look-description-v1.txt": "86e97e73744f424bf5a0db2657c8410aa72d49b4c71e494d37c0cfdfdc3436cb"
+ },
+ "capture_result_sha256": "076c58953311e9415c029eaabc7b3b5c8ffbab275a489efdce72931347e56467",
+ "review_measurements_v1": {
+  "prediction_luma": 0.13,
+  "screenshot_luma": 0.13,
+  "mean_rgb_prediction": [
+   0.16,
+   0.124,
+   0.107
+  ],
+  "mean_rgb_screenshot": [
+   0.16,
+   0.123,
+   0.107
+  ],
+  "blurred_luma_correlation": 1.0,
+  "mean_abs_frame_difference_60_149": [
+   0.0419,
+   0.0591
+  ]
+ },
+ "agreements": [
+  "orange lead right",
+  "balanced right",
+  "frame prediction corr 1.0"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

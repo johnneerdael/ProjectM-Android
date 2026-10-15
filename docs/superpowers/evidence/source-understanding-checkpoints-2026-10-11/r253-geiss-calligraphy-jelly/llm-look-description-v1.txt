@@ -1,0 +1,13 @@
+Predicted look: a dark screen with a glowing, colour-shifting ring at the centre whose imprint streams outward into a slowly twisting, embossed tunnel of expanding rings.
+
+Drawing: the only drawn element is a built-in waveform, a stereo polar trace (mode 1, thick, additive), centred at the middle of the screen. Its effective base radius is about 0.17 model units, so it forms a small, wobbly circular loop that follows the left and right audio waveforms. Its nominal rotation is about 2.3 rad/s. Its colour drifts: red, green and blue each swing between 0.4 and 1 with periods of about 18, 15 and 12 s. The shader then scales the brightest channel to full, so the line is always fully bright and saturated, and its hue wanders slowly through green, pink, blue, orange and others. Closed-form hue visits are green 20%, pink 19% and blue 16%, and these are source curves, not observed colours.
+
+Motion: the feedback warp expands the whole image from the centre by about 3.6% every step, which is strong. Anything drawn is carried outward and stretched, so the centre loop leaves behind concentric, expanding rings or radial smears. Decay is unknown, so I can't say how long the trails live. A rotation term swings sinusoidally between about -0.02 and +0.02 rad per step over a period of about 126 s, so the outward flow slowly twists one way, straightens, then twists the other way, giving a spiral tunnel that reverses. There is no translation. The calibrated flow estimate is modest (about 0.07 screen widths per second), and activity is Chill (0.04, interval Chill to Normal).
+
+Composite: the composite shader embosses the picture, so edges look like lit relief on a flat base. It also multiplies by projectM's cycling corner colour shades (cycle periods about 15, 20 and 16 s, range 0.67 to 1), so the tint varies across the screen and over time. Which hue sits in which corner is random each time the preset loads.
+
+Brightness and colour: the calibrated estimate is dark overall (facet_dark 0.74, luminance about 0.16). The picture is strongly coloured (saturation about 0.77, about 78% coloured). The pooled palette puts green first (about 0.34) and blue second (about 0.27). That gap of about 0.06 is moderate, so I'd call it green and blue with neither dominant.
+
+Audio and flashing: no band-to-parameter routes exist. The only audio link is the waveform shape, so the trace wiggles with the music but brightness is not beat-driven. The no-strobe probability is 0.98 and brightness jumps are about 0 per 10 s, so I expect steady, non-flashing output.
+
+Uncertain: trail length, how bright the ring looks against the dark base, and the exact tint.

@@ -1,0 +1,29 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r246-v1",
+ "preset": "martin - mandelbox explorer - wreck diver nz+ em tea fee qrib classic labial forms.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "10896f996287da768db41e4095fe990ddf9b1a059b014c879e709b953632d870",
+  "prediction.json": "8c550dd0b50d604df70308ca87e95876ab80f2e437ec1be342711e7cc5074837",
+  "description.json": "ddf16d6118e60077d3a9008e37d5bd8d25661e2a8f62a4cdea00516a85beb8bf",
+  "recipe.json": "f354c1371919044eeed89e9a3102727c1df7f2eacfa60d128db28e0951294240",
+  "llm-look-description-v1.txt": "9147b58b91791639747093d9622c178aa70043025fb631a988ed15068c18d176"
+ },
+ "capture_result_sha256": "670b88aff0bdf06a756fb2ba02fd6c2dce866807f6f813b14b7ee9c117d29ce8",
+ "review_measurements_v1": {
+  "mean_abs_frame_difference_60_149": [
+   0.0375,
+   0.0845
+  ]
+ },
+ "agreements": [
+  "bright facet right (real 0.60)",
+  "green lead in top-2",
+  "drifting right"
+ ],
+ "misses": [
+  "calibrated luminance 0.42 vs 0.60; frame prediction image black (0.0) while the clip is bright"
+ ],
+ "verdict": "agree"
+}
