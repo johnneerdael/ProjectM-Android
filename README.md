@@ -1,6 +1,6 @@
 # ProjectM TV
 
-[![Android CI](https://github.com/johnneerdael/ProjectM-Android/actions/workflows/android.yml/badge.svg)](https://github.com/johnneerdael/ProjectM-Android/actions/workflows/android.yml)
+[![Android CI](https://github.com/per-young/ProjectM-Android/actions/workflows/android.yml/badge.svg)](https://github.com/per-young/ProjectM-Android/actions/workflows/android.yml)
 
 ProjectM TV and ProjectM Android turn sound into MilkDrop visuals using 9,606 presets from Jason Fletcher's *Cream of the Crop* collection. **ProjectM TV** listens to a music app on your Android TV or Google TV. **ProjectM Android** runs on touchscreen phones and tablets and uses microphone input or music played locally by another app. Both render in landscape and use the same engine; neither is a music player.
 
@@ -136,7 +136,7 @@ Nothing the app hears or reads leaves the device.
 1. Install *Downloader* by AFTVnews from the TV's app store and allow it to install apps.
 2. Open Downloader, enter **4821216** and confirm the installation.
 
-The code links to https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-TV.apk. Every version is under [Releases](https://github.com/johnneerdael/ProjectM-Android/releases).
+The Downloader code above installs the upstream TV build. To install this fork, download the [latest fork TV APK](https://github.com/per-young/ProjectM-Android/releases/latest/download/projectM-TV.apk); successful merges to this fork's `main` publish releases here, and fork builds check for updates from them.
 
 **On a phone or tablet, with Downloader**
 
@@ -144,7 +144,7 @@ The code links to https://github.com/johnneerdael/ProjectM-Android/releases/late
 2. Open Downloader and enter **6565691**.
 3. Allow Downloader to install apps when Android asks, then confirm installation of **ProjectM Android**.
 
-You can also download the [touchscreen Android APK directly](https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-Android.apk). The stable filenames are `projectM-TV.apk` for TV and `projectM-Android.apk` for phones/tablets. The two apps have separate app IDs and settings; auto-update selects the matching APK.
+You can also download the [touchscreen Android APK directly](https://github.com/per-young/ProjectM-Android/releases/latest/download/projectM-Android.apk). The stable filenames are `projectM-TV.apk` for TV and `projectM-Android.apk` for phones/tablets. The two apps have separate app IDs and settings; auto-update selects the matching APK from this fork.
 
 Versions 2.3.46 and older cannot update themselves since the repository moved to `ProjectM-Android`: their update check fails with `HTTP 301` (the **Update** line under *Settings › Advanced*). Install the current version once with Downloader; later versions update automatically again.
 
@@ -160,7 +160,7 @@ These APKs are separate release artifacts. F-Droid listings remain subject to it
 **From a computer**
 
 ```bash
-curl -LO https://github.com/johnneerdael/ProjectM-Android/releases/latest/download/projectM-TV.apk
+curl -LO https://github.com/per-young/ProjectM-Android/releases/latest/download/projectM-TV.apk
 adb install -r projectM-TV.apk
 ```
 
@@ -171,7 +171,7 @@ Start music on the TV, open ProjectM TV and allow audio recording. On phones, ch
 ## For developers
 
 ```bash
-git clone --recurse-submodules https://github.com/johnneerdael/ProjectM-Android.git
+git clone --recurse-submodules https://github.com/per-young/ProjectM-Android.git
 ./gradlew assembleRelease                    # APK + core AAR (signed with your local debug key)
 ./gradlew :app:assembleRelease -PandroidTouchscreen=true # touchscreen APK (same output path)
 ./gradlew :app:assembleFdroidTvRelease -PprojectmDistribution=fdroid

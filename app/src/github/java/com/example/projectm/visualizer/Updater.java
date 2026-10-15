@@ -43,7 +43,7 @@ final class Updater {
     interface Listener { void onUpdateReady(String version); }
 
     private static final String TAG = "ProjectMTV";
-    static final String REPO = "https://github.com/johnneerdael/ProjectM-Android";
+    static final String REPO = "https://github.com/per-young/ProjectM-Android";
     static final String APK_MIME = "application/vnd.android.package-archive";
     private static final String PREF_ENABLED = "auto_update";
     private static final String PREF_CHECKED_AT = "update_checked_at";
@@ -515,10 +515,10 @@ final class Updater {
         return m.find() ? m.group(1) : null;
     }
 
-    /** "https://github.com/johnneerdael/<repo>/releases/latest" → itself; null for anything else. */
+    /** "https://github.com/per-young/<repo>/releases/latest" → itself; null for another owner. */
     static String latestUrlOfRenamedRepo(String location) {
         return location != null
-                && location.trim().matches("https://github\\.com/johnneerdael/[A-Za-z0-9._-]+/releases/latest/?")
+                && location.trim().matches("https://github\\.com/per-young/[A-Za-z0-9._-]+/releases/latest/?")
                 ? location.trim() : null;
     }
 

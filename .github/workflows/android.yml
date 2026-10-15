@@ -103,6 +103,7 @@ jobs:
 
   fdroid:
     name: Keep F-Droid submissions current
+    if: github.repository == 'johnneerdael/ProjectM-Android'
     needs: [release]
     uses: ./.github/workflows/fdroid-sync.yml
     secrets:
@@ -110,6 +111,7 @@ jobs:
 
   milkbeat:
     name: Rebuild Milkbeat with this core
+    if: github.repository == 'johnneerdael/ProjectM-Android'
     needs: [build, release]
     runs-on: ubuntu-24.04
     timeout-minutes: 5

@@ -4,6 +4,10 @@
 
 The **Android CI/CD** workflow tests and builds pushes to `main`. **Reviewed PR validation** runs the full suite for eligible PRs targeting `main`. Each successfully tested merge to `main` publishes a stable GitHub Release with its signed APK, Native core AAR, public release notes and SHA-256 checksums, then triggers Milkbeat's core update. Routine PRs need no version bump or manual release command.
 
+### Fork releases
+
+The same `main` workflow publishes to the repository that runs it, including a fork, because release creation uses `GITHUB_REPOSITORY`. A successful merge to the fork's `main` therefore creates a GitHub Release after build, preset and documentation checks pass. Configure the fork's `SIGNING_KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS` and `SIGNING_KEY_PASSWORD` Actions secrets first; release builds intentionally fail rather than publish APKs signed with a temporary debug key. F-Droid submission sync and Milkbeat dispatch run only in the canonical `johnneerdael/ProjectM-Android` repository.
+
 | Trigger | Result |
 |---|---|
 | Feature-branch push, or PR targeting another branch | No builds |

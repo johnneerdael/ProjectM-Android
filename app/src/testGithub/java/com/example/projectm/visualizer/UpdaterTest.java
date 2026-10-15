@@ -37,9 +37,9 @@ public class UpdaterTest {
 
     @Test
     public void followsOnlyARenamedRepositorysLatestRelease() {
-        // GitHub answers a former repository name with the new name's releases/latest first.
-        assertEquals("https://github.com/johnneerdael/ProjectM-Android/releases/latest",
-                Updater.latestUrlOfRenamedRepo("https://github.com/johnneerdael/ProjectM-Android/releases/latest"));
+        assertEquals("https://github.com/per-young/ProjectM-Android/releases/latest",
+                Updater.latestUrlOfRenamedRepo("https://github.com/per-young/ProjectM-Android/releases/latest"));
+        assertNull(Updater.latestUrlOfRenamedRepo("https://github.com/johnneerdael/ProjectM-Android/releases/latest"));
         assertNull(Updater.latestUrlOfRenamedRepo("https://github.com/someone-else/ProjectM-Android/releases/latest"));
         assertNull(Updater.latestUrlOfRenamedRepo("http://github.com/johnneerdael/ProjectM-Android/releases/latest"));
         assertNull(Updater.latestUrlOfRenamedRepo("https://github.com/johnneerdael/ProjectM-Android/releases"));
