@@ -201,7 +201,11 @@ full recipe tens of thousands of lines long.
    point colours. Name colours from its leading hues. With calibrated hue
    shares present, the leading hue matches the engine's top two hues about 70%
    of the time; without them, about half the time. Say "likely", and with
-   `random_tint` say the hue placement changes per load.
+   `random_tint` say the hue placement changes per load. The gap between the
+   two leading shares sets the confidence (out of fold): 0.08 or more, the
+   lead is in the engine's top two 80% of the time; under 0.03, only 57%. For
+   a gap under 0.03, name both hues as equals ("green and orange, neither
+   dominant") instead of a single lead.
    Read shader `scalar_palette` records as the colour ramp content is shown
    through (black- and white-content colours are exact), and `flat_field` for
    the steady colour of flat regions (background) under a custom warp. Read
