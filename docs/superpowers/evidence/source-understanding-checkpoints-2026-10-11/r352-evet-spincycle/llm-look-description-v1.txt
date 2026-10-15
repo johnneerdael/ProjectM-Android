@@ -1,0 +1,11 @@
+Expect a bright, busy, pale-to-pastel and colourful picture, built around a wavy audio line and slowly swirling trails. The calibrated estimate gives mean brightness about 0.51 (range 0.33 to 0.73), a bright-facet probability near 0.67, a pastel-facet probability near 0.67 and a coloured share around 0.64. Leading hues are blue (about 0.29), then green, pink, purple and cyan, with no single dominant colour. It leans slightly cool. The composite brightens the canvas strongly and gives a near-white result on grey detail (about 0.80), so large areas probably read as light, desaturated, tinted mist.
+
+Structures: a built-in waveform (mode 6, an angled line trace of the left channel) is drawn thick and additive through the centre, tilted about 0.31 rad, at low alpha (0.31). Its authored colour is black, so its additive contribution is probably faint. A custom 512-point waveform forms an elongated figure in the central band (x about 0.30 to 0.59, y about 0.19 to 0.77) in green, pink, blue and red at about 0.36 alpha. A second custom point layer has 232 points whose source positions range far outside the screen (-44 to +91), so only some land on screen, probably as scattered dots in green, blue, pink and yellow. A large white to pale-blue textured 100-sided shape sits at the centre with a faint wobble (about 0.01), plus a small white 63-sided disc (radius 0.03) whose position is driven by bass, mid and treble.
+
+Motion: trails are long (gain about 0.99 per frame, half-life about 2.3 s), so strokes smear into persistent swirling ribbons. Radius-dependent rotation (up to 0.1 rad per step) and a slight horizontal squeeze create a twisting swirl, and the warp shader adds periodic wobble. Estimated flow is about 0.38 screen widths per second, fairly lively.
+
+Audio: bass, mid and treble all route into the warp and composite colour channels (thresholded or clamped), so colour and brightness should pulse with the music. The small disc jumps with the beat, and the built-in line follows the waveform.
+
+Flashing: the no-strobe probability is only about 0.08 and brightness jumps are estimated at about 18 per 10 s (range 6 to 69). Expect frequent flicker. The activity estimate is Intense (about 0.88).
+
+Uncertain: exact colours and which layers dominate, since several layers are authored white or black and are modified by the shaders.

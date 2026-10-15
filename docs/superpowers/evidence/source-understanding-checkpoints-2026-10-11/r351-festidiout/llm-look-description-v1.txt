@@ -1,0 +1,11 @@
+Expect a dark, murky screen with short-lived, smeared coloured marks that is likely to flicker. The calibrated estimate puts mean brightness low (about 0.12, range 0 to 0.34) with a dark-facet probability near 0.75. The composite shows the canvas through a transfer that darkens as the canvas brightens: a black canvas shows as a dim brownish red (about 0.23, 0.19, 0.19), a full-bright canvas as almost black (0.015). The steady display colour is a very dim reddish grey. So I expect a dim reddish-dark background, with drawn content muted or dark rather than glowing. This is the least certain part. The composite also tiles the image (repeat, not mirrored).
+
+Drawn content: four custom waveforms of 512 points, all with source positions at the screen centre (0.5, 0.5). The first pair is mostly blue and orange, the second pair mostly green, purple and pink, all at half alpha. I cannot say what shapes they form. A black 100-sided textured shape with 7 instances copies the previous frame and tints it black, so it probably punches dark disc-like regions into the picture. Its position and size are unresolved.
+
+Motion: a strong, fast feedback loop. The picture expands from the centre about 2.8% per step while the rotation swings between -0.13 and +0.13 rad per step on a roughly 6.3 s cycle, so it should alternately swirl each way. A very large constant horizontal offset (-1.0 UV, effectively a wrap-around shift) combines with the tiling, so content probably jumps sideways and repeats. A self-advecting warp shader smears structure into flowing streaks. Trails are very short (gain about 0.59, half-life near one frame) with a small floor, so marks fade almost at once and the canvas settles at a dim level. Estimated flow is about 0.15 screen widths per second.
+
+Audio: only bass, mid and treble onto the shape radius, with unresolved gain. No audio brightness route was found.
+
+Flashing: the no-strobe probability is about 0.05 and brightness jumps are estimated at about 18 per 10 s (range 5 to 67), so expect frequent flicker. It is not strobe-free.
+
+Colours form a set with no dominant hue: green, red/pink and blue are likeliest. The dark overall look is more reliable than the hues.

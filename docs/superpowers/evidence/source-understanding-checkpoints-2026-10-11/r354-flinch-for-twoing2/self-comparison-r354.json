@@ -1,0 +1,41 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r354-v1",
+ "preset": "Rovastar - Harlequin's Fractal Encounter - flinch for twoing2.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "8bdba0b9f5da0836742250ae037a1f5e0f2dfda2be1ca1315f944a0e8f66c02a",
+  "prediction.json": "aae11393890e0897b29fcf9109b4c66ae430ed661c480b615a26388444cd55a3",
+  "description.json": "e0909204402450d8af94041a3716885c561b2392f23dafefbec5d791653a8c9b",
+  "recipe.json": "f9500a054ec17c3fd1ec10503aa7cc9106296e0861bafe1c2ae76156b3ed8f6c",
+  "llm-look-description-v1.txt": "1d5332ac8b5dfaa7f489d06e279a8b6f080f93b9db5383c015b503573817e595"
+ },
+ "capture_result_sha256": "954da8c6b484a3b296eeee0f542233462d4436118c6dfcbb19dc56ed81de41f6",
+ "review_measurements_v1": {
+  "prediction_luma": 0.181,
+  "screenshot_luma": 0.105,
+  "mean_rgb_prediction": [
+   0.522,
+   0.044,
+   0.525
+  ],
+  "mean_rgb_screenshot": [
+   0.268,
+   0.04,
+   0.27
+  ],
+  "blurred_luma_correlation": 0.618,
+  "mean_abs_frame_difference_60_149": [
+   0.049,
+   0.1043
+  ]
+ },
+ "agreements": [
+  "pink lead right",
+  "drifting/normal/vivid right"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

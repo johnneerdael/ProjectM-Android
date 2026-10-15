@@ -1,0 +1,11 @@
+Expect a mostly dark screen with a small, bright, saturated cluster at the centre, surrounded by five-lobed, slowly turning outward-flowing smears. The calibrated estimate gives low mean brightness (about 0.11, range 0 to 0.33) and mean saturation about 0.57, with roughly 0.4 of the screen coloured. Drifting movement (0.76) and normal energy (0.82) are admitted, but dark (0.20) and bright (0.12) are both unsupported, so brightness is uncertain.
+
+Structures: three custom waveforms (512 points each) are drawn at full alpha in a tiny region around the centre (about 0.47 to 0.53 across; the smallest about 0.014 wide), mainly green and cyan with pink, red and blue in the second. I expect a compact glowing knot at the centre, not lines across the screen. A built-in audio-deformed circle (mode 0, right channel) has a base radius of 0.5 model units and rotates at about 0.2 rad/s. It cycles through colours at full brightness, but its authored alpha is only 0.001, so it may be nearly invisible. Whether it shows is a real uncertainty. A huge black square (4 sides, radius 4.4, centred at 0.25, 0.75) copies the previous frame at 0.6 zoom with a faint tint and so covers the whole screen. It probably darkens and shrinks the feedback every frame, giving a nested, recursive look.
+
+Motion: the warp zooms outward, about 1% to 5% per step depending on angle, in five lobes whose pattern turns at about -0.3 rad/s. A zoom exponent of 2.2 makes outer parts move faster than the centre. Together these should read as a slow radial swirl or star-shaped bloom from the centre. The composite brightens strongly (canvas level 0.25 maps to full white), so faint trails are pushed bright. Trails are short: the warp keeps about 60% of bright content and drops anything dim to black.
+
+Audio: only smoothed bass drives the feedback rotation, a thresholded route of unknown strength. The circle follows the waveform continuously.
+
+Flashing: the no-strobe probability is only 0.02 and brightness jumps are estimated at about 6 per 10 s (range 1 to 24). Expect occasional pulses, possibly more. It is not strobe-free.
+
+Colours: no dominant hue, with green leading, then blue, red, yellow and pink.

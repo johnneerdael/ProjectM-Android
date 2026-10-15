@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r348-v1",
+ "preset": "Stahlregen + Flexi - psychotic flower gelatine burst - tt9.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "ac2b3c1bfca987cb244c5b08f856c717a1f8d82d2b71f8c8e1ba6f16dbedd736",
+  "prediction.json": "466c10c28680725ff47b3342eea06a25d30c38c9144715f86179fe64d878153f",
+  "description.json": "15861eb45a74400503cfd17f9b02e95301e353387a624a759fd920f9b5fdf3cb",
+  "recipe.json": "800261a269d452fc1f53bf2c96b9a6a1c58876a131d87a0be7fd53496acba23e",
+  "llm-look-description-v1.txt": "b5e70b4c5990fac7a84a2119fdc491c797124c10014f55b3f9952cff8d104d98"
+ },
+ "capture_result_sha256": "1e83823d1e638a00e24e699afeff090f522dec5c59c0b51246c5ce17d2acdac1",
+ "review_measurements_v1": {
+  "prediction_luma": 0.503,
+  "screenshot_luma": 0.453,
+  "mean_rgb_prediction": [
+   0.585,
+   0.474,
+   0.55
+  ],
+  "mean_rgb_screenshot": [
+   0.504,
+   0.392,
+   0.91
+  ],
+  "blurred_luma_correlation": 0.271,
+  "mean_abs_frame_difference_60_149": [
+   0.0608,
+   0.0689
+  ]
+ },
+ "agreements": [
+  "bright/normal/vivid right (real 0.61)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

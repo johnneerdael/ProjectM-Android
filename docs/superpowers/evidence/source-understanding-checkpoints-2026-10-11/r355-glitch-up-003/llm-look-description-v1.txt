@@ -1,0 +1,11 @@
+Expect a warm, orange-led, saturated, slowly evolving organic pattern that tends to fill the screen, drifting rather than snapping. The calibrated estimate gives orange about 0.72 of the coloured pixels (a clear lead), a smaller blue share (about 0.13) and almost nothing else. Mean saturation is about 0.68, brightness moderate (about 0.32, range 0.14 to 0.54) with a balanced-brightness probability near 0.76, and the coloured share is high (about 0.93).
+
+A tension in the source: the only drawn element is a custom waveform of 512 points in saturated blue (0.05, 0.15, 1.0), yet the picture should not read as blue. The warp keeps red almost forever (gain 0.996 plus a small add), green slowly (half-life about 50 frames) and blue very quickly (half-life one frame). A fed-back blue stroke loses its blue within a frame or two and the trails turn red, orange and yellow. The composite also maps to orange tones, with a steady colour near (1.0, 0.83, 0.34), a bright amber. So the likeliest look is blue marks that appear briefly where the waveform is drawn, leaving long-lived warm trails that build up. The recipe's own cold tag comes from the raw wave colour and I think it is misleading.
+
+Structure: the waveform positions depend on per-frame state that was not resolved, so I cannot say where it sits. The warp subtracts a coarse blur from a fine level each frame (band-pass sharpening), so small seeds grow into blobs, cells and splatter across the canvas. A self-advecting shader and a log-radius polar lookup with tiling in the composite add a swirling, tunnel-like warp, though a clear tunnel is not guaranteed. A dark-red 1% border frames the picture.
+
+Motion: the mesh has no zoom or rotation. Movement comes from self-advection, pattern growth and small bass, mid and treble driven shifts of the whole image. Estimated flow is about 0.12 screen widths per second and drifting is very likely (0.97), so it is slow and fluid.
+
+Audio: bass, mid and treble drive the composite colour channels and the image offset, so colour and position pulse with the music. Several random values are redrawn, so each load can differ.
+
+Flashing: the brightness-jump estimate is low (about 0.6 per 10 s, range 0 to 4.6), but the no-strobe probability is only about 0.46, so occasional colour pulses are possible. I would not call it strobe-free.
