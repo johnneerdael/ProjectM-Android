@@ -2,7 +2,7 @@
 
 This page preserves the earlier 16-patch comparison checkpoint against upstream
 projectM 4.2 development. Its images and source identities remain frozen. The
-[current 34-patch catalog](https://johnneerdael.github.io/ProjectM-TV/engine/patches/)
+[current 36-patch catalog](https://johnneerdael.github.io/ProjectM-Android/engine/patches/)
 includes the later audit repairs, measured benefits and isolated real-preset
 close-ups. Older patch history remains in the evidence archive.
 

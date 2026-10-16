@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import nl.neerdael.projectm.core.DeviceProfile;
 import nl.neerdael.projectm.core.DisplayInfo;
+import nl.neerdael.projectm.core.NativeCrashReports;
 import nl.neerdael.projectm.core.PresetFacets;
 import nl.neerdael.projectm.core.ProjectMCore;
 import nl.neerdael.projectm.core.ProjectMJNI;
@@ -94,9 +95,6 @@ public class MainActivity extends Activity {
     // it on for everyone (new key) with two strikes before a preset is skipped for good.
     private static final String PREF_BLANK_DETECTION = "blank_detection_v3";
     private static final String PREF_TRANSITION_MODE = "transition_mode";
-    // Troubleshooting switches for GPU drivers that crash at preset switches (on by default).
-    private static final String PREF_BACKGROUND_COMPILE = "background_compile";
-    private static final String PREF_SHADER_BINARY_CACHE = "shader_binary_cache";
 
     private static final int[] PRESET_DURATIONS = {10, 15, 20, 30, 45, 60, 90};
     private static final int[] TRACK_SECONDS = {10, 20, 30, 60, 0};  // 0 = always
@@ -162,6 +160,7 @@ public class MainActivity extends Activity {
     private TextView audioStatus;
     private OptionRow skippedRow;
     private OptionRow lastExitRow;
+    private AlertDialog exitReportDialog;
     private List<ExitDiagnostics.Exit> recentExits;
     private OptionRow musicCategoryRow;
     private OptionRow nativeTrailsRow;
@@ -243,8 +242,10 @@ public class MainActivity extends Activity {
         ProjectMJNI.setBlankDetection(prefs.getBoolean(PREF_BLANK_DETECTION, true));
         ProjectMJNI.setTransitionMode(prefs.getInt(PREF_TRANSITION_MODE, ProjectMJNI.TRANSITION_AUTO),
                 profile.lowerBlendResolutionByDefault());
-        ProjectMJNI.setBackgroundCompile(prefs.getBoolean(PREF_BACKGROUND_COMPILE, true));
-        ProjectMJNI.setShaderBinaryCache(prefs.getBoolean(PREF_SHADER_BINARY_CACHE, true));
+        // Retired troubleshooting options did not resolve the reported preset-switch crashes.
+        // Restore normal compilation even when an earlier installation saved either option Off.
+        ProjectMJNI.setBackgroundCompile(true);
+        ProjectMJNI.setShaderBinaryCache(true);
 
         visualizerView = findViewById(R.id.visualizer_view);
         renderer = new VisualizerRenderer(new VisualizerRenderer.BudgetStatsListener() {
@@ -645,20 +646,6 @@ public class MainActivity extends Activity {
             }
             refreshStatus();
         });
-
-        OptionRow backgroundCompile = findViewById(R.id.row_background_compile);
-        backgroundCompile.setup("Background compile", new String[]{"Off", "On"},
-                prefs.getBoolean(PREF_BACKGROUND_COMPILE, true) ? 1 : 0, true, index -> {
-                    ProjectMJNI.setBackgroundCompile(index == 1);
-                    prefs.edit().putBoolean(PREF_BACKGROUND_COMPILE, index == 1).apply();
-                });
-
-        OptionRow shaderBinaryCache = findViewById(R.id.row_shader_binary_cache);
-        shaderBinaryCache.setup("Shader binary cache", new String[]{"Off", "On"},
-                prefs.getBoolean(PREF_SHADER_BINARY_CACHE, true) ? 1 : 0, true, index -> {
-                    ProjectMJNI.setShaderBinaryCache(index == 1);
-                    prefs.edit().putBoolean(PREF_SHADER_BINARY_CACHE, index == 1).apply();
-                });
 
         // Exit records of earlier processes do not change while this one runs: read them once.
         recentExits = ExitDiagnostics.recentExits(this);
@@ -1140,29 +1127,64 @@ public class MainActivity extends Activity {
     }
 
     private String lastExitSummary() {
+        if (Build.VERSION.SDK_INT < 30) return "Saved crash reports";
         return ExitDiagnostics.summary(recentExits, Build.VERSION.SDK_INT, System.currentTimeMillis());
     }
 
     /** Settings › Advanced › Last exit: the latest exits and what the engine was doing then. */
     private void showExitReport(List<ExitDiagnostics.Exit> exits) {
-        String header = String.format(Locale.US, "%s %s, Android %s (API %d)%nGPU: %s%nNow: background compile %s, shader binary cache %s%n",
+        if (exitReportDialog != null && exitReportDialog.isShowing()) return;
+        String header = String.format(Locale.US, "%s %s, Android %s (API %d)%nGPU: %s%n",
                 Build.MANUFACTURER, Build.MODEL, Build.VERSION.RELEASE, Build.VERSION.SDK_INT,
-                renderer.getGlRenderer().isEmpty() ? "unknown" : renderer.getGlRenderer(),
-                prefs.getBoolean(PREF_BACKGROUND_COMPILE, true) ? "on" : "off",
-                prefs.getBoolean(PREF_SHADER_BINARY_CACHE, true) ? "on" : "off");
-        String report = ExitDiagnostics.report(exits, Build.VERSION.SDK_INT,
+                renderer.getGlRenderer().isEmpty() ? "unknown" : renderer.getGlRenderer());
+        String exitReport = ExitDiagnostics.report(exits, Build.VERSION.SDK_INT,
                 ExitDiagnostics.previousTrail(), System.currentTimeMillis(), header);
-        Log.i(TAG, "Exit report:\n" + report);
         handler.removeCallbacks(hideMenu);
         AlertDialog dialog = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle("Recent exits")
-                .setMessage(report)
+                .setMessage("Loading saved crash reports…")
+                .setPositiveButton("Copy report", null)
+                .setNeutralButton("Clear saved crashes", (d, which) -> new Thread(() -> {
+                    int cleared = NativeCrashReports.clear(getApplicationContext());
+                    handler.post(() -> {
+                        if (!isDestroyed()) Toast.makeText(this, "Cleared " + cleared + " saved native crashes",
+                                Toast.LENGTH_SHORT).show();
+                    });
+                }, "CrashReportClear").start())
                 .setNegativeButton("Close", (d, which) -> {})
                 .create();
+        exitReportDialog = dialog;
         dialog.setOnDismissListener(d -> {
+            exitReportDialog = null;
             if (resumed && menu != Menu.NONE) handler.postDelayed(hideMenu, MENU_AUTO_HIDE_MS);
         });
         dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(false);
+        new Thread(() -> {
+            List<NativeCrashReports.Report> saved = NativeCrashReports.recent(getApplicationContext());
+            StringBuilder report = new StringBuilder(NativeCrashReports.status()).append('\n');
+            if (saved.isEmpty()) report.append("\nNo saved native crash reports.\n");
+            for (NativeCrashReports.Report crash : saved) {
+                report.append("\nSaved native crash · ")
+                        .append(ExitDiagnostics.age(System.currentTimeMillis(), crash.timestampMs)).append('\n')
+                        .append(crash.details).append('\n');
+            }
+            report.append("\nAndroid exit history and engine trail\n\n").append(exitReport);
+            String text = report.toString();
+            handler.post(() -> {
+                if (isDestroyed() || !dialog.isShowing()) return;
+                dialog.setMessage(text);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(!saved.isEmpty());
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
+                            getSystemService(CLIPBOARD_SERVICE);
+                    clipboard.setPrimaryClip(android.content.ClipData.newPlainText("ProjectM crash report", text));
+                    Toast.makeText(this, "Report copied", Toast.LENGTH_SHORT).show();
+                });
+            });
+        }, "CrashReportRead").start();
     }
 
     private void refreshStatus() {
@@ -1733,6 +1755,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (exitReportDialog != null) exitReportDialog.dismiss();
         handler.removeCallbacksAndMessages(null);
         if (BuildConfig.TOUCHSCREEN) phoneAudio.pause();
         audioHandler.removeCallbacks(audioWatch);

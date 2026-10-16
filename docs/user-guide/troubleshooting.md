@@ -55,13 +55,11 @@ Auto lowers resolution to hold the target frame rate and to keep memory free for
 
 If the visualizer closes by itself while the music keeps playing, often as one preset changes into the next:
 
-1. Open the app again and check **Advanced › Last exit**. Select it for the [exit report](settings.md#exit-report). *crashed (native code)* or *killed by signal* points to the graphics driver or the engine; *killed for low memory* points to memory.
-2. Try **Advanced › Transitions › Lightweight**, then **Classic**. If only Auto blends crash, the lower blend resolution is involved.
-3. Turn **Advanced › Shader binary cache** **Off**. If the crashes stop, the GPU driver cannot reuse program binaries between OpenGL contexts.
-4. If they continue, also turn **Advanced › Background compile** **Off**. Switches then pause the picture while each preset compiles, often for a second or two. If the crashes stop only now, the driver fails when two threads compile at once.
-5. Report the result with a photo of the exit report, the device model and which switches you changed. Turn the switches back **On** afterwards if they made no difference.
+1. Reopen the app and select **Advanced › Last exit** for the [exit report](settings.md#exit-report). Saved native reports include the signal, crashing thread and available stack, without connecting ADB.
+2. Use **Copy report**, or photograph the report, and include the app version and device model. Mention whether the first preset works, whether the failure follows an automatic or manual change, and the names of the presets if known.
+3. Android's *crashed (native code)* reason identifies a native failure, but does not establish whether the engine or graphics driver caused it. *Killed for low memory* means Android reported a memory kill. A missing native report is reported explicitly and does not mean the app exited normally.
 
-These switches are there to diagnose crashes first reported on a Fire TV Stick 4K Max (2nd gen, PowerVR GE9215 GPU). Otherwise, leave them **On**.
+The former **Background compile** and **Shader binary cache** switches were removed after they failed to resolve the reported Fire TV preset-change crashes. Compilation and binary caching run with their normal enabled defaults, including installations that previously saved those options as Off. PowerVR devices also use a framebuffer-retirement compatibility workaround; its local tests do not establish that every Fire TV crash is resolved.
 
 ## Native trails says inactive or fallback
 

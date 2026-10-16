@@ -1,0 +1,26 @@
+{
+  "app": {
+    "tests": 116,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "core": {
+    "tests": 89,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "aar": {
+    "sha256": "814e25641209f5e03b5106772c4dd1cd28e1b6370250b6e902371bf35371cb54",
+    "bytes": 42608399
+  },
+  "release_apk": {
+    "sha256": "e4042a49413a76a37e714cbcc9cd66e77a5fb1738f21f67dc2952ecd3e3a40c9",
+    "bytes": 44278756
+  },
+  "setup_apk": {
+    "sha256": "e3329463866bb352ceed944c10e14c50241924e0d02051eb68d1f0e9125b0654",
+    "bytes": 49614534
+  }
+}

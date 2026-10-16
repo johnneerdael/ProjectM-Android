@@ -31,6 +31,8 @@ if (distribution == 'fdroid') {
 
 android {
     namespace = "nl.neerdael.projectm.core"
+    // Compile the pinned crash reporter into the published AAR; no prebuilt dependency.
+    sourceSets.main.java.srcDir rootProject.file("third_party/xcrash/xcrash_lib/src/main/java")
     compileSdk = 34
     ndkVersion = "27.3.13750724"
     buildFeatures {

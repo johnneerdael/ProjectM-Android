@@ -2,3 +2,11 @@
 -keep class nl.neerdael.projectm.core.ProjectMJNI {
     native <methods>;
 }
+
+# xCrash registers native methods and resolves callbacks by class/method name.
+-keep class xcrash.NativeHandler {
+    native <methods>;
+    void crashCallback(...);
+    void traceCallback(...);
+    void traceCallbackBeforeDump(...);
+}

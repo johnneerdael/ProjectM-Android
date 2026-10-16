@@ -187,4 +187,4 @@ F-Droid editions show *Via F-Droid* and receive app updates through F-Droid. The
 
 ## Privacy
 
-Audio is analysed in memory and never stored or sent anywhere. For the [exit report](settings.md#exit-report), the app keeps two short lines about the last presets and switch states in its own storage. The app uses the network only for GitHub app updates when they are enabled, F-Droid collection downloads when you request one, and the temporary [custom-pack upload](custom-packs.md) listener on your local network.
+Audio is analysed locally and is not uploaded. For the [exit report](settings.md#exit-report), the app keeps two short engine trail lines and up to five native crash reports in private storage excluded from Android backup. Crash files include stack/register memory fragments, which can contain app data; the viewer and copied report omit those raw memory sections. Reports are never uploaded automatically. The app uses the network only for GitHub app updates when they are enabled, F-Droid collection downloads when you request one, and the temporary [custom-pack upload](custom-packs.md) listener on your local network.

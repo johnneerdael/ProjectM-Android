@@ -99,6 +99,11 @@ The public API lives in `nl.neerdael.projectm.core`:
 | `ProjectMJNI` | Audio input (`addWaveform`), preset navigation, settings such as transitions and `setNativeTrails` |
 | `QualityController` | Automatic resolution from frame rate and live memory headroom; `setResolutionMode` for fixed or Native sizes |
 | `DeviceProfile`, `DisplayInfo` | Device tier and physical panel detection |
+| `NativeCrashReports` | Capture status and bounded saved native reports; read or clear on a background thread |
+
+The AAR includes source-built xCrash and its native dumper. Set `android.packagingOptions.jniLibs.useLegacyPackaging = true` in the consuming app and keep the merged `android:extractNativeLibs="true"` attribute. The dumper must exist as an executable file under `ApplicationInfo.nativeLibraryDir`; packaging it only inside the APK prevents the full dump. `ProjectMCore.init(context)` starts local capture once per process. `NativeCrashReports.recent(context)` returns up to five reports with `fileName`, `timestampMs` and readable `details`; `status()` reports initialization failure and `clear(context)` removes native reports only. Nothing uploads automatically.
+
+To verify capture in an isolated setup build, run the two instrumentation cases `native_crash_capture` then `native_crash_report`. The first deliberately sends SIGSEGV to the test app and must end with `Process crashed`; the second starts a new process and checks the saved signal/backtrace in Recent exits. The report screenshot is `native-crash-report.png` in the test app's external cache. Do not run the fault case against a production app session.
 
 Some engine defaults differ from the app's. For example, blank-preset skipping is off in the core and switched on by the app. `ProjectMJNI.getVersion()` reports the upstream numeric projectM version (`4.2.0`), not the release version. Releasing and publishing are described in [RELEASING.md](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md).
 

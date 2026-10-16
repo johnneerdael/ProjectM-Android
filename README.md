@@ -44,7 +44,7 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 - **Adaptive quality:** resolution follows the target frame rate and live memory headroom, up to the panel's native size.
 - **Track titles:** cover, artist and title of the playing track, from the music app's media session.
 - **Custom preset packs:** upload up to 50,000 presets and textures from a phone by scanning a QR code.
-- **Private:** audio is analysed in memory only. GitHub app updates can be switched off; F-Droid collection downloads require your choice. Custom uploads use a temporary local page.
+- **Private:** audio is analysed locally. Native crash reports stay in private app storage and are never uploaded automatically. GitHub app updates can be switched off; F-Droid collection downloads require your choice. Custom uploads use a temporary local page.
 - **Remote and touchscreen controls** with a settings panel and live status.
 
 ## Remote control
@@ -103,9 +103,7 @@ In ProjectM Android, swipe right for a random preset and left for the previous p
 | Cream of the Crop (F-Droid only) | Download or remove the full collection; custom packs stay separate | 20 starters |
 | Custom preset pack | Upload one ZIP from a phone or computer on the same network | No pack |
 | Skipped presets | Count of skipped presets; select to reset | – |
-| Background compile | Prepares upcoming presets' shaders on a second thread; *Off* compiles at the switch (longer pause). Troubleshooting only | On |
-| Shader binary cache | Reuses compiled shaders as driver binaries; *Off* always compiles from source. Troubleshooting only | On |
-| Last exit | Why the app last closed while on screen (Android 11+); select for recent exits and what the engine was doing | – |
+| Last exit | Saved native crash reports, Android exit reasons (Android 11+), and what the engine was doing; reports stay on-device | – |
 
 On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory status, panel and UI size, frame rate, Native trails state, blend, audio source and level, track display, update status, device tier and GPU. The [settings reference](https://johnneerdael.github.io/ProjectM-Android/settings/) explains every value.
 
@@ -183,6 +181,7 @@ core/src/test/native/run_native_tests.sh     # native engine and projectM regres
 
 - **Engine:** the `:core` module builds projectM from the submodule `third_party/projectm`, pinned to `6f64807467e312034883a4389e6aa80a675458bc`, and applies [`tools/projectm-patches/`](tools/projectm-patches) at configure time. Never edit the submodule; add a patch. CMake reports `4.2.0`, but upstream has not released this snapshot as 4.2. `ProjectMJNI.getVersion()` reports that upstream number; identify a build by release version, source revision and artifact checksum.
 - **Core library:** each release publishes `projectM-TV-core-<version>.aar` (and the alias `projectM-TV-core.aar`), which [Milkbeat](https://github.com/johnneerdael/Milkbeat) consumes.
+- **Embedded crash capture:** the core AAR includes source-built xCrash. Hosts must use `packagingOptions.jniLibs.useLegacyPackaging = true` and retain the AAR's `extractNativeLibs="true"` manifest attribute so its dumper can execute. `NativeCrashReports.recent(context)` reads local native reports on a background thread.
 - **F-Droid:** [recipe and synchronization tooling](tools/fdroid/README.md) uses the same source/version for both devices. The canonical core AAR keeps all 9,606 presets and 74 textures.
 - **Contributing:** pull requests to `main` run the full build after a completed review of their latest commit. Each tested merge publishes a new version automatically, with release notes from the PR's `## Release notes` section.
 
@@ -191,6 +190,7 @@ Further reading: [build and test guide](https://johnneerdael.github.io/ProjectM-
 ## Credits and third-party content
 
 - [projectM](https://github.com/projectM-visualizer/projectm), the visualization engine (LGPL 2.1), including this project's [shader remainder and precedence fix](https://github.com/projectM-visualizer/projectm/pull/1031) merged upstream
+- [xCrash](https://github.com/iqiyi/xCrash), source-built local native crash capture (MIT and included third-party notices)
 - *Cream of the Crop* presets, curated by Jason Fletcher (ISOSCELES), via [presets-cream-of-the-crop](https://github.com/projectM-visualizer/presets-cream-of-the-crop)
 - The MilkDrop texture pack, and textures from the community *MilkDrop 135k+ Presets MegaPack* collected by Incubo_
 - The authors of the MilkDrop presets

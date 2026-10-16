@@ -125,6 +125,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    // The local native crash reporter executes libxcrash_dumper.so from nativeLibraryDir.
+    // Package compressed/extracted JNI files so its executable is installed on disk.
+    packagingOptions {
+        jniLibs.useLegacyPackaging = true
+    }
     // No encrypted dependency list in the APK signing block: only Google Play can read it, and
     // F-Droid's scanner rejects APKs that carry it.
     dependenciesInfo {
