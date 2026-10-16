@@ -33,3 +33,7 @@ The capture and report cases are in `NativeCrashSetupTest`; commands are documen
 - The API34 signal test establishes capture/restart/display, not complete unwinding on every OEM or API level. Missing stacks are labelled rather than inferred from engine breadcrumbs.
 - macOS renderer controls use desktop GL. Linux/GLES-only checks and current-head external review/CI remain separate gates.
 - The retired cache/prewarm settings did not resolve the reported crash. Their core APIs and historical trail parser remain compatible; current app startup restores enabled defaults for old saved Off choices.
+
+## Collection archive follow-up
+
+PR validation found that the xCrash notice update also changes the downloadable collection: `docs/THIRD_PARTY.md` is one of its hashed files. Regenerated `official-archive.json` with the existing archive builder, then verified a complete archived build and all ten distribution controls. Comparing the manifest inputs with main confirms that only the third-party notice changed; all 9,606 presets and 74 textures are unchanged. The new archive SHA-256 is `ff41c11c041a2e00dc367ad018f13decd681a710f01069741a7e4539a733ec27`. Current-head Codex review and repeated CI remain required after this correction.
