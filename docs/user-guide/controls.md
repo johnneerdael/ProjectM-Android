@@ -58,7 +58,7 @@ On TV, when the panel opens, focus starts on the **Random** button, or on **Inst
 
 **Preset mood ›** opens the **Mood** panel (Settings › Preset mood):
 
-![Mood panel: Energy, Brightness, Colour, Movement, Style and Comfort rows with preset counts](images/setup/mood.png)
+![Mood panel: Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort rows with preset counts](images/setup/mood.png)
 
 - The header always counts the mix: *N presets in your mix* (all available presets when nothing is selected), with *few presets: some repetition* under 20, or *Custom pack: N presets* while Custom plays. *No presets match your mix; playing All* appears when every match is skipped on this device or a deselection leaves no preset that fits every group.
 - A **Collection** row (*Built-in* or *Custom*) appears when a [custom pack](custom-packs.md) exists or Custom is chosen.

@@ -47,7 +47,7 @@ GitHub editions include the full collection. F-Droid editions start with **20 cu
 
     ---
 
-    Combine Energy, Brightness, Colour, Movement, Style and Comfort options with live preset counts.
+    Combine Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort options with live preset counts.
 
     [:octicons-arrow-right-24: Moods](predictive-collections.md)
 

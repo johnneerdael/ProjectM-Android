@@ -36,7 +36,7 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 ## Highlights
 
 - **9,606 MilkDrop presets** with smooth blends, shuffled within the mood you choose.
-- **Preset mood:** a Mood panel with Energy, Brightness, Colour, Movement, Style and Comfort options, live preset counts and combinable choices, from measured attributes of every bundled preset; [predicting presets from their source](https://johnneerdael.github.io/ProjectM-Android/predictor/) is in development.
+- **Preset mood:** a Mood panel with Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort options, live preset counts and combinable choices, predicted for every bundled preset by static analysis of its source (no rendering); some presets are deliberately left without an option where the prediction is not confident.
 - **Presets that work as on MilkDrop 2:** equation code MilkDrop tolerated, HLSL its compiler accepted, Direct3D pixel and texel rules, live per-frame waveform and display controls, legacy colour shading and spirals, huge rotations and negative zoom. [Patch catalog](https://johnneerdael.github.io/ProjectM-Android/engine/patches/).
 - **4K without the darkness:** lines, blur and texel steps scale with resolution; Native trails keeps feedback at an authored-scale canvas with sharp native geometry on top.
 - **No freezes at preset changes:** upcoming presets are compiled in the background.
@@ -74,7 +74,7 @@ In ProjectM Android, swipe right for a random preset and left for the previous p
 |---|---|---|
 | Audio input (Android only) | Microphone; Phone playback (Android 10+, consent required) | Microphone |
 | Auto change | Off, On | On |
-| Preset mood | Opens the Mood panel: Energy (Chill, Normal, Intense), Brightness (Dark, Balanced, Bright), Colour (Monochrome, Pastel, Vivid, Warm, Cool), Movement (Still, Drifting, Fast), Style (Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal), Comfort (No strobe); Collection (Built-in, Custom) after an upload; Clear all | Nothing selected (all presets) |
+| Preset mood | Opens the Mood panel: Energy (Chill, Normal, Intense), Brightness (Dark, Balanced, Bright), Colour (Monochrome, Pastel, Vivid, Warm, Cool), Palette (Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink), Main colour (the same eight colours), Movement (Still, Drifting, Fast), Style (Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal), Comfort (No strobe); Collection (Built-in, Custom) after an upload; Clear all | Nothing selected (all presets) |
 | Preset duration | 10, 15, 20, 30, 45, 60, 90 s | 30 s |
 
 *Track display ›*

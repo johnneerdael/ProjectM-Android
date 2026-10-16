@@ -148,7 +148,7 @@ TV covers have been verified with Spotify and Milkbeat. SoundCloud and SmartTube
 
 ## Pick a preset mood
 
-Open the panel and choose **Preset mood** (Settings › Preset mood). The **Mood** panel has one row per attribute group: **Energy**, **Brightness**, **Colour**, **Movement**, **Style** and **Comfort**. Move Left or Right to an option and press Center to switch it on or off. Every option shows how many presets you would have (*→ N*), and options that would leave none are dimmed. With nothing selected, everything plays; **Clear all** returns to that.
+Open the panel and choose **Preset mood** (Settings › Preset mood). The **Mood** panel has one row per attribute group: **Energy**, **Brightness**, **Colour**, **Palette**, **Main colour**, **Movement**, **Style** and **Comfort**. Move Left or Right to an option and press Center to switch it on or off. Every option shows how many presets you would have (*→ N*), and options that would leave none are dimmed. With nothing selected, everything plays; **Clear all** returns to that.
 
 | You select | What plays |
 |---|---|
@@ -156,9 +156,10 @@ Open the panel and choose **Preset mood** (Settings › Preset mood). The **Mood
 | **Energy › Chill** | Calmer presets |
 | **Chill** and **Dark** (different groups) | Presets that are both |
 | **Vivid** and **Warm** (same group) | Presets that are either |
+| **Palette › Blue** | Presets with blue among their colours |
 | **Collection › Custom** | Only your uploaded pack; the row appears after an upload |
 
-Attributes are measured predictions, not guarantees. **Comfort › No strobe** and **Chill** are starting points, not promises of no flashing. A Chill, Normal or Intense choice from an earlier version becomes the matching **Energy** option. Details: [Preset moods](predictive-collections.md).
+Attributes are predictions from each preset's source, not guarantees, and some presets carry no option yet. **Comfort › No strobe** and **Chill** are starting points, not promises of no flashing. A Chill, Normal or Intense choice from an earlier version becomes the matching **Energy** option. Details: [Preset moods](predictive-collections.md).
 
 ## Good starting settings
 

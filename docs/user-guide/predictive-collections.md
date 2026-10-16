@@ -1,26 +1,28 @@
 # Preset moods
 
-!!! warning "Measured, not guaranteed"
-    Moods are predictions from one short measurement of each preset. They are a starting point, and they will improve. If a preset feels wrong for its mood, please [report it](https://github.com/johnneerdael/ProjectM-Android/issues).
+!!! warning "Predicted, not guaranteed"
+    Moods are predictions worked out from each preset's source code, without rendering it. They are a starting point, and they will improve. Some presets deliberately carry no mood option yet: an option is only given where the analysis is confident. If a preset feels wrong for its mood, please [report it](https://github.com/johnneerdael/ProjectM-Android/issues).
 
 Open the settings panel and choose **Preset mood** (Settings › Preset mood) to open the **Mood** panel.
 
-![Mood panel with Energy, Brightness, Colour, Movement, Style and Comfort rows](images/setup/mood.png)
+![Mood panel with Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort rows](images/setup/mood.png)
 
 ## Attributes
 
 Each group is one row; each option shows the number of presets you would have if you toggled it (*→ N*; for a selected option, the mix without it).
 
-| Group | Options | Measured from |
+| Group | Options | Predicted from the source |
 |---|---|---|
-| **Energy** | Chill, Normal, Intense | An activity percentile combining frame-to-frame change, motion speed and brightness jumps, ranked against a reference frozen from the 9,606 bundled presets |
-| **Brightness** | Dark, Balanced, Bright | Mean luminance |
-| **Colour** | Monochrome, Pastel, Vivid, Warm, Cool | Coloured share, saturation, luminance and warm/cool balance |
-| **Movement** | Still, Drifting, Fast | Motion speed in screen widths per second |
-| **Style** | Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal | Structure facts read from the preset source |
-| **Comfort** | No strobe | Brightness jumps per 10 s below a threshold |
+| **Energy** | Chill, Normal, Intense | How much the picture changes from frame to frame, how fast it moves and how often its brightness jumps |
+| **Brightness** | Dark, Balanced, Bright | The expected average brightness |
+| **Colour** | Monochrome, Pastel, Vivid, Warm, Cool | How much of the picture is coloured, how saturated it is, and the warm/cool balance |
+| **Palette** | Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink | Every colour family that makes up at least 10% of the predicted colours |
+| **Main colour** | Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink | One colour, only when it clearly dominates the picture; most presets have none |
+| **Movement** | Still, Drifting, Fast | Expected motion speed |
+| **Style** | Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal | Structure read from the preset's equations and shapes |
+| **Comfort** | No strobe | Presets the analysis expects not to flash |
 
-The exact thresholds are in `tools/milk-analyzer/facets/facets-v1.json`. Ranges can overlap, so a preset can be both Chill and Normal, and one preset can carry several Style options.
+A preset can carry several options in one group (for example both Chill and Normal, several Style options or several Palette colours), or none. Grey presets (**Monochrome**) have no Palette or Main colour.
 
 ## How choices combine
 
@@ -37,20 +39,25 @@ The exact thresholds are in `tools/milk-analyzer/facets/facets-v1.json`. Ranges 
 
 GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none: the Mood header then reads *Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)* and only the Collection choice is offered. Downloading, replacing or removing the collection updates the Mood panel and the mix immediately; no restart is needed.
 
-## How the attributes are measured
+## How the attributes are predicted
 
-Energy, Brightness, Colour, Movement and Comfort come from engine-ruler measurements of every bundled preset. Energy's activity percentile is looked up in a reference frozen once from those 9,606 measurements, so a later collection does not shift what Chill or Intense means. Each preset is rendered once for 10 seconds at 480x270 and 30 fps; the statistics use frames 60-299 and one synthetic audio track, on macOS GLES under SwiftShader (see `tools/native-ruler/`). Style comes from facts read from the preset source: its equations and shapes, not a render.
+Every option comes from static analysis of the preset's source: its equations, shaders, shapes and waves are worked through mathematically to estimate how bright, colourful, fast and flashy the picture will be. No preset is rendered to decide its mood. The analysis runs offline when the collection is built; nothing is analysed on your TV.
+
+The analysis favours being right over labelling everything. An option is only given when the prediction is confident: in checks against engine renders of presets the analysis had not been tuned on, about 4 of 5 options it gave were correct, and it gave about 2 of every 5 options a render would. In-between options (Balanced, Drifting, Normal) must reach 80% precision in those checks, Pastel 70%. As a result some presets have no Energy, Brightness, Colour or Movement option yet, and the pools are smaller than in earlier versions. Unlabelled presets still play when nothing is selected.
+
+Palette lists every colour family with at least 10% of the predicted colours. In the same checks it found about three quarters of the colours a render shows, and about 7 of 10 colours it named were present. Main colour is only set when one colour clearly dominates; such claims named the render's top colour about 84% of the time.
 
 ## Limits
 
-- One 10 s render per preset with one synthetic track under SwiftShader. Real music and TV GPUs differ. Emulator agreement on 83 presets was rho 0.91-0.96, which is not a per-preset guarantee.
+- Predictions, not measurements: a preset can look different with your music, especially where it reacts strongly to audio or uses random textures.
+- Some presets have no option in a group; they play only while that group has nothing selected.
 - **Style** rests on source structure and is the least certain attribute.
 - **No strobe** and **Chill** are not guarantees against flashing.
 - Custom-pack presets are excluded while any option is active.
 
 ## Legacy activity scores
 
-The Chill, Normal and Intense categories that Milkbeat and older versions use (a 1-100 activity score: Chill 1-30, Normal 25-75, Intense 70-100) are unchanged in the core library. The sections below describe that score and its example captures; the **Energy** options in the Mood panel are computed separately from the ruler measurements above.
+The Chill, Normal and Intense categories that Milkbeat and older versions use (a 1-100 activity score: Chill 1-30, Normal 25-75, Intense 70-100) are unchanged in the core library. The sections below describe that score and its example captures; the **Energy** options in the Mood panel are predicted separately from the preset source, as described above.
 
 | Chill | Normal | Intense |
 |---|---|---|
