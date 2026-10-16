@@ -3,7 +3,7 @@
 The [source reading](source-reading.md) and the [closed-form maths](feedback-maths.md) produce thousands of facts per preset. This page explains how those facts become the eight values and the mood options in the shipped table, and how the table is checked.
 
 ```mermaid
-flowchart LR
+flowchart TD
   A[".milk source"] --> B["Native reader<br/>(engine parser)"]
   B --> C["Families, mechanisms,<br/>closed-form graphs"]
   C --> D["Understanding summary<br/>(12 fact groups)"]
