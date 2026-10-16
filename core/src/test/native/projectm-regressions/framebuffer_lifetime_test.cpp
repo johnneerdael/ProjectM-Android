@@ -3,6 +3,7 @@
 #include "gl_context.hpp"
 #include <ProjectM.hpp>
 #include <Renderer/FramebufferDeletion.hpp>
+#include <Renderer/Texture.hpp>
 #include <projectM-4/render_opengl.h>
 
 #include <algorithm>
@@ -41,6 +42,8 @@ PFNGLDELETEFRAMEBUFFERSPROC realDelete;
 PFNGLGENFRAMEBUFFERSPROC realGen;
 PFNGLGENRENDERBUFFERSPROC realGenRenderbuffers;
 PFNGLGETSTRINGPROC realGetString;
+PFNGLDELETETEXTURESPROC realDeleteTextures;
+int textureDeletes{};
 int unsafeDeletes{}, deleted{}, binds{}, renderbufferGenerations{}, vendorQueries{};
 bool powerVR{}, enforce{};
 GLuint observedGuard{};
@@ -56,6 +59,10 @@ void GLAD_API_PTR Bind(GLenum target, GLuint id) {
     ++binds;
     if (target == GL_FRAMEBUFFER || target == GL_READ_FRAMEBUFFER) readBinding.Bind(id, readComplete);
     if (target == GL_FRAMEBUFFER || target == GL_DRAW_FRAMEBUFFER) drawBinding.Bind(id, drawComplete);
+}
+void GLAD_API_PTR DeleteTextures(GLsizei count, const GLuint* ids) {
+    textureDeletes += count;
+    realDeleteTextures(count, ids);
 }
 void GLAD_API_PTR Gen(GLsizei count, GLuint* ids) {
     realGen(count, ids);
@@ -107,12 +114,14 @@ struct Hooks {
         readBinding = {}; drawBinding = {};
         unsafeDeletes = deleted = binds = renderbufferGenerations = vendorQueries = 0;
         observedGuard = 0;
+        textureDeletes = 0;
         liveFramebuffers.clear();
         realBind = glad_glBindFramebuffer; glad_glBindFramebuffer = Bind;
         realDelete = glad_glDeleteFramebuffers; glad_glDeleteFramebuffers = Delete;
         realGen = glad_glGenFramebuffers; glad_glGenFramebuffers = Gen;
         realGenRenderbuffers = glad_glGenRenderbuffers; glad_glGenRenderbuffers = GenRenderbuffers;
         realGetString = glad_glGetString; glad_glGetString = GetString;
+        realDeleteTextures = glad_glDeleteTextures; glad_glDeleteTextures = DeleteTextures;
     }
     ~Hooks() {
         glad_glBindFramebuffer = realBind;
@@ -120,6 +129,7 @@ struct Hooks {
         glad_glGenFramebuffers = realGen;
         glad_glGenRenderbuffers = realGenRenderbuffers;
         glad_glGetString = realGetString;
+        glad_glDeleteTextures = realDeleteTextures;
     }
 };
 struct Target {
@@ -172,14 +182,17 @@ void CheckInitializationState() {
     glActiveTexture(GL_TEXTURE0);
     Require(glGetError() == GL_NO_ERROR, "guard initialization generated a GL error");
 }
-std::vector<unsigned char> Exercise(bool enabled) {
+std::vector<unsigned char> Exercise(bool enabled, bool legacyReset = false) {
     GLContext context;
     Hooks hooks(enabled);
     // Context replacement must forget stale names without issuing any GL calls.
-    const int calls = binds + deleted + vendorQueries + renderbufferGenerations;
-    projectm_opengl_forget_framebuffer_guard();
-    Require(calls == binds + deleted + vendorQueries + renderbufferGenerations,
+    if (legacyReset) Require(projectm_opengl_texture_pool_bytes() > 0, "legacy reset lacked stale pooled textures");
+    const int calls = binds + deleted + vendorQueries + renderbufferGenerations + textureDeletes;
+    if (legacyReset) projectm_opengl_forget_texture_pool();
+    else projectm_opengl_forget_framebuffer_guard();
+    Require(calls == binds + deleted + vendorQueries + renderbufferGenerations + textureDeletes,
             "context-loss forget issued GL calls");
+    if (legacyReset) Require(projectm_opengl_texture_pool_bytes() == 0, "legacy reset retained stale textures");
     // Stale instance destruction can happen before replacement initialization.
     GLuint stale{};
     glGenFramebuffers(1, &stale);
@@ -252,6 +265,19 @@ std::vector<unsigned char> Exercise(bool enabled) {
     }
     std::cout << (enabled ? "PowerVR" : "unaffected vendor") << ": " << deleted << " deletions, "
               << unsafeDeletes << " unsafe, " << renderbufferGenerations << " guards\n";
+    if (enabled && !legacyReset) {
+        // Leave a real pooled texture behind in the old context. The existing
+        // context-loss hook must drop its name without deleting it in the next.
+        projectm_opengl_set_texture_pool_limit(4096);
+        {
+            libprojectM::Renderer::Texture pooled("reset-control", GL_TEXTURE_2D, 4, 4, 1,
+                                                  GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, false);
+            pooled.SetPoolable(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
+        }
+        Require(projectm_opengl_texture_pool_bytes() > 0, "could not seed context-loss pool control");
+    } else if (legacyReset) {
+        projectm_opengl_set_texture_pool_limit(0);
+    }
     return pixels;
 }
 }
@@ -266,7 +292,7 @@ int main() {
             colored |= guarded[i] || guarded[i + 1] || guarded[i + 2];
         Require(colored, "output equivalence control was blank");
         // Another real context on the same thread must build exactly one fresh guard.
-        Require(Exercise(true) == guarded, "replacement-context output changed");
+        Require(Exercise(true, true) == guarded, "legacy context-loss hook did not reset guard safely");
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "framebuffer-lifetime-regressions: " << error.what() << '\n';
