@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r389-v1",
+ "preset": "suksma - the spook in the gasmask.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "d2d02b4341bc043bf9de8cad9636c2dfeff73663c8b7249526cbd9c8bf06699a",
+  "prediction.json": "9479008d4bde97fbd423cb7c03db798969e7ac3629b070398b450ab7ed2eef97",
+  "description.json": "bb5ddf401e508d608543c5ace77cc14687072dd79d5ed9b2c8af31e40b27a753",
+  "recipe.json": "5bbff540841dac82aee1979737e55878c1401e867213f2b8f8458f0e36aa4d5e",
+  "llm-look-description-v1.txt": "a70ceac955178d2a33169ebc5ead025b3f726ae0fffc5962c5c441a863c4b6e4"
+ },
+ "capture_result_sha256": "d09a7d518dc92596433941c63fb6523136733901de11f5e740ba19f1b6810cde",
+ "review_measurements_v1": {
+  "prediction_luma": 0.956,
+  "screenshot_luma": 0.943,
+  "mean_rgb_prediction": [
+   0.96,
+   0.955,
+   0.947
+  ],
+  "mean_rgb_screenshot": [
+   0.963,
+   0.936,
+   0.959
+  ],
+  "blurred_luma_correlation": 0.854,
+  "mean_abs_frame_difference_60_149": [
+   0.0512,
+   0.0646
+  ]
+ },
+ "agreements": [
+  "frame prediction 0.96 vs clip 0.94"
+ ],
+ "misses": [
+  "calibrated luminance 0.39 vs near-white clip"
+ ],
+ "verdict": "agree"
+}

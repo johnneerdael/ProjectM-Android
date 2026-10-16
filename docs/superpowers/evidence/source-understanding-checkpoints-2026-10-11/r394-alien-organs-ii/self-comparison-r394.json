@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r394-v1",
+ "preset": "LuxXx - Growing Alien Organs ii.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "2cb25f7fe5108f91107a9e2ac3444866953a0e3ef1dbae296f981b894b1fcaca",
+  "prediction.json": "25bc273e13cbf66109417270fb46952f80f185eb46f7164beda8c440174d3bd2",
+  "description.json": "214fb68e7007086f05798a4c30e6fc37919189c42bb3026edf3fb542b77e1763",
+  "recipe.json": "d6fef70016e254445c5dc65c56ca9357abbc10161452f2277fca81368e2a166a",
+  "llm-look-description-v1.txt": "fe1c6fd6a48c1d066e3801a71d443cdabd5a953c0880ee8f29dc621141dca266"
+ },
+ "capture_result_sha256": "9ce8a97a5bbc1a6676a2f3e3d2fd829c58b059f4890703404a1eafa5ff69c170",
+ "review_measurements_v1": {
+  "prediction_luma": 0.153,
+  "screenshot_luma": 0.139,
+  "mean_rgb_prediction": [
+   0.437,
+   0.076,
+   0.078
+  ],
+  "mean_rgb_screenshot": [
+   0.418,
+   0.065,
+   0.054
+  ],
+  "blurred_luma_correlation": 0.895,
+  "mean_abs_frame_difference_60_149": [
+   0.0562,
+   0.0722
+  ]
+ },
+ "agreements": [
+  "frame prediction corr 0.90"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r393-v1",
+ "preset": "Rozzor vs Esotic - Pixie Party Light (With Liquid Refreshment) Bonus Round.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "7a7cfdf19c898914317e83e683da8b4ca274ec28c6ebe8bba9860ae52eb130c7",
+  "prediction.json": "1f0c014c564402ee086724b3a13429c6df7ca2d9e8df85cb01dd95f6d8705822",
+  "description.json": "b93e570e71fb10a633c1db70ee210dd13a0f95b47e8e8f6c3bc5182fc23cec5f",
+  "recipe.json": "d7fc15d29f7310cb3a5e76e4de5a8a9fa48fef1e0adb11be70c9534b659a5d34",
+  "llm-look-description-v1.txt": "c4c52cc5b4d536a4a8abf2f6eca0fd4031dbff8884f65c435d3701c585979837"
+ },
+ "capture_result_sha256": "a1b467effb796a343e8ec0c34b2c3fa37a500099dbdc1c91a3db326443d5bb22",
+ "review_measurements_v1": {
+  "prediction_luma": 0.755,
+  "screenshot_luma": 0.713,
+  "mean_rgb_prediction": [
+   0.909,
+   0.761,
+   0.232
+  ],
+  "mean_rgb_screenshot": [
+   0.937,
+   0.695,
+   0.231
+  ],
+  "blurred_luma_correlation": 0.841,
+  "mean_abs_frame_difference_60_149": [
+   0.0338,
+   0.0478
+  ]
+ },
+ "agreements": [
+  "frame prediction corr 0.84"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

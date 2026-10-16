@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r392-v1",
+ "preset": "Flexi - disruptor [wolfram's rule 110 so call the police;].milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "322e741541346baaed80a6ab01705f6c1717dcee3d208da661a59a05a85bd901",
+  "prediction.json": "bd356f0ca77ba0419514f433010302c36adea106150a9158a5352659bc46e8ba",
+  "description.json": "ebe2fb8b61678ff2449e0120f2550bcebba9676fc3e1b67625b5478e46cca030",
+  "recipe.json": "6da32c4b8ff68d35d1c13c936b9f364d62e3875b2ff0c1a7ae609c35f79ba5ba",
+  "llm-look-description-v1.txt": "ed9f5ce5cd9f5634faba98fad2b0b8ecc736620f802fd7122e3ce18d2efc81e1"
+ },
+ "capture_result_sha256": "4640d4091ab3d908db207de5105a7177a7032be868883c50ee935bc0c9914325",
+ "review_measurements_v1": {
+  "prediction_luma": 0.0,
+  "screenshot_luma": 0.0,
+  "mean_rgb_prediction": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mean_rgb_screenshot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "blurred_luma_correlation": 0.832,
+  "mean_abs_frame_difference_60_149": [
+   0.0111,
+   0.0
+  ]
+ },
+ "agreements": [
+  "frame prediction black matches the black clip"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

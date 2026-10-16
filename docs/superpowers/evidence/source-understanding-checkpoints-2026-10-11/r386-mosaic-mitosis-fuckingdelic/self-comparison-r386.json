@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r386-v1",
+ "preset": "shifter - mosaic mitosis - fuckingdelic.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "68d03c48d95f6b759ffa004900d6515412ae630a15c58c276b97393c9c3a382f",
+  "prediction.json": "82f425563f5dd17054ec7868e26e05dc9f7cc7a90cce203df30a73c0cde07baf",
+  "description.json": "7de004e993d0cc8194723287f420b3ec307dbd7a5ae735118d3bba87259a0397",
+  "recipe.json": "e4ed48edf5f6d0798a58de90ec1dfd3e24f535fe1572bd634940c3508e8d10c8",
+  "llm-look-description-v1.txt": "58cd324be3bcf1db827161832fe8ea91a84d439a4eca013138a788219494cc67"
+ },
+ "capture_result_sha256": "66f65dfa92f761b3231b77df66d4b27712ca3e0c9df3b42c7f3810ca9ca5da35",
+ "review_measurements_v1": {
+  "prediction_luma": 0.723,
+  "screenshot_luma": 0.712,
+  "mean_rgb_prediction": [
+   0.728,
+   0.694,
+   0.992
+  ],
+  "mean_rgb_screenshot": [
+   0.712,
+   0.684,
+   0.994
+  ],
+  "blurred_luma_correlation": 0.555,
+  "mean_abs_frame_difference_60_149": [
+   0.0394,
+   0.0313
+  ]
+ },
+ "agreements": [
+  "frame prediction close to the clip (0.72 vs 0.71)"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

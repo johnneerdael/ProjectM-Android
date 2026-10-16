@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r391-v1",
+ "preset": "NeW Adam Master Mashup FX 2 Geiss - Reaction Diffusion 34 + Swelling Spiral  + Liquid Fire  + Geiss and Zylot + Various 3.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "bf4a6b3b694165828ac7c17df1885fcbbe3ea35eea3e54982603bcda01fecadb",
+  "prediction.json": "eaa3ce610c868016faa9cd5de0015bdf5ee2a064480e1300821deca32719914a",
+  "description.json": "f24d9a04bb6c6043e11cdbe1ded2e677014300ab2a06846e01454543ca50e312",
+  "recipe.json": "d511d304935badbe25e2c5bcfa44982220875a802aa5f95ee0f240215371d694",
+  "llm-look-description-v1.txt": "dadc58cc30eca352d3d81f7b0b29d18315a40f4e352a53b38564911a2b57d768"
+ },
+ "capture_result_sha256": "4e3e432a72684092f77f5273f3bf28f4d066841d92a9c4741cfb145778c3dc56",
+ "review_measurements_v1": {
+  "prediction_luma": 0.768,
+  "screenshot_luma": 0.787,
+  "mean_rgb_prediction": [
+   0.741,
+   0.757,
+   0.962
+  ],
+  "mean_rgb_screenshot": [
+   0.774,
+   0.776,
+   0.939
+  ],
+  "blurred_luma_correlation": 0.008,
+  "mean_abs_frame_difference_60_149": [
+   0.1038,
+   0.1248
+  ]
+ },
+ "agreements": [
+  "frame prediction 0.77 vs clip 0.79"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}

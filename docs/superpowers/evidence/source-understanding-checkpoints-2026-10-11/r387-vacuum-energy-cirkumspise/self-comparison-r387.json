@@ -1,0 +1,40 @@
+{
+ "policy": "checkpoint-self-comparison-v1",
+ "checkpoint": "r387-v1",
+ "preset": "suksma - flexi coheres vacuum energy - cirkumspise.milk",
+ "fresh_prediction": true,
+ "frozen_before_capture": {
+  "prediction.png": "a3e1fef5e8a7723fb61e91894653cdd5f11d0d305fbb36b72b2aadd98e65e6e0",
+  "prediction.json": "dbb90a5850a3498e7bbb57655294321629a550c9d27b5e70ee36f78b35ae8c91",
+  "description.json": "46055363bd203362dfadda3805d3df4049bd5cd174ae772048a2ad00b2388834",
+  "recipe.json": "6a9e6b2c3d2b89a7afbf314160ff74f0cddf5b1ff4a9a6a8e858462af9b80761",
+  "llm-look-description-v1.txt": "c6449a81f639d4e83dc2ebaa41dc5bbb3a1166b85217f8d1d52bd1d8b2f63d2a"
+ },
+ "capture_result_sha256": "2f9ed5133bbab4dbae3aba371343c8f3d38ae2b1a5477cbf069c28577b0f0f63",
+ "review_measurements_v1": {
+  "prediction_luma": 0.316,
+  "screenshot_luma": 0.265,
+  "mean_rgb_prediction": [
+   0.312,
+   0.317,
+   0.312
+  ],
+  "mean_rgb_screenshot": [
+   0.264,
+   0.265,
+   0.26
+  ],
+  "blurred_luma_correlation": 0.776,
+  "mean_abs_frame_difference_60_149": [
+   0.0525,
+   0.1156
+  ]
+ },
+ "agreements": [
+  "frame prediction corr 0.78"
+ ],
+ "misses": [
+  "-"
+ ],
+ "verdict": "agree"
+}
