@@ -1,4 +1,4 @@
-import hashlib, json, tempfile, unittest
+import gzip, hashlib, json, tempfile, unittest
 from pathlib import Path
 
 import attribute_bundle as B
@@ -442,5 +442,165 @@ class BundleTest(unittest.TestCase):
         bundle = root / 'core/src/main/assets/preset-attributes'
         if not (bundle / 'manifest.json').is_file():
             self.skipTest('no committed bundle in this checkout')
-        self.assertEqual(B.check(bundle, root / 'core/src/main/assets/presets.idx',
-                                 ruler_manifest=root / B.DEFAULT_RULER_MANIFEST), [])
+        self.assertEqual(json.loads((bundle / 'manifest.json').read_text())['source'], B.STATIC_SOURCE)
+        self.assertEqual(B.check(bundle, root / 'core/src/main/assets/presets.idx', ruler_manifest=root / B.DEFAULT_RULER_MANIFEST,
+                                 static_evidence=root / B.DEFAULT_STATIC_EVIDENCE), [])
+
+
+VALUES = {'luminance': .3, 'saturation': .6, 'coloured_share': .8, 'warm_cool': .3, 'flow': .2, 'frame_difference': .05,
+          'jumps': 3., 'activity': .5}
+
+
+def write_static_evidence(tmp, rows=None, edit=None):
+    """Static evidence for tmp/presets: a.milk red/blue with a red main colour, b.milk grey, c.milk without values."""
+    tmp = Path(tmp); sha = lambda n: hashlib.sha256((tmp / 'presets' / n).read_bytes()).hexdigest()
+    rows = rows if rows is not None else [
+        {'name': 'a.milk', 'sha256': sha('a.milk'), 'options': ['tunnel', 'intense', 'vivid'], 'palette': ['red', 'blue'],
+         'dominant': 'red', 'values': dict(VALUES)},
+        {'name': 'b.milk', 'sha256': sha('b.milk'), 'options': ['monochrome', 'chill'], 'palette': ['green'], 'dominant': None,
+         'values': dict(VALUES, warm_cool=None)},
+        {'name': 'c.milk', 'sha256': sha('c.milk'), 'options': [], 'palette': [], 'dominant': None,
+         'values': {c: None for c in VALUES}}]
+    evidence = {'schema': B.STATIC_EVIDENCE_SCHEMA, 'version': 1, 'producer': {'commit': 'abc', 'policy': 'test'}, 'rows': rows}
+    if edit:
+        edit(evidence)
+    (tmp / 'evidence.json.gz').write_bytes(gzip.compress(json.dumps(evidence, sort_keys=True).encode(), mtime=0))
+    return tmp / 'evidence.json.gz'
+
+
+def make_static_inputs(tmp):
+    tmp = Path(tmp); (tmp / 'presets').mkdir()
+    for name in ('a.milk', 'b.milk', 'c.milk'):
+        (tmp / 'presets' / name).write_text('[preset00]\n// %s\n' % name)
+    (tmp / 'presets.idx').write_text('a.milk\t0\nb.milk\t0\nc.milk\t0\n')
+    return tmp, write_static_evidence(tmp)
+
+
+class StaticBundleTest(unittest.TestCase):
+    def rows(self, out):
+        return {l.split('\t')[0]: l.split('\t') for l in (out / 'attributes.tsv').read_text().splitlines() if not l.startswith('#')}
+
+    def test_build_static_then_check_round_trip(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            manifest = B.build_static(ev, t / 'presets.idx', t / 'out')
+            self.assertEqual((manifest['source'], manifest['preset_count'], manifest['measured_count']), ('static-analysis', 3, 2))
+            self.assertEqual(manifest['static_evidence_sha256'], hashlib.sha256(ev.read_bytes()).hexdigest())
+            self.assertNotIn('ruler', manifest)
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', static_evidence=ev), [])
+            rows = self.rows(t / 'out')
+            # options in definition order, palette families then the main colour
+            self.assertEqual(rows['a.milk'][1], 'intense,vivid,red,blue,main_red,tunnel')
+            self.assertEqual(rows['b.milk'][1], 'chill,monochrome')  # grey: no palette and no main colour
+            self.assertEqual(rows['b.milk'][2:], ['0.3000', '0.6000', '0.8000', '-', '0.2000', '0.0500', '3.0000', '0.5000'])
+            self.assertEqual(rows['c.milk'][1:], [''] + ['-'] * 8)
+            self.assertEqual(manifest['option_counts']['red'], 1); self.assertEqual(manifest['option_counts']['green'], 0)
+
+    def test_check_requires_the_static_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            B.build_static(ev, t / 'presets.idx', t / 'out')
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx'), ['static evidence path is required for a static-analysis bundle'])
+
+    def test_check_reports_evidence_drift_in_both_directions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            B.build_static(ev, t / 'presets.idx', t / 'out')
+            def drop_option(e): e['rows'][0]['options'].remove('vivid')
+            write_static_evidence(t, edit=drop_option)
+            problems = B.check(t / 'out', t / 'presets.idx', static_evidence=ev)
+            self.assertTrue(any('differs from the bundle manifest hash' in p for p in problems), problems)
+            self.assertTrue(any('a.milk: row differs from the static evidence' in p for p in problems), problems)
+
+    def test_check_rejects_an_edited_row_even_with_a_matching_hash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            B.build_static(ev, t / 'presets.idx', t / 'out')
+            text = (t / 'out' / 'attributes.tsv').read_text().replace('intense,vivid,red', 'intense,vivid,green')
+            (t / 'out' / 'attributes.tsv').write_text(text)
+            manifest = json.loads((t / 'out' / 'manifest.json').read_text())
+            manifest['attributes_sha256'] = hashlib.sha256(text.encode()).hexdigest()
+            manifest['option_counts']['green'] += 1; manifest['option_counts']['red'] -= 1
+            (t / 'out' / 'manifest.json').write_text(json.dumps(manifest))
+            problems = B.check(t / 'out', t / 'presets.idx', static_evidence=ev)
+            self.assertEqual(problems, ['bundle rows differ from the static evidence (1): a.milk: row differs from the static evidence'])
+
+    def test_a_preset_without_evidence_fails_build_and_check_by_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            B.build_static(ev, t / 'presets.idx', t / 'out')
+            (t / 'presets' / 'd.milk').write_text('[preset00]\n')
+            (t / 'presets.idx').write_text('a.milk\t0\nb.milk\t0\nc.milk\t0\nd.milk\t0\n')
+            with self.assertRaisesRegex(ValueError, 'd.milk: no static evidence row'):
+                B.build_static(ev, t / 'presets.idx', t / 'out2')
+            problems = B.check(t / 'out', t / 'presets.idx', static_evidence=ev)
+            self.assertIn('d.milk: no static evidence row', problems)
+            self.assertIn('presets.idx changed since the bundle was built', problems)
+
+    def test_an_extra_evidence_row_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            write_static_evidence(t, edit=lambda e: e['rows'].append(dict(e['rows'][2], name='z.milk')))
+            with self.assertRaisesRegex(ValueError, 'z.milk: static evidence row for a preset not in presets.idx'):
+                B.build_static(ev, t / 'presets.idx', t / 'out')
+
+    def test_a_changed_preset_file_fails_until_reanalysed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            B.build_static(ev, t / 'presets.idx', t / 'out')
+            (t / 'presets' / 'b.milk').write_text('[preset00]\nzoom=2\n')
+            self.assertIn('b.milk: preset bytes differ from the static evidence sha256 (re-analyse it)',
+                          B.check(t / 'out', t / 'presets.idx', static_evidence=ev))
+            with self.assertRaisesRegex(ValueError, 'preset bytes differ'):
+                B.build_static(ev, t / 'presets.idx', t / 'out2')
+
+    def test_unknown_options_and_colours_are_rejected(self):
+        for edit, message in ((lambda e: e['rows'][0]['options'].append('spirals'), 'not in the definition'),
+                              (lambda e: e['rows'][0]['options'].append('red'), 'not in the definition'),
+                              (lambda e: e['rows'][0].update(palette=['magenta']), 'unknown colour families'),
+                              (lambda e: e['rows'][0].update(dominant='teal'), 'unknown colour families')):
+            with tempfile.TemporaryDirectory() as tmp:
+                t, ev = make_static_inputs(tmp)
+                write_static_evidence(t, edit=edit)
+                with self.assertRaisesRegex(ValueError, message):
+                    B.build_static(ev, t / 'presets.idx', t / 'out')
+
+    def test_duplicate_rows_and_wrong_schema_are_rejected(self):
+        for edit, message in ((lambda e: e['rows'].append(e['rows'][0]), 'more than once'),
+                              (lambda e: e.update(schema='other'), 'schema')):
+            with tempfile.TemporaryDirectory() as tmp:
+                t, ev = make_static_inputs(tmp)
+                write_static_evidence(t, edit=edit)
+                with self.assertRaisesRegex(ValueError, message):
+                    B.build_static(ev, t / 'presets.idx', t / 'out')
+
+    def test_analysis_errors_are_limited_and_left_unlabelled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            write_static_evidence(t, edit=lambda e: e['rows'][0].update(error='boom'))
+            with self.assertRaisesRegex(ValueError, '1 presets failed static analysis'):
+                B.build_static(ev, t / 'presets.idx', t / 'out')
+            manifest = B.build_static(ev, t / 'presets.idx', t / 'out', max_errors=1)
+            self.assertEqual(manifest['analysis_errors'], 1)
+            self.assertEqual(self.rows(t / 'out')['a.milk'][1:], [''] + ['-'] * 8)
+            self.assertEqual(B.check(t / 'out', t / 'presets.idx', static_evidence=ev), [])
+
+    def test_size_budget(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t, ev = make_static_inputs(tmp)
+            with self.assertRaisesRegex(ValueError, 'over the 10 byte budget'):
+                B.build_static(ev, t / 'presets.idx', t / 'out', size_budget=10)
+            B.build_static(ev, t / 'presets.idx', t / 'out')
+            self.assertTrue(any(p.startswith('size budget') for p in
+                                B.check_static(t / 'out', t / 'presets.idx', ev, size_budget=10)))
+
+    def test_check_recomputes_the_static_manifest_metadata(self):
+        for field, value in (('source', 'engine-ruler'), ('producer', {'commit': 'other'}), ('measured_count', 3),
+                             ('analysis_errors', 2), ('option_counts', {})):
+            with tempfile.TemporaryDirectory() as tmp:
+                t, ev = make_static_inputs(tmp)
+                B.build_static(ev, t / 'presets.idx', t / 'out')
+                manifest = json.loads((t / 'out' / 'manifest.json').read_text()); manifest[field] = value
+                (t / 'out' / 'manifest.json').write_text(json.dumps(manifest))
+                problems = B.check_static(t / 'out', t / 'presets.idx', ev)
+                self.assertTrue(any(field in p for p in problems), (field, problems))
