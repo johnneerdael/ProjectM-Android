@@ -18,6 +18,8 @@ public class PresetFacetsTest {
             + "#group\tenergy\tEnergy\n#option\tenergy\tchill\tChill\n#option\tenergy\tnormal\tNormal\n#option\tenergy\tintense\tIntense\n"
             + "#group\tbrightness\tBrightness\n#option\tbrightness\tdark\tDark\n#option\tbrightness\tbalanced\tBalanced\n#option\tbrightness\tbright\tBright\n"
             + "#group\tcolour\tColour\n#option\tcolour\tmonochrome\tMonochrome\n#option\tcolour\tpastel\tPastel\n#option\tcolour\tvivid\tVivid\n#option\tcolour\twarm\tWarm\n#option\tcolour\tcool\tCool\n"
+            + "#group\tpalette\tPalette\n#option\tpalette\tred\tRed\n#option\tpalette\torange\tOrange\n#option\tpalette\tyellow\tYellow\n#option\tpalette\tgreen\tGreen\n#option\tpalette\tcyan\tCyan\n#option\tpalette\tblue\tBlue\n#option\tpalette\tpurple\tPurple\n#option\tpalette\tpink\tPink\n"
+            + "#group\tmain_colour\tMain colour\n#option\tmain_colour\tmain_red\tRed\n#option\tmain_colour\tmain_orange\tOrange\n#option\tmain_colour\tmain_yellow\tYellow\n#option\tmain_colour\tmain_green\tGreen\n#option\tmain_colour\tmain_cyan\tCyan\n#option\tmain_colour\tmain_blue\tBlue\n#option\tmain_colour\tmain_purple\tPurple\n#option\tmain_colour\tmain_pink\tPink\n"
             + "#group\tmovement\tMovement\n#option\tmovement\tstill\tStill\n#option\tmovement\tdrifting\tDrifting\n#option\tmovement\tfast\tFast\n"
             + "#group\tstyle\tStyle\n#option\tstyle\tkaleidoscope\tKaleidoscope\n#option\tstyle\ttunnel\tTunnel\n#option\tstyle\tliquid\tLiquid\n#option\tstyle\tgeometric\tGeometric\n#option\tstyle\tparticles\tParticles\n#option\tstyle\tfractal\tFractal\n"
             + "#group\tcomfort\tComfort\n#option\tcomfort\tno_strobe\tNo strobe\n"
@@ -61,7 +63,7 @@ public class PresetFacetsTest {
             for (String dimmed : list(c.group(6))) assertTrue(dimmed, s.isDimmed(dimmed));
             if (c.group(4) != null) assertEquals(list(c.group(4)), s.ignored());
         }
-        assertEquals(5, cases);
+        assertEquals(9, cases);
     }
 
     @Test public void selectedOptionIsNeverDimmedAndUnknownIdsAreIgnored() throws IOException {

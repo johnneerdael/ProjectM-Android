@@ -1,27 +1,39 @@
 {
   "definition_version": 1,
   "rows": [
-    {"name": "a.milk", "options": ["chill", "dark", "still", "no_strobe", "tunnel"]},
-    {"name": "b.milk", "options": ["chill", "normal", "balanced", "drifting", "no_strobe", "liquid"]},
-    {"name": "c.milk", "options": ["normal", "bright", "vivid", "warm", "drifting"]},
-    {"name": "d.milk", "options": ["intense", "bright", "vivid", "fast", "kaleidoscope"]},
-    {"name": "e.milk", "options": ["intense", "dark", "cool", "fast"]},
-    {"name": "f.milk", "options": ["normal", "intense", "balanced", "monochrome", "drifting", "no_strobe", "fractal"]},
-    {"name": "g.milk", "options": ["chill", "bright", "pastel", "still", "no_strobe", "particles"]},
-    {"name": "h.milk", "options": ["normal", "balanced", "cool", "drifting", "geometric"]}
+    {"name": "a.milk", "options": ["chill", "dark", "still", "no_strobe", "tunnel", "red", "main_red"]},
+    {"name": "b.milk", "options": ["chill", "normal", "balanced", "drifting", "no_strobe", "liquid", "orange", "yellow", "main_yellow"]},
+    {"name": "c.milk", "options": ["normal", "bright", "vivid", "warm", "drifting", "red", "orange", "main_orange"]},
+    {"name": "d.milk", "options": ["intense", "bright", "vivid", "fast", "kaleidoscope", "blue", "purple", "main_purple"]},
+    {"name": "e.milk", "options": ["intense", "dark", "cool", "fast", "blue", "main_blue"]},
+    {"name": "f.milk", "options": ["normal", "intense", "balanced", "monochrome", "drifting", "no_strobe", "fractal", "green", "main_green"]},
+    {"name": "g.milk", "options": ["chill", "bright", "pastel", "still", "no_strobe", "particles", "cyan", "pink", "main_pink"]},
+    {"name": "h.milk", "options": ["normal", "balanced", "cool", "drifting", "geometric", "cyan", "main_cyan"]}
   ],
   "cases": [
     {"selected": [], "excluded": [], "pool": ["a.milk", "b.milk", "c.milk", "d.milk", "e.milk", "f.milk", "g.milk", "h.milk"],
      "option_counts": {"chill": 3, "intense": 3, "vivid": 2, "no_strobe": 4, "fractal": 1}, "dimmed": []},
     {"selected": ["chill"], "excluded": [], "pool": ["a.milk", "b.milk", "g.milk"],
      "option_counts": {"chill": 8, "intense": 6, "dark": 1, "vivid": 0, "no_strobe": 3, "tunnel": 1, "fractal": 0},
-     "dimmed": ["vivid", "warm", "cool", "monochrome", "fast", "kaleidoscope", "fractal", "geometric"]},
+     "dimmed": ["monochrome", "vivid", "warm", "cool", "green", "blue", "purple", "main_orange", "main_green", "main_cyan", "main_blue", "main_purple", "fast", "kaleidoscope", "geometric", "fractal"]},
     {"selected": ["chill", "intense"], "excluded": [], "pool": ["a.milk", "b.milk", "d.milk", "e.milk", "f.milk", "g.milk"],
-     "option_counts": {"chill": 3, "dark": 2, "no_strobe": 4}, "dimmed": ["warm", "geometric"]},
+     "option_counts": {"chill": 3, "dark": 2, "no_strobe": 4}, "dimmed": ["warm", "main_orange", "main_cyan", "geometric"]},
     {"selected": ["chill", "no_strobe"], "excluded": ["a.milk"], "pool": ["b.milk", "g.milk"],
      "option_counts": {"tunnel": 0, "liquid": 1, "no_strobe": 2},
-     "dimmed": ["dark", "tunnel", "vivid", "warm", "cool", "monochrome", "fast", "kaleidoscope", "fractal", "geometric"]},
+     "dimmed": ["dark", "monochrome", "vivid", "warm", "cool", "red", "green", "blue", "purple", "main_red", "main_orange", "main_green", "main_cyan", "main_blue", "main_purple", "fast", "kaleidoscope", "tunnel", "geometric", "fractal"]},
     {"selected": ["chill", "unknown_option"], "excluded": [], "pool": ["a.milk", "b.milk", "g.milk"],
-     "ignored": ["unknown_option"], "option_counts": {"chill": 8}, "dimmed": []}
+     "ignored": ["unknown_option"], "option_counts": {"chill": 8}, "dimmed": ["monochrome", "vivid", "warm", "cool", "green", "blue", "purple", "main_orange", "main_green", "main_cyan", "main_blue", "main_purple", "fast", "kaleidoscope", "geometric", "fractal"]},
+    {"selected": ["red"], "excluded": [], "pool": ["a.milk", "c.milk"],
+     "option_counts": {"red": 8, "blue": 4, "main_red": 1, "dark": 1, "intense": 0},
+     "dimmed": ["intense", "balanced", "monochrome", "pastel", "cool", "main_yellow", "main_green", "main_cyan", "main_blue", "main_purple", "main_pink", "fast", "kaleidoscope", "liquid", "geometric", "particles", "fractal"]},
+    {"selected": ["red", "blue"], "excluded": [], "pool": ["a.milk", "c.milk", "d.milk", "e.milk"],
+     "option_counts": {"red": 2, "blue": 2, "main_red": 1, "dark": 2, "intense": 2},
+     "dimmed": ["balanced", "monochrome", "pastel", "main_yellow", "main_green", "main_cyan", "main_pink", "liquid", "geometric", "particles", "fractal"]},
+    {"selected": ["main_red", "dark"], "excluded": [], "pool": ["a.milk"],
+     "option_counts": {"main_red": 2, "dark": 1, "blue": 0, "intense": 0},
+     "dimmed": ["normal", "intense", "monochrome", "pastel", "vivid", "warm", "cool", "orange", "yellow", "green", "cyan", "blue", "purple", "pink", "drifting", "fast", "kaleidoscope", "liquid", "geometric", "particles", "fractal"]},
+    {"selected": ["red", "intense"], "excluded": [], "pool": [],
+     "option_counts": {"red": 3, "intense": 2, "blue": 2, "main_red": 0, "dark": 0},
+     "dimmed": ["dark", "balanced", "bright", "monochrome", "pastel", "vivid", "warm", "cool", "orange", "yellow", "cyan", "pink", "main_red", "main_orange", "main_yellow", "main_green", "main_cyan", "main_blue", "main_purple", "main_pink", "still", "drifting", "fast", "kaleidoscope", "tunnel", "liquid", "geometric", "particles", "fractal", "no_strobe"]}
   ]
 }
