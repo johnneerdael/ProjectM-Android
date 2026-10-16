@@ -51,19 +51,33 @@ public final class NativeCrashReports {
             return;
         }
         try {
-            int result = XCrash.init(context.getApplicationContext(), new XCrash.InitParameters()
-                    .setLogDir(directory.getAbsolutePath())
-                    .disableJavaCrashHandler().disableAnrCrashHandler().enableNativeCrashHandler()
-                    .setNativeRethrow(true).setNativeLogCountMax(MAX_REPORTS)
-                    .setNativeLogcatSystemLines(0).setNativeLogcatEventsLines(0).setNativeLogcatMainLines(0)
-                    .setNativeDumpFds(false).setNativeDumpNetwork(false).setNativeDumpMap(false)
-                    .setNativeDumpAllThreads(false).setNativeDumpElfHash(false));
-            status = result == 0 ? "Native crash capture ready"
-                    : "Native crash capture unavailable (initialization " + result + ")";
+            status = initializeCapture(context.getApplicationContext(), directory);
         } catch (RuntimeException | LinkageError error) {
             status = "Native crash capture unavailable: " + error.getClass().getSimpleName();
             Log.w(TAG, status, error);
         }
+    }
+
+    static String initializeCapture(Context context, File directory) {
+        // xCrash returns OK without applying parameters after any earlier init,
+        // even a failed one. Its supported loader callback proves this call ran
+        // the native initialization path with our parameters rather than skipping it.
+        boolean[] configuredHere = {false};
+        int result = XCrash.init(context, new XCrash.InitParameters()
+                .setLibLoader(name -> {
+                    System.loadLibrary(name);
+                    configuredHere[0] = true;
+                })
+                .setLogDir(directory.getAbsolutePath())
+                .disableJavaCrashHandler().disableAnrCrashHandler().enableNativeCrashHandler()
+                .setNativeRethrow(true).setNativeLogCountMax(MAX_REPORTS)
+                .setNativeLogcatSystemLines(0).setNativeLogcatEventsLines(0).setNativeLogcatMainLines(0)
+                .setNativeDumpFds(false).setNativeDumpNetwork(false).setNativeDumpMap(false)
+                .setNativeDumpAllThreads(false).setNativeDumpElfHash(false));
+        if (result != 0) return "Native crash capture unavailable (initialization " + result + ")";
+        if (!configuredHere[0] || !directory.getAbsolutePath().equals(XCrash.getLogDir()))
+            return "Native crash capture unavailable: xCrash was already initialized by another component";
+        return "Native crash capture ready";
     }
 
     /** Current capture availability, including a failed native-library initialization. */

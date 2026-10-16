@@ -37,3 +37,9 @@ The capture and report cases are in `NativeCrashSetupTest`; commands are documen
 ## Collection archive follow-up
 
 PR validation found that the xCrash notice update also changes the downloadable collection: `docs/THIRD_PARTY.md` is one of its hashed files. Regenerated `official-archive.json` with the existing archive builder, then verified a complete archived build and all ten distribution controls. Comparing the manifest inputs with main confirms that only the third-party notice changed; all 9,606 presets and 74 textures are unchanged. The new archive SHA-256 is `ff41c11c041a2e00dc367ad018f13decd681a710f01069741a7e4539a733ec27`. Current-head Codex review and repeated CI remain required after this correction.
+
+## Initialization ownership review correction
+
+Codex identified that a previous `XCrash.init` returns success on later calls without applying new parameters, even if the first call failed. A control using the bundled library reproduced the false ready status before the correction and passes afterwards. Readiness now requires this call's supported native-loader callback and the expected private directory; earlier initialization is labelled unavailable rather than adopting foreign capture settings or files. No vendored source bytes changed.
+
+All 206 JVM tests, release APK/AAR builds and strict MkDocs pass. Repeated the owned API34 capture/restart journey against the new compiled code: capture was ready, the test-delivered SIGSEGV left a 63,734-byte native report, and the new process displayed its backtrace with action buttons in bounds. The test APK came from the freshly generated intermediate APK path; the older `outputs/apk/debug` copy was stale and was not installed. [Review validation identities](review-initialization-validation.json) distinguish these artifacts from the original checkpoint above. This remains emulator capture evidence, not an affected Fire TV crash reproduction.
