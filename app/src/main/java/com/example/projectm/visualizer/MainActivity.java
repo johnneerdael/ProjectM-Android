@@ -923,8 +923,10 @@ public class MainActivity extends Activity {
         boolean replacing = mood != null;
         moodSource = source;
         // A committed official collection without attributes (downloaded before collections carried
-        // them) offers no facets, only the collection; the Mood header says how to get them.
-        boolean outdatedDownload = official != null && !official.isFile();
+        // them), or with a table built from an older mood definition, offers no facets, only the
+        // collection; the Mood header says how to get a current one.
+        boolean outdatedDownload = official != null && (!official.isFile()
+                || MoodFacetsController.outdatedDefinition(definitionOf(official), bundledDefinition()));
         moodFacets = official == null ? PresetFacets.load(getAssets()) : outdatedDownload ? null : parseFacets(official);
         mood = new MoodFacetsController(moodFacets, new MoodFacetsController.Prefs() {
             @Override public String get(String key, String fallback) { return prefs.getString(key, fallback); }
@@ -942,6 +944,25 @@ public class MainActivity extends Activity {
         if (replacing) {
             buildMoodRows();
             mood.apply();  // the pool from the new table
+        }
+    }
+
+    private static String definitionOf(File file) {
+        try (java.io.Reader reader = new java.io.InputStreamReader(new java.io.FileInputStream(file),
+                java.nio.charset.StandardCharsets.UTF_8)) {
+            return MoodFacetsController.definitionOf(reader);
+        } catch (IOException unreadable) {
+            return null;
+        }
+    }
+
+    /** The mood definition of the table bundled in this APK (the starter table in F-Droid editions). */
+    private String bundledDefinition() {
+        try (java.io.Reader reader = new java.io.InputStreamReader(getAssets().open(PresetFacets.ASSET),
+                java.nio.charset.StandardCharsets.UTF_8)) {
+            return MoodFacetsController.definitionOf(reader);
+        } catch (IOException missing) {
+            return null;
         }
     }
 

@@ -106,7 +106,7 @@ Unlabelled presets are not hidden. They play whenever the group they lack has no
 
 ## Which presets have attributes
 
-GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none: the Mood header then reads *Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)* and only the Collection choice is offered. Downloading, replacing or removing the collection updates the Mood panel and the mix immediately; no restart is needed.
+GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none, and one made before the static moods (without Palette and Main colour) carries moods from an earlier definition. In both cases the Mood header reads *Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)* and only the Collection choice is offered until you download the current collection. Downloading, replacing or removing the collection updates the Mood panel and the mix immediately; no restart is needed.
 
 ## How accurate are moods?
 

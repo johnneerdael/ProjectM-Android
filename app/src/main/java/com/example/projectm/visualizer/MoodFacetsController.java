@@ -1,5 +1,8 @@
 package com.example.projectm.visualizer;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.text.NumberFormat;
 import java.util.*;
 import nl.neerdael.projectm.core.PresetFacets;
@@ -13,8 +16,25 @@ final class MoodFacetsController {
 
     static final String PREF_FACETS = "mood_facets", PREF_COLLECTION = "mood_collection", PREF_CATEGORY = "music_category";
     private static final int FEW = 20;
-    /** Header when the installed official collection predates preset attributes (F-Droid). */
+    /** Header when the installed official collection predates preset attributes or the app's mood definition (F-Droid). */
     static final String OUTDATED_DOWNLOAD = "Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)";
+
+    /** The {@code #definition} hash in an attribute table's header, or null when the header has none. */
+    static String definitionOf(Reader reader) throws IOException {
+        BufferedReader in = new BufferedReader(reader);
+        for (String line; (line = in.readLine()) != null && line.startsWith("#") && !line.startsWith("#columns"); )
+            if (line.startsWith("#definition\t")) return line.substring("#definition\t".length());
+        return null;
+    }
+
+    /**
+     * An installed collection's table is outdated when the app's own table names another mood
+     * definition (for example one without Palette and Main colour): its moods would differ from
+     * what this version describes, so the collection must be downloaded again.
+     */
+    static boolean outdatedDefinition(String installed, String bundled) {
+        return bundled != null && !bundled.equals(installed);
+    }
 
     private final PresetFacets facets;
     private final Prefs prefs;
@@ -26,7 +46,8 @@ final class MoodFacetsController {
 
     /**
      * @param outdatedDownload the facet table is missing because the installed official collection
-     *                         was downloaded before collections carried preset attributes
+     *                         was downloaded before collections carried preset attributes, or carries
+     *                         a table built with an older mood definition
      */
     MoodFacetsController(PresetFacets facets, Prefs prefs, Engine engine, SkipList skips, boolean outdatedDownload) {
         this.facets = facets; this.prefs = prefs; this.engine = engine; this.skips = skips;

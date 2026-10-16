@@ -45,6 +45,19 @@ public class MoodFacetsControllerTest {
                 () -> { skipReads++; return skipped; }, outdatedDownload);
     }
 
+    @Test public void installedTablesFromAnotherMoodDefinitionAreOutdated() throws IOException {
+        assertEquals("x", MoodFacetsController.definitionOf(new StringReader(TABLE)));
+        assertNull(MoodFacetsController.definitionOf(new StringReader("#projectm-tv-preset-attributes\t1\n#columns\tname\n#definition\ty\n")));
+        assertNull(MoodFacetsController.definitionOf(new StringReader("")));
+        assertFalse(MoodFacetsController.outdatedDefinition("abc", "abc"));
+        assertTrue(MoodFacetsController.outdatedDefinition("old", "new"));  // e.g. a table without Palette and Main colour
+        assertTrue(MoodFacetsController.outdatedDefinition(null, "new"));   // unreadable or headerless installed table
+        assertFalse(MoodFacetsController.outdatedDefinition("old", null));  // no bundled table to compare with
+        MoodFacetsController outdated = controller(null, true);
+        assertTrue(outdated.outdatedDownload());
+        assertEquals(MoodFacetsController.OUTDATED_DOWNLOAD, outdated.header());
+    }
+
     @Test public void optionCountOfOnlySelectedOptionIsEngineAllCount() {
         store.put("mood_facets", "chill");
         MoodFacetsController c = controller(facets);
