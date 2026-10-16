@@ -646,14 +646,7 @@ corpus simulation as a fresh visual-accuracy audit. The predictor overview links
 to this explanation. No predictor/app/AAR behavior is changed by this guide update.
 
 
-Predictor contract guide publication (2026-10-09): `predictor-export.md` and
-`assets/predictor-export/` copy the documented2026-10-08research checkpoint from
-predictor commit `fdfd09e2`, with download bytes preserved and a main-guide status
-notice. The Predictor navigation links both research direction and export
-reference. Commands on the contract page require the experimental implementation
-branch and prepared inputs; publishing this guide does not merge that engine.
-Validate example/schema/manifest hashes and the strict MkDocs build when changing
-those downloads. The accuracy explanation links this separate export reference.
+Predictor guide (2026-10-16): the Predictor section (`docs/user-guide/predictor.md`, `docs/user-guide/predictor/*.md`, `predictor-export.md`) documents the static analysis behind the shipped moods; the earlier numerical feature-record contract and its `assets/predictor-export/` downloads (2026-10-08 checkpoint, predictor commit `fdfd09e2`) were removed and are referenced only through the repository-history permalink on `predictor-export.md`. Gallery images, clips and frame strips live in `docs/user-guide/images/predictor/`; clips are omitted for presets with 10 or more ruler jumps per 10 s (flashing). Keep guide accuracy figures tied to the shipped model's out-of-fold scoreboard (research branch `docs/superpowers/evidence/facet-readiness-2026-10-15/facet_scoreboard2.py`) and regenerate counts from the static evidence when the table changes. Validate with the strict MkDocs build.
 
 Authored followup final local acceptance (2026-10-09): integrated docs-only mainaf4b520f and retained all33 patch bytes. Isolated seven-workload84-job ABBA verifies672 selected final-output captures against focused witnesses. Largest overall measured added timeRoyal103 +.343ms/+6.96%; other workloads-.190 to+.135ms, with varied cycle deltas. User-approved necessary authored work keeps all five fixes; no physical-TV headroom or summed-percent claim. Fresh clean recursive coreDebug/releaseAPK build at6a016447,206 source-analyzer tests, both production warp GLSL ES3 links and strict MkDocs pass. New PR/current-head GitHub review/CI remain open; do not merge/publish as part of this task. See [combined cost](docs/superpowers/evidence/authored-fidelity-followup/combined-cost/README.md).
 
