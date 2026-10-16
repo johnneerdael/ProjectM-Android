@@ -2,7 +2,7 @@
 
 Upload your own MilkDrop presets and textures to either visualizer from another device on the same network. No file picker, USB stick or storage permission is needed.
 
-In F-Droid editions, your custom pack is separate from the optional Cream of the Crop download. Downloading or removing that collection leaves Custom available. All combines Custom with the currently available starter or full library; the Mood options use that library's measured attributes.
+In F-Droid editions, your custom pack is separate from the optional Cream of the Crop download. Downloading or removing that collection leaves Custom available. All combines Custom with the currently available starter or full library; the Mood options use that library's predicted attributes.
 
 ## Upload a pack
 

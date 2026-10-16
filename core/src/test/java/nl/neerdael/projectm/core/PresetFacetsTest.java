@@ -86,6 +86,22 @@ public class PresetFacetsTest {
         assertArrayEquals(new String[]{"z.milk"}, facets.select(Collections.singletonList("chill"), Collections.emptyList()).presetNames());
     }
 
+    @Test public void bundledTableHasStaticColourGroups() throws IOException {
+        PresetFacets f = PresetFacets.parse(Files.newBufferedReader(Paths.get("src/main/assets/preset-attributes/attributes.tsv"), StandardCharsets.UTF_8));
+        assertEquals(9606, f.presetCount());
+        List<String> ids = new ArrayList<>();
+        for (PresetFacets.Group g : f.groups()) ids.add(g.id);
+        assertEquals(Arrays.asList("energy", "brightness", "colour", "palette", "main_colour", "movement", "style", "comfort"), ids);
+        int red = f.select(Collections.singletonList("red"), Collections.<String>emptyList()).poolSize();
+        int blue = f.select(Collections.singletonList("blue"), Collections.<String>emptyList()).poolSize();
+        int redOrBlue = f.select(Arrays.asList("red", "blue"), Collections.<String>emptyList()).poolSize();
+        assertTrue(red > 0 && blue > 0 && redOrBlue >= Math.max(red, blue) && redOrBlue <= red + blue);  // OR within a group
+        int redAndChill = f.select(Arrays.asList("red", "chill"), Collections.<String>emptyList()).poolSize();
+        assertTrue(redAndChill <= red);  // AND across groups
+        int monochromeRed = f.select(Arrays.asList("monochrome", "red"), Collections.<String>emptyList()).poolSize();
+        assertEquals(0, monochromeRed);  // grey presets carry no palette
+    }
+
     @Test public void malformedInputIsRejected() {
         String[] bad = {"", "#projectm-tv-preset-attributes\t2\n", HEADER + "a.milk\tchill\n", HEADER + "a.milk\tspirals\t1\t1\t1\t1\t1\t1\t1\t1\n",
                         HEADER.replace("#columns", "#group\tenergy\tAgain\n#columns")};

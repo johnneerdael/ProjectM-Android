@@ -20,9 +20,9 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
   <img src="docs/user-guide/images/launch.jpg" alt="ProjectM TV showing a preset, with the playing track's cover, artist and title in the upper left" width="100%">
 </p>
 <p align="center">
-  <img src="docs/user-guide/images/gallery/chill-2.jpg" alt="A calm blue particle preset (Chill)" width="32%">
-  <img src="docs/user-guide/images/gallery/normal-2.jpg" alt="A geometric yellow preset (Normal)" width="32%">
-  <img src="docs/user-guide/images/gallery/intense-3.jpg" alt="A busy, colourful preset (Intense)" width="32%">
+  <img src="docs/user-guide/images/gallery/chill-2.jpg" alt="A calm blue particle preset" width="32%">
+  <img src="docs/user-guide/images/gallery/normal-2.jpg" alt="A geometric yellow preset" width="32%">
+  <img src="docs/user-guide/images/gallery/intense-3.jpg" alt="A busy, colourful preset" width="32%">
 </p>
 
 ## User guide
@@ -32,11 +32,12 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 - **Using the app:** installation on TV or phones, remote and touchscreen controls, audio input, every setting, [preset moods](https://johnneerdael.github.io/ProjectM-Android/predictive-collections/), custom packs, picture quality and troubleshooting.
 - **[ProjectM TV Engine](https://johnneerdael.github.io/ProjectM-Android/engine/):** the patch catalog with before/after proof images and measured benefits, how 4K rendering keeps the authored look (including the resolution-scaling part of [projectM #682](https://github.com/projectM-visualizer/projectm/issues/682)), and how a frame reaches the TV.
 - **[Writing presets](https://johnneerdael.github.io/ProjectM-Android/authoring/):** a source-level guide to how `.milk` presets execute, drawn from MilkDrop 2's code and the analysis of thousands of presets.
+- **[The predictor](https://johnneerdael.github.io/ProjectM-Android/predictor/):** how ProjectM TV reads a preset's source and works out its look without rendering it: the feedback and colour mathematics, the calibration behind the moods, accuracy per option, [predictions next to real renders](https://johnneerdael.github.io/ProjectM-Android/predictor/gallery/), the JSON output, the SDK and the research journal.
 
 ## Highlights
 
 - **9,606 MilkDrop presets** with smooth blends, shuffled within the mood you choose.
-- **Preset mood:** a Mood panel with Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort options, live preset counts and combinable choices, predicted for every bundled preset by static analysis of its source (no rendering); some presets are deliberately left without an option where the prediction is not confident.
+- **Preset mood:** a Mood panel with Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort options, live preset counts and combinable choices, predicted for every bundled preset by static analysis of its source (no rendering); some presets are deliberately left without an option where the prediction is not confident. [How it works](https://johnneerdael.github.io/ProjectM-Android/predictor/).
 - **Presets that work as on MilkDrop 2:** equation code MilkDrop tolerated, HLSL its compiler accepted, Direct3D pixel and texel rules, live per-frame waveform and display controls, legacy colour shading and spirals, huge rotations and negative zoom. [Patch catalog](https://johnneerdael.github.io/ProjectM-Android/engine/patches/).
 - **4K without the darkness:** lines, blur and texel steps scale with resolution; Native trails keeps feedback at an authored-scale canvas with sharp native geometry on top.
 - **No freezes at preset changes:** upcoming presets are compiled in the background.
