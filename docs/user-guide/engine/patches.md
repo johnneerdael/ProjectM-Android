@@ -1,23 +1,23 @@
 # Patch catalog
 
-ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus **35 ordered patches** in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
+ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus 35 ordered patches in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
 
-Most patches are about **MilkDrop 2 authenticity**. projectM is a clean-room reimplementation of MilkDrop on OpenGL, and over the years small differences crept in: in how equation code is accepted, how HLSL becomes GLSL, where Direct3D 9 and OpenGL put pixel centres, and which per-frame variables are actually read. Each entry below names what projectM did differently, what MilkDrop 2 does (citing its released source where we checked it), what the patch changes, and the preset that shows it.
+Most patches make the engine behave more like MilkDrop 2. projectM is a clean-room reimplementation of MilkDrop on OpenGL, and over the years small differences crept in: in how equation code is accepted, how HLSL becomes GLSL, where Direct3D 9 and OpenGL put pixel centres, and which per-frame variables are actually read. Each entry below names what projectM did differently, what MilkDrop 2 does (citing its released source where we checked it), what the patch changes, and the preset that shows it.
 
 Two patches deliberately go beyond MilkDrop 2. [0010](#0010-each-preset-keeps-its-own-textures) adds correct behaviour for something MilkDrop never supported: presets whose textures live in different folders. [0005](#0005-blur-ranges-that-cannot-collapse) repairs a MilkDrop 2 typo instead of reproducing it.
 
 !!! info "How the images were made"
-    The images for 0001–0014 come from the [current-patch proof](https://github.com/johnneerdael/ProjectM-TV/pull/55). A preset is rendered by real libprojectM on a GPU-accelerated Android TV emulator: GLES 3.0, frozen audio, seed 12345, a frame/30 clock, frames 0–119, each role captured twice with byte-identical results. *Without* means the full series minus only that patch (a single-patch ablation); *with* is the full series at that recorded 14-patch checkpoint. Images are unbrightened and rendered at 512×288 (some at 256×144) with quad lines and Native trails off. They establish cause and effect for that preset on that GPU. They are not Windows reference renders, and they do not certify every preset or every TV.
+    The images for 0001 to 0014 come from the [current-patch proof](https://github.com/johnneerdael/ProjectM-TV/pull/55). A preset is rendered by real libprojectM on a GPU-accelerated Android TV emulator: GLES 3.0, frozen audio, seed 12345, a frame/30 clock, frames 0 to 119, each role captured twice with byte-identical results. *Without* means the full series minus only that patch (a single-patch ablation); *with* is the full series at that recorded 14-patch checkpoint. Images are unbrightened and rendered at 512×288 (some at 256×144) with quad lines and Native trails off. They establish cause and effect for that preset on that GPU. They are not Windows reference renders, and they do not certify every preset or every TV.
 
 !!! info "Earlier upstream-master comparisons for the audit repairs"
-    The earlier whole-engine pairs in 0017–0033 compare **unmodified upstream master [`e98fca85`](https://github.com/projectM-visualizer/projectm/commit/e98fca85e57802d27a6d11499642de2a1d5e994e)** with **ProjectM TV [`8a15996e`](https://github.com/johnneerdael/ProjectM-TV/commit/8a15996e8510533113a44e26feaddc3a7d6e85f5), all 34 patches**. These are new native Apple M4 Pro GPU captures: OpenGL 4.1 over Metal, matching preset bytes, fixed float32 mono audio, seed 12345, 48×32 mesh and 30 Hz clock. Every RGB frame repeats byte for byte within each role, with no reported GL errors. Originals run 480 frames; small supplementary diagnostics and 4K pairs run 240. Each caption identifies actual dimensions and the selected frame.
+    The earlier whole-engine pairs in 0017 to 0033 compare unmodified upstream master [`e98fca85`](https://github.com/projectM-visualizer/projectm/commit/e98fca85e57802d27a6d11499642de2a1d5e994e) with ProjectM TV [`8a15996e`](https://github.com/johnneerdael/ProjectM-TV/commit/8a15996e8510533113a44e26feaddc3a7d6e85f5) with all 34 patches. They are new native Apple M4 Pro GPU captures: OpenGL 4.1 over Metal, matching preset bytes, fixed float32 mono audio, seed 12345, 48×32 mesh and 30 Hz clock. Every RGB frame repeats byte for byte within each role, with no reported GL errors. Originals run 480 frames; small supplementary diagnostics and 4K pairs run 240. Each caption gives the actual dimensions and the selected frame.
 
-    Both engines use actual output dimensions, classic lines, antialiasing off and TV feedback detail off. **These full-engine pairs include all earlier fixes; they are not single-patch ablations or production Native Standard-trails screenshots.** The linked issue controls establish each repair's cause. These are 18 retained repair IDs; visible effects and measured performance benefits have separate evidence. Synthetic diagnostics are explicitly marked, affected-preset counts remain unconfirmed, and the gamma repair has no demonstrated visible improvement in its isolated original witness; its separate native-M4 benchmark now demonstrates lower rendering cost. Click any image for the lossless full-resolution frame. Matching zooms crop the original browser image without editing its brightness or pixels. [Capture records and reproduction](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/patch-visual-catalog/README.md) include exact identities and limits. Desktop images do not certify Windows/D3D appearance or TV performance.
+    Both engines use actual output dimensions, classic lines, antialiasing off and TV feedback detail off. These full-engine pairs include all earlier fixes, so they are neither single-patch ablations nor production Native Standard-trails screenshots. The linked issue controls establish the cause of each repair. The pairs cover 18 retained repair IDs; visible effects and measured performance benefits have separate evidence. Synthetic diagnostics are marked as such, and affected-preset counts are unconfirmed. The gamma repair has no demonstrated visible improvement in its isolated original witness, but its separate native-M4 benchmark demonstrates lower rendering cost. Click any image for the lossless full-resolution frame. Matching zooms crop the original browser image without editing its brightness or pixels. [Capture records and reproduction](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/patch-visual-catalog/README.md) include exact identities and limits. Desktop images do not certify Windows/D3D appearance or TV performance.
 
 !!! info "Close-ups that isolate each correction"
-    Sections 0021, 0023, 0028, 0030, 0032 and 0033 now lead with **real-preset close-ups at native 3840×2160**. The left panel disables only the named repair; the right enables it. All other patches, preset bytes, frozen audio, seed and clock match. These Apple M4 Pro GPU captures use the Native Standard profile: 1280×720 line/shader reference, antialiasing enabled and feedback detail 0. Each selected RGB frame repeats exactly in two runs, with no reported GL errors. Read the caption for the feature to inspect; click a close-up for its unchanged full frame.
+    Sections 0021, 0023, 0028, 0030, 0032 and 0033 lead with close-ups of real presets at native 3840×2160. The left panel disables only the named repair and the right panel enables it. All other patches, preset bytes, frozen audio, seed and clock match. These Apple M4 Pro GPU captures use the Native Standard profile: 1280×720 line/shader reference, antialiasing enabled and feedback detail 0. Each selected RGB frame repeats exactly in two runs, with no reported GL errors. Each caption names the feature to look at; click a close-up for its unchanged full frame.
 
-    The earlier **upstream-master versus complete TV-engine comparisons remain available** inside each section. They include several fixes and use a different rendering profile, so their overall brightness cannot identify the effect of an individual repair. [Isolated capture records and reproduction](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/patch-proof-clarity/README.md) distinguish those comparisons. Desktop images establish these witnesses, not physical-TV performance or Windows pixel identity.
+    The earlier comparisons of upstream master with the complete TV engine are still inside each section. They include several fixes and use a different rendering profile, so their overall brightness cannot identify the effect of an individual repair. [Isolated capture records and reproduction](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/patch-proof-clarity/README.md) distinguish those comparisons. Desktop images establish these witnesses, not physical-TV performance or Windows pixel identity.
 
 ## At a glance
 
@@ -67,41 +67,41 @@ The largest patch consolidates 27 historical patches from the projectM 4.1.7 era
 
 ### Equation code is loaded like MilkDrop
 
-**projectM:** a compile error in *any* equation block aborts the whole preset. Upstream 4.2 refuses to load `161.milk` (`[PerFrameContext] Could not compile per-frame code: syntax error`).
+In projectM, a compile error in *any* equation block aborts the whole preset. Upstream 4.2 refuses to load `161.milk` (`[PerFrameContext] Could not compile per-frame code: syntax error`).
 
-**MilkDrop 2:** `CState::StripLinefeedCharsAndComments` and `CState::RecompileExpressions` (`state.cpp`) join numbered lines, strip comments, and simply *leave out* a block that still fails to compile.
+MilkDrop 2's `CState::StripLinefeedCharsAndComments` and `CState::RecompileExpressions` (`state.cpp`) join numbered lines, strip comments and *leave out* a block that still fails to compile.
 
-**ProjectM TV:** code the evaluator accepts is untouched. Rejected code is retried once in MilkDrop's form: numbered records joined, `//` and `\\` comments removed, and a `;` inside parentheses with no following operand read as a space (as NS-EEL does). A block that still fails is left out:
+ProjectM TV leaves code that the evaluator accepts untouched. It retries rejected code once in MilkDrop's form: numbered records joined, `//` and `\\` comments removed, and a `;` inside parentheses with no following operand read as a space (as NS-EEL does). A block that still fails is left out:
 
 - failed preset init leaves `q` variables at 0;
 - failed wave/shape init leaves `t` variables at 0;
 - failed per-frame, per-pixel or per-point code does not run.
 
-Only a *parse* error in the file fails the load. Each omission is logged as `Preset code left out (<preset>): <reason> (line N, column M)`. Source inventory: 62 bundled presets had raw equation code projectM rejected.
+Only a *parse* error in the file fails the load. Each omission is logged as `Preset code left out (<preset>): <reason> (line N, column M)`. In the source inventory, 62 bundled presets had raw equation code that projectM rejected.
 
 ### Shader samplers and random textures
 
-- **`sampler_state` blocks** no longer break the shader. projectM stripped them only from a search copy, so `shader_body` was replaced at the wrong offset and the stage fell back to a default shader (51 bundled presets, for example `ORB - Arctic Chill`). The block fields are still ignored, as in projectM: the sampler *name* prefix chooses filtering and wrap.
-- **Warp texture unit 0** is reserved for the unqualified main sampler, so named point/clamp/wrap aliases keep their requested modes.
-- **Random textures `rand00`–`rand15`**: each alias now gets its requested sampler mode and filename filter (`pc_rand00_red`), and the emitted short alias binds the same texture unit. ProjectM TV also keeps one image per slot for the whole preset load, shared by the warp and composite shaders and kept across shader reloads. That sharing is **not** MilkDrop 2 behaviour: MilkDrop chooses separately for each shader (`plugin.cpp:2927`). See [Textures](../authoring/textures.md#random-textures-rand00-to-rand15).
+- `sampler_state` blocks no longer break the shader. projectM stripped them only from a search copy, so `shader_body` was replaced at the wrong offset and the stage fell back to a default shader (51 bundled presets, for example `ORB - Arctic Chill`). The block fields are still ignored, as in projectM: the sampler *name* prefix chooses filtering and wrap.
+- Warp texture unit 0 is reserved for the unqualified main sampler, so named point/clamp/wrap aliases keep their requested modes.
+- Each random-texture alias from `rand00` to `rand15` gets its requested sampler mode and filename filter (`pc_rand00_red`), and the emitted short alias binds the same texture unit. ProjectM TV also keeps one image per slot for the whole preset load, shared by the warp and composite shaders and kept across shader reloads. MilkDrop 2 does not share them: it chooses separately for each shader (`plugin.cpp:2927`). See [Textures](../authoring/textures.md#random-textures-rand00-to-rand15).
 
 ### Rendering state
 
-- **Blur framebuffer ownership.** Allocating blur textures unbinds the read and draw targets. projectM saved the bindings *after* allocation, so when a warp shader sampled blur, the waves and borders drawn next went to framebuffer 0. Witness: `midgitstraights of majillaen - featy sweet.milk`. On Mali the error is silent, because framebuffer 0 is a valid target.
-- **Fresh feedback** starts as transparent black instead of undefined memory.
-- **A resize keeps history.** Old colour contents are scaled into new textures, so a resolution change does not restart every feedback preset.
+- Allocating blur textures unbinds the read and draw targets. projectM saved the framebuffer bindings *after* allocation, so when a warp shader sampled blur, the waves and borders drawn next went to framebuffer 0. Witness: `midgitstraights of majillaen - featy sweet.milk`. On Mali the error is silent, because framebuffer 0 is a valid target.
+- Fresh feedback starts as transparent black instead of undefined memory.
+- A resize keeps history: old colour contents are scaled into the new textures, so a resolution change does not restart every feedback preset.
 
 ### Resolution independence and Native trails
 
-Quad lines, reference-scaled blur and wave counts, virtual `texsize` and Native trails, which address the resolution-scaling part of projectM issue [#682](https://github.com/projectM-visualizer/projectm/issues/682) (the round joins and caps it suggests are not implemented). They are explained on their own page: [Rendering MilkDrop at 4K](resolution.md).
+0001 also adds quad lines, reference-scaled blur and wave counts, virtual `texsize` and Native trails. These address the resolution-scaling part of projectM issue [#682](https://github.com/projectM-visualizer/projectm/issues/682); the round joins and caps it suggests are not implemented. [Rendering MilkDrop at 4K](resolution.md) explains them.
 
 ### TV performance work
 
-Program-binary and translated-GLSL caches for background prewarming, batched custom-shape uploads, a texture pool, an outgoing-preset frame divisor for blends, and tile-GPU framebuffer invalidation. See [How a frame reaches your TV](pipeline.md). Historical speedups were measured on the 4.1.7 engine and are not claimed for 4.2.
+The patch also carries program-binary and translated-GLSL caches for background prewarming, batched custom-shape uploads, a texture pool, an outgoing-preset frame divisor for blends, and tile-GPU framebuffer invalidation; see [How a frame reaches your TV](pipeline.md). The historical speedups were measured on the 4.1.7 engine and are not claimed for 4.2.
 
 ### GLES 3.0
 
-Unmodified upstream at the pin requires GLES 3.2. 0001 admits GLES 3.0, which most TV boxes provide. Observed upstream master `e98fca85` has since made the same change.
+Unmodified upstream at the pin requires GLES 3.2. 0001 admits GLES 3.0, which most TV boxes provide. Upstream master, as observed at `e98fca85`, has since made the same change.
 
 ## 0002 — HLSL compatibility and exact float literals
 
@@ -119,41 +119,45 @@ MilkDrop 2 compiled preset shaders with Microsoft's HLSL compiler. projectM tran
 | Plain uninitialized globals (`float mus;`) | Undefined GLSL globals | External inputs that read 0 (the D3D9 compiler treated them as constants) |
 | Float literals such as `4194304.0` | Printed with 6 significant digits (`4.1943e+06` = 4194300) | Exact float32 round trip; nonfinite literals fail the stage instead of becoming an identifier named `inf` |
 
-In an earlier corpus pass over 15,576 authored shaders, historical patches 0030–0032 (now split between 0001 and 0002) made 102 more shaders compile and lost none.
+In an earlier corpus pass over 15,576 authored shaders, historical patches 0030 to 0032 (now split between 0001 and 0002) made 102 more shaders compile and lost none.
 
 ## 0003 — Evaluator: lone dot and per-thread random
 
 ![Synthetic lone-dot fixture: upstream rejects it, without 0003 the block is dropped, with 0003 it runs](../images/patches/0003-lone-dot-v2.jpg)
 
-**Lone `.`** NS-EEL accepts `.` as a number (0). projectm-eval requires a digit, so `zoom=zoom+.10*sin(rad+.+15.15)` is a syntax error. Upstream rejects the Stahlregen *funky Blur* presets entirely. With 0001 alone their per-pixel block is dropped; removing only 0003 changes 120 of 120 frames of the unchanged preset. The image shows a synthetic fixture that makes the effect easy to see: the dropped block changes the wave colour. With 0003 the block runs as on MilkDrop. Seven bundled presets use the construction.
+NS-EEL accepts a lone `.` as a number (0). projectm-eval requires a digit, so `zoom=zoom+.10*sin(rad+.+15.15)` is a syntax error. Upstream rejects the Stahlregen *funky Blur* presets entirely. With 0001 alone their per-pixel block is dropped; removing only 0003 changes 120 of 120 frames of the unchanged preset. The image uses a synthetic fixture in which the dropped block changes the wave colour, which is easier to see. With 0003 the block runs as on MilkDrop. Seven bundled presets use the construction.
 
-**Per-thread `rand()`.** The evaluator's Mersenne Twister state was process-wide. ProjectM TV compiles upcoming presets on a background thread, so that work could advance the live preset's random stream. Each thread now has its own fixed-seed stream; the algorithm is unchanged.
+The evaluator's Mersenne Twister state for `rand()` was process-wide. ProjectM TV compiles upcoming presets on a background thread, so that work could advance the live preset's random stream. Each thread now has its own fixed-seed stream; the algorithm is unchanged.
 
 ## 0004 — Textured shapes sample with wrap and bilinear filtering
 
 ![widest swing.milk with and without 0004](../images/patches/0004-sampler.jpg)
 
-**projectM:** a custom shape with `textured=1` bound the main texture but inherited whatever sampler object was left on unit 0 (clamp, or nearest after the first instance). **MilkDrop 2** restores wrap/linear sampler state after the warp shader (`RestoreShaderParams`), but on frames where it computes blur levels, the blur passes then set unit 0 back to clamp (`milkdropfs.cpp:1611`) and nothing resets it before `DrawCustomShapes()`. So MilkDrop's textured shapes wrap on frames without blur and clamp on frames with blur. **ProjectM TV** gives every main-textured fill its own repeat/linear sampler, including geometry replayed for Native trails. That removes projectM's unpredictable nearest/clamp mix, but for presets that use blur it wraps where MilkDrop 2 clamps. Removing only 0004 changes 119 of 120 frames of `widest swing.milk`.
+In projectM, a custom shape with `textured=1` bound the main texture but inherited whatever sampler object was left on unit 0 (clamp, or nearest after the first instance).
+
+MilkDrop 2 restores wrap/linear sampler state after the warp shader (`RestoreShaderParams`). On frames where it computes blur levels, the blur passes then set unit 0 back to clamp (`milkdropfs.cpp:1611`), and nothing resets it before `DrawCustomShapes()`. MilkDrop's textured shapes therefore wrap on frames without blur and clamp on frames with blur.
+
+ProjectM TV gives every main-textured fill its own repeat/linear sampler, including geometry replayed for Native trails. That removes projectM's unpredictable nearest/clamp mix, but for presets that use blur it wraps where MilkDrop 2 clamps. Removing only 0004 changes 119 of 120 frames of `widest swing.milk`.
 
 ## 0005 — Blur ranges that cannot collapse
 
 ![Julia fractal Jelly with a collapsed and a valid blur range](../images/patches/0005-clear-original.jpg)
 
-`blur1_min`…`blur3_max` define the colour range stored in each blur texture. **MilkDrop 2** `CPlugin::GetSafeBlurMinMax` (`milkdropfs.cpp` 1551–1583) tries to push a too-narrow interval (`max − min < 0.1`) apart, but a typo sets *both* bounds to `avg − 0.05`, collapsing it. projectM reproduces the collapse, and the decode divides by zero.
+`blur1_min`…`blur3_max` define the colour range stored in each blur texture. MilkDrop 2's `CPlugin::GetSafeBlurMinMax` (`milkdropfs.cpp` 1551-1583) tries to push a too-narrow interval (`max − min < 0.1`) apart, but a typo sets *both* bounds to `avg − 0.05`, collapsing it. projectM reproduces the collapse, and the decode divides by zero.
 
-**ProjectM TV** expands the upper bound upward, keeps the clamp-then-expand order, and falls back to a coherent 0–1 range for nonfinite or unrepresentable inputs. This **deliberately differs from MilkDrop 2** where MilkDrop produced a degenerate blur. `flexi - a julia fractal for hexcollie embossed (Jelly)` sets blur3 to 0.49–0.52 after blur2 0.78–0.91. Without 0005 it is darker, with altered embossing (frame 59 MAE 38.5). For other witnesses, such as `Cope - The Cloud`, the repair changes nothing visible.
+ProjectM TV expands the upper bound upward, keeps the clamp-then-expand order, and falls back to a coherent 0 to 1 range for nonfinite or unrepresentable inputs. Where MilkDrop produced a degenerate blur, this deliberately differs from MilkDrop 2. `flexi - a julia fractal for hexcollie embossed (Jelly)` sets blur3 to 0.49-0.52 after blur2 0.78-0.91. Without 0005 it is darker, with altered embossing (frame 59 MAE 38.5). For other witnesses, such as `Cope - The Cloud`, the repair changes nothing visible.
 
 ## 0006 — Negative zoom mirrors
 
 ![Hexcollie - This is where we begin stripped with and without 0006](../images/patches/0006-zoom.jpg)
 
-**MilkDrop 2** computes the zoom on the CPU: `powf(fZoom, powf(fZoomExp, rad*2-1))` (`milkdropfs.cpp` 1877). With `zoomexp = 1`, a negative zoom stays negative and reflects the image through the warp centre. **projectM** evaluates `pow` in GLSL, which is undefined for a negative base: 3,234 NaN UV components per frame for the witness. **Patch0006** uses the signed value when the authored exponent is exactly 1. [0015](#0015-negative-warp-powers-use-milkdrop-cpu-maths) extends the CPU calculation to other negative nested powers; fractional-domain appearance remains unresolved.
+MilkDrop 2 computes the zoom on the CPU: `powf(fZoom, powf(fZoomExp, rad*2-1))` (`milkdropfs.cpp` 1877). With `zoomexp = 1`, a negative zoom stays negative and reflects the image through the warp centre. projectM evaluates `pow` in GLSL, which is undefined for a negative base; the witness gets 3,234 NaN UV components per frame. Patch 0006 uses the signed value when the authored exponent is exactly 1. [0015](#0015-negative-warp-powers-use-milkdrop-cpu-maths) extends the CPU calculation to other negative nested powers; fractional-domain appearance remains unresolved.
 
 ## 0007 — Per-frame waveform controls
 
 ![Hexcollie wormhole2 with and without live wave_mode](../images/patches/0007-wormhole-visible.jpg)
 
-**projectM** read `wave_mode`, `wave_usedots`, `wave_thick` and `wave_additive` from the preset file only; per-frame changes were ignored. **MilkDrop 2** reads the evaluated value every frame: `(int)(*var_pf_wave_mode) % NUM_WAVES` (`milkdropfs.cpp` 2852). **ProjectM TV** consumes the evaluated values and rebuilds the wave when the mode changes. The witness sets `wave_mode=q8%7` per frame; without 0007, 135,296 of 147,456 pixels differ at frame 29.
+projectM read `wave_mode`, `wave_usedots`, `wave_thick` and `wave_additive` from the preset file only and ignored per-frame changes. MilkDrop 2 reads the evaluated value every frame: `(int)(*var_pf_wave_mode) % NUM_WAVES` (`milkdropfs.cpp` 2852). ProjectM TV consumes the evaluated values and rebuilds the wave when the mode changes. The witness sets `wave_mode=q8%7` per frame; without 0007, 135,296 of 147,456 pixels differ at frame 29.
 
 projectM has 16 waveform modes, MilkDrop 2 has 8. The value wraps modulo 16 here and modulo 8 on MilkDrop 2, so `wave_mode=9` is mode 1 on Windows and projectM's mode 9 here. Negative remainders draw nothing.
 
@@ -161,7 +165,9 @@ projectM has 16 waveform modes, MilkDrop 2 has 8. The value wraps modulo 16 here
 
 ![Synthetic equation-only invert control](../images/patches/0008-display-invert.jpg)
 
-`gamma`, `echo_alpha`, `echo_zoom`, `echo_orient`, `brighten`, `darken`, `solarize` and `invert` are per-frame variables in **MilkDrop 2** (`milkdropfs.cpp` 527–540). **projectM** used only the preset file's values, and allocated the filters only when the file's default was on, so a preset could never switch one on from code. **ProjectM TV** reads them every frame, with MilkDrop's order (brighten, darken, solarize, invert), clamps (gamma 0–8, echo zoom 0.001–1000) and echo orientation modulo 4. MilkDrop 2 uses the evaluated values for presets without a composite shader (composite version 0). For shader-version presets without `comp_` code it bakes the file values into a generated shader; ProjectM TV uses the evaluated values for every built-in composite. Neither applies these effects with a custom composite shader. The tested original witness (`idiot - Forty Six and 2`) did not activate the difference under the proof audio, so the image shows a synthetic equation-only control.
+`gamma`, `echo_alpha`, `echo_zoom`, `echo_orient`, `brighten`, `darken`, `solarize` and `invert` are per-frame variables in MilkDrop 2 (`milkdropfs.cpp` 527-540). projectM used only the preset file's values and allocated the filters only when the file's default was on, so a preset could never switch one on from code. ProjectM TV reads them every frame, with MilkDrop's order (brighten, darken, solarize, invert), clamps (gamma 0 to 8, echo zoom 0.001 to 1000) and echo orientation modulo 4.
+
+MilkDrop 2 uses the evaluated values for presets without a composite shader (composite version 0). For shader-version presets without `comp_` code it bakes the file values into a generated shader; ProjectM TV uses the evaluated values for every built-in composite. Neither applies these effects with a custom composite shader. The tested original witness (`idiot - Forty Six and 2`) did not activate the difference under the proof audio, so the image shows a synthetic equation-only control.
 
 ## 0009 — Premultiplied user textures
 
@@ -173,31 +179,31 @@ ProjectM TV's releases based on projectM 4.1.7 loaded images with SOIL2 and prem
 
 ![Aurora SOL/LUNA packs: upstream swaps the outgoing emblem; patched keeps it](../images/patches/0010-aurora-ownership.jpg)
 
-This is where ProjectM TV Engine deliberately goes beyond MilkDrop 2. MilkDrop read every texture from one folder, so the question of *which* folder a preset's images come from never arose. [Custom packs](../custom-packs.md) introduce exactly that: a pack's presets prefer the pack's own images, with the bundled textures as fallback. Upstream projectM has one global texture search path, and changing it reloads every texture. During a blend from pack A to pack B, a same-named image in the outgoing preset would therefore switch to B's file.
+Here ProjectM TV Engine deliberately goes beyond MilkDrop 2. MilkDrop read every texture from one folder, so the question of *which* folder a preset's images come from never arose. [Custom packs](../custom-packs.md) raise that question: a pack's presets prefer the pack's own images, with the bundled textures as fallback. Upstream projectM has one global texture search path, and changing it reloads every texture. During a blend from pack A to pack B, a same-named image in the outgoing preset would therefore switch to B's file.
 
-With 0010, each preset keeps the texture paths it was loaded with until it retires: an added per-preset lookup contract for a situation MilkDrop did not support. In the test, two packs created with the predictor tools each use the same image name. Upstream swaps SOL's orange emblem for LUNA's blue at frame 20; ProjectM TV keeps SOL's.
+With 0010, each preset keeps the texture paths it was loaded with until it retires. This per-preset lookup contract is an addition for a situation MilkDrop did not support. In the test, two packs created with the predictor tools each use the same image name. Upstream swaps SOL's orange emblem for LUNA's blue at frame 20; ProjectM TV keeps SOL's.
 
 ## 0011 — Huge rotation values
 
 ![Rotation witness: upstream fails to load; ProjectM TV renders](../images/patches/0011-rotation.jpg)
 
-**MilkDrop 2** converts `rot` to float and computes `sinf`/`cosf` on the CPU (`milkdropfs.cpp` 1813, 1905–1906). **projectM** computes them in the vertex shader. On the observed GLES driver, `sin`/`cos` of ±10,000,000 both returned 0, collapsing the feedback to the rotation centre. ProjectM TV computes them on the CPU after float conversion, valid up to `FLT_MAX`. The witness uses per-pixel `rot=10000000`; upstream additionally fails to load it, because of a shape equation that 0001 handles. Large-argument trig inside your *own* shader code is still driver-dependent.
+MilkDrop 2 converts `rot` to float and computes `sinf`/`cosf` on the CPU (`milkdropfs.cpp` 1813, 1905-1906). projectM computes them in the vertex shader. On the observed GLES driver, `sin`/`cos` of ±10,000,000 both returned 0, collapsing the feedback to the rotation centre. ProjectM TV computes them on the CPU after float conversion, valid up to `FLT_MAX`. The witness uses per-pixel `rot=10000000`; upstream additionally fails to load it, because of a shape equation that 0001 handles. Large-argument trig inside your *own* shader code is still driver-dependent.
 
 ## 0012 — Tiny shapes land on the right pixels
 
 ![Green machine btbam: pink/brown wedges without 0012, green/yellow structure with it](../images/patches/0012-visible-original.jpg)
 
-Direct3D 9 samples integer pixel centres; OpenGL samples half-integers. **MilkDrop 2** `DrawCustomShapes` (`milkdropfs.cpp` 2298) places shapes in D3D9 coordinates, so a shape with `rad=.002` at `x=y=.5` covers one pixel under the Direct3D 9 rasterization rules and zero pixels in projectM. Feedback presets that seed their image with many tiny shapes lose them entirely. ProjectM TV shifts shape fills and outlines by half a destination pixel per render target. Equations, radii, colours and UVs are unchanged. In `amandio c - the green machine 2 skin lard bone beacon nz+ btbam covers sepultura.milk`, 34,365 of 36,864 pixels differ by more than 16 at frame 59.
+Direct3D 9 samples integer pixel centres; OpenGL samples half-integers. MilkDrop 2's `DrawCustomShapes` (`milkdropfs.cpp` 2298) places shapes in D3D9 coordinates, so a shape with `rad=.002` at `x=y=.5` covers one pixel under the Direct3D 9 rasterization rules and zero pixels in projectM. Feedback presets that seed their image with many tiny shapes lose them entirely. ProjectM TV shifts shape fills and outlines by half a destination pixel per render target. Equations, radii, colours and UVs are unchanged. In `amandio c - the green machine 2 skin lard bone beacon nz+ btbam covers sepultura.milk`, 34,365 of 36,864 pixels differ by more than 16 at frame 59.
 
 ## 0013 — Composite reads the exact feedback texel
 
 ![DemonLD Toxic water with and without the composite half-texel bias](../images/patches/0013-visible-original.jpg)
 
-**MilkDrop 2** `plugin.cpp` shifts the composite grid by −½ pixel (the D3D9 convention) and keeps the UVs. **projectM**'s GL mesh is already unbiased, yet it *also* added +½ texel to the UVs, so every `tex2D(sampler_main, uv)` in a custom composite read between four texels. That is a hidden 2×2 blur: a single 255 feedback texel became four pixels of 64. ProjectM TV removes the redundant bias. In `DemonLD_-_Toxic_water_diffusion …` the bugged window was about 18% brighter at frame 59 (mean luma 57.0 against 48.4). The fix does not always darken a preset; it removes the blur.
+In MilkDrop 2, `plugin.cpp` shifts the composite grid by −½ pixel (the D3D9 convention) and keeps the UVs. projectM's GL mesh is already unbiased, yet it *also* added +½ texel to the UVs, so every `tex2D(sampler_main, uv)` in a custom composite read between four texels. That is a hidden 2×2 blur: a single 255 feedback texel became four pixels of 64. ProjectM TV removes the redundant bias. In `DemonLD_-_Toxic_water_diffusion …` the bugged window was about 18% brighter at frame 59 (mean luma 57.0 against 48.4). The fix removes the blur, which does not always darken a preset.
 
 ## 0014 — Legacy colour shading and mode-1 spirals
 
-Three differences in the classic (non-shader) rendering path, found while investigating why a preset looked darker than expected (`milkdropfs.cpp` 2927–2946, 3359–3365, 4117–4144):
+The patch corrects three differences in the classic (non-shader) rendering path, found while investigating why a preset looked darker than expected (`milkdropfs.cpp` 2927-2946, 3359-3365, 4117-4144):
 
 | Stage | MilkDrop 2 | projectM | ProjectM TV |
 |---|---|---|---|
@@ -205,7 +211,7 @@ Three differences in the classic (non-shader) rendering path, found while invest
 | Mode-1 waveform opacity | Alpha × 1.25, then volume modulation and clamp | Multiplier missing | Multiplier restored before the clamp |
 | Mode-1 waveform shape | Open line strip | Closed loop with an extra segment | Open, as in MilkDrop |
 
-The witness, `BrainStain- boiling-mix2(redi jedi full carb mix).milk`, can still look sparse and dark after the fix: its video echo shows only a zoomed crop of the image and its darken filter squares the colours, exactly as authored. The investigation also showed that the source predictor shared these mistaken assumptions, so agreement with the predictor is not proof of MilkDrop behaviour. [Evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/brainstain-dark-output/README.md).
+The witness, `BrainStain- boiling-mix2(redi jedi full carb mix).milk`, can still look sparse and dark after the fix: its video echo shows only a zoomed crop of the image and its darken filter squares the colours, as authored. The investigation also showed that the source predictor shared these mistaken assumptions, so agreement with the predictor is not proof of MilkDrop behaviour. [Evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/brainstain-dark-output/README.md).
 
 ## Fixed upstream, dropped from the series
 
@@ -223,17 +229,17 @@ Rebasing onto 4.2 master retired nine historical patches because upstream had al
 | 0022 | Custom waveform out-of-bounds read | in the pin |
 | 0027 | Preset exception diagnostics | in the pin |
 
-projectM **v4.1.8** (tagged 2026-10-06) backports most of these parser and waveform fixes, but not the plasma transition fix. It also uses a newer evaluator commit (`e8c311e`, a float-scanner fix) that our pin does not include; its visible impact is unverified.
+projectM v4.1.8 (tagged 2026-10-06) backports most of these parser and waveform fixes, but not the plasma transition fix. It also uses a newer evaluator commit (`e8c311e`, a float-scanner fix) that our pin does not include; its visible impact is unverified.
 
 ## 0015 — Negative warp powers use MilkDrop CPU maths
 
 ![Defined negative nested-unit, square and cube controls before and after](../images/patches/0015-negative-power.png)
 
-**MilkDrop 2** computes `powf(zoom, powf(zoomexp, rad*2-1))` on CPU after float conversion (`milkdropfs.cpp:1877–1938`). A nested integer exponent can have a finite signed or squared/cubed result even when authored `zoomexp` is not one. **The old GPU branch** returns NaN for these defined controls on the observed GLES backend because GLSL does not define any negative-base `pow`. **ProjectM TV** prepares the negative result on CPU and supplies it through an instance-owned float buffer at attribute 9. Positive zoom keeps its shader path; raw equation values and prepared-mesh replay are unchanged.
+MilkDrop 2 computes `powf(zoom, powf(zoomexp, rad*2-1))` on the CPU after float conversion (`milkdropfs.cpp:1877–1938`). A nested integer exponent can have a finite signed or squared/cubed result even when the authored `zoomexp` is not one. On the observed GLES backend, the old GPU branch returns NaN for these defined controls because GLSL does not define any negative-base `pow`. ProjectM TV prepares the negative result on CPU and supplies it through an instance-owned float buffer at attribute 9. Positive zoom keeps its shader path; raw equation values and prepared-mesh replay are unchanged.
 
 These separate proof images use full published v2.3.25 and candidate AARs at 256×144, 48×32 mesh, 30 frozen frames and the same mono PCM/clock/seed on API 34/Apple M4 Pro/GLES3. Named diagnostic copies activate nested exponents 1/2/3 at selected vertices; constant blue 64 verifies their custom warp/composite programs. They are not the 120-frame single-patch ablations described above. Direct UV controls fail before/pass after, and real-mesh controls check values, NaNs, resize and replay. The buffer adds four bytes per vertex and nonunit negative vertices need two CPU powers; performance is unmeasured.
 
-The exact **Great Tulip Majesty (txtr wrap)** witness has 33 fractional-domain NaNs per frame in both the original CPU expression and GPU path. Its30-frame original/repeat AAR replay is byte-identical after this correction. NaN/Inf are retained, with no epsilon or absolute-value substitution. Invalid interpolation and sampling observations are backend-bound, so the source predictor's unresolved guard remains appropriate. [Source, IEEE bits and capture evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/tulip-negative-zoom-power/README.md).
+The exact Great Tulip Majesty (txtr wrap) witness has 33 fractional-domain NaNs per frame in both the original CPU expression and the GPU path. Its 30-frame original/repeat AAR replay is byte-identical after this correction. NaN and Inf are retained, with no epsilon or absolute-value substitution. Observations of invalid interpolation and sampling are backend-bound, so the source predictor's unresolved guard is still appropriate. [Source, IEEE bits and capture evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/tulip-negative-zoom-power/README.md).
 
 ## 0016 — Cached static warp uploads
 
@@ -241,7 +247,7 @@ Static warp coordinates, radius/angle and topology are uploaded only when their 
 
 ## 0017 — Built-in wave opacity
 
-MilkDrop multiplies mode-adjusted alpha by the volume ramp before clamping. Mode3 replaces its starting alpha with the canvas coefficient times 1.3 × treb²; mode1 retains its 1.25 multiplier. Final alpha below .004 skips the draw. Existing Native/reference styles remain. [I17 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I17/README.md).
+MilkDrop multiplies mode-adjusted alpha by the volume ramp before clamping. Mode 3 replaces its starting alpha with the canvas coefficient times 1.3 × treb²; mode 1 keeps its 1.25 multiplier. A final alpha below .004 skips the draw. Existing Native/reference styles are unchanged. [I17 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I17/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I17-4k-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I17-4k-upstream.png" alt="Happening.milk — Before · upstream master" width="3840" height="2160" loading="lazy"></a></div>
@@ -251,7 +257,7 @@ MilkDrop multiplies mode-adjusted alpha by the volume ramp before clamping. Mode
 
 ## 0018 — Custom wave input windows
 
-Valid custom oscilloscope windows are centered in the480-sample input and the channels shift in opposite directions by sep/2. Invalid original windows retain the safe prefix fallback; oversized requests retain resampling. Spectrum inputs and Native prepared replay remain. [I08 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I08/README.md).
+Valid custom oscilloscope windows are centered in the 480-sample input, and the channels shift in opposite directions by sep/2. Invalid original windows keep the safe prefix fallback, and oversized requests are still resampled. Spectrum inputs and Native prepared replay are unchanged. [I08 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I08/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I08-4k-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I08-4k-upstream.png" alt="Mig_304 - geiss remix 2.milk — Before · upstream master" width="3840" height="2160" loading="lazy"></a></div>
@@ -263,9 +269,9 @@ Valid custom oscilloscope windows are centered in the480-sample input and the ch
 
 ## 0019 — Gamma-only pass count
 
-Gamma-only output uses MilkDrop's original .001 pass-count epsilon; echo redraws retain .0001. At the admitted boundary, I31 removes a fullscreen gamma draw while preserving the checked image. Float diffuse precision, live tint and echo policies remain.
+Gamma-only output uses MilkDrop's original .001 pass-count epsilon; echo redraws keep .0001. At the admitted boundary, I31 removes a fullscreen gamma draw and the checked image stays the same. Float diffuse precision, live tint and echo policies are unchanged.
 
-**Proven benefit: lower rendering cost with unchanged checked images.** An isolated 3840×2160 benchmark compares the full engine with its exact 0019 ablation on the Apple M4 Pro. In the Standard profile:
+The proven benefit is lower rendering cost with unchanged checked images. An isolated 3840×2160 benchmark on the Apple M4 Pro compares the full engine with its exact 0019 ablation. In the Standard profile:
 
 | Measurement | Without I31 | With I31 | Reduction |
 |---|---:|---:|---:|
@@ -273,7 +279,7 @@ Gamma-only output uses MilkDrop's original .001 pass-count epsilon; echo redraws
 | GPU elapsed time | 2.307 ms | 1.847 ms | 19.9% |
 | Completed-frame time | 2.704 ms | 2.241 ms | 17.1% |
 
-All eight balanced blocks favor I31. The gamma-2.0 inactive control retains two draws and its GPU/completed-frame intervals include zero change. Separate frames 119, 239 and 479 are RGB-identical across roles and repeats in both tested profiles. These are rendering-cost measurements, not app FPS; TV gains depend on its bottlenecks and remain unmeasured. [Full benefit proof and replay](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/i31-benefit/README.md) · [Historical I31 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I31/README.md).
+All eight balanced blocks favor I31. The gamma-2.0 inactive control keeps two draws, and its GPU/completed-frame intervals include zero change. Separate frames 119, 239 and 479 are RGB-identical across roles and repeats in both tested profiles. These are rendering-cost measurements, not app FPS. Gains on a TV depend on its bottlenecks and are unmeasured. [Full benefit proof and replay](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/i31-benefit/README.md) · [Historical I31 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I31/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I31-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I31-upstream.png" alt="suksma - type o negative - world coming down.milk — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -283,7 +289,7 @@ All eight balanced blocks favor I31. The gamma-2.0 inactive control retains two 
 
 ## 0020 — Named EEL constants
 
-Named pi/e/phi decimals enter the double evaluator without intermediate float rounding. The original abbreviated e/phi decimals, later geometry/shader casts and RNG remain. [I09 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I09/README.md).
+Named pi/e/phi decimals enter the double evaluator without intermediate float rounding. The original abbreviated e/phi decimals, later geometry/shader casts and RNG are unchanged. [I09 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I09/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I09-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I09-upstream.png" alt="audit pi precision.milk (synthetic) — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -356,7 +362,7 @@ Presets keep the spatial scale and custom-wave colour rhythm their equations des
 
 ## 0022 — Negative odd echo orientation
 
-Finite negative odd echo orientations flip horizontally using the original signed nonzero-remainder test. Modulo4, vertical flip, zoom/mix, tint and gamma remain. [I29 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I29/README.md).
+Finite negative odd echo orientations flip horizontally using the original signed nonzero-remainder test. Modulo 4, vertical flip, zoom/mix, tint and gamma are unchanged. [I29 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I29/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I29-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I29-upstream.png" alt="audit negative echo.milk (synthetic) — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -366,7 +372,7 @@ Finite negative odd echo orientations flip horizontally using the original signe
 
 ## 0023 — Legacy oscillator Y
 
-Legacy feedback curls in the direction described by MilkDrop’s original coordinate system. The correction restores that direction in the built-in and fallback warp; custom warp shaders keep their existing coordinates. [I10 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I10/README.md).
+Legacy feedback curls in the direction described by MilkDrop's original coordinate system. The correction restores that direction in the built-in and fallback warp; custom warp shaders keep their existing coordinates. [I10 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I10/README.md).
 
 
 
@@ -393,7 +399,7 @@ Legacy feedback curls in the direction described by MilkDrop’s original coordi
 
 ## 0024 — Legacy mesh diagonal
 
-Legacy warp triangles use the original physical diagonal. Custom topology and same-size static upload caching remain. [I11 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I11/README.md).
+Legacy warp triangles use the original physical diagonal. Custom topology and same-size static upload caching are unchanged. [I11 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I11/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I11-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I11-upstream.png" alt="07.milk — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -403,7 +409,7 @@ Legacy warp triangles use the original physical diagonal. Custom topology and sa
 
 ## 0025 — Legacy per-pixel traversal
 
-Legacy stateful per-pixel equations visit physical rows in the original order. Custom traversal and once-only prepared replay remain. [I12 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I12/README.md).
+Legacy stateful per-pixel equations visit physical rows in the original order. Custom traversal and once-only prepared replay are unchanged. [I12 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I12/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I12-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I12-upstream.png" alt="audit legacy physical traversal.milk (synthetic) — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -413,7 +419,7 @@ Legacy stateful per-pixel equations visit physical rows in the original order. C
 
 ## 0026 — Legacy angle seam
 
-At the exact negative-X axis, legacy equation angles retain the original signed-zero atan2 seam. Off-axis and custom inputs remain; independent CPU trig and actual GPU controls verify the consequence. [I13 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I13/README.md).
+At the exact negative-X axis, legacy equation angles retain the original signed-zero atan2 seam. Off-axis and custom inputs are unchanged. Independent CPU trig and actual GPU controls verify the consequence. [I13 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I13/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I13-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I13-upstream.png" alt="Liquido.milk — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -425,7 +431,7 @@ At the exact negative-X axis, legacy equation angles retain the original signed-
 
 ## 0027 — Wave colour clamp
 
-Local built-in wave RGB is clamped before nonzero brightening. Raw equation values and float colour/alpha submission remain; a separate negative-darken activation is outside this repair. [I18 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I18/README.md).
+Local built-in wave RGB is clamped before nonzero brightening. Raw equation values and float colour/alpha submission are unchanged. A separate negative-darken activation is outside this repair. [I18 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/I18/README.md).
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I18-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I18-upstream.png" alt="Geiss - Blur Mix 3.milk — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -437,7 +443,7 @@ Local built-in wave RGB is clamped before nonzero brightening. Raw equation valu
 
 ## 0028 — Border fan topology
 
-Eight triangle indices restore the original border strip-fan coverage. Current float colour/alpha and Native rendering policies remain. [M02 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/M02/README.md).
+Eight triangle indices restore the original border strip-fan coverage. Current float colour/alpha and Native rendering policies are unchanged. [M02 evidence](https://github.com/johnneerdael/ProjectM-TV/blob/main/docs/superpowers/evidence/milkdrop-audit-repairs/M02/README.md).
 
 
 
@@ -462,7 +468,7 @@ Eight triangle indices restore the original border strip-fan coverage. Current f
 
 ## 0029 — Original line sample caps
 
-Line modes4/6/7 use their original raw sample budgets, capped by one third of the reference-equivalent width with a two-point safety floor. Native/reference scaling and extended modes remain. This can substantially change feedback brightness, as in Royal103; brightness relative to the previous build alone does not establish authored Windows appearance.
+Line modes 4/6/7 use their original raw sample budgets, capped by one third of the reference-equivalent width with a two-point safety floor. Native/reference scaling and extended modes are unchanged. The cap can substantially change feedback brightness, as in Royal 103. Brightness relative to the previous build does not by itself establish authored Windows appearance.
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I19-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I19-upstream.png" alt="$$$ Royal - Mashup (103).milk — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -478,7 +484,7 @@ Line modes4/6/7 use their original raw sample budgets, capped by one third of th
 
 ## 0030 — Discrete custom dots
 
-The starfield keeps the points the preset actually authored. Dot mode no longer invents extra stars between those points; ordinary continuous lines still use smoothing. The close-up below keeps three authored dots in view, making the removed extras easy to identify.
+The starfield keeps the points the preset actually authored. Dot mode no longer invents extra stars between those points; ordinary continuous lines still use smoothing. The close-up below includes three authored dots, so the removed extras are easy to pick out.
 
 
 
@@ -513,7 +519,7 @@ The starfield keeps the points the preset actually authored. Dot mode no longer 
 
 ## 0031 — Circle spacing and closure
 
-Circles use the original angular spacing and duplicate the first endpoint before shared smoothing. Native styles, equation execution and the TV transition composition remain.
+Circles use the original angular spacing and duplicate the first endpoint before shared smoothing. Native styles, equation execution and the TV transition composition are unchanged.
 
 <figure class="patch-comparison">
 <div class="patch-panels"><div class="patch-panel"><strong>Before · upstream master</strong><a href="../../images/patches/audit/I20-upstream.png" aria-label="Open full-resolution Before · upstream master image"><img src="../../images/patches/audit/I20-upstream.png" alt="$$$ Royal - Mashup (11).milk — Before · upstream master" width="1280" height="720" loading="lazy"></a></div>
@@ -608,8 +614,8 @@ The full assessment, including upstream contribution notes, is [`docs/UPSTREAM_P
 
 ## 0034 — GLES motion-field storage
 
-Before allocating a float motion map, the engine checks core/extension capability and the actual mixed framebuffer. Contexts without compatible float rendering use required RG16UI storage containing half-float words. Both consumers decode before bilinear interpolation; primary color, dithering and actual fragment clipping remain. Capable RG16F shader paths are unchanged. The correction adds no per-frame capability query or new render exception.
+Before allocating a float motion map, the engine checks core/extension capability and the actual mixed framebuffer. Contexts without compatible float rendering use required RG16UI storage containing half-float words. Both consumers decode before bilinear interpolation. Primary color, dithering and actual fragment clipping are unchanged, and so are capable RG16F shader paths. The correction adds no per-frame capability query or new render exception.
 
 ## 0035 — Program cache switch
 
-A TV-only troubleshooting control, not a rendering change. `projectm_opengl_set_program_cache_enabled(false)` makes every shader program compile and link from source in the context that uses it: no binary-retrievable hint, no `glGetProgramBinary` export, no `glProgramBinary` load, and cached entries are dropped. Turning it off waits for binary calls already running on the background compile thread, so none runs afterwards. Enabled again, the cache starts empty. The default stays enabled, so pictures and timings are unchanged unless **Advanced › Shader binary cache** is turned off. The real-GL `program-cache-switch` control checks the hint and the cache counters on GLES; desktop OpenGL builds have no binary cache.
+This patch adds a TV-only troubleshooting control and does not change rendering. `projectm_opengl_set_program_cache_enabled(false)` makes every shader program compile and link from source in the context that uses it: no binary-retrievable hint, no `glGetProgramBinary` export, no `glProgramBinary` load, and cached entries are dropped. Turning it off waits for binary calls already running on the background compile thread, so none runs afterwards. Enabled again, the cache starts empty. The default stays enabled, so pictures and timings are unchanged unless **Advanced › Shader binary cache** is turned off. The real-GL `program-cache-switch` control checks the hint and the cache counters on GLES; desktop OpenGL builds have no binary cache.

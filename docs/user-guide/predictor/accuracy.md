@@ -1,23 +1,20 @@
 # Accuracy
 
-How often is a mood right? This page gives the numbers, explains how they were measured, and says what they do and do not promise.
+This page gives the measured accuracy of the mood options, how it was measured, and what the figures do not promise.
 
 ## What "right" means
 
-The reference is the **engine ruler**: every bundled preset rendered by the pinned, patched engine at 480×270 for 10 seconds (300 frames at 30 fps) with one synthetic audio track, measured over frames 60–299. Applying the mood rules to the ruler's measurements gives each preset's **true** options. A predicted option is right when the ruler agrees.
+The reference is the **engine ruler**: every bundled preset rendered by the pinned, patched engine at 480×270 for 10 seconds (300 frames at 30 fps) with one synthetic audio track, measured over frames 60 to 299. Applying the mood rules to the ruler's measurements gives each preset's true options, and a predicted option is right when the ruler agrees.
 
-Two numbers describe each option:
+Each option has two numbers. Precision is the share of the presets the analysis put in the option that truly belong. It is what you experience when you select the option: "if I pick Dark, how many of the presets I get are dark?" Recall is the share of the true members that the analysis found, which tells you how complete the pool is.
 
-- **Precision**: of the presets the analysis put in the option, the share that truly belong. This is what you experience when you select it: "if I pick Dark, how many of the presets I get are dark?"
-- **Recall**: of the presets that truly belong, the share the analysis found. This is how complete the pool is.
+The analysis is tuned for precision. Low recall shows up as a smaller pool; it does not mean the presets in the pool are wrong.
 
-The analysis is tuned for precision. Low recall means smaller pools, not wrong presets.
+## Out of fold: numbers for unseen presets
 
-## Out of fold: the honest numbers
+The calibration model was trained on the ruler measurements of the bundled presets, so scoring it on those same presets would flatter it. Every number in this section is out of fold instead: the presets were split into five groups, and each preset was predicted by a model trained only on the other four. These are the numbers to expect for presets the analysis has never seen.
 
-The calibration model was trained on the ruler measurements of the bundled presets. Scoring it on those same presets would flatter it. Every number in this section is therefore **out of fold**: the presets were split into five groups, and each preset was predicted by a model trained only on the other four. These are the numbers to expect for presets the analysis has never seen.
-
-Shipped decision path (value rules, option classifiers with their precision floors, the No strobe gate), 9,516 presets with complete ruler measurements:
+The table covers the shipped decision path (value rules, option classifiers with their precision floors, and the No strobe gate) on the 9,516 presets with complete ruler measurements.
 
 | Group | Option | Precision | Recall | Admitted | True members |
 |---|---|---|---|---|---|
@@ -40,22 +37,17 @@ Shipped decision path (value rules, option classifiers with their precision floo
 
 ### Palette and Main colour
 
-- **Palette** (families with at least 10% of the static palette): finds about **76%** of the colours in the render, and about **71%** of the colours it names are present.
-- **Leading colour**: the palette's leading family is among the render's two most common families **72%** of the time.
-- **Main colour**: when a main colour is claimed, it is the render's top colour **84%** of the time.
-- **Monochrome** (grey presets get no palette): 93% precise.
+The palette lists the colour families that make up at least 10% of the static palette. It finds about 76% of the colours in the render, and about 71% of the colours it names are present. Its leading family is among the render's two most common families 72% of the time. When a main colour is claimed, it is the render's top colour 84% of the time. Grey presets get no palette; Monochrome is 93% precise.
 
 ### No strobe in detail
 
-No strobe is the option where a wrong answer matters most. Out of fold, the gate admitted 641 presets. Ten of them showed one or more brightness jumps per 10 s in the ruler render (at most 7), and **none** showed 10 or more, the level the classifier treats as strobing. The highest score any strobing preset reached was 0.906, below the 0.93 gate. The cost of that strictness is recall: only 13% of calm presets are admitted.
+No strobe is the option where a wrong answer matters most. Out of fold, the gate admitted 641 presets. Ten of them showed one or more brightness jumps per 10 s in the ruler render (at most 7), and none showed 10 or more, the level the classifier treats as strobing. The highest score any strobing preset reached was 0.906, below the 0.93 gate. This strictness costs recall: only 13% of calm presets are admitted.
 
-This is measured with one synthetic audio track. Music with hard transients can trigger flashes the test track did not. **No strobe is a starting point, not a guarantee.**
+These results come from one synthetic audio track, and music with hard transients can trigger flashes the test track did not. **No strobe is not a guarantee.** Treat it as a starting point.
 
 ## In sample: what the shipped table contains
 
-The shipped table is built by the final model, trained on all bundled presets, so for the bundled presets themselves agreement with the ruler is higher than out of fold:
-
-Agreement of the shipped table with the ruler on the 9,606 measured bundled presets:
+The shipped table is built by the final model, which was trained on all bundled presets. On the bundled presets themselves it therefore agrees with the ruler more closely than the out-of-fold figures. Its agreement with the ruler on the 9,606 measured bundled presets:
 
 | Group | Option | Precision | Recall | In the table |
 |---|---|---|---|---|
@@ -76,34 +68,34 @@ Agreement of the shipped table with the ruler on the 9,606 measured bundled pres
 | Comfort | No strobe | 100% | 14% | 712 |
 | **All options** | | **93.3%** | **54.2%** | |
 
-These figures describe how the shipped table relates to the ruler; the out-of-fold figures above describe how reliable the analysis is.
+These figures describe how the shipped table relates to the ruler. The out-of-fold figures above describe how reliable the analysis is.
 
 ## How good can it get?
 
-Two independent measurements of the same presets do not agree perfectly either. Emulator captures (different audio) and the engine ruler, on 84 presets, agreed on Energy 86% of the time, Brightness 81%, Movement 93% and Comfort 92%. Music, randomness and timing change a preset's look from run to run. No prediction can be expected to beat the agreement of two real renders, so these are the practical ceilings.
+Two independent measurements of the same presets do not agree perfectly either. On 84 presets, emulator captures (with different audio) and the engine ruler agreed on Energy 86% of the time, Brightness 81%, Movement 93% and Comfort 92%. Music, randomness and timing change a preset's look from run to run. No prediction can be expected to beat the agreement of two real renders, so these are the practical ceilings.
 
 ## Checkpoints: predictions next to real renders
 
-The table numbers come from statistics. To see whether the analysis *understands* presets, about 400 presets were drawn at random (pre-registered seeds, no rerolling) and checked one by one:
+The table numbers are statistics. To see whether the analysis *understands* presets, about 400 presets were drawn at random (pre-registered seeds, no rerolling) and checked one by one:
 
 1. the analysis described the preset and drew a [prediction image](prediction-images.md), all frozen and hashed before anything was rendered;
 2. the preset was rendered in an emulator with the published core library;
-3. prediction and render were compared: brightness, colour, motion and layout over frames 60–149, plus the description's claims.
+3. prediction and render were compared on brightness, colour, motion and layout over frames 60 to 149, and on the description's claims.
 
-Highlights:
+Results:
 
-- On checkpoints r129–r156, 93% of predictions were within 0.05 of the render's brightness, and the median layout correlation was 0.92.
-- In the batch rounds 15–22 (80 presets), the static Mood options made 214 admissions, 12 of them wrong (94%), and recalled 202 of 378 ruler options (53%). Round 23 made 25 admissions, none wrong. These presets were drawn from the bundle, so the calibration had seen their ruler measurements; read them as a consistency check of the shipped decisions rather than an out-of-fold result.
+- On checkpoints r129 to r156, 93% of predictions were within 0.05 of the render's brightness, and the median layout correlation was 0.92.
+- In batch rounds 15 to 22 (80 presets), the static Mood options made 214 admissions, 12 of them wrong (94%), and recalled 202 of 378 ruler options (53%). Round 23 made 25 admissions, none wrong. These presets were drawn from the bundle, so the calibration had already seen their ruler measurements. The results are a consistency check of the shipped decisions and are not out of fold.
 - Many chaotic presets are predicted frame for frame; see the [gallery](gallery.md).
 
 ## Where the analysis is weak
 
-- **Brightness that builds up over time.** When drawn content accumulates in the feedback loop (magnifying warps that grow a thin line until it fills the screen, slow equilibria), the closed forms can be far off. Out of fold, brightness ranks presets with a correlation of about 0.70: good for ordering, loose for any single preset.
-- **Random colour.** Presets that pick colours or textures at load get a palette of likely colours; the colour you see depends on the draw.
-- **Audio-driven flashes.** Flashing triggered only by loud transients in real music is under-represented in a synthetic test track.
-- **Style.** Style options come from source structure and have no ruler measurement to score against; they are the least certain group.
-- **The middle.** In-between options (Balanced, Drifting, Normal) have the lowest recall: a preset needs strong evidence to be called "in the middle", so most uncertain presets get no option in that group.
+- Brightness that builds up over time. When drawn content accumulates in the feedback loop (magnifying warps that grow a thin line until it fills the screen, or slow equilibria), the closed forms can be far off. Out of fold, brightness ranks presets with a correlation of about 0.70, which is good enough for ordering but loose for any single preset.
+- Random colour. Presets that pick colours or textures at load get a palette of likely colours, and the colour you see depends on the draw.
+- Audio-driven flashes. Flashing triggered only by loud transients in real music is under-represented in a synthetic test track.
+- Style. Style options come from source structure and have no ruler measurement to score against, so they are the least certain group.
+- The middle. In-between options (Balanced, Drifting, Normal) have the lowest recall. A preset needs strong evidence to be called "in the middle", so most uncertain presets get no option in that group.
 
 ## Report a wrong mood
 
-If a preset is in the wrong mood, or has no option where it clearly should, please [report it](../predictive-collections.md#report-a-wrong-mood). Reports become checkpoints: the miss is analysed, the missing mechanism fixed for all presets, and the whole corpus re-checked.
+If a preset is in the wrong mood, or has no option where it clearly should, please [report it](../predictive-collections.md#report-a-wrong-mood). Each report becomes a checkpoint: the miss is analysed, the missing mechanism is fixed for all presets, and the whole corpus is re-checked.

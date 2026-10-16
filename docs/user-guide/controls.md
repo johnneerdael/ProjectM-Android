@@ -2,7 +2,7 @@
 
 ## Touchscreen Android
 
-Install **ProjectM Android** on a phone or tablet. It uses the same landscape visualizer and settings:
+Install **ProjectM Android** on a phone or tablet to get the same landscape visualizer and settings with touch controls:
 
 | Gesture | Action |
 |---|---|
@@ -13,11 +13,11 @@ Install **ProjectM Android** on a phone or tablet. It uses the same landscape vi
 | Vertical swipe in a panel | Scroll to more settings |
 | Back to menu / Close menu | Return from a submenu / close the panel |
 
-A slow horizontal swipe works too. Vertical drags and cancelled gestures do not change presets. Scrolling a menu stays within that menu. Touch input restarts the 10-second inactivity timer; the menu stays open while a finger is down. The TV build retains its remote controls.
+Slow horizontal swipes work too, while vertical drags and cancelled gestures leave the preset alone. Scrolling a menu stays within that menu. Any touch restarts the 10-second inactivity timer, and the menu stays open while a finger is down. The TV build keeps its remote controls.
 
 ![Touchscreen menu after scrolling, with preset values, Track display, Advanced and Close menu](images/setup/phone-menu.png)
 
-*Phone emulator capture from the touchscreen validation build. The version label identifies that build; the screenshot illustrates the touch menu layout.*
+*Phone emulator capture of the touch menu layout, taken from the touchscreen validation build; the version label shown is that build's.*
 
 ## TV remote: while visuals are showing
 
@@ -29,7 +29,7 @@ A slow horizontal swipe works too. Vertical drags and cancelled gestures do not 
 | Center, Enter, Menu | Open the settings panel |
 | Back | Exit the app |
 
-Switches from the remote are always instant cuts. Blends are used only for automatic preset changes.
+Preset switches from the remote are always instant cuts; only automatic preset changes blend.
 
 ## TV remote: in the settings panel
 
@@ -41,16 +41,16 @@ Switches from the remote are always instant cuts. Blends are used only for autom
 | Back | Close the panel; from **Advanced**, **Track display** or **Preset mood**, return to the main panel |
 | Menu | Close the panel |
 
-The panel hides after 10 seconds without input; every key press restarts that timer. The custom-pack upload dialog stays open until you close it.
+The panel hides after 10 seconds without input, and every key press restarts that timer. The custom-pack upload dialog is the exception: it stays open until you close it.
 
 ## The main panel
 
-On TV, when the panel opens, focus starts on the **Random** button, or on **Install** when an update is ready. From top to bottom the panel shows:
+On TV, focus starts on the **Random** button when the panel opens, or on **Install** when an update is ready. From top to bottom, the panel shows:
 
 - **Preset**: the name of the playing preset.
 - **Presets in rotation**: how many presets your current mix can play, and how many this TV has skipped.
 - **Audio**: a live meter and status: *Listening*, *Very quiet*, *No sound* or *No access*.
-- **Previous / Random / Next** buttons. *Next* follows the shuffled order; *Random* picks any preset in your mix. All three are instant cuts.
+- **Previous / Random / Next** buttons, all three instant cuts. *Next* follows the shuffled order, and *Random* picks any preset in your mix.
 - On phones, **Audio input** chooses Microphone or Phone playback.
 - **Auto change**, **Preset mood ›** and **Preset duration**, then **Track display ›** and **Advanced ›**.
 - A status line with the current frame rate and render size (for example *30.0 fps · 4K auto*).
@@ -62,9 +62,9 @@ On TV, when the panel opens, focus starts on the **Random** button, or on **Inst
 
 - The header always counts the mix: *N presets in your mix* (all available presets when nothing is selected), with *few presets: some repetition* under 20, or *Custom pack: N presets* while Custom plays. *No presets match your mix; playing All* appears when every match is skipped on this device or a deselection leaves no preset that fits every group.
 - A **Collection** row (*Built-in* or *Custom*) appears when a [custom pack](custom-packs.md) exists or Custom is chosen.
-- Each group (**Energy**, **Brightness**, **Colour**, **Movement**, **Style**, **Comfort**) is one row. Left and Right move between its options, Center (or a tap on phones) switches the highlighted option on or off. Every option shows *→ N*: the presets you would have if you toggled it (for a selected option, the mix without it). Options that would leave no presets are dimmed and skipped.
-- **Clear all** removes every selection (all presets play). It rests, dimmed, while Custom plays, so your saved options are kept. Back returns to the main panel; the panel hides after 10 seconds without input.
+- Each group (**Energy**, **Brightness**, **Colour**, **Movement**, **Style**, **Comfort**) is one row. Left and Right move between its options, and Center (or a tap on phones) switches the highlighted option on or off. Every option shows *→ N*, the number of presets you would have if you toggled it (for a selected option, the mix without it). Options that would leave no presets are dimmed and skipped.
+- **Clear all** removes every selection, so all presets play. While Custom plays it stays dimmed and your saved options are kept. Back returns to the main panel, and the panel hides after 10 seconds without input.
 
-Changing the mix keeps the current preset if it is still in the mix. Otherwise it cuts to a member. Previous-preset history restarts with the new mix. See [Preset moods](predictive-collections.md).
+If the current preset is still in the mix after a change, it keeps playing; otherwise the visualizer cuts to a preset that is. Previous-preset history restarts with the new mix. See [Preset moods](predictive-collections.md).
 
 The [settings reference](settings.md) describes every row.

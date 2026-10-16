@@ -4,7 +4,7 @@ This page collects the file formats behind the predictor: the shipped Mood bundl
 
 ## Preset-attributes bundle (shipped Mood facets)
 
-The app's [Mood panel](predictive-collections.md) reads a bundle in `core/src/main/assets/preset-attributes/`. Since 2026-10-16 it is generated entirely from static source analysis (the predictor on the research branch `feat/predictor-static-output-bounds`); no value comes from a render. Main does not run the predictor: it carries the committed evidence the table was built from and checks the table against it.
+The app's [Mood panel](predictive-collections.md) reads a bundle in `core/src/main/assets/preset-attributes/`. Since 2026-10-16 the bundle has been generated entirely from static source analysis by the predictor on the research branch `feat/predictor-static-output-bounds`, and no value in it comes from a render. The main branch does not run the predictor. It carries the committed evidence the table was built from and checks the table against that evidence.
 
 | File | Content |
 |---|---|
@@ -20,13 +20,23 @@ python3 tools/milk-analyzer/attribute_bundle.py --build-static docs/superpowers/
 python3 tools/milk-analyzer/attribute_bundle.py --check
 ```
 
-A static build requires exactly one evidence row per `presets.idx` preset and no row for any other preset, and hashes every preset (in `--presets-dir`, default `presets/` next to `--presets-idx`) against the row's `sha256`, so an edited, added or renamed preset fails until it is analysed again. An evidence option or colour the definition does not know fails the build. Palette and Main colour options come from `palette` and `dominant`; a preset whose static options include `monochrome` gets neither. Presets whose analysis failed get no options and `-` values; the build fails if there are any (the limit is 0). The deflated `attributes.tsv` must stay within 450,000 bytes.
+A static build requires exactly one evidence row per `presets.idx` preset and no row for any other preset. It hashes every preset (in `--presets-dir`, default `presets/` next to `--presets-idx`) against the row's `sha256`, so an edited, added or renamed preset fails until it is analysed again. The build also fails on an evidence option or colour that the definition does not know. Palette and Main colour options come from `palette` and `dominant`; a preset whose static options include `monochrome` gets neither. A preset whose analysis failed gets no options and `-` values, and the build fails if there are any such presets (the limit is 0). The deflated `attributes.tsv` must stay within 450,000 bytes.
 
-For a manifest with `source: static-analysis`, `--check` verifies `facets.json` against the definition, the manifest hashes, the header, that the rows name exactly the `presets.idx` presets, that every row equals the row rebuilt from the evidence (`--static-evidence`, default above, whose SHA-256 must match the manifest), every preset's bytes against the evidence, the size budget, and the manifest's `schema`, `version`, `source`, `producer`, `preset_count`, `measured_count`, `analysis_errors` and `option_counts` recomputed from the rows. `tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
+For a manifest with `source: static-analysis`, `--check` verifies:
+
+- `facets.json` against the definition;
+- the manifest hashes and the header;
+- that the rows name exactly the `presets.idx` presets;
+- that every row equals the row rebuilt from the evidence (`--static-evidence`, default above, whose SHA-256 must match the manifest);
+- every preset's bytes against the evidence;
+- the size budget;
+- the manifest's `schema`, `version`, `source`, `producer`, `preset_count`, `measured_count`, `analysis_errors` and `option_counts`, recomputed from the rows.
+
+`tools/milk-analyzer/preset_facets.py` implements the selection semantics (counts, toggled counts, dimming) and shares test vectors with the Java `PresetFacets` class in the core library. The core also exposes `ProjectMJNI.setPresetPool(String[])`; the legacy `setMusicCategory("chill"|"normal"|"intense")` is unchanged.
 
 ### Earlier engine-ruler bundle (history)
 
-Until 2026-10-16 the table held engine-ruler measurements (`tools/native-ruler/`, 300 frames at 480x270 on macOS GLES under SwiftShader) and source style facts. `attribute_bundle.py` keeps that path (`--ruler`, `--style`, `--ruler-manifest`, `--write-evidence-manifest`, `--freeze-activity-reference`) and `--check` still verifies a manifest without `source` against the ruler results manifest (`docs/superpowers/evidence/mood-facets-ruler-2026-10-12/ruler-results-manifest.json`) and the frozen activity reference (`tools/milk-analyzer/facets/activity-reference-v1.json`), recomputing memberships from the stored values. That path no longer produces the shipped bundle.
+Until 2026-10-16 the table held engine-ruler measurements (`tools/native-ruler/`, 300 frames at 480x270 on macOS GLES under SwiftShader) and source style facts. `attribute_bundle.py` keeps that path (`--ruler`, `--style`, `--ruler-manifest`, `--write-evidence-manifest`, `--freeze-activity-reference`). For a manifest without `source`, `--check` still verifies it against the ruler results manifest (`docs/superpowers/evidence/mood-facets-ruler-2026-10-12/ruler-results-manifest.json`) and the frozen activity reference (`tools/milk-analyzer/facets/activity-reference-v1.json`), recomputing memberships from the stored values. That path no longer produces the shipped bundle.
 
 ## Preset knowledge pack reader (core library)
 
@@ -62,23 +72,23 @@ only a per-preset view:
 - energy tags.
 
 A `RecipeVisitor` receives each full parsed recipe once, from the same
-verified bytes, only after the whole pack has passed. A rejected pack
-publishes nothing. Memory is the compressed core plus the views; the
-decompressed recipes are never held all at once. `load(AssetManager, dir)`
+verified bytes, and only after the whole pack has passed; a rejected pack
+publishes nothing. Memory use is the compressed core plus the views, and the
+decompressed recipes are never all held at once. `load(AssetManager, dir)`
 returns `null` for a missing or invalid pack. A pack that breaks a rule
 throws `InvalidPackException`, whose `rule` names the rule. Lookups work by
 preset name or by the preset file's SHA-256.
 
-The golden vectors in `export-contract/knowledge-pack/golden-v1/` (one valid
-pack, one with unknown fields, one with null containers, and twelve packs
-that each break one rule) are
-the shared tests for every reader. `PresetKnowledgePackTest` runs them on the
-JVM. Estimates and facets come from calibrated source analysis, not from
-rendered frames. No pack ships in the app yet.
+Every reader shares the same tests: the golden vectors in
+`export-contract/knowledge-pack/golden-v1/`, which are one valid pack, one
+with unknown fields, one with null containers, and twelve packs that each
+break one rule. `PresetKnowledgePackTest` runs them on the JVM. Estimates and
+facets come from calibrated source analysis and use no rendered frames. No
+pack ships in the app yet.
 
 ## Static source-description contract
 
-The record produced by `effect_family_export.py` on the research branch `feat/predictor-static-output-bounds` (first published at checkpoint `9c8ff632`, 2026-10-10).
+This record is produced by `effect_family_export.py` on the research branch `feat/predictor-static-output-bounds`. It was first published at checkpoint `9c8ff632` (2026-10-10).
 The [reference documentation archive](https://github.com/johnneerdael/ProjectM-TV/tree/fab54330f0144a63f1c30ed7afe7cb8b72191bc2/docs/superpowers/evidence/predictor-docs-reference-9c8ff632)
 preserves the cited contracts and evidence summaries. The implementation
 checkpoint is local and is not published by this documentation update. The
@@ -112,7 +122,7 @@ profile identities; use a fresh process and output folder after code changes.
 | Appearance qualification | `appearance_accuracy_verified`: false; `appearance_match_accuracy`: null. Successful extraction is not a visual certificate. |
 | Semantic `record_sha256` members | Canonical content digests at their respective nested record scopes; not signatures or confidence values. |
 
-This table locates the contracts; it is not a complete example record. Read the
+The table shows where each contract lives and is not a complete example record. Read the
 [full mechanism reference](https://github.com/johnneerdael/ProjectM-TV/blob/fab54330f0144a63f1c30ed7afe7cb8b72191bc2/docs/superpowers/evidence/predictor-docs-reference-9c8ff632/tools/milk-analyzer/EFFECT_FAMILIES.md),
 [appearance fields and numeric dictionaries](https://github.com/johnneerdael/ProjectM-TV/blob/fab54330f0144a63f1c30ed7afe7cb8b72191bc2/docs/superpowers/evidence/predictor-docs-reference-9c8ff632/tools/milk-analyzer/SOURCE_APPEARANCE.md)
 and [appearance JSON Schema](https://github.com/johnneerdael/ProjectM-TV/blob/fab54330f0144a63f1c30ed7afe7cb8b72191bc2/docs/superpowers/evidence/predictor-docs-reference-9c8ff632/tools/milk-analyzer/export-contract/source-appearance.schema.json)
@@ -129,11 +139,11 @@ traits can still be useful without them. Final prominence, flash events and
 complete feedback interpretation remain open implementation and validation work.
 
 A consumer can select an original Rust/wgpu implementation for a supported
-construction and preserve its known parameters. It must keep unknowns and its own
-defaults separate. Recognizable whole-preset reconstruction remains pending validation; final palettes and calibrated mood options are now produced from this record (see [From estimates to moods](predictor/mood-table.md)).
-Current bounded expression support and work budgets are extendable implementation
-choices. Join records by exact preset SHA-256, and never relabel simulated statistics as static facts.
+construction and preserve its known parameters, but it must keep unknowns and its
+own defaults separate. Recognizable whole-preset reconstruction is still pending validation. Final palettes and calibrated mood options are now produced from this record (see [From estimates to moods](predictor/mood-table.md)).
+The current bounded expression support and work budgets are implementation
+choices and can be extended. Join records by exact preset SHA-256, and never relabel simulated statistics as static facts.
 
 ## Earlier numerical feature records (history)
 
-Before the static analysis, the predictor simulated presets numerically and exported a 47-field statistical record (the 2026-10-08 checkpoint) with its own JSON Schema, examples and an accuracy rubric. That approach was abandoned in favour of static analysis: a simulation that matches the engine explains nothing the engine does not already show, and costs seconds to minutes per preset ([research journal](predictor/journal.md#58-october-a-numerical-forecaster)). The contract, its schema and its examples remain readable in the [repository history](https://github.com/johnneerdael/ProjectM-TV/blob/806d1282c92e6c5638c9fbde7607d2ed9317105e/docs/user-guide/predictor-export.md#preserved-numerical-feature-record-contract).
+Before the static analysis, the predictor simulated presets numerically and exported a 47-field statistical record (the 2026-10-08 checkpoint) with its own JSON Schema, examples and an accuracy rubric. Static analysis replaced that approach, because a simulation that matches the engine explains nothing the engine does not already show and costs seconds to minutes per preset ([research journal](predictor/journal.md#58-october-a-numerical-forecaster)). The contract, its schema and its examples remain readable in the [repository history](https://github.com/johnneerdael/ProjectM-TV/blob/806d1282c92e6c5638c9fbde7607d2ed9317105e/docs/user-guide/predictor-export.md#preserved-numerical-feature-record-contract).

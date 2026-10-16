@@ -1,6 +1,6 @@
 # Equations
 
-Preset equations are written in MilkDrop's expression language. MilkDrop 2 runs them with **NS-EEL2**, which compiles to x86 code. projectM runs them with **projectm-eval**, a portable reimplementation. The syntax is the same. The edge cases are not always the same, and real presets live in the edge cases.
+Preset equations are written in MilkDrop's expression language. MilkDrop 2 runs them with NS-EEL2, which compiles to x86 code. projectM runs them with projectm-eval, a portable reimplementation. The syntax is the same, but the two do not always handle edge cases the same way, and real presets depend on those edge cases.
 
 All values are 64-bit floating point. Names are case-insensitive. An unknown name is created on first use with value 0. A typo therefore never causes an error: it silently creates a new variable that stays zero.
 
@@ -44,13 +44,13 @@ projectm-eval turns most domain errors into 0, where NS-EEL produces infinity or
 per_frame_init_1=choice=rand(4);
 ```
 
-In MilkDrop 2's release build, `rand(n)` returns a **floating-point** value from 0 up to `floor(n)`. The integer form only exists in an EEL1 compatibility mode that the release build does not enable. projectm-eval matches the release build. For an index, write:
+In MilkDrop 2's release build, `rand(n)` returns a floating-point value from 0 up to `floor(n)`. The integer form exists only in an EEL1 compatibility mode, which the release build does not enable. projectm-eval matches the release build. For an index, write:
 
 ```ini
 per_frame_init_1=choice=int(rand(4));
 ```
 
-Both evaluators use a Mersenne Twister with the same fixed seed. The *sequence* of `rand()` values is therefore deterministic from program start, but it depends on everything that called `rand()` before your preset.
+Both evaluators use a Mersenne Twister with the same fixed seed, so the *sequence* of `rand()` values is deterministic from program start. Which values your preset gets depends on everything that called `rand()` before it.
 
 ## Patterns that work everywhere
 
@@ -77,7 +77,7 @@ per_frame_1=ratio=a/max(abs(b),0.001)*sign(b);
 per_frame_2=curve=pow(max(x,0.000001),2.2);
 ```
 
-Never rely on a division by zero producing 0 or infinity: the two engines disagree.
+The two engines disagree on what a division by zero produces, so don't rely on getting 0 or infinity.
 
 **Counting through a cycle**
 
@@ -90,5 +90,5 @@ per_frame_1=step=(step+above(bass,1.2))%4;
 ## Implicit precision
 
 - Equations are evaluated in double precision. Settings, shader uniforms and the warp rotation are narrowed to 32-bit float before use.
-- Float literals in **shaders** are 32-bit. In ProjectM TV they reach the GPU with full float32 precision.
+- Float literals in shaders are 32-bit. In ProjectM TV they reach the GPU with full float32 precision.
 - The host's number locale can affect how preset files are parsed in some projectM builds. ProjectM TV never changes the locale.

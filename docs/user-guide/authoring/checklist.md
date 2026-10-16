@@ -1,6 +1,6 @@
 # Checklist
 
-Each item below is a mistake found in real presets, with what goes wrong and how to avoid it. Following the list gives presets that load and look the same in MilkDrop 2, in projectM players and in ProjectM TV.
+These mistakes were all found in real presets. For each one you get what goes wrong and how to avoid it. Avoid them and your presets will load and look the same in MilkDrop 2, in projectM players and in ProjectM TV.
 
 ## The file
 
@@ -26,7 +26,7 @@ Each item below is a mistake found in real presets, with what goes wrong and how
 | Copy values into `q1`–`q32` every frame you need them | q resets to its post-init value each frame | — |
 | Set motion variables every frame you change them | Built-ins reset to the file value each frame | — |
 | Don't pass data to the next preset through `reg`/`gmegabuf` | They are per preset in projectM | — |
-| Keep `wave_mode` within 0–7 | projectM's modes 8–15 differ from MilkDrop's wrap-around | 4 bundled presets use mode 8 |
+| Keep `wave_mode` within 0-7 | projectM's modes 8-15 differ from MilkDrop's wrap-around | 4 bundled presets use mode 8 |
 | Expect `bass` near 10 for a moment at a cold start | Audio history starts at zero | — |
 | Remember `warp` defaults to 1 | Set `warp=0` for a still mesh | — |
 
@@ -60,7 +60,7 @@ Each item below is a mistake found in real presets, with what goes wrong and how
 | Do | Why | Real example |
 |---|---|---|
 | Keep important shapes at least two pixels wide at 1080p | Sub-pixel shapes may not light any pixel | `amandio c - the green machine 2 … btbam covers sepultura.milk` |
-| Clamp colours to 0–1 in per-point code | Custom wave colours wrap around instead of clamping | — |
+| Clamp colours to 0-1 in per-point code | Custom wave colours wrap around instead of clamping | — |
 | Keep blur ranges at least 0.1 wide and nested | MilkDrop collapses narrow ranges; ProjectM TV repairs them, so the two look different | `flexi - a julia fractal for hexcollie embossed (Jelly).milk` |
 | Use negative `zoom` only with `zoomexp=1` | Other combinations are undefined on GPUs | `Hexcollie - This is where we begin stripped.milk` |
 
