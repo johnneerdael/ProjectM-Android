@@ -3,7 +3,7 @@
   "version": 1,
   "combination": "OR within a group, AND across groups; no selection in a group means any",
   "colour_tags": "palette: every hue family with at least 10% of the static display palette; main_colour: only when the predicted top-colour share is at least 0.65 and the palette top share at least 0.55; none for grey presets",
-  "measurement": "static source analysis: source-calibrated estimates of the engine-ruler statistics (pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, frames 60-299); no rendered measurement is shipped",
+  "measurement": "static source analysis: source-calibrated estimates of the engine-ruler statistics (pinned patched projectM-TV, 480x270, 300 frames at 30 fps, checkpoint audio, frames 60-299); no rendered measurement is shipped. Shipped options come from the static classifiers (precision floors) recorded in the static evidence; the threshold rules below define the scale and the earlier engine-ruler table",
   "activity": "percentile, against the frozen activity reference, of the mean percentile rank of mean_abs_frame_difference, mean_flow_screen_widths_per_s and global_brightness_jumps_per_10s; the reference holds 1001-point quantile tables measured once on the 9,606 bundled presets and is not recomputed per release",
   "activity_reference": {"file": "activity-reference-v1.json", "sha256": "ea7379d751d08da552917eb5a83384cd870a7ee6817cc16e8e9d22b70218ec50"},
   "groups": [
@@ -62,7 +62,8 @@
     "fractal": "mechanism nonlinear_feedback_map or complex_quadratic_recurrence, or structure.fractal >= 0.6"
   },
   "provenance": {
-    "energy": "engine-ruler-measured", "brightness": "engine-ruler-measured", "colour": "engine-ruler-measured",
-    "movement": "engine-ruler-measured", "comfort": "engine-ruler-measured", "style": "source-structure-facts"
+    "energy": "static-source-analysis", "brightness": "static-source-analysis", "colour": "static-source-analysis",
+    "palette": "static-source-analysis", "main_colour": "static-source-analysis",
+    "movement": "static-source-analysis", "comfort": "static-source-analysis", "style": "source-structure-facts"
   }
 }
