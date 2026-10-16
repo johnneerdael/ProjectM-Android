@@ -2,10 +2,10 @@
 
 MilkDrop 2 added two pixel shaders to every preset:
 
-- the **warp** shader replaces the fixed-function warp: it reads the previous frame and produces the new canvas;
-- the **composite** shader replaces the fixed-function composite: it turns the canvas into what is displayed, and is never fed back.
+- the warp shader replaces the fixed-function warp: it reads the previous frame and produces the new canvas;
+- the composite shader replaces the fixed-function composite: it turns the canvas into what is displayed, and is never fed back.
 
-Both are written in Direct3D 9-era HLSL (shader model 2 or 3). projectM translates them to GLSL with a vendored HLSL parser and compiles them as GLSL ES 3.00 on ProjectM TV. **When translation or compilation fails, the stage silently falls back to a simple built-in shader**, so the preset loads but looks nothing like itself. Knowing what translates is therefore part of writing a portable shader.
+Both are written in Direct3D 9-era HLSL (shader model 2 or 3). projectM translates them to GLSL with a vendored HLSL parser and compiles them as GLSL ES 3.00 on ProjectM TV. When translation or compilation fails, the stage silently falls back to a simple built-in shader: the preset loads but looks nothing like itself. A portable shader has to stay within what translates.
 
 ## Shader lines in the file
 
@@ -16,11 +16,11 @@ warp_3=`    ret = tex2D(sampler_main, uv).xyz * 0.97;
 warp_4=`}
 ```
 
-Each line starts with a backtick and they are numbered from 1 without gaps. Your code may declare samplers, constants and functions before `shader_body`. `ret` (`float3`) is the output colour and starts at zero.
+Each line starts with a backtick, and the lines are numbered from 1 without gaps. Your code may declare samplers, constants and functions before `shader_body`. `ret` (`float3`) is the output colour and starts at zero.
 
 ## The hidden header
 
-Before your code, the engine prepends a header that defines the inputs. The names below are what you can use; the right column is where they live.
+Before your code, the engine prepends a header that defines the inputs. Your code uses the names; the storage column shows where each value is held.
 
 | Name | Meaning | Storage |
 |---|---|---|
@@ -35,7 +35,7 @@ Before your code, the engine prepends a header that defines the inputs. The name
 | `blur1_min` … `blur3_max` | Blur ranges | `_c5`, `_c6`, `_c13` |
 | `texsize` | `(width, height, 1/width, 1/height)` of the canvas | `_c7` |
 | `roam_cos`, `roam_sin` | 0.5+0.5·cos/sin of time at about 0.3, 1.3, 5 and 20 rad/s | `_c8`, `_c9` |
-| `slow_roam_cos`, `slow_roam_sin` | The same at about 0.005–0.022 rad/s | `_c10`, `_c11` |
+| `slow_roam_cos`, `slow_roam_sin` | The same at about 0.005-0.022 rad/s | `_c10`, `_c11` |
 | `mip_x`, `mip_y`, `mip_avg` | Mip-level helpers | `_c12` |
 | `q1` … `q32` | The per-frame q values, after per_frame code | `_qa.x` … `_qh.w` |
 | `rand_frame`, `rand_preset` | Random `float4`: new every frame / once per preset | |
@@ -59,17 +59,17 @@ Helper functions:
 
 ## Blur levels must be decoded
 
-Each blur level stores colours **normalized to its range**: `(c − min) / (max − min)`, with each level's range nested inside the previous level's. `GetBlur1(uv)` undoes this: it returns `tex2D(sampler_blur1, uv).xyz * (max1−min1) + min1`. Reading `sampler_blur1` directly returns the *encoded* value, which looks washed out or too dark whenever the range is not 0–1. Use `GetBlurN`.
+Each blur level stores colours normalized to its range, `(c − min) / (max − min)`, with each level's range nested inside the previous level's. `GetBlur1(uv)` undoes this: it returns `tex2D(sampler_blur1, uv).xyz * (max1−min1) + min1`. Reading `sampler_blur1` directly returns the *encoded* value, which looks washed out or too dark whenever the range is not 0-1, so use `GetBlurN`.
 
-Only the blur levels a shader needs are computed. MilkDrop decides from the blur samplers the compiled shader actually uses; upstream projectM searches the text for `GetBlurN` and `sampler_blurN`; ProjectM TV also counts `blurN_min`/`blurN_max`. Blur ranges and their safe values are covered under [effects](effects.md#blur).
+Only the blur levels a shader needs are computed. MilkDrop decides from the blur samplers the compiled shader actually uses, upstream projectM searches the text for `GetBlurN` and `sampler_blurN`, and ProjectM TV also counts `blurN_min`/`blurN_max`. Blur ranges and their safe values are covered under [effects](effects.md#blur).
 
 ## Writing to inputs
 
-Because `q1`, `time`, `bass` and the others are macros onto uniform components, an assignment like `q18 = 1;` or `time *= 0.4;` writes into a uniform. Microsoft's compiler gave each shader invocation a writable copy that started from the input. Some projectM builds produced an *uninitialized* copy, so other components and other functions read garbage (`$$$ Royal - Mashup (324)`). ProjectM TV reproduces Microsoft's behaviour. For portability, copy an input into your own local before modifying it.
+`q1`, `time`, `bass` and the others are macros onto uniform components, so an assignment like `q18 = 1;` or `time *= 0.4;` writes into a uniform. Microsoft's compiler gave each shader invocation a writable copy that started from the input. Some projectM builds produced an *uninitialized* copy instead, so other components and other functions read garbage (`$$$ Royal - Mashup (324)`). ProjectM TV reproduces Microsoft's behaviour. For portability, copy an input into your own local before modifying it.
 
 ## What translates, and what does not
 
-An earlier pass translated all 15,576 authored warp and composite shaders in the bundled library. The constructs below are where real presets failed:
+All 15,576 authored warp and composite shaders in the bundled library were translated in an earlier pass. Real presets failed on these constructs:
 
 | Construct | Status in ProjectM TV | Advice for portable presets |
 |---|---|---|
@@ -89,7 +89,7 @@ Undefined `pow` is the largest source of unpredictable output found by this proj
 
 ## Warp shader responsibilities
 
-When the warp stage is a shader, MilkDrop **ignores the per-frame `decay` variable**. The shader decides the fade. MilkDrop's auto-generated default warp shader bakes in the *file's* decay value:
+When the warp stage is a shader, MilkDrop ignores the per-frame `decay` variable and the shader decides the fade. MilkDrop's auto-generated default warp shader bakes in the *file's* decay value:
 
 ```hlsl
 shader_body {
@@ -104,7 +104,7 @@ In MilkDrop 2, the preset's `wrap` setting only affects the fixed-function warp.
 
 ## Composite shader responsibilities
 
-With a custom composite, the classic display effects **do not apply**: gamma, video echo, brighten, darken, solarize and invert are yours to implement (MilkDrop 2 behaves the same way). A typical composite:
+With a custom composite, the classic display effects do not apply: gamma, video echo, brighten, darken, solarize and invert are yours to implement (MilkDrop 2 behaves the same way). A typical composite:
 
 ```hlsl
 shader_body {
@@ -116,8 +116,8 @@ shader_body {
 ```
 
 !!! warning "Multiplying channels can crush to black"
-    A composite that multiplies colour channels together, for example `ret = c.x * c.x * c * GetMain(uv)`, turns a feedback buffer with little red into a black screen. One bundled preset investigated for "being black" did exactly this, and it is not a bug. Test with bright and dark feedback.
+    A composite that multiplies colour channels together, for example `ret = c.x * c.x * c * GetMain(uv)`, turns a feedback buffer with little red into a black screen. One bundled preset investigated for "being black" did exactly this; it is not a bug. Test with both bright and dark feedback.
 
 ## Resolution and `texsize`
 
-`texsize.xy` is the canvas size, and stepping by `texsize.zw` moves exactly one texel. On a 1024×768 screen one texel was a visible step; at 3840×2160 it is 3.75× smaller in picture terms. ProjectM TV therefore reports a canvas with the area of its line reference size when rendering larger: about 1182×665 for a 16:9 render with the 1024×768 reference. Texel-stepping effects then keep their authored size. Other projectM builds report the real render size, so design texel steps for roughly 1024×768-sized canvases and they behave well everywhere. [Details](../engine/resolution.md#virtual-texsize).
+`texsize.xy` is the canvas size, and stepping by `texsize.zw` moves exactly one texel. On a 1024×768 screen one texel was a visible step; at 3840×2160 it is 3.75× smaller in picture terms. When rendering larger, ProjectM TV reports a canvas with the area of its line reference size (about 1182×665 for a 16:9 render with the 1024×768 reference), so texel-stepping effects keep their authored size. Other projectM builds report the real render size. If you design texel steps for canvases of roughly 1024×768, they behave well everywhere. [Details](../engine/resolution.md#virtual-texsize).

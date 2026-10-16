@@ -9,7 +9,7 @@ hide:
 ![A ProjectM TV preset with the playing track's cover, artist and title](images/launch.jpg)
 <div class="pm-hero__text" markdown>
 # ProjectM TV and Android
-MilkDrop visuals on your TV, phone or tablet, with 9,606 presets and the same ProjectM TV Engine. Use a music app on the TV, or choose microphone input or phone playback on touchscreen Android.
+MilkDrop visuals on your TV, phone or tablet, with 9,606 presets and the same ProjectM TV Engine on every device. On the TV the visuals follow a music app; on touchscreen Android you choose microphone input or phone playback.
 
 GitHub editions include the full collection. F-Droid editions start with **20 curated presets** and offer the full collection as an optional download. [Choose your edition](getting-started.md#choose-an-edition).
 
@@ -39,7 +39,7 @@ GitHub editions include the full collection. F-Droid editions start with **20 cu
 
     ---
 
-    Swipe and tap on phones; use the remote on TV. All settings, including phone audio input and TV diagnostics.
+    Swipe and tap on phones, or use the remote on TV. Every setting is described, including phone audio input and TV diagnostics.
 
     [:octicons-arrow-right-24: Controls](controls.md) · [Settings](settings.md)
 
@@ -71,13 +71,13 @@ GitHub editions include the full collection. F-Droid editions start with **20 cu
 
     ---
 
-    No reaction to music, missing titles, stutter, black presets.
+    What to check when visuals ignore the music, titles are missing, the picture stutters or a preset stays black.
 
     [:octicons-arrow-right-24: Troubleshooting](troubleshooting.md)
 
 </div>
 
-ProjectM TV listens to the music app's own audio session. [ProjectM Android](getting-started.md#install-on-a-phone-or-tablet) supports microphone input and consented phone playback capture. Neither stores audio. Network use covers GitHub app updates when enabled, optional F-Droid collection downloads when requested, and the temporary local custom-pack upload page.
+ProjectM TV listens to the music app's own audio session. [ProjectM Android](getting-started.md#install-on-a-phone-or-tablet) supports microphone input and phone playback capture with your consent. Neither app stores audio. They use the network for GitHub app updates when enabled, for optional F-Droid collection downloads when you request them, and for the temporary local custom-pack upload page.
 
 ## What makes it different
 
@@ -87,7 +87,7 @@ ProjectM TV listens to the music app's own audio session. [ProjectM Android](get
 
     ---
 
-    The maintained engine patches restore MilkDrop 2's behaviour where projectM differs: tolerant equation loading, HLSL its compiler accepted, and Direct3D pixel rules. The catalog links the changes to their visual evidence.
+    Where projectM differs from MilkDrop 2, the maintained engine patches restore MilkDrop 2's behaviour: its tolerant equation loading, the HLSL its compiler accepted and its Direct3D pixel rules. The catalog links each change to its visual evidence.
 
     [:octicons-arrow-right-24: Patch catalog](engine/patches.md)
 
@@ -95,7 +95,7 @@ ProjectM TV listens to the music app's own audio session. [ProjectM Android](get
 
     ---
 
-    Lines, blur and texel steps keep their authored size, and feedback runs on an authored-scale canvas with sharp native geometry on top. This addresses the resolution-scaling part of projectM issue #682.
+    Lines, blur and texel steps keep their authored size, and feedback runs on an authored-scale canvas with sharp native geometry drawn on top. This addresses the resolution-scaling part of projectM issue #682.
 
     [:octicons-arrow-right-24: Rendering at 4K](engine/resolution.md)
 
@@ -103,7 +103,7 @@ ProjectM TV listens to the music app's own audio session. [ProjectM Android](get
 
     ---
 
-    Background shader compilation, resolution that follows frame rate and free memory, and blends that adapt to the GPU or CPU limit.
+    Shaders compile in the background, resolution follows frame rate and free memory, and blends adapt to whichever of the GPU or CPU is the limit.
 
     [:octicons-arrow-right-24: Frame pipeline](engine/pipeline.md)
 
@@ -111,7 +111,7 @@ ProjectM TV listens to the music app's own audio session. [ProjectM Android](get
 
     ---
 
-    Every preset mood is worked out from the preset's source code, without rendering it: feedback, colour and motion mathematics checked against real renders, including chaotic presets predicted frame for frame.
+    Every preset mood is worked out from the preset's source code without rendering it. The feedback, colour and motion mathematics is checked against real renders, including chaotic presets predicted frame for frame.
 
     [:octicons-arrow-right-24: How it works](predictor.md) · [Predictions vs renders](predictor/gallery.md)
 
@@ -119,10 +119,10 @@ ProjectM TV listens to the music app's own audio session. [ProjectM Android](get
 
 ## Write presets
 
-A source-level guide to how `.milk` presets really execute, built from MilkDrop 2's code and the analysis of thousands of real presets: [file format](authoring/milk-format.md), [frame order](authoring/execution.md), [equations](authoring/equations.md), [shaders](authoring/shaders.md), [textures](authoring/textures.md), [effects](authoring/effects.md), [testing and prediction](authoring/testing.md) and a [checklist](authoring/checklist.md) of mistakes found in real presets.
+The authoring guide explains how `.milk` presets actually execute, based on MilkDrop 2's code and an analysis of thousands of real presets. It covers the [file format](authoring/milk-format.md), [frame order](authoring/execution.md), [equations](authoring/equations.md), [shaders](authoring/shaders.md), [textures](authoring/textures.md), [effects](authoring/effects.md), [testing and prediction](authoring/testing.md) and ends with a [checklist](authoring/checklist.md) of mistakes found in real presets.
 
 [:octicons-arrow-right-24: Start writing presets](authoring/index.md){ .md-button }
 
 ---
 
-ProjectM TV is open source (LGPL-2.1), and its presets and textures are CC0. Its engine also powers **[Milkbeat](https://github.com/johnneerdael/Milkbeat)**, a music player for Android TV by the same author. [Project on GitHub](https://github.com/johnneerdael/ProjectM-Android) · [Releases](https://github.com/johnneerdael/ProjectM-Android/releases) · [Report an issue](https://github.com/johnneerdael/ProjectM-Android/issues) · [Build and test](development.md)
+ProjectM TV is open source (LGPL-2.1), and its presets and textures are CC0. Its engine also powers [Milkbeat](https://github.com/johnneerdael/Milkbeat), a music player for Android TV by the same author. [Project on GitHub](https://github.com/johnneerdael/ProjectM-Android) · [Releases](https://github.com/johnneerdael/ProjectM-Android/releases) · [Report an issue](https://github.com/johnneerdael/ProjectM-Android/issues) · [Build and test](development.md)

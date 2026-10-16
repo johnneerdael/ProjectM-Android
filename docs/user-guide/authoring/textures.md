@@ -1,10 +1,10 @@
 # Textures
 
-Shaders sample images through **samplers**. Declaring `sampler sampler_clouds;` and calling `tex2D(sampler_clouds, uv)` makes the engine find an image named `clouds` and bind it.
+Shaders sample images through samplers. Declaring `sampler sampler_clouds;` and calling `tex2D(sampler_clouds, uv)` makes the engine find an image named `clouds` and bind it.
 
 ## How textures are found
 
-- In projectM, every `sampler_<name>` **and every `texsize_<name>`** in the warp and composite code binds a texture, whether or not it is used. MilkDrop binds only samplers the compiled shader actually uses, and `texsize_<name>` there only reports an already-loaded texture. Comments are stripped first, so a commented-out declaration binds nothing.
+- In projectM, every `sampler_<name>` and every `texsize_<name>` in the warp and composite code binds a texture, whether or not it is used. MilkDrop binds only samplers the compiled shader actually uses, and `texsize_<name>` there only reports an already-loaded texture. Comments are stripped first, so a commented-out declaration binds nothing.
 - File extensions searched: `.jpg`, `.dds`, `.png`, `.tga`, `.bmp`, `.dib` (projectM adds `.jpeg`). Names are matched ignoring case.
 - MilkDrop searches its `textures` folder, then the preset's own folder. projectM searches its configured texture paths.
 - `texsize_<name>` gives `(width, height, 1/width, 1/height)` of that image.
@@ -28,9 +28,9 @@ The first three characters after `sampler_` can select filtering and edge behavi
 So `sampler_pc_main` reads the previous frame with point sampling and clamped edges, and `sampler_fw_clouds` reads `clouds` with bilinear filtering and wrapping.
 
 !!! warning "Any two-letter prefix is stripped"
-    MilkDrop removes *any* `XY_` prefix, even an unknown one, and projectM copies that rule ("Milkdrop also removes the XY_ prefix in the case nothing matches"). An image named `ab_stars.png` referenced as `sampler_ab_stars` is therefore looked up as **`stars`**. Don't give textures names with an underscore in the third position.
+    MilkDrop removes *any* `XY_` prefix, even an unknown one, and projectM copies that rule ("Milkdrop also removes the XY_ prefix in the case nothing matches"). An image named `ab_stars.png` referenced as `sampler_ab_stars` is therefore looked up as `stars`. Don't give textures names with an underscore in the third position.
 
-`sampler_state { … }` blocks after a declaration are accepted for compatibility, but **their fields are ignored**. Only the prefix selects the mode.
+`sampler_state { … }` blocks after a declaration are accepted for compatibility, but their fields are ignored. Only the prefix selects the mode.
 
 ## Built-in textures
 
@@ -56,17 +56,17 @@ sampler sampler_rand01_smalltiled; // any image whose name starts with "smalltil
 
 `randNN` picks a random image from the texture folder. `randNN_prefix` picks one whose name starts with *prefix*. A mode prefix still applies: `sampler_pc_rand00_red` is a point-sampled, clamped image whose name starts with `red`.
 
-How the choice is made:
+MilkDrop 2 picks a file at random from its `textures` folder when it compiles each shader (`PickRandomTexture`, `plugin.cpp:2840`). The prefix match ignores case, and images in the preset's own folder are not candidates. The choice is local to each shader (`plugin.cpp:2927`), so the warp and composite shaders can receive different images for the same slot. Within one shader, each slot may be used only once.
 
-1. **MilkDrop 2** picks a file at random from its `textures` folder when it compiles each shader (`PickRandomTexture`, `plugin.cpp:2840`). The prefix match ignores case. Images in the preset's own folder are not candidates. The choice is local to each shader (`plugin.cpp:2927`), so the warp and composite shaders can receive **different** images for the same slot. Within one shader, each slot may be used only once.
-2. **ProjectM TV Engine** instead ties the choice to the slot for the whole preset load: the warp and composite shaders see the same image for the same slot, and the choice survives shader reloads. Within one shader, aliases with a name filter fill their slots first; across the two shaders, the first stage to claim a slot wins. This differs from MilkDrop 2. Don't rely on either behaviour if you need the same image in both shaders: use a fixed texture name instead.
-3. In both, a new load of the preset makes new choices, so revisiting a preset can look different, and if no image matches a prefix, nothing is bound.
+ProjectM TV Engine instead ties the choice to the slot for the whole preset load. The warp and composite shaders see the same image for the same slot, and the choice survives shader reloads. Within one shader, aliases with a name filter fill their slots first; across the two shaders, the first stage to claim a slot wins. If you need the same image in both shaders, don't rely on either behaviour: use a fixed texture name instead.
+
+In both, every new load of the preset makes new choices, so revisiting a preset can look different. If no image matches a prefix, nothing is bound.
 
 ProjectM TV chooses with the system's random device, so choices are not reproducible from a seed. The evaluator's `rand()` has no influence on them. Of the bundled presets, 192 contain random sampler names.
 
 ## Transparent images
 
-In ProjectM TV, every image is uploaded with its colour **premultiplied by alpha**: each channel becomes `(rgb × alpha + 128) >> 8`, and alpha keeps its value. Opaque images lose one step at the top (255 becomes 254). ProjectM TV's earlier releases, based on projectM 4.1.7, loaded images this way through SOIL2, and the current engine keeps those bytes. A fully transparent pixel therefore samples as black, whatever colour the file stored. Do not divide by alpha to recover the colour unless you handle alpha = 0.
+In ProjectM TV, every image is uploaded with its colour premultiplied by alpha: each channel becomes `(rgb × alpha + 128) >> 8`, and alpha keeps its value. Opaque images lose one step at the top (255 becomes 254). ProjectM TV's earlier releases, based on projectM 4.1.7, loaded images this way through SOIL2, and the current engine keeps those bytes. A fully transparent pixel therefore samples as black, whatever colour the file stored. Do not divide by alpha to recover the colour unless you handle alpha = 0.
 
 ## Named images on custom shapes
 

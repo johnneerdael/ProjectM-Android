@@ -17,9 +17,9 @@ Open the panel with **Center**, **Enter** or **Menu**. **Up / Down** selects a r
 
 ## Phone audio input
 
-ProjectM Android adds **Audio input** to the main panel. **Microphone** is the default; grant Record audio permission to visualize nearby sound. **Phone playback** uses Android 10+'s audio playback capture for music/games played on the same device. Select it and approve Android's capture prompt. Protected audio and players that opt out cannot be captured. The input row shows capture status; the Audio meter shows whether samples contain sound.
+ProjectM Android adds **Audio input** to the main panel. **Microphone** is the default; grant Record audio permission to visualize nearby sound. **Phone playback** uses Android 10+'s audio playback capture for music/games played on the same device: select it and approve Android's capture prompt. Protected audio and players that opt out cannot be captured. The input row shows the capture status, and the Audio meter shows whether the samples contain sound.
 
-Capture stops on pause, leaving no background microphone or playback recording. Phone playback requires new consent after returning; select it again to restart. Audio samples stay in memory and are converted to the same unsigned mono waveform format used by the TV engine. TV audio capture is unchanged. The separate Advanced diagnostics card is TV-only.
+Capture stops when the app pauses, so nothing records the microphone or playback in the background. Phone playback needs new consent after you return; select it again to restart. Audio samples stay in memory and are converted to the same unsigned mono waveform format the TV engine uses. TV audio capture is unaffected, and the separate Advanced diagnostics card is TV-only.
 
 ## Track display
 
@@ -39,7 +39,7 @@ Capture stops on pause, leaving no background microphone or playback recording. 
 | Frame rate | The refresh rate, ½ or ¼ of it, at least 24 fps | 30 fps at 60 Hz, 25 at 50 Hz | Target frame rate, paced to the display |
 | Detail | Minimal 24×16, Low 32×24, Medium 48×32, High 64×48, Ultra 96×72 | High on SHIELD/Tegra, Low on low-RAM devices, otherwise Medium | Warp mesh size. Per-vertex equations run on the CPU for every mesh point |
 | Native trails | Standard, Medium, High | Standard | How feedback is drawn above 1330p. See [Picture quality](picture-quality.md#native-trails) |
-| Transition | Instant, 1–10 s | 7 s (2 s on low-RAM devices) | Blend length for automatic changes. Instant cuts without blending and halves the memory reserved for two presets |
+| Transition | Instant, 1-10 s | 7 s (2 s on low-RAM devices) | Blend length for automatic changes. Instant cuts without blending and halves the memory reserved for two presets |
 | Transitions | Auto, Lightweight, Classic | Auto | How automatic changes blend. See [Picture quality](picture-quality.md#transitions) |
 | Cut on loud beats | Off, On | Off | Lets projectM cut to the next preset on a loud beat, as MilkDrop does |
 | Skip slow presets | Off, On | On | In Auto resolution, permanently skips presets that stay below half the target frame rate even at the lowest resolution, or that a lower resolution does not help |
@@ -52,7 +52,7 @@ Capture stops on pause, leaving no background microphone or playback recording. 
 | Shader binary cache | Off, On | On | Keeps compiled shader programs as driver binaries and reuses them in the background thread's and the render thread's contexts. *Off* always compiles from source. Troubleshooting only, see [The app closes at preset changes](troubleshooting.md#the-app-closes-at-preset-changes) |
 | Last exit | *None recorded*, or the reason and how long ago | | The latest time the app ended while on screen, from Android's exit records (Android 11 and later). Select it for the [exit report](#exit-report) |
 
-All three panels scroll when their rows do not fit. Swipe vertically on phones; D-pad focus brings each row into view on TV.
+All three panels scroll when their rows do not fit. On phones, swipe vertically; on TV, D-pad focus brings each row into view.
 
 ## Diagnostics
 
@@ -77,20 +77,20 @@ On TV, opening **Advanced** also shows a **Diagnostics** card beside it with liv
 
 ## Exit report
 
-Selecting **Advanced › Last exit** opens **Recent exits**: the device, Android version, GPU and the current state of the two troubleshooting switches (*Now:*), then up to five recent exits of the app, newest first. Each exit shows:
+Selecting **Advanced › Last exit** opens **Recent exits**. It lists the device, Android version, GPU and the current state of the two troubleshooting switches (*Now:*), followed by up to five recent exits of the app, newest first. Each exit shows:
 
 - how long ago and why it ended, as Android recorded it: for example *crashed (native code)*, *killed for low memory*, *killed by signal 11 (SIGSEGV)*, *stopped by the system* or *stopped: app updated* (before Android 14, Android reports updates as *stopped by request*);
 - whether the app was *on screen* or only running *in the background* (for example for track titles);
 - Android's description and the memory the app used at that moment, when Android provides them;
 - for the last process that showed visuals, the **switches** it ran with (which can differ from today's settings) and what the engine was doing: the **render** line (*loading*, *blending into*, *showing* a preset, with its size) and the **prewarm** line (*compiling* a preset in the background, or *idle*), each with the seconds before the exit.
 
-The app keeps those two lines in a small file in its own storage and overwrites them in place; it never sends them anywhere. Android 10 and older have no exit records: the report then shows only the last render and prewarm lines. Take a photo of the report when you report a crash.
+The app keeps those two lines in a small file in its own storage, overwrites them in place and never sends them anywhere. Android 10 and older keep no exit records, so there the report shows only the last render and prewarm lines. When you report a crash, include a photo of the report.
 
 ## Notices
 
-Small notices can appear in the lower-left pill. **No audio detected** is the TV player-session notice; phone audio status appears in **Audio input** and the Audio meter. An update-ready notice on either build adds an **Install** row to the main panel.
+Small notices can appear in the lower-left pill. **No audio detected** is the TV player-session notice; on phones, audio status appears in **Audio input** and the Audio meter instead. On either build, an update-ready notice adds an **Install** row to the main panel.
 
-TV examples:
+Examples on TV:
 
 - **No audio detected**: no player session was found after a start. See [Troubleshooting](troubleshooting.md#visuals-do-not-react-to-the-music).
 - **ProjectM TV *version* is ready to install: open the settings**: an auto-update has been downloaded. The **Install** row appears at the top of the main panel.

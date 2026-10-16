@@ -1,13 +1,10 @@
 # Writing presets
 
-A MilkDrop preset is a small text file that programs a feedback loop. Each frame, the previous image is warped by a mesh of equations, darkened, and drawn over with waveforms and shapes. Then a final shader produces what you see. Get the loop right and a few dozen lines of code produce endless variation; get one detail wrong and the screen is black, or the preset refuses to load.
+A MilkDrop preset is a small text file that programs a feedback loop. Each frame, the previous image is warped by a mesh of equations, darkened, and drawn over with waveforms and shapes. Then a final shader produces what you see. A few dozen lines of code can produce endless variation, and a single wrong detail can leave the screen black or stop the preset loading.
 
-This section documents **how a preset actually executes**, at the level of the source code that runs it. It is built on two kinds of evidence:
+This section describes how a preset actually executes, at the level of the source code that runs it. It draws on two kinds of evidence. The first is MilkDrop 2's released source (v2.25c), the reference implementation every preset was written against; statements about MilkDrop cite the file and line, for example `milkdropfs.cpp:2852`. The second is this project's analysis of real presets: parsing all 9,606 bundled files, translating every shader, running each preset under controlled audio, and, in a randomized audit of 100 presets, comparing predictions made from source alone against rendered frames.
 
-- **MilkDrop 2's released source** (v2.25c), the reference implementation every preset was written against. Statements about MilkDrop cite the file and line, for example `milkdropfs.cpp:2852`.
-- **This project's analysis of real presets**: parsing all 9,606 bundled files, translating every shader, running each preset under controlled audio, and, in a randomized audit of 100 presets, comparing predictions made from source alone against rendered frames.
-
-Most preset guides describe what each variable is *meant* to do. This one also covers what happens at the edges: equation code split across lines, a division by zero, a texture name that starts with two letters and an underscore, a shape smaller than a pixel. Those edges decide whether a preset works.
+Most preset guides describe what each variable is *meant* to do. This one also covers the edge cases that decide whether a preset works: equation code split across lines, a division by zero, a texture name that starts with two letters and an underscore, a shape smaller than a pixel.
 
 !!! tip "Write for MilkDrop 2"
     ProjectM TV Engine follows MilkDrop 2 wherever projectM had drifted from it (see the [patch catalog](../engine/patches.md)). Writing to MilkDrop 2's rules is therefore the best way to get the same result here, in MilkDrop on Windows and in other projectM players. Where projectM still differs from MilkDrop 2, these pages say so under **Portability**.
@@ -57,16 +54,16 @@ comp_12=`}
 
 What each part does:
 
-- The **version lines** come first. Without `MILKDROP_PRESET_VERSION` of at least 200, the shader stages are switched off and `comp_` lines are ignored. `PSVERSION_WARP=0` keeps the classic fixed-function warp; `PSVERSION_COMP=2` enables the composite shader.
-- **`warp=0`** turns off the animated sine warp, which defaults to *on*.
-- **Shader lines** start with a backtick, which the parser strips. Lines are numbered from 1 without gaps; reading stops at the first missing number.
+- The version lines come first. Without `MILKDROP_PRESET_VERSION` of at least 200, the shader stages are switched off and `comp_` lines are ignored. `PSVERSION_WARP=0` keeps the classic fixed-function warp; `PSVERSION_COMP=2` enables the composite shader.
+- `warp=0` turns off the animated sine warp, which is on by default.
+- Shader lines start with a backtick, which the parser strips. Lines are numbered from 1 without gaps; reading stops at the first missing number.
 - `bass` and `texsize` come from a header that is prepended to every shader. `texsize.x/texsize.y` corrects for aspect so the ring stays round.
 
 To see it on your TV, put it in a ZIP and upload it as a [custom preset pack](../custom-packs.md).
 
 ## A complete, modern example
 
-The *Aurora Ownership* test presets, written for this project, use most block types: per-frame bass envelopes exported through `q` variables, textured, additive and multi-instance shapes, a dotted waveform and a spectrum ring, plus warp and composite shaders. They were designed so their behaviour could be predicted from source before rendering: its frozen motion, colour and flash estimates matched the render with a worst relative error of 0.076%. The source is in the [predictor branch](https://github.com/johnneerdael/ProjectM-TV/tree/feat/predictor-visual-loop/tools/milk-analyzer/witnesses/patch-0010-aurora); [Test and predict presets](testing.md#aurora-a-preset-designed-to-be-predicted) walks through it.
+The *Aurora Ownership* test presets, written for this project, use most block types: per-frame bass envelopes exported through `q` variables, textured, additive and multi-instance shapes, a dotted waveform and a spectrum ring, plus warp and composite shaders. They were designed so their behaviour could be predicted from source before rendering, and the frozen motion, colour and flash estimates matched the render with a worst relative error of 0.076%. The source is in the [predictor branch](https://github.com/johnneerdael/ProjectM-TV/tree/feat/predictor-visual-loop/tools/milk-analyzer/witnesses/patch-0010-aurora); [Test and predict presets](testing.md#aurora-a-preset-designed-to-be-predicted) walks through it.
 
 ## Other references
 

@@ -18,7 +18,7 @@ In an existing clone, run `git submodule update --init --recursive`. Never commi
 
 ## Touchscreen build
 
-The default build remains Android TV. Add `-PandroidTouchscreen=true` to build the phone/tablet APK with app ID `nl.neerdael.projectm`, regular Launcher entry, optional Leanback and required touchscreen. Both use the same source and core; build outputs occupy the same paths, so copy each APK and mapping before building the other platform. CI does this for both reviewed PR validation and releases, publishing `projectM-TV-<version>.apk` and `projectM-Android-<version>.apk` plus one Native core AAR.
+The default build is for Android TV. Add `-PandroidTouchscreen=true` to build the phone/tablet APK, which has app ID `nl.neerdael.projectm`, a regular Launcher entry, optional Leanback and a required touchscreen. Both builds use the same source and core. Their outputs occupy the same paths, so copy each APK and mapping before building the other platform. CI does this for reviewed PR validation and for releases, publishing `projectM-TV-<version>.apk` and `projectM-Android-<version>.apk` plus one Native core AAR.
 
 ```sh
 ./gradlew :app:assembleRelease :app:testReleaseUnitTest -PandroidTouchscreen=true
@@ -28,6 +28,8 @@ adb -s SERIAL install -r app/build/outputs/apk/androidTest/debug/app-debug-andro
 adb -s SERIAL shell pm grant nl.neerdael.projectm.setuptest android.permission.RECORD_AUDIO
 adb -s SERIAL shell am instrument -w -e setup_case touchscreen nl.neerdael.projectm.setuptest.test/com.example.projectm.visualizer.MusicCategoryInstrumentation
 ```
+
+Use a task-owned phone emulator or device. The framework instrumentation checks actual tap/swipe input, preset history, scroll isolation, persisted settings, touch navigation and retained D-pad controls, and writes `touch-menu.png` to the target's external cache. Profile and test suffixes also apply to the touchscreen app ID.
 
 For phone audio, run the same instrumentation with `-e setup_case phone_audio` on Android 10+. It checks microphone recorder reads, denied/granted playback consent, synthetic local playback reaching the engine, and pause cleanup. Dismiss Android's first-launch fullscreen tutorial before pointer tests.
 
@@ -40,13 +42,11 @@ The default GitHub build is unflavored and bundles all 9,606 presets and 74 text
 ./gradlew :app:assembleFdroidAndroidRelease :app:testFdroidAndroidReleaseUnitTest -PprojectmDistribution=fdroid -PandroidTouchscreen=true
 ```
 
-F-Droid listings live under `src/fdroidTv/fastlane/` and `src/fdroidAndroid/fastlane/`. The pinned importer selects the recipe's flavor. The former root listing was moved after an importer check exposed TV screenshots leaking into the phone listing.
+F-Droid listings live under `src/fdroidTv/fastlane/` and `src/fdroidAndroid/fastlane/`, and the pinned importer selects the recipe's flavor. The listing used to sit at the root; it was moved after an importer check showed TV screenshots leaking into the phone listing.
 
-For isolated runtime checks, use the matching `assembleFdroidTvDebug` / `assembleFdroidTvDebugAndroidTest` tasks, or the `fdroidAndroid` equivalents with `-PandroidTouchscreen=true`, and add `-PsetupScreenshotTest`. Cases `fdroid_starters`, `fdroid_pack`, `fdroid_pack_restart` and `fdroid_pack_removed` check consent, actual GL output/audio, installation, independent custom packs, restart and removal. The pack case reads a host-pushed `official-test.zip` from external files through a test-only response adapter; public HTTPS delivery remains a separate post-publication check.
+For isolated runtime checks, use the matching `assembleFdroidTvDebug` / `assembleFdroidTvDebugAndroidTest` tasks, or the `fdroidAndroid` equivalents with `-PandroidTouchscreen=true`, and add `-PsetupScreenshotTest`. The cases `fdroid_starters`, `fdroid_pack`, `fdroid_pack_restart` and `fdroid_pack_removed` check consent, actual GL output/audio, installation, independent custom packs, restart and removal. The pack case reads a host-pushed `official-test.zip` from external files through a test-only response adapter. Public HTTPS delivery is checked separately after publication.
 
-Use `-PprojectmReleaseVersion=VERSION -PprojectmReleaseVersionCode=CODE` for a controlled build identity. Release CI derives both values from the same source and writes them into the tagged release source's `gradle.properties`, which F-Droid's tag-based update check reads. [Recipe/sync setup](https://github.com/johnneerdael/ProjectM-Android/blob/main/tools/fdroid/README.md) documents the GitLab secret, validation and recovery workflow.
-
-Use a task-owned phone emulator/device. The framework instrumentation checks actual tap/swipe input, preset history, scroll isolation, persisted settings, touch navigation and retained D-pad controls. It writes `touch-menu.png` to the target's external cache. Profile and test suffixes also apply to the touchscreen app ID.
+Use `-PprojectmReleaseVersion=VERSION -PprojectmReleaseVersionCode=CODE` for a controlled build identity. Release CI derives both values from the same source and writes them into `gradle.properties` in the tagged release source, where F-Droid's tag-based update check reads them. The GitLab secret, validation and recovery workflow are documented in [Recipe/sync setup](https://github.com/johnneerdael/ProjectM-Android/blob/main/tools/fdroid/README.md).
 
 ## Run the tests
 
@@ -60,11 +60,11 @@ Use a task-owned phone emulator/device. The framework instrumentation checks act
 | `python -m pytest tools/preset-lab/tests` | Preset Lab |
 | `.venv-fdroid/bin/python -m unittest discover -s .github/scripts/tests -v` | Release tooling and pinned F-Droid generation/import/discovery/synchronization; install `tools/fdroid/requirements.txt` in that environment first |
 
-[Validation and evidence](engine/validation.md) describes what the native controls check, including the legacy compatibility controls for `fShader` shading and mode-1 waveforms ([BrainStain investigation](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/brainstain-dark-output/README.md)). Negative-power controls also verify CPU-defined nested exponents, attribute 9 uploads, unchanged equation parameters, nonfinite preservation, resize and prepared replay ([power-domain evidence](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/tulip-negative-zoom-power/README.md)). Invalid fractional-domain sampling remains backend-bound and does not establish portable source-only appearance.
+[Validation and evidence](engine/validation.md) describes what the native controls check, including the legacy compatibility controls for `fShader` shading and mode-1 waveforms ([BrainStain investigation](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/brainstain-dark-output/README.md)). Negative-power controls also verify CPU-defined nested exponents, attribute 9 uploads, unchanged equation parameters, nonfinite preservation, resize and prepared replay ([power-domain evidence](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/tulip-negative-zoom-power/README.md)). Sampling in the invalid fractional domain still depends on the backend, so its appearance cannot be established portably from source alone.
 
 ## Test on a TV without replacing the release
 
-A debug build cannot update a production installation (different signing key). Separate test builds install side by side:
+A debug build cannot update a production installation because it has a different signing key. These test builds install side by side with it:
 
 | Gradle property | Package | Use |
 |---|---|---|
@@ -78,7 +78,7 @@ adb -s SERIAL shell am instrument --user USER -w -e setup_case resolution \
   nl.neerdael.projectmtv.setuptest.test/com.example.projectm.visualizer.MusicCategoryInstrumentation
 ```
 
-Other cases: `tv_menu` checks D-pad focus/scrolling across all shared panels and Home/resume; `native_trails`, `custom_pack` followed by a cold `custom_pack_restart`, and `custom_pack_qr`. Find `USER` with `adb shell am get-current-user`. These check settings, navigation, uploads and completed frames, not preset appearance or performance.
+The other cases are `tv_menu`, which checks D-pad focus/scrolling across all shared panels and Home/resume, `native_trails`, `custom_pack` followed by a cold `custom_pack_restart`, and `custom_pack_qr`. Find `USER` with `adb shell am get-current-user`. These cases check settings, navigation, uploads and completed frames. They do not check preset appearance or performance.
 
 ### Profiling and diagnostics
 
@@ -100,7 +100,7 @@ The public API lives in `nl.neerdael.projectm.core`:
 | `QualityController` | Automatic resolution from frame rate and live memory headroom; `setResolutionMode` for fixed or Native sizes |
 | `DeviceProfile`, `DisplayInfo` | Device tier and physical panel detection |
 
-Engine defaults differ slightly from the app's: for example, blank-preset skipping is off in the core and switched on by the app. `ProjectMJNI.getVersion()` reports the upstream numeric projectM version (`4.2.0`), not the release version. Releasing and publishing are described in [RELEASING.md](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md).
+Some engine defaults differ from the app's. For example, blank-preset skipping is off in the core and switched on by the app. `ProjectMJNI.getVersion()` reports the upstream numeric projectM version (`4.2.0`), not the release version. Releasing and publishing are described in [RELEASING.md](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md).
 
 ## Offline preset tools
 
@@ -124,4 +124,4 @@ Reviewed pull requests build the site, and every merge to `main` publishes it af
 
 ## Contributing
 
-Changes go through a pull request to `main`. Claude and Codex review the initial ready PR; for follow-up commits, choose one reviewer by posting exactly `@claude review` or `@codex review`. A PR runs the full build only after a clean signoff for its latest full commit SHA, with every review thread resolved and no outstanding review requests or changes requested. See the [review gate and reviewer setup](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md#review-gate) for permissions, completion signals and manual triggers. Every PR needs a `## Release notes` section written for people using the app (see the PR template). Each successfully tested merge publishes a new versioned APK and core library automatically.
+Changes go through a pull request to `main`. Claude and Codex review the initial ready PR; for follow-up commits, choose one reviewer by posting exactly `@claude review` or `@codex review`. A PR runs the full build only after a clean signoff for its latest full commit SHA, with every review thread resolved and no outstanding review requests or changes requested. See the [review gate and reviewer setup](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md#review-gate) for permissions, completion signals and manual triggers. Every PR needs a `## Release notes` section written for people using the app (see the PR template). Each successfully tested merge automatically publishes a new versioned APK and core library.
