@@ -116,6 +116,8 @@ static projectm_preset_switch_failed_event g_failCb; static projectm_preset_swit
 static projectm_preset_initialization_warning_event g_warnCb;
 std::vector<std::string> g_loaded; bool g_locked = false; size_t g_pcmFed = 0;
 bool g_lastSmooth = false; int g_meshCalls = 0;
+std::string g_framebufferLifecycle;
+int g_guardDeleteCalls = 0;
 bool g_fakeTransitioning = false;
 bool projectm_is_transitioning(projectm_handle) { return g_fakeTransitioning; }
 std::vector<std::string> g_texturePathCalls; size_t g_loadsAtTextureCall = 0;
@@ -134,8 +136,8 @@ void projectm_opengl_set_line_reference_size(projectm_handle, uint32_t width, ui
   g_lineReferenceWidth = width;
   g_lineReferenceHeight = height;
 }
-projectm_handle projectm_create() { g_lastFrameDirect = false; g_fakeTransitioning = false; return new projectm; }
-void projectm_destroy(projectm_handle p) { g_fakeTransitioning = false; delete p; }
+projectm_handle projectm_create() { g_framebufferLifecycle += 'C'; g_lastFrameDirect = false; g_fakeTransitioning = false; return new projectm; }
+void projectm_destroy(projectm_handle p) { g_framebufferLifecycle += 'D'; g_fakeTransitioning = false; delete p; }
 int g_loadSleepMs = 0;
 int g_failNextLoads = 0;
 int g_warnNextLoads = 0;  // loads that leave out uncompilable code but succeed (patch 0035)
@@ -183,6 +185,8 @@ void projectm_opengl_set_outgoing_preset_frame_divisor(projectm_handle, uint32_t
 size_t g_poolLimit = 0; int g_poolForgets = 0;
 void projectm_opengl_set_texture_pool_limit(size_t bytes) { g_poolLimit = bytes; }
 void projectm_opengl_forget_texture_pool() { ++g_poolForgets; }
+void projectm_opengl_forget_framebuffer_guard() { g_framebufferLifecycle += 'F'; }
+void projectm_opengl_delete_framebuffers(int count, const unsigned int* ids) { ++g_guardDeleteCalls; glDeleteFramebuffers(count, ids); }
 size_t projectm_opengl_texture_pool_bytes() { return 0; }
 uint32_t g_cacheHits = 0, g_cacheMisses = 0;
 void projectm_opengl_program_cache_stats(uint32_t* hits, uint32_t* misses) { *hits = g_cacheHits; *misses = g_cacheMisses; }
@@ -850,7 +854,9 @@ int main(int argc, char** argv) {
   printf("context loss: new instance resumes the same preset, textures re-applied\n");
   g_pixel = 200; std::string shown = current();
   g_lineReferenceWidth = g_lineReferenceHeight = 0;
+  g_framebufferLifecycle.clear();
   Java_nl_neerdael_projectm_core_ProjectMJNI_onSurfaceCreated(nullptr, nullptr);
+  CHECK(g_framebufferLifecycle == "FDC"); // Forget old GL names before retiring them in the replacement context.
   Java_nl_neerdael_projectm_core_ProjectMJNI_onSurfaceChanged(nullptr, nullptr, 1280, 720); frame();
   CHECK(current() == shown);
   CHECK(g_texturePathCalls.size() == 2);

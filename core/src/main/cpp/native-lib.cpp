@@ -1848,7 +1848,7 @@ bool EnsureScaledTarget(int width, int height) {
 // contextAlive: delete the GL objects (else they died with their context).
 void ReleaseScaledTarget(bool contextAlive) {
     if (contextAlive) {
-        if (g_engine.scaledFbo) glDeleteFramebuffers(1, &g_engine.scaledFbo);
+        if (g_engine.scaledFbo) projectm_opengl_delete_framebuffers(1, &g_engine.scaledFbo);
         if (g_engine.scaledTexture) glDeleteTextures(1, &g_engine.scaledTexture);
     }
     g_engine.scaledFbo = g_engine.scaledTexture = 0;
@@ -2366,6 +2366,7 @@ JNIEXPORT jfloat JNICALL JNI_FN(getAudioLevel)(JNIEnv*, jclass) {
 JNIEXPORT void JNICALL JNI_FN(onSurfaceCreated)(JNIEnv*, jclass) {
     std::lock_guard<std::mutex> lock(g_engineMutex);
     // A new EGL context invalidates all GL objects of a previous instance.
+    projectm_opengl_forget_framebuffer_guard();
     DestroyEngineLocked(false);
     ApplyProgramCache();  // before projectM compiles its first programs
     g_engine.pm = projectm_create();

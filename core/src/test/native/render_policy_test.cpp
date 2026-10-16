@@ -4,6 +4,12 @@
 #undef main
 
 int main() {
+    g_engine.scaledFbo = 77;
+    ReleaseScaledTarget(true);
+    assert(g_guardDeleteCalls == 1 && g_engine.scaledFbo == 0);
+    g_engine.scaledFbo = 77;
+    ReleaseScaledTarget(false);
+    assert(g_guardDeleteCalls == 1 && g_engine.scaledFbo == 0); // Lost-context names make no driver calls.
     g_engine.pm = projectm_create();
     g_engine.width = 3840;
     g_engine.height = 2160;
