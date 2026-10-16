@@ -135,6 +135,10 @@ def _recipe_probe_columns(summary,render=None):
 EQUILIBRIUM_MODELS=('identity','legacy','composite_transfer','affine_composite')
 
 
+def _luma_of(rgb):
+    return float(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2])
+
+
 def _equilibrium_columns(summary):
     """Derived steady-state columns; empty when the equilibrium cannot be formed."""
     try:
@@ -150,6 +154,8 @@ def _equilibrium_columns(summary):
         for channel,value in zip('rgb',e[name]):out['equilibrium:'+name+'/'+channel]=float(value)
     out['equilibrium:display_local_warm']=e['display_local_rgb'][0]-e['display_local_rgb'][2]
     if isinstance(e.get('display_trail_luma'),(int,float)):out['equilibrium:display_trail_luma']=float(e['display_trail_luma'])
+    if isinstance(e.get('display_fixed_luma'),(int,float)):out['equilibrium:display_fixed_luma']=float(e['display_fixed_luma'])
+    if isinstance(e.get('canvas_fixed_rgb'),list):out['equilibrium:canvas_fixed_luma']=_luma_of(e['canvas_fixed_rgb'])
     out['equilibrium:display_spread_warm']=e['display_spread_rgb'][0]-e['display_spread_rgb'][2]
     for model in EQUILIBRIUM_MODELS:out['equilibrium:composite='+model]=1. if e['composite_model']==model else 0.
     # Composite transfer shape: threshold level (1.1 when it never reaches 0.5), time spread, undefined share.

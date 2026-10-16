@@ -369,3 +369,29 @@ def test_equilibrium_reports_the_trail_display_level():
                  'centre_vertex_rgba': [.5, .5, .5, 1.], 'perimeter_vertex_rgba': [.5, .5, .5, 1.]}}
     result = E.equilibrium(summary(facts))
     assert 0. < result['display_trail_luma'] <= 1. and len(result['display_trail_rgb']) == 3
+
+
+def test_canvas_fixed_point_converges_to_an_alpha_over_colour_not_to_white():
+    # Found with previews: with no decay (gain 1) the spread bound energy / (1 - g) clipped alpha-over presets to white
+    # (Cathedral: equilibrium 1.0, preview canvas 0.84). Under complete mixing an alpha-over element with coverage c
+    # converges to x* = c L / (1 - g (1 - c)), at most its colour L.
+    facts = {'/analysis/visual_description/feedback_transfer': {'uniform_diagonal_gain': 1., 'constant_offset_rgb': [0., 0., 0.]},
+             '/analysis/visual_description/elements/0/geometry': {
+                 'policy': 'source-custom-shape-footprint-v1', 'summed_nominal_area_fraction_per_aspect_y': 1 / E.ASPECT_Y * .05},
+             '/analysis/visual_description/elements/0/material': {
+                 'centre_vertex_rgba': [.6, .6, .6, 1.], 'perimeter_vertex_rgba': [.6, .6, .6, 1.]}}
+    result = E.equilibrium(summary(facts))
+    assert result['canvas_spread_rgb'][0] == 1.  # the area-preserving additive bound saturates
+    # Averaged over the ruler window (frames 60-299 from a black start) the canvas sits just under the colour.
+    assert abs(result['canvas_fixed_rgb'][0] - .6) < 5e-3
+
+
+def test_canvas_fixed_point_follows_a_nonlinear_warp_transfer(monkeypatch):
+    # Iterating the measured warp transfer table from a black start finds its own fixed point: W(x) = 0.25 + 0.5 x
+    # settles at 0.5 (a nonlinear table can hold a level that an affine fit would not).
+    import numpy as np
+    levels = list(np.linspace(0, 1, 11))
+    table = {'levels': levels, 'rgb': [[.25 + .5 * v] * 3 for v in levels]}
+    monkeypatch.setattr(E, 'stage_transfer', lambda facts, stage, *a, **k: table if stage == 'warp' else None)
+    result = E.equilibrium(summary({}))
+    assert abs(result['canvas_fixed_rgb'][0] - .5) < 1e-3

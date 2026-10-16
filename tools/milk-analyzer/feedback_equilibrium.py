@@ -573,6 +573,28 @@ def _composite_shape(composite):
 
 
 TRAIL_MAX_AGE=600
+RULER_WINDOW=(60,300)  # engine ruler: frames 60-299 from a black start
+
+
+def _canvas_fixed_point(terms,gain,offset,warp_table,window=RULER_WINDOW):
+    """Canvas level averaged over the ruler window: x <- W(x) (1 - c) + sum alpha a L, from black.
+
+    Alpha-over elements (coverage c = sum alpha a, capped at 1) blend over the warped canvas, so the level converges to
+    their colour instead of the additive spread bound energy / (1 - g); additive elements add their energy each frame.
+    W is the warp's measured flat-colour transfer table when available (a nonlinear warp can hold a level an affine
+    gain/offset fit misses), else the affine gain and offset."""
+    c=min(1.,sum(alpha*area for area,_,alpha,additive in terms if not additive))
+    inject=[sum(area*p[i] for area,p,_,_ in terms) for i in range(3)]
+    x=[0.,0.,0.];total=[0.,0.,0.];count=0
+    for frame in range(window[1]):
+        warped=_apply_transfer(warp_table,x) if warp_table else [gain[i]*x[i]+offset[i] for i in range(3)]
+        x=[_clip(warped[i]*(1-c)+inject[i]) for i in range(3)]
+        if frame>=window[0]:
+            count+=1
+            for i in range(3):total[i]+=x[i]
+    return [v/count for v in total]
+
+
 
 
 def _trail_histogram(terms,gain,background,max_age=TRAIL_MAX_AGE):
@@ -613,6 +635,8 @@ def equilibrium(summary):
     spread=[_clip((energy[i]+offset[i])/(1-gain[i])) if gain[i]<1 else (1. if energy[i]+offset[i]>0 else 0.) for i in range(3)]
     composite=stage_transfer(facts,'composite')
     shown_local,model=_composite(local,facts,notes,composite);shown_spread,_=_composite(spread,facts,notes,composite)
+    fixed=_canvas_fixed_point(terms,gain,offset,stage_transfer(facts,'warp'))
+    shown_fixed,_=_composite(fixed,facts,notes,composite)
     # For a nonlinear composite the display is the mean of T(level) over the canvas, not T(mean level).
     trail=[0.,0.,0.]
     for share,level in _trail_histogram(terms,gain,background):
@@ -624,6 +648,7 @@ def equilibrium(summary):
             'display_local_rgb':shown_local,'display_spread_rgb':shown_spread,
             'display_local_luma':_luma(shown_local),'display_spread_luma':_luma(shown_spread),
             'display_trail_rgb':trail,'display_trail_luma':_luma(trail),
+            'canvas_fixed_rgb':fixed,'display_fixed_rgb':shown_fixed,'display_fixed_luma':_luma(shown_fixed),
             'display_local_saturation':_saturation(shown_local),'display_spread_saturation':_saturation(shown_spread),
             'composite_model':model,'substitutions':notes[:20],'substitution_count':len(notes),
             **_composite_shape(composite),
