@@ -84,7 +84,7 @@ The Mood panel counts only presets this device can play, so skipped presets redu
 
 ## The collection download failed or disappeared
 
-Keep the visualizer open while downloading. Leaving during download/preparation cancels it; retry from **Advanced › Cream of the Crop**. Allow at least 184.2 MiB free during installation. The archive is fetched from GitHub, so a network block or unavailable release can prevent downloading; the 20 starters remain usable offline.
+Keep the visualizer open while downloading. Leaving during download/preparation cancels it; retry from **Advanced › Cream of the Crop**. Allow at least 186.1 MiB free during installation. The archive is fetched from GitHub, so a network block or unavailable release can prevent downloading; the 20 starters remain usable offline.
 
 An incomplete or corrupted collection is rejected. After a restart, missing or changed installed files cause the app to use the starters. Download it again from the same setting. Removing the collection keeps your custom pack. Clearing app data, reinstalling or restoring on another device requires downloading again.
 

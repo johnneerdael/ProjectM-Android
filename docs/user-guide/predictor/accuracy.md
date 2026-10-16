@@ -55,7 +55,26 @@ This is measured with one synthetic audio track. Music with hard transients can 
 
 The shipped table is built by the final model, trained on all bundled presets, so for the bundled presets themselves agreement with the ruler is higher than out of fold:
 
-<!-- in-sample -->
+Agreement of the shipped table with the ruler on the 9,606 measured bundled presets:
+
+| Group | Option | Precision | Recall | In the table |
+|---|---|---|---|---|
+| Energy | Chill | 98% | 60% | 2,068 |
+| Energy | Normal | 98% | 42% | 2,072 |
+| Energy | Intense | 90% | 88% | 2,828 |
+| Brightness | Dark | 97% | 66% | 1,780 |
+| Brightness | Balanced | 98% | 28% | 1,236 |
+| Brightness | Bright | 90% | 83% | 2,469 |
+| Colour | Monochrome | 100% | 47% | 473 |
+| Colour | Pastel | 99% | 46% | 318 |
+| Colour | Vivid | 86% | 81% | 4,663 |
+| Colour | Warm | 96% | 76% | 1,888 |
+| Colour | Cool | 97% | 73% | 1,271 |
+| Movement | Still | 97% | 61% | 1,276 |
+| Movement | Drifting | 98% | 35% | 1,711 |
+| Movement | Fast | 88% | 60% | 1,936 |
+| Comfort | No strobe | 100% | 14% | 712 |
+| **All options** | | **93.3%** | **54.2%** | |
 
 These figures describe how the shipped table relates to the ruler; the out-of-fold figures above describe how reliable the analysis is.
 

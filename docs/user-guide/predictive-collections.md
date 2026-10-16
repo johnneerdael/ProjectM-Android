@@ -13,6 +13,8 @@ Open the settings panel and choose **Preset mood** (Settings › Preset mood).
 
 ![Mood panel with Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort rows](images/setup/mood.png)
 
+*The Mood panel with Chill and No strobe selected: 525 presets. Each row scrolls sideways to its remaining options; Style and Comfort are further down.*
+
 Each row is one group of options. Up and Down move between rows; Left and Right move between options; Center switches the focused option on or off. Every option shows the number of presets you would have if you toggled it (*→ N*; for a selected option, the mix without it). **Clear all** at the bottom switches everything off again. Back returns to the main panel.
 
 ## The groups
@@ -43,7 +45,47 @@ Choose Palette when you want a colour to be present, and Main colour when you wa
 
 The numbers below are for the 9,606 bundled presets. Ranges overlap, so the counts in a group can add up to more or less than 9,606.
 
-<!-- option-counts -->
+| Group | Option | Presets |
+|---|---|---|
+| Energy | Chill | 2,068 |
+| Energy | Normal | 2,072 |
+| Energy | Intense | 2,828 |
+| Brightness | Dark | 1,780 |
+| Brightness | Balanced | 1,236 |
+| Brightness | Bright | 2,469 |
+| Colour | Monochrome | 473 |
+| Colour | Pastel | 318 |
+| Colour | Vivid | 4,663 |
+| Colour | Warm | 1,888 |
+| Colour | Cool | 1,271 |
+| Palette | Red | 4,342 |
+| Palette | Orange | 2,786 |
+| Palette | Yellow | 2,144 |
+| Palette | Green | 6,286 |
+| Palette | Cyan | 1,646 |
+| Palette | Blue | 6,873 |
+| Palette | Purple | 1,029 |
+| Palette | Pink | 4,448 |
+| Main colour | Red | 250 |
+| Main colour | Orange | 235 |
+| Main colour | Yellow | 36 |
+| Main colour | Green | 97 |
+| Main colour | Cyan | 38 |
+| Main colour | Blue | 412 |
+| Main colour | Purple | 21 |
+| Main colour | Pink | 46 |
+| Movement | Still | 1,276 |
+| Movement | Drifting | 1,711 |
+| Movement | Fast | 1,936 |
+| Style | Kaleidoscope | 4,503 |
+| Style | Tunnel | 700 |
+| Style | Liquid | 4,132 |
+| Style | Geometric | 2,032 |
+| Style | Particles | 3,209 |
+| Style | Fractal | 130 |
+| Comfort | No strobe | 712 |
+
+9,133 presets carry at least one Palette colour and 1,135 a Main colour.
 
 ## How choices combine
 
@@ -60,7 +102,7 @@ The numbers below are for the 9,606 bundled presets. Ranges overlap, so the coun
 
 The analysis only gives an option when it is confident. A preset whose brightness could be either Dark or Balanced gets neither, rather than a guess. This keeps the options precise, at the cost of smaller pools: an option you select plays presets that very likely belong there, but not every preset that would.
 
-Unlabelled presets are not hidden. They play whenever the group they lack has nothing selected, and always when nothing is selected at all. Of the 9,606 bundled presets, <!-- style-only --> carry no option apart from Style. They are deliberately left that way so that people can say what they actually look like.
+Unlabelled presets are not hidden. They play whenever the group they lack has nothing selected, and always when nothing is selected at all. Of the 9,606 bundled presets, 428 have no Energy, Brightness, Colour, Movement or Comfort option at all (they can still have Palette colours and Style). They are deliberately left that way so that people can say what they actually look like.
 
 ## Which presets have attributes
 

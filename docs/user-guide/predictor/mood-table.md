@@ -112,11 +112,11 @@ The decision runs in four steps (`preset_recipe.facets_block`):
  "producer": {"branch": "feat/predictor-static-output-bounds", "commit": "<research commit>",
               "calibration_model_sha256": "<model hash>",
               "policy": "static source analysis only; no ruler or simulation values"},
- "rows": [{"name": "<preset>.milk", "sha256": "<preset file hash>",
-           "options": ["chill", "bright", "vivid", "warm", "liquid"],
+ "rows": [{"name": "Various - Fire and Brimstone.milk", "sha256": "ddc3d588…cf914",
+           "options": ["bright", "vivid", "warm", "liquid"],
            "palette": ["green", "red", "yellow"], "dominant": null,
-           "values": {"luminance": 0.49, "saturation": 0.80, "coloured_share": 0.83, "warm_cool": 0.45,
-                      "flow": 0.095, "frame_difference": 0.034, "jumps": 0.0, "activity": 0.09}}]}
+           "values": {"luminance": 0.491, "saturation": 0.804, "coloured_share": 0.826, "warm_cool": 0.449,
+                      "flow": 0.095, "frame_difference": 0.034, "jumps": 0.0, "activity": 0.309}}]}
 ```
 
 The preset's name is removed before the options are decided, so the analysis can never look up an existing table row. The file is committed to `main` at `docs/superpowers/evidence/static-mood-table-2026-10-16/static-evidence.json.gz`; the [JSON page](json-output.md#the-mood-evidence) explains every field.

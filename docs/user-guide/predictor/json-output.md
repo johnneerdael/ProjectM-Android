@@ -52,11 +52,11 @@ Each row (Fire and Brimstone):
 ```json
 {"name": "Various - Fire and Brimstone.milk",
  "sha256": "ddc3d588…cf914",
- "options": ["chill", "bright", "vivid", "warm", "liquid"],
+ "options": ["bright", "vivid", "warm", "liquid"],
  "palette": ["green", "red", "yellow"],
  "dominant": null,
  "values": {"luminance": 0.4910, "saturation": 0.8042, "coloured_share": 0.8259, "warm_cool": 0.4487,
-            "flow": 0.0952, "frame_difference": 0.0342, "jumps": 0.0, "activity": 0.0949}}
+            "flow": 0.0952, "frame_difference": 0.0342, "jumps": 0.0, "activity": 0.3092}}
 ```
 
 | Field | Type | Meaning |
@@ -73,7 +73,7 @@ Each row (Fire and Brimstone):
 | `values.flow` | screen widths per second | Estimated motion speed |
 | `values.frame_difference` | 0–1 | Estimated mean change between consecutive frames |
 | `values.jumps` | per 10 s | Estimated whole-screen brightness jumps per 10 seconds |
-| `values.activity` | 0–1 | Energy percentile against the frozen activity reference; 0.09 is calmer than 91% of the reference presets |
+| `values.activity` | 0–1 | Energy percentile against the frozen activity reference; 0.31 is calmer than 69% of the reference presets |
 | `error` | string | Present only if the analysis failed; the preset then gets no options. The shipped export has none |
 
 ## The Mood table line
@@ -81,7 +81,7 @@ Each row (Fire and Brimstone):
 `attributes.tsv` turns each row into one tab-separated line:
 
 ```text
-Various - Fire and Brimstone.milk	chill,bright,vivid,warm,green,red,yellow,liquid	0.4910	0.8042	0.8259	0.4487	0.0952	0.0342	0.0000	0.0949
+Various - Fire and Brimstone.milk	bright,vivid,warm,red,yellow,green,liquid	0.4910	0.8042	0.8259	0.4487	0.0952	0.0342	0.0000	0.3092
 ```
 
 Columns: `name`, `options` (definition order: Energy, Brightness, Colour, Palette, Main colour, Movement, Style, Comfort; Main colour ids are `main_<family>`), then `luminance`, `saturation`, `coloured_share`, `warm_cool`, `flow`, `frame_difference`, `jumps`, `activity` with four decimals (`-` for unknown). The header lists every group and option (`#group`, `#option`) and the columns (`#columns`); the app builds the Mood panel from the header, so new groups need no code change.
@@ -208,7 +208,7 @@ The calibrated estimates ([From estimates to moods](mood-table.md#2-the-calibrat
 |---|---|
 | `policy` | `source-calibrated-display-estimate-v1` |
 | `statistics` | One entry per target, each `{value, interval, oof_spearman, evidence, label_source}`; classifier targets add `threshold` |
-| `activity` | `activity` (0–1 percentile), `activity_interval`, `bands` (Energy options the value falls in), `possible_bands` (options within the interval), `certain_bands`, `remapped` |
+| `activity` | A display activity score (`display-activity-v1`): `activity`, `activity_interval`, `bands`, `possible_bands` (options within the interval), `certain_bands`, `remapped`. It is a separate, remapped score; the Mood table's `activity` value is the frozen-reference percentile of the calibrated frame difference, flow and jumps |
 | `reference` | The ruler conditions the estimates are calibrated to |
 | `note` | "Calibrated from static source facts; intervals are the 10th–90th percentile out-of-fold residuals; not a rendered measurement of this preset" |
 
@@ -228,7 +228,7 @@ The 29 statistics:
 | `no_strobe_probability` | Probability of fewer than 1 jump per 10 s | 0.926 (just under the 0.93 gate) |
 | `facet_<option>_probability` (12) | Probability per option for dark, bright, monochrome, pastel, warm, cool, still, chill, intense, balanced, drifting, normal, each with its `threshold` | warm 0.82 (threshold 0.51), chill 0.59 (0.69) |
 
-Reading the example: Fire and Brimstone's No strobe probability (0.926) falls just short of the 0.93 gate, so it is **not** admitted to No strobe even though its jumps estimate is 0. Its Chill probability (0.59) is below its threshold (0.69), so the Chill classifier on its own would not admit it; Chill in its options comes from the value rule on activity, which the classifier then confirms or overrides according to the decision steps on the [mood page](mood-table.md#option-classifiers).
+Reading the example: Fire and Brimstone's No strobe probability (0.926) falls just short of the 0.93 gate, so it is **not** admitted to No strobe even though its jumps estimate is 0. Its activity (0.31) satisfies the Chill rule (≤ 0.35), but the Chill classifier gives 0.59, below its threshold of 0.69, and the classifier decides: the preset gets **no Energy option**. Bright, Warm and Vivid come from the Bright and Warm classifiers (0.69 and 0.82, above their thresholds) and the Vivid rule (saturation 0.80 ≥ 0.5). This is the precision-first design at work: the render does look calm, but the evidence was not strong enough to say so.
 
 ### `facets`
 

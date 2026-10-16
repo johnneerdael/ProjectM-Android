@@ -69,7 +69,7 @@ All production releases use the same permanent signing key. An APK you build you
 
 The F-Droid edition starts with 20 curated presets that work offline. On first launch, choose **Download (recommended)** for the complete Cream of the Crop collection or **Use 20 starters** to continue immediately. The choice is also available later under **Settings › Advanced › Cream of the Crop**.
 
-The verified download comes from GitHub. It contains 9,606 presets, their textures and the existing mood metadata. Download size is **38.7 MiB**; the archive contains **129.5 MiB** unpacked. Keep at least **184.2 MiB** free for the archive, extraction and installation overhead. Keep the visualizer in the foreground while it downloads and prepares the collection. Leaving during that work cancels it and keeps the current presets; an installation already completing may finish. Retry from the same setting.
+The verified download comes from GitHub. It contains 9,606 presets, their textures and the existing mood metadata. Download size is **39.1 MiB**; the archive contains **131.0 MiB** unpacked. Keep at least **186.1 MiB** free for the archive, extraction and installation overhead. Keep the visualizer in the foreground while it downloads and prepares the collection. Leaving during that work cancels it and keeps the current presets; an installation already completing may finish. Retry from the same setting.
 
 After installation it works offline and survives restarts. **Remove collection** returns to the 20 starters and leaves your custom pack available. Clearing app data or uninstalling removes downloaded packs. New collection contents require another explicit download; app updates do not automatically replace an installed collection.
 

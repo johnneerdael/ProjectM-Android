@@ -44,7 +44,7 @@ Written before the render (SDK look description):
 
 A dense blue particle storm spiralling into a smeared vortex. Every streak is redrawn and smeared each frame; the prediction tracks the vortex, the haze and the bright core frame by frame (see the strip).
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Normal, Intense · **Brightness** Balanced · **Colour** Cool · **Palette** Blue · **Main colour** Blue · **Style** Tunnel, Particles
 
 ### Crystal Liquid – the lights at night spikes
 
@@ -78,7 +78,7 @@ Written before the render (SDK look description):
 
 Liquid, textured turbulence with a violet glow. The single frames match to two decimals in mean colour: (0.17, 0.22, 0.35) in both.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Normal · **Colour** Cool · **Palette** Blue · **Main colour** Blue · **Movement** Drifting · **Style** Kaleidoscope
 
 ### Serge mashup001
 
@@ -112,7 +112,7 @@ Written before the render (SDK look description):
 
 An exploding pink, red and yellow starburst. The palette, the dark rays and the bright centre all come from the source maths.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Normal, Chill · **Colour** Vivid, Warm · **Palette** Red, Pink, Orange · **Main colour** none · **Movement** Drifting · **Style** Tunnel, Particles
 
 ### suksma – more Martinik theft
 
@@ -142,7 +142,7 @@ Written before the render (SDK look description):
 
 Flickering, blown-out blue and white light panels: busy (0.10 change per frame) and still predicted to within a few percent in brightness. It flashes (22 brightness jumps per 10 s in the engine ruler), so it is shown as stills only and is not a No strobe preset.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Intense · **Brightness** Bright · **Colour** Cool · **Palette** Blue, Green, Cyan · **Main colour** none · **Movement** Fast · **Style** Particles
 
 ### Royal – Mashup (190)
 
@@ -176,7 +176,7 @@ Written before the render (SDK look description):
 
 Shards and rings rotating out of the dark. The analysis predicted the full sequence of the first five seconds (see the strip).
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Normal · **Palette** Green, Blue, Red, Orange, Yellow, Pink · **Main colour** none · **Movement** Drifting · **Style** Particles
 
 ### martin – time machine (roam3)
 
@@ -202,7 +202,7 @@ Written before the render (SDK look description):
 
 A hard strobe (163 brightness jumps per 10 s in the engine ruler). Predicted frame by frame: over frames 60–149 the mean colour is 0.284/0.367/0.259 predicted and 0.283/0.366/0.259 rendered, and the frame-by-frame brightness series matches (0.69 predicted, 0.70 rendered at its brightest sampled frame). The look description written before the render said it is not safe for a No strobe setting. Shown as stills only.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Intense · **Brightness** Balanced · **Palette** Green, Cyan, Blue · **Main colour** none · **Movement** Fast · **Style** Geometric
 
 
 ## Fluid and organic
@@ -239,7 +239,7 @@ Written before the render (SDK look description):
 
 Flame-like turbulence growing from green into red, yellow and black. Per-frame brightness stayed within 0.005 of the render at every sampled frame. The [feedback maths page](feedback-maths.md) explains why it is fire-coloured: the warp keeps red and green and cuts blue.
 
-In the app: *(not in the evidence)*
+In the app: **Brightness** Bright · **Colour** Vivid, Warm · **Palette** Green, Red, Yellow · **Main colour** none · **Style** Liquid
 
 ### EoS + Phat – chasers 14 (Flowering Phoenix mix)
 
@@ -273,7 +273,7 @@ Written before the render (SDK look description):
 
 Orange and red feathered flames over a mirrored figure, near frame-exact.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Chill · **Colour** Vivid, Warm · **Palette** Red, Orange · **Main colour** none · **Movement** Drifting · **Style** Kaleidoscope, Particles
 
 ### EoS / Phat – Dark heart
 
@@ -303,7 +303,7 @@ Written before the render (SDK look description):
 
 A dark screen carrying a red and pink cross, smeared by feedback into swirling, centre-pulling streaks.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Normal, Chill · **Colour** Vivid, Warm · **Palette** Red, Pink · **Main colour** none · **Style** Kaleidoscope, Particles
 
 ### Phat / Aderrasi – Chromatic Abyss (the other side)
 
@@ -333,7 +333,7 @@ Written before the render (SDK look description):
 
 A swirling vortex of grey and dark colour. Brightness and structure are exact over time (time-average layout 0.997); the hue of the swirl differs between prediction and render, because part of its colour depends on the random tint drawn at load.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Chill · **Brightness** Bright · **Palette** Blue, Pink, Green, Purple, Cyan · **Main colour** none · **Comfort** No strobe
 
 
 ## Symmetry, structure and geometry
@@ -370,7 +370,7 @@ Written before the render (SDK look description):
 
 Nothing flows: decay 1.0 and an almost identity warp, so the picture only changes by new drawing piling up on old. The analysis says exactly that, and the spiral builds up on the same schedule (see the strip).
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Chill · **Brightness** Bright · **Palette** Red, Green, Pink, Cyan, Blue, Orange · **Main colour** none · **Movement** Drifting · **Style** Particles · **Comfort** No strobe
 
 ### EoS – repeater 06 (rave on a lot of acid)
 
@@ -400,7 +400,7 @@ Written before the render (SDK look description):
 
 A mirrored grid of green and blue acid shapes: four huge overlapping polygons and four point layers, tiled by the composite.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Chill · **Colour** Vivid · **Palette** Pink, Green, Blue, Red · **Main colour** none · **Style** Kaleidoscope, Particles
 
 ### EoS – glowsticks v2 03 (roaming)
 
@@ -430,7 +430,7 @@ Written before the render (SDK look description):
 
 Green and red glowsticks repeated across the screen by a strong zooming feedback trail.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Normal · **Colour** Vivid · **Palette** Pink, Green, Blue, Red · **Main colour** none · **Movement** Drifting · **Style** Particles
 
 ### 298
 
@@ -460,7 +460,7 @@ Written before the render (SDK look description):
 
 Multicoloured dotted traces over a zooming green shape, exact to 0.002 in brightness.
 
-In the app: *(not in the evidence)*
+In the app: **Palette** Pink, Green, Blue, Orange · **Main colour** none · **Movement** Drifting · **Style** Particles
 
 ### suksma – out of fuckus (newband plays harry partch)
 
@@ -488,9 +488,9 @@ Written before the render (SDK look description):
 
 > Core picture: a dark, soft, smoky feedback canvas with four custom line-waveform layers (512 points each) drawn into it. The strongest visible drawn element is wave_1, a translucent (mean alpha about 0.5), highly saturated line (mean saturation 0.99) coloured about 86% pink, 11% purple and 3% blue. wave_3 is a very faint grey line (alpha about 0.025) that adds only a subtle haze.
 
-A dark, smoky canvas with a single bright vertical trace and glowing caps.
+A dark, smoky canvas with a single bright vertical trace and glowing caps. The frozen prediction matches the render almost exactly (single-frame layout 0.98, mean colour equal to 0.001). The shipped mood, however, says **Intense**, while the render is calm (0.008 change per frame): one of the wrong Intense labels. The prediction image and the mood come from different paths (images are never used for moods), and the calibrated activity estimate misreads this preset.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Intense · **Brightness** Dark · **Colour** Vivid, Cool · **Palette** Blue, Green · **Main colour** none · **Style** Kaleidoscope
 
 ### fiShbRaiN – quark matrix
 
@@ -520,7 +520,7 @@ Written before the render (SDK look description):
 
 A deep-blue field with a thick waveform trace and a pale crosshair; the overall field and level are exact, the line details differ.
 
-In the app: *(not in the evidence)*
+In the app: **Brightness** Dark · **Palette** Blue, Green · **Main colour** none
 
 
 ## Where it misses
@@ -551,7 +551,7 @@ Written before the render (SDK look description):
 
 **Colour miss.** Structure and brightness agree, but the prediction is green and red where the render is pink and black. Several of this preset's colours come from values redrawn at random; the analysis knows the range, not the draw. It also strobes (108 brightness jumps per 10 s), so it is shown as stills only.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Intense · **Brightness** Balanced · **Colour** Vivid · **Palette** Green, Blue, Pink · **Main colour** none · **Movement** Fast · **Style** Kaleidoscope, Liquid, Geometric, Particles
 
 ### suksma – tetraxectsual (Isosceles edit 16)
 
@@ -577,7 +577,7 @@ Written before the render (SDK look description):
 
 **Level miss.** Structure and palette are right (layout 0.98, a red-orange-yellow fire ramp with near-zero blue), but the canvas level is about 20% low (0.48 against about 0.58) behind a steep composite curve, so the prediction is a darker orange where the render is bright yellow. Errors in the feedback level are the most common kind of miss. It pulses hard with the music (125 jumps per 10 s), so it is shown as stills only.
 
-In the app: *(not in the evidence)*
+In the app: **Energy** Intense · **Brightness** Bright · **Colour** Vivid, Warm · **Palette** Orange, Yellow · **Main colour** none · **Movement** Drifting
 
 ### Stahlregen & Boz – Machine Code (Reaction Diffusion)
 
@@ -607,7 +607,7 @@ Written before the render (SDK look description):
 
 **Chaotic detail.** The single frames barely correlate (0.10), yet the analysis is right: grey reaction-diffusion stripes grow upward on the same schedule, and the time-averaged pictures correlate at 0.84. For chaotic presets only statistics can match.
 
-In the app: *(not in the evidence)*
+In the app: **Brightness** Bright · **Colour** Monochrome · **Palette** none (grey) · **Main colour** none · **Comfort** No strobe
 
 
 ## More checkpoints

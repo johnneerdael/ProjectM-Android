@@ -60,7 +60,7 @@ The threshold is a trade-off. A lower threshold would find more true colours and
 1. the calibration model predicts that the top colour covers at least **65%** of the coloured picture (`hue_top_share ≥ 0.65`), and
 2. that family holds at least **55%** of the pooled palette.
 
-The second condition was added after the first alone named a main colour for too many mixed presets. With both, main-colour claims name the render's top colour **84%** of the time out of fold (77% with the first condition alone), and claims cover about 10% of coloured presets. In the shipped table about one preset in eight has a main colour.
+The second condition was added after the first alone named a main colour for too many mixed presets. With both, main-colour claims name the render's top colour **84%** of the time out of fold (77% with the first condition alone), and claims cover about 10% of coloured presets. In the shipped table 1,135 presets (about one in nine) have a main colour.
 
 ## Grey presets
 

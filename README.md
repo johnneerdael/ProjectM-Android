@@ -156,7 +156,7 @@ Versions 2.3.46 and older cannot update themselves since the repository moved to
 | TV | `projectM-TV-FDroid.apk` | 20 starters; optional full collection | F-Droid |
 | Phone/tablet | `projectM-Android-FDroid.apk` | 20 starters; optional full collection | F-Droid |
 
-These APKs are separate release artifacts. F-Droid listings remain subject to its maintainers' acceptance. On first launch, choose **Download (recommended)** or **Use 20 starters**. Reopen **Advanced › Cream of the Crop** to download or remove it later. The download is 38.7 MiB, with 129.5 MiB of unpacked collection contents; allow at least 184.2 MiB of free storage during installation. After installation the collection works offline. Downloading requires the app to stay in the foreground. Custom packs survive collection removal. [Setup and updates](https://johnneerdael.github.io/ProjectM-Android/getting-started/).
+These APKs are separate release artifacts. F-Droid listings remain subject to its maintainers' acceptance. On first launch, choose **Download (recommended)** or **Use 20 starters**. Reopen **Advanced › Cream of the Crop** to download or remove it later. The download is 39.1 MiB, with 131.0 MiB of unpacked collection contents; allow at least 186.1 MiB of free storage during installation. After installation the collection works offline. Downloading requires the app to stay in the foreground. Custom packs survive collection removal. [Setup and updates](https://johnneerdael.github.io/ProjectM-Android/getting-started/).
 
 **From a computer**
 
