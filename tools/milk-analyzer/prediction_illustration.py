@@ -2059,6 +2059,11 @@ class FrameStats:
     """
     def __init__(self,start=60):
         self.start=start;self.luma=[];self.grey=None;self.diffs=[];self.saturation=[];self.coloured=[];self.index=0
+    def record_canvas(self,image):
+        # The feedback buffer (canvas) mean luma for this frame, before the composite; recorded before __call__.
+        rgb=np.clip(np.asarray(image,np.float64),0,1).reshape(-1,3).mean(0)
+        if not hasattr(self,'canvas'):self.canvas=[]
+        self.canvas.append(float(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]))
     def __call__(self,frame_time,shown):
         rgb=(np.clip(np.asarray(shown),0,1)*255+.5).astype(np.uint8)
         grey=cv2.cvtColor(cv2.resize(rgb,(320,180),interpolation=cv2.INTER_AREA),cv2.COLOR_RGB2GRAY)
@@ -2078,6 +2083,7 @@ class FrameStats:
                 'global_brightness_jumps':int(np.sum(np.abs(np.diff(window))>.08)) if len(window)>1 else None,
                 'mean_saturation':float(np.mean(self.saturation)) if self.saturation else None,
                 'coloured_share':float(np.mean(self.coloured)) if self.coloured else None,
+                'canvas_mean_luminance':float(np.mean(getattr(self,'canvas',[])[self.start:])) if len(getattr(self,'canvas',[]))>self.start else None,
                 'luma_series':[round(v,4) for v in self.luma],
                 'note':'computed from the frames this prediction run already produced; ruler measures, no extra rendering'}
 
@@ -2428,7 +2434,10 @@ def _illustrate_field(summary,*,time,fps,history_steps,audio=None,viewport=None,
             for alpha,colour in sprites+_dynamic_border_operators(facts,width,height,held):
                 image=image*(1-alpha[...,None])+alpha[...,None]*colour
                 canvas['alpha']=alpha*alpha+canvas['alpha']*(1-alpha)
-            if frame_callback is not None:frame_callback(frame_time,_display(image,facts,frame_time,fps,[],previous))
+            if frame_callback is not None:
+                # Optional canvas hook (additive): the feedback buffer before the composite.
+                if hasattr(frame_callback,'record_canvas'):frame_callback.record_canvas(image)
+                frame_callback(frame_time,_display(image,facts,frame_time,fps,[],previous))
             if rand_probe is not None and frame_number==rand_probe['frame']:
                 final=image
                 def evaluate(vector,stage='warp',final=final,frame_time=frame_time,previous=previous,older=older,stage_controls=stage_controls):
