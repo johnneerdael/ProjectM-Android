@@ -106,7 +106,7 @@ Numerical source tests require NumPy and pytest from the existing
 
 ## Predictive collections beta
 
-The app's Preset mood now opens the Mood panel: facet groups from the engine-ruler attribute bundle built by `attribute_bundle.py` (see `docs/user-guide/predictive-collections.md`). The legacy Chill1–30, Normal25–75 and Intense70–100 core categories described here remain for Milkbeat via `setMusicCategory`.
+The app's Preset mood now opens the Mood panel: facet groups (including Palette and Main colour) from the static source-analysis attribute bundle built by `attribute_bundle.py --build-static` and checked against `docs/superpowers/evidence/static-mood-table-2026-10-16/` (see `docs/user-guide/predictor-export.md`) (see `docs/user-guide/predictive-collections.md`). The legacy Chill1–30, Normal25–75 and Intense70–100 core categories described here remain for Milkbeat via `setMusicCategory`.
 `beta_score.py` executes the standard published ProjectM-TV:core AAR through its
 JNI interface on a task-owned Android emulator. `beta_export.py` verifies complete
 source-bound results, preserves master memory weights and publishes the three

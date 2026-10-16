@@ -166,6 +166,21 @@ final class MoodSetupTest {
             check(ProjectMJNI.getCategoryPresetCount("facets") == chill,
                     "engine pool " + ProjectMJNI.getCategoryPresetCount("facets") + " differs from " + chill);
 
+            // 3b. Palette and Main colour rows follow Colour; a Palette colour narrows Chill (AND across groups)
+            // and Center again removes it.
+            int paletteRow = -1;
+            for (int g = 0; g < table.groups().size(); g++) if ("palette".equals(table.groups().get(g).id)) paletteRow = g;
+            check(paletteRow > 0 && "main_colour".equals(table.groups().get(paletteRow + 1).id), "Palette/Main colour rows missing");
+            focusFacetRow(test, target, paletteRow);
+            test.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);
+            List<String> withColour = Arrays.asList(prefs.getString("mood_facets", "").split(","));
+            check(withColour.size() == 2 && withColour.contains("chill"), "Palette colour not saved: " + withColour);
+            int coloured = table.select(withColour, skipped(test)).poolSize();
+            check(coloured > 0 && coloured <= chill, "Palette did not narrow Chill: " + coloured + " of " + chill);
+            check(expectedHeader(coloured).equals(header(test, target)), "Palette header: " + header(test, target));
+            test.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);
+            check("chill".equals(prefs.getString("mood_facets", "")), "Palette colour not removed: " + prefs.getString("mood_facets", ""));
+
             // 4. Comfort › No strobe narrows the mix.
             focusFacetRow(test, target, table.groups().size() - 1);
             test.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);
@@ -322,7 +337,7 @@ final class MoodSetupTest {
                 customCheck = "stale Custom returned to the bundled mix";
             }
 
-            result.putString("stream", "PASS: Mood panel header, D-pad Chill (" + chill + ") and No strobe (" + calm
+            result.putString("stream", "PASS: Mood panel header, D-pad Chill (" + chill + "), Palette colour, No strobe (" + calm
                     + "), engine pool, dimmed " + dimmed + " not selectable, Clear all, Back focus, auto-hide, relaunch persistence, legacy Intense migration (" + intense + "), exhausted-mix header and skip reset, " + customCheck + "\n");
             code = Activity.RESULT_OK;
         } catch (Throwable failure) {

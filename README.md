@@ -20,9 +20,9 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
   <img src="docs/user-guide/images/launch.jpg" alt="ProjectM TV showing a preset, with the playing track's cover, artist and title in the upper left" width="100%">
 </p>
 <p align="center">
-  <img src="docs/user-guide/images/gallery/chill-2.jpg" alt="A calm blue particle preset (Chill)" width="32%">
-  <img src="docs/user-guide/images/gallery/normal-2.jpg" alt="A geometric yellow preset (Normal)" width="32%">
-  <img src="docs/user-guide/images/gallery/intense-3.jpg" alt="A busy, colourful preset (Intense)" width="32%">
+  <img src="docs/user-guide/images/gallery/chill-2.jpg" alt="A calm blue particle preset" width="32%">
+  <img src="docs/user-guide/images/gallery/normal-2.jpg" alt="A geometric yellow preset" width="32%">
+  <img src="docs/user-guide/images/gallery/intense-3.jpg" alt="A busy, colourful preset" width="32%">
 </p>
 
 ## User guide
@@ -32,11 +32,12 @@ It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualize
 - **Using the app:** installation on TV or phones, remote and touchscreen controls, audio input, every setting, [preset moods](https://johnneerdael.github.io/ProjectM-Android/predictive-collections/), custom packs, picture quality and troubleshooting.
 - **[ProjectM TV Engine](https://johnneerdael.github.io/ProjectM-Android/engine/):** the patch catalog with before/after proof images and measured benefits, how 4K rendering keeps the authored look (including the resolution-scaling part of [projectM #682](https://github.com/projectM-visualizer/projectm/issues/682)), and how a frame reaches the TV.
 - **[Writing presets](https://johnneerdael.github.io/ProjectM-Android/authoring/):** a source-level guide to how `.milk` presets execute, drawn from MilkDrop 2's code and the analysis of thousands of presets.
+- **[The predictor](https://johnneerdael.github.io/ProjectM-Android/predictor/):** how ProjectM TV reads a preset's source and works out its look without rendering it: the feedback and colour mathematics, the calibration behind the moods, accuracy per option, [predictions next to real renders](https://johnneerdael.github.io/ProjectM-Android/predictor/gallery/), the JSON output, the SDK and the research journal.
 
 ## Highlights
 
 - **9,606 MilkDrop presets** with smooth blends, shuffled within the mood you choose.
-- **Preset mood:** a Mood panel with Energy, Brightness, Colour, Movement, Style and Comfort options, live preset counts and combinable choices, from measured attributes of every bundled preset; [predicting presets from their source](https://johnneerdael.github.io/ProjectM-Android/predictor/) is in development.
+- **Preset mood:** a Mood panel with Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort options, live preset counts and combinable choices, predicted for every bundled preset by static analysis of its source (no rendering); some presets are deliberately left without an option where the prediction is not confident. [How it works](https://johnneerdael.github.io/ProjectM-Android/predictor/).
 - **Presets that work as on MilkDrop 2:** equation code MilkDrop tolerated, HLSL its compiler accepted, Direct3D pixel and texel rules, live per-frame waveform and display controls, legacy colour shading and spirals, huge rotations and negative zoom. [Patch catalog](https://johnneerdael.github.io/ProjectM-Android/engine/patches/).
 - **4K without the darkness:** lines, blur and texel steps scale with resolution; Native trails keeps feedback at an authored-scale canvas with sharp native geometry on top.
 - **No freezes at preset changes:** upcoming presets are compiled in the background.
@@ -74,7 +75,7 @@ In ProjectM Android, swipe right for a random preset and left for the previous p
 |---|---|---|
 | Audio input (Android only) | Microphone; Phone playback (Android 10+, consent required) | Microphone |
 | Auto change | Off, On | On |
-| Preset mood | Opens the Mood panel: Energy (Chill, Normal, Intense), Brightness (Dark, Balanced, Bright), Colour (Monochrome, Pastel, Vivid, Warm, Cool), Movement (Still, Drifting, Fast), Style (Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal), Comfort (No strobe); Collection (Built-in, Custom) after an upload; Clear all | Nothing selected (all presets) |
+| Preset mood | Opens the Mood panel: Energy (Chill, Normal, Intense), Brightness (Dark, Balanced, Bright), Colour (Monochrome, Pastel, Vivid, Warm, Cool), Palette (Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink), Main colour (the same eight colours), Movement (Still, Drifting, Fast), Style (Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal), Comfort (No strobe); Collection (Built-in, Custom) after an upload; Clear all | Nothing selected (all presets) |
 | Preset duration | 10, 15, 20, 30, 45, 60, 90 s | 30 s |
 
 *Track display ›*
@@ -114,7 +115,7 @@ On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory
 - At least 2 GB of RAM is highly recommended.
 - **TV audio:** a music app playing on the same TV. Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat) have been verified on TV. The TV build has no microphone or line-in input; already Dolby-encoded audio cannot be visualized.
 - **Phone audio:** microphone input works independently of a music app. Phone playback capture needs Android 10+, Android's consent and a player that allows capture and keeps playing in the background. The TV player list does not certify phone compatibility. Both builds feed the engine 8-bit mono audio.
-- Preset attributes come from one 10 s render per preset with one synthetic track at 480x270 under SwiftShader. Real music and TV GPUs differ; Style rests on source structure and is the least certain. No strobe and Chill are not guarantees against flashing. Custom-pack presets are not played while any option is active; choose Custom in the Collection row to play them.
+- Preset moods are predicted from each preset's source code, not measured on your TV: out of fold about 4 of 5 given options are correct, some presets carry no option in a group, and music, random textures and per-load colours can change a preset's look. Style rests on source structure and is the least certain. No strobe and Chill are not guarantees against flashing. Custom-pack presets are not played while any option is active; choose Custom in the Collection row to play them.
 - Some presets still look different from MilkDrop on Windows: random textures change per load, chaotic presets diverge, and GPU drivers differ in undefined arithmetic. Negative warp zoom follows MilkDrop 2’s CPU power calculation for valid integer nested exponents; fractional negative powers still have nonfinite coordinates with no portable appearance guarantee.
 - 189 of the 9,795 *Cream of the Crop* presets are not included: 116 cannot react to music, 73 use images with text, logos or people (one is in both groups), and 1 has a missing texture.
 
@@ -155,7 +156,7 @@ Versions 2.3.46 and older cannot update themselves since the repository moved to
 | TV | `projectM-TV-FDroid.apk` | 20 starters; optional full collection | F-Droid |
 | Phone/tablet | `projectM-Android-FDroid.apk` | 20 starters; optional full collection | F-Droid |
 
-These APKs are separate release artifacts. F-Droid listings remain subject to its maintainers' acceptance. On first launch, choose **Download (recommended)** or **Use 20 starters**. Reopen **Advanced › Cream of the Crop** to download or remove it later. The download is 38.7 MiB, with 129.5 MiB of unpacked collection contents; allow at least 184.2 MiB of free storage during installation. After installation the collection works offline. Downloading requires the app to stay in the foreground. Custom packs survive collection removal. [Setup and updates](https://johnneerdael.github.io/ProjectM-Android/getting-started/).
+These APKs are separate release artifacts. F-Droid listings remain subject to its maintainers' acceptance. On first launch, choose **Download (recommended)** or **Use 20 starters**. Reopen **Advanced › Cream of the Crop** to download or remove it later. The download is 39.1 MiB, with 131.0 MiB of unpacked collection contents; allow at least 186.1 MiB of free storage during installation. After installation the collection works offline. Downloading requires the app to stay in the foreground. Custom packs survive collection removal. [Setup and updates](https://johnneerdael.github.io/ProjectM-Android/getting-started/).
 
 **From a computer**
 

@@ -62,120 +62,16 @@ Passing all of these means the preset will *run*; it does not certify how it wil
 
 ## 5. Predicting a preset from its source
 
-The **source forecaster**, being developed on the [predictor branch](https://github.com/johnneerdael/ProjectM-TV/tree/feat/predictor-visual-loop/tools/milk-analyzer), reads a `.milk` file and simulates its equations, geometry, shaders and feedback mathematically. Its prediction does not consume the reference engine's captured images. Captures are used afterwards to check the forecast. This remains research code, separate from the [measured moods shipped in the app](../predictive-collections.md).
+ProjectM TV's predictor reads a preset's source and works out, without rendering it, how bright, colourful, fast and flashy it will look. It decides the app's [preset moods](../predictive-collections.md). The [Predictor](../predictor.md) section explains how it reads a preset, the feedback and colour mathematics, how accurate it is, and shows [predictions next to real renders](../predictor/gallery.md).
 
-### How are you measuring “97% accurate”?
+For preset authors this has two uses:
 
-**Here, behavioural accuracy means agreement with 20 frozen observable claims.** A score of **97.5/100**, or **97.5% of the available claim credit**, measures how closely one forecast matched those claims under the declared test conditions. It is an operational accuracy measure: it does not mean 97.5% of pixels matched or a future prediction has a calibrated 97.5% probability of being correct.
-
-Keep three quantities separate:
-
-| Quantity | What it answers |
-|---|---|
-| Per-preset agreement score | How closely did this prediction match its 20 claims? |
-| Average agreement score | How closely did the predictions match on average, across the stated sample? |
-| Gate pass rate | How many predictions met the chosen threshold and critical checks? |
-
-**An 85% pass rate does not contradict 97% average accuracy.** For illustration, assume no critical failures and a sample with 85 scores of 100 and 15 scores of 80:
-
-```text
-average agreement = (85×100 + 15×80) / 100 = 97/100
-pass rate at a ≥95 gate = 85/100 = 85%
-pass rate at a ≥80 gate = 100/100 = 100%
-```
-
-Changing the gate changes the pass rate; it does not change the predictions, their grades or the 97/100 average. This illustration is not our recorded audit distribution. The actual audit results and their denominators are given below. Likewise, **85/88 ≈ 96.6%** in that audit is a conditional pass rate, not its average accuracy.
-
-Neither a high agreement score nor a high pass rate establishes the percentage of MilkDrop programs fully understood, pixel identity, or a guarantee for an unseen preset.
-
-### What is compared, and when?
-
-Each comparison follows a recorded sequence:
-
-1. **Declare the context.** Record the preset and texture hashes, predictor version, exact published ProjectM TV core AAR/library, audio, clock, random inputs, viewport, mesh and frame schedule. Source adapters are identified separately from the published AAR. Claims apply to that context.
-2. **Predict before capturing.** The source simulator computes its numerical fields and writes 20 observable claims. The prediction, claims, input identities and timestamps are sealed with hashes before reference captures are examined. A batch's predictions are frozen before its captures; the model stays unchanged during the batch.
-3. **Run the reference.** The unchanged published Android core is invoked through JNI with the matching declared inputs. Captured RGB frames, frame metadata and artifact identities are retained. The reference is a named ProjectM TV engine, not every GPU or the original Windows MilkDrop renderer.
-4. **Compare numbers and behaviour.** Automated checks compare numerical descriptors and event lists. Recorded visual assessments compare layout, trajectories, palette and retained layers across paired sequences. The qualitative assessments are AI-assisted judgments, not a calibrated perceptual metric or a blinded human-panel study.
-5. **Grade and preserve the result.** Save the per-claim evidence, arithmetic, unknowns, critical failures and seals. Later fixes receive separate retests; they do not overwrite the original score or count as fresh random successes.
-
-The predictor reuses engine components for parsing, equation evaluation and numerical input preparation. Agreement therefore checks the forecast against that engine; it cannot independently rule out an error shared by both implementations. Investigating original MilkDrop intentions is a separate source/reference comparison.
-
-### The 20-claim rubric
-
-Each preset has four claims in each category. The actual statements are written for that preset before capture; this table describes their scope, not a fixed list of effect labels.
-
-| Category | Examples of observable claims | Maximum points |
-|---|---|---:|
-| Structure | Where forms appear; symmetry; overlapping or repeated layers | 20 |
-| Motion | Direction and trajectories; median and upper-tail motion speed | 20 |
-| Colour | Palette relationships; mean brightness and saturation | 20 |
-| Flashing | Brightening/darkening events, their timing and peak brightness step | 20 |
-| Feedback | How retained imagery moves, persists and builds layers | 20 |
-
-A supported claim earns **5 points**, a partial match **2.5**, and a mismatch or unknown **0**:
-
-```text
-score = sum of the 20 claim grades
-maximum = 20 × 5 = 100
-```
-
-The numerical policy used in the cited audit and later example is:
-
-```text
-abs(observed − predicted) ≤ 0.05 × abs(predicted)
-```
-
-A predicted zero requires exact zero; the policy has no hidden absolute-error floor. This 5% allowance applies to numerical estimates. It does not shift flash events between frames, change event counts or excuse a critical geometry/trajectory contradiction. An unobservable motion estimate earns no credit; a black picture is not automatically proven motionless.
-
-Some claims combine two numerical checks. For example, matching median speed but missing the upper-tail speed can earn 2.5 of that claim's 5 points. The historical ≥95 gate additionally requires no critical partial match, mismatch or unknown. A later gate requiring every score to be 100 would reject a 97.5, even though the older ≥95 gate might accept it. Always quote the gate as well as the score.
-
-### A real 97.5/100 example
-
-In the saved core **2.3.25** comparison, *“suksma - no god here, cosmic tear”* received **19 supported claims and one partial claim**:
-
-```text
-19 × 5 + 1 × 2.5 = 97.5
-```
-
-Its predicted 95th-percentile motion speed was **0.937682** normalized viewport units per second; the reference measurement was **0.996511**. Horizontal flow is normalized by image width and vertical flow by image height before its magnitude is calculated. The upper-tail descriptor is the 95th percentile of the per-transition pixel-speed 95th percentiles, rather than one pooled percentile of every pixel in every frame. The relative difference was **6.27%**, beyond the declared 5% allowance. Median speed passed, so the combined motion claim received partial credit. The original 97.5 remains recorded, and the round received no perfect-streak credit. See the [saved example and numerical failure](https://github.com/johnneerdael/ProjectM-TV/blob/b3737a564f4b937bd33959e17bb61dbe4eb11304/tools/milk-analyzer/fixtures/core2325-random3-round007-2026-10-08.json).
-
-That is a reproducible explanation of the grade. It is not a claim that the whole picture was exactly 2.5% wrong.
-
-### The historical 100-preset audit: keep the denominator
-
-The audit selected presets from a seeded permutation of the complete **9,606-preset library**, without filtering for predictability. It retained all 100 selected entries, including failures. All **2,000 claims** were frozen before **6,000 reference frames**. The 20 claims for one preset are related observations, not 20 independent presets.
-
-| Measure | Result | Meaning |
-|---|---:|---|
-| Predictions completed | 88/100 | Coverage in this sample and context |
-| Presets passing the ≥95 gate | **85/100 = 85%** | Pass rate with unresolved predictions included |
-| Pass rate among completed predictions | 85/88 ≈ 96.6% | Conditional rate; excludes the 12 unresolved cases |
-| Mean score over all selected presets | **86.95/100** | Unresolved predictions retain zero credit |
-| Mean score among completed predictions | 98.8068/100 | Conditional mean, not a pass rate |
-| Perfect rubric scores | 71/100 | All 20 claims matched; not pixel identity |
-
-The score distribution was 71 at 100, eight at 97.5, six at 95, two at 90, one at 65 and 12 at zero. The arithmetic is inspectable:
-
-```text
-(71×100 + 8×97.5 + 6×95 + 2×90 + 1×65 + 12×0) / 100 = 86.95
-8695 / 88 = 98.8068  (completed predictions only)
-```
-
-This was a **core 2.3.11** checkpoint, before the projectM 4.2 rebase: **60 frames at 30fps, 256×144, 48×32 mesh**, one declared audio/random context and an API34 ARM64 emulator using Apple M4 Pro GLES. It did not meet the requirement that every one of the 100 presets score ≥95. The 12 source-domain gaps are historical outcomes, not a statement of today's remaining backlog. See the [frozen audit summary](https://github.com/johnneerdael/ProjectM-TV/blob/b3737a564f4b937bd33959e17bb61dbe4eb11304/tools/milk-analyzer/fixtures/visual-loop-round010-2026-10-06.json) and [full report, selection and provenance limits](https://github.com/johnneerdael/ProjectM-TV/blob/b3737a564f4b937bd33959e17bb61dbe4eb11304/docs/plans/2026-10-06-predictor-random100-audit.md).
-
-### What the score does not establish
-
-Broad claims can agree while fine detail differs. The audit report explicitly retains a case with mean absolute RGB8 error **48.88 on the 0–255 channel scale** despite agreement on larger forms and aggregate claims. Pixel errors are separate diagnostics; they are not converted into “100 minus error = accuracy.” This is why a 100/100 rubric score is narrower than a pixel-perfect match.
-
-The score also does not validate aesthetic quality, a music genre, a viewer's preference, no flashing for all future audio, longer timelines, 4K detail or another driver. Successful parsing/loading alone gives no appearance credit, and the unchanged JNI does not directly expose every stage's custom-versus-fallback shader identity. Those are separate qualification questions.
-
-The research branch’s [**47-field export**](../predictor-export.md) is another separate result: it stores features and provenance for downstream scoring, with explicit unknown values. Completing a source-only corpus simulation—even thousands of presets at 60 frames/15fps/480p—does not add new reference comparisons or establish a new visual-accuracy percentage.
-
-A useful result statement reports both closeness and acceptance: **“Mean behavioural agreement was 86.95/100 across all 100 selected presets, or 98.8068/100 among the 88 completed forecasts; 85/100 passed the ≥95 gate in the declared core 2.3.11 context.”** For a current accuracy claim, publish a new frozen comparison against the current engine, along with coverage, score distribution, critical misses and the same context details.
+- **Check your preset's mood.** Once a preset is bundled, its moods come from the analysis. A preset whose brightness depends on how drawn content builds up over many frames, or whose colours are random per load, is harder to predict and may get fewer mood options.
+- **Write predictable presets.** Bounded audio envelopes, palettes set in `per_frame_init`, explicit motion variables and composites without undefined arithmetic make a preset's look follow from its source. The Aurora example below was written that way.
 
 ### What source analysis cannot settle
 
-The audit’s twelve unresolved predictions illustrate why a source forecast sometimes has to abstain:
+Some things cannot be predicted from the source, and the analysis abstains on them:
 
 - **Undefined GPU arithmetic:** `pow` of a negative base or of zero to a non-positive power, division by zero, and coordinates that become infinite or NaN. GLSL leaves the result to the driver (`TonyMilkdrop - RGB.milk`, `141 nz.milk`, `$$$ Royal - Mashup (452).milk`).
 - **Random choices:** the selected `randNN` images and noise realization must be supplied as declared inputs. Shader text alone does not identify an arbitrary production load's choices.

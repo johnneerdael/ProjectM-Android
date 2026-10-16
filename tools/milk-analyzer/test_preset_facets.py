@@ -14,7 +14,8 @@ class DefinitionTest(unittest.TestCase):
         self.assertEqual(d['version'], 1)
         ids = F.option_ids(d)
         self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual([g['id'] for g in d['groups']], ['energy', 'brightness', 'colour', 'movement', 'style', 'comfort'])
+        self.assertEqual([g['id'] for g in d['groups']], ['energy', 'brightness', 'colour', 'palette', 'main_colour',
+                                                     'movement', 'style', 'comfort'])
         self.assertEqual(F.group_of(d)['no_strobe'], 'comfort')
 
 
@@ -57,6 +58,19 @@ class MembershipTest(unittest.TestCase):
 
 
 class SelectionVectorTest(unittest.TestCase):
+    def test_colour_groups_follow_the_preset_colour_tags(self):
+        # Palette and Main colour come from static analysis: a preset carries tags 'palette:<family>' (every family with
+        # at least 10% of its static palette) and 'main:<family>' (only when one colour clearly dominates).
+        d = F.load_definition()
+        ids = F.option_ids(d)
+        self.assertEqual(len(ids), len(set(ids)))
+        groups = [g['id'] for g in d['groups']]
+        self.assertIn('palette', groups); self.assertIn('main_colour', groups)
+        members = F.memberships({}, set(), d, colours={'palette:red', 'palette:blue', 'main:red'})
+        self.assertIn('red', members); self.assertIn('blue', members); self.assertIn('main_red', members)
+        self.assertNotIn('green', members); self.assertNotIn('main_blue', members)
+        self.assertFalse({'red', 'blue', 'main_red'} & set(F.memberships({}, set(), d)))
+
     def test_shared_vectors(self):
         d = F.load_definition()
         for case in VECTORS['cases']:

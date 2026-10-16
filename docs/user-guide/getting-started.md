@@ -69,7 +69,7 @@ All production releases use the same permanent signing key. An APK you build you
 
 The F-Droid edition starts with 20 curated presets that work offline. On first launch, choose **Download (recommended)** for the complete Cream of the Crop collection or **Use 20 starters** to continue immediately. The choice is also available later under **Settings › Advanced › Cream of the Crop**.
 
-The verified download comes from GitHub. It contains 9,606 presets, their textures and the existing mood metadata. Download size is **38.7 MiB**; the archive contains **129.5 MiB** unpacked. Keep at least **184.2 MiB** free for the archive, extraction and installation overhead. Keep the visualizer in the foreground while it downloads and prepares the collection. Leaving during that work cancels it and keeps the current presets; an installation already completing may finish. Retry from the same setting.
+The verified download comes from GitHub. It contains 9,606 presets, their textures and the existing mood metadata. Download size is **39.1 MiB**; the archive contains **131.0 MiB** unpacked. Keep at least **186.1 MiB** free for the archive, extraction and installation overhead. Keep the visualizer in the foreground while it downloads and prepares the collection. Leaving during that work cancels it and keeps the current presets; an installation already completing may finish. Retry from the same setting.
 
 After installation it works offline and survives restarts. **Remove collection** returns to the 20 starters and leaves your custom pack available. Clearing app data or uninstalling removes downloaded packs. New collection contents require another explicit download; app updates do not automatically replace an installed collection.
 
@@ -148,7 +148,7 @@ TV covers have been verified with Spotify and Milkbeat. SoundCloud and SmartTube
 
 ## Pick a preset mood
 
-Open the panel and choose **Preset mood** (Settings › Preset mood). The **Mood** panel has one row per attribute group: **Energy**, **Brightness**, **Colour**, **Movement**, **Style** and **Comfort**. Move Left or Right to an option and press Center to switch it on or off. Every option shows how many presets you would have (*→ N*), and options that would leave none are dimmed. With nothing selected, everything plays; **Clear all** returns to that.
+Open the panel and choose **Preset mood** (Settings › Preset mood). The **Mood** panel has one row per attribute group: **Energy**, **Brightness**, **Colour**, **Palette**, **Main colour**, **Movement**, **Style** and **Comfort**. Move Left or Right to an option and press Center to switch it on or off. Every option shows how many presets you would have (*→ N*), and options that would leave none are dimmed. With nothing selected, everything plays; **Clear all** returns to that.
 
 | You select | What plays |
 |---|---|
@@ -156,9 +156,10 @@ Open the panel and choose **Preset mood** (Settings › Preset mood). The **Mood
 | **Energy › Chill** | Calmer presets |
 | **Chill** and **Dark** (different groups) | Presets that are both |
 | **Vivid** and **Warm** (same group) | Presets that are either |
+| **Palette › Blue** | Presets with blue among their colours |
 | **Collection › Custom** | Only your uploaded pack; the row appears after an upload |
 
-Attributes are measured predictions, not guarantees. **Comfort › No strobe** and **Chill** are starting points, not promises of no flashing. A Chill, Normal or Intense choice from an earlier version becomes the matching **Energy** option. Details: [Preset moods](predictive-collections.md).
+Attributes are predictions from each preset's source, not guarantees, and some presets carry no option yet. **Comfort › No strobe** and **Chill** are starting points, not promises of no flashing. A Chill, Normal or Intense choice from an earlier version becomes the matching **Energy** option. Details: [Preset moods](predictive-collections.md).
 
 ## Good starting settings
 

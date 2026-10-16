@@ -47,7 +47,7 @@ GitHub editions include the full collection. F-Droid editions start with **20 cu
 
     ---
 
-    Combine Energy, Brightness, Colour, Movement, Style and Comfort options with live preset counts.
+    Combine Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort options with live preset counts, all predicted from each preset's source.
 
     [:octicons-arrow-right-24: Moods](predictive-collections.md)
 
@@ -111,9 +111,9 @@ ProjectM TV listens to the music app's own audio session. [ProjectM Android](get
 
     ---
 
-    In a research audit, predictions made from preset code alone scored 95 or more out of 100, on 20 observable claims, for 85 of 100 randomly chosen presets.
+    Every preset mood is worked out from the preset's source code, without rendering it: feedback, colour and motion mathematics checked against real renders, including chaotic presets predicted frame for frame.
 
-    [:octicons-arrow-right-24: The road ahead](predictor.md)
+    [:octicons-arrow-right-24: How it works](predictor.md) · [Predictions vs renders](predictor/gallery.md)
 
 </div>
 

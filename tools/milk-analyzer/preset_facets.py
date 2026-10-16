@@ -24,7 +24,7 @@ def group_of(definition):
     return {option['id']: group['id'] for group in definition['groups'] for option in group['options']}
 
 
-def _holds(condition, values, style, members):
+def _holds(condition, values, style, members, colours=()):
     if 'metric' in condition:
         value = values.get(condition['metric'])
         return type(value) in (int, float) and _OPS[condition['op']](float(value), float(condition['value']))
@@ -32,15 +32,21 @@ def _holds(condition, values, style, members):
         return condition['style'] in style
     if 'not_option' in condition:
         return condition['not_option'] not in members
+    if 'palette' in condition:
+        return 'palette:' + condition['palette'] in colours
+    if 'main_colour' in condition:
+        return 'main:' + condition['main_colour'] in colours
     raise ValueError('unknown facet condition: ' + json.dumps(condition))
 
 
-def memberships(values, style, definition):
-    """Option ids a preset belongs to; options are evaluated in definition order (not_option sees earlier ones)."""
+def memberships(values, style, definition, colours=()):
+    """Option ids a preset belongs to; options are evaluated in definition order (not_option sees earlier ones).
+
+    colours: static colour tags, 'palette:<family>' and 'main:<family>', for the Palette and Main colour groups."""
     members = []
     for group in definition['groups']:
         for option in group['options']:
-            if all(_holds(c, values, style, members) for c in option['all']):
+            if all(_holds(c, values, style, members, colours) for c in option['all']):
                 members.append(option['id'])
     return members
 

@@ -1,141 +1,147 @@
 # Preset moods
 
-!!! warning "Measured, not guaranteed"
-    Moods are predictions from one short measurement of each preset. They are a starting point, and they will improve. If a preset feels wrong for its mood, please [report it](https://github.com/johnneerdael/ProjectM-Android/issues).
+!!! warning "Predicted, not guaranteed"
+    Every mood is a prediction worked out from the preset's source code, without rendering the preset. An option is only given where the analysis is confident, so some presets deliberately carry no option in a group. If a preset feels wrong for its mood, please [report it](#report-a-wrong-mood): reports on unlabelled and mislabelled presets are how the predictions improve.
 
-Open the settings panel and choose **Preset mood** (Settings › Preset mood) to open the **Mood** panel.
+The Mood panel lets you choose what kind of presets play: calm or busy, dark or bright, which colours, how much movement, which visual style, and whether to avoid flashing. You can combine options freely, and the panel always shows how many presets your choice leaves.
 
-![Mood panel with Energy, Brightness, Colour, Movement, Style and Comfort rows](images/setup/mood.png)
+ProjectM TV decides these moods by reading each preset's equations, shaders, shapes and waves and working out mathematically what the picture will look like. The [Predictor](predictor.md) section explains how that works in detail, how accurate it is, and shows [predictions next to real renders](predictor/gallery.md).
 
-## Attributes
+## Open the Mood panel
 
-Each group is one row; each option shows the number of presets you would have if you toggled it (*→ N*; for a selected option, the mix without it).
+Open the settings panel and choose **Preset mood** (Settings › Preset mood).
 
-| Group | Options | Measured from |
+![Mood panel with Energy, Brightness, Colour, Palette, Main colour, Movement, Style and Comfort rows](images/setup/mood.png)
+
+*The Mood panel with Chill and No strobe selected: 525 presets. Each row scrolls sideways to its remaining options; Style and Comfort are further down.*
+
+Each row is one group of options. Up and Down move between rows; Left and Right move between options; Center switches the focused option on or off. Every option shows the number of presets you would have if you toggled it (*→ N*; for a selected option, the mix without it). **Clear all** at the bottom switches everything off again. Back returns to the main panel.
+
+## The groups
+
+| Group | Options | What it means |
 |---|---|---|
-| **Energy** | Chill, Normal, Intense | An activity percentile combining frame-to-frame change, motion speed and brightness jumps, ranked against a reference frozen from the 9,606 bundled presets |
-| **Brightness** | Dark, Balanced, Bright | Mean luminance |
-| **Colour** | Monochrome, Pastel, Vivid, Warm, Cool | Coloured share, saturation, luminance and warm/cool balance |
-| **Movement** | Still, Drifting, Fast | Motion speed in screen widths per second |
-| **Style** | Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal | Structure facts read from the preset source |
-| **Comfort** | No strobe | Brightness jumps per 10 s below a threshold |
+| **Energy** | Chill, Normal, Intense | How much the picture changes from frame to frame, how fast it moves and how often its overall brightness jumps, combined into one activity level. Chill presets drift and breathe; Intense presets churn, cut and pulse |
+| **Brightness** | Dark, Balanced, Bright | The expected average brightness of the picture once the preset has settled |
+| **Colour** | Monochrome, Pastel, Vivid, Warm, Cool | The colour character: grey or near-grey (Monochrome), soft and light (Pastel), strongly saturated (Vivid), leaning to red/orange/yellow (Warm) or to blue/cyan/purple (Cool) |
+| **Palette** | Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink | Every colour family that makes up at least 10% of the preset's predicted colours. Most presets have two to five |
+| **Main colour** | Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink | One colour, only when it clearly dominates the whole picture. Most presets have none |
+| **Movement** | Still, Drifting, Fast | How fast the picture moves across the screen |
+| **Style** | Kaleidoscope, Tunnel, Liquid, Geometric, Particles, Fractal | The construction read from the preset's equations and shapes: mirrored folds, zooming tunnels, fluid smearing, polygons, point clouds, self-similar maps |
+| **Comfort** | No strobe | Presets the analysis expects not to flash. Admission is deliberately strict |
 
-The exact thresholds are in `tools/milk-analyzer/facets/facets-v1.json`. Ranges can overlap, so a preset can be both Chill and Normal, and one preset can carry several Style options.
+A preset can carry several options in one group (for example both Chill and Normal, several Style options, several Palette colours) or none. Grey presets (**Monochrome**) never carry a Palette or Main colour option.
+
+### Palette or Main colour?
+
+The two colour groups answer different questions:
+
+- **Palette › Blue** plays every preset in which blue is one of the colours, even if it shares the screen with pink and green.
+- **Main colour › Blue** plays only presets that are mostly blue.
+
+Choose Palette when you want a colour to be present, and Main colour when you want the whole screen in that colour. Because a main colour needs the picture to be dominated by one family, Main colour pools are much smaller than Palette pools.
+
+### Presets per option
+
+The numbers below are for the 9,606 bundled presets. Ranges overlap, so the counts in a group can add up to more or less than 9,606.
+
+| Group | Option | Presets |
+|---|---|---|
+| Energy | Chill | 2,068 |
+| Energy | Normal | 2,072 |
+| Energy | Intense | 2,828 |
+| Brightness | Dark | 1,780 |
+| Brightness | Balanced | 1,236 |
+| Brightness | Bright | 2,469 |
+| Colour | Monochrome | 473 |
+| Colour | Pastel | 318 |
+| Colour | Vivid | 4,663 |
+| Colour | Warm | 1,888 |
+| Colour | Cool | 1,271 |
+| Palette | Red | 4,342 |
+| Palette | Orange | 2,786 |
+| Palette | Yellow | 2,144 |
+| Palette | Green | 6,286 |
+| Palette | Cyan | 1,646 |
+| Palette | Blue | 6,873 |
+| Palette | Purple | 1,029 |
+| Palette | Pink | 4,448 |
+| Main colour | Red | 250 |
+| Main colour | Orange | 235 |
+| Main colour | Yellow | 36 |
+| Main colour | Green | 97 |
+| Main colour | Cyan | 38 |
+| Main colour | Blue | 412 |
+| Main colour | Purple | 21 |
+| Main colour | Pink | 46 |
+| Movement | Still | 1,276 |
+| Movement | Drifting | 1,711 |
+| Movement | Fast | 1,936 |
+| Style | Kaleidoscope | 4,503 |
+| Style | Tunnel | 700 |
+| Style | Liquid | 4,132 |
+| Style | Geometric | 2,032 |
+| Style | Particles | 3,209 |
+| Style | Fractal | 130 |
+| Comfort | No strobe | 712 |
+
+9,133 presets carry at least one Palette colour and 1,135 a Main colour.
 
 ## How choices combine
 
-- Options in the **same group** combine as OR: **Vivid** and **Warm** play presets that are either.
+- Options in the **same group** combine as OR: **Palette › Red** and **Palette › Blue** play presets with either colour.
 - **Different groups** combine as AND: **Chill** and **Dark** play presets that are both.
-- Nothing selected plays all presets. **Clear all** returns to that (it rests while Custom plays, keeping your options).
+- Nothing selected plays all presets, including those without any mood option. **Clear all** returns to that (it rests while Custom plays, keeping your options).
 - Options that would leave no presets are dimmed and skipped by Left and Right.
 - The header always shows a count: *N presets in your mix*, all available presets when nothing is selected, or *Custom pack: N presets* while Custom plays. Under 20 it adds *few presets: some repetition*. If no preset is left, because every match is skipped on this TV or a deselection leaves no preset that fits every group, it shows *No presets match your mix; playing All* and plays All.
 - Counts exclude presets this TV has skipped. Automatic changes, **Random** and **Previous** stay inside the mix, and your choice is saved.
 - A **Chill**, **Normal** or **Intense** choice saved by an earlier version becomes the matching **Energy** option.
 - Presets from a [custom pack](custom-packs.md) have no attributes, so they are not played while any option is active. The **Collection** row (*Built-in* or *Custom*) appears when a pack exists or Custom is chosen; choose *Custom* to play the pack.
 
+## Presets without an option
+
+The analysis only gives an option when it is confident. A preset whose brightness could be either Dark or Balanced gets neither, rather than a guess. This keeps the options precise, at the cost of smaller pools: an option you select plays presets that very likely belong there, but not every preset that would.
+
+Unlabelled presets are not hidden. They play whenever the group they lack has nothing selected, and always when nothing is selected at all. Of the 9,606 bundled presets, 428 have no Energy, Brightness, Colour, Movement or Comfort option at all (they can still have Palette colours and Style). They are deliberately left that way so that people can say what they actually look like.
+
 ## Which presets have attributes
 
-GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none: the Mood header then reads *Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)* and only the Collection choice is offered. Downloading, replacing or removing the collection updates the Mood panel and the mix immediately; no restart is needed.
+GitHub editions bundle attributes for all 9,606 presets. F-Droid editions start with 20 starter presets that carry their own attributes, so the counts are small until you download the full collection from **Advanced › Cream of the Crop** ([collection setup](getting-started.md#optional-collection-in-f-droid-editions)). A full-collection download made before attributes existed has none, and one made before the static moods (without Palette and Main colour) carries moods from an earlier definition. In both cases the Mood header reads *Download the full collection again to choose moods (Settings › Advanced › Cream of the Crop)* and only the Collection choice is offered until you download the current collection. Downloading, replacing or removing the collection updates the Mood panel and the mix immediately; no restart is needed.
 
-## How the attributes are measured
+## How accurate are moods?
 
-Energy, Brightness, Colour, Movement and Comfort come from engine-ruler measurements of every bundled preset. Energy's activity percentile is looked up in a reference frozen once from those 9,606 measurements, so a later collection does not shift what Chill or Intense means. Each preset is rendered once for 10 seconds at 480x270 and 30 fps; the statistics use frames 60-299 and one synthetic audio track, on macOS GLES under SwiftShader (see `tools/native-ruler/`). Style comes from facts read from the preset source: its equations and shapes, not a render.
+The predictions were checked against real renders of presets, out of fold: the analysis was always scored on presets it had not been tuned on.
+
+- About **4 of 5** options it gives are correct, and it gives about **2 of every 5** options a render would show.
+- In-between options (**Balanced**, **Drifting**, **Normal**) are only given where they reach **80%** precision in those checks, **Pastel** where it reaches **70%**.
+- **Palette** finds about three quarters of the colours a render shows, and about 7 of 10 colours it names are present.
+- **Main colour** names the render's top colour about **84%** of the time.
+
+The [accuracy page](predictor/accuracy.md) has the numbers per option and explains how they were measured.
+
+## Report a wrong mood
+
+Open an [issue on GitHub](https://github.com/johnneerdael/ProjectM-Android/issues) with:
+
+- the preset name (shown at the top of the settings panel);
+- the option that is wrong or missing (for example "tagged Chill but strobes", "no Brightness option but clearly Dark", "Palette says blue, I see orange");
+- the song or kind of music, and your TV model.
+
+Reports on presets without an option are just as useful as reports on wrong ones.
 
 ## Limits
 
-- One 10 s render per preset with one synthetic track under SwiftShader. Real music and TV GPUs differ. Emulator agreement on 83 presets was rho 0.91-0.96, which is not a per-preset guarantee.
-- **Style** rests on source structure and is the least certain attribute.
-- **No strobe** and **Chill** are not guarantees against flashing.
+- Moods are predictions, not measurements of your screen: a preset can look different with your music, especially where it reacts strongly to audio, uses random textures or picks random colours at load.
+- **No strobe** and **Chill** are not guarantees against flashing. Use them as a starting point if you are sensitive to flashing light.
+- **Style** rests on source structure and is the least certain group.
+- Some presets have no option in a group; they play only while that group has nothing selected.
 - Custom-pack presets are excluded while any option is active.
 
-## Legacy activity scores
+## Where moods come from
 
-The Chill, Normal and Intense categories that Milkbeat and older versions use (a 1-100 activity score: Chill 1-30, Normal 25-75, Intense 70-100) are unchanged in the core library. The sections below describe that score and its example captures; the **Energy** options in the Mood panel are computed separately from the ruler measurements above.
-
-| Chill | Normal | Intense |
-|---|---|---|
-| ![Legacy Chill category: 2,702 presets in rotation](images/setup/mood-chill.jpg) | ![Legacy Normal category: 4,658 presets in rotation](images/setup/mood-normal.jpg) | ![Legacy Intense category: 2,795 presets in rotation](images/setup/mood-intense.jpg) |
-
-## What the legacy categories look like
-
-These captures come from a 1080p Android TV emulator playing different tracks in Milkbeat, with the mood set and a random preset chosen for each. Your music and TV will produce different frames; these show the character of each mood, not a guarantee.
-
-### Chill
-
-| | |
-|---|---|
-| ![Zylot - The Collective Unconcious (Jelly 5-5)](images/gallery/chill-1.jpg) | ![EoS - pointfield 12 deep oceans](images/gallery/chill-2.jpg) |
-| *Zylot – The Collective Unconcious (Jelly 5-5)* | *EoS – pointfield 12 deep oceans* |
-| ![EoS + Phat - chasers 10 sentinel B](images/gallery/chill-3.jpg) | ![LuxXx - Makes Me Cry II (Lifeforms in the Clouds)](images/gallery/chill-5.jpg) |
-| *EoS + Phat – chasers 10 sentinel B* | *LuxXx – Makes Me Cry II (Lifeforms in the Clouds)* |
-
-### Normal
-
-| | |
-|---|---|
-| ![Bdrv Aderrasi - Armada (Battleship)](images/gallery/normal-3.jpg) | ![flying hamster - flower borders (version 8)](images/gallery/normal-2.jpg) |
-| *Bdrv Aderrasi – Armada (Battleship) bdrv etAL rolo nz* | *flying hamster – flower borders (version 8) – mash0001* |
-| ![cortex meat - adm affect non](images/gallery/normal-4.jpg) | ![Geiss - Calligraphy (Jelly V3)](images/gallery/normal-5.jpg) |
-| *cortex meat – adm affect non* | *Geiss – Calligraphy (Jelly V3)* |
-
-### Intense
-
-| | |
-|---|---|
-| ![figurative lesson lard](images/gallery/intense-1.jpg) | ![rce-ordinary - microscopic things (crosslinking mix)](images/gallery/intense-2.jpg) |
-| *figurative lesson lard* | *rce-ordinary – microscopic things (crosslinking mix)* |
-| ![suksma - coal drapes](images/gallery/intense-3.jpg) | ![negation entropy (scalar nods)](images/gallery/intense-4.jpg) |
-| *suksma – coal drapes – mrt fsh behooval roam3 nz+* | *negation entropy (scalar nods)* |
-
-A single still cannot show motion. What separates the moods is how fast and how suddenly these pictures change.
-
-## How the legacy scores are made
-
-The score measures **visual activity**, not musical genre or taste. Each bundled preset was run once through the published ProjectM TV core library (version 2.3.3, in its capped build, which predates the current Native engine based on projectM 4.2) with controlled input:
-
-- 420 frames at 30 fps, at 128×72 pixels with a 48×32 mesh; the first 60 frames are warm-up.
-- A synthetic test signal: quiet tones for 0–5 s, a brighter melody for 5–9 s, then melody plus kick-drum pulses for 9–14 s. No real recordings are used or shipped.
-
-Four quantities are measured from the frames:
-
-1. **Coherent brightness transitions per second**: changes of at least 0.1 in normalized brightness over at least 20% of the picture, with the mean brightness also changing by at least 0.1.
-2. **Median motion** in screen widths per second, from optical flow sampled at 10 fps.
-3. **Mean acceleration** of that motion.
-4. **Peak per-pixel change**: the 95th percentile, over frame pairs, of each pair's 95th-percentile brightness change.
-
-They are combined as `4.3673 + Σ weight × log1p(x) / scale`, with weights of about 36.97, 2.47, 50.61 and 23.40. A separate flash term, from paired up-and-down brightness flips, is computed too, and the larger of the two values is used. The raw values are ranked and rescaled so that the least active preset scores 1 and the most active 100. A score therefore places a preset relative to the others; it is not a percentage. The 382 presets that showed no visible activity in the measurement score 1, stay in All, and are left out of the three moods.
-
-The weights were fitted to eight human judgments of real presets. In leave-one-out checks the model placed 4 of 8 in exactly the judged band and 6 of 8 within five points. That is a small calibration set, which is why moods are still beta.
-
-## Known limits of the legacy scores
-
-- **One short probe.** Fourteen seconds of synthetic audio cannot show how a preset reacts to every song, or how it develops over minutes.
-- **Low resolution.** The probe renders at 128×72; 4K detail and Native trails are not measured.
-- **Random inputs.** Random textures and noise differ from run to run.
-- **Chill is not a promise.** A Chill preset can still flash on the right music.
-
-Report a mismatch with the preset name (shown in the settings panel), the mood, the song and your TV.
-
-## Predictor development is separate
-
-The current [source predictor](predictor.md) is developing conditional JSON
-descriptions of mathematical constructions, materials and audio controls without
-rendering frames. Its [export contract](predictor-export.md) is separate from this
-measurement bundle. These source traits have not replaced the shipped scores,
-and no calibrated source-only Chill/Normal/Intense classifier is claimed.
-
-## For developers
-
-The bundle lives in `core/src/main/assets/preset-genres/`:
-
-- `presets.jsonl` holds each preset's source hash, measurements, score and memberships;
-- `manifest.json` holds the model, runtime and signal identities, render settings and checksums;
-- one index file per mood.
-
-Verify the bundle with:
-
-```sh
-python tools/milk-analyzer/beta_export.py --check --bundle core/src/main/assets/preset-genres
-```
-
-The checker recomputes every rank and membership from the recorded measurements and refuses stale source or texture hashes, a different runtime, or a wrong frame schedule. Producing new scores needs an Android emulator and the pinned core library; see the [analyzer README](https://github.com/johnneerdael/ProjectM-Android/blob/main/tools/milk-analyzer/README.md). The app never renders the library itself: it reads the prebuilt indexes.
+- [How ProjectM TV understands presets](predictor.md): the idea, the rules and what ships.
+- [Reading a preset](predictor/source-reading.md): from `.milk` text to facts.
+- [Feedback, brightness and motion](predictor/feedback-maths.md): the closed-form maths.
+- [Colour and palettes](predictor/colour.md): hue families, Palette and Main colour.
+- [From estimates to moods](predictor/mood-table.md): calibration, precision floors and the shipped table.
+- [Accuracy](predictor/accuracy.md), [prediction images](predictor/prediction-images.md), [predictions vs renders](predictor/gallery.md), [the SDK](predictor/sdk.md) and the [research journal](predictor/journal.md).

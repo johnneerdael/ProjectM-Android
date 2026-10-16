@@ -44,7 +44,11 @@ markdown_extensions:
   - def_list
   - md_in_html
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.inlinehilite
   - pymdownx.highlight:
       anchor_linenums: true
@@ -59,7 +63,7 @@ nav:
       - Install and get started: getting-started.md
       - Touchscreen and remote controls: controls.md
       - Settings reference: settings.md
-      - Preset moods (beta): predictive-collections.md
+      - Preset moods: predictive-collections.md
       - Custom preset packs: custom-packs.md
       - Picture quality and performance: picture-quality.md
       - Troubleshooting: troubleshooting.md
@@ -80,8 +84,19 @@ nav:
       - How a frame reaches your screen: engine/pipeline.md
       - Validation and evidence: engine/validation.md
   - Predictor:
-      - Road ahead: predictor.md
-      - Export contract: predictor-export.md
+      - How ProjectM TV understands presets: predictor.md
+      - Reading a preset: predictor/source-reading.md
+      - Feedback, brightness and motion: predictor/feedback-maths.md
+      - Colour and palettes: predictor/colour.md
+      - From estimates to moods: predictor/mood-table.md
+      - Accuracy: predictor/accuracy.md
+      - Prediction images: predictor/prediction-images.md
+      - Predictions vs real renders: predictor/gallery.md
+      - The JSON output: predictor/json-output.md
+      - The SDK: predictor/sdk.md
+      - Research journal: predictor/journal.md
+      - The road ahead: predictor/future.md
+      - Export contracts: predictor-export.md
   - Build and test: development.md
 not_in_nav: |
   /dance.md

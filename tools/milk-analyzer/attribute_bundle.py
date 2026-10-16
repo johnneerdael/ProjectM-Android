@@ -1,4 +1,10 @@
-"""Mood facet attribute bundle: engine-ruler measurements + source style facts -> Android assets.
+"""Mood facet attribute bundle: static source-analysis evidence -> Android assets.
+
+build_static() writes the shipped bundle from committed static evidence (one row per preset: preset sha256, static
+options, palette, dominant hue and the 8 value columns); check() verifies a bundle whose manifest says
+source=static-analysis against that evidence in both directions, the preset bytes and a deflated size budget.
+The engine-ruler path below (build, freeze_activity_reference, write_evidence_manifest) produced the earlier
+table and is kept, with its checks, for history:
 
 build() writes preset-attributes/{facets.json, attributes.tsv, manifest.json} after verifying the ruler
 results against the evidence manifest in both directions and the bundled preset bytes against its preset
@@ -8,7 +14,7 @@ the stored values and style options. Activity is scored against the
 frozen reference (facets/activity-reference-v1.json, written once by --freeze-activity-reference),
 never against the corpus of the current build. Standard library only.
 """
-import argparse, bisect, hashlib, json, shutil
+import argparse, bisect, gzip, hashlib, json, shutil, zlib
 from pathlib import Path
 
 import preset_facets
@@ -310,8 +316,15 @@ def build(ruler_dir, style_tsv, presets_idx, output_dir, definition_path=None, r
 DEFAULT_RULER_MANIFEST = Path('docs/superpowers/evidence/mood-facets-ruler-2026-10-12/ruler-results-manifest.json')
 
 
-def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, presets_dir=None):
+def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, presets_dir=None, static_evidence=None):
     bundle = Path(bundle_dir); problems = []
+    try:
+        if json.loads((bundle / 'manifest.json').read_text()).get('source') == STATIC_SOURCE:
+            if static_evidence is None:
+                return ['static evidence path is required for a static-analysis bundle']
+            return check_static(bundle, presets_idx, static_evidence, definition_path, presets_dir)
+    except (OSError, ValueError):
+        pass  # reported as unreadable below
     definition_path = Path(definition_path or preset_facets.DEFINITION)
     try:
         manifest = json.loads((bundle / 'manifest.json').read_text())
@@ -403,6 +416,183 @@ def check(bundle_dir, presets_idx, definition_path=None, ruler_manifest=None, pr
     return problems
 
 
+# Static mood table (source analysis, no rendered values). The shipped bundle comes from this path since 2026-10-16.
+STATIC_EVIDENCE_SCHEMA = 'projectm-tv-static-mood-evidence'
+STATIC_SOURCE = 'static-analysis'
+SIZE_BUDGET = 450000  # deflated attributes.tsv bytes; growth past this needs a deliberate change
+DEFAULT_STATIC_EVIDENCE = Path('docs/superpowers/evidence/static-mood-table-2026-10-16/static-evidence.json.gz')
+COLOUR_FAMILIES = ('red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink')
+
+
+def load_static_evidence(path):
+    """The gzip JSON static evidence {schema, version, producer, rows}; rows keyed by preset name."""
+    evidence = json.loads(gzip.decompress(Path(path).read_bytes()))
+    if evidence.get('schema') != STATIC_EVIDENCE_SCHEMA:
+        raise ValueError('static evidence schema %r is not %r' % (evidence.get('schema'), STATIC_EVIDENCE_SCHEMA))
+    rows = {}
+    for row in evidence.get('rows', []):
+        if row['name'] in rows:
+            raise ValueError('static evidence lists %s more than once' % row['name'])
+        rows[row['name']] = row
+    return evidence, rows
+
+
+def static_options(row, definition):
+    """Bundle options of one evidence row in definition order: the static options plus the colour tags.
+
+    Palette families and the main colour come from the row's palette and dominant hue; a preset admitted as Monochrome
+    (grey) gets neither. Raises ValueError for an option or colour the definition does not know."""
+    known = preset_facets.option_ids(definition)
+    if 'error' in row:
+        return []
+    options = set(row.get('options') or [])
+    colour_ids = {o for g in definition['groups'] if g['id'] in ('palette', 'main_colour') for o in (x['id'] for x in g['options'])}
+    unknown = sorted((options - set(known)) | (options & colour_ids))
+    if unknown:
+        raise ValueError('%s: evidence options not in the definition: %s' % (row['name'], unknown))
+    palette = list(row.get('palette') or []); dominant = row.get('dominant')
+    bad = sorted(set(palette + ([dominant] if dominant else [])) - set(COLOUR_FAMILIES))
+    if bad:
+        raise ValueError('%s: unknown colour families %s' % (row['name'], bad))
+    if 'monochrome' not in options:
+        tags = {'palette:' + f for f in palette} | ({'main:' + dominant} if dominant else set())
+        options |= set(preset_facets.memberships({}, set(), {'groups': [g for g in definition['groups']
+                                                                       if g['id'] in ('palette', 'main_colour')]}, tags))
+    return [o for o in known if o in options]
+
+
+def _static_line(row, definition):
+    values = {} if 'error' in row else (row.get('values') or {})
+    options = static_options(row, definition)
+    cells = [_format(values.get(c)) for c in COLUMNS]
+    if all(c == '-' for c in cells) and options:
+        raise ValueError('%s: options without any static value' % row['name'])
+    return '\t'.join([row['name'], ','.join(options)] + cells), options
+
+
+def deflated_size(data):
+    return len(zlib.compress(data, 9))
+
+
+def _static_rows(evidence_rows, names, presets_dir):
+    """Two-way name match against presets.idx and preset bytes against the evidence sha256."""
+    problems = ['%s: no static evidence row' % n for n in names if n not in evidence_rows]
+    problems += ['%s: static evidence row for a preset not in presets.idx' % n for n in sorted(set(evidence_rows) - set(names))]
+    for name in names:
+        row = evidence_rows.get(name)
+        if row is None:
+            continue
+        try:
+            data = (Path(presets_dir) / name).read_bytes()
+        except OSError:
+            problems.append('%s: preset asset missing from %s' % (name, presets_dir)); continue
+        if _sha(data) != row.get('sha256'):
+            problems.append('%s: preset bytes differ from the static evidence sha256 (re-analyse it)' % name)
+    return problems
+
+
+def build_static(evidence_path, presets_idx, output_dir, definition_path=None, presets_dir=None, max_errors=0,
+                 size_budget=SIZE_BUDGET):
+    """Writes preset-attributes/{facets.json, attributes.tsv, manifest.json} from the static evidence alone."""
+    definition_path = Path(definition_path or preset_facets.DEFINITION)
+    definition_bytes = definition_path.read_bytes(); definition = json.loads(definition_bytes)
+    evidence_bytes = Path(evidence_path).read_bytes()
+    evidence, rows = load_static_evidence(evidence_path)
+    names = _index_names(presets_idx)
+    problems = _static_rows(rows, names, _presets_dir(presets_idx, presets_dir))
+    if problems:
+        raise ValueError('static evidence does not match the current presets (%d): %s' % (len(problems), '; '.join(problems[:5])))
+    errors = sorted(n for n in names if 'error' in rows[n])
+    if len(errors) > max_errors:
+        raise ValueError('%d presets failed static analysis (limit %d): %s' % (len(errors), max_errors, errors[:5]))
+    lines = _header(definition, _sha(definition_bytes))
+    counts = {o: 0 for o in preset_facets.option_ids(definition)}; measured = 0
+    for name in sorted(names):
+        line, options = _static_line(rows[name], definition)
+        lines.append(line); measured += not line.endswith('\t'.join(['-'] * len(COLUMNS)))
+        for option in options:
+            counts[option] += 1
+    attributes = ('\n'.join(lines) + '\n').encode()
+    if deflated_size(attributes) > size_budget:
+        raise ValueError('attributes.tsv deflates to %d bytes, over the %d byte budget' % (deflated_size(attributes), size_budget))
+    output = Path(output_dir); output.mkdir(parents=True, exist_ok=True)
+    (output / 'facets.json').write_bytes(definition_bytes)
+    (output / 'attributes.tsv').write_bytes(attributes)
+    manifest = {'schema': SCHEMA, 'version': MANIFEST_VERSION, 'source': STATIC_SOURCE,
+                'definition_sha256': _sha(definition_bytes), 'presets_idx_sha256': _sha(Path(presets_idx).read_bytes()),
+                'attributes_sha256': _sha(attributes), 'static_evidence_sha256': _sha(evidence_bytes),
+                'producer': evidence.get('producer'), 'preset_count': len(names), 'measured_count': measured,
+                'analysis_errors': len(errors), 'option_counts': counts}
+    (output / 'manifest.json').write_text(json.dumps(manifest, indent=1, sort_keys=True) + '\n')
+    return manifest
+
+
+def check_static(bundle_dir, presets_idx, evidence_path, definition_path=None, presets_dir=None, size_budget=SIZE_BUDGET):
+    """Verifies a static bundle against the definition, presets.idx, the preset bytes and the static evidence."""
+    bundle = Path(bundle_dir); problems = []
+    definition_path = Path(definition_path or preset_facets.DEFINITION)
+    try:
+        manifest = json.loads((bundle / 'manifest.json').read_text())
+        attributes = (bundle / 'attributes.tsv').read_bytes()
+        shipped = (bundle / 'facets.json').read_bytes()
+    except (OSError, ValueError) as error:
+        return ['bundle unreadable: %s' % error]
+    if shipped != definition_path.read_bytes():
+        problems.append('facets.json differs from the definition')
+    definition = json.loads(shipped)
+    if manifest.get('definition_sha256') != _sha(shipped):
+        problems.append('manifest definition hash is stale')
+    if manifest.get('presets_idx_sha256') != _sha(Path(presets_idx).read_bytes()):
+        problems.append('presets.idx changed since the bundle was built')
+    if manifest.get('attributes_sha256') != _sha(attributes):
+        problems.append('attributes.tsv does not match its manifest hash')
+    if deflated_size(attributes) > size_budget:
+        problems.append('size budget: attributes.tsv deflates to %d bytes, over %d' % (deflated_size(attributes), size_budget))
+    names = _index_names(presets_idx)
+    try:
+        evidence_bytes = Path(evidence_path).read_bytes()
+        evidence, rows = load_static_evidence(evidence_path)
+    except (OSError, KeyError, ValueError) as error:
+        return problems + ['static evidence unreadable: %s' % error]
+    if manifest.get('static_evidence_sha256') != _sha(evidence_bytes):
+        problems.append('static evidence differs from the bundle manifest hash')
+    problems += _static_rows(rows, names, _presets_dir(presets_idx, presets_dir))
+    header = _header(definition, _sha(shipped))
+    lines = attributes.decode().splitlines()
+    if lines[:len(header)] != header:
+        problems.append('attributes header differs from the definition')
+    body = lines[len(header):]
+    if [l.split('\t', 1)[0] for l in body] != sorted(names):
+        problems.append('attributes rows do not match presets.idx names')
+    mismatches = []; counts = {o: 0 for o in preset_facets.option_ids(definition)}; measured = 0
+    for line in body:
+        cells = line.split('\t')
+        if len(cells) != 2 + len(COLUMNS):
+            problems.append('malformed row: ' + cells[0]); continue
+        measured += not all(v == '-' for v in cells[2:])
+        for option in (cells[1].split(',') if cells[1] else []):
+            counts[option] = counts.get(option, 0) + 1
+        row = rows.get(cells[0])
+        if row is None:
+            continue
+        try:
+            expected, _ = _static_line(row, definition)
+        except ValueError as error:
+            mismatches.append(str(error)); continue
+        if line != expected:
+            mismatches.append('%s: row differs from the static evidence' % cells[0])
+    if mismatches:
+        problems.append('bundle rows differ from the static evidence (%d): %s' % (len(mismatches), '; '.join(mismatches[:5])))
+    expected = {'schema': SCHEMA, 'version': MANIFEST_VERSION, 'source': STATIC_SOURCE, 'producer': evidence.get('producer'),
+                'preset_count': len(body), 'measured_count': measured, 'option_counts': counts,
+                'analysis_errors': sum(1 for n in names if 'error' in (rows.get(n) or {}))}
+    for field, value in expected.items():
+        if manifest.get(field) != value:
+            problems.append('manifest %s %s differs from %s recomputed from the bundle' % (
+                field, json.dumps(manifest.get(field), sort_keys=True), json.dumps(value, sort_keys=True)))
+    return problems
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--ruler', type=Path); parser.add_argument('--style', type=Path)
@@ -411,6 +601,10 @@ def main(argv=None):
     parser.add_argument('--presets-dir', type=Path, help='bundled preset files hashed against the evidence (default: presets/ next to --presets-idx)')
     parser.add_argument('--bundle', type=Path, default=Path('core/src/main/assets/preset-attributes'))
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--static-evidence', type=Path,
+                        help='committed static mood evidence (gzip JSON); --check defaults to %s' % DEFAULT_STATIC_EVIDENCE)
+    parser.add_argument('--build-static', type=Path, metavar='EVIDENCE',
+                        help='write the bundle from static source-analysis evidence (the shipped table)')
     parser.add_argument('--write-evidence-manifest', type=Path, metavar='OUTPUT',
                         help='write the evidence manifest with per-row metrics from --ruler and --ruler-manifest (the source manifest)')
     parser.add_argument('--freeze-activity-reference', type=Path, metavar='OUTPUT',
@@ -427,10 +621,15 @@ def main(argv=None):
         write_evidence_manifest(args.ruler, args.ruler_manifest, args.write_evidence_manifest)
         return
     if args.check:
-        problems = check(args.bundle, args.presets_idx, ruler_manifest=args.ruler_manifest or DEFAULT_RULER_MANIFEST, presets_dir=args.presets_dir)
+        problems = check(args.bundle, args.presets_idx, ruler_manifest=args.ruler_manifest or DEFAULT_RULER_MANIFEST, presets_dir=args.presets_dir,
+                         static_evidence=args.static_evidence or DEFAULT_STATIC_EVIDENCE)
         for problem in problems:
             print(problem)
         raise SystemExit(1 if problems else 0)
+    if args.build_static:
+        manifest = build_static(args.build_static, args.presets_idx, args.bundle, presets_dir=args.presets_dir)
+        print(json.dumps({k: v for k, v in manifest.items() if k != 'option_counts'}))
+        return
     if not args.ruler or not args.style or not args.ruler_manifest:
         parser.error('--ruler, --style and --ruler-manifest are required to build')
     print(json.dumps({k: v for k, v in build(args.ruler, args.style, args.presets_idx, args.bundle, ruler_manifest=args.ruler_manifest, presets_dir=args.presets_dir).items() if k != 'option_counts'}))
