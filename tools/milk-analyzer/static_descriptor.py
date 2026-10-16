@@ -149,6 +149,7 @@ def _equilibrium_columns(summary):
     for name in ('display_local_rgb','display_spread_rgb','canvas_local_rgb','gain_rgb','offset_rgb','energy_rgb_per_frame'):
         for channel,value in zip('rgb',e[name]):out['equilibrium:'+name+'/'+channel]=float(value)
     out['equilibrium:display_local_warm']=e['display_local_rgb'][0]-e['display_local_rgb'][2]
+    if isinstance(e.get('display_trail_luma'),(int,float)):out['equilibrium:display_trail_luma']=float(e['display_trail_luma'])
     out['equilibrium:display_spread_warm']=e['display_spread_rgb'][0]-e['display_spread_rgb'][2]
     for model in EQUILIBRIUM_MODELS:out['equilibrium:composite='+model]=1. if e['composite_model']==model else 0.
     # Composite transfer shape: threshold level (1.1 when it never reaches 0.5), time spread, undefined share.

@@ -572,6 +572,27 @@ def _composite_shape(composite):
             'composite_nonfinite_share':float(composite.get('nonfinite_share') or 0.)}
 
 
+TRAIL_MAX_AGE=600
+
+
+def _trail_histogram(terms,gain,background,max_age=TRAIL_MAX_AGE):
+    """Canvas level distribution of decaying paint: [(screen share, rgb level)], background last.
+
+    An element painting area a per frame at level L (premultiplied / alpha) leaves pixels at bg + (L - bg) g^k at age k,
+    each covering about a of the screen, until the screen is covered; ages stop once g^k < 1e-3."""
+    hist=[];covered=0.
+    for area,premultiplied,alpha,additive in terms:
+        if area<=0 or alpha<=0:continue
+        level=[p/alpha for p in premultiplied]
+        for k in range(max_age):
+            if covered>=1-1e-9:break
+            share=min(area,1-covered);covered+=share
+            hist.append((share,[background[i]+(level[i]-background[i])*(gain[i]**k) for i in range(3)]))
+            if max(gain)**k<1e-3:break
+    hist.append((max(0.,1-covered) if covered<1-1e-9 else 0.,list(background)))
+    return hist
+
+
 def equilibrium(summary):
     """Steady-state canvas/display brightness and colour bounds from the summary facts."""
     facts={fact['path']:fact['value'] for group in summary['facts'].values() for fact in group}
@@ -592,10 +613,17 @@ def equilibrium(summary):
     spread=[_clip((energy[i]+offset[i])/(1-gain[i])) if gain[i]<1 else (1. if energy[i]+offset[i]>0 else 0.) for i in range(3)]
     composite=stage_transfer(facts,'composite')
     shown_local,model=_composite(local,facts,notes,composite);shown_spread,_=_composite(spread,facts,notes,composite)
+    # For a nonlinear composite the display is the mean of T(level) over the canvas, not T(mean level).
+    trail=[0.,0.,0.]
+    for share,level in _trail_histogram(terms,gain,background):
+        if share<=0:continue
+        shown_level,_=_composite([_clip(v) for v in level],facts,notes,composite)
+        for i in range(3):trail[i]+=share*shown_level[i]
     return {'policy':POLICY,'gain_rgb':gain,'offset_rgb':offset,'elements':len(terms),'drawn_area_fraction':covered,
             'energy_rgb_per_frame':energy,'canvas_local_rgb':local,'canvas_spread_rgb':spread,
             'display_local_rgb':shown_local,'display_spread_rgb':shown_spread,
             'display_local_luma':_luma(shown_local),'display_spread_luma':_luma(shown_spread),
+            'display_trail_rgb':trail,'display_trail_luma':_luma(trail),
             'display_local_saturation':_saturation(shown_local),'display_spread_saturation':_saturation(shown_spread),
             'composite_model':model,'substitutions':notes[:20],'substitution_count':len(notes),
             **_composite_shape(composite),

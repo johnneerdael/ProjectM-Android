@@ -346,3 +346,26 @@ def test_stage_controls_are_computed_once_per_preset_and_times(monkeypatch):
     assert len(calls) == 1 and first == again and first is not again
     Q._stage_controls(b, bands, (5.,))
     assert len(calls) == 2
+
+
+def test_trail_histogram_gives_the_canvas_level_distribution_of_decaying_paint():
+    # For a nonlinear composite the display is the mean of T(level) over the canvas, not T(mean level). An element
+    # painting area a per frame at level L leaves pixels at levels bg + (L - bg) g^k (age k), each covering a, until the
+    # screen is covered; the rest stays at the background. Found with previews: 14.milk's composite maps every flat
+    # level near its canvas mean to black, yet trails pass through the bright band (engine 0.51).
+    hist = E._trail_histogram([(.1, [.8, .8, .8], .8, False)], [.9, .9, .9], [0., 0., 0.])
+    assert abs(sum(share for share, _ in hist) - 1.) < 1e-9
+    assert abs(hist[0][1][0] - 1.) < 1e-9 and abs(hist[1][1][0] - .9) < 1e-9 and abs(hist[2][1][0] - .81) < 1e-9
+    assert len(hist) == 11 and abs(hist[-1][0]) < 1e-9  # ten ages fill the screen; no background share left
+    sparse = E._trail_histogram([(.001, [.5, .5, .5], .5, False)], [.5, .5, .5], [.1, .1, .1])
+    assert abs(sparse[-1][0] - (1 - sum(s for s, _ in sparse[:-1]))) < 1e-9 and sparse[-1][1] == [.1, .1, .1]
+
+
+def test_equilibrium_reports_the_trail_display_level():
+    facts = {'/analysis/visual_description/feedback_transfer': {'uniform_diagonal_gain': .9, 'constant_offset_rgb': [0., 0., 0.]},
+             '/analysis/visual_description/elements/0/geometry': {
+                 'policy': 'source-custom-shape-footprint-v1', 'summed_nominal_area_fraction_per_aspect_y': 1 / E.ASPECT_Y * .1},
+             '/analysis/visual_description/elements/0/material': {
+                 'centre_vertex_rgba': [.5, .5, .5, 1.], 'perimeter_vertex_rgba': [.5, .5, .5, 1.]}}
+    result = E.equilibrium(summary(facts))
+    assert 0. < result['display_trail_luma'] <= 1. and len(result['display_trail_rgb']) == 3
