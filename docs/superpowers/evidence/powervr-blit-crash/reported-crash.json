@@ -1,0 +1,49 @@
+{
+  "reported_build": "2.3.55",
+  "device": "Amazon AFTKRT",
+  "android_api": 30,
+  "gpu": "PowerVR Rogue GE9215",
+  "abi": "arm",
+  "thread": "GLThread 1152",
+  "signal": "SIGSEGV",
+  "code": "SEGV_MAPERR",
+  "fault_address": "0x88",
+  "module_build_id": "81341ee7bd605e163a1d41acc91b3671f7708df8",
+  "module_bytes": 1612560,
+  "released_and_rebuilt_text": {
+    "address": "0x85390",
+    "bytes": 910400,
+    "sha256": "990c0cea15b0fbbe94fc0f71e5cf4c3a373242697c4a1e9384cba68840426c3b"
+  },
+  "frames": [
+    {
+      "pc": "0xb47ba",
+      "module": "libGLESv2_powervr.so",
+      "symbol": "glBlitFramebuffer+1857"
+    },
+    {
+      "pc": "0xc70bb",
+      "module": "libprojectmtv.so",
+      "symbol": "Renderer::Framebuffer::SetSize",
+      "source": "Renderer/Framebuffer.cpp:124"
+    },
+    {
+      "pc": "0xca8ff",
+      "module": "libprojectmtv.so",
+      "symbol": "MilkdropPreset::RenderFrame",
+      "source": "MilkdropPreset/MilkdropPreset.cpp:96"
+    },
+    {
+      "pc": "0xa7e7d",
+      "module": "libprojectmtv.so",
+      "symbol": "ProjectM::RenderFrame",
+      "source": "ProjectM.cpp:229"
+    },
+    {
+      "pc": "0x86e41",
+      "module": "libprojectmtv.so",
+      "symbol": "ProjectMJNI_onDrawFrame; inlined RenderPresetFrame",
+      "source": "native-lib.cpp:2509 / 1873"
+    }
+  ]
+}

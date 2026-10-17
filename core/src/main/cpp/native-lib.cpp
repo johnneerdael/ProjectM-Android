@@ -1856,7 +1856,7 @@ void ReleaseScaledTarget(bool contextAlive) {
 }
 
 // Renders a frame at projectM's window size; below the surface size, into the off-screen target,
-// stretched onto the surface by the GPU (one blit).
+// stretched onto the surface by the GPU (a textured draw on PowerVR, otherwise one blit).
 void RenderPresetFrame() {
     int width = g_engine.renderWidth;
     int height = g_engine.renderHeight;
@@ -1876,7 +1876,12 @@ void RenderPresetFrame() {
     projectm_opengl_render_frame_fbo(g_engine.pm, g_engine.scaledFbo);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, g_engine.scaledFbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, width, height, 0, 0, g_engine.width, g_engine.height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    if (projectm_opengl_needs_framebuffer_copy_workaround()) {
+        projectm_opengl_copy_texture_to_framebuffer(g_engine.pm, g_engine.scaledTexture,
+                                                   g_engine.width, g_engine.height);
+    } else {
+        glBlitFramebuffer(0, 0, width, height, 0, 0, g_engine.width, g_engine.height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, g_engine.width, g_engine.height);
 }

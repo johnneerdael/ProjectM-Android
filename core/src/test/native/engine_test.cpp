@@ -187,6 +187,13 @@ void projectm_opengl_set_texture_pool_limit(size_t bytes) { g_poolLimit = bytes;
 void projectm_opengl_forget_texture_pool() { ++g_poolForgets; }
 void projectm_opengl_forget_framebuffer_guard() { g_framebufferLifecycle += 'F'; }
 void projectm_opengl_delete_framebuffers(int count, const unsigned int* ids) { ++g_guardDeleteCalls; glDeleteFramebuffers(count, ids); }
+bool g_needsFramebufferCopy = false;
+int g_textureCopies = 0, g_copyWidth = 0, g_copyHeight = 0;
+uint32_t g_copiedTexture = 0;
+bool projectm_opengl_needs_framebuffer_copy_workaround() { return g_needsFramebufferCopy; }
+void projectm_opengl_copy_texture_to_framebuffer(projectm_handle, uint32_t texture, int width, int height) {
+  ++g_textureCopies; g_copiedTexture = texture; g_copyWidth = width; g_copyHeight = height;
+}
 size_t projectm_opengl_texture_pool_bytes() { return 0; }
 uint32_t g_cacheHits = 0, g_cacheMisses = 0;
 void projectm_opengl_program_cache_stats(uint32_t* hits, uint32_t* misses) { *hits = g_cacheHits; *misses = g_cacheMisses; }
