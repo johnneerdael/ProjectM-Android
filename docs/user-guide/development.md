@@ -107,6 +107,8 @@ xCrash has one configuration per process. Initialize `ProjectMCore` before any o
 
 To verify capture in an isolated setup build, run the two instrumentation cases `native_crash_capture` then `native_crash_report`. The first deliberately sends SIGSEGV to the test app and must end with `Process crashed`; the second starts a new process and checks the saved signal/backtrace in Recent exits. The report screenshot is `native-crash-report.png` in the test app's external cache. Do not run the fault case against a production app session.
 
+PowerVR copy compatibility is automatic in the JNI renderer. Native hosts that perform their own scaled presentation can query `projectm_opengl_needs_framebuffer_copy_workaround()` on the initialized engine's GL thread and use `projectm_opengl_copy_texture_to_framebuffer(instance, texture, width, height)`. The source is a normalized 2D colour texture, must not be attached to the destination, and is drawn into colour attachment zero (or the default framebuffer's back buffer). Existing context-loss hooks must run before retiring stale instances; they also invalidate the copy resources' context generation. There is no new app preference.
+
 Some engine defaults differ from the app's. For example, blank-preset skipping is off in the core and switched on by the app. `ProjectMJNI.getVersion()` reports the upstream numeric projectM version (`4.2.0`), not the release version. Releasing and publishing are described in [RELEASING.md](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/RELEASING.md).
 
 ## Offline preset tools

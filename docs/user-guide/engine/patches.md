@@ -1,6 +1,6 @@
 # Patch catalog
 
-ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus 37 ordered patches in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
+ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus 38 ordered patches in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
 
 Most patches make the engine behave more like MilkDrop 2. projectM is a clean-room reimplementation of MilkDrop on OpenGL, and over the years small differences crept in: in how equation code is accepted, how HLSL becomes GLSL, where Direct3D 9 and OpenGL put pixel centres, and which per-frame variables are actually read. Each entry below names what projectM did differently, what MilkDrop 2 does (citing its released source where we checked it), what the patch changes, and the preset that shows it.
 
@@ -60,6 +60,7 @@ Two patches deliberately go beyond MilkDrop 2. [0010](#0010-each-preset-keeps-it
 | [0035](#0035-program-cache-switch) | Retained diagnostic API for the shared program binary cache | `program-cache-switch` control |
 | [0036](#0036-powervr-framebuffer-retirement) | Protect PowerVR framebuffer retirement during changes/resizing | real-GL binding/lifetime control |
 | [0037](#0037-reusable-line-rendering) | Share line geometry, shaders and instanced Mesh drawing in Renderer | Mesh and matched-render controls |
+| [0038](#0038-powervr-framebuffer-copies) | Avoid the PowerVR blit crash during feedback resizing and related copies | source-bound crash, real-GL/GLES copy controls |
 
 ## 0001 — TV rendering and preset compatibility
 
@@ -635,3 +636,18 @@ This is an internal architecture change adapted from our [upstream PR #1047](htt
 Both line strips and motion-vector quads use `Renderer::Mesh` to own and stream their interleaved instance data, set attribute layouts/divisors and byte offsets, and draw a separate vertex/instance count. The existing indexed mesh path is retained. The motion-vector vertex shader stays with preset code because it samples the preset's warp field; it shares Renderer's fragment shader.
 
 The Android port retains shader compilation during preset prewarming, cached uniform locations, per-instance shape styles, prepared Native-trails replay and the packed/floating motion-UV paths. This refactor is intended to preserve rendering rather than change a preset's appearance. Validation and backend limits are recorded in the [refactor evidence](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/renderer-line-refactor/README.md).
+
+
+## 0038 — PowerVR framebuffer copies
+
+The Fire TV native report from ProjectM 2.3.55 identifies a render-thread crash inside `glBlitFramebuffer`, called by the engine's feedback-buffer resize operation. Auto can perform that resize while a preset plays, so a preset switch is not required. The primary image textures already use matching colour formats; changing all textures to one format would also damage the separate motion-vector data.
+
+On Imagination/PowerVR contexts, a cached fullscreen textured draw replaces the resize blit, the retained-detail recombination copy and the host's scaled-presentation blit. Colour copies address only colour attachment zero, all attachments reach their new dimensions before history is copied, and touched rendering state is restored. Copy resources are released with their owner or forgotten safely after context loss. Other GPUs retain blits, with the read source explicitly detached before its old texture is freed.
+
+The comparison below is a **synthetic RGBA copy control**, rendered on an owned Android 14 ARM64 emulator with GLES3.0 and an Apple M4 Pro host GPU. It compares the reference blit with the PowerVR-selected textured path, rather than whole presets or Windows output. The 512×288 RGBA images are byte-identical; a separate 4K scaling control differs by at most one 8-bit channel step. Native-trails nearest copying is exact. This selects the compatibility branch on a real GLES backend; it does not emulate the proprietary PowerVR driver.
+
+| Reference blit | PowerVR textured copy |
+|---|---|
+| ![Reference RGBA framebuffer-copy control](../images/patches/0038-framebuffer-copy/reference-blit.png) | ![PowerVR-selected RGBA framebuffer-copy control](../images/patches/0038-framebuffer-copy/powervr-draw.png) |
+
+The [source-binding and validation record](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/powervr-blit-crash/README.md) preserves the reported build ID, instruction offsets, copy/state controls and capture identities. Imagination's [separate GE8320 report](https://forums.imgtec.com/t/crash-glblitframebuffer-on-powervr-ge8320/4178) also records a driver-side blit crash, but does not establish that every PowerVR model has the same defect. The final Fire TV crash outcome still needs confirmation on that device.

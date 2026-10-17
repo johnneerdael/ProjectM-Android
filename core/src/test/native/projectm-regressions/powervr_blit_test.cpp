@@ -12,16 +12,30 @@
 #include <stdexcept>
 #include <vector>
 
+#define STB_IMAGE_WRITE_STATIC
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image/stb_image_write.h>
+
 namespace {
 void Require(bool ok, const char* message) {
     if (!ok) throw std::runtime_error(message);
 }
 bool powerVR{};
-int blits{}, programs{};
+int blits{}, programs{}, unrelatedDetachments{};
 PFNGLGETSTRINGPROC realGetString;
 PFNGLBLITFRAMEBUFFERPROC realBlit;
 PFNGLCREATEPROGRAMPROC realCreateProgram;
+PFNGLDELETETEXTURESPROC realDeleteTextures;
 GLuint GLAD_API_PTR CreateProgram() { ++programs; return realCreateProgram(); }
+void GLAD_API_PTR DeleteTextures(GLsizei count, const GLuint* ids) {
+    GLint draw{}, before{}, after{};
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &draw);
+    if (draw) glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &before);
+    realDeleteTextures(count, ids);
+    if (draw) glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &after);
+    if (before && before != after && std::find(ids, ids + count, static_cast<GLuint>(before)) == ids + count)
+        ++unrelatedDetachments;
+}
 const GLubyte* GLAD_API_PTR GetString(GLenum name) {
     if (name == GL_VENDOR) return reinterpret_cast<const GLubyte*>(powerVR ? "Imagination Technologies" : "Other vendor");
     if (name == GL_RENDERER) return reinterpret_cast<const GLubyte*>(powerVR ? "PowerVR Rogue GE9215" : "Other renderer");
@@ -37,14 +51,17 @@ struct Hooks {
         realGetString = glad_glGetString;
         realBlit = glad_glBlitFramebuffer;
         realCreateProgram = glad_glCreateProgram;
+        realDeleteTextures = glad_glDeleteTextures;
         glad_glGetString = GetString;
         glad_glBlitFramebuffer = Blit;
         glad_glCreateProgram = CreateProgram;
+        glad_glDeleteTextures = DeleteTextures;
     }
     ~Hooks() {
         glad_glGetString = realGetString;
         glad_glBlitFramebuffer = realBlit;
         glad_glCreateProgram = realCreateProgram;
+        glad_glDeleteTextures = realDeleteTextures;
     }
 };
 std::vector<unsigned char> Resize(bool usePowerVR, int sourceWidth = 7, int sourceHeight = 5,
@@ -62,6 +79,16 @@ std::vector<unsigned char> Resize(bool usePowerVR, int sourceWidth = 7, int sour
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, original.data());
     glBindTexture(GL_TEXTURE_2D, 0);
     framebuffer.SetSize(targetWidth, targetHeight);
+    GLint red{}, alpha{}, object{}, kind{};
+    framebuffer.BindDraw(0);
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &object);
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &kind);
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &red);
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alpha);
+    Require(object == static_cast<GLint>(framebuffer.GetColorAttachmentTexture(0, 0)->TextureID()) &&
+            kind == GL_TEXTURE && red == 8 && alpha == 8 &&
+            glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,
+            "resize lost or changed the destination colour attachment");
     framebuffer.BindRead(0);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     std::vector<unsigned char> result(targetWidth * targetHeight * 4);
@@ -113,11 +140,12 @@ void MixedResize(bool usePowerVR) {
     glGetIntegerv(GL_DRAW_BUFFER1, &route);
     Require(route == GL_COLOR_ATTACHMENT1, "resize did not restore auxiliary draw routing");
     glReadBuffer(GL_COLOR_ATTACHMENT1);
-    std::vector<GLushort> auxiliary(12 * 9 * 2, 99);
-    glReadPixels(0, 0, 12, 9, GL_RG_INTEGER, GL_UNSIGNED_SHORT, auxiliary.data());
-    Require(std::all_of(auxiliary.begin(), auxiliary.end(), [](GLushort x) { return x == 0; }),
-            "primary colour copy wrote into the integer UV attachment");
-    Require(glGetError() == GL_NO_ERROR, "mixed-attachment resize generated a GL error");
+    std::vector<GLuint> auxiliary(12 * 9 * 4, 99);
+    glReadPixels(0, 0, 12, 9, GL_RGBA_INTEGER, GL_UNSIGNED_INT, auxiliary.data());
+    Require(glGetError() == GL_NO_ERROR, "integer-attachment readback generated a GL error");
+    for (size_t i = 0; i < auxiliary.size(); i += 4)
+        Require(auxiliary[i] == 0 && auxiliary[i + 1] == 0,
+                "primary colour copy wrote into the integer UV attachment");
 }
 
 void HostCopyState() {
@@ -192,6 +220,19 @@ void HostCopyState() {
     glBindSampler(0, 0); glDeleteSamplers(1, &sampler);
     glBindTexture(GL_TEXTURE_2D, 0); glDeleteTextures(1, &dummyTexture);
     libprojectM::Renderer::Shader::Unbind();
+#ifdef USE_GLES
+    // GLES has a real default pbuffer; test the host presentation destination too.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glReadBuffer(GL_BACK);
+    projectm_opengl_copy_texture_to_framebuffer(instance, source.GetColorAttachmentTexture(0, 0)->TextureID(), 7, 5);
+    glGetIntegerv(GL_DRAW_BUFFER0, &actual);
+    Require(actual == GL_BACK, "default framebuffer draw routing changed");
+    std::vector<unsigned char> displayed(original.size());
+    glReadPixels(0, 0, 7, 5, GL_RGBA, GL_UNSIGNED_BYTE, displayed.data());
+    for (size_t i = 0; i < original.size(); ++i)
+        if (i % 4 != 3) Require(displayed[i] == original[i], "default presentation changed an RGB pixel");
+    Require(glGetError() == GL_NO_ERROR && blits == before, "default presentation used a blit or invalid state");
+#endif
     projectm_destroy(instance);
 }
 
@@ -245,15 +286,26 @@ void LostContextOwnership() {
 }
 }
 
-int main() {
+int main(int argc, char** argv) {
     try {
         GLContext context;
+        std::cout << "GL " << glGetString(GL_VERSION) << "; renderer " << glGetString(GL_RENDERER) << '\n';
         Hooks hooks;
         const auto ordinary = Resize(false);
         const auto compatible = Resize(true);
         int largestDifference = 0;
         for (size_t i = 0; i < ordinary.size(); ++i)
             largestDifference = std::max(largestDifference, std::abs(int(ordinary[i]) - int(compatible[i])));
+        if (largestDifference > 1) {
+            int shown = 0;
+            for (size_t i = 0; i < ordinary.size() && shown < 12; ++i) {
+                if (std::abs(int(ordinary[i]) - int(compatible[i])) <= 1) continue;
+                std::cerr << "copy mismatch byte " << i << " blit=" << int(ordinary[i])
+                          << " draw=" << int(compatible[i]) << '\n';
+                ++shown;
+            }
+            std::cerr << "largest copy difference " << largestDifference << '\n';
+        }
         Require(largestDifference <= 1, "PowerVR copy changed scaling, orientation, colour or alpha");
         {
             const auto ordinary4k = Resize(false, 31, 17, 3840, 2160);
@@ -268,6 +320,19 @@ int main() {
         const auto ordinaryDetail = DetailCopy(false);
         const auto compatibleDetail = DetailCopy(true);
         Require(ordinaryDetail == compatibleDetail, "Native trails copy changed its pixels");
+        if (argc > 1) {
+            const auto reference = Resize(false, 31, 17, 512, 288);
+            const auto draw = Resize(true, 31, 17, 512, 288);
+            int proofDifference = 0;
+            for (size_t i = 0; i < reference.size(); ++i)
+                proofDifference = std::max(proofDifference, std::abs(int(reference[i]) - int(draw[i])));
+            Require(proofDifference <= 1, "proof captures exceed the copy precision bound");
+            stbi_flip_vertically_on_write(1);
+            Require(stbi_write_png((std::string(argv[1]) + "/reference-blit.png").c_str(), 512, 288, 4, reference.data(), 512 * 4), "could not write reference capture");
+            Require(stbi_write_png((std::string(argv[1]) + "/powervr-draw.png").c_str(), 512, 288, 4, draw.data(), 512 * 4), "could not write draw capture");
+            std::cout << "512x288 RGBA proof maximum channel difference " << proofDifference << '\n';
+        }
+        Require(unrelatedDetachments == 0, "deleting a copy source detached an unrelated draw image");
         LostContextOwnership();
         libprojectM::Renderer::ForgetFramebufferDeletion();
         std::cout << "PowerVR resize/MRT/host-state/trails/context controls pass; maximum channel difference "

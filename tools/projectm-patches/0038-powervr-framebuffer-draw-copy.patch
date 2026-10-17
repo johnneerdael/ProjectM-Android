@@ -136,7 +136,7 @@ index 154324f..755faf9 100644
       * @brief Copies the original texture into the currently bound framebuffer.
       * @param shaderCache The global shader cache instance.
 diff --git a/src/libprojectM/Renderer/Framebuffer.cpp b/src/libprojectM/Renderer/Framebuffer.cpp
-index 887a8c6..2394ed2 100644
+index 887a8c6..fd6aedc 100644
 --- a/src/libprojectM/Renderer/Framebuffer.cpp
 +++ b/src/libprojectM/Renderer/Framebuffer.cpp
 @@ -1,4 +1,5 @@
@@ -145,7 +145,7 @@ index 887a8c6..2394ed2 100644
  #include "Renderer/Framebuffer.hpp"
  
  namespace libprojectM {
-@@ -81,47 +82,50 @@ void Framebuffer::Unbind()
+@@ -81,47 +82,54 @@ void Framebuffer::Unbind()
  
  bool Framebuffer::SetSize(int width, int height)
  {
@@ -221,10 +221,14 @@ index 887a8c6..2394ed2 100644
 +            glBlitFramebuffer(0, 0, oldWidth, oldHeight, 0, 0, width, height,
 +                              GL_COLOR_BUFFER_BIT, GL_LINEAR);
 +            if (scissor) glEnable(GL_SCISSOR_TEST);
++            // Release the read attachment explicitly before oldTexture is destroyed.
++            // Otherwise GLES translators can detach the unrelated draw image on texture deletion.
++            glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
++            glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
          }
      }
      if (copyFramebuffer != 0)
-@@ -130,10 +134,15 @@ bool Framebuffer::SetSize(int width, int height)
+@@ -130,10 +138,15 @@ bool Framebuffer::SetSize(int width, int height)
          DeleteFramebuffers(1, &copyFramebuffer);
      }
      glBindFramebuffer(GL_FRAMEBUFFER, 0);

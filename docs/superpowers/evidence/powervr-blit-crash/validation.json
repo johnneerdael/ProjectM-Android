@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-17",
+  "baseline_source": "76757e6e926c14e0be4ba6912873394012c4f5e5",
+  "projectm_pin": "6f64807467e312034883a4389e6aa80a675458bc",
+  "ndk": "27.3.13750724",
+  "source_and_local_artifacts": [
+    {
+      "path": "tools/projectm-patches/0038-powervr-framebuffer-draw-copy.patch",
+      "bytes": 22048,
+      "sha256": "480757680cc37d995acb60293524b481c0ea49f334da7286e6ca053d52538488"
+    },
+    {
+      "path": "core/src/main/cpp/native-lib.cpp",
+      "bytes": 139680,
+      "sha256": "fd797c53df9ae9c95854c4a1a715b9f6ed44559245a83830675381b7d9f92e1f"
+    },
+    {
+      "path": "core/src/test/native/projectm-regressions/powervr_blit_test.cpp",
+      "bytes": 18451,
+      "sha256": "01838d487a93f50ab70238e8dec4ccfca21a7a2fbabededd7a9a2505e09d3065"
+    },
+    {
+      "path": "build/powervr/android-regressions/powervr-blit-regressions",
+      "bytes": 17684296,
+      "sha256": "9957972b0037475c4e104046a826a282151aae06d2602fed14c0dfb9180ade99"
+    },
+    {
+      "path": "core/build/outputs/aar/core-release.aar",
+      "bytes": 42613266,
+      "sha256": "6f6e9a858a8052a5c3b53a372e137fa06728cbd768a8bf1238c81d8b5d97898b"
+    },
+    {
+      "path": "app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 49532562,
+      "sha256": "818dcf134db575b05d384ddb673c8f47fff0ed69d665ad9d0f99450c4dd99cbc"
+    },
+    {
+      "path": "app/build/outputs/apk/release/app-release.apk",
+      "bytes": 44283401,
+      "sha256": "bd53b10f27018f52f341225bd8924f49cace48d7b4209d1e442c4b569eaf4fd3"
+    }
+  ],
+  "synthetic_copy_images": [
+    {
+      "path": "docs/user-guide/images/patches/0038-framebuffer-copy/reference-blit.png",
+      "bytes": 198887,
+      "sha256": "f6cf9452849b61828172df5d1572f32bf2a1afb8e976787daf5599660e61bc2a"
+    },
+    {
+      "path": "docs/user-guide/images/patches/0038-framebuffer-copy/powervr-draw.png",
+      "bytes": 198887,
+      "sha256": "f6cf9452849b61828172df5d1572f32bf2a1afb8e976787daf5599660e61bc2a"
+    }
+  ],
+  "android": {
+    "api": 34,
+    "abi": "arm64-v8a",
+    "fingerprint": "Android/sdk_phone64_arm64/emu64a:14/UE1A.230829.036.A1/11228894:userdebug/test-keys",
+    "gl": "OpenGL ES 3.0 (4.1 Metal - 89.4)",
+    "renderer": "Android Emulator OpenGL ES Translator (Apple M4 Pro)",
+    "vendor_selection": "test hook; proprietary PowerVR driver not emulated",
+    "worker_runs": 2,
+    "proof_pngs_identical_across_runs": true,
+    "proof_max_rgba_channel_difference": 0,
+    "largest_4k_channel_difference": 1,
+    "nearest_native_trails_exact": true,
+    "resize_mixed_attachments_state_default_presentation_context_replacement": "pass"
+  },
+  "host": {
+    "gl": "4.1 Metal - 89.4",
+    "renderer": "Apple M4 Pro",
+    "proof_max_rgba_channel_difference": 0,
+    "largest_4k_channel_difference": 1,
+    "nearest_native_trails_exact": true
+  },
+  "jvm": {
+    "app_debug": {
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "core_debug": {
+      "tests": 90,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app_release": {
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "core_release": {
+      "tests": 90,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "checks": {
+    "patches_apply_to_clean_source": 38,
+    "distribution_unit_tests": 10,
+    "glsl_es_300_link": "pass",
+    "native_sanitizer_suite": {
+      "renderer_passed": 66,
+      "renderer_failed": 0,
+      "renderer_seconds": 115.2,
+      "jni_and_fake_engine": "pass",
+      "skipped": "standalone transition overlay: no host EGL/GLES development files"
+    },
+    "debug_and_release_both_arm_builds": "pass",
+    "strict_mkdocs": "pass"
+  },
+  "limits": [
+    "No affected Fire TV candidate test",
+    "No proprietary-driver emulation",
+    "No whole-preset or Windows image equivalence",
+    "No measured physical-TV performance or speedup",
+    "Local artifacts are not a published release"
+  ]
+}
