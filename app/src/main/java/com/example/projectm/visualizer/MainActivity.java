@@ -1681,9 +1681,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Where Android TV settings keep notification access. */
-    private static final String TRACK_ACCESS_PATH =
-            "Settings › Device Preferences › Apps › Special app access › Notification access";
+    /** Where this build's device settings keep notification access (phone and TV differ). */
+    private static final String TRACK_ACCESS_PATH = TrackAccessNavigation.settingsPath(BuildConfig.TOUCHSCREEN);
 
     /**
      * Explains how to allow notification-listener access, which the app needs to read the playing

@@ -28,4 +28,8 @@ public class TrackAccessNavigationTest {
     @Test public void reportsNoAvailableSettingsActivity() {
         assertFalse(TrackAccessNavigation.open(28, action -> false));
     }
+    @Test public void settingsPathMatchesDeviceType() {
+        assertEquals("Settings › Apps › Special app access › Notification access", TrackAccessNavigation.settingsPath(true));
+        assertEquals("Settings › Device Preferences › Apps › Special app access › Notification access", TrackAccessNavigation.settingsPath(false));
+    }
 }
