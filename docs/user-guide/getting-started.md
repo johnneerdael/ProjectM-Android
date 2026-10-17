@@ -109,6 +109,8 @@ After the audio permission, a **Show track titles** dialog offers two choices:
 - **Configure** opens Android's notification-access settings. On Android 11+ it tries the installed app's own page first, then falls back to the list of apps, Apps, or the main Settings screen.
 - **Dismiss** permanently hides the automatic prompt for this installation. You can still open it from **Settings › Track display › Track info**.
 
+The dialog names the path for your edition: *Settings › Apps › Special app access › Notification access* in ProjectM Android on a phone, and *Settings › Device Preferences › Apps › Special app access › Notification access* in ProjectM TV.
+
 [![Show track titles dialog with Dismiss and Configure buttons](images/setup/track-titles-prompt.png)](images/setup/track-titles-prompt.png)
 
 ### Enable access with Configure
@@ -130,7 +132,7 @@ Choosing Configure does not dismiss the reminder, so if you return without enabl
 
 ### Find the setting manually
 
-Look for **Apps › Special app access › Notification access** (these two screenshots are from Android 9). Some devices put Apps under **Device Preferences** first (on the NVIDIA SHIELD: *Settings › Device Preferences › Apps › Special app access › Notification access*).
+Look for **Apps › Special app access › Notification access** (these two screenshots are from Android 9). Phones list **Apps** at the top level of Settings. Some Android TV devices put Apps under **Device Preferences** first (on the NVIDIA SHIELD: *Settings › Device Preferences › Apps › Special app access › Notification access*).
 
 [![Android Apps settings scrolled down to Special app access](images/setup/android-apps.png)](images/setup/android-apps.png)
 
