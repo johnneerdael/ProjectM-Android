@@ -39,3 +39,8 @@ The owned TV emulator is `projectm_line_refactor_tv` / `emulator-5674`, captured
 | ![Before refactor](android-before.png) | ![After refactor](android-after.png) |
 
 These are copied unchanged from the validated final-output captures. Every selected before/after RGB pair matches; no appearance improvement is claimed. The timing values measure serialized `onDrawFrame` plus `glFinish`, excluding captures/PNG transport, on an emulator. They are not physical-TV app FPS or a universal performance result. One supplementary isolated City Lights legacy ABBA cycle (`android/city-abba/`) measures baseline7.905/8.965ms and candidate8.036/8.630ms (means8.435/8.333ms). All four capture sequences are identical. The overlapping variation does not establish a speedup or a universal no-regression result; no consistent increase is demonstrated by this one cycle.
+
+
+### Collection-lock follow-up
+
+The first reviewed CI run built the release TV/touchscreen APKs and full core AAR, then correctly rejected a stale collection lock. `docs/THIRD_PARTY.md` is included in the deterministic collection archive, so its updated patch provenance changes the archive identity even though every preset, texture and score is unchanged. Replacing only that notice with main's previous bytes reproduces the previous archive lock byte-for-byte (`archive-lock-causality.json`). The existing lock-archive command regenerates the updated identity; the failing archive build then passes, and all10 focused distribution tests pass. No generator logic, version base or preset data was changed.
