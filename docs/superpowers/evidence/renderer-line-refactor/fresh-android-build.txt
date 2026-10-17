@@ -1,0 +1,208 @@
+> Task :core:preBuild UP-TO-DATE
+> Task :core:preDebugBuild UP-TO-DATE
+> Task :core:configureCMakeDebug[arm64-v8a]
+
+> Task :core:buildCMakeDebug[arm64-v8a]
+C/C++: ninja: Entering directory `/private/tmp/projectmtv-line-refactor/fresh/core/.cxx/Debug/g2hz395u/arm64-v8a'
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/vendor/hlslparser/src/GLSLGenerator.cpp:798:45: warning: data argument not used by format string [-Wformat-extra-args]
+C/C++:   798 |                         m_writer.Write(",", op);
+C/C++:       |                                        ~~~  ^
+C/C++: 1 warning generated.
+C/C++: In file included from /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/MilkdropPreset/Waveform.cpp:1:
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/MilkdropPreset/Waveform.hpp:49:9: warning: private field 'm_samples' is not used [-Wunused-private-field]
+C/C++:    49 |     int m_samples{};         //!< Number of samples in the current waveform. Depends on the mode.
+C/C++:       |         ^
+C/C++: 1 warning generated.
+C/C++: In file included from /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/LineRenderer.cpp:1:
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/LineRenderer.hpp:113:10: warning: private field 'm_enabled' is not used [-Wunused-private-field]
+C/C++:   113 |     bool m_enabled{false}; //!< This object enabled GL_PROGRAM_POINT_SIZE.
+C/C++:       |          ^
+C/C++: 1 warning generated.
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/Framebuffer.cpp:345:38: warning: unused parameter 'bufferIndex' [-Wunused-parameter]
+C/C++:   345 | void Framebuffer::MaskDrawBuffer(int bufferIndex, bool masked)
+C/C++:       |                                      ^
+C/C++: 1 warning generated.
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:185:46: warning: struct 'Texture' was previously declared as a class; this is valid, but may result in linker errors under the Microsoft C++ ABI [-Wmismatched-tags]
+C/C++:   185 |                        const std::shared_ptr<struct Texture>& originalTexture,
+C/C++:       |                                              ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/../Renderer/Texture.hpp:19:7: note: previous use is here
+C/C++:    19 | class Texture
+C/C++:       |       ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:185:46: note: did you mean class here?
+C/C++:   185 |                        const std::shared_ptr<struct Texture>& originalTexture,
+C/C++:       |                                              ^~~~~~
+C/C++:       |                                              class
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:186:46: warning: struct 'Texture' was previously declared as a class; this is valid, but may result in linker errors under the Microsoft C++ ABI [-Wmismatched-tags]
+C/C++:   186 |                        const std::shared_ptr<struct Texture>& targetTexture,
+C/C++:       |                                              ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/../Renderer/Texture.hpp:19:7: note: previous use is here
+C/C++:    19 | class Texture
+C/C++:       |       ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:186:46: note: did you mean class here?
+C/C++:   186 |                        const std::shared_ptr<struct Texture>& targetTexture,
+C/C++:       |                                              ^~~~~~
+C/C++:       |                                              class
+C/C++: 2 warnings generated.
+
+> Task :core:configureCMakeDebug[armeabi-v7a]
+
+> Task :core:buildCMakeDebug[armeabi-v7a]
+C/C++: ninja: Entering directory `/private/tmp/projectmtv-line-refactor/fresh/core/.cxx/Debug/g2hz395u/armeabi-v7a'
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/vendor/hlslparser/src/GLSLGenerator.cpp:798:45: warning: data argument not used by format string [-Wformat-extra-args]
+C/C++:   798 |                         m_writer.Write(",", op);
+C/C++:       |                                        ~~~  ^
+C/C++: 1 warning generated.
+C/C++: In file included from /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/MilkdropPreset/Waveform.cpp:1:
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/MilkdropPreset/Waveform.hpp:49:9: warning: private field 'm_samples' is not used [-Wunused-private-field]
+C/C++:    49 |     int m_samples{};         //!< Number of samples in the current waveform. Depends on the mode.
+C/C++:       |         ^
+C/C++: 1 warning generated.
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/Framebuffer.cpp:345:38: warning: unused parameter 'bufferIndex' [-Wunused-parameter]
+C/C++:   345 | void Framebuffer::MaskDrawBuffer(int bufferIndex, bool masked)
+C/C++:       |                                      ^
+C/C++: 1 warning generated.
+C/C++: In file included from /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/LineRenderer.cpp:1:
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/LineRenderer.hpp:113:10: warning: private field 'm_enabled' is not used [-Wunused-private-field]
+C/C++:   113 |     bool m_enabled{false}; //!< This object enabled GL_PROGRAM_POINT_SIZE.
+C/C++:       |          ^
+C/C++: 1 warning generated.
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:185:46: warning: struct 'Texture' was previously declared as a class; this is valid, but may result in linker errors under the Microsoft C++ ABI [-Wmismatched-tags]
+C/C++:   185 |                        const std::shared_ptr<struct Texture>& originalTexture,
+C/C++:       |                                              ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/../Renderer/Texture.hpp:19:7: note: previous use is here
+C/C++:    19 | class Texture
+C/C++:       |       ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:185:46: note: did you mean class here?
+C/C++:   185 |                        const std::shared_ptr<struct Texture>& originalTexture,
+C/C++:       |                                              ^~~~~~
+C/C++:       |                                              class
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:186:46: warning: struct 'Texture' was previously declared as a class; this is valid, but may result in linker errors under the Microsoft C++ ABI [-Wmismatched-tags]
+C/C++:   186 |                        const std::shared_ptr<struct Texture>& targetTexture,
+C/C++:       |                                              ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/../Renderer/Texture.hpp:19:7: note: previous use is here
+C/C++:    19 | class Texture
+C/C++:       |       ^
+C/C++: /tmp/projectmtv-line-refactor/fresh/third_party/projectm/src/libprojectM/Renderer/CopyTexture.cpp:186:46: note: did you mean class here?
+C/C++:   186 |                        const std::shared_ptr<struct Texture>& targetTexture,
+C/C++:       |                                              ^~~~~~
+C/C++:       |                                              class
+C/C++: 2 warnings generated.
+
+> Task :core:mergeDebugJniLibFolders
+> Task :core:generateDebugBuildConfig
+> Task :core:generateDebugResValues
+> Task :core:generateDebugResources
+> Task :core:packageDebugResources
+> Task :core:extractDeepLinksForAarDebug
+> Task :core:mergeDebugShaders
+> Task :core:compileDebugShaders NO-SOURCE
+> Task :core:generateDebugAssets UP-TO-DATE
+> Task :core:parseDebugLocalResources
+> Task :core:mergeDebugNativeLibs
+> Task :core:mergeDebugAssets
+> Task :core:generateDebugRFile
+> Task :core:javaPreCompileDebug
+> Task :core:prepareDebugArtProfile
+> Task :core:extractDebugAnnotations
+> Task :core:stripDebugDebugSymbols
+
+> Task :core:compileDebugJavaWithJavac
+Java compiler version 21 has deprecated support for compiling with source/target version 8.
+Try one of the following options:
+    1. [Recommended] Use Java toolchain with a lower language version
+    2. Set a higher source/target version
+    3. Use a lower version of the JDK running the build (if you're not using Java toolchain)
+For more details on how to configure these settings, see https://developer.android.com/build/jdks.
+To suppress this warning, set android.javaCompile.suppressSourceTargetDeprecationWarning=true in gradle.properties.
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /private/tmp/projectmtv-line-refactor/fresh/third_party/xcrash/xcrash_lib/src/main/java/xcrash/Util.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+3 warnings
+
+> Task :core:mergeDebugGeneratedProguardFiles
+> Task :core:mergeDebugConsumerProguardFiles
+> Task :core:prepareLintJarForPublish
+> Task :core:copyDebugJniLibsProjectAndLocalJars
+> Task :core:processDebugManifest
+> Task :core:processDebugJavaRes
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :core:writeDebugAarMetadata
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugBuildConfig
+> Task :core:mergeDebugJavaResource
+> Task :app:javaPreCompileDebug
+> Task :core:syncDebugLibJars
+> Task :core:bundleDebugAar
+> Task :core:assembleDebug
+> Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:mergeDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :core:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :core:compileDebugLibraryResources
+> Task :app:processDebugManifestForPackage
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :core:bundleLibCompileToJarDebug
+> Task :app:processDebugResources
+> Task :app:mergeDebugAssets
+
+> Task :app:compileDebugJavaWithJavac
+Java compiler version 21 has deprecated support for compiling with source/target version 8.
+Try one of the following options:
+    1. [Recommended] Use Java toolchain with a lower language version
+    2. Set a higher source/target version
+    3. Use a lower version of the JDK running the build (if you're not using Java toolchain)
+For more details on how to configure these settings, see https://developer.android.com/build/jdks.
+To suppress this warning, set android.javaCompile.suppressSourceTargetDeprecationWarning=true in gradle.properties.
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+3 warnings
+
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:desugarDebugFileDependencies
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugJniLibFolders
+> Task :core:bundleLibRuntimeToJarDebug
+> Task :app:mergeDebugJavaResource
+> Task :core:copyDebugJniLibsProjectOnly
+> Task :app:mergeExtDexDebug
+> Task :app:dexBuilderDebug
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugNativeLibs
+> Task :app:mergeLibDexDebug
+> Task :app:stripDebugDebugSymbols
+> Task :app:compressDebugAssets
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+[Incubating] Problems report is available at: file:///private/tmp/projectmtv-line-refactor/fresh/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 10s
+69 actionable tasks: 69 executed

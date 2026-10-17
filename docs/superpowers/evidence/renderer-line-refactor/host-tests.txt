@@ -1,0 +1,18 @@
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+projectM authored feedback fallback at 127x95
+projectM authored feedback fallback at 127x95
+UNSUPPORTED (log once): POSSIBLE ISSUE: unit 0 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
+projectM feedback diffusion: scale 4.000 exceeds kernel range; variance capped at 1.90 px^2
+Running main() from /private/tmp/googletest-20260810-2279-a5yc4x/googletest-1.18.0/googletest/src/gtest_main.cc
+Standard persistent L maximum MAE bytes: 0
+Standard canvas reconstruction maximum MAE bytes: 0.228733
+ // marker [==========] 337 tests from 40 test suites ran. (7232 ms total)
+[  PASSED  ] 337 tests.

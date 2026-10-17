@@ -1,0 +1,75 @@
+{
+  "protocol": "projectmtv-core-corpus-v1",
+  "applicationId": "nl.neerdael.projectmtv.corpusbaseline",
+  "pid": 3329,
+  "job": {
+    "expectedPresetCount": 9606,
+    "height": 2160,
+    "instrumented": true,
+    "nativeTrails": -1,
+    "outputDir": "\/data\/user\/0\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/b0783ab2122fbb1c21a1c31b0ee9f683a7eec6ceb27eb249ff489d3bd7397a9e\/output",
+    "pcmPath": "\/data\/user\/0\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/b0783ab2122fbb1c21a1c31b0ee9f683a7eec6ceb27eb249ff489d3bd7397a9e\/audio.u8",
+    "preset": "$$$ Royal - Mashup (103).milk",
+    "referenceHeight": 768,
+    "referenceWidth": 1024,
+    "seed": 12345,
+    "width": 3840
+  },
+  "requestSha256": "abb93f0652c1261a01275663777d480aa7bc98aa58f72c3edd7ee877e27db604",
+  "determinism": "instrumented-fixed-clock-seed",
+  "frameCountExpected": 480,
+  "fps": 30,
+  "audioBlockBytes": 1470,
+  "audioDelivery": "complete unsigned 8-bit mono blocks via ProjectMJNI.addWaveform; production FeedAudio retains the tail bounded by projectm_pcm_get_max_samples()",
+  "captureSemantics": "eight selected final-output frames from read framebuffer zero, top-down RGB8 SHA256; sampled metrics under common 16-second audio; no all-frame image hash",
+  "settings": {
+    "autoChange": false,
+    "beatCuts": false,
+    "blankDetection": false,
+    "musicCategory": "all",
+    "meshWidth": 48,
+    "meshHeight": 32,
+    "presetDurationSeconds": 3600,
+    "softCutDurationSeconds": 0,
+    "transitionMode": "CLASSIC",
+    "lowEndDevice": false
+  },
+  "captures": [],
+  "memoryPressureCalls": [
+    {
+      "beforeFrame": -1,
+      "elapsedRealtimeMs": 158336,
+      "productionPauseSeconds": 20
+    }
+  ],
+  "device": {
+    "manufacturer": "Google",
+    "model": "sdk_google_atv64_arm64",
+    "device": "emu64a",
+    "fingerprint": "google\/sdk_google_atv64_arm64\/emu64a:16\/BT2A.260319.001\/15058170:user\/dev-keys",
+    "sdk": 36,
+    "abis": [
+      "arm64-v8a"
+    ]
+  },
+  "pcmSha256": "14a59e75249dee0dd15d74487688c248c6a4a4b24a843b6d6f612ccc5c408dbc",
+  "bundledPresetCount": 9606,
+  "indexSha256": "d87c63eb1a54474d3ddfecbef0e5c633c80bfd130d5ef5730bf13f66b4e0dfef",
+  "presetAssetSha256": "08ead3db478aa81c0e29efccc0d9c38bbe69180435123531cbafbf2beb347463",
+  "forcedPresetPrefix": "$$$ Royal - Mashup (103).milk",
+  "eglVendor": "Android",
+  "eglVersion": "1.4 Android META-EGL",
+  "glVendor": "Google (Apple)",
+  "glRenderer": "Android Emulator OpenGL ES Translator (Apple M4 Pro)",
+  "glVersion": "OpenGL ES 3.0 (4.1 Metal - 89.4)",
+  "glShadingLanguageVersion": "OpenGL ES GLSL ES 3.00",
+  "startupIndexWaitMs": 22,
+  "eligiblePresetCountBeforeFrame0": 1,
+  "coreVersion": "4.2.0",
+  "coreSurfaceAttempted": true,
+  "error": "java.lang.IllegalStateException: ProjectMJNI surface initialization GL error 0x502",
+  "coreReleased": true,
+  "eglDestroyed": true,
+  "status": "failed",
+  "wallDurationMs": 280
+}

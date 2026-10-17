@@ -1,0 +1,15 @@
+test_apk_descriptor_uses_lock_without_host_recompression (tools.test_preset_distribution.DistributionTests.test_apk_descriptor_uses_lock_without_host_recompression) ... ok
+test_archive_bytes_ignore_release_tag_and_mtime (tools.test_preset_distribution.DistributionTests.test_archive_bytes_ignore_release_tag_and_mtime) ... ok
+test_bad_source_hash_rejected (tools.test_preset_distribution.DistributionTests.test_bad_source_hash_rejected) ... ok
+test_changed_builder_bytes_fail_lock_comparison (tools.test_preset_distribution.DistributionTests.test_changed_builder_bytes_fail_lock_comparison) ... ok
+test_descriptor_matches_archive (tools.test_preset_distribution.DistributionTests.test_descriptor_matches_archive) ... ok
+test_duplicate_and_unsafe_selection_rejected (tools.test_preset_distribution.DistributionTests.test_duplicate_and_unsafe_selection_rejected) ... ok
+test_mood_subset_keeps_original_scores (tools.test_preset_distribution.DistributionTests.test_mood_subset_keeps_original_scores) ... ok
+test_starter_filters_preset_attributes_to_selected_presets (tools.test_preset_distribution.DistributionTests.test_starter_filters_preset_attributes_to_selected_presets) ... ok
+test_texture_and_random_pool_dependencies (tools.test_preset_distribution.DistributionTests.test_texture_and_random_pool_dependencies) ... ok
+test_twenty_unique_presets_and_existing_weights (tools.test_preset_distribution.DistributionTests.test_twenty_unique_presets_and_existing_weights) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.878s
+
+OK

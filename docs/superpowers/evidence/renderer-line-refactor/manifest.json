@@ -1,0 +1,21 @@
+{
+  "base_app_commit": "09da40d1",
+  "projectm_pin": "6f64807467e312034883a4389e6aa80a675458bc",
+  "upstream_proposal": "ba122baa24cd1794c2a413ec8e308c8ab6e9e4fe",
+  "backend": "Apple M4 Pro / OpenGL4.1 Metal89.4",
+  "fps": 30,
+  "frames_per_case": 12,
+  "capture": "Explicit final output FBO, RGB only, SHA256 per frame",
+  "audio": "512 stereo float samples/frame; left0.35*sin((frame*512+i)*0.071), right0.25*sin((frame*512+i)*0.047)",
+  "timing": "diagnostic only; two case processes may render concurrently",
+  "sha256": {
+    "/tmp/projectmtv-line-refactor/verify.cpp": "a4e56b262b806219c25458dbee1ed31f61b8109a9866bd6f4d32dd6e61cba804",
+    "/tmp/projectmtv-line-refactor/verify": "298eaacd200c5d660179833bad2778ab49ffcd9fcf874390f76eb069d3348a27",
+    "/tmp/projectmtv-line-refactor/baseline-build/src/libprojectM/libprojectM-4.4.2.0.dylib": "a051594f9a56fceef3f977155724331d12af5fe682b78047c545b6118c224bf2",
+    "/tmp/projectmtv-line-refactor/candidate-build/src/libprojectM/libprojectM-4.4.2.0.dylib": "73d4d69c414b5c4c10e8edf6b44853b8a309519f40355b8959a2c4f947bf73c4",
+    "/tmp/projectmtv-line-refactor/validation/dots.milk": "f447329ef6a0046a469ec57c599addcf8d9308eb02bfcd508c4319afc476658a",
+    "/tmp/projectmtv-line-refactor/validation/mixed.milk": "6b5cbba09201e6fb53525abe26a116c4ee25588140895cc4158532dc13529308",
+    "/tmp/projectmtv-line-refactor/validation/thin.milk": "79ff7ff3bd07a64d646403260c9b8340d5d4921db74b4dee893e01bdd09749ef"
+  },
+  "variant": "stored-layout-bound-pass-groups"
+}

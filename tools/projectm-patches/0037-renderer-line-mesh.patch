@@ -1,0 +1,1718 @@
+Subject: [PATCH] Move reusable line geometry and drawing into Renderer
+
+Adapt the architecture refactor proposed on projectM-visualizer/projectm#1047,
+commit ba122baa24cd1794c2a413ec8e308c8ab6e9e4fe (John Neerdael):
+https://github.com/projectM-visualizer/projectm/pull/1047
+
+Keep MilkDrop sizing/sample/fade/canvas/dot/thick-pass policy in MilkdropPreset.
+Move colored points, padded line batching, drawing and generic shader resources
+into Renderer. Extend Mesh with an optional streamed interleaved instance buffer,
+custom attributes/divisors/byte offsets and independent instanced draw counts;
+use it for both strip lines and motion-vector quads.
+
+Retain the Android engine's constructor-time/prewarmed shader compilation,
+cached uniform locations, authored geometry, per-instance styles, prepared
+Native-trails replay, packed/floating motion-UV paths and shader-failure fallback.
+The motion-vector vertex shader remains preset-owned because it samples its warp
+field; the generic fragment shader belongs to Renderer. No public API, preset,
+shader arithmetic, version or rendering-policy change is intended.
+
+Add Mesh ownership/upload/layout/draw controls and retain all existing batching
+and MilkDrop-policy controls.
+---
+diff --git a/src/libprojectM/MilkdropPreset/CMakeLists.txt b/src/libprojectM/MilkdropPreset/CMakeLists.txt
+index 71af7222f..5c6815d61 100644
+--- a/src/libprojectM/MilkdropPreset/CMakeLists.txt
++++ b/src/libprojectM/MilkdropPreset/CMakeLists.txt
+@@ -5,8 +5,6 @@ set(SHADER_FILES
+         Shaders/Blur1FragmentShaderGlsl330.frag
+         Shaders/Blur2FragmentShaderGlsl330.frag
+         Shaders/BlurVertexShaderGlsl330.vert
+-        Shaders/LineFragmentShaderGlsl330.frag
+-        Shaders/LineVertexShaderGlsl330.vert
+         Shaders/MotionVectorLineVertexShaderGlsl330.vert
+         Shaders/PresetCompVertexShaderGlsl330.vert
+         Shaders/PresetMotionVectorsVertexShaderGlsl330.vert
+@@ -69,8 +67,6 @@ add_library(MilkdropPreset OBJECT
+         LegacyEquationCode.hpp
+         LineGeometry.cpp
+         LineGeometry.hpp
+-        LineRenderer.cpp
+-        LineRenderer.hpp
+         IdlePreset.cpp
+         IdlePreset.hpp
+         MilkdropPreset.cpp
+diff --git a/src/libprojectM/MilkdropPreset/CustomShape.cpp b/src/libprojectM/MilkdropPreset/CustomShape.cpp
+index d207dcc38..39b6f2ef6 100644
+--- a/src/libprojectM/MilkdropPreset/CustomShape.cpp
++++ b/src/libprojectM/MilkdropPreset/CustomShape.cpp
+@@ -213,7 +213,7 @@ void CustomShape::Draw(GeometryTargets* targets)
+         draw.sides = sides;
+         draw.thick = EvaluatedShapeThickness(*m_perFrameContext.thick, m_thickOutline);
+         // GL lines: a thick outline is drawn four times with slight offsets. Quad lines: one strip per
+-        // outline; LineRenderer draws the captured instance style's passes (four offset passes when thick).
++        // outline; Renderer::LineRenderer draws the captured instance style's passes (four offset passes when thick).
+         draw.borderIterations = *m_perFrameContext.border_a > 0.0001f ? (m_quadBorders ? 1 : (draw.thick ? 4 : 1)) : 0;
+ 
+         const size_t neededVertices = static_cast<size_t>(sides + 2 + (m_quadBorders ? 0 : draw.borderIterations * sides));
+@@ -455,7 +455,7 @@ void CustomShape::DrawBatch(bool nativePass)
+             }
+             const auto style = LineStyleFor(LineKind::ShapeBorder, draw.thick, scale,
+                                             context.viewportSizeX, context.viewportSizeY);
+-            lines.Draw(draw.borderStrip, style);
++            DrawLine(lines, draw.borderStrip, style);
+         }
+         else if (draw.borderIterations > 0)
+         {
+diff --git a/src/libprojectM/MilkdropPreset/CustomShape.hpp b/src/libprojectM/MilkdropPreset/CustomShape.hpp
+index f4f787232..80d8e3eec 100644
+--- a/src/libprojectM/MilkdropPreset/CustomShape.hpp
++++ b/src/libprojectM/MilkdropPreset/CustomShape.hpp
+@@ -117,7 +117,7 @@ private:
+         GLint fillFirst{0};      //!< First fill vertex (a triangle fan of sides + 2 vertices).
+         GLint borderFirst{0};    //!< First outline vertex (borderIterations line loops of sides vertices).
+         int borderIterations{0}; //!< 0 without outline; GL lines: 4 for a thick outline, else 1; quad lines: 1 (passes derived from thick).
+-        LineBatch::Strip borderStrip; //!< The outline in m_lineBatch (quad lines).
++        Renderer::LineBatch::Strip borderStrip; //!< The outline in m_lineBatch (quad lines).
+     };
+ 
+     static constexpr size_t maxBatchVertices = 8192; //!< 256 KB per shape.
+@@ -131,10 +131,10 @@ private:
+ 
+     std::vector<TexturedPoint> m_vertices; //!< Current batch: fills and outlines of several instances.
+     std::vector<InstanceDraw> m_draws;     //!< Draw calls of the current batch, in instance order.
+-    LineBatch m_lineBatch;                                     //!< Outlines of the current batch (quad lines).
+-    std::vector<ColoredPoint> m_borderPoints; //!< One outline, for the line batch.
++    Renderer::LineBatch m_lineBatch;                                     //!< Outlines of the current batch (quad lines).
++    std::vector<Renderer::ColoredPoint> m_borderPoints; //!< One outline, for the line batch.
+     bool m_quadBorders{false};                                 //!< This frame draws outlines as quads (reference size set, line program usable).
+-    bool m_linesBegun{false};                                  //!< LineRenderer::Begin() called for this batch.
++    bool m_linesBegun{false};                                  //!< Renderer::LineRenderer::Begin() called for this batch.
+     Renderer::Sampler::Ptr m_mainTextureSampler{std::make_shared<Renderer::Sampler>(GL_REPEAT, GL_LINEAR)}; //!< The main-textured shape sampling contract.
+     Renderer::TextureSamplerDescriptor m_imageTexture; //!< The "image" texture, looked up once per frame.
+     bool m_imageLookedUp{false};
+diff --git a/src/libprojectM/MilkdropPreset/CustomWaveform.cpp b/src/libprojectM/MilkdropPreset/CustomWaveform.cpp
+index 1076f346e..1b29554c2 100644
+--- a/src/libprojectM/MilkdropPreset/CustomWaveform.cpp
++++ b/src/libprojectM/MilkdropPreset/CustomWaveform.cpp
+@@ -2,7 +2,7 @@
+ #include "GeometryTargets.hpp"
+ 
+ #include "LineGeometry.hpp"
+-#include "LineRenderer.hpp"
++#include <Renderer/LineRenderer.hpp>
+ #include "MilkdropPresetExceptions.hpp"
+ #include "PerFrameContext.hpp"
+ #include "PresetFileParser.hpp"
+@@ -272,7 +272,7 @@ void CustomWaveform::DrawPrepared(std::vector<Renderer::Point> points, std::vect
+     if (lineScale > 0.0f && !m_useDots && m_presetState.lineRenderer.Usable())
+     {
+         m_lineBatch.Clear();
+-        std::vector<ColoredPoint> linePoints(points.size());
++        std::vector<Renderer::ColoredPoint> linePoints(points.size());
+         for (size_t point = 0; point < points.size(); ++point)
+         {
+             linePoints[point] = {points[point].X(), points[point].Y(), colors[point].R(),
+@@ -290,7 +290,7 @@ void CustomWaveform::DrawPrepared(std::vector<Renderer::Point> points, std::vect
+         auto& lines = m_presetState.lineRenderer;
+         lines.Upload(m_lineBatch);
+         lines.Begin(PresetState::orthogonalProjection, m_presetState.renderContext);
+-        lines.Draw(strip, LineStyleFor(LineKind::CustomWave, m_drawThick, lineScale,
++        DrawLine(lines, strip, LineStyleFor(LineKind::CustomWave, m_drawThick, lineScale,
+                                        m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY));
+         lines.End();
+ 
+@@ -314,7 +314,7 @@ void CustomWaveform::DrawPrepared(std::vector<Renderer::Point> points, std::vect
+     shader->Bind();
+     shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
+     shader->SetUniformFloat("vertex_point_size", scaledDots ? dot.size : (m_drawThick ? 2.0f : 1.0f));
+-    const ScopedProgramPointSize programPointSize(scaledDots);
++    const Renderer::ScopedProgramPointSize programPointSize(scaledDots);
+ 
+     auto iterations = (m_drawThick && !m_useDots) ? 4 : 1;
+ 
+diff --git a/src/libprojectM/MilkdropPreset/CustomWaveform.hpp b/src/libprojectM/MilkdropPreset/CustomWaveform.hpp
+index 936ca6ce4..7c8237f28 100644
+--- a/src/libprojectM/MilkdropPreset/CustomWaveform.hpp
++++ b/src/libprojectM/MilkdropPreset/CustomWaveform.hpp
+@@ -103,7 +103,7 @@ private:
+     WaveformPerPointContext m_perPointContext; //!< Holds the code execution context for per-point expressions
+ 
+     Renderer::Mesh m_mesh; //!< Points in this waveform.
+-    LineBatch m_lineBatch; //!< This frame's strip, for the quad-line renderer.
++    Renderer::LineBatch m_lineBatch; //!< This frame's strip, for the quad-line renderer.
+ 
+     friend class WaveformPerFrameContext;
+     friend class WaveformPerPointContext;
+diff --git a/src/libprojectM/MilkdropPreset/LineGeometry.cpp b/src/libprojectM/MilkdropPreset/LineGeometry.cpp
+index 6ef37e4c8..3c606c453 100644
+--- a/src/libprojectM/MilkdropPreset/LineGeometry.cpp
++++ b/src/libprojectM/MilkdropPreset/LineGeometry.cpp
+@@ -1,5 +1,7 @@
+ #include "LineGeometry.hpp"
+ 
++#include <Renderer/LineRenderer.hpp>
++
+ #include <algorithm>
+ #include <cmath>
+ 
+@@ -138,41 +140,26 @@ auto DotStyleFor(LineKind kind, bool thick, float scale) -> DotStyle
+     return style;
+ }
+ 
+-void LineBatch::Clear()
+-{
+-    m_points.clear();
+-}
+-
+-auto LineBatch::Append(const ColoredPoint* points, size_t count, bool loop) -> Strip
++void DrawLine(Renderer::LineRenderer& renderer, const Renderer::LineBatch::Strip& strip, const LineStyle& style)
+ {
+-    Strip strip;
+-    strip.firstPoint = static_cast<int>(m_points.size());
+-    if (points == nullptr || count < 2)
++    if (style.passes <= 0)
+     {
+-        return strip;
++        return;
+     }
+-
+-    if (loop)
++    // MilkDrop repeats this four-pass pattern. Keep its policy here and submit each group at once.
++    glm::vec2 offsets[4];
++    for (int pass = 0; pass < std::min(style.passes, 4); ++pass)
+     {
+-        m_points.push_back(points[count - 1]);
+-        m_points.insert(m_points.end(), points, points + count);
+-        m_points.push_back(points[0]);
+-        m_points.push_back(points[1]);
+-        strip.segments = static_cast<int>(count);
++        const auto offset = PassOffsetFor(style, pass);
++        offsets[pass] = {offset.x, offset.y};
+     }
+-    else
++    int remaining = style.passes;
++    while (remaining > 0)
+     {
+-        m_points.push_back(points[0]);
+-        m_points.insert(m_points.end(), points, points + count);
+-        m_points.push_back(points[count - 1]);
+-        strip.segments = static_cast<int>(count - 1);
++        const int count = std::min(remaining, 4);
++        renderer.Draw(strip, style.halfWidth, offsets, static_cast<size_t>(count));
++        remaining -= count;
+     }
+-    return strip;
+-}
+-
+-auto LineBatch::Points() const -> const std::vector<ColoredPoint>&
+-{
+-    return m_points;
+ }
+ 
+ } // namespace MilkdropPreset
+diff --git a/src/libprojectM/MilkdropPreset/LineGeometry.hpp b/src/libprojectM/MilkdropPreset/LineGeometry.hpp
+index 8cc0850c7..b48827df5 100644
+--- a/src/libprojectM/MilkdropPreset/LineGeometry.hpp
++++ b/src/libprojectM/MilkdropPreset/LineGeometry.hpp
+@@ -1,17 +1,13 @@
+ #pragma once
+ 
+-#include <Renderer/OpenGL.h>
+-
+-#include <cstddef>
+-#include <vector>
++#include <Renderer/LineGeometry.hpp>
+ 
+ namespace libprojectM {
++namespace Renderer {
++class LineRenderer;
++}
+ namespace MilkdropPreset {
+ 
+-// Interleaved attributes for the specialized batched/instanced line renderer.
+-struct ColoredPoint { float x{}, y{}, r{}, g{}, b{}, a{}; };
+-
+-
+ /**
+  * @brief The kinds of lines a preset draws. Each emulates MilkDrop's "thick" lines differently.
+  */
+@@ -156,42 +152,8 @@ auto PassOffsetFor(const LineStyle& style, int pass) -> PassOffset;
+  */
+ auto DotStyleFor(LineKind kind, bool thick, float scale) -> DotStyle;
+ 
+-/**
+- * @brief Collects line strips for one upload, padded for instanced drawing.
+- *
+- * Every segment is one instance that reads four consecutive stored points: the point before the
+- * segment, its two ends, and the point after it. A strip's first and last point are repeated (an
+- * open strip ends flat there), a loop's are wrapped around.
+- */
+-class LineBatch
+-{
+-public:
+-    using ColoredPoint = libprojectM::MilkdropPreset::ColoredPoint;
+-
+-    /**
+-     * @brief Where a strip's points start in the batch and how many segments it has.
+-     */
+-    struct Strip
+-    {
+-        int firstPoint{0}; //!< Index of the strip's leading pad point.
+-        int segments{0};   //!< Number of segments (instances); 0 draws nothing.
+-    };
+-
+-    void Clear();
+-
+-    /**
+-     * @brief Adds a strip of points.
+-     * @param points The strip's points; may be null if count is 0.
+-     * @param count Number of points. Fewer than two draw nothing.
+-     * @param loop True to connect the last point back to the first.
+-     */
+-    auto Append(const ColoredPoint* points, size_t count, bool loop) -> Strip;
+-
+-    auto Points() const -> const std::vector<ColoredPoint>&;
+-
+-private:
+-    std::vector<ColoredPoint> m_points; //!< All strips, padded, in append order.
+-};
++/** Draws the MilkDrop style's thin or four offset thick-line passes. */
++void DrawLine(Renderer::LineRenderer& renderer, const Renderer::LineBatch::Strip& strip, const LineStyle& style);
+ 
+ } // namespace MilkdropPreset
+ } // namespace libprojectM
+diff --git a/src/libprojectM/MilkdropPreset/MotionVectors.cpp b/src/libprojectM/MilkdropPreset/MotionVectors.cpp
+index c3e745bb3..f76ea19f3 100644
+--- a/src/libprojectM/MilkdropPreset/MotionVectors.cpp
++++ b/src/libprojectM/MilkdropPreset/MotionVectors.cpp
+@@ -1,7 +1,7 @@
+ #include "MotionVectors.hpp"
+ #include "MotionUV.hpp"
+ 
+-#include "LineRenderer.hpp"
++#include <Renderer/LineRenderer.hpp>
+ #include "FeedbackDiffusion.hpp"
+ #include "MilkdropStaticShaders.hpp"
+ 
+@@ -71,7 +71,7 @@ auto MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shar
+     const float lineScale = LineScale(m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY,
+                                       m_presetState.renderContext.lineReferenceWidth, m_presetState.renderContext.lineReferenceHeight);
+     const bool quadLines = lineScale > 0.0f && static_cast<bool>(GetQuadShader());
+-    m_vectorStarts.Get().clear();
++    m_vectorStarts.clear();
+     bool rendered{false};
+ 
+     m_motionVectorMesh.SetVertexCount(static_cast<std::size_t>(countX + 1) * 2); // countX + 1 lines for each grid row, 2 vertices each.
+@@ -130,7 +130,7 @@ auto MotionVectors::Draw(const PerFrameContext& presetPerFrameContext, std::shar
+             {
+                 for (int v = 0; v < vertex; v += 2)
+                 {
+-                    m_vectorStarts.Get().emplace_back(lineVertices[v]);
++                    m_vectorStarts.emplace_back(lineVertices[v]);
+                 }
+                 continue;
+             }
+@@ -209,7 +209,7 @@ std::shared_ptr<Renderer::Shader> MotionVectors::GetQuadShader()
+             shader->CompileProgram(m_presetState.motionUVPacked
+                                        ? PackedMotionUVConsumer(staticShaders->GetMotionVectorLineVertexShader())
+                                        : staticShaders->GetMotionVectorLineVertexShader(),
+-                                   staticShaders->GetLineFragmentShader());
++                                   Renderer::LineRenderer::FragmentShaderSource());
+         }
+         catch (const Renderer::ShaderException&)
+         {
+@@ -225,20 +225,22 @@ std::shared_ptr<Renderer::Shader> MotionVectors::GetQuadShader()
+ 
+ void MotionVectors::DrawQuads(const PerFrameContext& presetPerFrameContext, float lineScale, float minimumLength)
+ {
+-    if (m_vectorStarts.Empty())
++    if (m_vectorStarts.empty())
+     {
+         return;
+     }
+-    m_quadArray.Bind();
+-    if (!m_quadArrayInitialized)
++    const bool initialize = !m_quadMesh;
++    if (initialize)
+     {
+-        m_vectorStarts.InitializeAttributePointer(0);
+-        glEnableVertexAttribArray(0);
+-        glVertexAttribDivisor(0, 1);
+-        glDisableVertexAttribArray(1); // Constant color set in Draw().
+-        m_quadArrayInitialized = true;
++        m_quadMesh = std::make_unique<Renderer::Mesh>(Renderer::VertexBufferUsage::StreamDraw);
++        m_quadMesh->SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleStrip);
++    }
++    m_quadMesh->UpdateInstanceData(m_vectorStarts.data(), sizeof(Renderer::Point) * m_vectorStarts.size());
++    if (initialize)
++    {
++        m_quadMesh->SetInstanceAttributes({{0, 2, GL_FLOAT, GL_FALSE, sizeof(Renderer::Point), 0, 1}});
++        // Attribute 1 stays disabled, using the constant color set in Draw().
+     }
+-    m_vectorStarts.Update();
+ 
+     auto shader = GetQuadShader();
+     shader->Bind();
+@@ -249,13 +251,13 @@ void MotionVectors::DrawQuads(const PerFrameContext& presetPerFrameContext, floa
+                                                        m_presetState.renderContext.viewportSizeX,
+                                                        m_presetState.renderContext.viewportSizeY).halfWidth);
+     shader->SetUniformFloat("antialias", m_presetState.renderContext.lineAntialiasing ? 1.0f : 0.0f);
+-    shader->SetUniformFloat2("tie_bias", LineTieBias());
++    shader->SetUniformFloat2("tie_bias", Renderer::LineTieBias());
+     shader->SetUniformFloat("length_multiplier", static_cast<float>(*presetPerFrameContext.mv_l));
+     shader->SetUniformFloat("minimum_length", minimumLength);
+     shader->SetUniformInt("warp_coordinates", 0);
+ 
+-    // Mesh exposes indexed per-vertex draws only; one quad per start point is instanced here.
+-    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<GLsizei>(m_vectorStarts.Size()));
++    // One quad per start point, drawn through the shared Mesh instance buffer.
++    m_quadMesh->DrawInstanced(4, static_cast<uint32_t>(m_vectorStarts.size()));
+ }
+ 
+ } // namespace MilkdropPreset
+diff --git a/src/libprojectM/MilkdropPreset/MotionVectors.hpp b/src/libprojectM/MilkdropPreset/MotionVectors.hpp
+index 2d8673ab7..7e58bc470 100644
+--- a/src/libprojectM/MilkdropPreset/MotionVectors.hpp
++++ b/src/libprojectM/MilkdropPreset/MotionVectors.hpp
+@@ -48,9 +48,8 @@ private:
+     Renderer::Mesh m_motionVectorMesh; //!< GL-line fallback geometry.
+     std::weak_ptr<Renderer::Shader> m_motionVectorQuadShader; //!< Cached instanced-line shader.
+     bool m_quadShaderFailed{false}; //!< Compile rejection keeps this preset on GL lines.
+-    Renderer::VertexArray m_quadArray;
+-    Renderer::VertexBuffer<Renderer::Point> m_vectorStarts{Renderer::VertexBufferUsage::StreamDraw};
+-    bool m_quadArrayInitialized{false};
++    std::unique_ptr<Renderer::Mesh> m_quadMesh;
++    std::vector<Renderer::Point> m_vectorStarts;
+ 
+ 
+     std::weak_ptr<Renderer::Shader> m_motionVectorShader;                                                           //!< The motion vector shader, calculates the trace positions in the GPU.
+diff --git a/src/libprojectM/MilkdropPreset/PresetState.hpp b/src/libprojectM/MilkdropPreset/PresetState.hpp
+index bbd3099a6..72b6778a7 100644
+--- a/src/libprojectM/MilkdropPreset/PresetState.hpp
++++ b/src/libprojectM/MilkdropPreset/PresetState.hpp
+@@ -8,7 +8,7 @@
+ #include "Constants.hpp"
+ 
+ #include "BlurTexture.hpp"
+-#include "LineRenderer.hpp"
++#include <Renderer/LineRenderer.hpp>
+ 
+ #include <Audio/FrameAudioData.hpp>
+ 
+@@ -158,7 +158,7 @@ public:
+ 
+     std::weak_ptr<Renderer::Shader> untexturedShader; //!< Shader used to draw untextured primitives, e.g. waveforms.
+     std::weak_ptr<Renderer::Shader> texturedShader;   //!< Shader used to draw textured primitives, e.g. textured shapes and the warp mesh.
+-    LineRenderer lineRenderer;
++    Renderer::LineRenderer lineRenderer;
+ 
+     std::weak_ptr<Renderer::Texture> mainTexture; //!< A weak reference to the main texture in the preset framebuffer.
+     std::weak_ptr<Renderer::Texture> rawMainTexture; //!< Unfiltered main texture for point-sampled warp reads while feedback diffusion filters mainTexture.
+diff --git a/src/libprojectM/MilkdropPreset/Waveform.cpp b/src/libprojectM/MilkdropPreset/Waveform.cpp
+index 5e1e83509..5033f5e96 100644
+--- a/src/libprojectM/MilkdropPreset/Waveform.cpp
++++ b/src/libprojectM/MilkdropPreset/Waveform.cpp
+@@ -1,7 +1,7 @@
+ #include "Waveform.hpp"
+ #include "GeometryTargets.hpp"
+ 
+-#include "LineRenderer.hpp"
++#include <Renderer/LineRenderer.hpp>
+ #include "PerFrameContext.hpp"
+ #include "PresetState.hpp"
+ 
+@@ -27,7 +27,7 @@ Waveform::Waveform(PresetState& presetState)
+ void Waveform::DrawQuadLines(const Waves& waves, const PerFrameContext& presetPerFrameContext, float lineScale)
+ {
+     m_lineBatch.Clear();
+-    std::vector<LineBatch::Strip> strips;
++    std::vector<Renderer::LineBatch::Strip> strips;
+     for (const auto& wave : waves)
+     {
+         if (wave.empty())
+@@ -78,7 +78,7 @@ void Waveform::DrawQuadLines(const Waves& waves, const PerFrameContext& presetPe
+                                      m_presetState.renderContext.viewportSizeX, m_presetState.renderContext.viewportSizeY);
+     for (const auto& strip : strips)
+     {
+-        lines.Draw(strip, style);
++        DrawLine(lines, strip, style);
+     }
+     lines.End();
+ 
+@@ -137,7 +137,7 @@ void Waveform::DrawPrepared(Waves waves,const PerFrameContext& presetPerFrameCon
+     const bool scaledDots = lineScale > 0.0f && (*presetPerFrameContext.wave_usedots != 0);
+     const auto dot = DotStyleFor(LineKind::MainWave, true, lineScale);
+     shader->SetUniformFloat("vertex_point_size", scaledDots ? dot.size : 1.0f);
+-    const ScopedProgramPointSize programPointSize(scaledDots);
++    const Renderer::ScopedProgramPointSize programPointSize(scaledDots);
+ 
+     // Additive wave drawing (vice overwrite)
+     if ((*presetPerFrameContext.wave_additive != 0))
+diff --git a/src/libprojectM/MilkdropPreset/Waveform.hpp b/src/libprojectM/MilkdropPreset/Waveform.hpp
+index 70280d252..da9faa1e7 100644
+--- a/src/libprojectM/MilkdropPreset/Waveform.hpp
++++ b/src/libprojectM/MilkdropPreset/Waveform.hpp
+@@ -48,8 +48,8 @@ private:
+     float m_tempAlpha{0.0f}; //!< Calculated alpha value.
+     int m_samples{};         //!< Number of samples in the current waveform. Depends on the mode.
+ 
+-    LineBatch m_lineBatch;                                       //!< This frame's waveform strips.
+-    std::vector<ColoredPoint> m_coloredWave; //!< One wave with its color, for the batch.
++    Renderer::LineBatch m_lineBatch;                                       //!< This frame's waveform strips.
++    std::vector<Renderer::ColoredPoint> m_coloredWave; //!< One wave with its color, for the batch.
+ };
+ 
+ } // namespace MilkdropPreset
+diff --git a/src/libprojectM/Renderer/CMakeLists.txt b/src/libprojectM/Renderer/CMakeLists.txt
+index 74f17e1c2..0b65ea3df 100644
+--- a/src/libprojectM/Renderer/CMakeLists.txt
++++ b/src/libprojectM/Renderer/CMakeLists.txt
+@@ -15,8 +15,18 @@ generate_shader_resources(${CMAKE_CURRENT_BINARY_DIR}/BuiltInTransitionsResource
+         ${TRANSITION_SHADER_FILES}
+         )
+ 
++generate_shader_resources(${CMAKE_CURRENT_BINARY_DIR}/LineShaderResources.hpp
++        Shaders/LineVertexShaderGlsl330.vert
++        Shaders/LineFragmentShaderGlsl330.frag
++        )
++
+ add_library(Renderer OBJECT
+         ${CMAKE_CURRENT_BINARY_DIR}/BuiltInTransitionsResources.hpp
++        ${CMAKE_CURRENT_BINARY_DIR}/LineShaderResources.hpp
++        LineGeometry.cpp
++        LineGeometry.hpp
++        LineRenderer.cpp
++        LineRenderer.hpp
+         BlendMode.cpp
+         BlendMode.hpp
+         Color.hpp
+diff --git a/src/libprojectM/Renderer/LineGeometry.cpp b/src/libprojectM/Renderer/LineGeometry.cpp
+new file mode 100644
+index 000000000..931d69a29
+--- /dev/null
++++ b/src/libprojectM/Renderer/LineGeometry.cpp
+@@ -0,0 +1,44 @@
++#include "LineGeometry.hpp"
++
++namespace libprojectM {
++namespace Renderer {
++
++void LineBatch::Clear()
++{
++    m_points.clear();
++}
++
++auto LineBatch::Append(const ColoredPoint* points, size_t count, bool loop) -> Strip
++{
++    Strip strip;
++    strip.firstPoint = static_cast<int>(m_points.size());
++    if (points == nullptr || count < 2)
++    {
++        return strip;
++    }
++
++    if (loop)
++    {
++        m_points.push_back(points[count - 1]);
++        m_points.insert(m_points.end(), points, points + count);
++        m_points.push_back(points[0]);
++        m_points.push_back(points[1]);
++        strip.segments = static_cast<int>(count);
++    }
++    else
++    {
++        m_points.push_back(points[0]);
++        m_points.insert(m_points.end(), points, points + count);
++        m_points.push_back(points[count - 1]);
++        strip.segments = static_cast<int>(count - 1);
++    }
++    return strip;
++}
++
++auto LineBatch::Points() const -> const std::vector<ColoredPoint>&
++{
++    return m_points;
++}
++
++} // namespace Renderer
++} // namespace libprojectM
+diff --git a/src/libprojectM/Renderer/LineGeometry.hpp b/src/libprojectM/Renderer/LineGeometry.hpp
+new file mode 100644
+index 000000000..b8e4b491d
+--- /dev/null
++++ b/src/libprojectM/Renderer/LineGeometry.hpp
+@@ -0,0 +1,55 @@
++#pragma once
++
++#include <cstddef>
++#include <vector>
++
++namespace libprojectM {
++namespace Renderer {
++
++/**
++ * @brief A line point with its color, as stored for the instanced line renderer.
++ */
++struct ColoredPoint
++{
++    float x{}, y{}, r{}, g{}, b{}, a{};
++};
++
++/**
++ * @brief Collects line strips for one upload, padded for instanced drawing.
++ *
++ * Every segment is one instance that reads four consecutive stored points: the point before the
++ * segment, its two ends, and the point after it. A strip's first and last point are repeated (an
++ * open strip ends flat there), a loop's are wrapped around.
++ */
++class LineBatch
++{
++public:
++    using ColoredPoint = libprojectM::Renderer::ColoredPoint;
++
++    /**
++     * @brief Where a strip's points start in the batch and how many segments it has.
++     */
++    struct Strip
++{
++        int firstPoint{0}; //!< Index of the strip's leading pad point.
++        int segments{0};   //!< Number of segments (instances); 0 draws nothing.
++    };
++
++    void Clear();
++
++    /**
++     * @brief Adds a strip of points.
++     * @param points The strip's points; may be null if count is 0.
++     * @param count Number of points. Fewer than two draw nothing.
++     * @param loop True to connect the last point back to the first.
++     */
++    auto Append(const ColoredPoint* points, size_t count, bool loop) -> Strip;
++
++    auto Points() const -> const std::vector<ColoredPoint>&;
++
++private:
++    std::vector<ColoredPoint> m_points; //!< All strips, padded, in append order.
++};
++
++} // namespace Renderer
++} // namespace libprojectM
+diff --git a/src/libprojectM/MilkdropPreset/LineRenderer.cpp b/src/libprojectM/Renderer/LineRenderer.cpp
+similarity index 50%
+rename from src/libprojectM/MilkdropPreset/LineRenderer.cpp
+rename to src/libprojectM/Renderer/LineRenderer.cpp
+index 6a1e4aedd..3279b6792 100644
+--- a/src/libprojectM/MilkdropPreset/LineRenderer.cpp
++++ b/src/libprojectM/Renderer/LineRenderer.cpp
+@@ -1,6 +1,6 @@
+ #include "LineRenderer.hpp"
+ 
+-#include "MilkdropStaticShaders.hpp"
++#include "LineShaderResources.hpp"
+ 
+ #include <glm/gtc/type_ptr.hpp>
+ 
+@@ -8,9 +8,15 @@
+ #include <cstdint>
+ 
+ namespace libprojectM {
+-namespace MilkdropPreset {
++namespace Renderer {
+ 
+-using ColoredPoint = LineBatch::ColoredPoint;
++namespace {
++#ifdef USE_GLES
++constexpr const char* VersionHeader = "#version 300 es\n";
++#else
++constexpr const char* VersionHeader = "#version 330\n";
++#endif
++} // namespace
+ 
+ auto LineTieBias() -> glm::vec2
+ {
+@@ -25,13 +31,12 @@ auto LineTieBias() -> glm::vec2
+ 
+ LineRenderer::LineRenderer()
+ {
+-    auto staticShaders = MilkdropStaticShaders::Get();
+     try
+     {
+-        m_shader.CompileProgram(staticShaders->GetLineVertexShader(), staticShaders->GetLineFragmentShader());
++        m_shader.CompileProgram(VersionHeader + kLineVertexShaderGlsl330, FragmentShaderSource());
+         m_usable = true;
+     }
+-    catch (const Renderer::ShaderException&)
++    catch (const ShaderException&)
+     {
+         // A driver that rejects the program: the preset still loads and draws its lines as GL lines.
+         m_usable = false;
+@@ -46,16 +51,9 @@ LineRenderer::LineRenderer()
+     m_tieBiasLocation = m_shader.UniformLocation("tie_bias");
+ }
+ 
+-LineRenderer::~LineRenderer()
++auto LineRenderer::FragmentShaderSource() -> std::string
+ {
+-    if (m_vboId != 0)
+-    {
+-        glDeleteBuffers(1, &m_vboId);
+-    }
+-    if (m_vaoId != 0)
+-    {
+-        glDeleteVertexArrays(1, &m_vaoId);
+-    }
++    return VersionHeader + kLineFragmentShaderGlsl330;
+ }
+ 
+ auto LineRenderer::Usable() const -> bool
+@@ -71,28 +69,30 @@ void LineRenderer::Upload(const LineBatch& batch)
+         return;
+     }
+ 
+-    if (m_vaoId == 0)
++    const bool initialize = !m_mesh;
++    if (initialize)
+     {
+-        glGenVertexArrays(1, &m_vaoId);
+-        glGenBuffers(1, &m_vboId);
+-        glBindVertexArray(m_vaoId);
+-        glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+-        for (GLuint location = 0; location < 6; location++)
+-        {
+-            glEnableVertexAttribArray(location);
+-            glVertexAttribDivisor(location, 1);
+-        }
+-        glBindVertexArray(0);
++        m_mesh = std::make_unique<Mesh>(VertexBufferUsage::StreamDraw);
++        m_mesh->SetRenderPrimitiveType(Mesh::PrimitiveType::TriangleStrip);
++    }
++    m_mesh->UpdateInstanceData(points.data(), sizeof(ColoredPoint) * points.size());
++    if (initialize)
++    {
++        const auto stride = static_cast<GLsizei>(sizeof(ColoredPoint));
++        const size_t pointSize = sizeof(ColoredPoint);
++        m_mesh->SetInstanceAttributes({{0, 2, GL_FLOAT, GL_FALSE, stride, offsetof(ColoredPoint, x), 1},
++                                       {1, 2, GL_FLOAT, GL_FALSE, stride, pointSize + offsetof(ColoredPoint, x), 1},
++                                       {2, 2, GL_FLOAT, GL_FALSE, stride, 2 * pointSize + offsetof(ColoredPoint, x), 1},
++                                       {3, 2, GL_FLOAT, GL_FALSE, stride, 3 * pointSize + offsetof(ColoredPoint, x), 1},
++                                       {4, 4, GL_FLOAT, GL_FALSE, stride, pointSize + offsetof(ColoredPoint, r), 1},
++                                       {5, 4, GL_FLOAT, GL_FALSE, stride, 2 * pointSize + offsetof(ColoredPoint, r), 1}},
++                                      0);
+     }
+-
+-    // Orphan the buffer so the GPU can keep reading the previous upload.
+-    glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(ColoredPoint) * points.size()), points.data(), GL_STREAM_DRAW);
+ }
+ 
+-void LineRenderer::Begin(const glm::mat4& transformation, const Renderer::RenderContext& context)
++void LineRenderer::Begin(const glm::mat4& transformation, const RenderContext& context)
+ {
+-    m_ready = m_usable && m_vaoId != 0 && context.viewportSizeX > 0 && context.viewportSizeY > 0;
++    m_ready = m_usable && m_mesh != nullptr && context.viewportSizeX > 0 && context.viewportSizeY > 0;
+     if (!m_ready)
+     {
+         return;
+@@ -104,6 +104,7 @@ void LineRenderer::Begin(const glm::mat4& transformation, const Renderer::Render
+     const glm::vec2 tieBias = LineTieBias();
+     glUniform2f(m_tieBiasLocation, tieBias.x, tieBias.y);
+ 
++    m_firstPoint = -1;
+     m_halfWidthSet = false;
+     m_passOffsetSet = false;
+ }
+@@ -119,43 +120,40 @@ void LineRenderer::SetFloat(GLint location, float value, float& lastValue, bool&
+     lastValid = true;
+ }
+ 
+-void LineRenderer::Draw(const LineBatch::Strip& strip, const LineStyle& style)
++void LineRenderer::Draw(const LineBatch::Strip& strip, float halfWidth, const glm::vec2& passOffset)
++{
++    Draw(strip, halfWidth, &passOffset, 1);
++}
++
++void LineRenderer::Draw(const LineBatch::Strip& strip, float halfWidth, const glm::vec2* passOffsets, size_t passCount)
+ {
+-    if (!m_ready || strip.segments <= 0 || style.passes <= 0)
++    if (!m_ready || strip.segments <= 0 || passOffsets == nullptr || passCount == 0)
+     {
+         return;
+     }
+ 
+     m_shader.Bind();
+-    glBindVertexArray(m_vaoId);
+-    glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+-
+-    // Instance i reads the strip's points i (previous), i + 1 (A), i + 2 (B) and i + 3 (next).
+-    const auto stride = static_cast<GLsizei>(sizeof(ColoredPoint));
+-    const auto pointer = [&](int point, size_t member) {
+-        return reinterpret_cast<const void*>(static_cast<uintptr_t>(strip.firstPoint + point) * sizeof(ColoredPoint) + member);
+-    };
+-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, pointer(0, offsetof(ColoredPoint, x)));
+-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, pointer(1, offsetof(ColoredPoint, x)));
+-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, pointer(2, offsetof(ColoredPoint, x)));
+-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, pointer(3, offsetof(ColoredPoint, x)));
+-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, stride, pointer(1, offsetof(ColoredPoint, r)));
+-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, stride, pointer(2, offsetof(ColoredPoint, r)));
+-
+-    SetFloat(m_halfWidthLocation, style.halfWidth, m_lastHalfWidth, m_halfWidthSet);
+-    for (int pass = 0; pass < style.passes; pass++)
++    if (m_firstPoint != strip.firstPoint)
++    {
++        m_mesh->SetInstanceOffset(static_cast<size_t>(strip.firstPoint) * sizeof(ColoredPoint));
++        m_firstPoint = strip.firstPoint;
++    }
++    else
++    {
++        m_mesh->Bind();
++    }
++
++    SetFloat(m_halfWidthLocation, halfWidth, m_lastHalfWidth, m_halfWidthSet);
++    for (size_t pass = 0; pass < passCount; ++pass)
+     {
+-        // Every pass states its offset, so nothing leaks into the next style's draws; the value only
+-        // reaches GL when it changes (a thin outline after another sets nothing).
+-        const auto offset = PassOffsetFor(style, pass);
+-        const glm::vec2 passOffset(offset.x, offset.y);
++        const auto& passOffset = passOffsets[pass];
+         if (!m_passOffsetSet || passOffset != m_lastPassOffset)
+         {
+             glUniform2f(m_passOffsetLocation, passOffset.x, passOffset.y);
+             m_lastPassOffset = passOffset;
+             m_passOffsetSet = true;
+         }
+-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, strip.segments);
++        m_mesh->DrawInstancedBound(4, static_cast<uint32_t>(strip.segments));
+     }
+ }
+ 
+@@ -163,7 +161,7 @@ void LineRenderer::End()
+ {
+     glBindBuffer(GL_ARRAY_BUFFER, 0);
+     glBindVertexArray(0);
+-    Renderer::Shader::Unbind();
++    Shader::Unbind();
+     m_ready = false;
+ }
+ 
+@@ -190,5 +188,5 @@ ScopedProgramPointSize::~ScopedProgramPointSize()
+ #endif
+ }
+ 
+-} // namespace MilkdropPreset
++} // namespace Renderer
+ } // namespace libprojectM
+diff --git a/src/libprojectM/MilkdropPreset/LineRenderer.hpp b/src/libprojectM/Renderer/LineRenderer.hpp
+similarity index 78%
+rename from src/libprojectM/MilkdropPreset/LineRenderer.hpp
+rename to src/libprojectM/Renderer/LineRenderer.hpp
+index e233db00d..3ba0b5df4 100644
+--- a/src/libprojectM/MilkdropPreset/LineRenderer.hpp
++++ b/src/libprojectM/Renderer/LineRenderer.hpp
+@@ -2,6 +2,7 @@
+ 
+ #include "LineGeometry.hpp"
+ 
++#include <Renderer/Mesh.hpp>
+ #include <Renderer/RenderContext.hpp>
+ #include <Renderer/Shader.hpp>
+ 
+@@ -11,10 +12,12 @@
+ #include <glm/vec2.hpp>
+ 
+ #include <cstddef>
++#include <memory>
++#include <string>
+ 
+ namespace libprojectM {
+ class FeedbackDetailTestAccess;
+-namespace MilkdropPreset {
++namespace Renderer {
+ 
+ /**
+  * @brief The quad lines' vertex offset in render pixels, which decides pixel-border ties.
+@@ -31,7 +34,7 @@ auto LineTieBias() -> glm::vec2;
+ /**
+  * @brief Draws line strips as quads (hard or anti-aliased edge), one instance per segment (projectM issue #682).
+  *
+- * Upload() a LineBatch, Begin() once for its transformation and viewport, then Draw() its strips.
++ * Upload() a LineBatch, Begin() once for its transformation and viewport, then Draw() each strip/pass.
+  * Other draws may run between Begin() and Draw(): Draw() binds its own program and buffers. The
+  * caller sets blending.
+  *
+@@ -41,7 +44,7 @@ class LineRenderer
+ {
+ public:
+     LineRenderer();
+-    ~LineRenderer();
++    ~LineRenderer() = default;
+ 
+     LineRenderer(const LineRenderer&) = delete;
+     auto operator=(const LineRenderer&) -> LineRenderer& = delete;
+@@ -51,9 +54,14 @@ public:
+      */
+     auto Usable() const -> bool;
+ 
++    /** Returns the generic fragment shader, including the platform version header. */
++    static auto FragmentShaderSource() -> std::string;
++
+     void Upload(const LineBatch& batch);
+-    void Begin(const glm::mat4& transformation, const Renderer::RenderContext& context);
+-    void Draw(const LineBatch::Strip& strip, const LineStyle& style);
++    void Begin(const glm::mat4& transformation, const RenderContext& context);
++    void Draw(const LineBatch::Strip& strip, float halfWidth, const glm::vec2& passOffset = glm::vec2(0.0f));
++    /** Draws a group of caller-supplied offsets with one program/VAO binding. */
++    void Draw(const LineBatch::Strip& strip, float halfWidth, const glm::vec2* passOffsets, size_t passCount);
+     void End();
+ 
+ private:
+@@ -63,10 +71,10 @@ private:
+      */
+     static void SetFloat(GLint location, float value, float& lastValue, bool& lastValid);
+ 
+-    Renderer::Shader m_shader;  //!< Line program, compiled with the preset (off the render thread when prewarmed).
++    Shader m_shader;  //!< Line program, compiled with the preset (off the render thread when prewarmed).
+     bool m_usable{false};       //!< m_shader compiled and linked.
+-    GLuint m_vaoId{0};          //!< Vertex array with six per-instance attributes.
+-    GLuint m_vboId{0};          //!< Padded strip points.
++    std::unique_ptr<Mesh> m_mesh; //!< Instance data and custom layout, created by the first Upload().
++    int m_firstPoint{-1};         //!< Last strip offset configured on this mesh.
+     bool m_ready{false};        //!< Begin() found a usable program, a vertex array (created by the first Upload()) and a non-empty viewport.
+ 
+     // Uniform locations, looked up once after compiling.
+@@ -105,5 +113,5 @@ private:
+     bool m_enabled{false}; //!< This object enabled GL_PROGRAM_POINT_SIZE.
+ };
+ 
+-} // namespace MilkdropPreset
++} // namespace Renderer
+ } // namespace libprojectM
+diff --git a/src/libprojectM/Renderer/Mesh.cpp b/src/libprojectM/Renderer/Mesh.cpp
+index 49d000084..685e04bdc 100644
+--- a/src/libprojectM/Renderer/Mesh.cpp
++++ b/src/libprojectM/Renderer/Mesh.cpp
+@@ -3,6 +3,14 @@
+ namespace libprojectM {
+ namespace Renderer {
+ 
++Mesh::~Mesh()
++{
++    if (m_instanceBuffer != 0)
++    {
++        glDeleteBuffers(1, &m_instanceBuffer);
++    }
++}
++
+ Mesh::Mesh()
+ {
+     Initialize();
+@@ -119,7 +127,68 @@ void Mesh::Draw()
+         m_indices.Update();
+     }
+ 
+-    GLuint primitiveType{GL_LINES};
++    glDrawElements(GLPrimitiveType(), m_indices.Size(), GL_UNSIGNED_INT, nullptr);
++
++    VertexArray::Unbind();
++}
++
++void Mesh::UpdateInstanceData(const void* data, size_t size)
++{
++    if (m_instanceBuffer == 0)
++    {
++        glGenBuffers(1, &m_instanceBuffer);
++    }
++    glBindBuffer(GL_ARRAY_BUFFER, m_instanceBuffer);
++    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), data, GL_STREAM_DRAW);
++    VertexBuffer<Point>::Unbind();
++}
++
++void Mesh::SetInstanceAttributes(std::initializer_list<VertexAttribute> attributes, size_t baseOffset)
++{
++    m_instanceAttributes.assign(attributes);
++    m_vertexArray.Bind();
++    for (const auto& attribute : m_instanceAttributes)
++    {
++        glEnableVertexAttribArray(attribute.index);
++        glVertexAttribDivisor(attribute.index, attribute.divisor);
++    }
++    SetInstanceOffset(baseOffset);
++}
++
++void Mesh::SetInstanceOffset(size_t baseOffset)
++{
++    m_vertexArray.Bind();
++    glBindBuffer(GL_ARRAY_BUFFER, m_instanceBuffer);
++    for (const auto& attribute : m_instanceAttributes)
++    {
++        glVertexAttribPointer(attribute.index, attribute.size, attribute.type, attribute.normalized,
++                              attribute.stride, reinterpret_cast<const void*>(baseOffset + attribute.offset));
++    }
++}
++
++void Mesh::DrawInstanced(uint32_t verticesPerInstance, uint32_t instanceCount)
++{
++    if (verticesPerInstance == 0 || instanceCount == 0)
++    {
++        return;
++    }
++    m_vertexArray.Bind();
++    DrawInstancedBound(verticesPerInstance, instanceCount);
++    VertexArray::Unbind();
++}
++
++void Mesh::DrawInstancedBound(uint32_t verticesPerInstance, uint32_t instanceCount)
++{
++    if (verticesPerInstance == 0 || instanceCount == 0)
++    {
++        return;
++    }
++    glDrawArraysInstanced(GLPrimitiveType(), 0, static_cast<GLsizei>(verticesPerInstance), static_cast<GLsizei>(instanceCount));
++}
++
++auto Mesh::GLPrimitiveType() const -> GLenum
++{
++    GLenum primitiveType{GL_LINES};
+     switch (m_primitiveType)
+     {
+         case PrimitiveType::Points:
+@@ -145,9 +214,7 @@ void Mesh::Draw()
+             break;
+     }
+ 
+-    glDrawElements(primitiveType, m_indices.Size(), GL_UNSIGNED_INT, nullptr);
+-
+-    VertexArray::Unbind();
++    return primitiveType;
+ }
+ 
+ void Mesh::Initialize()
+diff --git a/src/libprojectM/Renderer/Mesh.hpp b/src/libprojectM/Renderer/Mesh.hpp
+index da636c9cb..e8ce8048e 100644
+--- a/src/libprojectM/Renderer/Mesh.hpp
++++ b/src/libprojectM/Renderer/Mesh.hpp
+@@ -8,7 +8,10 @@
+ #include "Renderer/VertexBufferUsage.hpp"
+ #include "Renderer/VertexIndexArray.hpp"
+ 
++#include <cstddef>
+ #include <cstdint>
++#include <initializer_list>
++#include <vector>
+ 
+ namespace libprojectM {
+ namespace Renderer {
+@@ -28,12 +31,17 @@ namespace Renderer {
+  *
+  * Keep in mind that only 8 attribute arrays are guaranteed to be supported by the OpenGL spec.
+  *
+- * The Mesh class always uses vertex indices to render, using glDrawElements. If the index buffer is
++ * Draw() uses vertex indices to render, using glDrawElements. If the index buffer is
+  * empty on the first draw call, it will be populated with a 1:1 mapping of the vertex buffer. If
+  * the vertex count changes, the caller has to make sure that the index array is updated accordingly.
+  *
+  * @note When using this class, attributes indices 1 and 2 will be toggled according to the
+  * attribute enable flags. When using additional vertex arrays, make sure to start with index 3.
++ *
++ * The separate instanced path uses an interleaved instance buffer with caller-defined attributes.
++ * UpdateInstanceData() uploads that buffer, SetInstanceAttributes() defines its layout and offsets,
++ * and DrawInstanced() draws a fixed number of vertices per instance without an index buffer.
++ * Do not call Update() between setting custom attributes and drawing: it toggles attributes 1/2.
+  */
+ class Mesh
+ {
+@@ -49,6 +57,17 @@ public:
+         TriangleFan    //!< Renders a fan of triangles, with the first vertex being used as the first vertex of all rendered triangles.
+     };
+ 
++    /** An attribute in the interleaved instance buffer. Offsets and stride are in bytes. */
++    struct VertexAttribute {
++        GLuint index;
++        GLint size;
++        GLenum type;
++        GLboolean normalized;
++        GLsizei stride;
++        size_t offset;
++        GLuint divisor;
++    };
++
+     /**
+      * Constructor. Creates the mesh with a default rendering mode of PrimitiveType::Lines.
+      */
+@@ -74,7 +93,7 @@ public:
+     /**
+      * Default destructor.
+      */
+-    virtual ~Mesh() = default;
++    virtual ~Mesh();
+ 
+     /**
+      * Returns the currently set primitive type which is rendered when calling Draw().
+@@ -337,12 +356,43 @@ public:
+      */
+     void Draw();
+ 
++    /**
++     * Uploads an interleaved instance stream, creating its buffer on first use.
++     * Replaces the buffer storage on every upload so in-flight draws can finish with the old data.
++     * The caller retains ownership of data; no CPU copy is kept. Leaves the array buffer unbound.
++     */
++    void UpdateInstanceData(const void* data, size_t size);
++
++    /**
++     * Binds this mesh and configures attributes reading the instance stream.
++     * Adds baseOffset to each attribute offset, e.g. to select a strip inside an uploaded batch.
++     * Leaves the VAO and array buffer bound. Requires UpdateInstanceData() first.
++     */
++    void SetInstanceAttributes(std::initializer_list<VertexAttribute> attributes, size_t baseOffset = 0);
++
++    /**
++     * Draws verticesPerInstance vertices per instance using glDrawArraysInstanced.
++     * Counts are independent of the regular vertex and index buffers. Zero counts draw nothing.
++     * Binds and unbinds this mesh's VAO; the caller sets shaders, blending and instance attributes.
++     */
++    void DrawInstanced(uint32_t verticesPerInstance, uint32_t instanceCount);
++
++    /** Updates the byte offset of the stored instance layout without changing enables/divisors.
++     * Binds this mesh and its instance buffer, leaving them bound. */
++    void SetInstanceOffset(size_t baseOffset);
++
++    /** Draws instances using the already bound mesh VAO, leaving it bound for subsequent passes.
++     * The caller must Bind() this mesh or call SetInstanceOffset() before drawing. */
++    void DrawInstancedBound(uint32_t verticesPerInstance, uint32_t instanceCount);
++
+ private:
+     /**
+      * Binds the internal buffers to the vertex array object and initializes the array pointers.
+      */
+     void Initialize();
+ 
++    auto GLPrimitiveType() const -> GLenum;
++
+     PrimitiveType m_primitiveType{PrimitiveType::Lines}; //!< Mesh render primitive type.
+ 
+     bool m_useColorAttributes{false}; //!< If true, the color attribute array is enabled and populated.
+@@ -355,6 +405,8 @@ private:
+     VertexBuffer<TextureUV> m_textureUVs; //!< Vertex texture coordinates.
+ 
+     VertexIndexArray m_indices; //!< The vertex indices used for rendering.
++    std::vector<VertexAttribute> m_instanceAttributes; //!< Stored layout for cheap per-strip offset updates.
++    GLuint m_instanceBuffer{0}; //!< Optional interleaved instance stream, created only on upload.
+ };
+ 
+ } // namespace Renderer
+diff --git a/src/libprojectM/MilkdropPreset/Shaders/LineFragmentShaderGlsl330.frag b/src/libprojectM/Renderer/Shaders/LineFragmentShaderGlsl330.frag
+similarity index 100%
+rename from src/libprojectM/MilkdropPreset/Shaders/LineFragmentShaderGlsl330.frag
+rename to src/libprojectM/Renderer/Shaders/LineFragmentShaderGlsl330.frag
+diff --git a/src/libprojectM/MilkdropPreset/Shaders/LineVertexShaderGlsl330.vert b/src/libprojectM/Renderer/Shaders/LineVertexShaderGlsl330.vert
+similarity index 100%
+rename from src/libprojectM/MilkdropPreset/Shaders/LineVertexShaderGlsl330.vert
+rename to src/libprojectM/Renderer/Shaders/LineVertexShaderGlsl330.vert
+diff --git a/tests/libprojectM/CMakeLists.txt b/tests/libprojectM/CMakeLists.txt
+index b360415e8..7ce38d15c 100644
+--- a/tests/libprojectM/CMakeLists.txt
++++ b/tests/libprojectM/CMakeLists.txt
+@@ -30,6 +30,7 @@ add_executable(projectM-unittest
+         HLSLParserTest.cpp
+         HLSLModuloTest.cpp
+         LoggingTest.cpp
++        MeshTest.cpp
+         FeedbackDiffusionRenderTest.cpp
+         FeedbackDiffusionTest.cpp
+         FeedbackDetailTest.cpp
+@@ -41,6 +42,7 @@ add_executable(projectM-unittest
+         EvaluatorLoneDotTest.cpp
+         ShaderFailureTest.cpp
+         WarpSamplerTest.cpp
++        LineBatchTest.cpp
+         LineGeometryTest.cpp
+         TexturePoolTest.cpp
+         TextureHistoryTest.cpp
+diff --git a/tests/libprojectM/LineBatchTest.cpp b/tests/libprojectM/LineBatchTest.cpp
+new file mode 100644
+index 000000000..3c33d1afc
+--- /dev/null
++++ b/tests/libprojectM/LineBatchTest.cpp
+@@ -0,0 +1,118 @@
++#include <gtest/gtest.h>
++
++#include <Renderer/LineGeometry.hpp>
++
++#include <vector>
++
++using libprojectM::Renderer::LineBatch;
++using Point = libprojectM::Renderer::ColoredPoint;
++
++namespace {
++
++auto MakePoints(std::initializer_list<float> xs) -> std::vector<Point>
++{
++    std::vector<Point> points;
++    for (float x : xs)
++    {
++        Point point;
++        point.x = x;
++        point.y = -x;
++        point.a = 1.0f;
++        points.push_back(point);
++    }
++    return points;
++}
++
++auto Xs(const LineBatch& batch) -> std::vector<float>
++{
++    std::vector<float> xs;
++    for (const auto& point : batch.Points())
++    {
++        xs.push_back(point.x);
++    }
++    return xs;
++}
++
++} // namespace
++
++TEST(LineBatch, OpenStripRepeatsItsEndPoints)
++{
++    LineBatch batch;
++    const auto points = MakePoints({1, 2, 3});
++    const auto strip = batch.Append(points.data(), points.size(), false);
++    EXPECT_EQ(strip.firstPoint, 0);
++    EXPECT_EQ(strip.segments, 2);
++    EXPECT_EQ(Xs(batch), (std::vector<float>{1, 1, 2, 3, 3}));
++}
++
++TEST(LineBatch, LoopWrapsAround)
++{
++    LineBatch batch;
++    const auto points = MakePoints({1, 2, 3});
++    const auto strip = batch.Append(points.data(), points.size(), true);
++    EXPECT_EQ(strip.segments, 3);
++    EXPECT_EQ(Xs(batch), (std::vector<float>{3, 1, 2, 3, 1, 2}));
++}
++
++TEST(LineBatch, TwoPointLoopHasTwoSegments)
++{
++    LineBatch batch;
++    const auto points = MakePoints({1, 2});
++    const auto strip = batch.Append(points.data(), points.size(), true);
++    EXPECT_EQ(strip.segments, 2);
++    EXPECT_EQ(Xs(batch), (std::vector<float>{2, 1, 2, 1, 2}));
++}
++
++TEST(LineBatch, FewerThanTwoPointsDrawNothing)
++{
++    LineBatch batch;
++    const auto one = MakePoints({1});
++    EXPECT_EQ(batch.Append(one.data(), one.size(), false).segments, 0);
++    EXPECT_EQ(batch.Append(one.data(), one.size(), true).segments, 0);
++    EXPECT_EQ(batch.Append(nullptr, 0, false).segments, 0);
++    EXPECT_TRUE(batch.Points().empty());
++}
++
++TEST(LineBatch, StripsFollowEachOther)
++{
++    LineBatch batch;
++    const auto first = MakePoints({1, 2});
++    const auto second = MakePoints({5, 6, 7});
++    batch.Append(first.data(), first.size(), false);
++    const auto strip = batch.Append(second.data(), second.size(), true);
++    EXPECT_EQ(strip.firstPoint, 4);
++    EXPECT_EQ(batch.Points().size(), 4u + 6u);
++}
++
++TEST(LineBatch, LastInstanceReadsInsideItsStrip)
++{
++    // Instance i reads points firstPoint + i ... firstPoint + i + 3.
++    for (bool loop : {false, true})
++    {
++        LineBatch batch;
++        const auto points = MakePoints({1, 2, 3, 4, 5});
++        const auto strip = batch.Append(points.data(), points.size(), loop);
++        EXPECT_EQ(static_cast<size_t>(strip.firstPoint + (strip.segments - 1) + 3), batch.Points().size() - 1);
++    }
++}
++
++TEST(LineBatch, KeepsColors)
++{
++    LineBatch batch;
++    auto points = MakePoints({1, 2});
++    points[1].r = 0.25f;
++    points[1].a = 0.5f;
++    batch.Append(points.data(), points.size(), false);
++    EXPECT_FLOAT_EQ(batch.Points()[2].r, 0.25f);
++    EXPECT_FLOAT_EQ(batch.Points()[3].a, 0.5f);
++}
++
++TEST(LineBatch, ClearEmpties)
++{
++    LineBatch batch;
++    const auto points = MakePoints({1, 2});
++    batch.Append(points.data(), points.size(), false);
++    batch.Clear();
++    EXPECT_TRUE(batch.Points().empty());
++    EXPECT_EQ(batch.Append(points.data(), points.size(), false).firstPoint, 0);
++}
+diff --git a/tests/libprojectM/LineGeometryTest.cpp b/tests/libprojectM/LineGeometryTest.cpp
+index dd4032fe2..6d2d18fc5 100644
+--- a/tests/libprojectM/LineGeometryTest.cpp
++++ b/tests/libprojectM/LineGeometryTest.cpp
+@@ -8,7 +8,6 @@
+ 
+ using libprojectM::MilkdropPreset::BlurSourceFor;
+ using libprojectM::MilkdropPreset::DotStyleFor;
+-using libprojectM::MilkdropPreset::LineBatch;
+ using libprojectM::MilkdropPreset::LineKind;
+ using libprojectM::MilkdropPreset::LineScale;
+ using libprojectM::MilkdropPreset::LineStyleFor;
+@@ -16,37 +15,12 @@ using libprojectM::MilkdropPreset::MaximizeColorsTextureSize;
+ using libprojectM::MilkdropPreset::PassOffsetFor;
+ using libprojectM::MilkdropPreset::SampleDecisionWidth;
+ using libprojectM::MilkdropPreset::ShaderCanvasSize;
+-using Point = libprojectM::MilkdropPreset::ColoredPoint;
+ 
+ namespace {
+ 
+ constexpr int Width = 1920;
+ constexpr int Height = 1080;
+ 
+-auto MakePoints(std::initializer_list<float> xs) -> std::vector<Point>
+-{
+-    std::vector<Point> points;
+-    for (float x : xs)
+-    {
+-        Point point;
+-        point.x = x;
+-        point.y = -x;
+-        point.a = 1.0f;
+-        points.push_back(point);
+-    }
+-    return points;
+-}
+-
+-auto Xs(const LineBatch& batch) -> std::vector<float>
+-{
+-    std::vector<float> xs;
+-    for (const auto& point : batch.Points())
+-    {
+-        xs.push_back(point.x);
+-    }
+-    return xs;
+-}
+-
+ } // namespace
+ 
+ TEST(LineGeometry, ScaleIsZeroWithoutReferenceOrViewport)
+@@ -445,85 +419,3 @@ TEST(LineGeometry, DotsRoundUpToWholePixelsAndFadeByArea)
+     EXPECT_EQ(exact.size, 2.0f);
+     EXPECT_EQ(exact.alphaScale, 1.0f);
+ }
+-
+-TEST(LineBatch, OpenStripRepeatsItsEndPoints)
+-{
+-    LineBatch batch;
+-    const auto points = MakePoints({1, 2, 3});
+-    const auto strip = batch.Append(points.data(), points.size(), false);
+-    EXPECT_EQ(strip.firstPoint, 0);
+-    EXPECT_EQ(strip.segments, 2);
+-    EXPECT_EQ(Xs(batch), (std::vector<float>{1, 1, 2, 3, 3}));
+-}
+-
+-TEST(LineBatch, LoopWrapsAround)
+-{
+-    LineBatch batch;
+-    const auto points = MakePoints({1, 2, 3});
+-    const auto strip = batch.Append(points.data(), points.size(), true);
+-    EXPECT_EQ(strip.segments, 3);
+-    EXPECT_EQ(Xs(batch), (std::vector<float>{3, 1, 2, 3, 1, 2}));
+-}
+-
+-TEST(LineBatch, TwoPointLoopHasTwoSegments)
+-{
+-    LineBatch batch;
+-    const auto points = MakePoints({1, 2});
+-    const auto strip = batch.Append(points.data(), points.size(), true);
+-    EXPECT_EQ(strip.segments, 2);
+-    EXPECT_EQ(Xs(batch), (std::vector<float>{2, 1, 2, 1, 2}));
+-}
+-
+-TEST(LineBatch, FewerThanTwoPointsDrawNothing)
+-{
+-    LineBatch batch;
+-    const auto one = MakePoints({1});
+-    EXPECT_EQ(batch.Append(one.data(), one.size(), false).segments, 0);
+-    EXPECT_EQ(batch.Append(one.data(), one.size(), true).segments, 0);
+-    EXPECT_EQ(batch.Append(nullptr, 0, false).segments, 0);
+-    EXPECT_TRUE(batch.Points().empty());
+-}
+-
+-TEST(LineBatch, StripsFollowEachOther)
+-{
+-    LineBatch batch;
+-    const auto first = MakePoints({1, 2});
+-    const auto second = MakePoints({5, 6, 7});
+-    batch.Append(first.data(), first.size(), false);
+-    const auto strip = batch.Append(second.data(), second.size(), true);
+-    EXPECT_EQ(strip.firstPoint, 4);
+-    EXPECT_EQ(batch.Points().size(), 4u + 6u);
+-}
+-
+-TEST(LineBatch, LastInstanceReadsInsideItsStrip)
+-{
+-    // Instance i reads points firstPoint + i ... firstPoint + i + 3.
+-    for (bool loop : {false, true})
+-    {
+-        LineBatch batch;
+-        const auto points = MakePoints({1, 2, 3, 4, 5});
+-        const auto strip = batch.Append(points.data(), points.size(), loop);
+-        EXPECT_EQ(static_cast<size_t>(strip.firstPoint + (strip.segments - 1) + 3), batch.Points().size() - 1);
+-    }
+-}
+-
+-TEST(LineBatch, KeepsColors)
+-{
+-    LineBatch batch;
+-    auto points = MakePoints({1, 2});
+-    points[1].r = 0.25f;
+-    points[1].a = 0.5f;
+-    batch.Append(points.data(), points.size(), false);
+-    EXPECT_FLOAT_EQ(batch.Points()[2].r, 0.25f);
+-    EXPECT_FLOAT_EQ(batch.Points()[3].a, 0.5f);
+-}
+-
+-TEST(LineBatch, ClearEmpties)
+-{
+-    LineBatch batch;
+-    const auto points = MakePoints({1, 2});
+-    batch.Append(points.data(), points.size(), false);
+-    batch.Clear();
+-    EXPECT_TRUE(batch.Points().empty());
+-    EXPECT_EQ(batch.Append(points.data(), points.size(), false).firstPoint, 0);
+-}
+diff --git a/tests/libprojectM/MeshTest.cpp b/tests/libprojectM/MeshTest.cpp
+new file mode 100644
+index 000000000..433a166c6
+--- /dev/null
++++ b/tests/libprojectM/MeshTest.cpp
+@@ -0,0 +1,320 @@
++#include <gtest/gtest.h>
++
++#include <Renderer/Mesh.hpp>
++
++#include <array>
++#include <cstdint>
++#include <vector>
++
++namespace {
++
++// Mesh needs a GL context. Record the GL boundary here so these tests also run on headless CI.
++class MeshTest : public testing::Test
++{
++protected:
++    struct Attribute {
++        GLint size{};
++        GLsizei stride{};
++        uintptr_t offset{};
++        GLuint divisor{};
++        bool enabled{};
++    };
++
++    struct Calls {
++        GLuint nextId{1};
++        GLuint vao{};
++        GLenum primitive{};
++        GLsizei vertices{};
++        GLsizei instances{};
++        int indexedDraws{};
++        int instancedDraws{};
++        int uploads{};
++        int subUploads{};
++        int generatedBuffers{};
++        int deletedBuffers{};
++        int attributeEnables{};
++        int divisorUpdates{};
++        GLenum usage{};
++        std::vector<uint8_t> bytes;
++        std::array<Attribute, 8> attributes;
++    };
++
++    static Calls calls;
++
++    static void GLAD_API_PTR MockglGenBuffers(GLsizei n, GLuint* ids)
++    {
++        calls.generatedBuffers += n;
++        while (n--)
++            *ids++ = calls.nextId++;
++    }
++
++    static void GLAD_API_PTR MockglGenVertexArrays(GLsizei n, GLuint* ids)
++    {
++        while (n--)
++            *ids++ = calls.nextId++;
++    }
++
++    static void GLAD_API_PTR MockglDeleteBuffers(GLsizei n, const GLuint*)
++    {
++        calls.deletedBuffers += n;
++    }
++
++    static void GLAD_API_PTR MockglDeleteVertexArrays(GLsizei, const GLuint*)
++    {
++    }
++
++    static void GLAD_API_PTR MockglBindBuffer(GLenum, GLuint)
++    {
++    }
++
++    static void GLAD_API_PTR MockglBindVertexArray(GLuint id)
++    {
++        calls.vao = id;
++    }
++
++    static void GLAD_API_PTR MockglEnableVertexAttribArray(GLuint i)
++    {
++        ++calls.attributeEnables;
++        calls.attributes.at(i).enabled = true;
++    }
++
++    static void GLAD_API_PTR MockglDisableVertexAttribArray(GLuint i)
++    {
++        calls.attributes.at(i).enabled = false;
++    }
++
++    static void GLAD_API_PTR MockglVertexAttribPointer(GLuint i, GLint size, GLenum, GLboolean, GLsizei stride, const void* offset)
++    {
++        auto& attribute = calls.attributes.at(i);
++        attribute.size = size;
++        attribute.stride = stride;
++        attribute.offset = reinterpret_cast<uintptr_t>(offset);
++    }
++
++    static void GLAD_API_PTR MockglVertexAttribDivisor(GLuint i, GLuint divisor)
++    {
++        ++calls.divisorUpdates;
++        calls.attributes.at(i).divisor = divisor;
++    }
++
++    static void GLAD_API_PTR MockglBufferData(GLenum, GLsizeiptr size, const void* data, GLenum usage)
++    {
++        ++calls.uploads;
++        calls.usage = usage;
++        const auto* bytes = static_cast<const uint8_t*>(data);
++        calls.bytes.assign(bytes, bytes + size);
++    }
++
++    static void GLAD_API_PTR MockglBufferSubData(GLenum, GLintptr, GLsizeiptr, const void*)
++    {
++        ++calls.subUploads;
++    }
++
++    static void GLAD_API_PTR MockglDrawElements(GLenum primitive, GLsizei count, GLenum, const void*)
++    {
++        ++calls.indexedDraws;
++        calls.primitive = primitive;
++        calls.vertices = count;
++    }
++
++    static void GLAD_API_PTR MockglDrawArraysInstanced(GLenum primitive, GLint first, GLsizei vertices, GLsizei instances)
++    {
++        EXPECT_EQ(first, 0);
++        EXPECT_NE(calls.vao, 0u);
++        ++calls.instancedDraws;
++        calls.primitive = primitive;
++        calls.vertices = vertices;
++        calls.instances = instances;
++    }
++
++
++    void SetUp() override
++    {
++        calls = {};
++#define HOOK(name)             \
++    saved##name = glad_##name; \
++    glad_##name = &Mock##name
++        HOOK(glGenBuffers);
++        HOOK(glGenVertexArrays);
++        HOOK(glDeleteBuffers);
++        HOOK(glDeleteVertexArrays);
++        HOOK(glBindBuffer);
++        HOOK(glBindVertexArray);
++        HOOK(glEnableVertexAttribArray);
++        HOOK(glDisableVertexAttribArray);
++        HOOK(glVertexAttribPointer);
++        HOOK(glVertexAttribDivisor);
++        HOOK(glBufferData);
++        HOOK(glBufferSubData);
++        HOOK(glDrawElements);
++        HOOK(glDrawArraysInstanced);
++#undef HOOK
++    }
++
++    void TearDown() override
++    {
++#define RESTORE(name) glad_##name = saved##name
++        RESTORE(glGenBuffers);
++        RESTORE(glGenVertexArrays);
++        RESTORE(glDeleteBuffers);
++        RESTORE(glDeleteVertexArrays);
++        RESTORE(glBindBuffer);
++        RESTORE(glBindVertexArray);
++        RESTORE(glEnableVertexAttribArray);
++        RESTORE(glDisableVertexAttribArray);
++        RESTORE(glVertexAttribPointer);
++        RESTORE(glVertexAttribDivisor);
++        RESTORE(glBufferData);
++        RESTORE(glBufferSubData);
++        RESTORE(glDrawElements);
++        RESTORE(glDrawArraysInstanced);
++#undef RESTORE
++    }
++
++#define SAVE(name) decltype(glad_##name) saved##name = nullptr
++    SAVE(glGenBuffers);
++    SAVE(glGenVertexArrays);
++    SAVE(glDeleteBuffers);
++    SAVE(glDeleteVertexArrays);
++    SAVE(glBindBuffer);
++    SAVE(glBindVertexArray);
++    SAVE(glEnableVertexAttribArray);
++    SAVE(glDisableVertexAttribArray);
++    SAVE(glVertexAttribPointer);
++    SAVE(glVertexAttribDivisor);
++    SAVE(glBufferData);
++    SAVE(glBufferSubData);
++    SAVE(glDrawElements);
++    SAVE(glDrawArraysInstanced);
++#undef SAVE
++};
++
++MeshTest::Calls MeshTest::calls;
++
++TEST_F(MeshTest, IndexedDrawingKeepsItsDefaultLayoutAndContinuousIndices)
++{
++    libprojectM::Renderer::Mesh mesh;
++    mesh.SetVertexCount(3);
++    mesh.Update();
++    mesh.Draw();
++    EXPECT_EQ(calls.indexedDraws, 1);
++    EXPECT_EQ(calls.instancedDraws, 0);
++    EXPECT_EQ(calls.primitive, GL_LINES);
++    EXPECT_EQ(mesh.Indices().Get(), (std::vector<uint32_t>{0, 1, 2}));
++    EXPECT_TRUE(calls.attributes[0].enabled);
++    EXPECT_FALSE(calls.attributes[1].enabled);
++    EXPECT_FALSE(calls.attributes[2].enabled);
++    EXPECT_EQ(calls.attributes[0].divisor, 0u);
++}
++
++TEST_F(MeshTest, InstanceUploadsStreamEvenWhenTheirSizeDoesNotChange)
++{
++    libprojectM::Renderer::Mesh mesh;
++    const std::array<float, 6> points{{1, 2, 3, 4, 5, 6}};
++    mesh.UpdateInstanceData(points.data(), sizeof(points));
++    mesh.UpdateInstanceData(points.data(), sizeof(points));
++    EXPECT_EQ(calls.uploads, 2);
++    EXPECT_EQ(calls.subUploads, 0);
++    EXPECT_EQ(calls.usage, GL_STREAM_DRAW);
++    EXPECT_EQ(calls.bytes.size(), sizeof(points));
++    EXPECT_EQ(calls.bytes, (std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(points.data()),
++                                                 reinterpret_cast<const uint8_t*>(points.data()) + sizeof(points))));
++}
++
++TEST_F(MeshTest, InstanceAttributesAcceptOverlappingPointsAndStripOffsets)
++{
++    libprojectM::Renderer::Mesh mesh;
++    const std::array<float, 36> points{};
++    mesh.UpdateInstanceData(points.data(), sizeof(points));
++    // Two endpoint positions and a color, reading different fields of the same interleaved stream.
++    mesh.SetInstanceAttributes({{0, 2, GL_FLOAT, GL_FALSE, 24, 0, 1},
++                                {1, 2, GL_FLOAT, GL_FALSE, 24, 24, 1},
++                                {4, 4, GL_FLOAT, GL_FALSE, 24, 32, 1}},
++                               48);
++    EXPECT_EQ(calls.attributes[0].offset, 48u);
++    EXPECT_EQ(calls.attributes[1].offset, 72u);
++    EXPECT_EQ(calls.attributes[4].offset, 80u);
++    EXPECT_EQ(calls.attributes[4].stride, 24);
++    EXPECT_EQ(calls.attributes[4].size, 4);
++    EXPECT_EQ(calls.attributes[4].divisor, 1u);
++    EXPECT_TRUE(calls.attributes[4].enabled);
++    mesh.SetInstanceAttributes({{0, 2, GL_FLOAT, GL_FALSE, 24, 0, 2}}, 0);
++    EXPECT_EQ(calls.attributes[0].offset, 0u);
++    EXPECT_EQ(calls.attributes[0].divisor, 2u);
++}
++
++TEST_F(MeshTest, InstancedDrawingSeparatesQuadVerticesFromSegmentCount)
++{
++    libprojectM::Renderer::Mesh mesh;
++    mesh.SetRenderPrimitiveType(libprojectM::Renderer::Mesh::PrimitiveType::TriangleStrip);
++    mesh.DrawInstanced(4, 37);
++    EXPECT_EQ(calls.indexedDraws, 0);
++    EXPECT_EQ(calls.instancedDraws, 1);
++    EXPECT_EQ(calls.primitive, GL_TRIANGLE_STRIP);
++    EXPECT_EQ(calls.vertices, 4);
++    EXPECT_EQ(calls.instances, 37);
++    EXPECT_TRUE(mesh.Indices().Empty());
++    EXPECT_EQ(calls.vao, 0u);
++}
++
++TEST_F(MeshTest, EmptyInstancedDrawsDoNothing)
++{
++    libprojectM::Renderer::Mesh mesh;
++    mesh.DrawInstanced(4, 0);
++    mesh.DrawInstanced(0, 10);
++    EXPECT_EQ(calls.instancedDraws, 0);
++}
++
++TEST_F(MeshTest, InstanceBufferIsCreatedOnceOnDemandAndReleasedWithTheMesh)
++{
++    int regularBuffers;
++    {
++        libprojectM::Renderer::Mesh mesh;
++        regularBuffers = calls.generatedBuffers;
++        EXPECT_EQ(regularBuffers, 4);
++        const float value = 0.5f;
++        mesh.UpdateInstanceData(&value, sizeof(value));
++        mesh.UpdateInstanceData(&value, sizeof(value));
++        EXPECT_EQ(calls.generatedBuffers, regularBuffers + 1);
++        EXPECT_EQ(calls.deletedBuffers, 0);
++    }
++    EXPECT_EQ(calls.deletedBuffers, regularBuffers + 1);
++}
++
++TEST_F(MeshTest, StripOffsetsDoNotRepeatAttributeEnableOrDivisorSetup)
++{
++    libprojectM::Renderer::Mesh mesh;
++    const std::array<float, 36> points{};
++    mesh.UpdateInstanceData(points.data(), sizeof(points));
++    mesh.SetInstanceAttributes({{0, 2, GL_FLOAT, GL_FALSE, 24, 0, 1},
++                                {4, 4, GL_FLOAT, GL_FALSE, 24, 32, 1}});
++    const int enables = calls.attributeEnables;
++    const int divisors = calls.divisorUpdates;
++    mesh.SetInstanceOffset(48);
++    EXPECT_EQ(calls.attributes[0].offset, 48u);
++    EXPECT_EQ(calls.attributes[4].offset, 80u);
++    EXPECT_EQ(calls.attributeEnables, enables);
++    EXPECT_EQ(calls.divisorUpdates, divisors);
++}
++
++TEST_F(MeshTest, BoundInstancedDrawingRetainsTheCallerVAOAcrossPasses)
++{
++    libprojectM::Renderer::Mesh mesh;
++    mesh.SetRenderPrimitiveType(libprojectM::Renderer::Mesh::PrimitiveType::TriangleStrip);
++    mesh.Bind();
++    const GLuint vao = calls.vao;
++    for (int pass = 0; pass < 4; ++pass)
++    {
++        mesh.DrawInstancedBound(4, 17);
++        EXPECT_EQ(calls.vao, vao);
++    }
++    mesh.DrawInstancedBound(4, 0);
++    EXPECT_EQ(calls.instancedDraws, 4);
++    EXPECT_EQ(calls.instances, 17);
++    EXPECT_EQ(calls.primitive, GL_TRIANGLE_STRIP);
++    EXPECT_EQ(calls.indexedDraws, 0);
++    EXPECT_EQ(calls.vao, vao);
++    mesh.Unbind();
++}
++
++} // namespace

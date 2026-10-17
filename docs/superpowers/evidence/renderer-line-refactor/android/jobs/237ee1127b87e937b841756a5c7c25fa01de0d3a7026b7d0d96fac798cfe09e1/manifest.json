@@ -1,0 +1,233 @@
+{
+  "protocol": "projectmtv-core-corpus-v1",
+  "applicationId": "nl.neerdael.projectmtv.corpuscandidate",
+  "pid": 5361,
+  "job": {
+    "expectedPresetCount": 9606,
+    "height": 2160,
+    "instrumented": true,
+    "nativeTrails": -1,
+    "outputDir": "\/data\/user\/0\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output",
+    "pcmPath": "\/data\/user\/0\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/audio.u8",
+    "preset": "Hexcollie, Martin, Flexi n AdamFX - Seizure Salad.milk",
+    "referenceHeight": 768,
+    "referenceWidth": 1024,
+    "seed": 12345,
+    "width": 3840
+  },
+  "requestSha256": "3639bba30d03b0246ba4a7c8d707798ed0fbbd9675eac37a366f9b78b31b106b",
+  "determinism": "instrumented-fixed-clock-seed",
+  "frameCountExpected": 480,
+  "fps": 30,
+  "audioBlockBytes": 1470,
+  "audioDelivery": "complete unsigned 8-bit mono blocks via ProjectMJNI.addWaveform; production FeedAudio retains the tail bounded by projectm_pcm_get_max_samples()",
+  "captureSemantics": "eight selected final-output frames from read framebuffer zero, top-down RGB8 SHA256; sampled metrics under common 16-second audio; no all-frame image hash",
+  "settings": {
+    "autoChange": false,
+    "beatCuts": false,
+    "blankDetection": false,
+    "shaderBinaryCache": false,
+    "musicCategory": "all",
+    "meshWidth": 48,
+    "meshHeight": 32,
+    "presetDurationSeconds": 3600,
+    "softCutDurationSeconds": 0,
+    "transitionMode": "CLASSIC",
+    "lowEndDevice": false
+  },
+  "captures": [
+    {
+      "frame": 120,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 4,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-120.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "406185ac7dce763e076627757d2872b739432b2a1fdab264d4c0607f652fc397",
+      "pngBytes": 3276036,
+      "pngSha256": "374018be3d7023f79277b86d71f4845a9f02021dd85ad53c8fedaccd8277c17b",
+      "rgbMean": [
+        79.86781430844907,
+        78.87815031828704,
+        116.67886610243056
+      ],
+      "exactBlackFraction": 0.21962842399691357
+    },
+    {
+      "frame": 150,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 5,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-150.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "a29fc201cbbd8ae6a0e29e0c0168ea807b2dce10088f21d5e27450859d115f10",
+      "pngBytes": 3816144,
+      "pngSha256": "200bf429bd0e28d9ab87d6ee9529df5c3fb52094851f42ceea538c874d2a9cb0",
+      "rgbMean": [
+        125.7681729841821,
+        99.82164749710648,
+        110.4517628761574
+      ],
+      "exactBlackFraction": 0.0861304012345679
+    },
+    {
+      "frame": 180,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 6,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-180.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "e94923c82ce3e763734bdf0bba7bdcb1214dae0116fd116271ecdcb484bd31f5",
+      "pngBytes": 3856549,
+      "pngSha256": "db3fe6d99b1b7180abeec00649e55994888606238d7d4b57f2079112f6539f34",
+      "rgbMean": [
+        142.7057314573688,
+        116.28477129147376,
+        140.23339048032406
+      ],
+      "exactBlackFraction": 0.046342351466049383
+    },
+    {
+      "frame": 210,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 7,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-210.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "76f9aa2fe168069be217c98cffb806db2a6c6149b41701071d74771d659170be",
+      "pngBytes": 2760042,
+      "pngSha256": "70d4eba60b8c514fb83e214fa245b14798d2bf5c86e434b7a19f0d6d719f725c",
+      "rgbMean": [
+        132.94428313078703,
+        130.88782383294753,
+        131.77820927372684
+      ],
+      "exactBlackFraction": 0.3001050106095679
+    },
+    {
+      "frame": 239,
+      "previousReadFramebufferBinding": 9,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 7.966666666666667,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-239.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "5d3613142a368593fa3a6b5bc329aa657ef0f078b73d25d1c59ed78e1d51d37a",
+      "pngBytes": 3425906,
+      "pngSha256": "e685b324cd48b124f1ace4e1cc2aed0e05784741df8f0ac98fdf8d9b593bab88",
+      "rgbMean": [
+        107.75215928819445,
+        103.74177059220679,
+        107.02673261477624
+      ],
+      "exactBlackFraction": 0.2211940586419753
+    },
+    {
+      "frame": 300,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 10,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-300.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "92ca3cdac6096739136c26e48ad2ca7c62d829efea87435d68abec7574b83280",
+      "pngBytes": 4551207,
+      "pngSha256": "09a75ffbb60815f8d4d07e5b40c057a3ff298badfa7ec6b33751c37bea50b702",
+      "rgbMean": [
+        102.54293451003086,
+        107.72120273919754,
+        108.09756209008488
+      ],
+      "exactBlackFraction": 0.09952220775462962
+    },
+    {
+      "frame": 390,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 13,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-390.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "979a3d54261b465296e0146ee10986c28d333141ee0b836b0e535b22e7d03ad7",
+      "pngBytes": 4234392,
+      "pngSha256": "d2dc0b98f511c0a93647c8f7d3d87eca95ea439c7048b2b61e1dcfffef078cc9",
+      "rgbMean": [
+        93.35771797839506,
+        109.42924563560956,
+        107.42413604359568
+      ],
+      "exactBlackFraction": 0.11386574074074074
+    },
+    {
+      "frame": 479,
+      "previousReadFramebufferBinding": 9,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 15.966666666666667,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpuscandidate\/files\/native-trails\/237ee1127b87e937b841756a5c7c25fa01de0d3a7026b7d0d96fac798cfe09e1\/output\/frame-479.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "2a61fed3497f1a6a36fcf617e95c4c1208c7dc5db9c2baabf9efecd1b667ec92",
+      "pngBytes": 3109815,
+      "pngSha256": "11f508774b2f54f7f015a4e01fdfdad0ad157065218ed5041ab4be66c099659f",
+      "rgbMean": [
+        93.72382655767747,
+        145.03517180266203,
+        151.26885501060957
+      ],
+      "exactBlackFraction": 0.09723415798611111
+    }
+  ],
+  "memoryPressureCalls": [
+    {
+      "beforeFrame": -1,
+      "elapsedRealtimeMs": 713333,
+      "productionPauseSeconds": 20
+    }
+  ],
+  "device": {
+    "manufacturer": "Google",
+    "model": "sdk_google_atv64_arm64",
+    "device": "emu64a",
+    "fingerprint": "google\/sdk_google_atv64_arm64\/emu64a:16\/BT2A.260319.001\/15058170:user\/dev-keys",
+    "sdk": 36,
+    "abis": [
+      "arm64-v8a"
+    ]
+  },
+  "pcmSha256": "14a59e75249dee0dd15d74487688c248c6a4a4b24a843b6d6f612ccc5c408dbc",
+  "bundledPresetCount": 9606,
+  "indexSha256": "d87c63eb1a54474d3ddfecbef0e5c633c80bfd130d5ef5730bf13f66b4e0dfef",
+  "presetAssetSha256": "f6cc9abc911876a5142c9e68e24bead034c4590a64ad42adafee157556411dcf",
+  "forcedPresetPrefix": "Hexcollie, Martin, Flexi n AdamFX - Seizure Salad.milk",
+  "eglVendor": "Android",
+  "eglVersion": "1.4 Android META-EGL",
+  "glVendor": "Google (Apple)",
+  "glRenderer": "Android Emulator OpenGL ES Translator (Apple M4 Pro)",
+  "glVersion": "OpenGL ES 3.0 (4.1 Metal - 89.4)",
+  "glShadingLanguageVersion": "OpenGL ES GLSL ES 3.00",
+  "startupIndexWaitMs": 24,
+  "eligiblePresetCountBeforeFrame0": 1,
+  "coreVersion": "4.2.0",
+  "coreSurfaceAttempted": true,
+  "pssBeforeFramesKB": 50823,
+  "framesRendered": 480,
+  "renderWallDurationMs": 8843,
+  "pssAfterFramesKB": 80082,
+  "serializedFrameMeanMs": 2.6656541916666674,
+  "serializedFrameP90Ms": 2.926041,
+  "timingScope": "onDrawFrame plus glFinish; 360 frames; excludes capture\/PNG I\/O; emulator engine, not TV app fps",
+  "nativeTrailsStatus": "Off",
+  "verifiedPresetName": "Hexcollie, Martin, Flexi n AdamFX - Seizure Salad.milk",
+  "presetNameChecks": 480,
+  "glErrorChecks": 480,
+  "presetChangeCounter": 1,
+  "eligiblePresetCountAfterFrame479": 1,
+  "coreReleased": true,
+  "eglDestroyed": true,
+  "status": "ok",
+  "wallDurationMs": 9158
+}
