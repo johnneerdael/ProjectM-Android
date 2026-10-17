@@ -1,0 +1,281 @@
+From: ProjectM TV contributors
+Subject: [PATCH] Guard PowerVR framebuffer deletion on both binding targets
+
+Adapt Chromium's ensure_previous_framebuffer_not_deleted workaround and the
+read/draw deletion repair in Skia commit
+02b14267cb023e7ec9fc52618bd12464ceb6afb7 (2026-10-12):
+https://skia.googlesource.com/skia/+/02b14267cb023e7ec9fc52618bd12464ceb6afb7
+
+Imagination drivers can retain a reference to the previous complete FBO. A
+single bind to zero before deletion leaves the object as the previous binding.
+Create one complete 1x1 renderbuffer-backed guard per rendering thread/context;
+bind it then zero on both targets before deleting an FBO, preserving surviving
+caller read/draw bindings afterwards. Retain the guard until context destruction
+so its own deletion cannot recreate the hazard. Repeated instances on the same
+context reuse it; the explicit context-loss hook forgets names without GL calls
+before a replacement instance initializes. The existing texture-pool context-loss
+hook also forgets the guard for compatibility with existing C API hosts. Other
+vendors keep the raw GL path.
+
+Cover engine, temporary clear/copy/probe and host-owned FBO retirement. This is
+a compatibility candidate for preset-switch crashes on PowerVR GE9215; host
+GL invariant/output tests do not establish that the affected Fire TV is fixed.
+
+---
+diff --git a/src/api/include/projectM-4/render_opengl.h b/src/api/include/projectM-4/render_opengl.h
+index 67f123478..e007ec870 100644
+--- a/src/api/include/projectM-4/render_opengl.h
++++ b/src/api/include/projectM-4/render_opengl.h
+@@ -167,10 +167,25 @@ PROJECTM_EXPORT void projectm_opengl_set_line_antialiasing(projectm_handle insta
+ PROJECTM_EXPORT void projectm_opengl_set_texture_pool_limit(size_t max_bytes);
+ 
+ /**
+- * @brief Drops the calling thread's pooled textures without deleting them, after their context was lost.
++ * @brief Drops the calling thread's pooled textures and framebuffer deletion guard after context loss.
++ * No GL calls are issued. Existing hosts using this context-loss hook also forget guard names.
++ * Call before retiring stale instances on a replacement context on the owning rendering thread.
+  */
+ PROJECTM_EXPORT void projectm_opengl_forget_texture_pool();
+ 
++/** Forget the calling thread's PowerVR deletion guard after context loss, without GL calls.
++ * Call before retiring a stale instance on a replacement context. The next instance initializes
++ * the replacement guard; repeated instances on the same context reuse the existing guard.
++ */
++PROJECTM_EXPORT void projectm_opengl_forget_framebuffer_guard();
++
++/** Delete host-owned FBOs with the engine's PowerVR compatibility workaround.
++ * Call on the initialized engine's GL thread/context. Preserves surviving read/draw bindings;
++ * bindings named in ids become zero, as with glDeleteFramebuffers. Other vendors use GL directly.
++ * Keep each rendering thread paired with one context; forget the guard when replacing that context.
++ */
++PROJECTM_EXPORT void projectm_opengl_delete_framebuffers(int count, const unsigned int* ids);
++
+ /**
+  * @brief Memory held by the calling thread's texture pool, in bytes.
+  */
+diff --git a/src/libprojectM/MilkdropPreset/MotionUV.hpp b/src/libprojectM/MilkdropPreset/MotionUV.hpp
+index 540f29d8d..d0a95932d 100644
+--- a/src/libprojectM/MilkdropPreset/MotionUV.hpp
++++ b/src/libprojectM/MilkdropPreset/MotionUV.hpp
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <Renderer/OpenGL.h>
++#include <Renderer/FramebufferDeletion.hpp>
+ #include <cstring>
+ #include <regex>
+ #include <stdexcept>
+@@ -52,7 +53,7 @@ inline bool MotionUVFloatRenderable()
+     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw);
+     glBindTexture(GL_TEXTURE_2D, texture);
+     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpack);
+-    glDeleteFramebuffers(1, &framebuffer);
++    Renderer::DeleteFramebuffers(1, &framebuffer);
+     glDeleteTextures(2, textures);
+     return complete;
+ #endif
+diff --git a/src/libprojectM/ProjectM.cpp b/src/libprojectM/ProjectM.cpp
+index abce6103a..d84e2ea47 100644
+--- a/src/libprojectM/ProjectM.cpp
++++ b/src/libprojectM/ProjectM.cpp
+@@ -29,6 +29,7 @@
+ #include <Audio/PCM.hpp>
+ 
+ #include <Renderer/CopyTexture.hpp>
++#include <Renderer/FramebufferDeletion.hpp>
+ #include <Renderer/PresetTransition.hpp>
+ #include <Renderer/ShaderCache.hpp>
+ #include <Renderer/Shader.hpp>
+@@ -259,6 +260,7 @@ void ProjectM::Initialize()
+ {
+     // Check OpenGL first before allocating any additional memory.
+     CheckGLSLVersion();
++    Renderer::InitializeFramebufferDeletion();
+ 
+     Renderer::Shader::InvalidateBoundProgram();
+ 
+diff --git a/src/libprojectM/ProjectMCWrapper.cpp b/src/libprojectM/ProjectMCWrapper.cpp
+index 93fba2ee0..175910259 100644
+--- a/src/libprojectM/ProjectMCWrapper.cpp
++++ b/src/libprojectM/ProjectMCWrapper.cpp
+@@ -1,4 +1,5 @@
+ #include "ProjectMCWrapper.hpp"
++#include "Renderer/FramebufferDeletion.hpp"
+ 
+ #include "Renderer/Platform/GladLoader.hpp"
+ 
+@@ -332,9 +333,20 @@ void projectm_opengl_set_texture_pool_limit(size_t max_bytes)
+     libprojectM::Renderer::Texture::SetPoolLimit(max_bytes);
+ }
+ 
++void projectm_opengl_forget_framebuffer_guard()
++{
++    libprojectM::Renderer::ForgetFramebufferDeletion();
++}
++
++void projectm_opengl_delete_framebuffers(int count, const unsigned int* ids)
++{
++    libprojectM::Renderer::DeleteFramebuffers(count, ids);
++}
++
+ void projectm_opengl_forget_texture_pool()
+ {
+     libprojectM::Renderer::Texture::ForgetPool();
++    libprojectM::Renderer::ForgetFramebufferDeletion();
+ }
+ 
+ size_t projectm_opengl_texture_pool_bytes()
+diff --git a/src/libprojectM/Renderer/Framebuffer.cpp b/src/libprojectM/Renderer/Framebuffer.cpp
+index f394562cb..887a8c620 100644
+--- a/src/libprojectM/Renderer/Framebuffer.cpp
++++ b/src/libprojectM/Renderer/Framebuffer.cpp
+@@ -1,3 +1,4 @@
++#include "Renderer/FramebufferDeletion.hpp"
+ #include "Renderer/Framebuffer.hpp"
+ 
+ namespace libprojectM {
+@@ -25,7 +26,7 @@ Framebuffer::~Framebuffer()
+     if (!m_framebufferIds.empty())
+     {
+         // Delete FBOs first — this also releases driver references to attached textures.
+-        glDeleteFramebuffers(static_cast<int>(m_framebufferIds.size()), m_framebufferIds.data());
++        DeleteFramebuffers(static_cast<int>(m_framebufferIds.size()), m_framebufferIds.data());
+         m_framebufferIds.clear();
+ 
+         m_attachments.clear();
+@@ -126,7 +127,7 @@ bool Framebuffer::SetSize(int width, int height)
+     if (copyFramebuffer != 0)
+     {
+         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+-        glDeleteFramebuffers(1, &copyFramebuffer);
++        DeleteFramebuffers(1, &copyFramebuffer);
+     }
+     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+ 
+diff --git a/src/libprojectM/Renderer/FramebufferDeletion.hpp b/src/libprojectM/Renderer/FramebufferDeletion.hpp
+new file mode 100644
+index 000000000..e59b8d0cc
+--- /dev/null
++++ b/src/libprojectM/Renderer/FramebufferDeletion.hpp
+@@ -0,0 +1,103 @@
++#pragma once
++
++#include "OpenGL.h"
++
++#include <algorithm>
++#include <cstring>
++#include <stdexcept>
++
++namespace libprojectM {
++namespace Renderer {
++
++// Imagination drivers can retain the previously bound *complete* framebuffer after
++// deletion. Adapted from Chromium's ensure_previous_framebuffer_not_deleted and
++// Skia commit 02b14267cb023e7ec9fc52618bd12464ceb6afb7 (2026-10-12).
++// The context owns these two tiny objects: deleting the guard could itself trigger
++// the bug. Instances (including repeated prewarm instances) on this thread/context
++// share it; the host must forget it when replacing the context on this thread.
++struct FramebufferDeletionState
++{
++    bool initialized{};
++    GLuint guard{};
++};
++
++inline auto FramebufferDeletionContext() -> FramebufferDeletionState&
++{
++    static thread_local FramebufferDeletionState state;
++    return state;
++}
++
++inline void InitializeFramebufferDeletion()
++{
++    auto& state = FramebufferDeletionContext();
++    if (state.initialized) return;
++    const auto* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
++    const auto* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
++    if (!(vendor && std::strstr(vendor, "Imagination")) &&
++        !(renderer && std::strstr(renderer, "PowerVR")))
++    {
++        state.initialized = true;
++        return;
++    }
++
++    GLint read{}, draw{}, renderbuffer{};
++    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read);
++    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &draw);
++    glGetIntegerv(GL_RENDERBUFFER_BINDING, &renderbuffer);
++    GLuint guard{}, storage{};
++    glGenFramebuffers(1, &guard);
++    glGenRenderbuffers(1, &storage);
++    glBindRenderbuffer(GL_RENDERBUFFER, storage);
++    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, 1, 1);
++    glBindFramebuffer(GL_FRAMEBUFFER, guard);
++    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, storage);
++    const bool complete = guard && storage &&
++                          glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
++    // Pre-bind the complete guard separately on both targets before restoring the
++    // caller's split bindings. Do not disturb texture, pixel-unpack or draw state.
++    glBindFramebuffer(GL_READ_FRAMEBUFFER, guard);
++    glBindFramebuffer(GL_READ_FRAMEBUFFER, read);
++    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, guard);
++    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw);
++    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
++    if (!complete) throw std::runtime_error("Could not create PowerVR framebuffer deletion guard");
++    state.guard = guard;
++    state.initialized = true;
++}
++
++inline void ForgetFramebufferDeletion()
++{
++    // No GL calls: the old context may already be gone and its names may alias
++    // unrelated objects in the replacement context. Reinitialize only when the
++    // next ProjectM instance starts, after retiring any stale instance.
++    FramebufferDeletionContext() = {};
++}
++
++inline void DeleteFramebuffers(GLsizei count, const GLuint* ids)
++{
++    const auto guard = FramebufferDeletionContext().guard;
++    if (!guard || count <= 0)
++    {
++        glDeleteFramebuffers(count, ids);
++        return;
++    }
++    GLint read{}, draw{};
++    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read);
++    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &draw);
++    const auto survives = [count, ids](GLint binding) {
++        return std::find(ids, ids + count, static_cast<GLuint>(binding)) == ids + count
++               ? static_cast<GLuint>(binding) : 0u;
++    };
++    // Binding only zero is insufficient: the driver can keep the deleted FBO as
++    // its previous complete binding. Replace both references before any deletion.
++    glBindFramebuffer(GL_FRAMEBUFFER, guard);
++    glBindFramebuffer(GL_FRAMEBUFFER, 0);
++    glDeleteFramebuffers(count, ids);
++    glBindFramebuffer(GL_READ_FRAMEBUFFER, guard);
++    glBindFramebuffer(GL_READ_FRAMEBUFFER, survives(read));
++    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, guard);
++    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, survives(draw));
++}
++
++} // namespace Renderer
++} // namespace libprojectM
+diff --git a/src/libprojectM/Renderer/TextureAttachment.cpp b/src/libprojectM/Renderer/TextureAttachment.cpp
+index 9734c0c6d..00b9b4b52 100644
+--- a/src/libprojectM/Renderer/TextureAttachment.cpp
++++ b/src/libprojectM/Renderer/TextureAttachment.cpp
+@@ -1,3 +1,4 @@
++#include "Renderer/FramebufferDeletion.hpp"
+ #include "Renderer/TextureAttachment.hpp"
+ 
+ // OpenGL ES might not define this constant in its headers, e.g. in the iOS and Emscripten SDKs.
+@@ -172,7 +173,7 @@ void TextureAttachment::ClearPooledTexture(GLuint textureId, bool integerColor)
+     }
+     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(previousDrawFramebuffer));
+-    glDeleteFramebuffers(1, &clearFramebuffer);
++    DeleteFramebuffers(1, &clearFramebuffer);
+ }
+ 
+ } // namespace Renderer

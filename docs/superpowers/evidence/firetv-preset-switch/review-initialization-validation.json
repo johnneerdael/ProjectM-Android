@@ -1,0 +1,27 @@
+{
+  "scope": "review initialization correction; earlier validation-summary.json remains the original checkpoint",
+  "capture_source_sha256": "94eac4a495fe26d15ebdfc19d3b31b2fd5d604be5d1dea3f580fd8b781d87720",
+  "jvm_tests": 206,
+  "jvm_failures": 0,
+  "jvm_errors": 0,
+  "regression": "failed prior xCrash initialization reproduced false ready before correction; passes after correction",
+  "emulator": "owned API34 ARM64 emulator-5668, 1920x1080, host GPU",
+  "capture": "ready, test-delivered SI_USER SIGSEGV, 63734-byte private native report, process restart and backtrace UI assertions pass",
+  "artifacts": {
+    "aar": {
+      "path": "core/build/outputs/aar/core-release.aar",
+      "sha256": "10b149261ad9fd32e084a4276609129cb22b37dfe50cf19baaf99128561cafe3",
+      "bytes": 42608596
+    },
+    "release_apk": {
+      "path": "app/build/outputs/apk/release/app-release.apk",
+      "sha256": "ae7dcd308118fb70b4b43dab963909d8ec89d6937ad564dbe39bb3c7dc9622ef",
+      "bytes": 44278730
+    },
+    "setup_apk": {
+      "path": "app/build/intermediates/apk/debug/app-debug.apk",
+      "sha256": "6b33cd59f47c7ed2b931ad1545f4980508d32251f4d4ad27d7b7270fba439c0f",
+      "bytes": 48490532
+    }
+  }
+}

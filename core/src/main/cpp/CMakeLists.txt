@@ -18,7 +18,7 @@ find_library(android-lib android)
 
 # projectM is built from source: the git submodule third_party/projectm (pinned release, see
 # docs/THIRD_PARTY.md) plus the patches in tools/projectm-patches. It is linked statically into
-# libprojectmtv.so, so the APK holds one native library and one C++ runtime. The playlist library
+# libprojectmtv.so; local crash capture adds its own library and dumper executable. The playlist library
 # is not built: the app manages its own shuffled preset list straight from the APK assets.
 get_filename_component(REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../.. ABSOLUTE)
 set(PROJECTM_SOURCE ${REPO_ROOT}/third_party/projectm)
@@ -32,6 +32,8 @@ add_compile_options(
     -ffile-prefix-map=${ANDROID_NDK}=ndk
     -fdebug-compilation-dir=.  # the CMake build directory, which the prefix map does not cover
 )
+add_subdirectory(xcrash)
+
 if(NOT EXISTS ${PROJECTM_SOURCE}/CMakeLists.txt OR NOT EXISTS ${PROJECTM_SOURCE}/vendor/projectm-eval/CMakeLists.txt)
     message(FATAL_ERROR "projectM sources missing: run `git submodule update --init --recursive`")
 endif()

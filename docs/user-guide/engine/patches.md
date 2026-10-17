@@ -1,6 +1,6 @@
 # Patch catalog
 
-ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus 35 ordered patches in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
+ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus 36 ordered patches in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
 
 Most patches make the engine behave more like MilkDrop 2. projectM is a clean-room reimplementation of MilkDrop on OpenGL, and over the years small differences crept in: in how equation code is accepted, how HLSL becomes GLSL, where Direct3D 9 and OpenGL put pixel centres, and which per-frame variables are actually read. Each entry below names what projectM did differently, what MilkDrop 2 does (citing its released source where we checked it), what the patch changes, and the preset that shows it.
 
@@ -57,7 +57,8 @@ Two patches deliberately go beyond MilkDrop 2. [0010](#0010-each-preset-keeps-it
 | [0032](#0032-live-shape-thickness) | Evaluated style captured per instance and replay | `martin - city lights v2(1).milk` |
 | [0033](#0033-latest-previous-motion-field) | Refresh actual warp UV while vectors are hidden | `Seizure Salad` |
 | [0034](#0034-gles-motion-field-storage) | Compatible continuous UV on GLES without float render targets | capability, integer storage and decoder controls |
-| [0035](#0035-program-cache-switch) | Optional switch-off for the shared program binary cache | `program-cache-switch` control |
+| [0035](#0035-program-cache-switch) | Retained diagnostic API for the shared program binary cache | `program-cache-switch` control |
+| [0036](#0036-powervr-framebuffer-retirement) | Protect PowerVR framebuffer retirement during changes/resizing | real-GL binding/lifetime control |
 
 ## 0001 — TV rendering and preset compatibility
 
@@ -618,4 +619,10 @@ Before allocating a float motion map, the engine checks core/extension capabilit
 
 ## 0035 — Program cache switch
 
-This patch adds a TV-only troubleshooting control and does not change rendering. `projectm_opengl_set_program_cache_enabled(false)` makes every shader program compile and link from source in the context that uses it: no binary-retrievable hint, no `glGetProgramBinary` export, no `glProgramBinary` load, and cached entries are dropped. Turning it off waits for binary calls already running on the background compile thread, so none runs afterwards. Enabled again, the cache starts empty. The default stays enabled, so pictures and timings are unchanged unless **Advanced › Shader binary cache** is turned off. The real-GL `program-cache-switch` control checks the hint and the cache counters on GLES; desktop OpenGL builds have no binary cache.
+This patch adds a TV-only troubleshooting control and does not change rendering. `projectm_opengl_set_program_cache_enabled(false)` makes every shader program compile and link from source in the context that uses it: no binary-retrievable hint, no `glGetProgramBinary` export, no `glProgramBinary` load, and cached entries are dropped. Turning it off waits for binary calls already running on the background compile thread, so none runs afterwards. Enabled again, the cache starts empty. The default stays enabled. The former app setting was removed after it did not resolve the Fire TV crashes; the additive API remains for existing consumers and laboratory controls. The real-GL `program-cache-switch` control checks the hint and the cache counters on GLES; desktop OpenGL builds have no binary cache.
+
+## 0036 — PowerVR framebuffer retirement
+
+Some Imagination/PowerVR drivers can retain a reference to a previously bound complete framebuffer after it has been deleted. Before deleting an engine framebuffer, this patch binds a small, complete guard framebuffer and then framebuffer zero on both read/draw targets, so neither retained reference points at the retiring object. Surviving bindings are restored. One guard is kept until context destruction, and other GPU vendors keep ordinary deletion. Hosts reset its names before retiring a lost-context instance.
+
+The design follows [Chromium/Skia’s corrected workaround](https://skia.googlesource.com/skia/+/02b14267cb023e7ec9fc52618bd12464ceb6afb7). Real-GL tests intercept actual engine changes, resizes and cleanup: the unsafe binding sequence is observed without protection and absent with it, while nonblank pixels match. This qualifies the call sequence on the tested backend, not a confirmed fix for the reported Fire TV crash.

@@ -37,6 +37,7 @@ public final class ProjectMCore {
      */
     public static void init(Context context) {
         Context app = context.getApplicationContext();
+        NativeCrashReports.install(app);
         initMemoryProvider(app);
         ProjectMJNI.init(app.getAssets(), skipListFile(app).getAbsolutePath(),
                 new File(app.getFilesDir(), TEXTURE_DIR).getAbsolutePath());

@@ -172,9 +172,13 @@ final class TouchscreenSetupTest {
             tapView(test, target, R.id.row_advanced);
             menu(test, target, R.id.advanced_menu, true);
             scrollBottom(test, target, R.id.advanced_menu);
-            boolean oldCache = prefs.getBoolean("shader_binary_cache", true);
-            tapView(test, target, R.id.row_shader_binary_cache);
-            check(prefs.getBoolean("shader_binary_cache", true) != oldCache, "Advanced touch setting not saved");
+            onUi(test, () -> target.findViewById(R.id.row_blank_detection).requestRectangleOnScreen(
+                    new android.graphics.Rect(0, 0, target.findViewById(R.id.row_blank_detection).getWidth(),
+                            target.findViewById(R.id.row_blank_detection).getHeight()), true));
+            SystemClock.sleep(300);
+            boolean oldBlank = prefs.getBoolean("blank_detection_v3", true);
+            tapView(test, target, R.id.row_blank_detection);
+            check(prefs.getBoolean("blank_detection_v3", true) != oldBlank, "Advanced touch setting not saved");
             tapView(test, target, R.id.advanced_back);
             menu(test, target, R.id.overlay_menu, true);
             tapView(test, target, R.id.row_track_display);

@@ -48,9 +48,7 @@ Capture stops when the app pauses, so nothing records the microphone or playback
 | Cream of the Crop (F-Droid only) | Download, Cancel, Remove collection | 20 starters | Optional full preset collection, stored offline after installation. See [Collection setup](getting-started.md#optional-collection-in-f-droid-editions) |
 | Custom preset pack | *Upload ZIP ›* | No pack | Upload your own presets from a phone or computer. See [Custom preset packs](custom-packs.md) |
 | Skipped presets | *None*, or *N · Reset* | | Shows how many presets this device skips; select it to clear the list |
-| Background compile | Off, On | On | Compiles the shaders of the next, random and previous presets on a second thread with its own OpenGL context, so switches do not pause. *Off* compiles them at the switch instead: the picture can hold for a second or two at each change. Troubleshooting only, see [The app closes at preset changes](troubleshooting.md#the-app-closes-at-preset-changes) |
-| Shader binary cache | Off, On | On | Keeps compiled shader programs as driver binaries and reuses them in the background thread's and the render thread's contexts. *Off* always compiles from source. Troubleshooting only, see [The app closes at preset changes](troubleshooting.md#the-app-closes-at-preset-changes) |
-| Last exit | *None recorded*, or the reason and how long ago | | The latest time the app ended while on screen, from Android's exit records (Android 11 and later). Select it for the [exit report](#exit-report) |
+| Last exit | *None recorded*, or the reason and how long ago | | Saved native crash reports and Android's latest on-screen exit reason (Android 11+). Select it for the [exit report](#exit-report) |
 
 All three panels scroll when their rows do not fit. On phones, swipe vertically; on TV, D-pad focus brings each row into view.
 
@@ -77,14 +75,16 @@ On TV, opening **Advanced** also shows a **Diagnostics** card beside it with liv
 
 ## Exit report
 
-Selecting **Advanced › Last exit** opens **Recent exits**. It lists the device, Android version, GPU and the current state of the two troubleshooting switches (*Now:*), followed by up to five recent exits of the app, newest first. Each exit shows:
+Selecting **Advanced › Last exit** opens **Recent exits**. It shows whether native crash capture started and up to five saved native reports, followed by the device, Android version, GPU and Android's recent exit history. Saved native reports include the signal, fault address, crashing thread, available native backtrace and module build IDs. **Copy report** copies the displayed text for a bug report; a photograph is useful too. Reading the saved files happens in the background.
+
+**Clear saved crashes** deletes the local native files; Android's exit history remains. Android's exit history is available from Android 11 onward. Each exit shows:
 
 - how long ago and why it ended, as Android recorded it: for example *crashed (native code)*, *killed for low memory*, *killed by signal 11 (SIGSEGV)*, *stopped by the system* or *stopped: app updated* (before Android 14, Android reports updates as *stopped by request*);
 - whether the app was *on screen* or only running *in the background* (for example for track titles);
-- Android's description and the memory the app used at that moment, when Android provides them;
-- for the last process that showed visuals, the **switches** it ran with (which can differ from today's settings) and what the engine was doing: the **render** line (*loading*, *blending into*, *showing* a preset, with its size) and the **prewarm** line (*compiling* a preset in the background, or *idle*), each with the seconds before the exit.
+- Android's description and its last available process memory sample;
+- for the last process that showed visuals, what the engine was doing: the **render** line (*loading*, *blending into*, *showing* a preset, with its size) and the **prewarm** line (*compiling* a preset in the background, or *idle*), each with the seconds before the exit. Older trail files may also show the retired troubleshooting switches' states.
 
-The app keeps those two lines in a small file in its own storage, overwrites them in place and never sends them anywhere. Android 10 and older keep no exit records, so there the report shows only the last render and prewarm lines. When you report a crash, include a photo of the report.
+Saved reports and the two engine trail lines stay in private app storage excluded from Android backup. Nothing is uploaded automatically. Native reports also contain raw register/stack memory in their stored files; the screen and copied text show the diagnostic fields rather than those memory sections. The app retains five native reports. A system kill, power loss or a crash that prevents the reporter from running may leave no native report, and unwinding can be incomplete. An unavailable stack is labelled explicitly. Android 10 and older can show saved native reports and the engine trail, but have no Android exit history.
 
 ## Notices
 

@@ -363,17 +363,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Troubleshooting: GPU drivers that crash at preset switches -->
-            <com.example.projectm.visualizer.OptionRow
-                android:id="@+id/row_background_compile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <com.example.projectm.visualizer.OptionRow
-                android:id="@+id/row_shader_binary_cache"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
             <com.example.projectm.visualizer.OptionRow
                 android:id="@+id/row_last_exit"
                 android:layout_width="match_parent"
