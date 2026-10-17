@@ -1,0 +1,554 @@
+From: ProjectM TV contributors
+Subject: [PATCH] Avoid PowerVR framebuffer blits with a cached textured copy
+
+The reporter's released 2.3.55 ARM backtrace enters the PowerVR driver at
+ glBlitFramebuffer from Renderer::Framebuffer::SetSize. The rebuild has identical
+.text bytes/addresses to that released library, identifying the resize copy.
+Use the existing Shader and Sampler implementations for a cached fullscreen draw
+on PowerVR, including resize, detail recombination and host-scaled presentation.
+Resize all attachments before preserving colour zero and restrict colour copies
+to that target so auxiliary/integer attachments cannot receive normalized data.
+Other GPUs retain framebuffer blits. Pixel/state and no-blit controls cover the
+compatibility path; affected-device confirmation is still required.
+
+---
+diff --git a/src/api/include/projectM-4/render_opengl.h b/src/api/include/projectM-4/render_opengl.h
+index e007ec8..ddc4ce3 100644
+--- a/src/api/include/projectM-4/render_opengl.h
++++ b/src/api/include/projectM-4/render_opengl.h
+@@ -186,6 +186,18 @@ PROJECTM_EXPORT void projectm_opengl_forget_framebuffer_guard();
+  */
+ PROJECTM_EXPORT void projectm_opengl_delete_framebuffers(int count, const unsigned int* ids);
+ 
++/** Whether this initialized engine thread/context needs the PowerVR texture-copy workaround. */
++PROJECTM_EXPORT bool projectm_opengl_needs_framebuffer_copy_workaround();
++
++/** Draw a normalized 2D colour texture into the current draw framebuffer, with linear scaling.
++ * Targets colour attachment zero (GL_BACK for the default framebuffer), without glBlitFramebuffer.
++ * Restores touched program, VAO, texture/sampler, viewport, colour mask, enables and draw routing.
++ * The texture must not be attached to the destination. Call on the instance's owning GL context.
++ */
++PROJECTM_EXPORT void projectm_opengl_copy_texture_to_framebuffer(projectm_handle instance, uint32_t texture,
++                                                               int width, int height);
++
++
+ /**
+  * @brief Memory held by the calling thread's texture pool, in bytes.
+  */
+diff --git a/src/libprojectM/MilkdropPreset/FeedbackDetail.cpp b/src/libprojectM/MilkdropPreset/FeedbackDetail.cpp
+index f7d001d..7f5c411 100644
+--- a/src/libprojectM/MilkdropPreset/FeedbackDetail.cpp
++++ b/src/libprojectM/MilkdropPreset/FeedbackDetail.cpp
+@@ -1,4 +1,5 @@
+ #include "FeedbackDetail.hpp"
++#include <Renderer/FramebufferCopy.hpp>
+ #include "MilkdropStaticShaders.hpp"
+ #include <stdexcept>
+ 
+@@ -76,7 +77,11 @@ void FeedbackDetail::Combine(const std::shared_ptr<Renderer::Texture>& nativeWar
+     Draw(m_width, m_height);
+     if (m_retainsDetail) {
+         m_combined->BindRead(0); output.BindDraw(outputIndex);
+-        glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
++        if (Renderer::NeedsFramebufferCopyWorkaround())
++            output.CopyTextureToBoundFramebuffer(m_combined->GetColorAttachmentTexture(0, 0)->TextureID(),
++                                                 m_width, m_height, GL_NEAREST);
++        else
++            glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+     }
+     output.Bind(outputIndex);
+ }
+diff --git a/src/libprojectM/ProjectM.cpp b/src/libprojectM/ProjectM.cpp
+index d84e2ea..3ab57ca 100644
+--- a/src/libprojectM/ProjectM.cpp
++++ b/src/libprojectM/ProjectM.cpp
+@@ -458,6 +458,11 @@ void ProjectM::UserSpriteSetVariableValue(uint32_t spriteId, const std::string&
+     m_spriteManager->SetSpriteVariableValue(spriteId, variableName, value);
+ }
+ 
++void ProjectM::CopyTextureToFramebuffer(uint32_t texture, int width, int height)
++{
++    m_textureCopier->DrawFramebufferCopy(texture, width, height, GL_LINEAR);
++}
++
+ void ProjectM::BurnInTexture(uint32_t openGlTextureId, int left, int top, int width, int height)
+ {
+     if (m_activePreset)
+diff --git a/src/libprojectM/ProjectM.hpp b/src/libprojectM/ProjectM.hpp
+index 6acadd2..23d1c00 100644
+--- a/src/libprojectM/ProjectM.hpp
++++ b/src/libprojectM/ProjectM.hpp
+@@ -340,6 +340,10 @@ public:
+      */
+     void BurnInTexture(uint32_t openGlTextureId, int left, int top, int width, int height);
+ 
++    /** Copies a colour texture into the current draw framebuffer without glBlitFramebuffer. */
++    void CopyTextureToFramebuffer(uint32_t texture, int width, int height);
++
++
+ private:
+     friend class FeedbackDetailTestAccess;
+     void Initialize();
+diff --git a/src/libprojectM/ProjectMCWrapper.cpp b/src/libprojectM/ProjectMCWrapper.cpp
+index 1759102..ebe6329 100644
+--- a/src/libprojectM/ProjectMCWrapper.cpp
++++ b/src/libprojectM/ProjectMCWrapper.cpp
+@@ -1,5 +1,6 @@
+ #include "ProjectMCWrapper.hpp"
+ #include "Renderer/FramebufferDeletion.hpp"
++#include "Renderer/FramebufferCopy.hpp"
+ 
+ #include "Renderer/Platform/GladLoader.hpp"
+ 
+@@ -333,6 +334,16 @@ void projectm_opengl_set_texture_pool_limit(size_t max_bytes)
+     libprojectM::Renderer::Texture::SetPoolLimit(max_bytes);
+ }
+ 
++bool projectm_opengl_needs_framebuffer_copy_workaround()
++{
++    return libprojectM::Renderer::NeedsFramebufferCopyWorkaround();
++}
++
++void projectm_opengl_copy_texture_to_framebuffer(projectm_handle instance, uint32_t texture, int width, int height)
++{
++    handle_to_instance(instance)->CopyTextureToFramebuffer(texture, width, height);
++}
++
+ void projectm_opengl_forget_framebuffer_guard()
+ {
+     libprojectM::Renderer::ForgetFramebufferDeletion();
+diff --git a/src/libprojectM/Renderer/CopyTexture.hpp b/src/libprojectM/Renderer/CopyTexture.hpp
+index 154324f..755faf9 100644
+--- a/src/libprojectM/Renderer/CopyTexture.hpp
++++ b/src/libprojectM/Renderer/CopyTexture.hpp
+@@ -18,6 +18,13 @@ class CopyTexture
+ public:
+     CopyTexture();
+ 
++    /** Copy to the bound framebuffer without a blit, using the cached copy resources. */
++    void DrawFramebufferCopy(GLuint texture, int width, int height, GLenum filter)
++    {
++        m_framebuffer.CopyTextureToBoundFramebuffer(texture, width, height, filter);
++    }
++
++
+     /**
+      * @brief Copies the original texture into the currently bound framebuffer.
+      * @param shaderCache The global shader cache instance.
+diff --git a/src/libprojectM/Renderer/Framebuffer.cpp b/src/libprojectM/Renderer/Framebuffer.cpp
+index 887a8c6..fd6aedc 100644
+--- a/src/libprojectM/Renderer/Framebuffer.cpp
++++ b/src/libprojectM/Renderer/Framebuffer.cpp
+@@ -1,4 +1,5 @@
+ #include "Renderer/FramebufferDeletion.hpp"
++#include "Renderer/FramebufferCopy.hpp"
+ #include "Renderer/Framebuffer.hpp"
+ 
+ namespace libprojectM {
+@@ -81,47 +82,54 @@ void Framebuffer::Unbind()
+ 
+ bool Framebuffer::SetSize(int width, int height)
+ {
+-    if (width == 0 || height == 0 ||
+-        (width == m_width && height == m_height))
+-    {
+-        return false;
+-    }
+-
+-    int oldWidth = m_width;
+-    int oldHeight = m_height;
++    if (width == 0 || height == 0 || (width == m_width && height == m_height)) return false;
++    const int oldWidth = m_width;
++    const int oldHeight = m_height;
+     m_width = width;
+     m_height = height;
+-
+-    // Color contents are scaled into the new textures, so presets that draw on top of their previous
+-    // frame (almost all of them) continue seamlessly instead of starting over after a resize.
+     GLuint copyFramebuffer = 0;
++    GLint maximumDrawBuffers{};
++    glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maximumDrawBuffers);
++    std::vector<GLenum> savedDrawBuffers;
+     for (auto& attachments : m_attachments)
+     {
++        // Keep the old image alive, and finish resizing all attachments before copying.
++        // An attached, smaller UV target can otherwise clip a growing colour target.
++        auto oldTexture = GetColorAttachmentTexture(attachments.first, 0);
+         for (auto& texture : attachments.second)
+         {
+-            // Resize each attachment on its own framebuffer; a previous clear/copy can change the binding.
+             Bind(attachments.first);
+             glFramebufferTexture2D(GL_FRAMEBUFFER, texture.first, GL_TEXTURE_2D, 0, 0);
+-            std::shared_ptr<class Texture> oldTexture = texture.second->Texture();
+             texture.second->SetSize(width, height);
+             Bind(attachments.first);
+-            glFramebufferTexture2D(GL_FRAMEBUFFER, texture.first, GL_TEXTURE_2D, texture.second->Texture()->TextureID(), 0);
+-
+-            if (texture.second->Type() != TextureAttachment::AttachmentType::Color || texture.first != GL_COLOR_ATTACHMENT0 ||
+-                !oldTexture || oldTexture == texture.second->Texture() || oldTexture->TextureID() == 0 ||
+-                oldWidth <= 0 || oldHeight <= 0)
+-            {
+-                continue;
+-            }
+-            if (copyFramebuffer == 0)
+-            {
+-                glGenFramebuffers(1, &copyFramebuffer);
+-            }
++            glFramebufferTexture2D(GL_FRAMEBUFFER, texture.first, GL_TEXTURE_2D,
++                                   texture.second->Texture()->TextureID(), 0);
++        }
++        const auto replacement = GetColorAttachmentTexture(attachments.first, 0);
++        if (!oldTexture || oldTexture == replacement || !oldTexture->TextureID() ||
++            oldWidth <= 0 || oldHeight <= 0) continue;
++        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebufferIds.at(attachments.first));
++        if (NeedsFramebufferCopyWorkaround())
++        {
++            CopyTextureToBoundFramebuffer(oldTexture->TextureID(), width, height, GL_LINEAR);
++        }
++        else
++        {
++            if (copyFramebuffer == 0) glGenFramebuffers(1, &copyFramebuffer);
+             glBindFramebuffer(GL_READ_FRAMEBUFFER, copyFramebuffer);
+-            glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, oldTexture->TextureID(), 0);
++            glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
++                                   oldTexture->TextureID(), 0);
+             glReadBuffer(GL_COLOR_ATTACHMENT0);
+-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebufferIds.at(attachments.first));
+-            glBlitFramebuffer(0, 0, oldWidth, oldHeight, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
++            ColorCopyDrawBuffers drawBuffers(savedDrawBuffers, maximumDrawBuffers);
++            const GLboolean scissor = glIsEnabled(GL_SCISSOR_TEST);
++            glDisable(GL_SCISSOR_TEST);
++            glBlitFramebuffer(0, 0, oldWidth, oldHeight, 0, 0, width, height,
++                              GL_COLOR_BUFFER_BIT, GL_LINEAR);
++            if (scissor) glEnable(GL_SCISSOR_TEST);
++            // Release the read attachment explicitly before oldTexture is destroyed.
++            // Otherwise GLES translators can detach the unrelated draw image on texture deletion.
++            glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
++            glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+         }
+     }
+     if (copyFramebuffer != 0)
+@@ -130,10 +138,15 @@ bool Framebuffer::SetSize(int width, int height)
+         DeleteFramebuffers(1, &copyFramebuffer);
+     }
+     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+-
+     return true;
+ }
+ 
++void Framebuffer::CopyTextureToBoundFramebuffer(GLuint texture, int width, int height, GLenum filter)
++{
++    if (!m_colorCopier) m_colorCopier = std::make_unique<FramebufferCopy>();
++    m_colorCopier->Draw(texture, width, height, filter);
++}
++
+ auto Framebuffer::Width() const -> int
+ {
+     return m_width;
+diff --git a/src/libprojectM/Renderer/Framebuffer.hpp b/src/libprojectM/Renderer/Framebuffer.hpp
+index 25bf28d..12eb2ad 100644
+--- a/src/libprojectM/Renderer/Framebuffer.hpp
++++ b/src/libprojectM/Renderer/Framebuffer.hpp
+@@ -7,11 +7,14 @@
+ #include "Renderer/TextureAttachment.hpp"
+ 
+ #include <map>
++#include <memory>
+ #include <vector>
+ 
+ namespace libprojectM {
+ namespace Renderer {
+ 
++class FramebufferCopy;
++
+ /**
+  * @brief A framebuffer class holding one or more framebuffer objects.
+  *
+@@ -94,6 +97,12 @@ public:
+      */
+     auto SetSize(int width, int height) -> bool;
+ 
++    /** Draw a normalized colour texture into the bound draw framebuffer's colour zero.
++     * Uses a cached textured draw, restores touched draw state and never calls glBlitFramebuffer.
++     * The source must not be attached to the destination. filter is GL_LINEAR or GL_NEAREST.
++     */
++    void CopyTextureToBoundFramebuffer(GLuint texture, int width, int height, GLenum filter);
++
+     /**
+      * Returns the width in pixels of the framebuffer.
+      * @return The horizontal resolution.
+@@ -215,6 +224,7 @@ public:
+     void MaskDrawBuffer(int bufferIndex, bool masked);
+ 
+ private:
++    std::unique_ptr<FramebufferCopy> m_colorCopier;
+     /**
+      * @brief Updates the draw buffer list for the fragment shader outputs of the given framebuffer.
+      * Note that when calling this function, the framebuffer must already be bound.
+diff --git a/src/libprojectM/Renderer/FramebufferCopy.hpp b/src/libprojectM/Renderer/FramebufferCopy.hpp
+new file mode 100644
+index 0000000..e244f22
+--- /dev/null
++++ b/src/libprojectM/Renderer/FramebufferCopy.hpp
+@@ -0,0 +1,165 @@
++#pragma once
++
++#include "Renderer/FramebufferDeletion.hpp"
++#include "Renderer/Sampler.hpp"
++#include "Renderer/Shader.hpp"
++
++#include <array>
++#include <vector>
++
++namespace libprojectM {
++namespace Renderer {
++
++inline bool NeedsFramebufferCopyWorkaround()
++{
++    // Initialized once for this rendering thread/context by ProjectM::Initialize.
++    return FramebufferDeletionContext().guard != 0;
++}
++
++// A colour copy must address colour zero only, even when a motion-vector/integer
++// image is also attached. Restore the actual routing, including disabled slots.
++class ColorCopyDrawBuffers
++{
++public:
++    ColorCopyDrawBuffers(std::vector<GLenum>& saved, GLint maximum)
++        : m_saved(saved)
++    {
++        GLint framebuffer{};
++        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &framebuffer);
++        m_count = framebuffer ? maximum : 1;
++        if (m_saved.size() < static_cast<size_t>(m_count)) m_saved.resize(m_count);
++        for (GLint i = 0; i < m_count; ++i)
++        {
++            GLint buffer{};
++            glGetIntegerv(GL_DRAW_BUFFER0 + i, &buffer);
++            m_saved[i] = static_cast<GLenum>(buffer);
++        }
++        const GLenum target = framebuffer ? GL_COLOR_ATTACHMENT0 : GL_BACK;
++        glDrawBuffers(1, &target);
++    }
++    ~ColorCopyDrawBuffers() { glDrawBuffers(m_count, m_saved.data()); }
++private:
++    std::vector<GLenum>& m_saved;
++    GLsizei m_count{};
++};
++
++// Used only for the PowerVR workaround (or an explicit host texture copy).
++// Keep one shader/sampler/VAO per owner, not a compile or allocation per frame.
++class FramebufferCopy
++{
++public:
++    FramebufferCopy()
++        : m_sampler(GL_CLAMP_TO_EDGE, GL_LINEAR)
++    {
++#ifdef USE_GLES
++        const std::string version = "#version 300 es\n";
++#else
++        const std::string version = "#version 330\n";
++#endif
++        m_shader.CompileProgram(version + R"(
++precision highp float;
++out vec2 uv;
++void main() {
++    vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
++    uv = p;
++    gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
++}
++)", version + R"(
++precision highp float;
++precision highp sampler2D;
++in vec2 uv;
++uniform sampler2D source;
++layout(location = 0) out vec4 color;
++void main() { color = textureLod(source, uv, 0.0); }
++)");
++        glGetIntegerv(GL_MAX_DRAW_BUFFERS, &m_maximumDrawBuffers);
++        m_savedDrawBuffers.resize(m_maximumDrawBuffers);
++        glGenVertexArrays(1, &m_vao);
++    }
++    ~FramebufferCopy()
++    {
++        if (m_generation != FramebufferDeletionContext().generation)
++        {
++            m_shader.ForgetProgram();
++            m_sampler.Forget();
++            m_vao = 0;
++        }
++        else if (m_vao) glDeleteVertexArrays(1, &m_vao);
++    }
++
++    void Draw(GLuint texture, int width, int height, GLenum filter)
++    {
++        if (!texture || width <= 0 || height <= 0) return;
++        State state;
++        ColorCopyDrawBuffers drawBuffers(m_savedDrawBuffers, m_maximumDrawBuffers);
++        for (GLenum capability : State::capabilities) glDisable(capability);
++#ifdef USE_GLES
++        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
++#else
++        glColorMaski(0, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
++#endif
++        glViewport(0, 0, width, height);
++        m_shader.Bind();
++        m_shader.SetUniformInt("source", 0);
++        if (m_sampler.FilterMode() != static_cast<GLint>(filter)) m_sampler.FilterMode(filter);
++        m_sampler.Bind(0);
++        glBindTexture(GL_TEXTURE_2D, texture);
++        glBindVertexArray(m_vao);
++        glDrawArrays(GL_TRIANGLES, 0, 3);
++    }
++
++private:
++    struct State
++    {
++        inline static constexpr std::array<GLenum, 9> capabilities = {
++            GL_BLEND, GL_DEPTH_TEST, GL_STENCIL_TEST, GL_CULL_FACE, GL_SCISSOR_TEST,
++            GL_DITHER, GL_RASTERIZER_DISCARD, GL_SAMPLE_ALPHA_TO_COVERAGE, GL_SAMPLE_COVERAGE};
++        GLint program{}, vao{}, active{}, texture{}, sampler{}, viewport[4]{};
++        GLboolean mask[4]{}, enabled[capabilities.size()]{};
++        State()
++        {
++            glGetIntegerv(GL_CURRENT_PROGRAM, &program);
++            glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
++            glGetIntegerv(GL_VIEWPORT, viewport);
++#ifdef USE_GLES
++            glGetBooleanv(GL_COLOR_WRITEMASK, mask);
++#else
++            glGetBooleani_v(GL_COLOR_WRITEMASK, 0, mask);
++#endif
++            for (size_t i = 0; i < capabilities.size(); ++i) enabled[i] = glIsEnabled(capabilities[i]);
++            glGetIntegerv(GL_ACTIVE_TEXTURE, &active);
++            glActiveTexture(GL_TEXTURE0);
++            glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
++            glGetIntegerv(GL_SAMPLER_BINDING, &sampler);
++        }
++        ~State()
++        {
++            glBindVertexArray(vao);
++            glBindTexture(GL_TEXTURE_2D, texture);
++            glBindSampler(0, sampler);
++            glActiveTexture(active);
++            glUseProgram(program);
++            Shader::InvalidateBoundProgram();
++            glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
++#ifdef USE_GLES
++            glColorMask(mask[0], mask[1], mask[2], mask[3]);
++#else
++            glColorMaski(0, mask[0], mask[1], mask[2], mask[3]);
++#endif
++            for (size_t i = 0; i < capabilities.size(); ++i)
++            {
++                if (enabled[i]) glEnable(capabilities[i]); else glDisable(capabilities[i]);
++            }
++        }
++    };
++
++    uint64_t m_generation{FramebufferDeletionContext().generation};
++    Shader m_shader;
++    Sampler m_sampler;
++    GLuint m_vao{};
++    GLint m_maximumDrawBuffers{};
++    std::vector<GLenum> m_savedDrawBuffers;
++};
++
++} // namespace Renderer
++} // namespace libprojectM
+diff --git a/src/libprojectM/Renderer/FramebufferDeletion.hpp b/src/libprojectM/Renderer/FramebufferDeletion.hpp
+index e59b8d0..ea9254c 100644
+--- a/src/libprojectM/Renderer/FramebufferDeletion.hpp
++++ b/src/libprojectM/Renderer/FramebufferDeletion.hpp
+@@ -3,6 +3,7 @@
+ #include "OpenGL.h"
+ 
+ #include <algorithm>
++#include <cstdint>
+ #include <cstring>
+ #include <stdexcept>
+ 
+@@ -19,6 +20,7 @@ struct FramebufferDeletionState
+ {
+     bool initialized{};
+     GLuint guard{};
++    uint64_t generation{};
+ };
+ 
+ inline auto FramebufferDeletionContext() -> FramebufferDeletionState&
+@@ -70,7 +72,10 @@ inline void ForgetFramebufferDeletion()
+     // No GL calls: the old context may already be gone and its names may alias
+     // unrelated objects in the replacement context. Reinitialize only when the
+     // next ProjectM instance starts, after retiring any stale instance.
+-    FramebufferDeletionContext() = {};
++    auto& state = FramebufferDeletionContext();
++    const uint64_t generation = state.generation + 1;
++    state = {};
++    state.generation = generation;
+ }
+ 
+ inline void DeleteFramebuffers(GLsizei count, const GLuint* ids)
+diff --git a/src/libprojectM/Renderer/Sampler.cpp b/src/libprojectM/Renderer/Sampler.cpp
+index b95ce27..9e706fa 100644
+--- a/src/libprojectM/Renderer/Sampler.cpp
++++ b/src/libprojectM/Renderer/Sampler.cpp
+@@ -17,7 +17,12 @@ Sampler::Sampler(const GLint wrapMode, const GLint filterMode)
+ 
+ Sampler::~Sampler()
+ {
+-    glDeleteSamplers(1, &m_samplerId);
++    if (m_samplerId) glDeleteSamplers(1, &m_samplerId);
++}
++
++void Sampler::Forget()
++{
++    m_samplerId = 0;
+ }
+ 
+ void Sampler::Bind(GLuint unit) const
+diff --git a/src/libprojectM/Renderer/Sampler.hpp b/src/libprojectM/Renderer/Sampler.hpp
+index 4f4c26e..7b55ab6 100644
+--- a/src/libprojectM/Renderer/Sampler.hpp
++++ b/src/libprojectM/Renderer/Sampler.hpp
+@@ -42,6 +42,9 @@ public:
+ 
+     ~Sampler();
+ 
++    /** Drop a lost-context sampler name without GL calls before disposing this object. */
++    void Forget();
++
+     /**
+      * @brief Binds the sampler to the given texture unit.
+      * @param unit The texture unit to bind the current sampler to.
+diff --git a/src/libprojectM/Renderer/Shader.cpp b/src/libprojectM/Renderer/Shader.cpp
+index 4a287da..8a44eef 100644
+--- a/src/libprojectM/Renderer/Shader.cpp
++++ b/src/libprojectM/Renderer/Shader.cpp
+@@ -357,6 +357,13 @@ void Shader::Unbind()
+     boundProgram = 0;
+ }
+ 
++void Shader::ForgetProgram()
++{
++    if (boundProgram == m_shaderProgram) boundProgram = unknownProgram;
++    m_shaderProgram = 0;
++    m_uniformLocations.clear();
++}
++
+ void Shader::InvalidateBoundProgram()
+ {
+     boundProgram = unknownProgram;
+diff --git a/src/libprojectM/Renderer/Shader.hpp b/src/libprojectM/Renderer/Shader.hpp
+index b8d9091..89a51a8 100644
+--- a/src/libprojectM/Renderer/Shader.hpp
++++ b/src/libprojectM/Renderer/Shader.hpp
+@@ -105,6 +105,9 @@ public:
+      */
+     static void InvalidateBoundProgram();
+ 
++    /** Drop a lost-context program name without GL calls before disposing this object. */
++    void ForgetProgram();
++
+     /**
+      * @brief Number of programs loaded from the process-wide program binary cache, and of
+      *        programs that had to be compiled.

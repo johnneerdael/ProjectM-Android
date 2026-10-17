@@ -35,6 +35,14 @@ int main() {
     g_framebufferStatus = GL_FRAMEBUFFER_COMPLETE;
     ApplyRenderScale(0.5f);
     assert(g_windowW == 1920 && g_windowH == 1080);
+    RenderPresetFrame();
+    const int ordinaryBlits = g_blits;
+    assert(ordinaryBlits > 0 && g_textureCopies == 0);
+    g_needsFramebufferCopy = true;
+    RenderPresetFrame();
+    assert(g_blits == ordinaryBlits && g_textureCopies == 1);
+    assert(g_copiedTexture == g_engine.scaledTexture && g_copyWidth == 3840 && g_copyHeight == 2160);
+    g_needsFramebufferCopy = false;
     g_engine.width = 1920;
     g_engine.height = 1080;
     Java_nl_neerdael_projectm_core_ProjectMJNI_setNativeTrails(nullptr, nullptr, 2);
