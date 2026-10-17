@@ -1,6 +1,6 @@
 # Patch catalog
 
-ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus 36 ordered patches in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
+ProjectM TV Engine is projectM at commit `6f6480746` (unreleased 4.2 master) plus 37 ordered patches in [`tools/projectm-patches/`](https://github.com/johnneerdael/ProjectM-TV/tree/main/tools/projectm-patches). They are applied when the native library is built; the upstream source is never edited in place.
 
 Most patches make the engine behave more like MilkDrop 2. projectM is a clean-room reimplementation of MilkDrop on OpenGL, and over the years small differences crept in: in how equation code is accepted, how HLSL becomes GLSL, where Direct3D 9 and OpenGL put pixel centres, and which per-frame variables are actually read. Each entry below names what projectM did differently, what MilkDrop 2 does (citing its released source where we checked it), what the patch changes, and the preset that shows it.
 
@@ -59,6 +59,7 @@ Two patches deliberately go beyond MilkDrop 2. [0010](#0010-each-preset-keeps-it
 | [0034](#0034-gles-motion-field-storage) | Compatible continuous UV on GLES without float render targets | capability, integer storage and decoder controls |
 | [0035](#0035-program-cache-switch) | Retained diagnostic API for the shared program binary cache | `program-cache-switch` control |
 | [0036](#0036-powervr-framebuffer-retirement) | Protect PowerVR framebuffer retirement during changes/resizing | real-GL binding/lifetime control |
+| [0037](#0037-reusable-line-rendering) | Share line geometry, shaders and instanced Mesh drawing in Renderer | Mesh and matched-render controls |
 
 ## 0001 — TV rendering and preset compatibility
 
@@ -626,3 +627,11 @@ This patch adds a TV-only troubleshooting control and does not change rendering.
 Some Imagination/PowerVR drivers can retain a reference to a previously bound complete framebuffer after it has been deleted. Before deleting an engine framebuffer, this patch binds a small, complete guard framebuffer and then framebuffer zero on both read/draw targets, so neither retained reference points at the retiring object. Surviving bindings are restored. One guard is kept until context destruction, and other GPU vendors keep ordinary deletion. Hosts reset its names before retiring a lost-context instance.
 
 The design follows [Chromium/Skia’s corrected workaround](https://skia.googlesource.com/skia/+/02b14267cb023e7ec9fc52618bd12464ceb6afb7). Real-GL tests intercept actual engine changes, resizes and cleanup: the unsafe binding sequence is observed without protection and absent with it, while nonblank pixels match. This qualifies the call sequence on the tested backend, not a confirmed fix for the reported Fire TV crash.
+
+## 0037 — Reusable line rendering
+
+This is an internal architecture change adapted from our [upstream PR #1047](https://github.com/projectM-visualizer/projectm/pull/1047), commit `ba122baa24cd1794c2a413ec8e308c8ab6e9e4fe`. Colored points, padded line batches, the line renderer and its generic shaders belong to `Renderer`. MilkDrop-specific reference sizing, sample/fade rules, dot styles, canvas inputs and thick-line pass offsets stay in `MilkdropPreset`.
+
+Both line strips and motion-vector quads use `Renderer::Mesh` to own and stream their interleaved instance data, set attribute layouts/divisors and byte offsets, and draw a separate vertex/instance count. The existing indexed mesh path is retained. The motion-vector vertex shader stays with preset code because it samples the preset's warp field; it shares Renderer's fragment shader.
+
+The Android port retains shader compilation during preset prewarming, cached uniform locations, per-instance shape styles, prepared Native-trails replay and the packed/floating motion-UV paths. This refactor is intended to preserve rendering rather than change a preset's appearance. Validation and backend limits are recorded in the [refactor evidence](https://github.com/johnneerdael/ProjectM-Android/blob/main/docs/superpowers/evidence/renderer-line-refactor/README.md).

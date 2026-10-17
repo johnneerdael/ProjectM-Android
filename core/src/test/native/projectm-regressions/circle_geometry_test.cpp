@@ -15,6 +15,8 @@
 #include <array>
 #include <stdexcept>
 using namespace libprojectM::MilkdropPreset;
+using libprojectM::Renderer::ColoredPoint;
+using libprojectM::Renderer::LineBatch;
 using Point=libprojectM::Renderer::Point;
 static int failures=0;
 static void Check(bool value,const std::string& why){if(!value){++failures;std::cerr<<"FAIL "<<why<<'\n';}}
