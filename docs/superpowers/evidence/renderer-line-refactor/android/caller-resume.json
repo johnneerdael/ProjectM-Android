@@ -1,0 +1,6 @@
+{
+  "orchestrator_sha256": "b96911e71856be5a032a3a66dbecb5a6839e31200051869f69c50c9dca392dfe",
+  "base_runner_sha256": "c696c9298b3399c48e35305924be14f9044494e9c01ade6c6ba9c32ac9ec76cd",
+  "shaderBinaryCache": false,
+  "scope": "same settings before/after architecture refactor; explicit baseline/candidate Native off and Standard; instrumented actual core AAR; emulator engine timing, not physical-TV app FPS"
+}

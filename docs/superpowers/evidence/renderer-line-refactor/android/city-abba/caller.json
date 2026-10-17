@@ -1,0 +1,4 @@
+{
+  "caller_sha256": "b51b5072a67f9ea50f8f91e979237a56bdadfec97b666b91fa743e784bced815",
+  "purpose": "one supplementary isolated ABBA cycle after noisy single-run City legacy timing; unchanged instrumented AARs; cache disabled; emulator serialized engine timing only"
+}

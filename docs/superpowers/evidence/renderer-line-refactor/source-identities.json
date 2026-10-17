@@ -1,0 +1,118 @@
+{
+  "src/libprojectM/MilkdropPreset/CMakeLists.txt": {
+    "baseline": "78e058224ff2636735c001b8439b02f58f5cd3d596dc908c0011e84717d7d9db",
+    "candidate": "e11bc91f0cae03afc42b5ef7cbed6167c185d4f30b84f154c1a8ad92de506316"
+  },
+  "src/libprojectM/MilkdropPreset/CustomShape.cpp": {
+    "baseline": "468644762d187a3d589e218ea6c5210526662a3a712e6d0614834b5d56b69fb4",
+    "candidate": "1f535b9015532f4c8995e61111eaefc9df08df477ecf8b5cea5b84a539598b90"
+  },
+  "src/libprojectM/MilkdropPreset/CustomShape.hpp": {
+    "baseline": "8d44e442c3d365bdfc0b2931756635aacdd9b12f2dc0d7a250fd1ff540515602",
+    "candidate": "cd599febda7873083cf3acd80454427148e306ec83d1ca2c940ce57de9707af4"
+  },
+  "src/libprojectM/MilkdropPreset/CustomWaveform.cpp": {
+    "baseline": "20d45e9ee573d5409e0fe9420802bc5cf37f40d6037cac8347eccd26e28d36a8",
+    "candidate": "18032af05ad11858159cc31703b44233f733823d886213fe71b356c062f8365c"
+  },
+  "src/libprojectM/MilkdropPreset/CustomWaveform.hpp": {
+    "baseline": "e3048f39fdfcf292a91540c40e3d9f23a0ae90838283c072cae45530a23edba5",
+    "candidate": "69347f125b7770b11900e2082257e3e1e483f3e9f3ade16622f4ac1637a46889"
+  },
+  "src/libprojectM/MilkdropPreset/LineGeometry.cpp": {
+    "baseline": "b9a3dc3788d4b7e227fd6078cd9195c7136790faed575e3cbe014c6cf63f192f",
+    "candidate": "33cba7fc8f0e72aff1e1af59101ba69a8fa0da8d69f0deae324ad5762e2da4b4"
+  },
+  "src/libprojectM/MilkdropPreset/LineGeometry.hpp": {
+    "baseline": "4c9dc961e25d678ce0a8ca6cd9b2f92242a555beea43b3caff93c5b3f75ef156",
+    "candidate": "ccc2e0069271ae9717bccfdcbcb2ac5038b6ad78c6e99bd719b0d44e4331c617"
+  },
+  "src/libprojectM/MilkdropPreset/LineRenderer.cpp": {
+    "baseline": "c7020491660b21ec149f0b4dc7ad247180fd0598c489a6291ba940e6a9fb1719",
+    "candidate": null
+  },
+  "src/libprojectM/MilkdropPreset/LineRenderer.hpp": {
+    "baseline": "17027b43fd2c5097ea50afee006c433d808fd9c6491ca241062888a5b832cb10",
+    "candidate": null
+  },
+  "src/libprojectM/MilkdropPreset/MotionVectors.cpp": {
+    "baseline": "5e5004cd347cebb957ece663b6f7760c0d96c1c6f33c5f9660f15de28fc5a0ec",
+    "candidate": "44c05e9bf02e84de383459da09cf3f12611ea9ce7fb780bfb8e22fa2865426b4"
+  },
+  "src/libprojectM/MilkdropPreset/MotionVectors.hpp": {
+    "baseline": "205ed354bcc4826c7348e26aca4fd2bb200f43909fa31483b44c46c13e39a9fb",
+    "candidate": "d2346a972757977fa52bfc21cc6152ff9d951b2537f884f871774113d3322178"
+  },
+  "src/libprojectM/MilkdropPreset/PresetState.hpp": {
+    "baseline": "7c0bbf2c7baad0aa8f6d257820745bd376022bc57b602b45f1267a79ea86cf89",
+    "candidate": "76394554125dab06c1cc8466889f8529759a47da9ae917314084a8d0648d89f3"
+  },
+  "src/libprojectM/MilkdropPreset/Shaders/LineFragmentShaderGlsl330.frag": {
+    "baseline": "a828bba8126e6e91a1c69206546ef38e49f6e7fced34d7c3cbff5d9b0ae90bc2",
+    "candidate": null
+  },
+  "src/libprojectM/MilkdropPreset/Shaders/LineVertexShaderGlsl330.vert": {
+    "baseline": "c9d2a01aa465438e8953712cced5bbd51ada9bec32504161b07bfe3a26d3eaa2",
+    "candidate": null
+  },
+  "src/libprojectM/MilkdropPreset/Waveform.cpp": {
+    "baseline": "82d3e153ea64f8b7e47258544a24ba2eddc31b5901c050ccc5d5030671b2b3cb",
+    "candidate": "c950c60c6c3a39551af90bc83c61f95698fca7f0ba26fbf2372d6cb1270da36c"
+  },
+  "src/libprojectM/MilkdropPreset/Waveform.hpp": {
+    "baseline": "b02a65b1c06e747264c5fc158397e9683743aca9575a0968f73b2bd648efdbda",
+    "candidate": "cea030ea2db1bcee8c2dd1188b3a963524541af63c40b92f929205cd4b5b7bb1"
+  },
+  "src/libprojectM/Renderer/CMakeLists.txt": {
+    "baseline": "54d10daf15c3273ea43460233153f4a3c8e72d91c770aec6dee5ea09403cf1fb",
+    "candidate": "21753f497b6e09c21727184924a2a62be1fafa22530412cfb36a929ad60e6e94"
+  },
+  "src/libprojectM/Renderer/LineGeometry.cpp": {
+    "baseline": null,
+    "candidate": "58afe46a125cb11783ad0cda4a7d91cffedebcd0d987af4203e06dd2e7d1a03c"
+  },
+  "src/libprojectM/Renderer/LineGeometry.hpp": {
+    "baseline": null,
+    "candidate": "0f711ab2ba0e73c5806ea53e3c4e15faf6ce950db7a5b2a4db4da9db1f00c823"
+  },
+  "src/libprojectM/Renderer/LineRenderer.cpp": {
+    "baseline": null,
+    "candidate": "708894628c7af887da754195b5f68dd5a033251b84b0b219a05547ab4f3c44ed"
+  },
+  "src/libprojectM/Renderer/LineRenderer.hpp": {
+    "baseline": null,
+    "candidate": "146edfdc44e99f825e8ca1cfdfbe7e9cab9692401e73e81b5b83dc0af18adbc1"
+  },
+  "src/libprojectM/Renderer/Mesh.cpp": {
+    "baseline": "23c55b86a02c6224315574a31f2360f97cd160e9fc239895845934f3fd796f36",
+    "candidate": "36ab87e02b5c24d1be8c60647b2bcfc74a7b5de87d2c00c2abcea44a854276eb"
+  },
+  "src/libprojectM/Renderer/Mesh.hpp": {
+    "baseline": "106a5c1f2ac7344b399a08933764b0329dce34acd8b0442bf3e1b8166c183bb7",
+    "candidate": "c1ff90d95fe7f353f7d37ee77191732caf78179accc67417926b5d2d2aba3238"
+  },
+  "src/libprojectM/Renderer/Shaders/LineFragmentShaderGlsl330.frag": {
+    "baseline": null,
+    "candidate": "a828bba8126e6e91a1c69206546ef38e49f6e7fced34d7c3cbff5d9b0ae90bc2"
+  },
+  "src/libprojectM/Renderer/Shaders/LineVertexShaderGlsl330.vert": {
+    "baseline": null,
+    "candidate": "c9d2a01aa465438e8953712cced5bbd51ada9bec32504161b07bfe3a26d3eaa2"
+  },
+  "tests/libprojectM/CMakeLists.txt": {
+    "baseline": "b4985ba15e8da778d89b5a1236a17dd0f6d442cd59e9e9a113cb50babb1f41c5",
+    "candidate": "33d77e160452d08b5cdc8d041c5e6cb9f12db9c05f9c924376cf545edaba20cf"
+  },
+  "tests/libprojectM/LineBatchTest.cpp": {
+    "baseline": null,
+    "candidate": "bfe8aad2f3f858fc2f32c2a2ed120474237a2d16e91f4a84eb9d6037ef488f2a"
+  },
+  "tests/libprojectM/LineGeometryTest.cpp": {
+    "baseline": "fa80bd8572cdb9b8f8b49876292d06182fe88ce98b2ad65152fb17908af6bb4b",
+    "candidate": "1d47db01e69266d7b68d5984da87d8bc42afbdc96faa3a25263da74bde3e8cf0"
+  },
+  "tests/libprojectM/MeshTest.cpp": {
+    "baseline": null,
+    "candidate": "9814364ab4a7b63ad4adc89b99d2d205a11c1fbe48251b34c4ce00e3475ad9d7"
+  }
+}

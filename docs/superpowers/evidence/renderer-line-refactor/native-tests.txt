@@ -1,0 +1,820 @@
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/unicode_name_test.cpp:3:
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:114:1: warning: empty struct has size 0 in C, size 1 in C++ [-Wextern-c-compat]
+  114 | struct projectm {};
+      | ^
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/unicode_name_test.cpp:3:
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:199:
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/main/cpp/native-lib.cpp:29:
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/stubs/android/log.h:3:100: warning: attribute declaration must precede definition [-Wignored-attributes]
+    3 | extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, ...) __attribute__((format(printf,3,4)));
+      |                                                                                                    ^
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:44:5: note: previous definition is here
+   44 | int __android_log_print(int, const char* tag, const char* fmt, ...) {
+      |     ^
+2 warnings generated.
+JNI UTF-8 PRESET NAME TESTS PASSED
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:114:1: warning: empty struct has size 0 in C, size 1 in C++ [-Wextern-c-compat]
+  114 | struct projectm {};
+      | ^
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:199:
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/main/cpp/native-lib.cpp:29:
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/stubs/android/log.h:3:100: warning: attribute declaration must precede definition [-Wignored-attributes]
+    3 | extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, ...) __attribute__((format(printf,3,4)));
+      |                                                                                                    ^
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:44:5: note: previous definition is here
+   44 | int __android_log_print(int, const char* tag, const char* fmt, ...) {
+      |     ^
+2 warnings generated.
+indexing from presets.idx
+  ok: g_library.Ready()
+  ok: g_library.ActiveCount() == 13
+preset weights from presets.idx
+  ok: g_library.Weight("good 3.milk") == 40 && g_library.Weight("good 2.milk") == 2
+  ok: g_library.Weight("good 1.milk") == 0 && g_library.Weight("good 4.milk") == 0
+  ok: g_library.Weight("crlf.milk") == 7
+music category limits every library selection path
+  ok: g_library.SetCategory("intense")
+  ok: g_library.Category() == "intense" && g_library.CategoryCount("intense") == 3
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: pick == "good 1.milk" || pick == "good 2.milk" || pick == "good 3.milk"
+  ok: random == "good 1.milk" || random == "good 2.milk" || random == "good 3.milk"
+  ok: g_library.SetCategory("chill")
+  ok: g_library.CategoryGeneration() > generation
+  ok: g_library.Previous().empty() && g_library.PeekPrevious().empty()
+  ok: g_library.PeekRandom() == "good 4.milk" || g_library.PeekRandom() == "good 5.milk"
+the prepared random preset is never the one on screen
+  ok: g_library.PeekRandom() == "good 5.milk"
+  ok: g_library.PeekRandom() == "good 4.milk"
+  ok: g_library.CategoryCount("chill") == 1
+  ok: g_library.PeekRandom() == "good 4.milk" && g_library.PeekRandom() == "good 4.milk"
+  ok: g_library.Random("good 4.milk") == "good 4.milk"
+  ok: !g_library.SetCategory("dance") && g_library.Category() == "all"
+  ok: !g_library.SetCategory("unknown") && g_library.Category() == "all"
+  ok: g_library.SetCategory("all")
+  ok: g_library.ActiveCount() == 13 && g_library.Weight("good 3.milk") == 40
+facet pool plays through the facets category
+  ok: g_library.SetPool({"good 1.milk", "good 1.milk", "missing.milk", "custom/x.milk"}) == 1
+  ok: g_library.CategoryCount("facets") == 1
+  ok: g_library.SetCategory("facets")
+  ok: g_library.Category() == "facets"
+  ok: g_library.Random("") == "good 1.milk"
+  ok: g_library.Random("") == "good 1.milk"
+  ok: g_library.Random("") == "good 1.milk"
+  ok: g_library.Random("") == "good 1.milk"
+  ok: g_library.Random("") == "good 1.milk"
+  ok: g_library.CategoryCount("facets") == 0
+  ok: !g_library.Next().empty()
+  ok: g_library.Category() == "all"
+  ok: g_library.SetPool({}) == 0
+  ok: !g_library.SetCategory("facets")
+  ok: g_library.Category() == "all"
+custom packs join All but never join scored categories
+  ok: !g_library.CustomPackPending()
+  ok: g_library.CategoryCount("all") == 15 && g_library.CategoryCount("custom") == 2
+  ok: g_library.CategoryCount("chill") == 2 && g_library.CategoryCount("intense") == 3
+  ok: g_library.SetCategory("custom")
+  ok: first.find("custom/pack-generation-one/") == 0
+  ok: g_library.Load(first) == "custom first" || g_library.Load(first) == "custom second"
+  ok: first != second && g_library.Contains(second)
+  ok: g_library.Previous() == first
+  ok: g_library.CategoryCount("custom") == 1 && g_library.CategoryCount("intense") == 3
+facet pool requested before the index is ready survives BuildIndex
+  ok: early.SetPool({"good 2.milk", "good 3.milk", "missing.milk"}) == 0
+  ok: early.Ready()
+  ok: early.CategoryCount("facets") == 2
+  ok: early.SetCategory("facets") && early.Category() == "facets"
+  ok: !restartedPack.CustomPackPending() && restartedPack.CategoryCount("custom") == 1
+  ok: g_library.CustomPackStatus(rejected) == -1 && g_library.CategoryCount("custom") == 1
+  ok: g_library.CustomPackStatus(staged) == 1 && g_library.CategoryCount("custom") == 1
+  ok: !g_library.CommitCustomPack(staged) && g_library.CategoryCount("custom") == 1
+  ok: g_library.CommitCustomPack(staged) && g_library.CustomPackStatus(staged) == 2
+  ok: g_library.Category() == "custom" && g_library.CategoryCount("all") == 14
+  ok: !g_library.CustomPackPending()
+  ok: g_library.Category() == "all" && g_library.CategoryCount("custom") == 0
+  ok: !g_library.Contains(first) && g_library.Read(first).empty()
+  ok: g_library.ActiveCount() == 13
+a facet pool change during a staged (bundled-only) import keeps the import and no stale facet order
+  ok: g_library.SetPool({"good 1.milk"}) == 1
+  ok: g_library.SetCategory("facets") && g_library.Category() == "facets"
+  ok: g_library.CustomPackStatus(staged) == 1
+  ok: g_library.SetPool({"good 2.milk", "good 3.milk"}) == 2
+  ok: g_library.Category() == "facets"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: pick == "good 2.milk" || pick == "good 3.milk"
+  ok: g_library.CommitCustomPack(staged)
+  ok: g_library.Category() == "custom"
+  ok: g_library.CategoryCount("facets") == 2
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: next.find("custom/pack-generation-one/") == 0
+  ok: random.find("custom/pack-generation-one/") == 0
+  ok: g_library.SetCategory("facets")
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: next == "good 2.milk" || next == "good 3.milk"
+  ok: random == "good 2.milk" || random == "good 3.milk"
+  ok: !g_library.CustomPackPending()
+  ok: g_library.SetPool({}) == 0
+  ok: g_library.SetCategory("all") && g_library.CategoryCount("custom") == 0 && g_library.ActiveCount() == 13
+indexing falls back to listing the folder without presets.idx
+  ok: other.Ready() && other.ActiveCount() == 3
+  ok: other.CategoryCount("normal") == 0
+  ok: !other.SetCategory("normal") && other.Category() == "all"
+  ok: g_library.SkippedCount() == 1
+texture pack extracted before the index is ready
+  ok: f != nullptr
+  ok: ftell(f) == 9
+  ok: f != nullptr
+first frame loads a preset (hard cut, no wait)
+lines are quads, 1 px at MilkDrop's 1024x768
+  ok: g_lineReferenceWidth == 1024
+  ok: g_lineReferenceHeight == 768
+  ok: !current().empty()
+  ok: current() != "preskipped.milk"
+  ok: g_texturePathCalls.size() == 1 && g_texturePathCalls[0] == texdir
+  ok: g_loadsAtTextureCall == 0
+  ok: !g_locked
+texture lookup belongs to each preset, including All and replacement generations
+  ok: !g_library.CustomPackPending()
+  ok: g_library.SetCategory("all")
+  ok: loadTextureFixture(second, false)
+  ok: IsCustomPresetPackInUse(pack)
+  ok: g_textureSearchPaths.back() == std::vector<std::string>({pack + "/textures", texdir})
+  ok: warm.data == "custom first" || warm.data == "custom second"
+  ok: warm.texturePaths == g_textureSearchPaths.back()
+  ok: loadTextureFixture(second, false)
+  ok: g_textureSearchPaths.size() == samePackCalls
+  ok: loadTextureFixture("good 1.milk", true)
+  ok: IsCustomPresetPackInUse(pack)
+  ok: g_textureSearchPaths.back() == std::vector<std::string>({texdir})
+  ok: g_prewarmReader("good 1.milk").texturePaths == g_textureSearchPaths.back()
+  ok: loadTextureFixture(second, false)
+  ok: current() == second
+  ok: g_textureSearchPaths.back() == std::vector<std::string>({pack + "/textures", texdir})
+  ok: !g_library.CustomPackPending()
+  ok: g_prewarmReader(second).data.empty()
+  ok: warm.texturePaths == std::vector<std::string>({pack + "/textures", texdir})
+  ok: IsCustomPresetPackInUse(loadingDirectory)
+  ok: loadTextureFixture(replaced, true)
+  ok: IsCustomPresetPackInUse(pack) && IsCustomPresetPackInUse(replacement)
+  ok: !IsCustomPresetPackInUse(pack) && IsCustomPresetPackInUse(replacement)
+  ok: g_textureSearchPaths.back() == std::vector<std::string>({replacement + "/textures", texdir})
+  ok: g_prewarmReader(replaced).data == "replacement data"
+  ok: g_prewarmReader(replaced).texturePaths == g_textureSearchPaths.back()
+  ok: !g_library.CustomPackPending()
+  ok: g_prewarmReader(second).data.empty()
+  ok: !loadTextureFixture(second, false)
+  ok: loadTextureFixture("good 1.milk", false)
+  ok: !IsCustomPresetPackInUse(pack) && !IsCustomPresetPackInUse(replacement)
+  ok: IsCustomPresetPackInUse(pack)
+  ok: IsCustomPresetPackInUse(pack)
+  ok: !IsCustomPresetPackInUse(pack)
+  ok: g_textureSearchPaths.back() == std::vector<std::string>({texdir})
+  ok: HasOfficialPack<T>::value
+  ok: library.CustomPackStatus(customRequest) == 2
+  ok: library.SetPool({"good 1.milk", "official unique.milk", "absent-in-official.milk"}) == 1
+  ok: library.SetCategory("facets")
+  ok: library.OfficialPackStatus(request) == 1
+  ok: library.CommitOfficialPack(request)
+  ok: library.OfficialPackStatus(request) == 2
+  ok: library.Category() == "facets" && library.CategoryCount("facets") == 2
+  ok: library.CategoryCount("facets") == 0
+  ok: library.Category() == "all"
+  ok: library.CategoryCount("all") == 2 + customCount
+  ok: library.CategoryCount("custom") == customCount
+  ok: library.CategoryCount("chill") == 1 && library.Weight("good 1.milk") == 17
+  ok: captured.data == "official first"
+  ok: captured.texturePaths.size() == 1 && captured.texturePaths[0] == directory + "/textures"
+  ok: library.OfficialPackInUse(directory)
+  ok: LoadPreset("good 1.milk", false)
+  ok: library.SetCategory("custom")
+  ok: customCaptured.texturePaths.size() == 2 && customCaptured.texturePaths[1] == directory + "/textures"
+  ok: !library.CommitOfficialPack(stale)
+  ok: library.OfficialPackStatus(rejected) == -1 && library.CategoryCount("custom") == customCount
+  ok: library.CustomPackStatus(removeCustom) == 2
+  ok: !library.CommitOfficialPack(old)
+  ok: library.CommitOfficialPack(remove)
+  ok: library.CategoryCount("all") == 12
+  ok: library.OfficialPackInUse(directory)
+  ok: library.OfficialPackInUse(directory)
+  ok: LoadPreset("good 2.milk", true)
+  ok: library.OfficialPackInUse(directory)
+  ok: LoadPreset("good 2.milk", false)
+  ok: !library.OfficialPackInUse(directory)
+  ok: library.OfficialPackStatus(invalid) == -1 && library.CategoryCount("custom") == 0
+  ok: library.OfficialPackStatus(invalid) == -1 && library.CategoryCount("custom") == 0
+  ok: library.OfficialPackStatus(invalid) == -1 && library.CategoryCount("custom") == 0
+  ok: g_inputs.categoryDirty.load()
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr,nullptr)
+  ok: library.OfficialPackStatus(delayedRestore)==2
+  ok: g_inputs.categoryDirty.load()
+  ok: library.Category()=="intense" && library.CategoryCount("intense")==1
+  ok: !Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr,nullptr)
+  ok: library.CommitOfficialPack(delayedRemove)
+  ok: library.OfficialPackStatus(restoreOfficial) == 2 && library.CustomPackStatus(restoreCustom) == 2
+  ok: library.CategoryCount("all") == 3 && library.CategoryCount("custom") == 2
+  ok: library.OfficialPackStatus(superseded) == -1
+  ok: library.CommitOfficialPack(currentRequest)
+  ok: library.CustomPackStatus(clearCustom) == 2
+  ok: LoadPreset("good 2.milk",false)
+music category stays pending until its first preset is published
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr, nullptr)
+  ok: !Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr, nullptr)
+  ok: g_library.Contains(current())
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr, nullptr)
+  ok: !Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr, nullptr)
+  ok: g_library.Contains(current())
+category retries bounded load failures before acknowledging completion
+  ok: current() == "good 4.milk" || current() == "good 5.milk"
+  ok: g_library.CategoryCount("normal") == 1
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr, nullptr)
+  ok: g_library.Category() == "normal" && g_library.Contains(current())
+  ok: !Java_nl_neerdael_projectm_core_ProjectMJNI_isMusicCategoryPending(nullptr, nullptr)
+retained category changes prepare the next selection around the preset on screen
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == kept && prepared.size() == 3
+  ok: prepared[0] == g_library.PeekNext() && prepared[1] == g_library.PeekRandom()
+  ok: prepared[1] != kept && prepared[2].empty()
+  ok: current() == prepared
+a preset that leaves out uncompilable code is shown, logged and not skipped
+  ok: g_warnNextLoads == 0 && g_library.SkippedCount() == skippedBefore
+  ok: logged
+Next and Previous landing on the prepared random preset refresh its preparation
+  ok: current() == prepared && g_prewarmLists.back()[1] != current()
+  ok: current() == prepared
+  ok: current() == prepared && g_prewarmLists.back()[1] != current()
+  ok: current() == prepared
+settings from any thread
+  ok: g_locked
+commands
+  ok: b != a
+  ok: c != b
+  ok: current() == b
+  ok: current() == a
+projectM-requested auto switch (smooth), and forced hard cut before a resize
+  ok: g_loaded.size() == loads + 1
+  ok: g_lastSmooth
+  ok: g_loaded.size() == loads + 1 && !g_lastSmooth
+  ok: g_lastSmooth
+mesh size only re-applied when it changes
+  ok: g_meshCalls == meshCalls
+  ok: g_meshCalls == meshCalls + 1
+broken presets are skipped and persisted, playback continues
+  ok: g_library.SkippedCount() == 3
+  ok: current().find("broken") == std::string::npos
+  ok: n == 3
+next never shows the preset on screen again, also across reshuffles
+  ok: repeats == 0
+audio is fed on the GL thread, capped to projectM's buffer
+  ok: g_pcmFed == 576
+blank-preset skipping is off by default: a black preset with music stays
+  ok: current() == unproven && g_library.SkippedCount() == skippedAtStart
+dark preset during silence is NOT skipped
+  ok: g_library.SkippedCount() == skippedBefore && current() == dark
+visible preset with music is NOT skipped
+  ok: g_library.SkippedCount() == skippedBefore && current() == bright
+black preset with music is replaced at once, but only skipped for good the 2nd time
+  ok: current() != black
+  ok: g_library.SkippedCount() == skippedBefore
+  ok: f != nullptr
+  ok: fgets(line, sizeof line, f) != nullptr
+  ok: black == line
+  ok: current() == black
+  ok: current() != black
+  ok: g_library.SkippedCount() == skippedBefore + 1
+skip current preset (too slow) and blank-detection toggle
+  ok: current() != slow && g_library.SkippedCount() == beforeSkip + 1
+  ok: current() == dim && g_library.SkippedCount() == beforeSkip + 1
+everything black (rendering fault): after 3 black presets in a row nothing more is struck
+  ok: changes == 3
+  ok: g_library.SkippedCount() <= skippedBeforeRun + 3
+reset skip list
+  ok: g_library.SkippedCount() == 0 && g_library.ActiveCount() == 14
+  ok: f != nullptr
+  ok: fgetc(f) == EOF
+context loss: new instance resumes the same preset, textures re-applied
+  ok: g_framebufferLifecycle == "FDC"
+  ok: current() == shown
+  ok: g_texturePathCalls.size() == 2
+  ok: g_lineReferenceWidth == 1024 && g_lineReferenceHeight == 768
+black detection reads the window framebuffer, not projectM's
+  ok: g_readFbo == 7
+  ok: g_packBuffer == 0 && g_mapped > 0
+  ok: g_fences <= 1
+lightweight: outgoing frame captured, projectM hard-cuts, overlay fades for min(transition, 3 s)
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_isLightweightTransition(nullptr, nullptr)
+  ok: g_captures == captures + 1 && g_loaded.size() == loads
+  ok: g_loaded.size() == loads + 1 && !g_lastSmooth
+  ok: g_fadeStarts == starts + 1 && g_fadeSeconds == 3.0 && g_engine.fade.Active()
+  ok: g_fadeDraws == draws + 1
+a remote-control switch ends the fade immediately
+  ok: !g_engine.fade.Active()
+beat-triggered hard cuts and forced hard cuts are never faded
+  ok: g_captures == captures && g_fadeStarts == starts && !g_lastSmooth
+capture failure falls back to projectM's classic transition
+  ok: g_loaded.size() == loads + 1 && g_lastSmooth && !g_engine.fade.Active()
+classic mode: projectM soft cut, no capture
+  ok: !Java_nl_neerdael_projectm_core_ProjectMJNI_isLightweightTransition(nullptr, nullptr)
+  ok: g_captures == captures && g_loaded.size() == loads + 1 && g_lastSmooth
+classic mode blends at the full render size
+  ok: g_windowW == 1280 && g_windowH == 720
+auto: blends render at 75% into the off-screen target, stretched onto the surface
+  ok: !Java_nl_neerdael_projectm_core_ProjectMJNI_isLightweightTransition(nullptr, nullptr)
+  ok: g_windowW == 1280 && g_windowH == 720
+  ok: g_lastSmooth && g_windowW == 960 && g_windowH == 540
+  ok: g_fboFrames > fboFrames && g_blits > blits
+  ok: g_blitSrcW == 960 && g_blitSrcH == 540 && g_blitDstW == 1280 && g_blitDstH == 720
+  ok: g_windowW == 1280 && g_windowH == 720
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getBlendScalePercent(nullptr, nullptr) == 75
+  ok: g_fboFrames == fboFrames
+auto: a blend far slower than before is lowered at once, and stays lower
+  ok: g_windowW == 960
+  ok: g_windowW == 768 && g_windowH == 432
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getBlendScalePercent(nullptr, nullptr) == 60
+  ok: g_windowW == 768
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getBlendScalePercent(nullptr, nullptr) == 50
+auto: blends with frames to spare raise the resolution again (low-end devices start at 60%)
+  ok: g_windowW == 768
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getBlendScalePercent(nullptr, nullptr) == 75
+  ok: !Java_nl_neerdael_projectm_core_ProjectMJNI_isLightweightTransition(nullptr, nullptr)
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getLastTransitionFps(nullptr, nullptr) > 0.f
+auto: sampled CPU-bound blend keeps its resolution and halves outgoing frames
+  ok: g_engine.inTransition
+  ok: g_windowW == (cpuBound ? 960u : 768u)
+  ok: g_windowH == (cpuBound ? 540u : 432u)
+  ok: g_engine.transitionStepped == !cpuBound
+  ok: g_outgoingDivisor == (cpuBound ? 2u : 1u)
+  ok: !g_engine.inTransition && g_engine.transitionFrames == 63
+  ok: g_published.transitionCounter.load() == before + 1
+  ok: g_engine.transitionStepped == !cpuBound
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getBlendScalePercent(nullptr, nullptr) == (cpuBound ? 100 : 60)
+auto: equally slow sampled low-CPU blend lowers resolution instead
+  ok: g_engine.inTransition
+  ok: g_windowW == (cpuBound ? 960u : 768u)
+  ok: g_windowH == (cpuBound ? 540u : 432u)
+  ok: g_engine.transitionStepped == !cpuBound
+  ok: g_outgoingDivisor == (cpuBound ? 2u : 1u)
+  ok: !g_engine.inTransition && g_engine.transitionFrames == 63
+  ok: g_published.transitionCounter.load() == before + 1
+  ok: g_engine.transitionStepped == !cpuBound
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getBlendScalePercent(nullptr, nullptr) == (cpuBound ? 100 : 60)
+  ok: g_windowW == 1280 && g_windowH == 720
+the next preset's shaders are compiled in the background
+  ok: g_prewarmStarts >= 1 && g_prewarmReader("good 1.milk").texturePaths == std::vector<std::string>({texdir})
+  ok: !g_prewarmRequests.empty() && g_prewarmRequests.back() == g_library.PeekNext()
+random and previous presets are prepared too: Right picks the prepared random preset
+  ok: list.size() == 3 && list[1] == g_library.PeekRandom() && list[2] == g_library.PeekPrevious()
+  ok: current() == prepared && current() != before
+  ok: g_library.PeekPrevious() == before
+  ok: g_prewarmLists.back()[1] == g_library.PeekRandom() && g_prewarmLists.back()[1] != prepared
+troubleshooting switches: Background compile and Shader binary cache, with the trail file
+  ok: created >= 0
+  ok: g_programCacheEnabled
+  ok: !g_programCacheEnabled
+  ok: g_prewarmStops == stops + 1 && !g_engine.prewarmerStarted && g_prewarmStarts == starts
+  ok: g_prewarmLists.size() == requests
+render pid=68053 ms=1792201548933 session=abc123 cache=off compile=off loaded 'good 9.milk' (cut) in 0 ms: 0 programs cached, 0 compiled
+prewarm pid=68053 ms=1792201548932 session=abc123 cache=off compile=off background compile off
+  ok: text.size() == 2 * projectmtv::kTrailLineBytes
+  ok: text.rfind("render " + pid, 0) == 0
+  ok: text.find(" session=abc123 cache=") != std::string::npos
+  ok: text.find("loaded '" + current() + "' (cut) in ") != std::string::npos
+  ok: text.find("prewarm " + pid) == projectmtv::kTrailLineBytes
+  ok: text.find("background compile off") != std::string::npos
+  ok: text.find("render " + pid) == 0 && text.find(" cache=off compile=off loaded '") != std::string::npos
+  ok: text.find(" cache=off compile=off background compile off") != std::string::npos
+  ok: g_programCacheEnabled
+  ok: g_prewarmStarts == starts + 1 && g_engine.prewarmerStarted
+  ok: g_prewarmLists.size() == requests + 1
+  ok: text.substr(0, projectmtv::kTrailLineBytes).find( " cache=on compile=on troubleshooting switches changed while showing '" + current() + "'") != std::string::npos
+  ok: text.size() == 2 * projectmtv::kTrailLineBytes && text[projectmtv::kTrailLineBytes - 1] == '\n'
+output measurements: flat and still are logged, never skipped
+  ok: current() == white && g_library.SkippedCount() == skipped
+    OUTPUT preset='good 3.milk' samples=5 luma_range=3..3 change_pct_min=0.0 change_pct_avg=0.0 region_pct_min=0.0 luma_changes=0 hue_only_changes=0 flat=5/5 still=4/4 skipped=no
+  ok: whiteLine.find("flat=") != std::string::npos && whiteLine.find("flat=0/") == std::string::npos
+  ok: whiteLine.find("skipped=no") != std::string::npos
+  ok: current() == frozen && g_library.SkippedCount() == skipped
+    OUTPUT preset='good 1.milk' samples=8 luma_range=120..120 change_pct_min=0.0 change_pct_avg=0.0 region_pct_min=0.0 luma_changes=0 hue_only_changes=0 flat=0/8 still=7/7 skipped=no
+  ok: frozenLine.find("flat=0/") != std::string::npos && frozenLine.find("still=0/") == std::string::npos
+  ok: frozenLine.find("change_pct_avg=0.0") != std::string::npos
+LOAD lines carry size, weight, shader size/loops and the memory taken
+    LOAD preset='preskipped.milk' ms=0 smooth=0 size=1280x720 weight_mb=0 shader_kb=0.0 loops=0 programs_cached=0 programs_compiled=0 pool_mb=0 avail_drop_mb=0 rss_growth_mb=0
+  ok: load.find(" size=1280x720 weight_mb=") != std::string::npos
+  ok: load.find(" shader_kb=") != std::string::npos && load.find(" loops=") != std::string::npos
+  ok: load.find(" avail_drop_mb=") != std::string::npos && load.find(" rss_growth_mb=") != std::string::npos
+  ok: loops == 2 && bytes > 40 && bytes < 90
+  ok: loops == 0 && bytes == 0
+  ok: loops == 1 && bytes == std::string("a;\nfor\n(;;)").size()
+audio level getter
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getAudioLevel(nullptr, nullptr) > 0.4f
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getAudioLevel(nullptr, nullptr) == 0.f
+  ok: g_loadsAfterDirectFrame == 0
+managed release -> plain renderer (different surface size)
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getRenderedFrameSerial(nullptr, nullptr) > beforeManagedFrame
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getCompletedRenderBudgetGeneration(nullptr, nullptr) == managedGeneration
+  ok: g_feedbackDetailAlpha == 1.f && g_appliedSoftCutSeconds == 7
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getRenderedFrameSerial(nullptr, nullptr) > beforeLegacyFrame
+  ok: g_feedbackDetailAlpha == 0.f && g_appliedSoftCutSeconds == 1
+  ok: g_locked
+  ok: !legacyBudget.managed && !legacyBudget.awaitingReview
+  ok: legacyBudget.width == 0 && legacyBudget.height == 0
+  ok: legacyBudget.generation > managedGeneration
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getCompletedRenderBudgetGeneration(nullptr, nullptr) == -1
+managed release -> plain renderer (same surface size)
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getRenderedFrameSerial(nullptr, nullptr) > beforeManagedFrame
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getCompletedRenderBudgetGeneration(nullptr, nullptr) == managedGeneration
+  ok: g_feedbackDetailAlpha == 1.f && g_appliedSoftCutSeconds == 7
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getRenderedFrameSerial(nullptr, nullptr) > beforeLegacyFrame
+  ok: g_feedbackDetailAlpha == 0.f && g_appliedSoftCutSeconds == 1
+  ok: g_locked
+  ok: !legacyBudget.managed && !legacyBudget.awaitingReview
+  ok: legacyBudget.width == 0 && legacyBudget.height == 0
+  ok: legacyBudget.generation > managedGeneration
+  ok: Java_nl_neerdael_projectm_core_ProjectMJNI_getCompletedRenderBudgetGeneration(nullptr, nullptr) == -1
+ALL TESTS PASSED
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/render_policy_test.cpp:3:
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:114:1: warning: empty struct has size 0 in C, size 1 in C++ [-Wextern-c-compat]
+  114 | struct projectm {};
+      | ^
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/render_policy_test.cpp:3:
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:199:
+In file included from /Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/main/cpp/native-lib.cpp:29:
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/stubs/android/log.h:3:100: warning: attribute declaration must precede definition [-Wignored-attributes]
+    3 | extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, ...) __attribute__((format(printf,3,4)));
+      |                                                                                                    ^
+/Users/jneerdael/Scripts/Projectm-TV/.worktrees/renderer-line-refactor/core/src/test/native/engine_test.cpp:44:5: note: previous definition is here
+   44 | int __android_log_print(int, const char* tag, const char* fmt, ...) {
+      |     ^
+2 warnings generated.
+Scaled render target 1920x1080 unavailable
+PREWARM background compile on
+STARTUP first preset rendered 202100351 ms after engine creation
+Render policy JNI sizing/presentation checks passed
+Test project /var/folders/cm/m92k6_qs115046xzbll7hfkh0000gn/T/tmp.t4oFAVNB5R/regressions
+      Start  1: eel-named-constants
+ 1/65 Test  #1: eel-named-constants ..........................   Passed    0.18 sec
+      Start  2: warp-rotation-regressions
+ 2/65 Test  #2: warp-rotation-regressions ....................   Passed    1.27 sec
+      Start  3: legacy-warp-deformation
+ 3/65 Test  #3: legacy-warp-deformation ......................   Passed    0.90 sec
+      Start  4: legacy-warp-diagonal
+ 4/65 Test  #4: legacy-warp-diagonal .........................   Passed    0.56 sec
+      Start  5: warp-mesh-cache
+ 5/65 Test  #5: warp-mesh-cache ..............................   Passed    0.54 sec
+      Start  6: legacy-pixel-traversal
+ 6/65 Test  #6: legacy-pixel-traversal .......................   Passed    0.63 sec
+      Start  7: user-texture-premultiplication-regressions
+ 7/65 Test  #7: user-texture-premultiplication-regressions ...   Passed    0.44 sec
+      Start  8: texture-routing-regressions
+ 8/65 Test  #8: texture-routing-regressions ..................   Passed    1.96 sec
+      Start  9: warp-zoom-regressions
+ 9/65 Test  #9: warp-zoom-regressions ........................   Passed    0.55 sec
+      Start 10: framebuffer-lifetime
+10/65 Test #10: framebuffer-lifetime .........................   Passed    2.82 sec
+      Start 11: program-cache-switch
+11/65 Test #11: program-cache-switch .........................   Passed    0.39 sec
+      Start 12: original-border-fan-topology
+12/65 Test #12: original-border-fan-topology .................   Passed    1.11 sec
+      Start 13: source-wave-sample-caps
+13/65 Test #13: source-wave-sample-caps ......................   Passed    0.31 sec
+      Start 14: source-circle-closure
+14/65 Test #14: source-circle-closure ........................   Passed    0.71 sec
+      Start 15: authored-custom-dots
+15/65 Test #15: authored-custom-dots .........................   Passed    0.66 sec
+      Start 16: authored-single-custom-dot
+16/65 Test #16: authored-single-custom-dot ...................   Passed    0.40 sec
+      Start 17: per-pixel-inverse-aspect
+17/65 Test #17: per-pixel-inverse-aspect .....................   Passed    0.31 sec
+      Start 18: custom-wave-input-windows
+18/65 Test #18: custom-wave-input-windows ....................   Passed    0.44 sec
+      Start 19: custom-wave-readonly-inputs
+19/65 Test #19: custom-wave-readonly-inputs ..................   Passed    0.42 sec
+      Start 20: legacy-hue
+20/65 Test #20: legacy-hue ...................................   Passed    0.69 sec
+      Start 21: legacy-wave-alpha
+21/65 Test #21: legacy-wave-alpha ............................   Passed    0.56 sec
+      Start 22: legacy-wave-topology
+22/65 Test #22: legacy-wave-topology .........................   Passed    0.44 sec
+      Start 23: legacy-opacity
+23/65 Test #23: legacy-opacity ...............................   Passed    0.49 sec
+      Start 24: legacy-gamma
+24/65 Test #24: legacy-gamma .................................   Passed    0.50 sec
+      Start 25: legacy-echo-orientation
+25/65 Test #25: legacy-echo-orientation ......................   Passed    0.54 sec
+      Start 26: dynamic-original-presets
+26/65 Test #26: dynamic-original-presets .....................   Passed    3.59 sec
+      Start 27: dynamic-wave-controls
+27/65 Test #27: dynamic-wave-controls ........................   Passed    2.27 sec
+      Start 28: dynamic-display-controls
+28/65 Test #28: dynamic-display-controls .....................   Passed   10.33 sec
+      Start 29: shape-sampler-regressions
+29/65 Test #29: shape-sampler-regressions ....................   Passed    2.18 sec
+      Start 30: shape-sampler-preset
+30/65 Test #30: shape-sampler-preset .........................   Passed    1.69 sec
+      Start 31: blur-range-regressions
+31/65 Test #31: blur-range-regressions .......................   Passed    0.32 sec
+      Start 32: blur-range-render
+32/65 Test #32: blur-range-render ............................   Passed    4.61 sec
+      Start 33: float-literal-regressions
+33/65 Test #33: float-literal-regressions ....................   Passed    0.33 sec
+      Start 34: random-texture-manager
+34/65 Test #34: random-texture-manager .......................   Passed    0.53 sec
+      Start 35: random-texture-stages
+35/65 Test #35: random-texture-stages ........................   Passed    0.40 sec
+      Start 36: random-texture-shorthand
+36/65 Test #36: random-texture-shorthand .....................   Passed    0.33 sec
+      Start 37: random-texture-numerical
+37/65 Test #37: random-texture-numerical .....................   Passed    0.73 sec
+      Start 38: random-texture-lifecycle
+38/65 Test #38: random-texture-lifecycle .....................   Passed    0.80 sec
+      Start 39: random-texture-blur-framebuffers
+39/65 Test #39: random-texture-blur-framebuffers .............   Passed    0.53 sec
+      Start 40: random-texture-midgit-render
+40/65 Test #40: random-texture-midgit-render .................   Passed    0.69 sec
+      Start 41: shader-parser-regressions
+41/65 Test #41: shader-parser-regressions ....................   Passed    0.19 sec
+      Start 42: hlsl-self-reference
+42/65 Test #42: hlsl-self-reference ..........................   Passed    0.29 sec
+      Start 43: custom-waveform-bounds
+43/65 Test #43: custom-waveform-bounds .......................   Passed    0.12 sec
+      Start 44: shader-render-regressions
+44/65 Test #44: shader-render-regressions ....................   Passed    5.46 sec
+      Start 45: float-literal-render
+45/65 Test #45: float-literal-render .........................   Passed    0.58 sec
+      Start 46: parser-presets
+46/65 Test #46: parser-presets ...............................   Passed    0.62 sec
+      Start 47: implicit-global-regressions
+47/65 Test #47: implicit-global-regressions ..................   Passed    0.19 sec
+      Start 48: implicit-input-bindings
+48/65 Test #48: implicit-input-bindings ......................   Passed    0.34 sec
+      Start 49: initialization-presets
+49/65 Test #49: initialization-presets .......................   Passed    0.51 sec
+      Start 50: float-literal-presets
+50/65 Test #50: float-literal-presets ........................   Passed    3.14 sec
+      Start 51: gles-loader-gles30
+51/65 Test #51: gles-loader-gles30 ...........................   Passed    0.22 sec
+      Start 52: gles-loader-gles20
+52/65 Test #52: gles-loader-gles20 ...........................   Passed    0.07 sec
+      Start 53: gles-loader-glsl100
+53/65 Test #53: gles-loader-glsl100 ..........................   Passed    0.07 sec
+      Start 54: shape-pixel-center-regressions
+54/65 Test #54: shape-pixel-center-regressions ...............   Passed    0.86 sec
+      Start 55: composite-texel-center-regressions
+55/65 Test #55: composite-texel-center-regressions ...........   Passed    0.84 sec
+      Start 56: legacy-angle-seam
+56/65 Test #56: legacy-angle-seam ............................   Passed    0.79 sec
+      Start 57: wave-colour-submission
+57/65 Test #57: wave-colour-submission .......................   Passed    8.87 sec
+      Start 58: shape-thickness-style
+58/65 Test #58: shape-thickness-style ........................   Passed   36.85 sec
+      Start 59: shape-thickness-domain
+59/65 Test #59: shape-thickness-domain .......................   Passed   13.17 sec
+      Start 60: shape-thickness-original
+60/65 Test #60: shape-thickness-original .....................   Passed    2.92 sec
+      Start 61: motion-uv-temporal
+61/65 Test #61: motion-uv-temporal ...........................   Passed   16.99 sec
+      Start 62: motion-uv-producer
+62/65 Test #62: motion-uv-producer ...........................   Passed    0.86 sec
+      Start 63: motion-uv-lifecycle
+63/65 Test #63: motion-uv-lifecycle ..........................   Passed    1.17 sec
+      Start 64: motion-uv-transition
+64/65 Test #64: motion-uv-transition .........................   Passed    0.89 sec
+      Start 65: motion-uv-context
+65/65 Test #65: motion-uv-context ............................   Passed    0.91 sec
+
+100% tests passed, 0 tests failed out of 65
+
+Total Test time (real) = 144.12 sec
+SKIPPED transition overlay GL test: no EGL/GLES development files (pkg-config egl glesv2)

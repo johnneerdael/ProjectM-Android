@@ -1,0 +1,44 @@
+[
+  {
+    "preset": "$$$ Royal - Mashup (103).milk",
+    "mode": "legacy",
+    "rgb_identical": true,
+    "baseline_ms": 2.945026150000002,
+    "candidate_ms": 3.103901716666666
+  },
+  {
+    "preset": "$$$ Royal - Mashup (103).milk",
+    "mode": "standard",
+    "rgb_identical": true,
+    "baseline_ms": 4.871605197222222,
+    "candidate_ms": 4.755837502777781
+  },
+  {
+    "preset": "martin - city lights v2(1).milk",
+    "mode": "legacy",
+    "rgb_identical": true,
+    "baseline_ms": 7.7453138833333295,
+    "candidate_ms": 8.762071402777783
+  },
+  {
+    "preset": "martin - city lights v2(1).milk",
+    "mode": "standard",
+    "rgb_identical": true,
+    "baseline_ms": 8.652872599999995,
+    "candidate_ms": 8.562838322222225
+  },
+  {
+    "preset": "Hexcollie, Martin, Flexi n AdamFX - Seizure Salad.milk",
+    "mode": "legacy",
+    "rgb_identical": true,
+    "baseline_ms": 2.7695265277777756,
+    "candidate_ms": 2.6656541916666674
+  },
+  {
+    "preset": "Hexcollie, Martin, Flexi n AdamFX - Seizure Salad.milk",
+    "mode": "standard",
+    "rgb_identical": true,
+    "baseline_ms": 2.55175843611111,
+    "candidate_ms": 2.802025116666668
+  }
+]

@@ -1,0 +1,238 @@
+{
+  "protocol": "projectmtv-core-corpus-v1",
+  "applicationId": "nl.neerdael.projectmtv.corpusbaseline",
+  "pid": 4914,
+  "job": {
+    "expectedPresetCount": 9606,
+    "height": 2160,
+    "instrumented": true,
+    "nativeTrails": 0,
+    "outputDir": "\/data\/user\/0\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output",
+    "pcmPath": "\/data\/user\/0\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/audio.u8",
+    "preset": "martin - city lights v2(1).milk",
+    "referenceHeight": 720,
+    "referenceWidth": 1280,
+    "seed": 12345,
+    "width": 3840
+  },
+  "requestSha256": "f7b8879fb223420be5fb56c5bc4acca622330ac263a05c73b205f88cebf1044b",
+  "determinism": "instrumented-fixed-clock-seed",
+  "frameCountExpected": 480,
+  "fps": 30,
+  "audioBlockBytes": 1470,
+  "audioDelivery": "complete unsigned 8-bit mono blocks via ProjectMJNI.addWaveform; production FeedAudio retains the tail bounded by projectm_pcm_get_max_samples()",
+  "captureSemantics": "eight selected final-output frames from read framebuffer zero, top-down RGB8 SHA256; sampled metrics under common 16-second audio; no all-frame image hash",
+  "settings": {
+    "autoChange": false,
+    "beatCuts": false,
+    "blankDetection": false,
+    "shaderBinaryCache": false,
+    "musicCategory": "all",
+    "meshWidth": 48,
+    "meshHeight": 32,
+    "presetDurationSeconds": 3600,
+    "softCutDurationSeconds": 0,
+    "transitionMode": "CLASSIC",
+    "lowEndDevice": false
+  },
+  "captures": [
+    {
+      "frame": 120,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 4,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-120.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "fc6be3154ae4c3810b29b5f55624cabc5ef0da8906ce53e7f47cc1b94948bebe",
+      "pngBytes": 7256182,
+      "pngSha256": "76f84d365ed17cf3a8d9ea9442a554939b5ecd1a79a194602456d3b1cd80de00",
+      "rgbMean": [
+        38.787744502314816,
+        39.58319046585648,
+        43.691904538001545
+      ],
+      "exactBlackFraction": 0.10259307484567902
+    },
+    {
+      "frame": 150,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 5,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-150.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "05c8ac039451a444e3fc6a720cd65b5812b9091d040f98f2aecb412c1a9265cc",
+      "pngBytes": 7469905,
+      "pngSha256": "3a79bb60d6de203179c6b7391786f46e57ecb6c979f29ad63acbc4ad11275bae",
+      "rgbMean": [
+        38.45376880787037,
+        42.10314995659722,
+        45.90488498263889
+      ],
+      "exactBlackFraction": 0.0475854793595679
+    },
+    {
+      "frame": 180,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 6,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-180.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "8d4ee4aedc173fa6bc9b2ea4e2e0a018f822c7370f95a783d0edeb5dd263e778",
+      "pngBytes": 7973182,
+      "pngSha256": "240190182fbfb84eafa0a7481f5d7bc7a7bd75b867c888ed4ffc7d3a94049683",
+      "rgbMean": [
+        36.24533685378086,
+        39.04165280189043,
+        42.05787073206019
+      ],
+      "exactBlackFraction": 0.09269615644290123
+    },
+    {
+      "frame": 210,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 7,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-210.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "738f97870de68a82981aa4ca99053555b2356b81421c64734d5e27f97f0f32d2",
+      "pngBytes": 8163594,
+      "pngSha256": "e5d4a8e0d0d64deafd5a7f08613efb81fcb3aecde61f0861bb7047940843a0b2",
+      "rgbMean": [
+        43.548002146026235,
+        36.43552505304784,
+        43.264231047453706
+      ],
+      "exactBlackFraction": 0
+    },
+    {
+      "frame": 239,
+      "previousReadFramebufferBinding": 9,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 7.966666666666667,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-239.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "5047b8292e6a515c26477b3ea0b43391496993ed1434936754715c05bb92ffa8",
+      "pngBytes": 8469126,
+      "pngSha256": "c6acfb6da42f65ea04e48dd03d5640f9ad7a4a97bbfb03c257e72cf481eacffa",
+      "rgbMean": [
+        40.74649474344136,
+        35.30874397183642,
+        34.863507788387345
+      ],
+      "exactBlackFraction": 0.04951979648919753
+    },
+    {
+      "frame": 300,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 10,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-300.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "6a68da9019983a7f5979bfb587b75a37786fa7ceac1b7b6e3305908dae24f0f2",
+      "pngBytes": 7582118,
+      "pngSha256": "11414c2495384aa9bf97f2036214e1cefd85a8e50252338f5442cbd3c75e483a",
+      "rgbMean": [
+        34.86805953414352,
+        34.27762249228395,
+        35.939382233796294
+      ],
+      "exactBlackFraction": 0.043428337191358024
+    },
+    {
+      "frame": 390,
+      "previousReadFramebufferBinding": 8,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 13,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-390.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "60d98bbc0efc50cac64df11aac5105cd365bc325368517b7d23723ab7b6d3bf5",
+      "pngBytes": 7518561,
+      "pngSha256": "631ee92e90ff53662dea2b8ae6f4f28b024922000f8fd48b6a675ac5d7e1947f",
+      "rgbMean": [
+        28.993552879050927,
+        31.913307291666666,
+        31.20286735628858
+      ],
+      "exactBlackFraction": 0.011418668016975308
+    },
+    {
+      "frame": 479,
+      "previousReadFramebufferBinding": 9,
+      "captureReadFramebufferBinding": 0,
+      "simulatedSeconds": 15.966666666666667,
+      "path": "\/data\/data\/nl.neerdael.projectmtv.corpusbaseline\/files\/native-trails\/6cc152ab4ecc13dd8825accf0fbdd3b44682b7da2759fa7eff89572fb472aba4\/output\/frame-479.png",
+      "width": 3840,
+      "height": 2160,
+      "rgbSha256": "62d5e48a898460eaa2083c5c6ae8f95c6820b88e4778f553de253ea84126a216",
+      "pngBytes": 6679026,
+      "pngSha256": "1ed6cfc767d2471f31a0252a87df52bcbfa340e5428ff35e390df145b6ad960a",
+      "rgbMean": [
+        29.299316888503085,
+        27.029587311921297,
+        24.117823471257715
+      ],
+      "exactBlackFraction": 0.020943889853395063
+    }
+  ],
+  "memoryPressureCalls": [
+    {
+      "beforeFrame": -1,
+      "elapsedRealtimeMs": 666034,
+      "productionPauseSeconds": 20
+    },
+    {
+      "beforeFrame": 240,
+      "elapsedRealtimeMs": 677412,
+      "productionPauseSeconds": 20
+    }
+  ],
+  "device": {
+    "manufacturer": "Google",
+    "model": "sdk_google_atv64_arm64",
+    "device": "emu64a",
+    "fingerprint": "google\/sdk_google_atv64_arm64\/emu64a:16\/BT2A.260319.001\/15058170:user\/dev-keys",
+    "sdk": 36,
+    "abis": [
+      "arm64-v8a"
+    ]
+  },
+  "pcmSha256": "14a59e75249dee0dd15d74487688c248c6a4a4b24a843b6d6f612ccc5c408dbc",
+  "bundledPresetCount": 9606,
+  "indexSha256": "d87c63eb1a54474d3ddfecbef0e5c633c80bfd130d5ef5730bf13f66b4e0dfef",
+  "presetAssetSha256": "ac990a2a323950ca4213a763451e6b95835848bbb4569c401a614e6fc26423d5",
+  "forcedPresetPrefix": "martin - city lights v2(1).milk",
+  "eglVendor": "Android",
+  "eglVersion": "1.4 Android META-EGL",
+  "glVendor": "Google (Apple)",
+  "glRenderer": "Android Emulator OpenGL ES Translator (Apple M4 Pro)",
+  "glVersion": "OpenGL ES 3.0 (4.1 Metal - 89.4)",
+  "glShadingLanguageVersion": "OpenGL ES GLSL ES 3.00",
+  "startupIndexWaitMs": 25,
+  "eligiblePresetCountBeforeFrame0": 1,
+  "coreVersion": "4.2.0",
+  "coreSurfaceAttempted": true,
+  "pssBeforeFramesKB": 50880,
+  "framesRendered": 480,
+  "renderWallDurationMs": 18852,
+  "pssAfterFramesKB": 82114,
+  "serializedFrameMeanMs": 8.652872599999995,
+  "serializedFrameP90Ms": 11.024208,
+  "timingScope": "onDrawFrame plus glFinish; 360 frames; excludes capture\/PNG I\/O; emulator engine, not TV app fps",
+  "nativeTrailsStatus": "Standard · 1280×720 canvas",
+  "verifiedPresetName": "martin - city lights v2(1).milk",
+  "presetNameChecks": 480,
+  "glErrorChecks": 480,
+  "presetChangeCounter": 1,
+  "eligiblePresetCountAfterFrame479": 1,
+  "coreReleased": true,
+  "eglDestroyed": true,
+  "status": "ok",
+  "wallDurationMs": 19265
+}
