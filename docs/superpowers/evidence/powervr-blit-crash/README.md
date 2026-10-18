@@ -32,7 +32,7 @@ Resize through3840×2160, mixed RGBA8/RG16UI attachments, host C API state resto
 |---|---|
 | ![Reference synthetic copy](../../../user-guide/images/patches/0038-framebuffer-copy/reference-blit.png) | ![Textured synthetic copy](../../../user-guide/images/patches/0038-framebuffer-copy/powervr-draw.png) |
 
-The companion [validation manifest](validation.json) records hashes and results. Current-head Codex review and CI remain separate gates. The affected Fire TV must confirm the final crash outcome; this record does not claim it has already been tested there.
+The companion [validation manifest](validation.json) records hashes and results. Current-head Codex review and CI remain separate gates. At the 2026-10-17 engineering checkpoint, affected-device confirmation was still pending. On 2026-10-18 the reporter confirmed that the released fix resolves the crashes on the original `AFTKRT` Fire TV Stick 4K Max (2nd generation, GE9215). This is reporter confirmation, separate from the agent-owned emulator controls. See the [field confirmation and device research](field-confirmation-2026-10-18.md).
 
 
 ## Replay the focused control

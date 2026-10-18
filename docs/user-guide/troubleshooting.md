@@ -55,13 +55,48 @@ Auto lowers resolution to hold the target frame rate and to keep memory free for
 
 If the visualizer closes by itself while the music keeps playing, often as one preset changes into the next:
 
+**PowerVR/Imagination users: this framebuffer crash is fixed. Upgrade to ProjectM 2.3.56+ or Milkbeat 1.0.13+ first.** [Device models and upgrade details](#powervr-framebuffer-crashes-fixed-in-2356) are below.
+
 1. Reopen the app and select **Advanced › Last exit** for the [exit report](settings.md#exit-report). Saved native reports include the signal, crashing thread and available stack, without connecting ADB.
 2. Use **Copy report**, or photograph the report, and include the app version and device model. Mention whether the first preset works, whether the failure follows an automatic or manual change, and the names of the presets if known.
 3. Android's *crashed (native code)* reason identifies a native failure, but does not establish whether the engine or graphics driver caused it. *Killed for low memory* means Android reported a memory kill. A missing native report is reported explicitly and does not mean the app exited normally.
 
 A crash can also happen while the same preset keeps playing: Auto may change its rendering resolution without changing presets. Instant transitions do not bypass those resizes.
 
-On Imagination/PowerVR GPUs, the engine uses textured draws for resized feedback, Native-trails recombination and scaled presentation. This avoids the `glBlitFramebuffer` call identified in the Fire TV report. The compatibility path is automatic. The [patch record](engine/patches.md#0038-powervr-framebuffer-copies) explains its tests and limits; confirmation on the affected Fire TV remains separate from emulator checks.
+### PowerVR framebuffer crashes: fixed in 2.3.56
+
+**Upgrade to ProjectM 2.3.56 or later, or Milkbeat 1.0.13 or later.** These releases fix the PowerVR framebuffer-blit crash, including failures during preset changes and while the same preset plays. The affected Fire TV Stick 4K Max (2nd generation, `AFTKRT`) has been retested and the reporter confirms that the crashes are fixed.
+
+The fix applies automatically to **all supported Imagination/PowerVR GPUs**, rather than a whitelist of box or phone models. It replaces the failing `glBlitFramebuffer` copies with textured draws for feedback resizing, Native-trails recombination and scaled presentation. No compatibility switch is needed, and setting transitions to Lightweight or 0 seconds is not a substitute for upgrading.
+
+These identified devices receive the fix. ProjectM supports Android 5.0+; Milkbeat requires Android 8.0+ on TV, so the older Fire OS 5/6 entries are ProjectM-only:
+
+| Device | Build model / codename | GPU | Coverage |
+|---|---|---|---|
+| Fire TV Stick 4K Max, 2nd generation (2023) | `AFTKRT` | GE9215 | Crash fix confirmed by the reporter |
+| Fire TV Stick 4K Max, 1st generation (2021) | `AFTKA` | GE9215 | Same GPU; automatic fix applies |
+| Fire TV Stick 4K, 2nd generation (2023) | `AFTKM` | GE9215 | Same GPU; automatic fix applies |
+| Fire TV Stick 4K Plus (2025) | `AFTMA08C15` | GE9215 | Same GPU; automatic fix applies |
+| Google TV Streamer (4K, 2024) | `kirkwood` (codename) | PowerVR Rogue GE9215 | Same GPU; automatic fix applies |
+| Fire TV Stick 4K, 1st generation (2018) | `AFTMM` | GE8300 | ProjectM fix applies; below Milkbeat's minimum Android version |
+| Fire TV Stick, 3rd generation (2020) | `AFTSSS` | GE8300 | Automatic PowerVR fix applies |
+| Fire TV Stick Lite, 1st generation (2020) | `AFTSS` | GE8300 | Automatic PowerVR fix applies |
+| Fire TV Stick HD (2024) | `AFTSS` | GE8300 | Automatic PowerVR fix applies |
+| Fire TV box, 2nd generation (2015) | `AFTS` | PowerVR Rogue GX6250 | ProjectM fix applies; below Milkbeat's minimum Android version |
+| realme C2 | `RMX1941` | PowerVR GE8320 | Related driver-side blit crash reported; automatic fix applies |
+| Redmi 9A | Helio G25 models | PowerVR GE8320 | Automatic PowerVR fix applies |
+| Lenovo Tab M10 HD, 2nd generation | Helio P22T models | PowerVR GE8320 | Automatic PowerVR fix applies |
+| Lenovo Tab M10 FHD Plus, 2nd generation | Helio P22T models | PowerVR GE8320 | Automatic PowerVR fix applies |
+
+Amazon's [manufacturer specifications](https://developer.amazon.com/docs/device-specs/device-specifications-fire-tv-streaming-media-player.html) identify the nine Fire TV models. The Google TV Streamer's GPU is identified in a [device-owner report in AndroidX Media](https://github.com/androidx/media/issues/3347); that report concerns a separate video-decoder problem, not a ProjectM crash. The [GE8320 report on Imagination's forum](https://forums.imgtec.com/t/crash-glblitframebuffer-on-powervr-ge8320/4178) identifies a realme C2 blit crash on driver `1.10@5130912` during screen rotation.
+
+Xiaomi identifies the Redmi 9A's GE8320 in its [manufacturer specifications](https://www.mi.com/es/redmi-9a/specs/). Lenovo's product references identify GE8320 graphics in [Tab M10 HD (2nd Gen)](https://psref.lenovo.com/Product/Lenovo_Tablets/Tab_M10_HD_2nd_Gen) and [Tab M10 FHD Plus (2nd Gen)](https://psref.lenovo.com/Product/IdeaPad/Tab_M10_FHD_Plus_2nd_Gen).
+
+The table is an identification aid, not the boundary of the fix: other supported PowerVR phones, tablets and TV boxes also take the corrected path. Sharing a GPU does not mean every firmware previously crashed; the confirmed ProjectM retest above is the original `AFTKRT` case. Do not confuse the Fire TV Stick 4K Plus with the Vega OS-based Fire TV Stick 4K Select, which cannot run this Android APK.
+
+Use the matching [TV or phone/tablet edition](getting-started.md#choose-an-edition). F-Droid updates can arrive later than GitHub releases: check the installed version before assuming the fix is present. Current F-Droid-flavor APKs are also attached to [GitHub Releases](https://github.com/johnneerdael/ProjectM-Android/releases/latest); these retain the F-Droid edition's starter collection and update behavior. The [patch record](engine/patches.md#0038-powervr-framebuffer-copies) explains the implementation and validation.
+
+If a crash continues on a fixed version, use **Advanced › Last exit** and include the report, GPU, device model and installed version. This fix addresses the framebuffer-blit failure; the report can distinguish a different failure.
 
 The former **Background compile** and **Shader binary cache** switches were removed after they failed to resolve the reported crashes. Compilation and binary caching run with their normal enabled defaults, including installations that previously saved those options as Off. The earlier PowerVR framebuffer-retirement protection remains in place as a separate safeguard.
 

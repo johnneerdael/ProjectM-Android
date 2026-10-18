@@ -20,6 +20,12 @@ The code points to the [latest signed APK](https://github.com/johnneerdael/Proje
 
 ## Install on a phone or tablet
 
+### From F-Droid
+
+**ProjectM Android is available in the [official F-Droid catalog](https://f-droid.org/en/packages/nl.neerdael.projectm/).** Open the listing in the F-Droid client, or search for **ProjectM Android** (`nl.neerdael.projectm`) and select **Install**. The phone/tablet edition starts offline with 20 curated presets and offers the full collection as an optional download. App updates come through F-Droid.
+
+### From GitHub with Downloader
+
 1. Install [Downloader by AFTVnews from Google Play](https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=en).
 2. Open Downloader and enter **6565691**.
 3. Allow Android to install apps from Downloader when asked.
@@ -43,7 +49,7 @@ Downloader installs the full GitHub edition for your device. The smaller F-Droid
 | F-Droid TV | `projectM-TV-FDroid.apk` | 20 starters | F-Droid |
 | F-Droid phone/tablet | `projectM-Android-FDroid.apk` | 20 starters | F-Droid |
 
-The F-Droid APKs are also published as separate GitHub release assets. Whether they appear in F-Droid itself depends on its maintainers accepting each listing. These editions have no built-in app installer or updater, even when sideloaded.
+The [phone/tablet listing is live on F-Droid](https://f-droid.org/en/packages/nl.neerdael.projectm/). The TV edition is available as an F-Droid-flavor APK from GitHub Releases; it does not yet have a live F-Droid catalog entry. Both F-Droid-flavor APKs are published as separate GitHub release assets. These editions have no built-in app installer or updater, even when sideloaded. F-Droid catalog updates are independent of GitHub releases and can arrive later.
 
 ## Install from a computer
 
@@ -185,7 +191,7 @@ In GitHub editions, **Settings › Advanced › Auto-update** is on by default, 
 
 Versions 2.3.46 and older cannot update themselves since the repository moved from `ProjectM-TV` to `ProjectM-Android`. In those versions, the **Update** line in the Diagnostics card under **Settings › Advanced** shows `check failed (HTTP 301 …)`. Install the current version once [with Downloader](#install-on-the-tv) (or the [phone code](#install-on-a-phone-or-tablet)); later versions update automatically again.
 
-F-Droid editions show *Via F-Droid* and receive app updates through F-Droid. The optional collection download is separate from app updates.
+F-Droid editions show *Via F-Droid* and receive app updates through F-Droid. The optional collection download is separate from app updates. For the [PowerVR framebuffer crash fix](troubleshooting.md#powervr-framebuffer-crashes-fixed-in-2356), use version **2.3.56 or later**. Check the version offered by F-Droid; if it is older, wait for its update or install the matching current F-Droid-flavor APK from GitHub Releases. The matching production APK uses the same app ID and signing key, so it can update the installation without clearing app data.
 
 ## Privacy
 
