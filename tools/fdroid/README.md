@@ -51,6 +51,21 @@ explicit per-edition name. Packaged application IDs and version identities are
 verified separately in Android CI. Synchronization refuses a latest release
 whose tagged `gradle.properties` does not declare its published version/code.
 
+Keep this update-check configuration when tidying metadata: `Ignore` handles
+the conditional package lookup, and `UpdateCheckData` handles version discovery.
+The `.` in `UpdateCheckData` reuses `gradle.properties` for the version name.
+Both settings are supported by F-Droid's [Build Metadata Reference](https://f-droid.org/docs/Build_Metadata_Reference/#UpdateCheckName).
+Record this rationale in the listing's `MaintainerNotes` so it remains visible
+to F-Droid maintainers.
+
+Use the canonical `https://github.com/johnneerdael/ProjectM-Android` repository
+for source, issue, changelog, clone and binary URLs. New generated recipes and
+the local validation recipes already use it. Existing listings retain their
+maintainer-owned `SourceCode`, `IssueTracker` and `Changelog` fields; submit a
+separate fdroiddata merge request to replace old repository names in those
+links, preserving the changelog path and accepted build history. Subsequent
+synchronization preserves those corrected links and `MaintainerNotes`.
+
 `requirements.txt` pins the fdroidserver commit and ruamel.yaml version that
 fdroiddata's merge request CI uses (fdroidserver `master`, Debian trixie's
 ruamel.yaml 0.18.10). Its `fdroid rewritemeta` job fails a recipe it would

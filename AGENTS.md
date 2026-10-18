@@ -76,6 +76,8 @@ Visual patch catalog maintenance (2026-10-09): the 18 audit repairs in 0017–00
 
 ## F-Droid distribution maintenance
 
+Use canonical `ProjectM-Android` URLs in F-Droid metadata. Source/issue/changelog links and `MaintainerNotes` are maintainer-owned; clean up accepted listings through a separate fdroiddata MR, preserving build history. Retain `UpdateCheckName: Ignore` for conditional Gradle identities and same-file `UpdateCheckData` for tagged release properties; document the rationale in `MaintainerNotes`. See [F-Droid tooling](tools/fdroid/README.md).
+
 Pending branch ownership reuses the complete commit graph from the guarded GitLab comparison and follows first-parent ancestry. Preserve missing-head/history, metadata-only diff, fingerprint and exact-head push checks; a path-filtered 100-commit API history walk timed out twice on real fdroiddata.
 
 `-PprojectmDistribution=fdroid` creates exactly one named flavor: `fdroidTv`, or `fdroidAndroid` with `-PandroidTouchscreen=true`. Default GitHub builds remain unflavored. App Java sources come from `app/src/github/java` or `app/src/fdroid/java`; the F-Droid manifest removes `REQUEST_INSTALL_PACKAGES` and `UpdateFileProvider`. Core starter assets are generated offline from `tools/preset-distribution/starter-presets.json`, keeping original file hashes, weights and mood memberships. The source corpus and default full AAR remain intact.
