@@ -4,9 +4,9 @@
 
 ProjectM TV and ProjectM Android turn sound into MilkDrop visuals using 9,606 presets from Jason Fletcher's *Cream of the Crop* collection. **ProjectM TV** listens to a music app on your Android TV or Google TV. **ProjectM Android** runs on touchscreen phones and tablets and uses microphone input or music played locally by another app. Both render in landscape and use the same engine; neither is a music player.
 
-GitHub editions bundle the complete collection. The smaller F-Droid editions start offline with **20 curated presets** and offer an optional, verified download of the full collection.
+GitHub editions bundle the complete collection. The smaller F-Droid editions start offline with **20 curated presets** and offer an optional, verified download of the full collection. **ProjectM Android for phones and tablets is [available from F-Droid](https://f-droid.org/en/packages/nl.neerdael.projectm/).**
 
-It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualizer/projectm), the open-source reimplementation of Winamp's MilkDrop, based on unreleased projectM 4.2 master (commit `6f6480746`) plus 35 ordered patches. The patches restore MilkDrop 2's behaviour where projectM differs, keep presets at their authored scale on 4K screens, and make preset changes smooth on TV hardware.
+It runs **ProjectM TV Engine**: [projectM](https://github.com/projectM-visualizer/projectm), the open-source reimplementation of Winamp's MilkDrop, based on unreleased projectM 4.2 master (commit `6f6480746`) plus 38 ordered patches. The patches restore MilkDrop 2's behaviour where projectM differs, keep presets at their authored scale on 4K screens, and make preset changes smooth on TV hardware.
 
 > **Install on your TV with the Downloader app: code `4821216`**
 >
@@ -111,7 +111,7 @@ On TV, opening *Advanced* also shows a **Diagnostics** card: render size, memory
 
 - Android TV or Google TV for the TV APK; a touchscreen phone or tablet for the Android APK. Both require Android 5.0 (API 21) or later and OpenGL ES 3.0; visuals stay in landscape.
 - At least 2 GB of RAM is highly recommended.
-- Imagination/PowerVR GPUs automatically use textured framebuffer copies to avoid the driver blit call identified in a Fire TV crash report. See [compatibility checks and limits](https://johnneerdael.github.io/ProjectM-Android/engine/patches/#0038-powervr-framebuffer-copies); confirmation on the affected Fire TV is still pending.
+- **PowerVR crash fix (2.3.56+):** fixes framebuffer-blit crashes, confirmed on Fire TV Stick 4K Max (2nd generation, `AFTKRT`). The fix is automatic on all supported Imagination/PowerVR GPUs, including other GE9215 Fire TV sticks, Google TV Streamer and PowerVR phones/tablets. See [device models and upgrade guidance](https://johnneerdael.github.io/ProjectM-Android/troubleshooting/#powervr-framebuffer-crashes-fixed-in-2356).
 - **TV audio:** a music app playing on the same TV. Spotify, SoundCloud, SmartTube and [Milkbeat](https://github.com/johnneerdael/Milkbeat) have been verified on TV. The TV build has no microphone or line-in input; already Dolby-encoded audio cannot be visualized.
 - **Phone audio:** microphone input works independently of a music app. Phone playback capture needs Android 10+, Android's consent and a player that allows capture and keeps playing in the background. The TV player list does not certify phone compatibility. Both builds feed the engine 8-bit mono audio.
 - Preset moods are predicted from each preset's source code, not measured on your TV: out of fold about 4 of 5 given options are correct, some presets carry no option in a group, and music, random textures and per-load colours can change a preset's look. Style rests on source structure and is the least certain. No strobe and Chill are not guarantees against flashing. Custom-pack presets are not played while any option is active; choose Custom in the Collection row to play them.
@@ -155,7 +155,7 @@ Versions 2.3.46 and older cannot update themselves since the repository moved to
 | TV | `projectM-TV-FDroid.apk` | 20 starters; optional full collection | F-Droid |
 | Phone/tablet | `projectM-Android-FDroid.apk` | 20 starters; optional full collection | F-Droid |
 
-These APKs are separate release artifacts. F-Droid listings remain subject to its maintainers' acceptance. On first launch, choose **Download (recommended)** or **Use 20 starters**. Reopen **Advanced › Cream of the Crop** to download or remove it later. The download is 39.1 MiB, with 131.0 MiB of unpacked collection contents; allow at least 186.1 MiB of free storage during installation. After installation the collection works offline. Downloading requires the app to stay in the foreground. Custom packs survive collection removal. [Setup and updates](https://johnneerdael.github.io/ProjectM-Android/getting-started/).
+**Phones and tablets:** install [ProjectM Android from the official F-Droid catalog](https://f-droid.org/en/packages/nl.neerdael.projectm/), or open that listing in the F-Droid client. **TV:** the F-Droid-flavor TV APK is available from GitHub Releases; a TV catalog listing is not yet available. Both F-Droid-flavor APKs are also separate GitHub release artifacts. F-Droid catalog updates can lag GitHub, so [check the minimum version for the PowerVR crash fix](https://johnneerdael.github.io/ProjectM-Android/troubleshooting/#powervr-framebuffer-crashes-fixed-in-2356). On first launch, choose **Download (recommended)** or **Use 20 starters**. Reopen **Advanced › Cream of the Crop** to download or remove it later. The download is 39.1 MiB, with 131.0 MiB of unpacked collection contents; allow at least 186.1 MiB of free storage during installation. After installation the collection works offline. Downloading requires the app to stay in the foreground. Custom packs survive collection removal. [Setup and updates](https://johnneerdael.github.io/ProjectM-Android/getting-started/).
 
 **From a computer**
 

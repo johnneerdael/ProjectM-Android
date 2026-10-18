@@ -11,7 +11,9 @@ hide:
 # ProjectM TV and Android
 MilkDrop visuals on your TV, phone or tablet, with 9,606 presets and the same ProjectM TV Engine on every device. On the TV the visuals follow a music app; on touchscreen Android you choose microphone input or phone playback.
 
-GitHub editions include the full collection. F-Droid editions start with **20 curated presets** and offer the full collection as an optional download. [Choose your edition](getting-started.md#choose-an-edition).
+GitHub editions include the full collection. F-Droid editions start with **20 curated presets** and offer the full collection as an optional download. [Choose your edition](getting-started.md#choose-an-edition). **[ProjectM Android is now on F-Droid](https://f-droid.org/en/packages/nl.neerdael.projectm/)** for phones and tablets.
+
+**PowerVR crashes are fixed in 2.3.56+.** The reporter confirms the fix on Fire TV Stick 4K Max (2nd generation); it applies automatically to all supported Imagination/PowerVR GPUs. See [affected device families and upgrade instructions](troubleshooting.md#powervr-framebuffer-crashes-fixed-in-2356).
 
 [Get started](getting-started.md){ .md-button .md-button--primary } [Write presets](authoring/index.md){ .md-button } [Explore the engine](engine/index.md){ .md-button }
 </div>
